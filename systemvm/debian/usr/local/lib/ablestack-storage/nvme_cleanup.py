@@ -90,7 +90,7 @@ def nvme_loopback_network_request(payload,run):
 
 
 class NvmeManagedCleanup:
-    def __init__(self,base,state,payload,sessions,writer=None,rmdir=None):
+    def __init__(self,base,state,payload,sessions,writer=None,rmdir=None,ownership=None):
         self.base=Path(base);self.state=Path(state);self.sessions=sessions
         self.writer=writer or nvme_cleanup_writer;self.rmdir=rmdir or os.rmdir
         self.previous,self.source_signature=self.read(self.state,optional=True)
@@ -132,6 +132,18 @@ class NvmeManagedCleanup:
                 raise ValueError("NVMe owned host receipt is invalid")
             path=self.base/"hosts"/host
             if path.exists() and self.directory(path)!=record:raise ValueError("NVMe owned host identity changed before effects")
+        if ownership is not None:
+            additional=ownership(self,payload)
+            if not isinstance(additional,dict) or additional.get("instanceUuid",self.instance)!=self.instance:
+                raise ValueError("NVMe additional cleanup authority is foreign")
+            for nqn,row in self.rows(additional,include_disabled=True).items():
+                original=self.owned.get(nqn)
+                if original is None:self.owned[nqn]=row
+                else:
+                    merged=dict(original)
+                    merged["namespaces"]=list(original.get("namespaces")or[])+list(row.get("namespaces")or[])
+                    merged["hosts"]=list(original.get("hosts")or[])+list(row.get("hosts")or[])
+                    self.owned[nqn]=merged
         for nqn,row in self.desired.items():
             path=self.base/"subsystems"/nqn
             if path.exists() and nqn not in self.owned:

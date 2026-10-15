@@ -4411,9 +4411,46 @@ from pathlib import Path
 import re
 import stat
 import sys
+import uuid as pending_local_uuid
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
 from rendered_generation import RenderedGeneration
 from template_maintenance import Maintenance
+
+# LOCAL-only readers reuse the reviewed SERVICE cipher bounds and metadata checks.
+def pending_local_source_json(value):
+
+    def unique(pairs):
+        result = {}
+        for (key, item) in pairs:
+            if key in result:
+                raise ValueError('SERVICE cipher record has duplicate fields')
+            result[key] = item
+        return result
+
+    def invalid(value):
+        raise ValueError('SERVICE cipher record has an invalid JSON number')
+    return json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+
+def pending_local_source_read(path):
+    parent = path.parent.lstat()
+    info = path.lstat()
+    fields = ('st_dev', 'st_ino', 'st_uid', 'st_gid', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 18 or (not stat.S_ISREG(info.st_mode)) or (info.st_uid != os.geteuid()) or (stat.S_IMODE(info.st_mode) != 384) or (info.st_size > 16 * 1024 * 1024):
+        raise ValueError('SERVICE encrypted source checkpoint is not protected')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        opened = os.fstat(descriptor)
+        if any((getattr(opened, key) != getattr(info, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during open')
+        with os.fdopen(descriptor, 'rb', closefd=False) as handle:
+            raw = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(descriptor)
+        named = path.lstat()
+        if len(raw) > 16 * 1024 * 1024 or any((getattr(opened, key) != getattr(after, key) or getattr(opened, key) != getattr(named, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during read')
+        return pending_local_source_json(raw)
+    finally:
+        os.close(descriptor)
 
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
@@ -4432,12 +4469,16 @@ class PendingNfsAuthorization:
         self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
+        # Forward/public grants remain PREPARED only.
+        return self._writer_state(scope, ("PREPARED",))
+
+    def _writer_state(self, scope, phases):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
             raise ValueError("Pending NFS operation scope is not exact")
         scope = self.generation.request(scope)
         pending = self.generation.scoped(scope)
         info = self.generation.pending.lstat()
-        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") != "PREPARED":
+        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") not in phases:
             raise ValueError("Pending NFS writer is not protected PREPARED")
         before = pending.get("beforeSha256")
         if not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before):
@@ -4450,6 +4491,63 @@ class PendingNfsAuthorization:
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
+
+    def local_source_state(self, scope, unit):
+        # This is an internal consumer of the existing opaque LOCAL import.
+        # No JSON request or generic grant accepts a recovery flag or mode.
+        if self.protocol != "SMB":
+            raise ValueError("LOCAL source resume is restricted to SMB")
+        scope, pending, digest = self._writer_state(scope, ("PREPARED", "VERIFIED"))
+        current = self.generation.status()
+        if current.get("generation") != pending.get("previous") or digest != pending["beforeSha256"]:
+            raise ValueError("LOCAL source resume is outside its exact original SOURCE")
+        boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        identity = str(pending_local_uuid.UUID(bytes=hashlib.md5(
+            ("local-source-checkpoint:" + scope["operationUuid"]).encode()).digest(), version=3))
+        root = self.generation.root.parent / "smb-local-source-checkpoints"
+        parent = root.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+            raise ValueError("LOCAL source resume checkpoint directory is not protected")
+        records = {}
+        for suffix in ("journal", "cipher"):
+            path = root / (identity + "-" + suffix + ".json")
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("LOCAL source resume checkpoint file is not protected")
+            records[suffix] = pending_local_source_read(path)
+        journal, record = records["journal"], records["cipher"]
+        local_scope = {**scope, "localCheckpointUuid": identity}
+        common = {**local_scope, "sourceGeneration": pending.get("previous"),
+                  "sourceConfigurationSha256": pending["beforeSha256"], "expectedBootId": boot}
+        if (not isinstance(journal, dict) or journal.get("scope") != local_scope or journal.get("common") != common
+                or journal.get("phase") != "RESUMING" or journal.get("imported") is not True
+                or not isinstance(journal.get("importedFingerprints"), dict)
+                or not isinstance(journal.get("importedStoppedDatabases"), dict)
+                or not isinstance(record, dict) or type(record.get("schemaVersion")) is not int or record["schemaVersion"] != 1
+                or record.get("kind") != "LOCAL_SOURCE_IDENTITY_CHECKPOINT" or record.get("scope") != local_scope
+                or record.get("common") != common
+                or journal.get("importedCheckpointSha256") != hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()):
+            raise ValueError("LOCAL source resume has no original verified opaque import")
+        desired = record.get("sourceDesiredState")
+        if (not isinstance(desired, dict) or set(desired) != set(self.generation.paths)
+                or any(value is not None and not isinstance(value, dict) for value in desired.values())
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest() != pending["beforeSha256"]):
+            raise ValueError("LOCAL source resume frozen seven-file fingerprint changed")
+        configuration, _ = self.configuration(unit)
+        prior = journal.get("prior") or {}
+        if (unit not in {row.get("unit") for row in prior.get("units", [])}
+                or configuration != record.get("sourceConfigurationFileSha256")
+                or configuration != prior.get("configurationSha256")):
+            raise ValueError("LOCAL source resume unit/configuration is outside original SOURCE")
+        evidence = {"localSourceCheckpointSha256": hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+                    "localSourceJournalSha256": hashlib.sha256(json.dumps(journal, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()}
+        return scope, pending, digest, evidence
+
+    @contextlib.contextmanager
+    def local_source_grant(self, scope, unit):
+        scope, pending, digest, evidence = self.local_source_state(scope, unit)
+        with self._grant(scope, pending, digest, unit, "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME", evidence):
+            yield
 
     def lock(self, pid):
         path = Path("/proc") / str(pid)
@@ -4542,6 +4640,11 @@ class PendingNfsAuthorization:
             return
         scope = payload["operationScope"]
         scope, pending, digest = self.state(scope)
+        with self._grant(scope, pending, digest, unit, self.mode, {}):
+            yield
+
+    @contextlib.contextmanager
+    def _grant(self, scope, pending, digest, unit, mode, evidence):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Pending NFS requires its inherited FD9")
         opened, ticks = self.lock(os.getpid())
@@ -4550,10 +4653,10 @@ class PendingNfsAuthorization:
         if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700:
             raise ValueError("Pending NFS grant directory is not protected")
         configuration_sha, configuration_identity = self.configuration(unit)
-        proof = {"mode": self.mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
+        proof = {"mode": mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
                  "configurationSha256": digest, "unit": unit, "configurationFileSha256": configuration_sha, "configurationFileIdentity": configuration_identity,
                  "pid": os.getpid(), "startTicks": ticks, "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino}
+                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino, **evidence}
         raw_fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
             fd = fcntl.fcntl(raw_fd, fcntl.F_DUPFD_CLOEXEC, 16)
@@ -4585,11 +4688,20 @@ class PendingNfsAuthorization:
                     or not stat.S_ISREG(record.st_mode) or record.st_uid != os.geteuid() or stat.S_IMODE(record.st_mode) != 0o600):
                 return False
             proof = pending_nfs_read(self.path)
-            if not isinstance(proof, dict) or set(proof) != {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}:
+            fields = {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}
+            local = isinstance(proof, dict) and self.protocol == "SMB" and proof.get("mode") == "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME"
+            if local:
+                fields |= {"localSourceCheckpointSha256", "localSourceJournalSha256"}
+            if not isinstance(proof, dict) or set(proof) != fields:
                 return False
-            if proof["mode"] != self.mode or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
+            if (not local and proof["mode"] != self.mode) or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
                 return False
-            scope, pending, digest = self.state(proof["scope"])
+            if local:
+                scope, pending, digest, evidence = self.local_source_state(proof["scope"], unit)
+                if any(proof.get(key) != value for key, value in evidence.items()):
+                    return False
+            else:
+                scope, pending, digest = self.state(proof["scope"])
             configuration_sha, configuration_identity = self.configuration(unit)
             if (proof["beforeSha256"] != pending["beforeSha256"] or proof["configurationSha256"] != digest
                     or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
@@ -7707,9 +7819,46 @@ from pathlib import Path
 import re
 import stat
 import sys
+import uuid as pending_local_uuid
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
 from rendered_generation import RenderedGeneration
 from template_maintenance import Maintenance
+
+# LOCAL-only readers reuse the reviewed SERVICE cipher bounds and metadata checks.
+def pending_local_source_json(value):
+
+    def unique(pairs):
+        result = {}
+        for (key, item) in pairs:
+            if key in result:
+                raise ValueError('SERVICE cipher record has duplicate fields')
+            result[key] = item
+        return result
+
+    def invalid(value):
+        raise ValueError('SERVICE cipher record has an invalid JSON number')
+    return json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+
+def pending_local_source_read(path):
+    parent = path.parent.lstat()
+    info = path.lstat()
+    fields = ('st_dev', 'st_ino', 'st_uid', 'st_gid', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 18 or (not stat.S_ISREG(info.st_mode)) or (info.st_uid != os.geteuid()) or (stat.S_IMODE(info.st_mode) != 384) or (info.st_size > 16 * 1024 * 1024):
+        raise ValueError('SERVICE encrypted source checkpoint is not protected')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        opened = os.fstat(descriptor)
+        if any((getattr(opened, key) != getattr(info, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during open')
+        with os.fdopen(descriptor, 'rb', closefd=False) as handle:
+            raw = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(descriptor)
+        named = path.lstat()
+        if len(raw) > 16 * 1024 * 1024 or any((getattr(opened, key) != getattr(after, key) or getattr(opened, key) != getattr(named, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during read')
+        return pending_local_source_json(raw)
+    finally:
+        os.close(descriptor)
 
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
@@ -7728,12 +7877,16 @@ class PendingNfsAuthorization:
         self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
+        # Forward/public grants remain PREPARED only.
+        return self._writer_state(scope, ("PREPARED",))
+
+    def _writer_state(self, scope, phases):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
             raise ValueError("Pending NFS operation scope is not exact")
         scope = self.generation.request(scope)
         pending = self.generation.scoped(scope)
         info = self.generation.pending.lstat()
-        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") != "PREPARED":
+        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") not in phases:
             raise ValueError("Pending NFS writer is not protected PREPARED")
         before = pending.get("beforeSha256")
         if not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before):
@@ -7746,6 +7899,63 @@ class PendingNfsAuthorization:
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
+
+    def local_source_state(self, scope, unit):
+        # This is an internal consumer of the existing opaque LOCAL import.
+        # No JSON request or generic grant accepts a recovery flag or mode.
+        if self.protocol != "SMB":
+            raise ValueError("LOCAL source resume is restricted to SMB")
+        scope, pending, digest = self._writer_state(scope, ("PREPARED", "VERIFIED"))
+        current = self.generation.status()
+        if current.get("generation") != pending.get("previous") or digest != pending["beforeSha256"]:
+            raise ValueError("LOCAL source resume is outside its exact original SOURCE")
+        boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        identity = str(pending_local_uuid.UUID(bytes=hashlib.md5(
+            ("local-source-checkpoint:" + scope["operationUuid"]).encode()).digest(), version=3))
+        root = self.generation.root.parent / "smb-local-source-checkpoints"
+        parent = root.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+            raise ValueError("LOCAL source resume checkpoint directory is not protected")
+        records = {}
+        for suffix in ("journal", "cipher"):
+            path = root / (identity + "-" + suffix + ".json")
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("LOCAL source resume checkpoint file is not protected")
+            records[suffix] = pending_local_source_read(path)
+        journal, record = records["journal"], records["cipher"]
+        local_scope = {**scope, "localCheckpointUuid": identity}
+        common = {**local_scope, "sourceGeneration": pending.get("previous"),
+                  "sourceConfigurationSha256": pending["beforeSha256"], "expectedBootId": boot}
+        if (not isinstance(journal, dict) or journal.get("scope") != local_scope or journal.get("common") != common
+                or journal.get("phase") != "RESUMING" or journal.get("imported") is not True
+                or not isinstance(journal.get("importedFingerprints"), dict)
+                or not isinstance(journal.get("importedStoppedDatabases"), dict)
+                or not isinstance(record, dict) or type(record.get("schemaVersion")) is not int or record["schemaVersion"] != 1
+                or record.get("kind") != "LOCAL_SOURCE_IDENTITY_CHECKPOINT" or record.get("scope") != local_scope
+                or record.get("common") != common
+                or journal.get("importedCheckpointSha256") != hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()):
+            raise ValueError("LOCAL source resume has no original verified opaque import")
+        desired = record.get("sourceDesiredState")
+        if (not isinstance(desired, dict) or set(desired) != set(self.generation.paths)
+                or any(value is not None and not isinstance(value, dict) for value in desired.values())
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest() != pending["beforeSha256"]):
+            raise ValueError("LOCAL source resume frozen seven-file fingerprint changed")
+        configuration, _ = self.configuration(unit)
+        prior = journal.get("prior") or {}
+        if (unit not in {row.get("unit") for row in prior.get("units", [])}
+                or configuration != record.get("sourceConfigurationFileSha256")
+                or configuration != prior.get("configurationSha256")):
+            raise ValueError("LOCAL source resume unit/configuration is outside original SOURCE")
+        evidence = {"localSourceCheckpointSha256": hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+                    "localSourceJournalSha256": hashlib.sha256(json.dumps(journal, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()}
+        return scope, pending, digest, evidence
+
+    @contextlib.contextmanager
+    def local_source_grant(self, scope, unit):
+        scope, pending, digest, evidence = self.local_source_state(scope, unit)
+        with self._grant(scope, pending, digest, unit, "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME", evidence):
+            yield
 
     def lock(self, pid):
         path = Path("/proc") / str(pid)
@@ -7838,6 +8048,11 @@ class PendingNfsAuthorization:
             return
         scope = payload["operationScope"]
         scope, pending, digest = self.state(scope)
+        with self._grant(scope, pending, digest, unit, self.mode, {}):
+            yield
+
+    @contextlib.contextmanager
+    def _grant(self, scope, pending, digest, unit, mode, evidence):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Pending NFS requires its inherited FD9")
         opened, ticks = self.lock(os.getpid())
@@ -7846,10 +8061,10 @@ class PendingNfsAuthorization:
         if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700:
             raise ValueError("Pending NFS grant directory is not protected")
         configuration_sha, configuration_identity = self.configuration(unit)
-        proof = {"mode": self.mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
+        proof = {"mode": mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
                  "configurationSha256": digest, "unit": unit, "configurationFileSha256": configuration_sha, "configurationFileIdentity": configuration_identity,
                  "pid": os.getpid(), "startTicks": ticks, "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino}
+                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino, **evidence}
         raw_fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
             fd = fcntl.fcntl(raw_fd, fcntl.F_DUPFD_CLOEXEC, 16)
@@ -7881,11 +8096,20 @@ class PendingNfsAuthorization:
                     or not stat.S_ISREG(record.st_mode) or record.st_uid != os.geteuid() or stat.S_IMODE(record.st_mode) != 0o600):
                 return False
             proof = pending_nfs_read(self.path)
-            if not isinstance(proof, dict) or set(proof) != {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}:
+            fields = {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}
+            local = isinstance(proof, dict) and self.protocol == "SMB" and proof.get("mode") == "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME"
+            if local:
+                fields |= {"localSourceCheckpointSha256", "localSourceJournalSha256"}
+            if not isinstance(proof, dict) or set(proof) != fields:
                 return False
-            if proof["mode"] != self.mode or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
+            if (not local and proof["mode"] != self.mode) or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
                 return False
-            scope, pending, digest = self.state(proof["scope"])
+            if local:
+                scope, pending, digest, evidence = self.local_source_state(proof["scope"], unit)
+                if any(proof.get(key) != value for key, value in evidence.items()):
+                    return False
+            else:
+                scope, pending, digest = self.state(proof["scope"])
             configuration_sha, configuration_identity = self.configuration(unit)
             if (proof["beforeSha256"] != pending["beforeSha256"] or proof["configurationSha256"] != digest
                     or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
@@ -9379,6 +9603,8 @@ apply_iscsi_targets() {
 
   python3 - "$payload_file" <<'PY'
 import glob
+import hashlib
+import uuid
 import json
 import os
 from pathlib import Path
@@ -9670,8 +9896,9 @@ def run_targetcli(*args, stage="CLEANUP"):
         raise IscsiTargetcliFailure(stage, None, "SPAWN_FAILURE") from None
 
 def ok_or_exists(result):
-    text = f"{result.stdout}\n{result.stderr}".lower()
-    return result.returncode == 0 or "exists" in text or "already" in text
+    # "already in use" can refer to a different storage object. A create must
+    # succeed; an existing portal is accepted only by its exact configfs readback.
+    return result.returncode == 0
 
 def require_targetcli(*args, stage):
     result = run_targetcli(*args, stage=stage)
@@ -9835,7 +10062,6 @@ def persist_iscsi_payload():
         with open(state_file, "w", encoding="utf-8") as state_fp:
             json.dump(sanitized(payload), state_fp, sort_keys=True, indent=2)
 
-iscsi_guard("VAULT_STATE", persist_iscsi_payload)
 
 def run(args, timeout=20):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
@@ -10054,7 +10280,20 @@ def resolve_backstore(target, backstore_name):
     if mountpoint:
         raise SystemExit(f"backing device {path} is mounted at {mountpoint}; refusing iSCSI BLOCK backstore")
     validate_block_backstore_device(path)
-    require_targetcli("/backstores/block", "create", backstore_name, path, stage="BACKSTORE_CREATE")
+    expected = iscsi_runtime_identity.get(target.get("uuid"))
+    if expected is not None and expected["volumeUuid"] != target.get("volumeUuid"):
+        expected = None
+    arguments = ["/backstores/block", "create", backstore_name, path]
+    if expected is not None:
+        arguments.append("wwn=" + expected["wwn"])
+    require_targetcli(*arguments, stage="BACKSTORE_CREATE")
+    try:
+        observed = iscsi_backstore_public_identity(target)
+        if expected is not None and observed["wwn"] != expected["wwn"]:
+            raise ValueError("iSCSI recreated SOURCE unit identity differs")
+    except BaseException:
+        run_targetcli("/backstores/block", "delete", backstore_name)
+        raise
     return f"/backstores/block/{backstore_name}", path, "block"
 
 def port_listening(port):
@@ -10235,70 +10474,525 @@ def require_chap_value(name, value, iqn, initiator):
         return value
     raise SystemExit(f"iSCSI CHAP credential is required to apply target {iqn} for initiator {initiator}: missing {name}")
 
-def managed_iqn(iqn):
-    text = str(iqn or "")
-    return text.startswith("iqn.") and ".local.storage:" in text
+def iscsi_payload_ownership(*values):
+    owned = {}
+    for value in values:
+        for target in value.get("targets", []) or []:
+            iqn, identity = target.get("targetName"), target.get("uuid")
+            if not iqn or not identity:
+                continue
+            if (not isinstance(iqn, str) or len(iqn) > 223
+                    or not re.fullmatch(r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+", iqn)
+                    or not isinstance(identity, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", identity)):
+                raise ValueError("iSCSI canonical cleanup ownership is invalid")
+            # Disabled/error rows still own the runtime that must be removed.
+            owned.setdefault(iqn, set()).add("ablestack-" + identity)
+    return owned
 
-def existing_iscsi_targets():
+
+
+# BEGIN EMBEDDED ISCSI CLEANUP GENERATION READERS
+import uuid as pending_nfs_uuid
+PENDING_NFS_MAX_BYTES = 8 * 1024 * 1024
+def pending_nfs_read(path):
+    try:
+        info = path.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_size > PENDING_NFS_MAX_BYTES or info.st_mode & 0o022:
+        raise ValueError("Generation input is not a protected regular file")
+    parent = path.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        raise ValueError("Generation parent directory is not protected")
+    parent_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        pinned_parent = os.fstat(parent_fd)
+        if (pinned_parent.st_dev, pinned_parent.st_ino, pinned_parent.st_uid, pinned_parent.st_mode) != (parent.st_dev, parent.st_ino, parent.st_uid, parent.st_mode):
+            raise ValueError("Generation parent changed while opening")
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    try:
+        opened = os.fstat(fd)
+        if (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_gid, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode, info.st_size):
+            raise ValueError("Generation input changed while opening")
+        with os.fdopen(fd, "rb", closefd=False) as handle:
+            value = handle.read(PENDING_NFS_MAX_BYTES + 1)
+        if len(value) > PENDING_NFS_MAX_BYTES:
+            raise ValueError("Generation input exceeds its size limit")
+        return json.loads(value)
+    finally:
+        os.close(fd)
+
+def pending_nfs_redact(value):
+    if isinstance(value, dict):
+        return {key: pending_nfs_redact(item) for key, item in value.items()
+                if key not in ("lastApply", "lastApplied", "observedAt", "generatedEpoch")
+                and not any(word in key.lower() for word in ("password", "secret", "dhchapkey", "dhchapctrlkey", "privatekey", "keytab", "capsule"))}
+    if isinstance(value, list):
+        return [pending_nfs_redact(item) for item in value]
+    return value
+
+class PendingNfsGeneration:
+    paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+             "network-endpoints.json", "sharedfs-network.json")
+
+    def __init__(self, state=None, configuration=None):
+        self.root = Path(state or os.environ.get("ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+        self.config = Path(configuration or os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
+        self.current = self.root / "current.json"
+        self.pending = self.root / "pending.json"
+
+    def files(self):
+        return {name: pending_nfs_redact(pending_nfs_read(self.config / name)) for name in self.paths}
+
+    def digest(self):
+        return hashlib.sha256(json.dumps(self.files(), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+    def status(self):
+        current = pending_nfs_read(self.current) or {}
+        pending = pending_nfs_read(self.pending)
+        digest = self.digest()
+        return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
+                "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
+                "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
+                "configurationSha256": digest, "configurationDesiredState": self.files(),
+                "bootId":str(pending_nfs_uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))}
+
+    def request(self, request):
+        result = dict(request)
+        result["instanceUuid"] = str(pending_nfs_uuid.UUID(request["instanceUuid"]))
+        result["operationUuid"] = str(pending_nfs_uuid.UUID(request["operationUuid"]))
+        revision = request["revision"]
+        if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
+            raise ValueError("Invalid generation revision")
+        return result
+
+    def scoped(self, request):
+        pending = pending_nfs_read(self.pending)
+        if not pending or any(pending[key] != request[key] for key in ("instanceUuid", "operationUuid", "revision")):
+            raise ValueError("Generation operation scope changed")
+        return pending
+# END EMBEDDED ISCSI CLEANUP GENERATION READERS
+# BEGIN EMBEDDED ISCSI CLEANUP BINDINGS
+def protected_directory(path):
+    path.mkdir(parents=True, exist_ok=True, mode=0o700)
+    info = path.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022:
+        raise ValueError("Generation directory is not protected")
+    return path
+
+def atomic_json(path, value):
+    protected_directory(path.parent)
+    fd, temporary = tempfile.mkstemp(prefix=".generation-", dir=str(path.parent))
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w") as handle:
+            json.dump(value, handle, sort_keys=True)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+def iscsi_cleanup_lun(value):
+    if type(value) not in (int, str) or not re.fullmatch(r"[0-9]+", str(value)):
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    canonical = str(value).lstrip("0") or "0"
+    if len(canonical) > 5 or int(canonical) > 65535:
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    return canonical
+
+def iscsi_cleanup_bindings(value, instance):
+    if value is None:
+        return []
+    if not isinstance(value, dict) or not isinstance(value.get("targets", []), list):
+        raise ValueError("iSCSI cleanup canonical target collection is invalid")
+    rows = value.get("targets", [])
+    if rows and value.get("instanceUuid") != instance:
+        raise ValueError("iSCSI cleanup canonical instance is foreign")
+    result, identities = [], set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("iSCSI cleanup canonical target is invalid")
+        identity, name = row.get("uuid"), row.get("targetName")
+        if (not isinstance(identity, str) or str(uuid.UUID(identity)) != identity or identity in identities
+                or not isinstance(name, str) or len(name) > 223
+                or not re.fullmatch(r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+", name)
+                or not isinstance(row.get("config", {}), dict)
+                or str(row.get("backstoreType") or (row.get("config") or {}).get("backstoreType") or "BLOCK").upper() != "BLOCK"):
+            raise ValueError("iSCSI cleanup canonical UUID/IQN/BLOCK binding is invalid")
+        identities.add(identity);result.append({"uuid": identity, "targetName": name, "lunOrNamespace": iscsi_cleanup_lun(row.get("lunOrNamespace", 0))})
+    return sorted(result, key=lambda row: (row["uuid"], row["targetName"]))
+
+def iscsi_cleanup_receipt(receipt, pending, boot):
+    fields = {"schemaVersion", "scope", "bootId", "beforeSha256", "targetConfigurationSha256", "targets", "bindingsSha256"}
+    scope = {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}
+    if (not isinstance(receipt, dict) or set(receipt) != fields or type(receipt["schemaVersion"]) is not int
+            or receipt["schemaVersion"] != 1 or receipt["scope"] != scope or receipt["bootId"] != boot
+            or receipt["beforeSha256"] != pending.get("beforeSha256")
+            or any(not isinstance(receipt[key], str) or not re.fullmatch(r"[0-9a-f]{64}", receipt[key])
+                   for key in ("beforeSha256", "targetConfigurationSha256", "bindingsSha256"))
+            or not isinstance(receipt["targets"], list) or len(receipt["targets"]) > 4096
+            or any(not isinstance(row, dict) or set(row) != {"uuid", "targetName", "lunOrNamespace"} for row in receipt["targets"])):
+        raise ValueError("iSCSI cleanup pending receipt scope/boot/schema changed")
+    for key in ("instanceUuid", "operationUuid"):
+        if not isinstance(scope[key], str) or str(uuid.UUID(scope[key])) != scope[key]:
+            raise ValueError("iSCSI cleanup pending UUID is invalid")
+    if type(scope["revision"]) is not int or scope["revision"] < 1:
+        raise ValueError("iSCSI cleanup pending revision is invalid")
+    rows = iscsi_cleanup_bindings({"instanceUuid": scope["instanceUuid"], "targets": receipt["targets"]}, scope["instanceUuid"])
+    digest = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if rows != receipt["targets"] or digest != receipt["bindingsSha256"]:
+        raise ValueError("iSCSI cleanup pending target binding digest changed")
+    return rows
+# END EMBEDDED ISCSI CLEANUP BINDINGS
+
+def rendered_runtime_context(domain, source=False):
+    value = os.environ.get("ABLESTACK_STORAGE_RENDERED_FROM" if source else "ABLESTACK_STORAGE_RENDERED_REPLAY")
+    if not value: return None
+    root = Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS", "/var/lib/ablestack-storage/rendered-generations"))
+    pointer = root / "current"
+    if not re.fullmatch(r"[0-9a-f-]{36}",Path(value).name) or Path(value)!=root/"generations"/Path(value).name:
+        raise ValueError("Internal rendered replay path is outside its generation root")
+    if not source and (not pointer.is_symlink() or os.readlink(pointer) != "generations/" + Path(value).name or Path(value) != root / os.readlink(pointer)):
+        raise ValueError("Internal rendered replay differs from the managed current pointer")
+    for parent in (root, root / "generations", Path(value)):
+        info = parent.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o077:
+            raise ValueError("Internal rendered generation parent is not protected")
+    def read(name):
+        path = Path(value) / name
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 8 * 1024 * 1024:
+            raise ValueError("Internal rendered generation file is not protected")
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(descriptor)
+            if (opened.st_dev, opened.st_ino, opened.st_mode, opened.st_size) != (info.st_dev, info.st_ino, info.st_mode, info.st_size):
+                raise ValueError("Internal rendered generation changed")
+            data = os.read(descriptor, 8 * 1024 * 1024 + 1)
+            after = os.fstat(descriptor)
+            if (after.st_size, after.st_mtime_ns, after.st_ctime_ns) != (opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns):
+                raise ValueError("Internal rendered file changed while reading")
+            return data
+        finally: os.close(descriptor)
+    manifest = json.loads(read("generation.json"))
+    canonical = {key:item for key,item in manifest.items() if key != "manifestSha256"}
+    if hashlib.sha256(json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != manifest.get("manifestSha256"):
+        raise ValueError("Internal rendered generation manifest hash changed")
+    journal_path=root/"activation.json"
+    info=journal_path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or stat.S_IMODE(info.st_mode)!=0o600:
+        raise ValueError("Internal rendered journal is not protected")
+    fd=os.open(journal_path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        opened=os.fstat(fd)
+        if (opened.st_dev,opened.st_ino,opened.st_mode,opened.st_size)!=(info.st_dev,info.st_ino,info.st_mode,info.st_size):raise ValueError("Rendered journal changed while opening")
+        journal=json.loads(os.read(fd,8*1024*1024+1))
+    finally:os.close(fd)
+    if manifest["manifestSha256"] not in (journal.get("targetSha256"), journal.get("previousSha256")):
+        raise ValueError("Internal rendered replay is outside its pinned activation")
+    for name, digest in manifest["files"].items():
+        if not re.fullmatch(r"(?:nfs/manifest.json|nfs/ganesha/[0-9a-f]{24}\.conf|nfs/exports/[0-9a-f-]{36}\.exports|smb/smb.conf|smb/manifest.json|smb/listeners/[0-9a-f]{24}\.json|block/(?:iscsi|nvmeof)-plan.json|desired-state.json|network-bindings.json|posix-plan.json|prerequisites.json|file-volumes.json)", name):
+            raise ValueError("Internal rendered replay has an unexpected path")
+        if hashlib.sha256(read(name)).hexdigest() != digest:
+            raise ValueError("Internal rendered runtime file hash changed")
+    return Path(value), manifest
+
+
+def iscsi_additional_cleanup_ownership():
+    context = rendered_runtime_context("ISCSI")
+    if context:
+        source = rendered_runtime_context("ISCSI", source=True)
+        if source is None:
+            raise ValueError("iSCSI rendered cleanup has no pinned prior target")
+        values = []
+        for path, manifest in (context, source):
+            scope = manifest.get("scope") or {}
+            if (scope.get("instanceUuid") != payload.get("instanceUuid")
+                    or path.name != scope.get("operationUuid") or type(scope.get("revision")) is not int or scope["revision"] < 1):
+                raise ValueError("iSCSI rendered cleanup scope is foreign")
+            desired = pending_nfs_read(path / "desired-state.json")
+            rows = iscsi_cleanup_bindings(desired.get("iscsi-targets.json"), scope["instanceUuid"])
+            values.extend(rows)
+        # SOURCE and TARGET can contain the same immutable resource identity.
+        return {"targets": [dict(row) for row in {tuple(sorted(row.items())) for row in values}]}
+    if os.environ.get("ABLESTACK_STORAGE_RENDERED_FROM"):
+        raise ValueError("iSCSI rendered cleanup source lacks its managed current replay")
+    generation = PendingNfsGeneration()
+    pending = pending_nfs_read(generation.pending)
+    if not pending or "iscsiCleanupOwnership" not in pending:
+        return {}
+    iscsi_auth_writer()
+    if stat.S_IMODE(generation.pending.lstat().st_mode) != 0o600 or pending.get("phase") not in ("PREPARED", "VERIFIED"):
+        raise ValueError("iSCSI cleanup requires its protected PREPARED writer")
+    boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+    rows = iscsi_cleanup_receipt(pending["iscsiCleanupOwnership"], pending, boot)
+    if (payload.get("instanceUuid") != pending["instanceUuid"]
+            or (pending_nfs_read(generation.current) or {}) != pending.get("previous")
+            or generation.digest() != pending.get("beforeSha256")):
+        raise ValueError("iSCSI cleanup authority differs from restored SOURCE/current")
+    identity = str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:" + pending["operationUuid"]).encode()).digest(), version=3))
+    local = pending_nfs_read(generation.root.parent / "smb-local-source-checkpoints" / (identity + "-journal.json"))
+    if local is not None and (local.get("scope") != {**{key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}, "localCheckpointUuid": identity}
+            or local.get("common", {}).get("expectedBootId") != boot
+            or local.get("common", {}).get("sourceConfigurationSha256") != pending.get("beforeSha256")
+            or local.get("common", {}).get("sourceGeneration") != pending.get("previous")):
+        raise ValueError("iSCSI cleanup LOCAL source authority changed")
+    return {"targets": rows}
+
+
+def iscsi_cleanup_ownership():
+    return iscsi_payload_ownership(previous_payload, payload, iscsi_additional_cleanup_ownership())
+
+
+def iscsi_payload_luns(*values):
+    allowed = {}
+    for value in values:
+        for target in value.get("targets", []) or []:
+            iqn, identity = target.get("targetName"), target.get("uuid")
+            if iqn and identity:
+                lun = "lun_" + iscsi_cleanup_lun(target.get("lunOrNamespace", 0))
+                allowed.setdefault(iqn, {}).setdefault(lun, set()).add("ablestack-" + identity)
+    return allowed
+
+
+def owned_iscsi_runtime():
+    values = (previous_payload, payload, iscsi_additional_cleanup_ownership())
+    owned = iscsi_payload_ownership(*values)
+    allowed = iscsi_payload_luns(*values)
     root = Path("/sys/kernel/config/target/iscsi")
-    if not root.exists():
-        return set()
-    return {item.name for item in root.iterdir() if item.is_dir() and managed_iqn(item.name)}
-
-def desired_iqns_from_payload(value):
-    iqns = set()
-    for target in value.get("targets", []) or []:
-        if target.get("state", "Ready") in ("Disabled", "Destroyed", "Error"):
+    core = Path("/sys/kernel/config/target/core")
+    targets, backstores, owned_links = set(), set(), set()
+    for iqn, names in owned.items():
+        path = root / iqn
+        if not path.exists():
             continue
-        iqn = target.get("targetName")
-        if iqn and managed_iqn(iqn):
-            iqns.add(iqn)
-    return iqns
+        if path.is_symlink() or not path.is_dir():
+            raise ValueError("iSCSI owned target path is foreign")
+        for tpg in path.glob("tpgt_*"):
+            if tpg.name != "tpgt_1" or tpg.is_symlink() or not tpg.is_dir():
+                raise ValueError("iSCSI owned target has an unrecorded portal group")
+            for lun in (tpg / "lun").glob("*"):
+                if lun.name not in allowed[iqn] or lun.is_symlink() or not lun.is_dir():
+                    raise ValueError("iSCSI owned target has an unrecorded LUN")
+                for link in lun.iterdir():
+                    if not link.is_symlink():
+                        continue
+                    destination = link.resolve(strict=True)
+                    if (destination.name not in allowed[iqn][lun.name] or destination.parent.parent != core
+                            or not re.fullmatch(r"iblock_[0-9]+", destination.parent.name)):
+                        raise ValueError("iSCSI owned target retains a foreign storage object")
+                    owned_links.add(link)
+        targets.add(iqn)
+    names = set().union(*owned.values()) if owned else set()
+    # An owned storage object may also be referenced by a foreign target.
+    # targetcli backstore deletion can remove those LUNs, so refuse before effects.
+    for link in root.parent.rglob("*"):
+        if link.is_symlink():
+            destination = link.resolve(strict=True)
+            if (destination.name in names and destination.parent.parent == core
+                    and link not in owned_links):
+                raise ValueError("iSCSI owned backstore retains a foreign target reference")
+    for path in core.glob("iblock_*/*"):
+        if path.name in names:
+            if path.is_symlink() or not path.is_dir():
+                raise ValueError("iSCSI owned backstore path is foreign")
+            backstores.add(path.name)
+    return targets, backstores
+
 
 def block_backstores_from_payload(value, iqns=None):
-    names = set()
-    for target in value.get("targets", []) or []:
-        iqn = target.get("targetName")
-        if iqns is not None and iqn not in iqns:
-            continue
-        uuid = target.get("uuid")
-        if uuid:
-            names.add(f"ablestack-{uuid}")
-    return names
+    owned = iscsi_payload_ownership(value)
+    return set().union(*(names for iqn, names in owned.items() if iqns is None or iqn in iqns)) if owned else set()
 
-def existing_managed_block_backstores():
-    root = Path("/sys/kernel/config/target/core")
-    if not root.exists():
-        return set()
-    names = set()
-    for path in root.glob("iblock_*/*"):
-        if path.is_dir() and path.name.startswith("ablestack-"):
-            names.add(path.name)
-    return names
 
 def cleanup_stale_managed_targets(desired_iqns):
-    previous_iqns = desired_iqns_from_payload(previous_payload)
-    stale_iqns = (existing_iscsi_targets() | previous_iqns) - desired_iqns
-    for iqn in sorted(stale_iqns):
-        if managed_iqn(iqn):
-            run_targetcli("/iscsi", "delete", iqn)
-    stale_backstores = block_backstores_from_payload(previous_payload, stale_iqns)
-    if not desired_iqns:
-        stale_backstores |= existing_managed_block_backstores()
-    for name in sorted(stale_backstores):
-        run_targetcli("/backstores/block", "delete", name)
+    existing_iqns, existing_backstores = owned_iscsi_runtime()
+    owned = iscsi_cleanup_ownership()
+    stale_iqns = set(owned) - desired_iqns
+    for iqn in sorted(stale_iqns & existing_iqns):
+        require_targetcli("/iscsi", "delete", iqn, stage="CLEANUP")
+    stale_backstores = set().union(*(owned[iqn] for iqn in stale_iqns)) if stale_iqns else set()
+    for name in sorted(stale_backstores & existing_backstores):
+        require_targetcli("/backstores/block", "delete", name, stage="CLEANUP")
+
 
 def clear_managed_iscsi_runtime():
-    for iqn in sorted(existing_iscsi_targets()):
-        run_targetcli("/iscsi", "delete", iqn)
-    for name in sorted(existing_managed_block_backstores()):
-        run_targetcli("/backstores/block", "delete", name)
+    # Canonical UUID/IQN bindings authorize cleanup, never a name prefix alone.
+    iqns, backstores = owned_iscsi_runtime()
+    for iqn in sorted(iqns):
+        require_targetcli("/iscsi", "delete", iqn, stage="CLEANUP")
+    for name in sorted(backstores):
+        require_targetcli("/backstores/block", "delete", name, stage="CLEANUP")
+
+
+def iscsi_backstore_public_identity(target):
+    identity, volume = target.get("uuid"), target.get("volumeUuid")
+    if (not isinstance(identity, str) or str(uuid.UUID(identity)) != identity
+            or not isinstance(volume, str) or str(uuid.UUID(volume)) != volume
+            or type(target.get("volumeSizeBytes")) is not int or target["volumeSizeBytes"] < 1):
+        raise ValueError("iSCSI SOURCE unit identity lacks exact resource/DATA UUID/size")
+    core = Path("/sys/kernel/config/target/core")
+    paths = [path for path in core.glob("iblock_*/ablestack-" + identity) if path.is_dir() and not path.is_symlink()]
+    if len(paths) != 1:
+        raise ValueError("iSCSI SOURCE unit identity has no exact live block backstore")
+    path = paths[0]
+    raw = (path / "wwn/vpd_unit_serial").read_text()
+    match = re.fullmatch(r"T10 VPD Unit Serial Number: ([0-9a-f-]{36})\n?", raw)
+    if match is None or str(uuid.UUID(match[1])) != match[1]:
+        raise ValueError("iSCSI SOURCE unit serial is not its bounded public UUID")
+    backing = (path / "udev_path").read_text().strip()
+    if not backing.startswith("/dev/") or len(backing) > 512:
+        raise ValueError("iSCSI SOURCE unit device path is invalid")
+    candidates = [dev for dev in walk_devices(lsblk_devices()) if dev.get("path") and os.path.realpath(dev["path"]) == os.path.realpath(backing)]
+    serial = volume.replace("-", "")
+    if (len(candidates) != 1 or normalize_token(candidates[0].get("serial")) not in (serial, serial[:20])
+            or int(candidates[0].get("size") or 0) != target["volumeSizeBytes"] or mounted(candidates[0])
+            or candidates[0].get("type") not in ("disk", "part", "lvm", "mpath")):
+        raise ValueError("iSCSI SOURCE unit device serial/size differs from its DATA UUID")
+    return {"uuid": identity, "targetName": target["targetName"],
+            "lunOrNamespace": iscsi_cleanup_lun(target.get("lunOrNamespace", 0)),
+            "volumeUuid": volume, "volumeSizeBytes": target["volumeSizeBytes"], "wwn": match[1]}
+
+
+def iscsi_source_identity_receipt(value, pending, boot):
+    fields = {"schemaVersion", "scope", "bootId", "beforeSha256", "identities", "identitiesSha256"}
+    scope = {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}
+    if (not isinstance(value, dict) or set(value) != fields or type(value["schemaVersion"]) is not int or value["schemaVersion"] != 1
+            or value["scope"] != scope or value["bootId"] != boot or value["beforeSha256"] != pending.get("beforeSha256")
+            or not isinstance(value["identities"], list) or len(value["identities"]) > 4096):
+        raise ValueError("iSCSI SOURCE unit receipt scope/boot/schema changed")
+    for key in ("instanceUuid", "operationUuid"):
+        if not isinstance(scope[key], str) or str(uuid.UUID(scope[key])) != scope[key]:
+            raise ValueError("iSCSI SOURCE unit receipt scope UUID is invalid")
+    if (type(scope["revision"]) is not int or scope["revision"] < 1
+            or not isinstance(value["beforeSha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", value["beforeSha256"])):
+        raise ValueError("iSCSI SOURCE unit receipt revision/source digest is invalid")
+    seen = set()
+    for row in value["identities"]:
+        if (not isinstance(row, dict) or set(row) != {"uuid", "targetName", "lunOrNamespace", "volumeUuid", "volumeSizeBytes", "wwn"}
+                or row["uuid"] in seen or type(row["volumeSizeBytes"]) is not int or row["volumeSizeBytes"] < 1
+                or not isinstance(row["lunOrNamespace"], str) or iscsi_cleanup_lun(row["lunOrNamespace"]) != row["lunOrNamespace"]):
+            raise ValueError("iSCSI SOURCE unit receipt binding is invalid")
+        for key in ("uuid", "volumeUuid", "wwn"):
+            if not isinstance(row[key], str) or str(uuid.UUID(row[key])) != row[key]:
+                raise ValueError("iSCSI SOURCE unit receipt public UUID is invalid")
+        iscsi_cleanup_bindings({"instanceUuid": scope["instanceUuid"], "targets": [row]}, scope["instanceUuid"])
+        seen.add(row["uuid"])
+    rows = sorted(value["identities"], key=lambda row: row["uuid"])
+    digest = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if rows != value["identities"] or digest != value["identitiesSha256"]:
+        raise ValueError("iSCSI SOURCE unit receipt digest changed")
+    return {row["uuid"]: row for row in rows}
+
+
+def iscsi_checkpoint_source_authority(generation, pending):
+    if generation.digest() == pending.get("beforeSha256"):
+        return generation.files()
+    previous = pending.get("previous") or {}
+    if not previous:
+        raise ValueError("iSCSI partial apply has no frozen SOURCE generation authority")
+    for key in ("instanceUuid", "operationUuid"):
+        if not isinstance(previous.get(key), str) or str(uuid.UUID(previous[key])) != previous[key]:
+            raise ValueError("iSCSI frozen SOURCE generation UUID is invalid")
+    artifact = pending_nfs_read(generation.root / (previous["operationUuid"] + ".json"))
+    if (not isinstance(artifact, dict) or artifact.get("phase") != "VERIFIED"
+            or any(artifact.get(key) != previous.get(key) for key in ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt"))
+            or previous["instanceUuid"] != pending["instanceUuid"] or type(previous.get("revision")) is not int
+            or not 0 < previous["revision"] < pending["revision"]):
+        raise ValueError("iSCSI frozen SOURCE generation differs from its current pending predecessor")
+    desired = artifact.get("desired")
+    if (not isinstance(desired, dict) or set(desired) != set(generation.paths)
+            or pending_nfs_redact(desired) != desired
+            or any(value is not None and not isinstance(value, dict) for value in desired.values())):
+        raise ValueError("iSCSI frozen SOURCE generation has no exact public seven-file declaration")
+    digest = hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+    if digest != pending.get("beforeSha256") or digest != previous.get("configurationSha256"):
+        raise ValueError("iSCSI frozen SOURCE generation digest changed")
+    return desired
+
+
+def checkpoint_iscsi_source_identity():
+    # The source canonical file is still intact here; no target/backstore has
+    # been deleted and no TARGET canonical file has been published.
+    _, existing = owned_iscsi_runtime()
+    live, source_rows = {}, {}
+    for value in (previous_payload, payload):
+        for row in value.get("targets", []) or []:
+            identity = row.get("uuid")
+            if identity in live or "ablestack-" + str(identity) not in existing:
+                continue
+            live[identity] = iscsi_backstore_public_identity(row)
+    source_ids = {row.get("uuid") for row in previous_payload.get("targets", []) or []}
+    source_rows = {key: value for key, value in live.items() if key in source_ids}
+    generation = PendingNfsGeneration()
+    pending = pending_nfs_read(generation.pending)
+    if pending is None:
+        return live
+    # A first block target has no SOURCE unit identity to preserve. Do not
+    # invent an empty receipt or require a prior generation for that case.
+    saved = pending.get("iscsiSourceRuntimeIdentity")
+    if not source_rows and saved is None:
+        return live
+    # VERIFIED can consume only its already-persisted original SOURCE identity.
+    # Creating a new SOURCE checkpoint remains a PREPARED producer operation.
+    phases = ("PREPARED", "VERIFIED") if saved is not None else ("PREPARED",)
+    iscsi_auth_writer()
+    if (stat.S_IMODE(generation.pending.lstat().st_mode) != 0o600 or pending.get("phase") not in phases
+            or payload.get("instanceUuid") != pending.get("instanceUuid")
+            or (pending_nfs_read(generation.current) or {}) != pending.get("previous")):
+        raise ValueError("iSCSI SOURCE unit checkpoint is outside its exact pending SOURCE")
+    source = iscsi_checkpoint_source_authority(generation, pending)
+    if pending_nfs_redact(pending_nfs_read(generation.config / "iscsi-targets.json")) != source["iscsi-targets.json"]:
+        raise ValueError("iSCSI SOURCE canonical binding changed before its unit checkpoint")
+    boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+    identity = str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:" + pending["operationUuid"]).encode()).digest(), version=3))
+    local = pending_nfs_read(generation.root.parent / "smb-local-source-checkpoints" / (identity + "-journal.json"))
+    if local is not None and (local.get("scope") != {**{key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}, "localCheckpointUuid": identity}
+            or local.get("common", {}).get("expectedBootId") != boot
+            or local.get("common", {}).get("sourceConfigurationSha256") != pending.get("beforeSha256")
+            or local.get("common", {}).get("sourceGeneration") != pending.get("previous")):
+        raise ValueError("iSCSI SOURCE unit checkpoint LOCAL source authority changed")
+    if saved is None:
+        rows = sorted(source_rows.values(), key=lambda row: row["uuid"])
+        saved = {"schemaVersion": 1, "scope": {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")},
+                 "bootId": boot, "beforeSha256": pending["beforeSha256"], "identities": rows,
+                 "identitiesSha256": hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
+        iscsi_source_identity_receipt(saved, pending, boot)
+        # This fsync must succeed before the first delete or canonical persist.
+        latest = generation.scoped(pending)
+        if any(latest.get(key) != pending.get(key) for key in ("phase", "beforeSha256", "previous")):
+            raise ValueError("iSCSI SOURCE pending changed before unit identity publication")
+        if "iscsiSourceRuntimeIdentity" in latest and latest["iscsiSourceRuntimeIdentity"] != saved:
+            raise ValueError("iSCSI SOURCE first unit identity changed before publication")
+        atomic_json(generation.pending, {**latest, "iscsiSourceRuntimeIdentity": saved})
+    recorded = iscsi_source_identity_receipt(saved, pending, boot)
+    for identity, row in recorded.items():
+        source = next((item for item in previous_payload.get("targets", []) or [] if item.get("uuid") == identity), None)
+        if source is None or any(source.get(key) != row[key] for key in ("targetName", "volumeUuid", "volumeSizeBytes")) or iscsi_cleanup_lun(source.get("lunOrNamespace", 0)) != row["lunOrNamespace"]:
+            raise ValueError("iSCSI SOURCE unit receipt differs from its canonical resource/DATA binding")
+        if identity in live and live[identity]["wwn"] != row["wwn"]:
+            raise ValueError("iSCSI live SOURCE unit serial differs from its original checkpoint")
+    return {**live, **recorded}
+
 
 def rollback_created(created_iqns, created_backstores):
     for iqn in reversed(created_iqns):
         run_targetcli("/iscsi", "delete", iqn)
     for name in reversed(created_backstores):
         run_targetcli("/backstores/block", "delete", name)
+
+iscsi_runtime_identity = iscsi_guard("DEVICE", checkpoint_iscsi_source_identity)
+iscsi_guard("VAULT_STATE", persist_iscsi_payload)
 
 if enabled and targets:
     iscsi_guard("DEPENDENCY", ensure_iscsi_runtime_dependencies)
@@ -10316,9 +11010,12 @@ if command_exists("targetcli"):
     try:
         for iqn, group_targets in iscsi_guard("INPUT", active_targets_by_iqn, targets).items():
             previous_auth = previous_acl_auth_map(iqn)
-            run_targetcli("/iscsi", "delete", iqn)
-            for target in group_targets:
-                run_targetcli("/backstores/block", "delete", f"ablestack-{target.get('uuid')}")
+            existing_iqns, existing_backstores = owned_iscsi_runtime()
+            if iqn in existing_iqns:
+                require_targetcli("/iscsi", "delete", iqn, stage="CLEANUP")
+            group_backstores = iscsi_cleanup_ownership().get(iqn, set())
+            for name in sorted(group_backstores & existing_backstores):
+                require_targetcli("/backstores/block", "delete", name, stage="CLEANUP")
             require_targetcli("/iscsi", "create", iqn, stage="TARGET_CREATE")
             created_iqns.append(iqn)
             run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "delete", "0.0.0.0", "3260")
@@ -10601,7 +11298,7 @@ def nvme_loopback_network_request(payload,run):
 
 
 class NvmeManagedCleanup:
-    def __init__(self,base,state,payload,sessions,writer=None,rmdir=None):
+    def __init__(self,base,state,payload,sessions,writer=None,rmdir=None,ownership=None):
         self.base=Path(base);self.state=Path(state);self.sessions=sessions
         self.writer=writer or nvme_cleanup_writer;self.rmdir=rmdir or os.rmdir
         self.previous,self.source_signature=self.read(self.state,optional=True)
@@ -10643,6 +11340,18 @@ class NvmeManagedCleanup:
                 raise ValueError("NVMe owned host receipt is invalid")
             path=self.base/"hosts"/host
             if path.exists() and self.directory(path)!=record:raise ValueError("NVMe owned host identity changed before effects")
+        if ownership is not None:
+            additional=ownership(self,payload)
+            if not isinstance(additional,dict) or additional.get("instanceUuid",self.instance)!=self.instance:
+                raise ValueError("NVMe additional cleanup authority is foreign")
+            for nqn,row in self.rows(additional,include_disabled=True).items():
+                original=self.owned.get(nqn)
+                if original is None:self.owned[nqn]=row
+                else:
+                    merged=dict(original)
+                    merged["namespaces"]=list(original.get("namespaces")or[])+list(row.get("namespaces")or[])
+                    merged["hosts"]=list(original.get("hosts")or[])+list(row.get("hosts")or[])
+                    self.owned[nqn]=merged
         for nqn,row in self.desired.items():
             path=self.base/"subsystems"/nqn
             if path.exists() and nqn not in self.owned:
@@ -10830,6 +11539,598 @@ class NvmeManagedCleanup:
         if self.book_path.exists() or self.book["ports"] or self.book["hosts"]:self.publish()
         return referenced & host_candidates
 # END EMBEDDED NVME CLEANUP
+# BEGIN EMBEDDED NVME RUNTIME IDENTITY
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Public NVMe identity checkpoint for an exact native configuration writer."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import subprocess
+import tempfile
+import uuid
+
+NVME_IDENTITY_PATHS = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
+                       "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json",
+                       "network-endpoints.json", "sharedfs-network.json")
+NVME_IDENTITY_FIELD = "nvmeRuntimeIdentity"
+NVME_IDENTITY_KIND = "NVMEOF_SOURCE_RUNTIME_IDENTITY"
+
+
+def nvme_identity_uuid(value):
+    if not isinstance(value, str) or str(uuid.UUID(value)) != value:
+        raise ValueError("NVMe public identity UUID is not canonical")
+    return value
+
+
+def nvme_identity_digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"),
+                                     allow_nan=False).encode()).hexdigest()
+
+
+def nvme_identity_redact(value):
+    if isinstance(value, dict):
+        return {key: nvme_identity_redact(item) for key, item in value.items()
+                if key not in ("lastApply", "lastApplied", "observedAt", "generatedEpoch")
+                and not any(word in key.lower() for word in
+                            ("password", "secret", "dhchapkey", "dhchapctrlkey", "privatekey", "keytab", "capsule"))}
+    if isinstance(value, list):
+        return [nvme_identity_redact(item) for item in value]
+    return value
+
+
+def nvme_identity_bindings(payload, instance):
+    if not isinstance(payload, dict) or payload.get("instanceUuid", instance) != instance:
+        raise ValueError("NVMe public identity canonical instance changed")
+    rows = payload.get("subsystems") or []
+    if not isinstance(rows, list) or len(rows) > 1024:
+        raise ValueError("NVMe public identity canonical subsystem list is invalid")
+    subsystems, namespaces, hosts, ids, names, namespace_ids = [], [], [], set(), set(), set()
+    for row in rows:
+        if not isinstance(row, dict) or not isinstance(row.get("namespaces", []), list):
+            raise ValueError("NVMe public identity canonical subsystem row is invalid")
+        identity = nvme_identity_uuid(row.get("uuid"))
+        name = row.get("targetName")
+        if (not isinstance(name, str) or not re.fullmatch(r"nqn\.[A-Za-z0-9_.:-]{1,219}", name)
+                or identity in ids or name in names):
+            raise ValueError("NVMe public identity subsystem binding is invalid")
+        ids.add(identity); names.add(name)
+        subsystems.append({"uuid": identity, "nqn": name})
+        seen_hosts = set()
+        for host in row.get("hosts") or []:
+            principal = host.get("principal") if isinstance(host, dict) else None
+            if (not isinstance(principal, str) or not re.fullmatch(r"nqn\.[A-Za-z0-9_.:-]{1,219}", principal)
+                    or principal in seen_hosts):
+                raise ValueError("NVMe public identity host binding is invalid")
+            seen_hosts.add(principal)
+            hosts.append({"subsystemUuid": identity, "nqn": name, "principal": principal})
+        seen_nsids = set()
+        for namespace in row.get("namespaces") or []:
+            if not isinstance(namespace, dict):
+                raise ValueError("NVMe public identity canonical namespace row is invalid")
+            ns_uuid = nvme_identity_uuid(namespace.get("uuid"))
+            volume = nvme_identity_uuid(namespace.get("volumeUuid"))
+            number = namespace.get("lunOrNamespace", 1)
+            size = namespace.get("volumeSizeBytes")
+            if (type(number) not in (int, str) or not re.fullmatch(r"[0-9]{1,5}", str(number))
+                    or not 1 <= int(number) <= 65535 or str(int(number)) in seen_nsids
+                    or ns_uuid in namespace_ids or type(size) is not int or size <= 0):
+                raise ValueError("NVMe public identity namespace/volume binding is invalid")
+            seen_nsids.add(str(int(number))); namespace_ids.add(ns_uuid)
+            namespaces.append({"uuid": ns_uuid, "subsystemUuid": identity, "nqn": name,
+                               "nsid": str(int(number)), "volumeUuid": volume, "sizeBytes": size})
+    if len(namespaces) > 4096 or len(hosts) > 4096:
+        raise ValueError("NVMe public identity namespace collection exceeds its bound")
+    return {"subsystems": sorted(subsystems, key=lambda row: row["uuid"]),
+            "namespaces": sorted(namespaces, key=lambda row: row["uuid"]),
+            "hosts": sorted(hosts, key=lambda row: (row["subsystemUuid"], row["principal"]))}
+
+
+class NvmeRuntimeIdentity:
+    """Run after NvmeManagedCleanup construction, before the first kernel/network effect.
+
+    The cleanup object's protected prior canonical record and FD9 are reused.
+    Only five fixed public identity attributes are ever written. DATA, auth
+    attributes, enable bits and ports remain owned by their existing adapters.
+    """
+
+    def __init__(self, cleanup, payload, generation_root=None, probe=None, boot=None, write=None):
+        self._initialize(cleanup, payload, generation_root, probe, boot, write)
+        self.cleanup.guard()
+        if self.pending is not None:
+            self.scope = self._scope(self.pending)
+            self._source_guard(self.pending, digest=True)
+            recorded = self.pending.get(NVME_IDENTITY_FIELD)
+            if recorded is not None:
+                self._validate(recorded)
+                if self.target_bindings not in (recorded["sourceBindings"], recorded["targetBindings"]):
+                    raise ValueError("NVMe identity retry changed its original canonical target binding")
+                if self.source_bindings != recorded["sourceBindings"]:
+                    raise ValueError("NVMe identity retry has not restored its exact canonical SOURCE")
+                self.checkpoint = recorded
+            else:
+                if self.pending.get("phase") != "PREPARED":
+                    raise ValueError("NVMe identity SOURCE capture requires its original pre-mutation writer")
+                self.checkpoint = self._capture(durable=True)
+                self._publish(self.checkpoint)
+        else:
+            # Startup has no historical restore authority. Reuse only live
+            # identities that are still bound to the protected prior canonical.
+            self.checkpoint = self._capture(durable=False)
+        self.guard()
+
+    def _initialize(self, cleanup, payload, generation_root, probe, boot, write):
+        self.cleanup = cleanup
+        self.base = cleanup.base
+        self.instance = nvme_identity_uuid(cleanup.instance)
+        self.generation_root = Path(generation_root or os.environ.get(
+            "ABLESTACK_STORAGE_GENERATION_DIR", "/var/lib/ablestack-storage/config-generations"))
+        self.pending_path = self.generation_root / "pending.json"
+        self.current_path = self.generation_root / "current.json"
+        self.probe = probe or self.probe_volume
+        self.boot = boot or (lambda: Path("/proc/sys/kernel/random/boot_id").read_text().strip())
+        self.write = write or os.write
+        self.source_bindings = nvme_identity_bindings(cleanup.previous, self.instance)
+        self.target_bindings = nvme_identity_bindings(payload, self.instance)
+        self.payload = payload
+        self.pending = self._json(self.pending_path, optional=True)
+        self.current = self._json(self.current_path, optional=True) or {}
+        self.boot_id = nvme_identity_uuid(self.boot())
+        self.existing_subsystems = {row["nqn"] for row in self.source_bindings["subsystems"]
+                                    if (self.base / "subsystems" / row["nqn"]).exists()}
+        self.checkpoint = None
+        self.scope = None
+
+    @classmethod
+    def cleanup_authority(cls, cleanup, payload, generation_root=None, probe=None, boot=None):
+        """Read existing immutable TARGET receipt before cleanup's foreign guards.
+
+        This never captures/mints identity authority or modifies canonical/book.
+        Runtime namespace devices must match an exact SOURCE or TARGET volume.
+        """
+        value = cls.__new__(cls)
+        value._initialize(cleanup, payload, generation_root, probe, boot, None)
+        cleanup.guard()
+        if value.pending is None or NVME_IDENTITY_FIELD not in value.pending:
+            return {}
+        value.scope = value._scope(value.pending)
+        value._source_guard(value.pending, digest=True)
+        recorded = value.pending[NVME_IDENTITY_FIELD]
+        value._validate(recorded)
+        if (value.source_bindings != recorded["sourceBindings"]
+                or value.target_bindings not in (recorded["sourceBindings"], recorded["targetBindings"])):
+            raise ValueError("NVMe cleanup TARGET authority differs from its restored original SOURCE")
+        value.checkpoint = recorded
+        value.guard()
+        bindings = (recorded["sourceBindings"], recorded["targetBindings"])
+        rows = {}
+        for projection in bindings:
+            for subsystem in projection["subsystems"]:
+                nqn = subsystem["nqn"]
+                row = rows.setdefault(nqn, {"uuid": subsystem["uuid"], "targetName": nqn,
+                                             "namespaces": [], "hosts": []})
+                for namespace in projection["namespaces"]:
+                    if namespace["subsystemUuid"] == subsystem["uuid"]:
+                        row["namespaces"].append({"uuid": namespace["uuid"], "lunOrNamespace": namespace["nsid"],
+                            "volumeUuid": namespace["volumeUuid"], "volumeSizeBytes": namespace["sizeBytes"]})
+                for host in projection["hosts"]:
+                    if host["subsystemUuid"] == subsystem["uuid"]:
+                        row["hosts"].append({"principal": host["principal"]})
+        for nqn, row in rows.items():
+            path = value.base / "subsystems" / nqn
+            if not path.exists():
+                continue
+            cleanup.directory(path)
+            cleanup.directory(path / "namespaces")
+            allowed = {}
+            for projection in bindings:
+                for namespace in projection["namespaces"]:
+                    if namespace["nqn"] == nqn:
+                        allowed.setdefault(namespace["nsid"], []).append(namespace)
+            for namespace in (path / "namespaces").iterdir():
+                cleanup.directory(namespace)
+                candidates = allowed.get(namespace.name, [])
+                if not candidates:
+                    raise ValueError("NVMe cleanup TARGET has an unrecorded namespace")
+                device = value._read(namespace / "device_path")
+                matched = False
+                for candidate in candidates:
+                    try:
+                        value._volume(candidate, device)
+                    except ValueError:
+                        continue
+                    matched = True
+                    break
+                if not matched:
+                    raise ValueError("NVMe cleanup TARGET namespace DATA volume is foreign")
+            known_hosts = {host["principal"] for host in row["hosts"]}
+            if any(link.name not in known_hosts for link in cleanup.links(path / "allowed_hosts")):
+                raise ValueError("NVMe cleanup TARGET retains an unrecorded host")
+        value.guard()
+        return {"instanceUuid": value.instance, "subsystems": list(rows.values())}
+
+    def _json(self, path, optional=False):
+        if optional and not path.parent.exists():
+            return None
+        return self.cleanup.read(path, optional=optional, private=True)[0]
+
+    def _scope(self, pending):
+        scope = {key: pending.get(key) for key in ("instanceUuid", "operationUuid", "revision")}
+        nvme_identity_uuid(scope["instanceUuid"]); nvme_identity_uuid(scope["operationUuid"])
+        if (scope["instanceUuid"] != self.instance or type(scope["revision"]) is not int
+                or scope["revision"] < 1):
+            raise ValueError("NVMe identity native writer scope is invalid")
+        return scope
+
+    def _canonical(self):
+        values = {}
+        for name in NVME_IDENTITY_PATHS:
+            path = self.cleanup.state.parent / name
+            values[name] = nvme_identity_redact(self.cleanup.read(path, optional=True)[0]) if path.parent.exists() else None
+        return values
+
+    def _source_guard(self, pending, digest=False):
+        scope = self._scope(pending)
+        current = self._json(self.current_path, optional=True) or {}
+        before = pending.get("beforeSha256")
+        if current:
+            nvme_identity_uuid(current.get("operationUuid"))
+        if (pending.get("phase") not in ("PREPARED", "VERIFIED") or current != pending.get("previous")
+                or current != self.current or scope != self.scope
+                or not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before)
+                or current and (current.get("instanceUuid") != self.instance
+                    or current.get("configurationSha256") != before
+                    or type(current.get("revision")) is not int
+                    or current["revision"] >= scope["revision"])):
+            raise ValueError("NVMe identity SOURCE/current/pending authority changed")
+        if digest:
+            actual = self._canonical()
+            if current:
+                artifact = self._json(self.generation_root / (current["operationUuid"] + ".json"))
+                desired = artifact.get("desired")
+                frozen = {key: artifact.get(key) for key in
+                          ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")}
+                if (artifact.get("phase") != "VERIFIED" or frozen != current
+                        or not isinstance(desired, dict) or set(desired) != set(NVME_IDENTITY_PATHS)
+                        or any(row is not None and not isinstance(row, dict) for row in desired.values())
+                        or nvme_identity_redact(desired) != desired
+                        or nvme_identity_digest(desired) != before):
+                    raise ValueError("NVMe identity frozen SOURCE generation changed")
+                # Earlier domains in one forward operation may already be TARGET.
+                # The verified seven-file SOURCE artifact remains authoritative;
+                # this protocol must still be its exact SOURCE before capture.
+                previous_nvme = None if self.cleanup.source_signature is None else nvme_identity_redact(self.cleanup.previous)
+                if (actual["nvmeof-subsystems.json"] != desired["nvmeof-subsystems.json"]
+                        or previous_nvme != desired["nvmeof-subsystems.json"]):
+                    raise ValueError("NVMe identity canonical SOURCE fingerprint changed")
+            elif nvme_identity_digest(actual) != before:
+                raise ValueError("NVMe initial identity SOURCE fingerprint changed")
+        identity = str(uuid.UUID(bytes=hashlib.md5(
+            ("local-source-checkpoint:" + scope["operationUuid"]).encode()).digest(), version=3))
+        local_path = self.generation_root.parent / "smb-local-source-checkpoints" / (identity + "-journal.json")
+        local = self._json(local_path, optional=True) if local_path.parent.exists() else None
+        if local is not None and (local.get("scope") != {**scope, "localCheckpointUuid": identity}
+                or local.get("common", {}).get("expectedBootId") != self.boot_id
+                or local.get("common", {}).get("sourceConfigurationSha256") != before
+                or local.get("common", {}).get("sourceGeneration") != current):
+            raise ValueError("NVMe identity cannot borrow another LOCAL source scope or boot")
+
+    def guard(self):
+        self.cleanup.guard()
+        if nvme_identity_uuid(self.boot()) != self.boot_id:
+            raise ValueError("NVMe identity boot changed")
+        if self.scope is not None:
+            pending = self._json(self.pending_path)
+            self._source_guard(pending)
+            if pending.get(NVME_IDENTITY_FIELD) != self.checkpoint:
+                raise ValueError("NVMe identity immutable checkpoint changed")
+        elif self._json(self.pending_path, optional=True) is not None or (
+                self._json(self.current_path, optional=True) or {}) != self.current:
+            raise ValueError("NVMe startup identity generation scope changed")
+
+    def _publish(self, value):
+        self.cleanup.guard()
+        pending = self._json(self.pending_path)
+        self._source_guard(pending, digest=True)
+        if pending != self.pending:
+            raise ValueError("NVMe identity pending changed before checkpoint publication")
+        info = self.generation_root.lstat()
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or stat.S_IMODE(info.st_mode) != 0o700):
+            raise ValueError("NVMe identity generation directory is not private")
+        raw = json.dumps({**pending, NVME_IDENTITY_FIELD: value}, sort_keys=True, allow_nan=False).encode()
+        if len(raw) > 8 * 1024 * 1024:
+            raise ValueError("NVMe identity pending checkpoint exceeds its bound")
+        fd, temporary = tempfile.mkstemp(prefix=".nvme-runtime-identity-", dir=self.generation_root)
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(raw); stream.flush(); os.fsync(stream.fileno())
+            os.replace(temporary, self.pending_path)
+            directory = os.open(self.generation_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                os.fsync(directory)
+            finally:
+                os.close(directory)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def _attribute(self, path, write=False):
+        self.cleanup.directory(path.parent)
+        fd = os.open(path, (os.O_WRONLY if write else os.O_RDONLY) | os.O_NOFOLLOW)
+        try:
+            opened = os.fstat(fd); named = path.lstat()
+            fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid")
+            if (not stat.S_ISREG(opened.st_mode) or opened.st_uid != os.geteuid()
+                    or opened.st_mode & 0o022 or opened.st_nlink != 1
+                    or any(getattr(opened, key) != getattr(named, key) for key in fields)):
+                raise ValueError("NVMe fixed public identity attribute is foreign")
+            return fd
+        except BaseException:
+            os.close(fd)
+            raise
+
+    def _read(self, path):
+        fd = self._attribute(path)
+        try:
+            raw = os.read(fd, 257)
+            if len(raw) > 256:
+                raise ValueError("NVMe public identity attribute exceeds its bound")
+            text = raw.decode("ascii").removesuffix("\n")
+            if "\n" in text or "\r" in text or "\0" in text:
+                raise ValueError("NVMe public identity attribute is not one public scalar")
+            return text.strip()
+        finally:
+            os.close(fd)
+
+    @staticmethod
+    def _valid_attribute(name, value):
+        if name in ("attr_serial", "attr_model"):
+            limit = 20 if name == "attr_serial" else 40
+            if not isinstance(value, str) or not re.fullmatch("[ -~]{1," + str(limit) + "}", value):
+                raise ValueError("NVMe public controller identity is invalid")
+        elif name in ("device_uuid", "device_nguid"):
+            nvme_identity_uuid(value)
+        elif name == "device_eui64":
+            if value is not None and (not isinstance(value, str) or not re.fullmatch("[0-9a-f]{16}", value)):
+                raise ValueError("NVMe public EUI64 identity is invalid")
+        else:
+            raise ValueError("NVMe public identity attribute is outside its fixed allowlist")
+        return value
+
+    def _attributes(self, path, namespace=False):
+        names = ("device_uuid", "device_nguid", "device_eui64") if namespace else ("attr_serial", "attr_model")
+        values = {}
+        for name in names:
+            attribute = path / name
+            value = None if name == "device_eui64" and not os.path.lexists(attribute) else self._read(attribute)
+            values[name] = self._valid_attribute(name, value)
+        return values
+
+    def _volume(self, binding, device):
+        proof = self.probe(binding, device)
+        serial = binding["volumeUuid"].replace("-", "")
+        if (not isinstance(proof, dict) or set(proof) != {"devicePath", "serial", "sizeBytes"}
+                or proof["serial"] not in (serial, serial[:20])
+                or proof["sizeBytes"] != binding["sizeBytes"]
+                or not isinstance(proof["devicePath"], str) or not proof["devicePath"].startswith("/dev/")):
+            raise ValueError("NVMe public identity DATA volume proof is not exact")
+        return proof
+
+    @staticmethod
+    def probe_volume(binding, device):
+        if not isinstance(device, str) or not device.startswith("/dev/") or "\n" in device or "\0" in device:
+            raise ValueError("NVMe namespace device path is invalid")
+        result = subprocess.run(["lsblk", "-J", "-b", "-o", "PATH,TYPE,SERIAL,SIZE,FSTYPE,MOUNTPOINTS"],
+                                capture_output=True, text=True, timeout=8)
+        if result.returncode or len(result.stdout) > 1024 * 1024:
+            raise ValueError("NVMe DATA volume topology is unavailable")
+        def flatten(items):
+            for item in items:
+                yield item
+                yield from flatten(item.get("children") or [])
+        rows = list(flatten(json.loads(result.stdout)["blockdevices"]))
+        actual = os.path.realpath(device)
+        matches = [row for row in rows if row.get("path") and os.path.realpath(row["path"]) == actual]
+        if (len(matches) != 1 or matches[0].get("type") != "disk" or matches[0].get("fstype")
+                or matches[0].get("children") or any(matches[0].get("mountpoints") or [])
+                or not stat.S_ISBLK(os.stat(actual).st_mode)):
+            raise ValueError("NVMe identity needs the exact unmounted raw DATA disk")
+        row = matches[0]
+        return {"devicePath": actual, "serial": row.get("serial"), "sizeBytes": row.get("size")}
+
+    def _capture(self, durable):
+        identities = []
+        active_source = set(self.cleanup.rows(self.cleanup.previous))
+        active_namespaces = {row.get("uuid") for subsystem in self.cleanup.previous.get("subsystems") or []
+                             if subsystem.get("targetName") in active_source
+                             for row in subsystem.get("namespaces") or []
+                             if row.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")}
+        for subsystem in self.source_bindings["subsystems"]:
+            path = self.base / "subsystems" / subsystem["nqn"]
+            if not path.exists():
+                if durable and subsystem["nqn"] in active_source:
+                    raise ValueError("NVMe active SOURCE controller identity is unavailable")
+                continue
+            self.cleanup.directory(path)
+            entry = {"binding": subsystem, "attributes": self._attributes(path), "namespaces": []}
+            for binding in self.source_bindings["namespaces"]:
+                if binding["subsystemUuid"] != subsystem["uuid"]:
+                    continue
+                namespace = path / "namespaces" / binding["nsid"]
+                if not namespace.exists():
+                    if durable and binding["uuid"] in active_namespaces:
+                        raise ValueError("NVMe active SOURCE namespace identity is unavailable")
+                    continue
+                self.cleanup.directory(namespace)
+                device = self._read(namespace / "device_path")
+                entry["namespaces"].append({"binding": binding, "attributes": self._attributes(namespace, True),
+                                            "device": self._volume(binding, device)})
+            identities.append(entry)
+        value = {"schemaVersion": 1, "kind": NVME_IDENTITY_KIND, "scope": self.scope,
+                 "bootId": self.boot_id, "sourceGeneration": self.current,
+                 "sourceConfigurationSha256": self.pending["beforeSha256"] if durable else nvme_identity_digest(self._canonical()),
+                 "sourceBindings": self.source_bindings, "targetBindings": self.target_bindings,
+                 "identities": identities}
+        value["checkpointSha256"] = nvme_identity_digest(value)
+        self._validate(value)
+        return value
+
+    def _validate(self, value):
+        fields = {"schemaVersion", "kind", "scope", "bootId", "sourceGeneration", "sourceConfigurationSha256",
+                  "sourceBindings", "targetBindings", "identities", "checkpointSha256"}
+        if (not isinstance(value, dict) or set(value) != fields or type(value["schemaVersion"]) is not int
+                or value["schemaVersion"] != 1 or value["kind"] != NVME_IDENTITY_KIND
+                or value["scope"] != self.scope or value["bootId"] != self.boot_id
+                or value["sourceGeneration"] != self.current
+                or value["sourceConfigurationSha256"] != (self.pending["beforeSha256"] if self.pending else value["sourceConfigurationSha256"])
+                or not re.fullmatch("[0-9a-f]{64}", str(value["sourceConfigurationSha256"]))
+                or not isinstance(value["identities"], list) or len(value["identities"]) > 1024
+                or nvme_identity_digest({key: item for key, item in value.items() if key != "checkpointSha256"}) != value["checkpointSha256"]):
+            raise ValueError("NVMe public identity checkpoint scope/schema/hash changed")
+        for bindings in (value["sourceBindings"], value["targetBindings"]):
+            if not isinstance(bindings, dict) or set(bindings) != {"subsystems", "namespaces", "hosts"}:
+                raise ValueError("NVMe public identity binding schema changed")
+            rows = [{"uuid": row["uuid"], "targetName": row["nqn"], "namespaces": [
+                {"uuid": namespace["uuid"], "lunOrNamespace": namespace["nsid"],
+                 "volumeUuid": namespace["volumeUuid"], "volumeSizeBytes": namespace["sizeBytes"]}
+                for namespace in bindings["namespaces"] if namespace["subsystemUuid"] == row["uuid"]],
+                "hosts": [{"principal": host["principal"]} for host in bindings["hosts"]
+                          if host["subsystemUuid"] == row["uuid"]]}
+                for row in bindings["subsystems"]]
+            if nvme_identity_bindings({"instanceUuid": self.instance, "subsystems": rows}, self.instance) != bindings:
+                raise ValueError("NVMe public identity canonical binding changed")
+        seen_subsystems, seen_namespaces = set(), set()
+        for entry in value["identities"]:
+            if (not isinstance(entry, dict) or set(entry) != {"binding", "attributes", "namespaces"}
+                    or entry["binding"] not in value["sourceBindings"]["subsystems"]
+                    or entry["binding"]["uuid"] in seen_subsystems
+                    or set(entry["attributes"]) != {"attr_serial", "attr_model"}
+                    or not isinstance(entry["namespaces"], list)):
+                raise ValueError("NVMe SOURCE controller checkpoint is foreign")
+            seen_subsystems.add(entry["binding"]["uuid"])
+            for name, attribute in entry["attributes"].items():
+                self._valid_attribute(name, attribute)
+            for namespace in entry["namespaces"]:
+                if (not isinstance(namespace, dict) or set(namespace) != {"binding", "attributes", "device"}
+                        or namespace["binding"] not in value["sourceBindings"]["namespaces"]
+                        or namespace["binding"]["subsystemUuid"] != entry["binding"]["uuid"]
+                        or namespace["binding"]["uuid"] in seen_namespaces
+                        or set(namespace["attributes"]) != {"device_uuid", "device_nguid", "device_eui64"}):
+                    raise ValueError("NVMe SOURCE namespace checkpoint is foreign")
+                seen_namespaces.add(namespace["binding"]["uuid"])
+                for name, attribute in namespace["attributes"].items():
+                    self._valid_attribute(name, attribute)
+                proof = namespace["device"]
+                serial = namespace["binding"]["volumeUuid"].replace("-", "")
+                if (not isinstance(proof, dict) or set(proof) != {"devicePath", "serial", "sizeBytes"}
+                        or proof["serial"] not in (serial, serial[:20])
+                        or proof["sizeBytes"] != namespace["binding"]["sizeBytes"]
+                        or not isinstance(proof["devicePath"], str) or not proof["devicePath"].startswith("/dev/")):
+                    raise ValueError("NVMe SOURCE public volume checkpoint changed")
+
+    def _subsystem_binding(self, subsystem):
+        matches = [row for row in self.target_bindings["subsystems"]
+                   if row["uuid"] == subsystem.get("uuid") and row["nqn"] == subsystem.get("targetName")]
+        if len(matches) != 1:
+            raise ValueError("NVMe restore controller is outside its original target intent")
+        return matches[0]
+
+    def _restore(self, path, expected, namespace=False, binding_guard=None):
+        self.guard()
+        actual = self._attributes(path, namespace)
+        changes = [(name, value) for name, value in expected.items() if actual[name] != value]
+        if not changes:
+            return
+        if namespace:
+            if self._read(path / "enable") != "0":
+                raise ValueError("NVMe enabled namespace identity differs from its checkpoint")
+        else:
+            if path.name in self.existing_subsystems or any(
+                    child.is_dir() and self._read(child / "enable") == "1"
+                    for child in (path / "namespaces").iterdir()):
+                raise ValueError("NVMe existing controller identity drift requires owned reconciliation")
+            for port in (self.base / "ports").iterdir():
+                if os.path.lexists(port / "subsystems" / path.name):
+                    raise ValueError("NVMe controller identity cannot change after port exposure")
+        # Validate every presence/value before the first metadata write.
+        if any(value is None or actual[name] is None for name, value in changes):
+            raise ValueError("NVMe optional identity attribute presence changed")
+        for name, value in changes:
+            self.guard()
+            if namespace and self._read(path / "enable") != "0":
+                raise ValueError("NVMe namespace became enabled before identity restore")
+            if binding_guard is not None:
+                binding_guard()
+            fd = self._attribute(path / name, write=True)
+            try:
+                encoded = value.encode("ascii")
+                if self.write(fd, encoded) != len(encoded):
+                    raise ValueError("NVMe public identity write was incomplete")
+            finally:
+                os.close(fd)
+            if self._read(path / name) != value:
+                raise ValueError("NVMe public identity readback differed")
+        if self._attributes(path, namespace) != expected:
+            raise ValueError("NVMe restored public identity did not verify")
+        if binding_guard is not None:
+            binding_guard()
+
+    def restore_subsystem(self, subsystem):
+        binding = self._subsystem_binding(subsystem)
+        expected = next((entry for entry in self.checkpoint["identities"]
+                         if entry["binding"]["uuid"] == binding["uuid"]), None)
+        if expected is not None:
+            path = self.base / "subsystems" / binding["nqn"]
+            self.cleanup.directory(path)
+            self._restore(path, expected["attributes"])
+
+    def restore_namespace(self, subsystem, namespace, backing_path):
+        parent = self._subsystem_binding(subsystem)
+        number = namespace.get("lunOrNamespace", 1)
+        if (type(number) not in (int, str) or not re.fullmatch(r"[0-9]{1,5}", str(number))
+                or not 1 <= int(number) <= 65535):
+            raise ValueError("NVMe restore namespace ID is not canonical")
+        candidates = [row for row in self.target_bindings["namespaces"]
+                      if row["uuid"] == namespace.get("uuid") and row["subsystemUuid"] == parent["uuid"]
+                      and row["nqn"] == parent["nqn"] and row["nsid"] == str(int(number))
+                      and row["volumeUuid"] == namespace.get("volumeUuid")
+                      and row["sizeBytes"] == namespace.get("volumeSizeBytes")]
+        if len(candidates) != 1:
+            raise ValueError("NVMe restore namespace is outside its original target intent")
+        binding = candidates[0]
+        self._volume(binding, backing_path)
+        expected = next((item for entry in self.checkpoint["identities"] for item in entry["namespaces"]
+                         if item["binding"]["uuid"] == binding["uuid"]
+                         and item["binding"]["subsystemUuid"] == parent["uuid"]), None)
+        if expected is not None:
+            path = self.base / "subsystems" / parent["nqn"] / "namespaces" / binding["nsid"]
+            self.cleanup.directory(path)
+            def bound():
+                if self._read(path / "device_path") != backing_path:
+                    raise ValueError("NVMe namespace DATA path changed before public identity restore")
+                self._volume(binding, backing_path)
+            bound()
+            self._restore(path, expected["attributes"], True, bound)
+# END EMBEDDED NVME RUNTIME IDENTITY
+
 credential_store=NvmeCredentialStore()
 payload,credential_record=credential_store.hydrate(payload)
 previous_credentials=credential_store.read() or {}
@@ -11182,7 +12483,8 @@ def cleanup_sessions():
     observed=subprocess.run([sys.argv[2],"sessions"],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,text=True,timeout=20,pass_fds=(9,))
     if observed.returncode:raise ValueError("NVMe native session observation failed")
     return json.loads(observed.stdout)
-cleanup=NvmeManagedCleanup(base,os.path.join(state_dir,"nvmeof-subsystems.json"),payload,cleanup_sessions)
+cleanup=NvmeManagedCleanup(base,os.path.join(state_dir,"nvmeof-subsystems.json"),payload,cleanup_sessions,ownership=NvmeRuntimeIdentity.cleanup_authority)
+runtime_identity=NvmeRuntimeIdentity(cleanup,payload)
 if cleanup.desired and not os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY"):
     # Source ownership/vault/typed guards precede any network or kernel effect.
     public_network=nvme_loopback_network_request(payload,run)
@@ -11237,6 +12539,7 @@ if enabled and os.path.isdir(base):
         subsystem_dir = os.path.join(base, "subsystems", nqn)
         config = subsystem.get("config") or {}
         ensure_dir(subsystem_dir)
+        runtime_identity.restore_subsystem(subsystem)
         allow_any_host = bool(config.get("allowAnyHost"))
         write_if_changed(os.path.join(subsystem_dir, "attr_allow_any_host"), "1" if allow_any_host else "0")
         desired_hosts = set()
@@ -11274,6 +12577,7 @@ if enabled and os.path.isdir(base):
                             break
                         time.sleep(0.1)
                 write_if_changed(os.path.join(ns_dir, "device_path"), backing_path)
+            runtime_identity.restore_namespace(subsystem,namespace,backing_path)
             write_if_changed(os.path.join(ns_dir, "enable"), "1")
             namespace["runtime"] = {"backingPath": backing_path, "backingType": backing_type}
         subsystem_ports = set(subsystem.get("runtimeListenerPorts") or listener_ports_for_subsystem(subsystem, active_listeners))
@@ -14659,6 +15963,43 @@ from pathlib import Path
 import re
 import stat
 import sys
+import uuid as pending_local_uuid
+
+# LOCAL-only readers reuse the reviewed SERVICE cipher bounds and metadata checks.
+def pending_local_source_json(value):
+
+    def unique(pairs):
+        result = {}
+        for (key, item) in pairs:
+            if key in result:
+                raise ValueError('SERVICE cipher record has duplicate fields')
+            result[key] = item
+        return result
+
+    def invalid(value):
+        raise ValueError('SERVICE cipher record has an invalid JSON number')
+    return json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+
+def pending_local_source_read(path):
+    parent = path.parent.lstat()
+    info = path.lstat()
+    fields = ('st_dev', 'st_ino', 'st_uid', 'st_gid', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 18 or (not stat.S_ISREG(info.st_mode)) or (info.st_uid != os.geteuid()) or (stat.S_IMODE(info.st_mode) != 384) or (info.st_size > 16 * 1024 * 1024):
+        raise ValueError('SERVICE encrypted source checkpoint is not protected')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        opened = os.fstat(descriptor)
+        if any((getattr(opened, key) != getattr(info, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during open')
+        with os.fdopen(descriptor, 'rb', closefd=False) as handle:
+            raw = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(descriptor)
+        named = path.lstat()
+        if len(raw) > 16 * 1024 * 1024 or any((getattr(opened, key) != getattr(after, key) or getattr(opened, key) != getattr(named, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during read')
+        return pending_local_source_json(raw)
+    finally:
+        os.close(descriptor)
 
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
@@ -14677,12 +16018,16 @@ class PendingNfsAuthorization:
         self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
+        # Forward/public grants remain PREPARED only.
+        return self._writer_state(scope, ("PREPARED",))
+
+    def _writer_state(self, scope, phases):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
             raise ValueError("Pending NFS operation scope is not exact")
         scope = self.generation.request(scope)
         pending = self.generation.scoped(scope)
         info = self.generation.pending.lstat()
-        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") != "PREPARED":
+        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") not in phases:
             raise ValueError("Pending NFS writer is not protected PREPARED")
         before = pending.get("beforeSha256")
         if not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before):
@@ -14695,6 +16040,63 @@ class PendingNfsAuthorization:
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
+
+    def local_source_state(self, scope, unit):
+        # This is an internal consumer of the existing opaque LOCAL import.
+        # No JSON request or generic grant accepts a recovery flag or mode.
+        if self.protocol != "SMB":
+            raise ValueError("LOCAL source resume is restricted to SMB")
+        scope, pending, digest = self._writer_state(scope, ("PREPARED", "VERIFIED"))
+        current = self.generation.status()
+        if current.get("generation") != pending.get("previous") or digest != pending["beforeSha256"]:
+            raise ValueError("LOCAL source resume is outside its exact original SOURCE")
+        boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        identity = str(pending_local_uuid.UUID(bytes=hashlib.md5(
+            ("local-source-checkpoint:" + scope["operationUuid"]).encode()).digest(), version=3))
+        root = self.generation.root.parent / "smb-local-source-checkpoints"
+        parent = root.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+            raise ValueError("LOCAL source resume checkpoint directory is not protected")
+        records = {}
+        for suffix in ("journal", "cipher"):
+            path = root / (identity + "-" + suffix + ".json")
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("LOCAL source resume checkpoint file is not protected")
+            records[suffix] = pending_local_source_read(path)
+        journal, record = records["journal"], records["cipher"]
+        local_scope = {**scope, "localCheckpointUuid": identity}
+        common = {**local_scope, "sourceGeneration": pending.get("previous"),
+                  "sourceConfigurationSha256": pending["beforeSha256"], "expectedBootId": boot}
+        if (not isinstance(journal, dict) or journal.get("scope") != local_scope or journal.get("common") != common
+                or journal.get("phase") != "RESUMING" or journal.get("imported") is not True
+                or not isinstance(journal.get("importedFingerprints"), dict)
+                or not isinstance(journal.get("importedStoppedDatabases"), dict)
+                or not isinstance(record, dict) or type(record.get("schemaVersion")) is not int or record["schemaVersion"] != 1
+                or record.get("kind") != "LOCAL_SOURCE_IDENTITY_CHECKPOINT" or record.get("scope") != local_scope
+                or record.get("common") != common
+                or journal.get("importedCheckpointSha256") != hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()):
+            raise ValueError("LOCAL source resume has no original verified opaque import")
+        desired = record.get("sourceDesiredState")
+        if (not isinstance(desired, dict) or set(desired) != set(self.generation.paths)
+                or any(value is not None and not isinstance(value, dict) for value in desired.values())
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest() != pending["beforeSha256"]):
+            raise ValueError("LOCAL source resume frozen seven-file fingerprint changed")
+        configuration, _ = self.configuration(unit)
+        prior = journal.get("prior") or {}
+        if (unit not in {row.get("unit") for row in prior.get("units", [])}
+                or configuration != record.get("sourceConfigurationFileSha256")
+                or configuration != prior.get("configurationSha256")):
+            raise ValueError("LOCAL source resume unit/configuration is outside original SOURCE")
+        evidence = {"localSourceCheckpointSha256": hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+                    "localSourceJournalSha256": hashlib.sha256(json.dumps(journal, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()}
+        return scope, pending, digest, evidence
+
+    @contextlib.contextmanager
+    def local_source_grant(self, scope, unit):
+        scope, pending, digest, evidence = self.local_source_state(scope, unit)
+        with self._grant(scope, pending, digest, unit, "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME", evidence):
+            yield
 
     def lock(self, pid):
         path = Path("/proc") / str(pid)
@@ -14787,6 +16189,11 @@ class PendingNfsAuthorization:
             return
         scope = payload["operationScope"]
         scope, pending, digest = self.state(scope)
+        with self._grant(scope, pending, digest, unit, self.mode, {}):
+            yield
+
+    @contextlib.contextmanager
+    def _grant(self, scope, pending, digest, unit, mode, evidence):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Pending NFS requires its inherited FD9")
         opened, ticks = self.lock(os.getpid())
@@ -14795,10 +16202,10 @@ class PendingNfsAuthorization:
         if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700:
             raise ValueError("Pending NFS grant directory is not protected")
         configuration_sha, configuration_identity = self.configuration(unit)
-        proof = {"mode": self.mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
+        proof = {"mode": mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
                  "configurationSha256": digest, "unit": unit, "configurationFileSha256": configuration_sha, "configurationFileIdentity": configuration_identity,
                  "pid": os.getpid(), "startTicks": ticks, "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino}
+                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino, **evidence}
         raw_fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
             fd = fcntl.fcntl(raw_fd, fcntl.F_DUPFD_CLOEXEC, 16)
@@ -14830,11 +16237,20 @@ class PendingNfsAuthorization:
                     or not stat.S_ISREG(record.st_mode) or record.st_uid != os.geteuid() or stat.S_IMODE(record.st_mode) != 0o600):
                 return False
             proof = pending_nfs_read(self.path)
-            if not isinstance(proof, dict) or set(proof) != {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}:
+            fields = {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}
+            local = isinstance(proof, dict) and self.protocol == "SMB" and proof.get("mode") == "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME"
+            if local:
+                fields |= {"localSourceCheckpointSha256", "localSourceJournalSha256"}
+            if not isinstance(proof, dict) or set(proof) != fields:
                 return False
-            if proof["mode"] != self.mode or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
+            if (not local and proof["mode"] != self.mode) or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
                 return False
-            scope, pending, digest = self.state(proof["scope"])
+            if local:
+                scope, pending, digest, evidence = self.local_source_state(proof["scope"], unit)
+                if any(proof.get(key) != value for key, value in evidence.items()):
+                    return False
+            else:
+                scope, pending, digest = self.state(proof["scope"])
             configuration_sha, configuration_identity = self.configuration(unit)
             if (proof["beforeSha256"] != pending["beforeSha256"] or proof["configurationSha256"] != digest
                     or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
@@ -14850,6 +16266,7 @@ class PendingNfsAuthorization:
 import hashlib,json,os,re,signal,stat,subprocess,tempfile,time,uuid
 from pathlib import Path
 LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
+LOCAL_SOURCE_NVME_ROOT=Path("/sys/kernel/config/nvmet")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
@@ -15001,6 +16418,9 @@ class SmbSourceCheckpoint:
         authorization=PendingNfsAuthorization(generation=PendingNfsGeneration(),protocol="SMB",
             rendered=NativeStatus(("operation","generation","render-status")),
             maintenance=NativeStatus(("operation","maintenance","status")))
+        journal=self.read(self.path(scope,"journal"))
+        if journal and journal.get("imported")is True:
+            return authorization.local_source_grant({k:scope[k]for k in ("instanceUuid","operationUuid","revision")},unit)
         return authorization.grant({"instanceUuid":scope["instanceUuid"],
             "operationScope":{k:scope[k]for k in ("instanceUuid","operationUuid","revision")}},unit)
     def native_command(self,args,payload=None):
@@ -15065,19 +16485,19 @@ class SmbSourceCheckpoint:
             finally:os.close(directory)
         finally:
             if os.path.exists(tmp):os.unlink(tmp)
-    def state(self,value,source_only=True,terminal=False):
+    def state(self,value,source_only=True,terminal=False,recovery=False):
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
         pending=self.read(self.handler.generations/"pending.json");current=self.read(self.handler.generations/"current.json")or {}
-        expected_phase="PREPARED"
+        expected_phases=("PREPARED","VERIFIED")if recovery else("PREPARED",)
         if pending is None and terminal:
             completed=self.read(self.handler.generations/(scope["operationUuid"]+".json"))
             journal=self.read(self.path(scope,"journal"))
             if (not completed or completed.get("phase")!="ROLLED_BACK"or not journal or journal.get("phase")!="RESUMED"
                     or completed.get("previous")!=value["sourceGeneration"]):
                 raise ValueError("LOCAL terminal observation lacks its rolled-back original writer")
-            pending=completed;expected_phase="ROLLED_BACK"
+            pending=completed;expected_phases=("ROLLED_BACK",)
         if not isinstance(pending,dict):raise ValueError("LOCAL source original pending writer is absent")
-        if (pending.get("phase")!=expected_phase or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
+        if (pending.get("phase")not in expected_phases or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
                 or pending.get("previous")!=value["sourceGeneration"]or current!=value["sourceGeneration"]
                 or pending.get("beforeSha256")!=value["sourceConfigurationSha256"]or self.boot()!=value["expectedBootId"]):
             raise ValueError("LOCAL source PREPARED authority changed")
@@ -15303,7 +16723,7 @@ class SmbSourceCheckpoint:
             result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
             return result
 
-        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
+        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True,recovery=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
 
         def status_proof_span(method, old):
             expected = copy.deepcopy(old)
@@ -15510,7 +16930,7 @@ class SmbSourceCheckpoint:
             for fd in handles.values():os.close(fd)
 
     def resume(self,value,journal,record):
-        scope=journal["scope"];self.state(value)
+        scope=journal["scope"];self.state(value,recovery=journal.get("imported")is True)
         active=set()
         if journal["phase"] in ("EXPORTED","STOPPED"):
             self.observe(value,stopped=True);self.match_private(record)
@@ -15707,7 +17127,7 @@ class SmbSourceCheckpoint:
         current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
         if hashlib.sha256(current).hexdigest()==expected:return
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
-        source=self.state(value);self.frozen(value,journal);self.validate_record(value,record)
+        source=self.state(value,recovery=True);self.frozen(value,journal);self.validate_record(value,record)
         if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
                 or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")
                 or not isinstance(journal.get("importedStoppedDatabases"),dict)
@@ -15742,7 +17162,7 @@ class SmbSourceCheckpoint:
             journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
             try:self.handler.run(["testparm","-s",temporary])
             except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None
-            self.state(value)
+            self.state(value,recovery=True)
             if self.stopped_observation()!=stopped:
                 raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")
             self.match_private({"privateFingerprints":journal["importedFingerprints"]})
@@ -15762,7 +17182,7 @@ class SmbSourceCheckpoint:
             os.close(directory)
 
     def import_source(self,value):
-        scope=self.request(value,"import-local-source");self.state(value)
+        scope=self.request(value,"import-local-source");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record:raise ValueError("LOCAL original checkpoint is absent")
@@ -15789,6 +17209,7 @@ class SmbSourceCheckpoint:
                 journal["imported"]=True;journal["phase"]="STOPPED"
                 journal["importedStoppedDatabases"]=self.stopped_observation()["databases"]
                 journal["importedFingerprints"]=restored["privateFingerprints"]
+                journal["importedCheckpointSha256"]=service_cipher_digest(record)
                 self.write(scope,"journal",journal)
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
@@ -15799,7 +17220,7 @@ class SmbSourceCheckpoint:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
 
     def status(self,value):
-        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True)
+        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True,recovery=True)
         journal=self.read(self.path(scope,"journal"))
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
@@ -15809,7 +17230,7 @@ class SmbSourceCheckpoint:
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')
                 and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):
-            self.state(value,source_only=True)
+            self.state(value,source_only=True,recovery=True)
             stopped=self.stopped_observation()
             if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):
                 raise ValueError('LOCAL runtime quarantine original STOP changed')
@@ -15833,8 +17254,45 @@ class SmbSourceCheckpoint:
             "currentSessionsVerifiedEmpty":view["sessionsVerifiedEmpty"],"currentConfigurationSha256":actual["configurationSha256"],
             "currentSmbConfigurationSha256":view["configurationSha256"],**({"localSourceCheckpointReference":self.reference(record)}if record is not None else {})}
 
+    def cleanup_absent_nvme_source(self,value,record):
+        # Only an existing original LOCAL import can reach this consumer. The
+        # normal signed NVMe adapter remains the full TARGET ownership validator.
+        self.state(value,recovery=True)
+        pending=self.read(self.handler.generations/"pending.json")
+        receipt=pending.get("nvmeRuntimeIdentity")if isinstance(pending,dict)else None
+        scope={key:value[key]for key in("instanceUuid","operationUuid","revision")}
+        fields={"schemaVersion","kind","scope","bootId","sourceGeneration","sourceConfigurationSha256",
+            "sourceBindings","targetBindings","identities","checkpointSha256"}
+        empty={"subsystems":[],"namespaces":[],"hosts":[]}
+        if (not isinstance(receipt,dict)or set(receipt)!=fields or type(receipt["schemaVersion"])is not int or receipt["schemaVersion"]!=1
+                or receipt["kind"]!="NVMEOF_SOURCE_RUNTIME_IDENTITY"or receipt["scope"]!=scope
+                or receipt["bootId"]!=value["expectedBootId"]or receipt["sourceGeneration"]!=value["sourceGeneration"]
+                or receipt["sourceConfigurationSha256"]!=value["sourceConfigurationSha256"]
+                or receipt["sourceBindings"]!=empty or receipt["identities"]!=[]
+                or not isinstance(receipt["targetBindings"],dict)or set(receipt["targetBindings"])!=set(empty)
+                or not isinstance(receipt["targetBindings"]["subsystems"],list)or not receipt["targetBindings"]["subsystems"]
+                or hashlib.sha256(json.dumps({key:item for key,item in receipt.items()if key!="checkpointSha256"},
+                    sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=receipt["checkpointSha256"]):
+            raise ValueError("LOCAL absent NVMe source lacks its exact owned TARGET receipt")
+        source=record["sourceDesiredState"]
+        if (not isinstance(source,dict)or set(source)!=set(PendingNfsGeneration.paths)or source["nvmeof-subsystems.json"]is not None
+                or any(row is not None and not isinstance(row,dict)for row in source.values())
+                or hashlib.sha256(json.dumps(source,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe source frozen declaration changed")
+        applied=self.command(("nvmeof","subsystem","apply","/dev/stdin"),{"instanceUuid":scope["instanceUuid"],"enabled":False,"subsystems":[]})
+        if applied.get("success")is not True:raise ValueError("LOCAL absent NVMe owned TARGET cleanup did not verify")
+        # The empty adapter publishes its normal canonical file. Restore only
+        # the exact frozen seven-file SOURCE, preserving its original absence.
+        restored=self.command(("operation","generation","restore","/dev/stdin"),
+            {**scope,"previousGeneration":value["sourceGeneration"],"configurationDesiredState":source})
+        if (restored.get("success")is not True or restored.get("canonicalRestored")is not True
+                or restored.get("generationAdvanced")is not False or restored.get("pendingOperationUuid")!=scope["operationUuid"]
+                or restored.get("configurationSha256")!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe canonical SOURCE did not verify")
+        self.state(value,recovery=True)
+
     def replay_auth(self,value):
-        scope=self.request(value,"replay-local-source-auth");self.state(value)
+        scope=self.request(value,"replay-local-source-auth");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record or journal.get("imported")is not True or journal.get("phase")!="RESUMED":
@@ -15858,14 +17316,22 @@ class SmbSourceCheckpoint:
         expected=record["sourceDesiredState"].get("nvmeof-subsystems.json")
         if "NVMEOF"in domains and desired!=expected:
             raise ValueError("LOCAL source NVMe public binding differs from frozen SOURCE7")
+        selected=select_restore_domains(payload,domains)
+        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             if payload.get("nvmeHosts"):
                 raise ValueError("LOCAL source absent NVMe cannot carry protected host keys")
-            for path in (Path("/sys/kernel/config/nvmet/subsystems"),Path("/sys/kernel/config/nvmet/ports")):
+            # Check this before the normal empty adapter can persist a vault:
+            # absent SOURCE keys never authorize overwriting a new private file.
+            for path,item in selected["files"].items():
+                if item.get("absent")is True and os.path.lexists(path):
+                    raise ValueError("LOCAL absent auth source cannot erase unproven target credentials")
+            paths=(LOCAL_SOURCE_NVME_ROOT/"subsystems",LOCAL_SOURCE_NVME_ROOT/"ports")
+            if any(os.path.lexists(path)and(path.is_symlink()or any(path.iterdir()))for path in paths):
+                self.cleanup_absent_nvme_source(value,record)
+            for path in paths:
                 if os.path.lexists(path)and(path.is_symlink()or any(path.iterdir())):
                     raise ValueError("LOCAL absent NVMe source has unproven runtime targets")
-        selected=select_restore_domains(payload,domains)
-        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             for path,item in selected["files"].items():
                 if item.get("absent")is True and os.path.lexists(path):
@@ -21362,6 +22828,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import tempfile
 import time
@@ -21433,6 +22900,61 @@ def redact(value):
     if isinstance(value, list):
         return [redact(item) for item in value]
     return value
+
+
+def iscsi_cleanup_lun(value):
+    if type(value) not in (int, str) or not re.fullmatch(r"[0-9]+", str(value)):
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    canonical = str(value).lstrip("0") or "0"
+    if len(canonical) > 5 or int(canonical) > 65535:
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    return canonical
+
+
+def iscsi_cleanup_bindings(value, instance):
+    if value is None:
+        return []
+    if not isinstance(value, dict) or not isinstance(value.get("targets", []), list):
+        raise ValueError("iSCSI cleanup canonical target collection is invalid")
+    rows = value.get("targets", [])
+    if rows and value.get("instanceUuid") != instance:
+        raise ValueError("iSCSI cleanup canonical instance is foreign")
+    result, identities = [], set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("iSCSI cleanup canonical target is invalid")
+        identity, name = row.get("uuid"), row.get("targetName")
+        if (not isinstance(identity, str) or str(uuid.UUID(identity)) != identity or identity in identities
+                or not isinstance(name, str) or len(name) > 223
+                or not re.fullmatch(r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+", name)
+                or not isinstance(row.get("config", {}), dict)
+                or str(row.get("backstoreType") or (row.get("config") or {}).get("backstoreType") or "BLOCK").upper() != "BLOCK"):
+            raise ValueError("iSCSI cleanup canonical UUID/IQN/BLOCK binding is invalid")
+        identities.add(identity);result.append({"uuid": identity, "targetName": name, "lunOrNamespace": iscsi_cleanup_lun(row.get("lunOrNamespace", 0))})
+    return sorted(result, key=lambda row: (row["uuid"], row["targetName"]))
+
+
+def iscsi_cleanup_receipt(receipt, pending, boot):
+    fields = {"schemaVersion", "scope", "bootId", "beforeSha256", "targetConfigurationSha256", "targets", "bindingsSha256"}
+    scope = {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}
+    if (not isinstance(receipt, dict) or set(receipt) != fields or type(receipt["schemaVersion"]) is not int
+            or receipt["schemaVersion"] != 1 or receipt["scope"] != scope or receipt["bootId"] != boot
+            or receipt["beforeSha256"] != pending.get("beforeSha256")
+            or any(not isinstance(receipt[key], str) or not re.fullmatch(r"[0-9a-f]{64}", receipt[key])
+                   for key in ("beforeSha256", "targetConfigurationSha256", "bindingsSha256"))
+            or not isinstance(receipt["targets"], list) or len(receipt["targets"]) > 4096
+            or any(not isinstance(row, dict) or set(row) != {"uuid", "targetName", "lunOrNamespace"} for row in receipt["targets"])):
+        raise ValueError("iSCSI cleanup pending receipt scope/boot/schema changed")
+    for key in ("instanceUuid", "operationUuid"):
+        if not isinstance(scope[key], str) or str(uuid.UUID(scope[key])) != scope[key]:
+            raise ValueError("iSCSI cleanup pending UUID is invalid")
+    if type(scope["revision"]) is not int or scope["revision"] < 1:
+        raise ValueError("iSCSI cleanup pending revision is invalid")
+    rows = iscsi_cleanup_bindings({"instanceUuid": scope["instanceUuid"], "targets": receipt["targets"]}, scope["instanceUuid"])
+    digest = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if rows != receipt["targets"] or digest != receipt["bindingsSha256"]:
+        raise ValueError("iSCSI cleanup pending target binding digest changed")
+    return rows
 
 class Generation:
     paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
@@ -21535,7 +23057,7 @@ class Generation:
             raise ValueError("Initial source accepts only its exact nonsecret request")
         request = self.request(request)
         pending = self.scoped(request)
-        if (pending.get("phase") != "PREPARED" or pending.get("previous") != {}
+        if (pending.get("phase") not in (("PREPARED", "VERIFIED") if restoring else ("PREPARED",)) or pending.get("previous") != {}
                 or read_json(self.current) not in (None, {})):
             raise ValueError("Initial source requires its original PREPARED writer without a generation")
         checksum = self.canonical_desired(request["configurationDesiredState"])
@@ -21550,10 +23072,48 @@ class Generation:
                 "generation": {}, "configurationSha256": checksum,
                 "configurationDesiredState": request["configurationDesiredState"]}
 
+    def preserve_iscsi_cleanup(self, pending, desired):
+        boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+        if "iscsiCleanupOwnership" in pending:
+            iscsi_cleanup_receipt(pending["iscsiCleanupOwnership"], pending, boot)
+            if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+                raise ValueError("iSCSI cleanup repeated restore source/current changed")
+            return
+        live = self.files()
+        rows = iscsi_cleanup_bindings(live["iscsi-targets.json"], pending["instanceUuid"])
+        source = iscsi_cleanup_bindings(desired["iscsi-targets.json"], pending["instanceUuid"])
+        if not any(row not in source for row in rows):
+            return
+        if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+            raise ValueError("iSCSI cleanup TARGET capture is outside its original pending source")
+        identity = str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:" + pending["operationUuid"]).encode()).digest(), version=3))
+        local = read_json(self.root.parent / "smb-local-source-checkpoints" / (identity + "-journal.json"))
+        if local is not None and (local.get("scope") != {**{key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}, "localCheckpointUuid": identity}
+                or local.get("common", {}).get("expectedBootId") != boot
+                or local.get("common", {}).get("sourceConfigurationSha256") != pending.get("beforeSha256")
+                or local.get("common", {}).get("sourceGeneration") != pending.get("previous")):
+            raise ValueError("iSCSI cleanup TARGET capture LOCAL source scope/boot changed")
+        receipt = {"schemaVersion": 1, "scope": {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")},
+                   "bootId": boot, "beforeSha256": pending["beforeSha256"],
+                   "targetConfigurationSha256": self.canonical_desired(live), "targets": rows,
+                   "bindingsSha256": hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
+        iscsi_cleanup_receipt(receipt, pending, boot)
+        # Publish this small public binding receipt before SOURCE erases TARGET.
+        # It remains immutable across a crash or repeated canonical restoration.
+        latest = self.scoped(pending)
+        if any(latest.get(key) != pending.get(key) for key in ("phase", "beforeSha256", "previous")):
+            raise ValueError("iSCSI cleanup pending changed before receipt publication")
+        if "iscsiCleanupOwnership" in latest and latest["iscsiCleanupOwnership"] != receipt:
+            raise ValueError("iSCSI cleanup first receipt changed before publication")
+        atomic_json(self.pending, {**latest, "iscsiCleanupOwnership": receipt})
+
     def restore(self, request):
         pending = self.scoped(request)
+        if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+            raise ValueError("Canonical restore is outside its noncommitted original SOURCE")
         if request.get("previousGeneration") == {}:
             pending, checksum = self.initial_source(request, restoring=True)
+            self.preserve_iscsi_cleanup(pending, request["configurationDesiredState"])
             self.replace_desired(request["configurationDesiredState"])
             return {"success": True, "generationSupported": True, "canonicalRestored": True,
                     "configurationSha256": checksum, "generationAdvanced": False,
@@ -21572,6 +23132,7 @@ class Generation:
         # This normalizes only fixed declarative files; rollback remains a
         # separate verified action. Daemons, secrets, DATA and generation
         # pointers are never changed here.
+        self.preserve_iscsi_cleanup(pending, request["configurationDesiredState"])
         self.replace_desired(request["configurationDesiredState"])
         return {"success": True, "generationSupported": True, "canonicalRestored": True,
                 "configurationSha256": checksum, "generationAdvanced": False,
@@ -26449,7 +28010,44 @@ from pathlib import Path
 import re
 import stat
 import sys
+import uuid as pending_local_uuid
 sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+
+# LOCAL-only readers reuse the reviewed SERVICE cipher bounds and metadata checks.
+def pending_local_source_json(value):
+
+    def unique(pairs):
+        result = {}
+        for (key, item) in pairs:
+            if key in result:
+                raise ValueError('SERVICE cipher record has duplicate fields')
+            result[key] = item
+        return result
+
+    def invalid(value):
+        raise ValueError('SERVICE cipher record has an invalid JSON number')
+    return json.loads(value, object_pairs_hook=unique, parse_constant=invalid)
+
+def pending_local_source_read(path):
+    parent = path.parent.lstat()
+    info = path.lstat()
+    fields = ('st_dev', 'st_ino', 'st_uid', 'st_gid', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 18 or (not stat.S_ISREG(info.st_mode)) or (info.st_uid != os.geteuid()) or (stat.S_IMODE(info.st_mode) != 384) or (info.st_size > 16 * 1024 * 1024):
+        raise ValueError('SERVICE encrypted source checkpoint is not protected')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        opened = os.fstat(descriptor)
+        if any((getattr(opened, key) != getattr(info, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during open')
+        with os.fdopen(descriptor, 'rb', closefd=False) as handle:
+            raw = handle.read(16 * 1024 * 1024 + 1)
+        after = os.fstat(descriptor)
+        named = path.lstat()
+        if len(raw) > 16 * 1024 * 1024 or any((getattr(opened, key) != getattr(after, key) or getattr(opened, key) != getattr(named, key) for key in fields)):
+            raise ValueError('SERVICE encrypted checkpoint changed during read')
+        return pending_local_source_json(raw)
+    finally:
+        os.close(descriptor)
 
 class PendingNfsAuthorization:
     mode = "NATIVE_PENDING_NFS_APPLY"
@@ -26468,12 +28066,16 @@ class PendingNfsAuthorization:
         self.registry = Path(registry or "/etc/ablestack-storage/smb-endpoint-listeners")
 
     def state(self, scope):
+        # Forward/public grants remain PREPARED only.
+        return self._writer_state(scope, ("PREPARED",))
+
+    def _writer_state(self, scope, phases):
         if not isinstance(scope, dict) or set(scope) != {"instanceUuid", "operationUuid", "revision"}:
             raise ValueError("Pending NFS operation scope is not exact")
         scope = self.generation.request(scope)
         pending = self.generation.scoped(scope)
         info = self.generation.pending.lstat()
-        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") != "PREPARED":
+        if stat.S_IMODE(info.st_mode) != 0o600 or pending.get("phase") not in phases:
             raise ValueError("Pending NFS writer is not protected PREPARED")
         before = pending.get("beforeSha256")
         if not isinstance(before, str) or not re.fullmatch("[0-9a-f]{64}", before):
@@ -26486,6 +28088,63 @@ class PendingNfsAuthorization:
         if rendered.get("current") is not None or rendered.get("activation") is not None or maintenance.get("bootHeld") is not False:
             raise ValueError("Pending NFS cannot borrow rendered/ROOT/SERVICE authority")
         return scope, pending, current["configurationSha256"]
+
+    def local_source_state(self, scope, unit):
+        # This is an internal consumer of the existing opaque LOCAL import.
+        # No JSON request or generic grant accepts a recovery flag or mode.
+        if self.protocol != "SMB":
+            raise ValueError("LOCAL source resume is restricted to SMB")
+        scope, pending, digest = self._writer_state(scope, ("PREPARED", "VERIFIED"))
+        current = self.generation.status()
+        if current.get("generation") != pending.get("previous") or digest != pending["beforeSha256"]:
+            raise ValueError("LOCAL source resume is outside its exact original SOURCE")
+        boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        identity = str(pending_local_uuid.UUID(bytes=hashlib.md5(
+            ("local-source-checkpoint:" + scope["operationUuid"]).encode()).digest(), version=3))
+        root = self.generation.root.parent / "smb-local-source-checkpoints"
+        parent = root.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+            raise ValueError("LOCAL source resume checkpoint directory is not protected")
+        records = {}
+        for suffix in ("journal", "cipher"):
+            path = root / (identity + "-" + suffix + ".json")
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) != 0o600:
+                raise ValueError("LOCAL source resume checkpoint file is not protected")
+            records[suffix] = pending_local_source_read(path)
+        journal, record = records["journal"], records["cipher"]
+        local_scope = {**scope, "localCheckpointUuid": identity}
+        common = {**local_scope, "sourceGeneration": pending.get("previous"),
+                  "sourceConfigurationSha256": pending["beforeSha256"], "expectedBootId": boot}
+        if (not isinstance(journal, dict) or journal.get("scope") != local_scope or journal.get("common") != common
+                or journal.get("phase") != "RESUMING" or journal.get("imported") is not True
+                or not isinstance(journal.get("importedFingerprints"), dict)
+                or not isinstance(journal.get("importedStoppedDatabases"), dict)
+                or not isinstance(record, dict) or type(record.get("schemaVersion")) is not int or record["schemaVersion"] != 1
+                or record.get("kind") != "LOCAL_SOURCE_IDENTITY_CHECKPOINT" or record.get("scope") != local_scope
+                or record.get("common") != common
+                or journal.get("importedCheckpointSha256") != hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()):
+            raise ValueError("LOCAL source resume has no original verified opaque import")
+        desired = record.get("sourceDesiredState")
+        if (not isinstance(desired, dict) or set(desired) != set(self.generation.paths)
+                or any(value is not None and not isinstance(value, dict) for value in desired.values())
+                or hashlib.sha256(json.dumps(desired, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest() != pending["beforeSha256"]):
+            raise ValueError("LOCAL source resume frozen seven-file fingerprint changed")
+        configuration, _ = self.configuration(unit)
+        prior = journal.get("prior") or {}
+        if (unit not in {row.get("unit") for row in prior.get("units", [])}
+                or configuration != record.get("sourceConfigurationFileSha256")
+                or configuration != prior.get("configurationSha256")):
+            raise ValueError("LOCAL source resume unit/configuration is outside original SOURCE")
+        evidence = {"localSourceCheckpointSha256": hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest(),
+                    "localSourceJournalSha256": hashlib.sha256(json.dumps(journal, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()}
+        return scope, pending, digest, evidence
+
+    @contextlib.contextmanager
+    def local_source_grant(self, scope, unit):
+        scope, pending, digest, evidence = self.local_source_state(scope, unit)
+        with self._grant(scope, pending, digest, unit, "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME", evidence):
+            yield
 
     def lock(self, pid):
         path = Path("/proc") / str(pid)
@@ -26578,6 +28237,11 @@ class PendingNfsAuthorization:
             return
         scope = payload["operationScope"]
         scope, pending, digest = self.state(scope)
+        with self._grant(scope, pending, digest, unit, self.mode, {}):
+            yield
+
+    @contextlib.contextmanager
+    def _grant(self, scope, pending, digest, unit, mode, evidence):
         if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") != "9":
             raise ValueError("Pending NFS requires its inherited FD9")
         opened, ticks = self.lock(os.getpid())
@@ -26586,10 +28250,10 @@ class PendingNfsAuthorization:
         if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or stat.S_IMODE(directory.st_mode) != 0o700:
             raise ValueError("Pending NFS grant directory is not protected")
         configuration_sha, configuration_identity = self.configuration(unit)
-        proof = {"mode": self.mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
+        proof = {"mode": mode, "scope": scope, "beforeSha256": pending["beforeSha256"],
                  "configurationSha256": digest, "unit": unit, "configurationFileSha256": configuration_sha, "configurationFileIdentity": configuration_identity,
                  "pid": os.getpid(), "startTicks": ticks, "bootId": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
-                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino}
+                 "lockDevice": opened.st_dev, "lockInode": opened.st_ino, **evidence}
         raw_fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
             fd = fcntl.fcntl(raw_fd, fcntl.F_DUPFD_CLOEXEC, 16)
@@ -26621,11 +28285,20 @@ class PendingNfsAuthorization:
                     or not stat.S_ISREG(record.st_mode) or record.st_uid != os.geteuid() or stat.S_IMODE(record.st_mode) != 0o600):
                 return False
             proof = pending_nfs_read(self.path)
-            if not isinstance(proof, dict) or set(proof) != {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}:
+            fields = {"mode", "scope", "beforeSha256", "configurationSha256", "unit", "configurationFileSha256", "configurationFileIdentity", "pid", "startTicks", "bootId", "lockDevice", "lockInode"}
+            local = isinstance(proof, dict) and self.protocol == "SMB" and proof.get("mode") == "NATIVE_PENDING_SMB_LOCAL_SOURCE_RESUME"
+            if local:
+                fields |= {"localSourceCheckpointSha256", "localSourceJournalSha256"}
+            if not isinstance(proof, dict) or set(proof) != fields:
                 return False
-            if proof["mode"] != self.mode or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
+            if (not local and proof["mode"] != self.mode) or proof["unit"] != unit or type(proof["pid"]) is not int or proof["pid"] < 1:
                 return False
-            scope, pending, digest = self.state(proof["scope"])
+            if local:
+                scope, pending, digest, evidence = self.local_source_state(proof["scope"], unit)
+                if any(proof.get(key) != value for key, value in evidence.items()):
+                    return False
+            else:
+                scope, pending, digest = self.state(proof["scope"])
             configuration_sha, configuration_identity = self.configuration(unit)
             if (proof["beforeSha256"] != pending["beforeSha256"] or proof["configurationSha256"] != digest
                     or proof["bootId"] != Path("/proc/sys/kernel/random/boot_id").read_text().strip()
@@ -26672,6 +28345,7 @@ import uuid
 import hashlib,json,os,re,signal,stat,subprocess,tempfile,time,uuid
 from pathlib import Path
 LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
+LOCAL_SOURCE_NVME_ROOT=Path("/sys/kernel/config/nvmet")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
@@ -26823,6 +28497,9 @@ class SmbSourceCheckpoint:
         authorization=PendingNfsAuthorization(generation=PendingNfsGeneration(),protocol="SMB",
             rendered=NativeStatus(("operation","generation","render-status")),
             maintenance=NativeStatus(("operation","maintenance","status")))
+        journal=self.read(self.path(scope,"journal"))
+        if journal and journal.get("imported")is True:
+            return authorization.local_source_grant({k:scope[k]for k in ("instanceUuid","operationUuid","revision")},unit)
         return authorization.grant({"instanceUuid":scope["instanceUuid"],
             "operationScope":{k:scope[k]for k in ("instanceUuid","operationUuid","revision")}},unit)
     def native_command(self,args,payload=None):
@@ -26887,19 +28564,19 @@ class SmbSourceCheckpoint:
             finally:os.close(directory)
         finally:
             if os.path.exists(tmp):os.unlink(tmp)
-    def state(self,value,source_only=True,terminal=False):
+    def state(self,value,source_only=True,terminal=False,recovery=False):
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
         pending=self.read(self.handler.generations/"pending.json");current=self.read(self.handler.generations/"current.json")or {}
-        expected_phase="PREPARED"
+        expected_phases=("PREPARED","VERIFIED")if recovery else("PREPARED",)
         if pending is None and terminal:
             completed=self.read(self.handler.generations/(scope["operationUuid"]+".json"))
             journal=self.read(self.path(scope,"journal"))
             if (not completed or completed.get("phase")!="ROLLED_BACK"or not journal or journal.get("phase")!="RESUMED"
                     or completed.get("previous")!=value["sourceGeneration"]):
                 raise ValueError("LOCAL terminal observation lacks its rolled-back original writer")
-            pending=completed;expected_phase="ROLLED_BACK"
+            pending=completed;expected_phases=("ROLLED_BACK",)
         if not isinstance(pending,dict):raise ValueError("LOCAL source original pending writer is absent")
-        if (pending.get("phase")!=expected_phase or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
+        if (pending.get("phase")not in expected_phases or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
                 or pending.get("previous")!=value["sourceGeneration"]or current!=value["sourceGeneration"]
                 or pending.get("beforeSha256")!=value["sourceConfigurationSha256"]or self.boot()!=value["expectedBootId"]):
             raise ValueError("LOCAL source PREPARED authority changed")
@@ -27125,7 +28802,7 @@ class SmbSourceCheckpoint:
             result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
             return result
 
-        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
+        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True,recovery=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
 
         def status_proof_span(method, old):
             expected = copy.deepcopy(old)
@@ -27332,7 +29009,7 @@ class SmbSourceCheckpoint:
             for fd in handles.values():os.close(fd)
 
     def resume(self,value,journal,record):
-        scope=journal["scope"];self.state(value)
+        scope=journal["scope"];self.state(value,recovery=journal.get("imported")is True)
         active=set()
         if journal["phase"] in ("EXPORTED","STOPPED"):
             self.observe(value,stopped=True);self.match_private(record)
@@ -27529,7 +29206,7 @@ class SmbSourceCheckpoint:
         current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
         if hashlib.sha256(current).hexdigest()==expected:return
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
-        source=self.state(value);self.frozen(value,journal);self.validate_record(value,record)
+        source=self.state(value,recovery=True);self.frozen(value,journal);self.validate_record(value,record)
         if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
                 or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")
                 or not isinstance(journal.get("importedStoppedDatabases"),dict)
@@ -27564,7 +29241,7 @@ class SmbSourceCheckpoint:
             journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
             try:self.handler.run(["testparm","-s",temporary])
             except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None
-            self.state(value)
+            self.state(value,recovery=True)
             if self.stopped_observation()!=stopped:
                 raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")
             self.match_private({"privateFingerprints":journal["importedFingerprints"]})
@@ -27584,7 +29261,7 @@ class SmbSourceCheckpoint:
             os.close(directory)
 
     def import_source(self,value):
-        scope=self.request(value,"import-local-source");self.state(value)
+        scope=self.request(value,"import-local-source");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record:raise ValueError("LOCAL original checkpoint is absent")
@@ -27611,6 +29288,7 @@ class SmbSourceCheckpoint:
                 journal["imported"]=True;journal["phase"]="STOPPED"
                 journal["importedStoppedDatabases"]=self.stopped_observation()["databases"]
                 journal["importedFingerprints"]=restored["privateFingerprints"]
+                journal["importedCheckpointSha256"]=service_cipher_digest(record)
                 self.write(scope,"journal",journal)
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
@@ -27621,7 +29299,7 @@ class SmbSourceCheckpoint:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
 
     def status(self,value):
-        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True)
+        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True,recovery=True)
         journal=self.read(self.path(scope,"journal"))
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
@@ -27631,7 +29309,7 @@ class SmbSourceCheckpoint:
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')
                 and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):
-            self.state(value,source_only=True)
+            self.state(value,source_only=True,recovery=True)
             stopped=self.stopped_observation()
             if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):
                 raise ValueError('LOCAL runtime quarantine original STOP changed')
@@ -27655,8 +29333,45 @@ class SmbSourceCheckpoint:
             "currentSessionsVerifiedEmpty":view["sessionsVerifiedEmpty"],"currentConfigurationSha256":actual["configurationSha256"],
             "currentSmbConfigurationSha256":view["configurationSha256"],**({"localSourceCheckpointReference":self.reference(record)}if record is not None else {})}
 
+    def cleanup_absent_nvme_source(self,value,record):
+        # Only an existing original LOCAL import can reach this consumer. The
+        # normal signed NVMe adapter remains the full TARGET ownership validator.
+        self.state(value,recovery=True)
+        pending=self.read(self.handler.generations/"pending.json")
+        receipt=pending.get("nvmeRuntimeIdentity")if isinstance(pending,dict)else None
+        scope={key:value[key]for key in("instanceUuid","operationUuid","revision")}
+        fields={"schemaVersion","kind","scope","bootId","sourceGeneration","sourceConfigurationSha256",
+            "sourceBindings","targetBindings","identities","checkpointSha256"}
+        empty={"subsystems":[],"namespaces":[],"hosts":[]}
+        if (not isinstance(receipt,dict)or set(receipt)!=fields or type(receipt["schemaVersion"])is not int or receipt["schemaVersion"]!=1
+                or receipt["kind"]!="NVMEOF_SOURCE_RUNTIME_IDENTITY"or receipt["scope"]!=scope
+                or receipt["bootId"]!=value["expectedBootId"]or receipt["sourceGeneration"]!=value["sourceGeneration"]
+                or receipt["sourceConfigurationSha256"]!=value["sourceConfigurationSha256"]
+                or receipt["sourceBindings"]!=empty or receipt["identities"]!=[]
+                or not isinstance(receipt["targetBindings"],dict)or set(receipt["targetBindings"])!=set(empty)
+                or not isinstance(receipt["targetBindings"]["subsystems"],list)or not receipt["targetBindings"]["subsystems"]
+                or hashlib.sha256(json.dumps({key:item for key,item in receipt.items()if key!="checkpointSha256"},
+                    sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=receipt["checkpointSha256"]):
+            raise ValueError("LOCAL absent NVMe source lacks its exact owned TARGET receipt")
+        source=record["sourceDesiredState"]
+        if (not isinstance(source,dict)or set(source)!=set(PendingNfsGeneration.paths)or source["nvmeof-subsystems.json"]is not None
+                or any(row is not None and not isinstance(row,dict)for row in source.values())
+                or hashlib.sha256(json.dumps(source,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe source frozen declaration changed")
+        applied=self.command(("nvmeof","subsystem","apply","/dev/stdin"),{"instanceUuid":scope["instanceUuid"],"enabled":False,"subsystems":[]})
+        if applied.get("success")is not True:raise ValueError("LOCAL absent NVMe owned TARGET cleanup did not verify")
+        # The empty adapter publishes its normal canonical file. Restore only
+        # the exact frozen seven-file SOURCE, preserving its original absence.
+        restored=self.command(("operation","generation","restore","/dev/stdin"),
+            {**scope,"previousGeneration":value["sourceGeneration"],"configurationDesiredState":source})
+        if (restored.get("success")is not True or restored.get("canonicalRestored")is not True
+                or restored.get("generationAdvanced")is not False or restored.get("pendingOperationUuid")!=scope["operationUuid"]
+                or restored.get("configurationSha256")!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe canonical SOURCE did not verify")
+        self.state(value,recovery=True)
+
     def replay_auth(self,value):
-        scope=self.request(value,"replay-local-source-auth");self.state(value)
+        scope=self.request(value,"replay-local-source-auth");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record or journal.get("imported")is not True or journal.get("phase")!="RESUMED":
@@ -27680,14 +29395,22 @@ class SmbSourceCheckpoint:
         expected=record["sourceDesiredState"].get("nvmeof-subsystems.json")
         if "NVMEOF"in domains and desired!=expected:
             raise ValueError("LOCAL source NVMe public binding differs from frozen SOURCE7")
+        selected=select_restore_domains(payload,domains)
+        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             if payload.get("nvmeHosts"):
                 raise ValueError("LOCAL source absent NVMe cannot carry protected host keys")
-            for path in (Path("/sys/kernel/config/nvmet/subsystems"),Path("/sys/kernel/config/nvmet/ports")):
+            # Check this before the normal empty adapter can persist a vault:
+            # absent SOURCE keys never authorize overwriting a new private file.
+            for path,item in selected["files"].items():
+                if item.get("absent")is True and os.path.lexists(path):
+                    raise ValueError("LOCAL absent auth source cannot erase unproven target credentials")
+            paths=(LOCAL_SOURCE_NVME_ROOT/"subsystems",LOCAL_SOURCE_NVME_ROOT/"ports")
+            if any(os.path.lexists(path)and(path.is_symlink()or any(path.iterdir()))for path in paths):
+                self.cleanup_absent_nvme_source(value,record)
+            for path in paths:
                 if os.path.lexists(path)and(path.is_symlink()or any(path.iterdir())):
                     raise ValueError("LOCAL absent NVMe source has unproven runtime targets")
-        selected=select_restore_domains(payload,domains)
-        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             for path,item in selected["files"].items():
                 if item.get("absent")is True and os.path.lexists(path):

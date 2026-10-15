@@ -23,6 +23,7 @@ from identity_capsule import collect,encrypt,decrypt,validate_payload,regular_fi
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest
 from posix_receipt_transfer import PosixReceiptTransfer
 LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
+LOCAL_SOURCE_NVME_ROOT=Path("/sys/kernel/config/nvmet")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
 LOCAL_SOURCE_SCOPE={"instanceUuid","operationUuid","revision","localCheckpointUuid"}
 LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationSha256","expectedBootId"}
@@ -174,6 +175,9 @@ class SmbSourceCheckpoint:
         authorization=PendingNfsAuthorization(generation=PendingNfsGeneration(),protocol="SMB",
             rendered=NativeStatus(("operation","generation","render-status")),
             maintenance=NativeStatus(("operation","maintenance","status")))
+        journal=self.read(self.path(scope,"journal"))
+        if journal and journal.get("imported")is True:
+            return authorization.local_source_grant({k:scope[k]for k in ("instanceUuid","operationUuid","revision")},unit)
         return authorization.grant({"instanceUuid":scope["instanceUuid"],
             "operationScope":{k:scope[k]for k in ("instanceUuid","operationUuid","revision")}},unit)
     def native_command(self,args,payload=None):
@@ -238,19 +242,19 @@ class SmbSourceCheckpoint:
             finally:os.close(directory)
         finally:
             if os.path.exists(tmp):os.unlink(tmp)
-    def state(self,value,source_only=True,terminal=False):
+    def state(self,value,source_only=True,terminal=False,recovery=False):
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
         pending=self.read(self.handler.generations/"pending.json");current=self.read(self.handler.generations/"current.json")or {}
-        expected_phase="PREPARED"
+        expected_phases=("PREPARED","VERIFIED")if recovery else("PREPARED",)
         if pending is None and terminal:
             completed=self.read(self.handler.generations/(scope["operationUuid"]+".json"))
             journal=self.read(self.path(scope,"journal"))
             if (not completed or completed.get("phase")!="ROLLED_BACK"or not journal or journal.get("phase")!="RESUMED"
                     or completed.get("previous")!=value["sourceGeneration"]):
                 raise ValueError("LOCAL terminal observation lacks its rolled-back original writer")
-            pending=completed;expected_phase="ROLLED_BACK"
+            pending=completed;expected_phases=("ROLLED_BACK",)
         if not isinstance(pending,dict):raise ValueError("LOCAL source original pending writer is absent")
-        if (pending.get("phase")!=expected_phase or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
+        if (pending.get("phase")not in expected_phases or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))
                 or pending.get("previous")!=value["sourceGeneration"]or current!=value["sourceGeneration"]
                 or pending.get("beforeSha256")!=value["sourceConfigurationSha256"]or self.boot()!=value["expectedBootId"]):
             raise ValueError("LOCAL source PREPARED authority changed")
@@ -476,7 +480,7 @@ class SmbSourceCheckpoint:
             result.body.insert(1, ast.If(test=checksum, body=[call], orelse=[]))
             return result
 
-        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
+        KNOWN_STATUS_PROOF = "if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')\n                and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):\n            self.state(value,source_only=True,recovery=True)\n            stopped=self.stopped_observation()\n            if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):\n                raise ValueError('LOCAL runtime quarantine original STOP changed')\n            current_sha=hashlib.sha256(self.cli.read_bytes()).hexdigest()\n            current_entry=self.cli.resolve(strict=True)\n            if current_entry!=(self.runtime_root/'current'/'ablestack-storagectl').resolve(strict=True):\n                raise ValueError('LOCAL runtime quarantine current ENTRY changed')\n            self.compat_entry(current_entry,current_sha)\n            result['localSourceStoppedRuntimeProof']={'kind':'LOCAL_SOURCE_STOPPED_RUNTIME_QUARANTINE','scope':scope,\n                'sourceGeneration':value['sourceGeneration'],'sourceConfigurationSha256':value['sourceConfigurationSha256'],\n                'bootId':self.boot(),'originalCliSha256':journal['cliSha256'],'currentCliSha256':current_sha,\n                'sourceStoppedVerified':True,'stoppedMetadataVerified':True,'privateHoldersAbsent':True,'cipherAbsent':True,\n                'sourceCanonicalUnchanged':True,'originalSignedCodeVerified':True,'currentSignedCodeVerified':True,\n                'serviceAvailabilityVerified':False}"
 
         def status_proof_span(method, old):
             expected = copy.deepcopy(old)
@@ -683,7 +687,7 @@ class SmbSourceCheckpoint:
             for fd in handles.values():os.close(fd)
 
     def resume(self,value,journal,record):
-        scope=journal["scope"];self.state(value)
+        scope=journal["scope"];self.state(value,recovery=journal.get("imported")is True)
         active=set()
         if journal["phase"] in ("EXPORTED","STOPPED"):
             self.observe(value,stopped=True);self.match_private(record)
@@ -881,7 +885,7 @@ class SmbSourceCheckpoint:
         current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
         if hashlib.sha256(current).hexdigest()==expected:return
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
-        source=self.state(value);self.frozen(value,journal);self.validate_record(value,record)
+        source=self.state(value,recovery=True);self.frozen(value,journal);self.validate_record(value,record)
         if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
                 or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")
                 or not isinstance(journal.get("importedStoppedDatabases"),dict)
@@ -916,7 +920,7 @@ class SmbSourceCheckpoint:
             journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
             try:self.handler.run(["testparm","-s",temporary])
             except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None
-            self.state(value)
+            self.state(value,recovery=True)
             if self.stopped_observation()!=stopped:
                 raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")
             self.match_private({"privateFingerprints":journal["importedFingerprints"]})
@@ -936,7 +940,7 @@ class SmbSourceCheckpoint:
             os.close(directory)
 
     def import_source(self,value):
-        scope=self.request(value,"import-local-source");self.state(value)
+        scope=self.request(value,"import-local-source");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record:raise ValueError("LOCAL original checkpoint is absent")
@@ -963,6 +967,7 @@ class SmbSourceCheckpoint:
                 journal["imported"]=True;journal["phase"]="STOPPED"
                 journal["importedStoppedDatabases"]=self.stopped_observation()["databases"]
                 journal["importedFingerprints"]=restored["privateFingerprints"]
+                journal["importedCheckpointSha256"]=service_cipher_digest(record)
                 self.write(scope,"journal",journal)
             if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):
                 raise ValueError("LOCAL restored descriptor authority is absent")
@@ -973,7 +978,7 @@ class SmbSourceCheckpoint:
             journal["phase"]="RECOVERY_REQUIRED";self.write(scope,"journal",journal);raise
 
     def status(self,value):
-        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True)
+        scope=self.request(value,"local-source-status");actual=self.state(value,source_only=False,terminal=True,recovery=True)
         journal=self.read(self.path(scope,"journal"))
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
@@ -983,7 +988,7 @@ class SmbSourceCheckpoint:
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')
                 and isinstance(journal.get('stopped'),dict)and not os.path.lexists(self.path(scope,'cipher'))):
-            self.state(value,source_only=True)
+            self.state(value,source_only=True,recovery=True)
             stopped=self.stopped_observation()
             if (stopped!=journal['stopped']or stopped['configurationSha256']!=journal['prior']['configurationSha256']):
                 raise ValueError('LOCAL runtime quarantine original STOP changed')
@@ -1007,8 +1012,45 @@ class SmbSourceCheckpoint:
             "currentSessionsVerifiedEmpty":view["sessionsVerifiedEmpty"],"currentConfigurationSha256":actual["configurationSha256"],
             "currentSmbConfigurationSha256":view["configurationSha256"],**({"localSourceCheckpointReference":self.reference(record)}if record is not None else {})}
 
+    def cleanup_absent_nvme_source(self,value,record):
+        # Only an existing original LOCAL import can reach this consumer. The
+        # normal signed NVMe adapter remains the full TARGET ownership validator.
+        self.state(value,recovery=True)
+        pending=self.read(self.handler.generations/"pending.json")
+        receipt=pending.get("nvmeRuntimeIdentity")if isinstance(pending,dict)else None
+        scope={key:value[key]for key in("instanceUuid","operationUuid","revision")}
+        fields={"schemaVersion","kind","scope","bootId","sourceGeneration","sourceConfigurationSha256",
+            "sourceBindings","targetBindings","identities","checkpointSha256"}
+        empty={"subsystems":[],"namespaces":[],"hosts":[]}
+        if (not isinstance(receipt,dict)or set(receipt)!=fields or type(receipt["schemaVersion"])is not int or receipt["schemaVersion"]!=1
+                or receipt["kind"]!="NVMEOF_SOURCE_RUNTIME_IDENTITY"or receipt["scope"]!=scope
+                or receipt["bootId"]!=value["expectedBootId"]or receipt["sourceGeneration"]!=value["sourceGeneration"]
+                or receipt["sourceConfigurationSha256"]!=value["sourceConfigurationSha256"]
+                or receipt["sourceBindings"]!=empty or receipt["identities"]!=[]
+                or not isinstance(receipt["targetBindings"],dict)or set(receipt["targetBindings"])!=set(empty)
+                or not isinstance(receipt["targetBindings"]["subsystems"],list)or not receipt["targetBindings"]["subsystems"]
+                or hashlib.sha256(json.dumps({key:item for key,item in receipt.items()if key!="checkpointSha256"},
+                    sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=receipt["checkpointSha256"]):
+            raise ValueError("LOCAL absent NVMe source lacks its exact owned TARGET receipt")
+        source=record["sourceDesiredState"]
+        if (not isinstance(source,dict)or set(source)!=set(PendingNfsGeneration.paths)or source["nvmeof-subsystems.json"]is not None
+                or any(row is not None and not isinstance(row,dict)for row in source.values())
+                or hashlib.sha256(json.dumps(source,sort_keys=True,separators=(",",":"),allow_nan=False).encode()).hexdigest()!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe source frozen declaration changed")
+        applied=self.command(("nvmeof","subsystem","apply","/dev/stdin"),{"instanceUuid":scope["instanceUuid"],"enabled":False,"subsystems":[]})
+        if applied.get("success")is not True:raise ValueError("LOCAL absent NVMe owned TARGET cleanup did not verify")
+        # The empty adapter publishes its normal canonical file. Restore only
+        # the exact frozen seven-file SOURCE, preserving its original absence.
+        restored=self.command(("operation","generation","restore","/dev/stdin"),
+            {**scope,"previousGeneration":value["sourceGeneration"],"configurationDesiredState":source})
+        if (restored.get("success")is not True or restored.get("canonicalRestored")is not True
+                or restored.get("generationAdvanced")is not False or restored.get("pendingOperationUuid")!=scope["operationUuid"]
+                or restored.get("configurationSha256")!=value["sourceConfigurationSha256"]):
+            raise ValueError("LOCAL absent NVMe canonical SOURCE did not verify")
+        self.state(value,recovery=True)
+
     def replay_auth(self,value):
-        scope=self.request(value,"replay-local-source-auth");self.state(value)
+        scope=self.request(value,"replay-local-source-auth");self.state(value,recovery=True)
         journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})
         record=self.read(self.path(scope,"cipher"))
         if not record or journal.get("imported")is not True or journal.get("phase")!="RESUMED":
@@ -1032,14 +1074,22 @@ class SmbSourceCheckpoint:
         expected=record["sourceDesiredState"].get("nvmeof-subsystems.json")
         if "NVMEOF"in domains and desired!=expected:
             raise ValueError("LOCAL source NVMe public binding differs from frozen SOURCE7")
+        selected=select_restore_domains(payload,domains)
+        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             if payload.get("nvmeHosts"):
                 raise ValueError("LOCAL source absent NVMe cannot carry protected host keys")
-            for path in (Path("/sys/kernel/config/nvmet/subsystems"),Path("/sys/kernel/config/nvmet/ports")):
+            # Check this before the normal empty adapter can persist a vault:
+            # absent SOURCE keys never authorize overwriting a new private file.
+            for path,item in selected["files"].items():
+                if item.get("absent")is True and os.path.lexists(path):
+                    raise ValueError("LOCAL absent auth source cannot erase unproven target credentials")
+            paths=(LOCAL_SOURCE_NVME_ROOT/"subsystems",LOCAL_SOURCE_NVME_ROOT/"ports")
+            if any(os.path.lexists(path)and(path.is_symlink()or any(path.iterdir()))for path in paths):
+                self.cleanup_absent_nvme_source(value,record)
+            for path in paths:
                 if os.path.lexists(path)and(path.is_symlink()or any(path.iterdir())):
                     raise ValueError("LOCAL absent NVMe source has unproven runtime targets")
-        selected=select_restore_domains(payload,domains)
-        selected=dict(selected);selected.pop("posixPolicies",None);selected.pop("sourceConfigurationSha256",None)
         if "NVMEOF"in domains and desired is None:
             for path,item in selected["files"].items():
                 if item.get("absent")is True and os.path.lexists(path):

@@ -21,6 +21,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import stat
 import tempfile
 import time
@@ -92,6 +93,61 @@ def redact(value):
     if isinstance(value, list):
         return [redact(item) for item in value]
     return value
+
+
+def iscsi_cleanup_lun(value):
+    if type(value) not in (int, str) or not re.fullmatch(r"[0-9]+", str(value)):
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    canonical = str(value).lstrip("0") or "0"
+    if len(canonical) > 5 or int(canonical) > 65535:
+        raise ValueError("iSCSI cleanup canonical LUN is invalid")
+    return canonical
+
+
+def iscsi_cleanup_bindings(value, instance):
+    if value is None:
+        return []
+    if not isinstance(value, dict) or not isinstance(value.get("targets", []), list):
+        raise ValueError("iSCSI cleanup canonical target collection is invalid")
+    rows = value.get("targets", [])
+    if rows and value.get("instanceUuid") != instance:
+        raise ValueError("iSCSI cleanup canonical instance is foreign")
+    result, identities = [], set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("iSCSI cleanup canonical target is invalid")
+        identity, name = row.get("uuid"), row.get("targetName")
+        if (not isinstance(identity, str) or str(uuid.UUID(identity)) != identity or identity in identities
+                or not isinstance(name, str) or len(name) > 223
+                or not re.fullmatch(r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+", name)
+                or not isinstance(row.get("config", {}), dict)
+                or str(row.get("backstoreType") or (row.get("config") or {}).get("backstoreType") or "BLOCK").upper() != "BLOCK"):
+            raise ValueError("iSCSI cleanup canonical UUID/IQN/BLOCK binding is invalid")
+        identities.add(identity);result.append({"uuid": identity, "targetName": name, "lunOrNamespace": iscsi_cleanup_lun(row.get("lunOrNamespace", 0))})
+    return sorted(result, key=lambda row: (row["uuid"], row["targetName"]))
+
+
+def iscsi_cleanup_receipt(receipt, pending, boot):
+    fields = {"schemaVersion", "scope", "bootId", "beforeSha256", "targetConfigurationSha256", "targets", "bindingsSha256"}
+    scope = {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}
+    if (not isinstance(receipt, dict) or set(receipt) != fields or type(receipt["schemaVersion"]) is not int
+            or receipt["schemaVersion"] != 1 or receipt["scope"] != scope or receipt["bootId"] != boot
+            or receipt["beforeSha256"] != pending.get("beforeSha256")
+            or any(not isinstance(receipt[key], str) or not re.fullmatch(r"[0-9a-f]{64}", receipt[key])
+                   for key in ("beforeSha256", "targetConfigurationSha256", "bindingsSha256"))
+            or not isinstance(receipt["targets"], list) or len(receipt["targets"]) > 4096
+            or any(not isinstance(row, dict) or set(row) != {"uuid", "targetName", "lunOrNamespace"} for row in receipt["targets"])):
+        raise ValueError("iSCSI cleanup pending receipt scope/boot/schema changed")
+    for key in ("instanceUuid", "operationUuid"):
+        if not isinstance(scope[key], str) or str(uuid.UUID(scope[key])) != scope[key]:
+            raise ValueError("iSCSI cleanup pending UUID is invalid")
+    if type(scope["revision"]) is not int or scope["revision"] < 1:
+        raise ValueError("iSCSI cleanup pending revision is invalid")
+    rows = iscsi_cleanup_bindings({"instanceUuid": scope["instanceUuid"], "targets": receipt["targets"]}, scope["instanceUuid"])
+    digest = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if rows != receipt["targets"] or digest != receipt["bindingsSha256"]:
+        raise ValueError("iSCSI cleanup pending target binding digest changed")
+    return rows
 
 class Generation:
     paths = ("desired-state/nfs-export-apply.json", "desired-state/smb-share-apply.json",
@@ -194,7 +250,7 @@ class Generation:
             raise ValueError("Initial source accepts only its exact nonsecret request")
         request = self.request(request)
         pending = self.scoped(request)
-        if (pending.get("phase") != "PREPARED" or pending.get("previous") != {}
+        if (pending.get("phase") not in (("PREPARED", "VERIFIED") if restoring else ("PREPARED",)) or pending.get("previous") != {}
                 or read_json(self.current) not in (None, {})):
             raise ValueError("Initial source requires its original PREPARED writer without a generation")
         checksum = self.canonical_desired(request["configurationDesiredState"])
@@ -209,10 +265,48 @@ class Generation:
                 "generation": {}, "configurationSha256": checksum,
                 "configurationDesiredState": request["configurationDesiredState"]}
 
+    def preserve_iscsi_cleanup(self, pending, desired):
+        boot = str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+        if "iscsiCleanupOwnership" in pending:
+            iscsi_cleanup_receipt(pending["iscsiCleanupOwnership"], pending, boot)
+            if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+                raise ValueError("iSCSI cleanup repeated restore source/current changed")
+            return
+        live = self.files()
+        rows = iscsi_cleanup_bindings(live["iscsi-targets.json"], pending["instanceUuid"])
+        source = iscsi_cleanup_bindings(desired["iscsi-targets.json"], pending["instanceUuid"])
+        if not any(row not in source for row in rows):
+            return
+        if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+            raise ValueError("iSCSI cleanup TARGET capture is outside its original pending source")
+        identity = str(uuid.UUID(bytes=hashlib.md5(("local-source-checkpoint:" + pending["operationUuid"]).encode()).digest(), version=3))
+        local = read_json(self.root.parent / "smb-local-source-checkpoints" / (identity + "-journal.json"))
+        if local is not None and (local.get("scope") != {**{key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")}, "localCheckpointUuid": identity}
+                or local.get("common", {}).get("expectedBootId") != boot
+                or local.get("common", {}).get("sourceConfigurationSha256") != pending.get("beforeSha256")
+                or local.get("common", {}).get("sourceGeneration") != pending.get("previous")):
+            raise ValueError("iSCSI cleanup TARGET capture LOCAL source scope/boot changed")
+        receipt = {"schemaVersion": 1, "scope": {key: pending[key] for key in ("instanceUuid", "operationUuid", "revision")},
+                   "bootId": boot, "beforeSha256": pending["beforeSha256"],
+                   "targetConfigurationSha256": self.canonical_desired(live), "targets": rows,
+                   "bindingsSha256": hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest()}
+        iscsi_cleanup_receipt(receipt, pending, boot)
+        # Publish this small public binding receipt before SOURCE erases TARGET.
+        # It remains immutable across a crash or repeated canonical restoration.
+        latest = self.scoped(pending)
+        if any(latest.get(key) != pending.get(key) for key in ("phase", "beforeSha256", "previous")):
+            raise ValueError("iSCSI cleanup pending changed before receipt publication")
+        if "iscsiCleanupOwnership" in latest and latest["iscsiCleanupOwnership"] != receipt:
+            raise ValueError("iSCSI cleanup first receipt changed before publication")
+        atomic_json(self.pending, {**latest, "iscsiCleanupOwnership": receipt})
+
     def restore(self, request):
         pending = self.scoped(request)
+        if pending.get("phase") not in ("PREPARED", "VERIFIED") or (read_json(self.current) or {}) != pending.get("previous"):
+            raise ValueError("Canonical restore is outside its noncommitted original SOURCE")
         if request.get("previousGeneration") == {}:
             pending, checksum = self.initial_source(request, restoring=True)
+            self.preserve_iscsi_cleanup(pending, request["configurationDesiredState"])
             self.replace_desired(request["configurationDesiredState"])
             return {"success": True, "generationSupported": True, "canonicalRestored": True,
                     "configurationSha256": checksum, "generationAdvanced": False,
@@ -231,6 +325,7 @@ class Generation:
         # This normalizes only fixed declarative files; rollback remains a
         # separate verified action. Daemons, secrets, DATA and generation
         # pointers are never changed here.
+        self.preserve_iscsi_cleanup(pending, request["configurationDesiredState"])
         self.replace_desired(request["configurationDesiredState"])
         return {"success": True, "generationSupported": True, "canonicalRestored": True,
                 "configurationSha256": checksum, "generationAdvanced": False,
