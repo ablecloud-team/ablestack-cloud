@@ -174,8 +174,8 @@ class SmbIdentity:
                         target=os.readlink(descriptor);canonical=target[:-10] if target.endswith(" (deleted)") else target
                         if canonical not in IDENTITY_DATABASES.values():continue
                         info=descriptor.stat();values.append({"pid":int(process.name),"fd":int(descriptor.name),"path":canonical,"device":info.st_dev,"inode":info.st_ino,"deleted":target.endswith(" (deleted)")})
-                    except FileNotFoundError:continue
-            except FileNotFoundError:continue
+                    except (FileNotFoundError,ProcessLookupError):continue
+            except (FileNotFoundError,ProcessLookupError):continue
         return values
 
     def repair_journal(self,scope,value=None):
@@ -234,7 +234,7 @@ class SmbIdentity:
                 continue
             try:
                 name = (process / "comm").read_text().strip()
-            except FileNotFoundError:
+            except (FileNotFoundError,ProcessLookupError):
                 continue
             if name in ("smbd", "nmbd", "winbindd", "samba", "samba-dcerpcd", "samba-bgqd"):
                 raise ValueError("SMB unconfigured source still has an identity daemon")

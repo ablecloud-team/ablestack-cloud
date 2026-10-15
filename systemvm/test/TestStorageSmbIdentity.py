@@ -262,4 +262,60 @@ class StorageSmbIdentityTest(unittest.TestCase):
         pending=json.loads((self.handler.generations/'pending.json').read_text());pending['operationUuid']=str(uuid.uuid4());write(self.handler.generations/'pending.json',pending)
         with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
 
+
+    def test_identity_holders_general_proc_esrch_is_an_exited_process_not_empty_on_other_errors(self):
+        import errno,types
+        process=Path(self.temp.name)/"4321";process.mkdir();(process/"fd").mkdir()
+        (process/"comm").write_text("smbd\n")
+        fd=process/"fd/5";fd.symlink_to(module.IDENTITY_DATABASES["SECRETS"])
+        plain_iter=Path.iterdir;plain_read=Path.read_text;plain_stat=Path.stat;plain_link=os.readlink
+        for where in ("comm","fd","readlink","stat"):
+            for code in (errno.ESRCH,errno.EPERM,errno.EIO):
+                def iterate(path,*args,**kwargs):
+                    if path==Path("/proc"):return iter([process])
+                    if where=="fd" and path==process/"fd":raise OSError(code,"private")
+                    return plain_iter(path,*args,**kwargs)
+                def read(path,*args,**kwargs):
+                    if where=="comm" and path==process/"comm":raise OSError(code,"private")
+                    return plain_read(path,*args,**kwargs)
+                def link(path,*args,**kwargs):
+                    if where=="readlink" and Path(path)==fd:raise OSError(code,"private")
+                    return plain_link(path,*args,**kwargs)
+                def info(path,*args,**kwargs):
+                    if path==fd:
+                        if where=="stat":raise OSError(code,"private")
+                        return types.SimpleNamespace(st_dev=1,st_ino=2)
+                    return plain_stat(path,*args,**kwargs)
+                with self.subTest(where=where,code=code),patch.object(Path,"iterdir",iterate),patch.object(Path,"read_text",read),patch.object(Path,"stat",info),patch.object(os,"readlink",link):
+                    if code==errno.ESRCH:self.assertEqual([],self.handler.identity_holders())
+                    else:
+                        with self.assertRaises(OSError):self.handler.identity_holders()
+
+    def test_exact_listener_master_and_pidfd_owner_esrch_remain_fail_closed(self):
+        import errno
+        plain=Path.read_text
+        def read(path,*args,**kwargs):
+            if str(path)=="/proc/4321/comm":raise ProcessLookupError(errno.ESRCH,"private")
+            return plain(path,*args,**kwargs)
+        with patch.object(Path,"read_text",read),self.assertRaises(ProcessLookupError):
+            self.handler.master(4321,{},0,set())
+        with patch.object(module.os,"pidfd_open",side_effect=ProcessLookupError(errno.ESRCH,"gone")):
+            with self.assertRaises(ProcessLookupError):self.handler.open_master_handles([{"pid":4321,"startTicks":"1"}])
+
+
+
+    def test_unconfigured_general_process_exit_esrch_keeps_strict_absence_checks(self):
+        import errno
+        write,desired,commands,paths=self.unconfigured_fixture()
+        process=self.handler.process_root/"4321";process.mkdir();(process/"comm").write_text("worker\n")
+        plain=Path.read_text
+        for code in (errno.ESRCH,errno.EPERM,errno.EIO):
+            def read(path,*args,**kwargs):
+                if path==process/"comm":raise OSError(code,"private")
+                return plain(path,*args,**kwargs)
+            with self.subTest(code=code),paths,patch.object(Path,"read_text",read):
+                if code==errno.ESRCH:self.assertTrue(self.handler.inspect(self.scope)["identityRestoreSafe"])
+                else:
+                    with self.assertRaises(OSError):self.handler.inspect(self.scope)
+
 if __name__=='__main__':unittest.main()

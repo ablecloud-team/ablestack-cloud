@@ -132,7 +132,7 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
         self.assertEqual("CAPTURED",json.loads(self.source.path(self.scope).read_text())["phase"])
     def test_same_boot_owned_stop_replay_returns_identical_receipt_without_journal_rewrite(self):
         self.joined();capture=self.source.capture(self.scope);self.journal()
-        stopped=self.source.stopped(self.scope);before=self.source.path(self.scope).stat();raw=self.source.path(self.scope).read_bytes()
+        stopped=self.source.stopped(self.scope);raw=self.source.path(self.scope).read_bytes();before=self.source.path(self.scope).stat()
         result=self.source.export_source(self.scope);again=self.source.export_source(self.scope)
         self.assertTrue(stopped["serviceSourceStoppedVerified"]);self.assertEqual(result,again);self.assertEqual(capture["publicAdPreStopSha256"],result["publicAdPreStopSha256"])
         self.assertEqual(raw,self.source.path(self.scope).read_bytes());self.assertEqual(before,self.source.path(self.scope).stat())

@@ -5109,7 +5109,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         Set<String> fields = Set.of("success", "errorCode", "reason");
         Set<String> classes = Set.of("ValueError", "TypeError", "KeyError", "AttributeError", "ImportError", "ModuleNotFoundError",
                 "PermissionError", "FileNotFoundError", "NotADirectoryError", "IsADirectoryError", "FileExistsError", "OSError",
-                "RuntimeError", "TimeoutError", "JSONDecodeError", "CalledProcessError", "UnicodeDecodeError", "UnicodeEncodeError", "InvalidTag");
+                "RuntimeError", "TimeoutError", "JSONDecodeError", "CalledProcessError", "UnicodeDecodeError", "UnicodeEncodeError", "InvalidTag",
+                "ProcessLookupError", "TimeoutExpired", "StopIteration");
         Set<String> seen = new HashSet<>();String reason = null;
         try (JsonReader reader = new JsonReader(new StringReader(resultJson))) {
             reader.setLenient(false);reader.beginObject();

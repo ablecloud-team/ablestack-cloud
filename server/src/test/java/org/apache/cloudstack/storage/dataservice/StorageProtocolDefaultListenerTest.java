@@ -326,8 +326,8 @@ public class StorageProtocolDefaultListenerTest {
             target.addProperty("uuid", row.getUuid());
             target.addProperty("targetName", row.getTargetName());
             target.addProperty("lunOrNamespace", row.getLunOrNamespace());
-            target.addProperty("volumeUuid", "fixture-serial");
-            target.addProperty("volumeName", "fixture-serial");
+            target.addProperty("volumeUuid", "abcdef22-2222-4222-8222-222222222222");
+            target.addProperty("volumeName", "abcdef22222242228222");
             target.addProperty("volumeSizeBytes", 65536);
             target.add("acls", f.manager.createIscsiTargetAclJson(row, null));
             Assert.assertEquals(2, target.getAsJsonArray("acls").size());

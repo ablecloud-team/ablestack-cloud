@@ -143,6 +143,33 @@ public class StorageLocalSourceFailureReasonTest {
         Assert.assertEquals(GENERIC, new Fixture(false, VALID).failure(null));
     }
 
+    @Test public void standardProcessAndIterationFailuresSurviveRealDispatcherWithoutPrivateDetails() throws Exception {
+        for (String reason : new String[]{"ProcessLookupError", "TimeoutExpired", "StopIteration"})
+            for (String action : new String[]{"export-local-source", "import-local-source", "local-source-status", "replay-local-source-auth"})
+                Assert.assertEquals(GENERIC + " [nativeReason=" + reason + "]",
+                        new Fixture(false, VALID.replace("ValueError", reason)).failure(action));
+    }
+
+    @Test public void newlyAllowedClassesDoNotPermitSecretFieldsOrFreeformReasons() throws Exception {
+        for (String reason : new String[]{"ProcessLookupError", "TimeoutExpired", "StopIteration"}) {
+            String body = VALID.replace("ValueError", reason);
+            generic(body.replace("}", ",\"ciphertext\":\"" + SECRET + "\"}"));
+            generic(body.replace("}", ",\"message\":\"" + SECRET + "\"}"));
+            generic(body.replace(reason, "subprocess." + reason));
+            generic(body.replace(reason, reason + ": " + SECRET));
+            generic(body.replace("}", ",\"reason\":\"" + reason + "\"}"));
+        }
+    }
+
+    @Test public void newlyAllowedFailureRetainsExact512CharacterLimit() throws Exception {
+        String body = VALID.replace("ValueError", "ProcessLookupError");
+        String padded = " ".repeat(512 - body.length()) + body;
+        Assert.assertEquals(512, padded.length());
+        Assert.assertEquals(GENERIC + " [nativeReason=ProcessLookupError]",
+                new Fixture(false, padded).failure("export-local-source"));
+        generic(" " + padded);
+    }
+
     @Test public void maskedHostFailureDoesNotExposePrivateDetails() throws Exception {
         generic("{\"success\":false,\"message\":\"" + SECRET + "\"}");
         generic("{\"success\":false,\"errorCode\":\"HOST_EXCEPTION\",\"reason\":\"ValueError\"}");
