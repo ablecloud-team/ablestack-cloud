@@ -605,14 +605,15 @@ describe('SharedFS NVMe ACL authentication request preservation', () => {
     })
   })
 
-  it('does not change the existing close behavior of other action types', async () => {
+  it('preserves any rejected mutation dialog instead of treating a rejection as success', async () => {
     const vm = context()
     vm.actionModal = { visible: true, type: 'enableProtocol', loading: false, context: {} }
     vm.enableProtocol = jest.fn().mockResolvedValue(false)
     vm.closeActionModal = jest.fn(function () { SharedFSTab.methods.closeActionModal.call(this) })
     await SharedFSTab.methods.submitActionModal.call(vm)
     expect(vm.enableProtocol).toHaveBeenCalledTimes(1)
-    expect(vm.closeActionModal).toHaveBeenCalledTimes(1)
+    expect(vm.closeActionModal).not.toHaveBeenCalled()
+    expect(vm.actionModal).toMatchObject({ visible: true, loading: false, type: 'enableProtocol' })
   })
 
   it('does not warn or alter an explicit noauth request when capability changes', () => {

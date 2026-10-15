@@ -1381,7 +1381,7 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
 wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
-      <div class="storage-modal-body"><a-form layout="vertical">
+      <div class="storage-modal-body"><a-alert v-if="actionModal.error" type="error" show-icon :message="actionModal.error" /><a-form layout="vertical">
         <div v-if="actionModal.type === 'nfsServiceSettings'" class="storage-action-form storage-action-form--vertical">
           <a-form-item :label="$t('label.storage.service.nfs.idmapping')" required>
             <a-select v-model:value="forms.nfsServiceSettings.idmappingmode">
@@ -2382,6 +2382,7 @@ import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import StorageServiceConfiguration from '@/views/storage/StorageServiceConfiguration'
 import StorageServiceTemplateUpgradeHistory from '@/views/storage/StorageServiceTemplateUpgradeHistory'
 import { Empty } from 'ant-design-vue'
+import SHA from 'sha.js'
 import {
   DeleteOutlined,
   DisconnectOutlined,
@@ -2395,6 +2396,35 @@ import {
   ReloadOutlined,
   SafetyCertificateOutlined
 } from '@ant-design/icons-vue'
+
+// Keep retry identity in component-lifetime RAM; never retain credential parameters.
+const StorageMutationSha256 = SHA.sha256
+const storageMutationIntents = new WeakMap()
+const storageMutationActive = new WeakMap()
+const storageSecurityScope = vm => [vm.$store?.getters?.userInfo?.id || '', vm.$store?.getters?.project?.id || ''].join('|')
+const storageMutationScope = vm => ({
+  resourceId: vm.resource?.id,
+  instanceId: vm.storageService?.instance?.id,
+  generation: vm.storageMutationGeneration || 0,
+  security: storageSecurityScope(vm)
+})
+const storageMutationScopeMatches = (vm, scope) => !vm.storageMutationDisposed && Object.entries(scope).every(([key, value]) => storageMutationScope(vm)[key] === value)
+const resetStorageMutationScope = vm => {
+  storageMutationIntents.delete(vm); storageMutationActive.delete(vm)
+  vm.storageMutationGeneration = (vm.storageMutationGeneration || 0) + 1
+  vm.storageModalEpoch = (vm.storageModalEpoch || 0) + 1
+  vm.actionLoading = {}; vm.storageMutationPending = false
+  if (vm.actionModal) { vm.actionModal.visible = false; vm.actionModal.loading = false; vm.actionModal.error = '' }
+}
+const sortedStorageIntent = value => Array.isArray(value) ? value.map(sortedStorageIntent) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, sortedStorageIntent(value[key])])) : value
+const storageMutationIntent = (vm, scope, api, parameters) => {
+  if (!vm.$getApiParams?.(api)?.idempotencykey) return null
+  const fingerprint = new StorageMutationSha256().update(JSON.stringify(sortedStorageIntent({ scope, api, parameters }))).digest('hex')
+  if (!storageMutationIntents.has(vm)) storageMutationIntents.set(vm, new Map())
+  const intents = storageMutationIntents.get(vm)
+  if (!intents.has(fingerprint)) intents.set(fingerprint, { key: 'storage-ui-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2), jobId: '' })
+  return { intents, fingerprint, value: intents.get(fingerprint) }
+}
 
 const ProtocolHeader = {
   props: {
@@ -2686,9 +2716,14 @@ export default {
         visible: false,
         type: '',
         context: null,
-        loading: false
+        loading: false,
+        error: ''
       },
       actionLoading: {},
+      storageMutationPending: false,
+      storageMutationDisposed: false,
+      storageMutationGeneration: 0,
+      storageModalEpoch: 0,
       adMutationConsent: { visible: false, instance: {}, title: '', scope: '', resolve: null },
       identityRepair: {
         visible: false,
@@ -4577,6 +4612,7 @@ export default {
     actionModalOkText () {
       return ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type) ? this.$t('label.ok') : this.$t('label.ok')
     },
+    storageMutationSecurityScope () { return storageSecurityScope(this) },
     actionModalOkButtonProps () {
       const deleteEndpointBlocked = this.actionModal.type === 'deleteEndpoint' && !this.deleteEndpointConfirmationMatched
       const resizeVolumeSize = Number(this.forms.resizeBackingVolume.size)
@@ -4589,7 +4625,7 @@ export default {
       )
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
-        disabled: (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+        disabled: this.actionModal.loading || this.storageMutationPending || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
           (this.actionModal.type === 'nfsServiceSettings' && !['NAME_DOMAIN', 'NUMERIC'].includes(this.forms.nfsServiceSettings.idmappingmode)) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
@@ -4695,10 +4731,14 @@ export default {
     window.addEventListener('popstate', this.storagePopStateHandler)
   },
   beforeUnmount () {
+    this.storageMutationDisposed = true
+    resetStorageMutationScope(this)
     window.removeEventListener('popstate', this.storagePopStateHandler)
     this.cancelAdMutation()
   },
   watch: {
+    storageMutationSecurityScope () { resetStorageMutationScope(this); this.cancelAdMutation() },
+    '$store.state.user.token' () { resetStorageMutationScope(this); this.cancelAdMutation() },
     'storageService.instance': { deep: true, handler () { this.cancelAdMutation() } },
     'storageService.domains': { deep: true, handler () { this.cancelAdMutation() } },
     forms: { deep: true, handler () { this.cancelAdMutation() } },
@@ -4717,6 +4757,7 @@ export default {
             this.volumes = []
           }
           if (newData.id !== oldData?.id) {
+            resetStorageMutationScope(this)
             this.availableVolumes = []
             this.referenceReadErrors = []
           }
@@ -5533,32 +5574,53 @@ export default {
     approveAdMutation,
     cancelAdMutation,
     async runStorageAction (key, api, params, title) {
-      if (!this.storageService.instance || this.actionLoading[key]) return
+      if (!this.storageService.instance || this.storageMutationDisposed || storageMutationActive.has(this) || this.actionLoading[key]) return false
+      const scope = storageMutationScope(this); const modal = this.actionModal; const modalEpoch = this.storageModalEpoch || 0; const modalType = modal?.type
       const actionTab = this.currentTab; const actionWideLayout = this.protocolWideLayout
       const instance = { ...this.storageService.instance }; const parameters = this.cleanParams({ ...params })
       const domain = this.storageService.domains?.find(row => row.joinstate === 'JOINED')
       const joined = !!domain || (this.isSmbAdConfigured === true && this.isSmbAdJoined === true)
+      const active = {}; storageMutationActive.set(this, active)
+      this.storageMutationPending = true
+      const current = () => storageMutationScopeMatches(this, scope)
+      const report = message => {
+        if (!current()) return
+        if (modal?.visible && this.actionModal === modal && modal.type === modalType && (this.storageModalEpoch || 0) === modalEpoch) modal.error = message
+        this.$message.error(message)
+      }
+      let intent; let attempted = false; let terminal = false
       this.actionLoading[key] = true
       try {
         if (joined) {
           if (!supportsAdMutationApi(api => this.$getApiParams?.(api), api)) throw new Error('AD_MUTATION_API_UNSUPPORTED')
           if (!domain || domain.instanceid !== instance.id || (parameters.instanceid !== undefined && parameters.instanceid !== instance.id)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
           const receipt = await readJoinedAdReceipt(instance, domain.domainname)
-          const scope = adMutationScope(instance, api, receipt, parameters)
-          if (this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
-          const approval = await this.requestAdMutationApproval(instance, title, scope)
-          if (!approval) return
+          const approvalScope = adMutationScope(instance, api, receipt, parameters)
+          if (!current() || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          const approval = await this.requestAdMutationApproval(instance, title, approvalScope)
+          if (!approval) return false
           const fresh = await readJoinedAdReceipt(instance, domain.domainname)
-          if (this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+          if (!current() || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
           Object.assign(parameters, requireAdMutationApproval(instance, api, fresh, parameters, approval))
           if (parameters.expectedrevision !== undefined && parameters.expectedrevision !== fresh.scope.revision) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
           parameters.expectedrevision = fresh.scope.revision
         }
-        const response = await postAPI(api, parameters)
-        const result = response[api.toLowerCase() + 'response'] || {}
+        if (!current()) return false
+        intent = storageMutationIntent(this, scope, api, parameters)
+        if (intent) parameters.idempotencykey = intent.value.key
+        let result = {}; const retry = !!intent?.value.jobId
+        attempted = true
+        if (retry) result.jobid = intent.value.jobId
+        else {
+          const response = await postAPI(api, parameters, { preserveOnFailure: true, timeout: 15000 })
+          result = response[api.toLowerCase() + 'response']
+          if (!result || result.errorcode) throw new Error('STORAGE_MUTATION_RESULT_UNVERIFIED')
+          if (result.jobid && intent) intent.value.jobId = result.jobid
+        }
         if (result.jobid) {
-          const tracked = this.$pollJob({
+          const completed = await this.$pollJob({
             jobId: result.jobid,
+            ...(retry ? { retry: true } : {}),
             title,
             description: instance.name || this.resource.name,
             successMessage: this.$t('label.success'),
@@ -5566,25 +5628,41 @@ export default {
             loadingMessage: this.$t('label.loading') + '...',
             catchMessage: this.$t('error.fetching.async.job.result'),
             action: { isFetchData: false },
-            originalPage: this.$route.path,
-            successMethod: joined ? undefined : () => this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
+            originalPage: this.$route.path
           })
-          if (joined) {
-            const completed = await tracked
-            if (completed?.jobstatus !== 1 || this.storageService.instance.id !== instance.id || this.storageService.instance.name !== instance.name) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
-            await this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
+          terminal = completed?.jobstatus === 1 || completed?.jobstatus === 2
+          if (completed?.jobstatus !== 1) {
+            report(this.$t(completed?.jobstatus === 2 ? 'message.storage.config.failed' : 'message.job.result.unknown'))
+            return false
           }
-        } else await this.refreshAfterStorageAction(key, actionTab, actionWideLayout)
+          if (joined && (!current() || this.storageService.instance.name !== instance.name)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
+        } else terminal = true
+        return current()
       } catch (error) {
-        if (joined) this.$message.error(this.$t(error?.message === 'AD_MUTATION_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
-        else this.$notifyError(error)
+        if (joined) report(this.$t(error?.message === 'AD_MUTATION_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
+        else report(this.$t('message.job.result.unknown'))
+        return false
       } finally {
-        if (joined) { this.cancelAdMutation(); for (const field of Object.keys(parameters)) if (/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(field)) parameters[field] = '' }
-        this.actionLoading[key] = false
+        if (terminal && intent) intent.intents.delete(intent.fingerprint)
+        // A failed or uncertain writer can still have changed service state. Re-read it
+        // before enabling a retry, without letting old work alter another resource.
+        if (attempted && current()) {
+          try { await this.refreshAfterStorageAction(key, actionTab, actionWideLayout) } catch (error) { report(this.$t('message.storage.service.read.partial')) }
+          if (current() && this.refreshStorageOperationHistory) this.refreshStorageOperationHistory(instance.id)
+        }
+        if (joined && current()) this.cancelAdMutation()
+        for (const field of Object.keys(parameters)) if (/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(field)) parameters[field] = ''
+        if (storageMutationActive.get(this) === active) {
+          storageMutationActive.delete(this)
+          this.storageMutationPending = false
+          this.actionLoading[key] = false
+        }
       }
     },
     refreshSmbIdentityRepair () { this.refreshStorageOperationHistory(); return this.fetchStorageServiceData() },
     async refreshAfterStorageAction (key, actionTab = this.currentTab, actionWideLayout = this.protocolWideLayout) {
+      const scope = storageMutationScope(this)
+      if (this.storageMutationDisposed) return
       if (!this.storageService.instance) {
         return this.fetchStorageServiceData()
       }
@@ -5594,7 +5672,7 @@ export default {
       this.emitWideLayout()
       this.storageService.refreshing = true
       try {
-        const nvmeActions = ['nvmePrepare', 'nvmeSubsystem', 'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
+        const nvmeActions = ['nvmePrepare', 'nvmeSubsystem', 'editNvmeSubsystem', 'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
         if (nvmeActions.includes(key)) {
           const refreshGeneration = ++this.storageRefreshGeneration
           const results = await Promise.all([
@@ -5603,6 +5681,7 @@ export default {
             this.fetchNvmeStorageSnapshot(this.storageService.instance.id)
           ])
           const snapshot = results[results.length - 1]
+          if (!storageMutationScopeMatches(this, scope)) return
           if (this.applyNvmeStorageSnapshot(snapshot, refreshGeneration)) {
             await this.fetchAccessRules(snapshot.nvmeHostAcls)
             await this.fetchBackingVolumes()
@@ -5615,7 +5694,8 @@ export default {
           this.fetchCollection('listStorageServiceProtocols', 'protocols', 'storageserviceprotocol'),
           this.fetchRuntime('listStorageServiceSessions', 'sessions')
         ])
-        if (['resizeBackingVolume', 'detachBackingVolume'].includes(key)) {
+        if (!storageMutationScopeMatches(this, scope)) return
+        if (['resizeBackingVolume', 'detachBackingVolume', 'deleteConfirm'].includes(key)) {
           await Promise.all([
             this.fetchCollection('listStorageNfsExports', 'nfsExports', 'storagenfsexport'),
             this.fetchCollection('listStorageSmbShares', 'smbShares', 'storagesmbshare'),
@@ -5636,18 +5716,20 @@ export default {
           ])
           await this.fetchAccessRules()
           await this.fetchBackingVolumes()
-        } else if (['iscsiTarget', 'iscsiAcl'].includes(key)) {
+        } else if (['iscsiTarget', 'editIscsiTarget', 'iscsiAcl', 'editIscsiAcl'].includes(key)) {
           await this.fetchCollection('listStorageIscsiTargets', 'iscsiTargets', 'storageiscsitarget')
           await this.fetchAccessRules()
           await this.fetchBackingVolumes()
         }
       } finally {
-        this.storageService.loaded = true
-        this.storageService.refreshing = false
-        this.currentTab = actionTab || this.currentTab
-        this.protocolWideLayout = !!actionWideLayout
-        this.preserveCurrentProtocolRoute()
-        this.emitWideLayout()
+        if (storageMutationScopeMatches(this, scope)) {
+          this.storageService.loaded = true
+          this.storageService.refreshing = false
+          this.currentTab = actionTab || this.currentTab
+          this.protocolWideLayout = !!actionWideLayout
+          this.preserveCurrentProtocolRoute()
+          this.emitWideLayout()
+        }
       }
     },
     cleanParams (params) {
@@ -7408,6 +7490,9 @@ export default {
         .filter(value => value && !seen.has(value) && seen.add(value))
     },
     openActionModal (type, context = null) {
+      this.storageModalEpoch = (this.storageModalEpoch || 0) + 1
+      this.actionModal.error = ''
+      this.actionModal.loading = false
       if (type === 'nfsServiceSettings') this.forms.nfsServiceSettings.idmappingmode = this.nfsDesiredIdMode
 
       this.actionModal.type = type
@@ -7571,6 +7656,9 @@ export default {
       }
     },
     openDeleteModal (resourceType, record) {
+      this.storageModalEpoch = (this.storageModalEpoch || 0) + 1
+      this.actionModal.error = ''
+      this.actionModal.loading = false
       const raw = record?.raw || record || {}
       const names = {
         protocol: record?.name || record?.protocol,
@@ -7621,12 +7709,17 @@ export default {
       this.openDeleteModal(resourceType, record)
     },
     closeActionModal () {
+      this.storageModalEpoch = (this.storageModalEpoch || 0) + 1
+      this.actionModal.error = ''
       this.actionModal.visible = false
       this.actionModal.type = ''
       this.actionModal.context = null
       this.actionModal.loading = false
     },
     async submitActionModal () {
+      if (this.actionModal.loading || this.storageMutationDisposed) return false
+      const modal = this.actionModal; const epoch = this.storageModalEpoch || 0; const type = modal.type; const scope = storageMutationScope(this)
+      const sameModal = () => storageMutationScopeMatches(this, scope) && this.actionModal === modal && modal.visible && modal.type === type && (this.storageModalEpoch || 0) === epoch
       const actions = {
         nfsServiceSettings: this.updateNfsServiceSettings,
         enableProtocol: this.enableProtocol,
@@ -7665,13 +7758,21 @@ export default {
         this.closeActionModal()
         return
       }
-      this.actionModal.loading = true
-      const result = await action.call(this)
-      if (result === false && ['nvmeHostAcl', 'editNvmeHostAcl'].includes(this.actionModal.type)) {
-        this.actionModal.loading = false
-        return
-      }
-      this.closeActionModal()
+      modal.loading = true
+      modal.error = ''
+      try {
+        const result = await action.call(this)
+        if (!sameModal()) return false
+        if (result === false) return false
+        this.closeActionModal()
+        return true
+      } catch (error) {
+        if (sameModal()) {
+          modal.error = this.$t('message.storage.config.failed')
+          this.$message.error(modal.error)
+        }
+        return false
+      } finally { if (sameModal()) modal.loading = false }
     },
     nfsIdModeLabel (mode) {
       return this.$t('label.storage.service.nfs.idmapping.' + ({ NUMERIC: 'numeric', NAME_DOMAIN: 'name' }[mode] || 'unknown'))
@@ -7684,7 +7785,7 @@ export default {
     },
     enableProtocol () {
       if (!this.validateListenIpSelection()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('enableProtocol', 'enableStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
@@ -7703,18 +7804,18 @@ export default {
         this.forms.nfsExport.path = this.defaultNfsExportPath(this.forms.nfsExport.name)
       }
       if (!this.validateNfsExportNameAndPath()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const dualMode = this.forms.nfsExport.protocolmode === 'V3V4_DUAL' || this.isNfsRuntimeDualMode
       const listenerPorts = dualMode ? [2049] : this.selectedNfsListenerPorts()
       if (!dualMode && listenerPorts.length === 0) {
         this.$message.error(this.$t('message.storage.service.nfs.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       this.applyNfsWritableDefaults()
       const volumeId = await this.prepareNfsExportVolume()
       if (volumeId === false) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('nfsExport', 'createStorageNfsExport', {
         instanceid: this.storageService.instance.id,
@@ -7790,7 +7891,7 @@ export default {
       const principals = this.nfsAclPrincipals()
       if (!principals.length) {
         this.$message.error(this.$t('message.storage.service.nfs.acl.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('nfsAcl', 'createStorageNfsAcl', {
         exportid: this.forms.nfsAcl.exportid,
@@ -7812,10 +7913,10 @@ export default {
       const listenerPorts = dualMode ? [2049] : this.selectedNfsListenerPorts()
       if (!dualMode && listenerPorts.length === 0) {
         this.$message.error(this.$t('message.storage.service.nfs.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       if (!this.validateNfsExportNameAndPath()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       this.applyNfsWritableDefaults()
       return this.runStorageAction('editNfsExport', 'updateStorageNfsExport', {
@@ -7851,7 +7952,7 @@ export default {
       const principals = this.nfsAclPrincipals()
       if (principals.length !== 1) {
         this.$message.error(this.$t('message.storage.service.nfs.acl.edit.single.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('editNfsAcl', 'updateStorageNfsAcl', {
         id: context.id || this.actionModal.context?.id,
@@ -7868,7 +7969,7 @@ export default {
     deleteStorageResource () {
       if (!this.deleteConfirmationMatched) {
         this.$message.error(this.$t('message.storage.service.delete.confirm.input'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const type = this.forms.deleteConfirm.resourceType
       const command = this.forms.deleteConfirm.command
@@ -7889,7 +7990,7 @@ export default {
     deleteStorageEndpoint () {
       if (!this.deleteEndpointConfirmationMatched) {
         this.$message.error(this.$t('message.storage.service.delete.endpoint.confirm.input'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('deleteEndpoint', 'deleteStorageServiceProtocol', {
         instanceid: this.storageService.instance.id,
@@ -7940,10 +8041,10 @@ export default {
       return id
     },
     async createSmbShare () {
-      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve()
+      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve(false)
       const volumeId = await this.prepareSmbShareVolume()
       if (volumeId === false) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('smbShare', 'createStorageSmbShare', {
         instanceid: this.storageService.instance.id,
@@ -7976,7 +8077,7 @@ export default {
       }, this.$t('label.storage.service.create.smb.share'))
     },
     updateSmbShare () {
-      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve()
+      if (this.forms.smbShare.relativepath && !this.validateNestedSharePath(this.forms.smbShare.relativepath)) return Promise.resolve(false)
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
       return this.runStorageAction('editSmbShare', 'updateStorageSmbShare', {
         id: context.id || this.actionModal.context?.id,
@@ -8120,12 +8221,12 @@ export default {
     async createIscsiTarget () {
       const volumeId = await this.prepareIscsiTargetVolume()
       if (volumeId === false) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const listenerPorts = this.selectedIscsiListenerPorts()
       if (!listenerPorts.length) {
         this.$message.error(this.$t('message.storage.service.iscsi.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('iscsiTarget', 'createStorageIscsiTarget', {
         instanceid: this.storageService.instance.id,
@@ -8143,7 +8244,7 @@ export default {
       const listenerPorts = this.selectedIscsiListenerPorts()
       if (!listenerPorts.length) {
         this.$message.error(this.$t('message.storage.service.iscsi.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('editIscsiTarget', 'updateStorageIscsiTarget', {
         id: context.id || this.forms.iscsiTarget.id,
@@ -8193,12 +8294,12 @@ export default {
     async createNvmeNamespace () {
       const volumeId = await this.prepareNvmeNamespaceVolume()
       if (volumeId === false) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const listenerPorts = this.selectedNvmeListenerPorts()
       if (!listenerPorts.length) {
         this.$message.error(this.$t('message.storage.service.nvme.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('nvmeNamespace', 'createStorageNvmeOfNamespace', {
         subsystemid: this.forms.nvmeNamespace.subsystemid,
@@ -8214,7 +8315,7 @@ export default {
       const listenerPorts = this.selectedNvmeListenerPorts()
       if (!listenerPorts.length) {
         this.$message.error(this.$t('message.storage.service.nvme.listener.group.required'))
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       return this.runStorageAction('editNvmeNamespace', 'updateStorageNvmeOfNamespace', {
         id: context.id || this.forms.nvmeNamespace.id,
@@ -8239,7 +8340,7 @@ export default {
     },
     createIscsiAcl () {
       if (!this.validateIscsiChapForm()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const result = this.runStorageAction('iscsiAcl', 'createStorageIscsiAcl', {
         targetid: this.forms.iscsiAcl.targetid,
@@ -8258,7 +8359,7 @@ export default {
     },
     updateIscsiAcl () {
       if (!this.validateIscsiChapForm()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
       const result = this.runStorageAction('editIscsiAcl', 'updateStorageIscsiAcl', {
@@ -8325,7 +8426,7 @@ export default {
     },
     createNvmeHostAcl () {
       if (!this.validateNvmeHostAclForm()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       if (!this.validateNvmeHostAclAuthentication()) {
         return Promise.resolve(false)
@@ -8344,7 +8445,7 @@ export default {
     },
     updateNvmeHostAcl () {
       if (!this.validateNvmeHostAclForm()) {
-        return Promise.resolve()
+        return Promise.resolve(false)
       }
       if (!this.validateNvmeHostAclAuthentication()) {
         return Promise.resolve(false)

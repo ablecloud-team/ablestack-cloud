@@ -112,9 +112,9 @@ public final class DesiredStateChange {
                 operation.setState("RUNNING"); operation.setPhase("PREFLIGHT");
                 if(requestFingerprint!=null){com.google.gson.JsonObject intent=new com.google.gson.JsonObject();intent.addProperty("_requestFingerprint",requestFingerprint);operation.setResultJson(intent.toString());}
                 operation = operations.persist(operation);
-                runtime.started(operation);
                 boolean mutated = false;
                 try {
+                    runtime.started(operation);
                     runtime.checkControl(operation);
                     runtime.preflight();
                     runtime.checkControl(operation);
@@ -144,8 +144,9 @@ public final class DesiredStateChange {
                     }
                     return response;
                 } catch (RuntimeException failure) {
+                    final String diagnostic = failureDiagnostic(operation.getPhase(), failure);
                     operation.setState("RUNNING");
-                    operation.setDiagnostic(message(failure));
+                    operation.setDiagnostic(diagnostic);
                     if (mutated && failure instanceof com.cloud.exception.InvalidParameterValueException && operation.getPreviousSnapshotJson()!=null) {
                         // A rejected input must not restart healthy protocols when no desired state changed.
                         try { if (desiredOnly(operation.getPreviousSnapshotJson()).equals(desiredOnly(snapshots.capture(instanceId)))) mutated=false; }
@@ -164,7 +165,7 @@ public final class DesiredStateChange {
                             phase(operation, terminal, 100);
                         } catch (RuntimeException rollback) {
                             operation.setState("RECOVERY_REQUIRED");
-                            operation.setDiagnostic(message(failure) + " | rollback: " + message(rollback));
+                            operation.setDiagnostic(diagnostic + " | rollback: " + message(rollback));
                             operation.setCompleted(new Date()); phase(operation, "RECOVERY_REQUIRED", 100);
                         }
                     } else {
@@ -174,10 +175,10 @@ public final class DesiredStateChange {
                             operation.setState(terminal);operation.setCompleted(new Date());phase(operation, terminal, 100);
                         } catch (RuntimeException cleanup) {
                             operation.setState("RECOVERY_REQUIRED");operation.setCompleted(new Date());
-                            operation.setDiagnostic(message(failure) + " | checkpoint cleanup: " + message(cleanup));phase(operation, "RECOVERY_REQUIRED", 100);
+                            operation.setDiagnostic(diagnostic + " | checkpoint cleanup: " + message(cleanup));phase(operation, "RECOVERY_REQUIRED", 100);
                         }
                     }
-                    throw new CloudRuntimeException("Storage Service operation " + operation.getUuid() + " " + operation.getState() + ": " + message(failure), failure);
+                    throw new CloudRuntimeException("Storage Service operation " + operation.getUuid() + " " + operation.getState() + ": " + diagnostic, failure);
                 }
             } finally { try { runtime.finished(); } finally { lock.unlock(); } }
         } finally { lock.releaseRef(); }
@@ -200,6 +201,12 @@ public final class DesiredStateChange {
     private void phase(StorageServiceOperationVO operation, String phase, int progress) {
         operation.setPhase(phase); operation.setProgress(progress); operation.setHeartbeat(new Date());
         operations.update(operation.getId(), operation);
+    }
+
+    private String failureDiagnostic(String phase, RuntimeException failure) {
+        String observedPhase = java.util.Arrays.asList("PREFLIGHT", "PREPARED", "APPLYING", "VERIFYING", "COMPLETE").contains(phase)
+                ? phase : "UNKNOWN";
+        return "failurePhase=" + observedPhase + "; " + message(failure);
     }
 
     private String message(RuntimeException failure) {

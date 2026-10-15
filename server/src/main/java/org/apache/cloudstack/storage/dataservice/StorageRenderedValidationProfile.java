@@ -29,7 +29,7 @@ public final class StorageRenderedValidationProfile {
     private static boolean yes(JsonObject value,String key) {return value.has(key)&&value.get(key).isJsonPrimitive()&&value.get(key).getAsJsonPrimitive().isBoolean()&&value.get(key).getAsBoolean();}
     public static void requireHandler(JsonObject observed) {
         boolean declared=false;if(observed.has("supportedFeatures")&&observed.get("supportedFeatures").isJsonArray())for(JsonElement feature:observed.getAsJsonArray("supportedFeatures"))if(feature.isJsonPrimitive()&&feature.getAsJsonPrimitive().isString()&&"RENDERED_CONFIG_GENERATION_HANDLER".equals(feature.getAsString()))declared=true;
-        if(!yes(observed,"success")||!yes(observed,"renderedGenerationSupported")||!observed.has("schemaVersion")||!observed.get("schemaVersion").isJsonPrimitive()||!observed.get("schemaVersion").getAsJsonPrimitive().isNumber()||!"1".equals(observed.get("schemaVersion").getAsString())||!declared)throw new CloudRuntimeException("Fresh installed rendered generation handler proof is unavailable");
+        if(!yes(observed,"success")||!yes(observed,"renderedGenerationSupported")||!observed.has("renderedGenerationSchemaVersion")||!observed.get("renderedGenerationSchemaVersion").isJsonPrimitive()||!observed.get("renderedGenerationSchemaVersion").getAsJsonPrimitive().isNumber()||!"1".equals(observed.get("renderedGenerationSchemaVersion").getAsString())||!declared)throw new CloudRuntimeException("Fresh installed rendered generation handler proof is unavailable");
     }
     public static boolean retainedNewData(JsonObject current,JsonObject approved) {
         if(approved==null||!yes(approved,"newDataWithoutBacking")||!"DATADISK".equals(text(current,"type")))return false;

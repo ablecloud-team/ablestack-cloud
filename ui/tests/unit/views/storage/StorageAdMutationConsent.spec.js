@@ -71,16 +71,17 @@ describe('JOINED writer one-use SERVICE consent', () => {
     const vm = context(); await run(vm)
     expect(getAPI).toHaveBeenCalledTimes(2)
     expect(getAPI.mock.calls.every(call => call[1].instanceid === id && call[1].fresh === true)).toBe(true)
-    expect(postAPI).toHaveBeenCalledWith('createStorageSmbShare', { instanceid: id, name: 'new-own-share', admaintenancewindow: true, adconfirmation: 'owned-service', expectedrevision: 4 })
+    expect(postAPI).toHaveBeenCalledWith('createStorageSmbShare', { instanceid: id, name: 'new-own-share', admaintenancewindow: true, adconfirmation: 'owned-service', expectedrevision: 4 }, { preserveOnFailure: true, timeout: 15000 })
     expect(vm.$pollJob).toHaveBeenCalledTimes(1); expect(vm.refreshAfterStorageAction).toHaveBeenCalledTimes(1)
     expect(vm.adMutationConsent.visible).toBe(false); expect(vm.actionLoading.smbShare).toBe(false)
   })
 
-  it('preserves non-AD request fields and the existing asynchronous refresh callback', async () => {
+  it('preserves non-AD request fields and awaits one terminal refresh', async () => {
     const vm = context(false); await run(vm)
     expect(getAPI).not.toHaveBeenCalled(); expect(vm.requestAdMutationApproval).not.toHaveBeenCalled()
     expect(postAPI.mock.calls[0][1]).toEqual({ instanceid: id, name: 'new-own-share' })
-    expect(typeof vm.$pollJob.mock.calls[0][0].successMethod).toBe('function')
+    expect(vm.$pollJob.mock.calls[0][0].successMethod).toBeUndefined()
+    expect(vm.refreshAfterStorageAction).toHaveBeenCalledTimes(1)
   })
 
   it('does not turn delete/restore confirmation into the instance confirmation field', async () => {
@@ -143,7 +144,7 @@ describe('JOINED writer one-use SERVICE consent', () => {
     const pending = run(vm); await started
     expect(vm.actionLoading.smbShare).toBe(true); expect(vm.refreshAfterStorageAction).not.toHaveBeenCalled()
     finish({ jobstatus: 2 }); await pending
-    expect(postAPI).toHaveBeenCalledTimes(1); expect(vm.refreshAfterStorageAction).not.toHaveBeenCalled(); expect(vm.actionLoading.smbShare).toBe(false)
+    expect(postAPI).toHaveBeenCalledTimes(1); expect(vm.refreshAfterStorageAction).toHaveBeenCalledTimes(1); expect(vm.actionLoading.smbShare).toBe(false)
   })
 
   it('rejects navigation/name changes while awaiting fresh proof or job completion', async () => {
