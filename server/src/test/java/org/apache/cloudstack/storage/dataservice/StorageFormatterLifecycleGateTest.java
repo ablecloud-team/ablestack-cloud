@@ -490,4 +490,207 @@ public class StorageFormatterLifecycleGateTest {
         Assert.assertEquals(1, second.dispatched.size());Assert.assertEquals(1, second.probes);Assert.assertEquals(1, second.controlChecks);
     }
 
+
+    private static final class RecoveryNetworkFixture extends StorageServiceManagerImpl {
+        final StorageServiceInstanceVO instance = org.mockito.Mockito.mock(StorageServiceInstanceVO.class);
+        final StorageServiceOperationVO owner = org.mockito.Mockito.mock(StorageServiceOperationVO.class);
+        final java.util.Deque<StorageServiceGuestCommandResult> replies = new java.util.ArrayDeque<>();
+        final java.util.Deque<JsonObject> idleReplies = new java.util.ArrayDeque<>();
+        final java.util.List<StorageServiceGuestCommand> calls = new java.util.ArrayList<>();
+        final JsonObject source = new JsonObject(), request = new JsonObject();
+        final com.google.gson.JsonArray observedBindings = new com.google.gson.JsonArray();
+        long now = 1_000_000, dispatchNanos;
+        int probes, formatterChecks, identityChecks;boolean interruptBindings;
+        RuntimeException commandError, idleError, formatterError, identityError;
+        Runnable afterDispatch, afterIdle;
+        RecoveryNetworkFixture() throws Exception {
+            org.mockito.Mockito.when(instance.getId()).thenReturn(9L);
+            org.mockito.Mockito.when(instance.getUuid()).thenReturn("3480bb2c-99ee-42f2-91cf-715ded5dd35f");
+            org.mockito.Mockito.when(instance.getVmId()).thenReturn(54L);
+            org.mockito.Mockito.when(owner.getId()).thenReturn(43L);
+            org.mockito.Mockito.when(owner.getInstanceId()).thenReturn(9L);
+            org.mockito.Mockito.when(owner.getUuid()).thenReturn("143ac9d5-2180-4881-8a5c-e1f44084903e");
+            org.mockito.Mockito.when(owner.getRevision()).thenReturn(101L);
+            org.mockito.Mockito.when(owner.getPhase()).thenReturn("ROLLING_BACK");
+            org.mockito.Mockito.when(owner.getState()).thenReturn("RUNNING");
+            JsonObject desired = new JsonObject();
+            for (String path : new java.util.TreeSet<>(StorageRenderedDesiredState.PATHS)) desired.add(path, com.google.gson.JsonNull.INSTANCE);
+            JsonObject network = new JsonObject();network.add("endpoints", new com.google.gson.JsonArray());desired.add("network-endpoints.json", network);
+            String sha = StorageConfigArchive.sha256(desired.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            JsonObject generation = new JsonObject();generation.addProperty("instanceUuid", instance.getUuid());
+            generation.addProperty("operationUuid", "a5e722d8-5e1d-4930-8761-0b3d6902992a");generation.addProperty("revision",100L);
+            generation.addProperty("configurationSha256",sha);generation.addProperty("verifiedAt",1.0);
+            source.addProperty("success",true);source.addProperty("generationSupported",true);source.addProperty("frozen",true);
+            source.add("generation", generation);source.addProperty("configurationSha256",sha);source.add("configurationDesiredState",desired);
+            JsonObject nativeGeneration = new JsonObject();nativeGeneration.add("previous",generation.deepCopy());
+            JsonObject snapshot = new JsonObject();snapshot.add("nativeGeneration",nativeGeneration);snapshot.add("nativeDesiredState",desired.deepCopy());
+            org.mockito.Mockito.when(owner.getPreviousSnapshotJson()).thenReturn(snapshot.toString());
+            request.addProperty("instanceUuid",instance.getUuid());request.addProperty("operationUuid",owner.getUuid());
+            request.addProperty("revision",101L);request.add("expectedBindings",new com.google.gson.JsonArray());
+            setLocal("storageWriterOperation",owner);setLocal("configurationRecoverySource",source);
+            java.lang.reflect.Field field = StorageServiceManagerImpl.class.getDeclaredField("guestCommandDispatcher");field.setAccessible(true);
+            field.set(this,(StorageServiceGuestCommandDispatcher) command -> {
+                if ("operation writer-idle".equals(command.getOperation())) {
+                    probes++;
+                    if (idleError!=null) throw idleError;
+                    JsonObject idle = idleReplies.isEmpty()?nativeIdle(true):idleReplies.removeFirst();
+                    if (afterIdle!=null)afterIdle.run();
+                    return new StorageServiceGuestCommandResult(true,"",idle.toString());
+                }
+                calls.add(command);now+=dispatchNanos;
+                if(afterDispatch!=null)afterDispatch.run();
+                if(commandError!=null)throw commandError;
+                return replies.isEmpty()?busy():replies.removeFirst();
+            });
+        }
+        @SuppressWarnings("unchecked") void setLocal(String field,Object value) throws Exception {
+            java.lang.reflect.Field local=StorageServiceManagerImpl.class.getDeclaredField(field);local.setAccessible(true);
+            ((ThreadLocal<Object>)local.get(this)).set(value);
+        }
+        @Override protected long rollbackNativeWriterNowNanos(){return now;}
+        @Override protected void pauseRollbackNativeWriter(long milliseconds){now+=java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(milliseconds);}
+        @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO value){formatterChecks++;if(formatterError!=null)throw formatterError;}
+        @Override protected void requireIdentityRollbackSafe(StorageServiceInstanceVO value,StorageServiceOperationVO operation){identityChecks++;if(identityError!=null)throw identityError;}
+        @Override protected com.google.gson.JsonArray rootNetworkBindings(StorageServiceInstanceVO value,JsonObject cache){
+            Assert.assertSame(instance,value);if(interruptBindings)Thread.currentThread().interrupt();return observedBindings.deepCopy();
+        }
+        JsonObject invoke(){return invokeWithTimeout(60);}
+        JsonObject invokeWithTimeout(int timeout){return rootGuest(instance,"network endpoints reconcile",request,timeout);}
+        void successAfterBusy(){replies.add(busy());replies.add(new StorageServiceGuestCommandResult(true,"","{\"success\":true}"));}
+    }
+
+    @Test public void frozenRecoveryNetworkBusyRetriesActualRootGuestAfterStrictIdle() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.successAfterBusy();
+        value.idleReplies.add(nativeIdle(false));value.idleReplies.add(nativeIdle(true));
+        value.dispatchNanos=java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
+        Assert.assertTrue(value.invoke().get("success").getAsBoolean());
+        Assert.assertEquals(2,value.calls.size());Assert.assertEquals(2,value.probes);
+        Assert.assertEquals(1,value.formatterChecks);Assert.assertEquals(1,value.identityChecks);
+        for(StorageServiceGuestCommand call:value.calls){
+            Assert.assertEquals("network endpoints reconcile",call.getOperation());Assert.assertEquals(54L,call.getVmId());
+            Assert.assertEquals(value.request.toString(),call.getPayload());Assert.assertTrue(call.getMaskedFields().isEmpty());
+        }
+        Assert.assertEquals(60,value.calls.get(0).getTimeoutSeconds());
+        Assert.assertTrue(value.calls.get(1).getTimeoutSeconds()<60);
+    }
+    @Test public void exactInterruptedRecoveryNetworkCanRetryButDoesNotGainForwardAuthority() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.successAfterBusy();
+        org.mockito.Mockito.when(value.owner.getPhase()).thenReturn("RECOVERING_INTERRUPTED_WRITER");
+        org.mockito.Mockito.when(value.owner.getState()).thenReturn("RECOVERY_REQUIRED");
+        Assert.assertTrue(value.invoke().get("success").getAsBoolean());Assert.assertEquals(2,value.calls.size());
+        Assert.assertEquals(1,value.formatterChecks);Assert.assertEquals(1,value.identityChecks);
+    }
+    @Test public void networkMissingForeignOrForwardSourceCannotGainRetry() throws Exception {
+        for(int mode=0;mode<12;mode++){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();
+            if(mode==0)value.setLocal("configurationRecoverySource",null);
+            if(mode==1)value.setLocal("storageWriterOperation",null);
+            if(mode==2)org.mockito.Mockito.when(value.owner.getPhase()).thenReturn("APPLYING");
+            if(mode==3)org.mockito.Mockito.when(value.owner.getState()).thenReturn("COMPLETE");
+            if(mode==4)value.request.addProperty("operationUuid","22222222-2222-4222-8222-222222222222");
+            if(mode==5)value.request.addProperty("instanceUuid","22222222-2222-4222-8222-222222222222");
+            if(mode==6)value.request.addProperty("revision",102L);
+            if(mode==7)org.mockito.Mockito.when(value.owner.getPreviousSnapshotJson()).thenReturn("{}");
+            if(mode==8)value.source.getAsJsonObject("generation").addProperty("revision",101L);
+            if(mode==9)value.source.addProperty("configurationSha256","b".repeat(64));
+            if(mode==10)value.request.addProperty("extra",true);
+            if(mode==11)value.source.getAsJsonObject("generation").addProperty("instanceUuid","22222222-2222-4222-8222-222222222222");
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);
+            Assert.assertEquals(1,value.calls.size());Assert.assertEquals(0,value.probes);
+        }
+    }
+    @Test public void networkBusyWithExtraFieldsUnknownTrueOrMissingWireNeverRetries() throws Exception {
+        for(String raw:new String[]{null,"{}","{\"success\":false,\"errorCode\":\"OTHER\"}",
+                "{\"success\":true,\"errorCode\":\"STORAGE_WRITER_BUSY\"}","{\"success\":false,\"errorCode\":\"STORAGE_WRITER_BUSY\",\"extra\":1}",
+                "{\"success\":\"false\",\"errorCode\":\"STORAGE_WRITER_BUSY\"}",
+                "{\"success\":false,\"success\":false,\"errorCode\":\"STORAGE_WRITER_BUSY\"}"}){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.replies.add(new StorageServiceGuestCommandResult(false,"masked exit75",raw));
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());Assert.assertEquals(0,value.probes);
+        }
+    }
+    @Test public void networkActualTransportErrorDoesNotRetry() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.commandError=new CloudRuntimeException("I/O unavailable");
+        Assert.assertSame(value.commandError,Assert.assertThrows(CloudRuntimeException.class,value::invoke));
+        Assert.assertEquals(1,value.calls.size());Assert.assertEquals(0,value.probes);
+    }
+    @Test public void networkBusyCannotResendAfterBootUnknownOrFailedIdle() throws Exception {
+        java.util.List<JsonObject> bad=new java.util.ArrayList<>();JsonObject boot=nativeIdle(false);boot.addProperty("bootChildActive",true);bad.add(boot);
+        JsonObject recovery=nativeIdle(false);recovery.addProperty("bootRecoveryRequired",true);bad.add(recovery);
+        JsonObject unknown=nativeIdle(true);unknown.addProperty("status","UNKNOWN");bad.add(unknown);
+        JsonObject malformed=nativeIdle(true);malformed.remove("writerLockSupported");bad.add(malformed);
+        for(JsonObject reply:bad){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.idleReplies.add(reply);
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());Assert.assertEquals(1,value.probes);
+        }
+    }
+    @Test public void networkBusyStillHonorsFormatterAndIdentityFailure() throws Exception {
+        for(int mode=0;mode<2;mode++){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();
+            if(mode==0)value.formatterError=new CloudRuntimeException("Formatter is active");else value.identityError=new CloudRuntimeException("Identity is foreign");
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());
+            Assert.assertEquals(1,value.formatterChecks);Assert.assertEquals(mode==0?0:1,value.identityChecks);
+        }
+    }
+    @Test public void networkSourceOwnerOrFrozenMutationAfterBusyCannotResend() throws Exception {
+        for(int mode=0;mode<9;mode++){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();final int selected=mode;
+            value.afterIdle=()->{
+                if(selected==0)value.source.addProperty("configurationSha256","b".repeat(64));
+                if(selected==1)value.source.getAsJsonObject("configurationDesiredState").add("network-endpoints.json",com.google.gson.JsonNull.INSTANCE);
+                if(selected==2)org.mockito.Mockito.when(value.owner.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");
+                if(selected==3)org.mockito.Mockito.when(value.owner.getRevision()).thenReturn(102L);
+                if(selected==4)org.mockito.Mockito.when(value.owner.getPreviousSnapshotJson()).thenReturn("{}");
+                if(selected==5)org.mockito.Mockito.when(value.instance.getVmId()).thenReturn(55L);
+                if(selected==6)org.mockito.Mockito.when(value.owner.getState()).thenReturn("COMPLETE");
+                if(selected==7){try{value.setLocal("configurationRecoverySource",null);}catch(Exception e){throw new AssertionError(e);}}
+                if(selected==8)value.observedBindings.add(new JsonObject());
+            };
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());Assert.assertEquals(1,value.probes);
+        }
+    }
+    @Test public void networkPermanentBusyAndInterruptionNeverExtendBudgetOrResendUnsafely() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.idleReplies.add(nativeIdle(false));
+        value.idleReplies.add(nativeIdle(false));
+        value.idleError=new CloudRuntimeException("Read transport unavailable");
+        Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());
+        RecoveryNetworkFixture interrupted=new RecoveryNetworkFixture();interrupted.afterIdle=()->Thread.currentThread().interrupt();
+        try{Assert.assertThrows(CloudRuntimeException.class,interrupted::invoke);Assert.assertTrue(Thread.currentThread().isInterrupted());Assert.assertEquals(1,interrupted.calls.size());}
+        finally{Thread.interrupted();}
+    }
+
+
+    @Test public void networkRepeatedPrebodyBusyIsBoundedAndNeverResetsOriginalTimeout() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.dispatchNanos=java.util.concurrent.TimeUnit.SECONDS.toNanos(4);
+        Assert.assertThrows(CloudRuntimeException.class,value::invoke);
+        Assert.assertTrue(value.calls.size()>1&&value.calls.size()<=5);
+        int previous=61;
+        for(StorageServiceGuestCommand command:value.calls){Assert.assertTrue(command.getTimeoutSeconds()<previous);previous=command.getTimeoutSeconds();}
+        RecoveryNetworkFixture shortBudget=new RecoveryNetworkFixture();shortBudget.dispatchNanos=java.util.concurrent.TimeUnit.SECONDS.toNanos(3);
+        Assert.assertThrows(CloudRuntimeException.class,()->shortBudget.invokeWithTimeout(3));Assert.assertEquals(1,shortBudget.calls.size());
+    }
+    @Test public void networkFreshIdleReturnedAfterDeadlineCannotAuthorizeResend() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.afterIdle=()->value.now+=java.util.concurrent.TimeUnit.SECONDS.toNanos(61);
+        Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());Assert.assertEquals(1,value.probes);
+    }
+
+    @Test public void networkInterruptionDuringFreshNicBindingCheckCannotDispatchAgain() throws Exception {
+        RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.afterIdle=()->value.interruptBindings=true;
+        try{
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertTrue(Thread.currentThread().isInterrupted());
+            Assert.assertEquals(1,value.calls.size());
+        }finally{Thread.interrupted();}
+    }
+
+    @Test public void networkOversizedSourceAndRequestRevisionsCannotWrapIntoRetryAuthority() throws Exception {
+        for(boolean sourceRevision:new boolean[]{true,false}){
+            RecoveryNetworkFixture value=new RecoveryNetworkFixture();value.successAfterBusy();
+            if(sourceRevision){
+                value.source.getAsJsonObject("generation").addProperty("revision",new java.math.BigInteger("18446744073709551716"));
+                JsonObject snapshot=new com.google.gson.JsonParser().parse(value.owner.getPreviousSnapshotJson()).getAsJsonObject();
+                snapshot.getAsJsonObject("nativeGeneration").add("previous",value.source.get("generation").deepCopy());
+                org.mockito.Mockito.when(value.owner.getPreviousSnapshotJson()).thenReturn(snapshot.toString());
+            }else value.request.addProperty("revision",new java.math.BigInteger("18446744073709551717"));
+            Assert.assertThrows(CloudRuntimeException.class,value::invoke);Assert.assertEquals(1,value.calls.size());Assert.assertEquals(0,value.probes);
+        }
+    }
 }

@@ -723,7 +723,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         catch (RuntimeException unavailable) { JsonObject result = new JsonObject();result.addProperty("success", false);result.addProperty("status", "UNAVAILABLE");return result; }
     }
     protected JsonObject rootGuest(StorageServiceInstanceVO instance, String command, JsonObject request, int timeout) {
-        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),command,request.toString(),timeout,Collections.emptySet()));
+        StorageServiceGuestCommand guest = new StorageServiceGuestCommand(instance.getVmId(),command,request.toString(),timeout,Collections.emptySet());
+        StorageServiceGuestCommandResult result = "network endpoints reconcile".equals(command)
+                ? dispatchPlainProtocolApply(instance, guest) : guestCommandDispatcher.dispatch(guest);
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed,"success"))) throw new CloudRuntimeException("ROOT runtime step failed: " + command);
         return observed;
@@ -13266,7 +13268,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected StorageServiceGuestCommandResult dispatchPlainProtocolApply(StorageServiceInstanceVO instance, StorageServiceGuestCommand command) {
         final Set<String> plain = Set.of("nfs export apply", "smb share apply", "iscsi target apply", "nvmeof subsystem apply");
         final StorageServiceOperationVO owner = storageWriterOperation.get();
-        if (!plain.contains(command.getOperation()) || owner == null || instance.getVmId() == null
+        final boolean networkRecovery = recoveryNetworkRetryEligible(instance, command, owner);
+        if ((!plain.contains(command.getOperation()) && !networkRecovery) || owner == null || instance.getVmId() == null
                 || command.getVmId() != instance.getVmId() || owner.getInstanceId() != instance.getId()
                 || owner.getId() <= 0 || owner.getRevision() <= 0 || StringUtils.isBlank(owner.getUuid())
                 || !(("APPLYING".equals(owner.getPhase()) || "ROLLING_BACK".equals(owner.getPhase())) && "RUNNING".equals(owner.getState())
@@ -13277,13 +13280,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final long instanceId = instance.getId(), operationId = owner.getId(), revision = owner.getRevision();
         final String uuid = owner.getUuid(), phase = owner.getPhase(), state = owner.getState();
         final String previous = owner.getPreviousSnapshotJson();
+        final String networkSource = networkRecovery ? configurationRecoverySource.get().toString() : null;
         final Set<String> masks = Collections.unmodifiableSet(new HashSet<>(command.getMaskedFields()));
         final StorageServiceGuestCommand fixed = new StorageServiceGuestCommand(command.getVmId(), command.getOperation(),
                 command.getPayload(), command.getTimeoutSeconds(), masks);
         final long deadline = rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(fixed.getTimeoutSeconds());
         long busyDeadline = 0;
         while (true) {
-            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous, networkSource);
             long now = rollbackNativeWriterNowNanos();
             if (busyDeadline != 0 && now >= busyDeadline)
                 throw new CloudRuntimeException("Native writer busy retry deadline expired; configuration requires recovery");
@@ -13295,7 +13299,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (!isClosedNativeWriterBusy(result)) return result;
             if (busyDeadline == 0) busyDeadline = Math.min(deadline,
                     rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(15));
-            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous, networkSource);
             // A BUSY result proves dispatch never reached the handler. An idle observation supplies no source authority.
             requireRollbackNativeWriterIdle(instance, busyDeadline);
             if ("ROLLING_BACK".equals(phase) || "RECOVERING_INTERRUPTED_WRITER".equals(phase)) {
@@ -13304,13 +13308,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             } else {
                 requireNoOperationCancellation(owner);
             }
-            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous);
+            requireSamePlainApplyOwner(instance, fixed, owner, instanceId, operationId, uuid, revision, phase, state, previous, networkSource);
         }
     }
 
     private void requireSamePlainApplyOwner(StorageServiceInstanceVO instance, StorageServiceGuestCommand command,
             StorageServiceOperationVO owner, long instanceId, long operationId, String uuid, long revision,
-            String phase, String state, String previous) {
+            String phase, String state, String previous, String networkSource) {
         if (Thread.currentThread().isInterrupted())
             throw new CloudRuntimeException("Native protocol apply was interrupted; configuration requires recovery");
         if (storageWriterOperation.get() != owner || instance.getId() != instanceId || instance.getVmId() == null
@@ -13319,6 +13323,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !java.util.Objects.equals(owner.getPhase(), phase) || !java.util.Objects.equals(owner.getState(), state)
                 || !java.util.Objects.equals(owner.getPreviousSnapshotJson(), previous))
             throw new CloudRuntimeException("Native protocol apply writer scope changed; configuration requires recovery");
+        if (networkSource != null) {
+            if (configurationRecoverySource.get() == null
+                    || !networkSource.equals(configurationRecoverySource.get().toString())
+                    || !recoveryNetworkRetryEligible(instance, command, owner))
+                throw new CloudRuntimeException("Recovery network SOURCE scope changed; configuration requires recovery");
+            if (Thread.currentThread().isInterrupted())
+                throw new CloudRuntimeException("Native protocol apply was interrupted; configuration requires recovery");
+        }
     }
 
     private boolean isClosedNativeWriterBusy(StorageServiceGuestCommandResult result) {
@@ -13347,4 +13359,51 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+
+    private boolean recoveryNetworkRetryEligible(StorageServiceInstanceVO instance, StorageServiceGuestCommand command,
+            StorageServiceOperationVO owner) {
+        if (!"network endpoints reconcile".equals(command.getOperation()) || owner == null
+                || StringUtils.isBlank(instance.getUuid())
+                || !("ROLLING_BACK".equals(owner.getPhase()) && "RUNNING".equals(owner.getState())
+                        || "RECOVERING_INTERRUPTED_WRITER".equals(owner.getPhase())
+                                && ("RUNNING".equals(owner.getState()) || "RECOVERY_REQUIRED".equals(owner.getState())))
+                || command.getMaskedFields() == null || !command.getMaskedFields().isEmpty()) return false;
+        try {
+            JsonObject source = configurationRecoverySource.get();
+            if (source == null || !Boolean.TRUE.equals(getNativeBoolean(source, "success"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(source, "generationSupported"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(source, "frozen"))) return false;
+            JsonObject generation = getJsonObject(source, "generation"), desired = getJsonObject(source, "configurationDesiredState");
+            JsonObject previous = parseJsonObject(owner.getPreviousSnapshotJson());
+            JsonObject checkpoint = getJsonObject(previous, "nativeGeneration");
+            JsonObject request = parseJsonObject(command.getPayload());
+            String checksum = getJsonString(source, "configurationSha256");
+            if (generation == null || desired == null || !desired.keySet().equals(StorageRenderedDesiredState.PATHS)
+                    || checkpoint == null || !generation.equals(checkpoint.get("previous"))
+                    || !desired.equals(previous.get("nativeDesiredState"))
+                    || checksum == null || !checksum.matches("[a-f0-9]{64}")
+                    || !checksum.equals(getJsonString(generation, "configurationSha256"))
+                    || !java.util.Objects.equals(instance.getUuid(), getJsonString(generation, "instanceUuid"))
+                    || getJsonString(generation, "operationUuid") == null
+                    || !getJsonString(generation, "operationUuid").equals(java.util.UUID.fromString(getJsonString(generation, "operationUuid")).toString())
+                    || !generation.has("revision") || !generation.get("revision").isJsonPrimitive()
+                    || !generation.get("revision").getAsJsonPrimitive().isNumber()
+                    || !generation.get("revision").getAsString().matches("[1-9][0-9]*")
+                    || Long.parseLong(generation.get("revision").getAsString()) >= owner.getRevision()
+                    || !request.keySet().equals(Set.of("instanceUuid", "operationUuid", "revision", "expectedBindings"))
+                    || !java.util.Objects.equals(instance.getUuid(), getJsonString(request, "instanceUuid"))
+                    || !java.util.Objects.equals(owner.getUuid(), getJsonString(request, "operationUuid"))
+                    || !request.get("revision").isJsonPrimitive() || !request.get("revision").getAsJsonPrimitive().isNumber()
+                    || !request.get("revision").getAsString().matches("[1-9][0-9]*")
+                    || Long.parseLong(request.get("revision").getAsString()) != owner.getRevision()
+                    || !request.get("expectedBindings").isJsonArray()
+                    || desired.get("network-endpoints.json").isJsonNull()
+                    || !desired.get("network-endpoints.json").isJsonObject()) return false;
+            // Reuse the already verified immutable SOURCE and fresh NIC bindings.
+            // Mutable canonical protocols may still be TARGET until replay below.
+            return request.get("expectedBindings").equals(rootNetworkBindings(instance, desired.getAsJsonObject("network-endpoints.json")));
+        } catch (RuntimeException invalid) {
+            return false;
+        }
+    }
 }
