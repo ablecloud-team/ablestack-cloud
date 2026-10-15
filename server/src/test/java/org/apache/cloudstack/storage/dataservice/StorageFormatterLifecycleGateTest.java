@@ -49,6 +49,10 @@ public class StorageFormatterLifecycleGateTest {
 
         RollbackFixture(JsonObject... observations) throws Exception {
             replies.addAll(java.util.Arrays.asList(observations));
+            org.mockito.Mockito.when(instance.getId()).thenReturn(9L);
+            org.mockito.Mockito.when(instance.getUuid()).thenReturn("3480bb2c-99ee-42f2-91cf-715ded5dd35f");
+            org.springframework.test.util.ReflectionTestUtils.setField(this,"storageOperationControlDao",
+                    org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDao.class));
             org.mockito.Mockito.when(instance.getVmId()).thenReturn(54L);
             com.cloud.storage.dao.VolumeDao dao = org.mockito.Mockito.mock(com.cloud.storage.dao.VolumeDao.class);
             com.cloud.storage.VolumeVO volume = org.mockito.Mockito.mock(com.cloud.storage.VolumeVO.class);
@@ -90,22 +94,26 @@ public class StorageFormatterLifecycleGateTest {
             super.requireIdentityRollbackSafe(scope, operation);
         }
 
+        @Override public Long getStorageServiceSyncId(org.apache.cloudstack.api.BaseCmd command) {return 9L;}
+        @Override protected StorageServiceInstanceVO requireInstance(Long id) {Assert.assertEquals(Long.valueOf(9),id);return instance;}
+
         void actualRuntimeGuard() throws Exception {
-            Class<?> selected = null;
-            for (int i = 1; i <= 32; i++) {
-                try {
-                    Class<?> candidate = Class.forName(StorageServiceManagerImpl.class.getName() + "$" + i, false,
-                            StorageServiceManagerImpl.class.getClassLoader());
-                    if (DesiredStateChange.Runtime.class.isAssignableFrom(candidate)) {
-                        Assert.assertNull("Exactly one actual desired-change runtime", selected);selected = candidate;
-                    }
-                } catch (ClassNotFoundException absent) { /* Bounded compiler-generated class inventory. */ }
+            org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd command =
+                    new org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd();
+            java.util.concurrent.atomic.AtomicReference<DesiredStateChange.Runtime> captured = new java.util.concurrent.atomic.AtomicReference<>();
+            try (org.mockito.MockedStatic<StorageServiceRequestFingerprint> fingerprint = org.mockito.Mockito.mockStatic(StorageServiceRequestFingerprint.class);
+                    org.mockito.MockedConstruction<DesiredStateChange> engines = org.mockito.Mockito.mockConstruction(DesiredStateChange.class,
+                            (engine, construction) -> org.mockito.Mockito.when(engine.execute(org.mockito.ArgumentMatchers.eq(9L),
+                                    org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.nullable(String.class),
+                                    org.mockito.ArgumentMatchers.nullable(Long.class), org.mockito.ArgumentMatchers.eq("formatter-gate-test-fingerprint"),
+                                    org.mockito.ArgumentMatchers.eq(String.class), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                                    .thenAnswer(call -> {captured.set(call.getArgument(7));return "runtime-captured";}))) {
+                fingerprint.when(() -> StorageServiceRequestFingerprint.of(command)).thenReturn("formatter-gate-test-fingerprint");
+                Assert.assertEquals("runtime-captured", executeDesiredChange(command, String.class,
+                        () -> {throw new AssertionError("Runtime guard fixture must not execute a mutation");}));
+                Assert.assertEquals(1,engines.constructed().size());Assert.assertNotNull(captured.get());
             }
-            Assert.assertNotNull(selected);
-            java.lang.reflect.Constructor<?> constructor = selected.getDeclaredConstructors()[0];constructor.setAccessible(true);
-            DesiredStateChange.Runtime runtime = (DesiredStateChange.Runtime) constructor.newInstance(this, instance, null,
-                    StorageServiceInstance.Protocol.NFS, 9L, false);
-            runtime.ensureRollbackSafe();
+            captured.get().ensureRollbackSafe();
         }
     }
 
@@ -504,6 +512,8 @@ public class StorageFormatterLifecycleGateTest {
         RuntimeException commandError, idleError, formatterError, identityError;
         Runnable afterDispatch, afterIdle;
         RecoveryNetworkFixture() throws Exception {
+            org.springframework.test.util.ReflectionTestUtils.setField(this,"storageOperationControlDao",
+                    org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDao.class));
             org.mockito.Mockito.when(instance.getId()).thenReturn(9L);
             org.mockito.Mockito.when(instance.getUuid()).thenReturn("3480bb2c-99ee-42f2-91cf-715ded5dd35f");
             org.mockito.Mockito.when(instance.getVmId()).thenReturn(54L);

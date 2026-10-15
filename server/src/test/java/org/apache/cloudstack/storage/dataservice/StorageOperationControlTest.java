@@ -433,4 +433,16 @@ public class StorageOperationControlTest {
         manager.releaseOperationResourceReservation(manager.instance,operation);
         Mockito.verify(guest,Mockito.times(2)).dispatch(Mockito.any());
     }
+
+    @Test public void preparedBudgetKeepsOptedOutDispatchButRejectsForeignOptedInOwner() {
+        operation.setPhase("APPLYING");operation.setInstanceId(99L);
+        manager.beginStorageWriterHeartbeat(operation);
+        try {
+            Mockito.when(controls.findByOperation(11L)).thenReturn(null);
+            manager.requirePreparedResourceBudget(manager.instance,0);
+            Mockito.when(controls.findByOperation(11L)).thenReturn(control);
+            Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->manager.requirePreparedResourceBudget(manager.instance,0));
+            Mockito.verifyNoInteractions(guest);Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+        } finally {manager.endStorageWriterHeartbeat();}
+    }
 }
