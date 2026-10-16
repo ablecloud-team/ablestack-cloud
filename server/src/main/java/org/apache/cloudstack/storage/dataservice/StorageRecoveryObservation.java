@@ -69,6 +69,39 @@ public final class StorageRecoveryObservation {
             if (!matched) throw new CloudRuntimeException("NFS contains an unexpected client policy");
         }
     }
+    /** A deferred allocation is verified absent, never promoted to runtime Ready. */
+    public static boolean requiresNfsRuntime(StorageServiceInstance.ResourceState state, String name, JsonArray listeners) {
+        if (state != StorageServiceInstance.ResourceState.Allocated) return true;
+        if (listeners == null || name == null || name.isEmpty()) {
+            throw new CloudRuntimeException("Deferred NFS allocation has no complete export observation");
+        }
+        for (JsonElement element : listeners) {
+            if (!element.isJsonObject()) throw new CloudRuntimeException("NFS listener observation is malformed");
+            JsonObject listener = element.getAsJsonObject();
+            if (listener.has("error") || !listener.has("status") || !listener.get("status").isJsonPrimitive()
+                    || !listener.getAsJsonPrimitive("status").isString() || !"active".equals(listener.get("status").getAsString())
+                    || !listener.has("listening") || !listener.get("listening").isJsonPrimitive()
+                    || !listener.getAsJsonPrimitive("listening").isBoolean() || !listener.get("listening").getAsBoolean()
+                    || !listener.has("entries") || !listener.get("entries").isJsonArray()) {
+                throw new CloudRuntimeException("NFS listener observation is incomplete");
+            }
+            for (JsonElement value : listener.getAsJsonArray("entries")) {
+                if (!value.isJsonObject()) throw new CloudRuntimeException("NFS export observation is malformed");
+                JsonObject entry = value.getAsJsonObject();
+                if (!entry.has("pseudo") || !entry.get("pseudo").isJsonPrimitive()
+                        || !entry.getAsJsonPrimitive("pseudo").isString() || !entry.get("pseudo").getAsString().startsWith("/")
+                        || !entry.has("path") || !entry.get("path").isJsonPrimitive()
+                        || !entry.getAsJsonPrimitive("path").isString() || entry.get("path").getAsString().isEmpty()
+                        || !entry.has("clients") || !entry.get("clients").isJsonArray()) {
+                    throw new CloudRuntimeException("NFS export identity is unobserved");
+                }
+                if (("/" + name).equals(entry.get("pseudo").getAsString())) {
+                    throw new CloudRuntimeException("Deferred NFS allocation is unexpectedly exposed");
+                }
+            }
+        }
+        return false;
+    }
     public static Set<String> strings(JsonArray values) {
         Set<String> result = new HashSet<>();
         for (JsonElement value : values) result.add(value.getAsString());

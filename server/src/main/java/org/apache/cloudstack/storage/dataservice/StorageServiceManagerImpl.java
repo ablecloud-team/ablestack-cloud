@@ -4590,6 +4590,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
         }
         for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS)) {
+            // deferapply stores Allocated metadata without publishing an export.
+            // Backing identity and exact native target witnesses remain mandatory.
+            if (!StorageRecoveryObservation.requiresNfsRuntime(share.getState(), share.getName(),
+                    inventory.has("nfsGaneshaExports") && inventory.get("nfsGaneshaExports").isJsonArray()
+                            ? inventory.getAsJsonArray("nfsGaneshaExports") : null)) continue;
             if (share.getState() != StorageServiceInstance.ResourceState.Ready || !nfsPseudos.containsKey("/" + share.getName())) {
                 throw new CloudRuntimeException("NFS desired/runtime export is not ready: " + share.getName() + " state=" + share.getState() + " observedPseudos=" + nfsPseudos.keySet());
             }
