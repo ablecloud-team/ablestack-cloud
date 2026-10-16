@@ -1,0 +1,928 @@
+{
+  "schemaVersion": 1,
+  "issue": 913,
+  "epic": 898,
+  "epicPr": 1271,
+  "status": "FUNCTIONAL_ACCEPTANCE_COMPLETE",
+  "readyToClose": true,
+  "rootFinalReview": true,
+  "preparedAtUtc": "2026-10-16T13:02:42.996371+00:00",
+  "componentAuthority": {
+    "networkBackendTemplateSource": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+    "existingVmNativeCodeSource": "bf869f26487446f91dea18089c732b8346721cc3",
+    "nativeCliSha256": "565dd70bf20c066cc523e90e3fec7a06735263e9811bda396ed163d48edd2731",
+    "networkHelperSha256": "1d11e931783cb96ffa78e8a7d986e888471c78a67ec855ac316d6ddc6ac72e40",
+    "networkUnitSha256": "0d9f1d75d825aa33065748e6cb4f350da5bfd185600a13ea5703430375f94bd2",
+    "initSha256": "5222d10b11c662c1e8ef9c36e1c6660da03ca965ced5b51dcba0c7ff807011b0",
+    "uiSource": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+    "uiIndexSha256": "2b6955c7bf43bd1b4acb7b054c205f619acae8bb1e054e6bee9e68b77dd5281a",
+    "imageSigningPublicKeyId": "epic898-issue913-347b7e6b",
+    "imageSigningPublicKeySha256": "0ae6b1e79a90c9b36656d4403444a976f737c8070f9ead5cf98ff7e4f89fea8d",
+    "testKeyAndPrivateUserOnly": true
+  },
+  "normalValidation": {
+    "backend": {
+      "reactors": 39,
+      "suites": 133,
+      "tests": 1142
+    },
+    "native": {
+      "modules": 20,
+      "tests": 398
+    },
+    "uiUnchanged": {
+      "suites": 38,
+      "tests": 940
+    },
+    "summedTestTotal": null,
+    "previousIssueAndFocusedCountsAdded": false
+  },
+  "evidence": [
+    {
+      "id": "backend",
+      "sourceEvidencePath": "build/backend-normal-v7/public-proof.json",
+      "sha256": "c3a864c7f14587420ff4a703a59ebc901440da748f6896b77702d8656b1a4b39",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Separate normal run; no prior/focused count addition",
+      "publicScalars": {
+        "sourcePin": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "tests": 1142,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reactors": 39,
+        "suites": 133,
+        "checkstylePass": true
+      }
+    },
+    {
+      "id": "native",
+      "sourceEvidencePath": "build/native-networking-final-v6/public-proof.json",
+      "sha256": "2b139a967476bf76069042104c174a2e9565944014dd8e6ba92a753928176ea5",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Separate normal run; no prior/focused count addition",
+      "publicScalars": {
+        "sourcePin": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "tests": 398,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "modules": 20,
+        "sourceFiles": 608
+      }
+    },
+    {
+      "id": "ui",
+      "sourceEvidencePath": "build/ui-normal-v2/public-proof.json",
+      "sha256": "9dbcad9b889c3ef09da4d03090ce214187edc3e40d11353638493302bf8ab004",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Separate normal run; no prior/focused count addition",
+      "publicScalars": {
+        "sourcePin": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+        "tests": 940,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "suites": 38,
+        "lint": true,
+        "production": true
+      }
+    },
+    {
+      "id": "uiSourceQualification",
+      "sourceEvidencePath": "build/ui-normal-v2/normal-build-schema-qualification-public.json",
+      "sha256": "b39c80350b4905d836bfb23af03b652b05b4111c2aa4a542c4a91ed268ef7d82",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "UI9cb unchanged; not relabelled347",
+      "publicScalars": {
+        "sourcePin": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+        "sourceUnchanged": true
+      }
+    },
+    {
+      "id": "uiDeployment",
+      "sourceEvidencePath": "deployment/ui-nullable-v2-ROOTREGISTERED/root-deployment-public-proof.json",
+      "sha256": "76cf92e7cdc526b99ae6506aaf4b43116bcb988e50335fb7fb1563cad401eff4",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Static index/config/management preservation",
+      "publicScalars": {
+        "sourcePin": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+        "uiIndexSha256": "2b6955c7bf43bd1b4acb7b054c205f619acae8bb1e054e6bee9e68b77dd5281a",
+        "managementRestartByThisStage": 0
+      }
+    },
+    {
+      "id": "host1",
+      "sourceEvidencePath": "deployment-v7-DRAFT/host-1-actual-deployment-public.json",
+      "sha256": "99aead86633a4312afc51c4f08b84f8d834c2c5312527d2e6fe5fcfb418f8e4d",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Exact3 entries; other runtime and VM processes preserved",
+      "publicScalars": {
+        "newAgentPid": "344738",
+        "otherJarsPreserved": 247,
+        "vmProcessesPreserved": 11,
+        "ownedChangedEntries": 3,
+        "managementOrGuestChanges": 0
+      }
+    },
+    {
+      "id": "host2",
+      "sourceEvidencePath": "deployment-v7-DRAFT/host-2-actual-deployment-public.json",
+      "sha256": "d176c94bcef2f4235a6bfd65a2c44c81027c04f70258542ea80795923a041120",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Exact3 entries; other runtime and VM processes preserved",
+      "publicScalars": {
+        "newAgentPid": "2347086",
+        "otherJarsPreserved": 247,
+        "vmProcessesPreserved": 16,
+        "ownedChangedEntries": 3,
+        "managementOrGuestChanges": 0
+      }
+    },
+    {
+      "id": "host3",
+      "sourceEvidencePath": "deployment-v7-DRAFT/host-3-actual-deployment-public.json",
+      "sha256": "6959158e23718e9e6739c03de92b7adb53e86b13e0af8b509dcda50e3b740cb9",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Exact3 entries; other runtime and VM processes preserved",
+      "publicScalars": {
+        "newAgentPid": "390092",
+        "otherJarsPreserved": 247,
+        "vmProcessesPreserved": 3,
+        "ownedChangedEntries": 3,
+        "managementOrGuestChanges": 0
+      }
+    },
+    {
+      "id": "legacyHot",
+      "sourceEvidencePath": "actual/legacy65-v7-ifupdown-network-hot-apply-live-nfs-public.json",
+      "sha256": "9b656aedfd560f338514eba08a1c6b4ae201b8823daf582fc3280d20669c3b12",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Production347 installer under live NFS I/O",
+      "publicScalars": {
+        "sourcePin": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "nfsWrites": 46,
+        "nfsReads": 46,
+        "nfsErrorCount": 0,
+        "unmounted": true,
+        "bootNativeCanaryProtocolPidsExact": true
+      }
+    },
+    {
+      "id": "realLeaseLab",
+      "sourceEvidencePath": "lab-owned-netns-networking-v5-DRAFT/actual-real-lease-bound-renew-static-expiry-public.json",
+      "sha256": "7b9dc5856540943e184d61e1d04c5721f532e85d24b93f9a93385958b289625d",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Isolated real DHCP BOUND/renew/STATIC/expiry; production helper",
+      "publicScalars": {
+        "serverAckCount": 2,
+        "actualLeaseExpiry": 1792151450,
+        "protectedUnchanged": true,
+        "cleanupComplete": true,
+        "normalDhclientScript": true
+      }
+    },
+    {
+      "id": "legacyCold",
+      "sourceEvidencePath": "actual/legacy65-cold-restart-v11-ROOT-public.json",
+      "sha256": "35cfd7cb730a83b9e70901d7c8a9cb796e7d952223d2791012fe45b1257812de",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Normal PW writer then cold; >150s3stable/all7 exact",
+      "publicScalars": {
+        "nativeCodeSource": "bf869f26487446f91dea18089c732b8346721cc3",
+        "networkSource": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "nativeRevision": 17,
+        "nativeStatus": "IN_SYNC",
+        "bootId": "9ce76980-7ff1-4a9b-a94e-e6709cad2f13",
+        "currentPointerSha256": "1f61192a0fd8f62d9a818f612b9de959202f4c7aaa1baac39c708cd5fcefe69f",
+        "canonicalAll7RawBytesExact": true,
+        "currentPointerExact": true,
+        "sameRamSecretAuthenticated": true,
+        "nfsAfterPass": true,
+        "smbAfterPass": true,
+        "post150StableSampleCount": 3,
+        "resourcePosts": 2
+      }
+    },
+    {
+      "id": "legacyColdUi",
+      "sourceEvidencePath": "actual/actual-ui-legacy65-final-cold-v11-after-public.json",
+      "sha256": "55db329cef4836a7d0349f40c8b5381cdb3c9a43d02dc3bde69be028a7b51ed8",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Actual Chrome cold network/4protocol read-only view",
+      "publicScalars": {
+        "networkSource": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "nativeCodeSource": "bf869f26487446f91dea18089c732b8346721cc3",
+        "resourcePosts": 0,
+        "localPngExportClaimed": false
+      }
+    },
+    {
+      "id": "imageBuild",
+      "sourceEvidencePath": "build/template-networking-final-v5/build-result.json",
+      "sha256": "42a36a24e9817e6fb6a48d7365095d57aeb82d15cb5b4e0cd5992b314df4ee48",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Full Packer; TEST key sealed/closed",
+      "publicScalars": {
+        "sourceCommit": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "exitCode": 0,
+        "elapsedSeconds": 2817,
+        "keyFdClosed": true,
+        "publicKeySha256": "0ae6b1e79a90c9b36656d4403444a976f737c8070f9ead5cf98ff7e4f89fea8d",
+        "defaultTemplateChanged": false
+      }
+    },
+    {
+      "id": "imageAttestation",
+      "sourceEvidencePath": "build/template-networking-final-v5/attestation-draft/final-image-attestation-ROOT-public.json",
+      "sha256": "74d6b8c5d98637dde0f35d421e7d4f74c8f9de16f2b60c9b1fa7c444d1e48f9e",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "RO content14/initialinterfaces and cleanup verified",
+      "publicScalars": {
+        "imageSha256": "d9bbaec8808abe240ae13400c2a6ea28e154648986fdead070ad1306b0fdec5d",
+        "installedFileCount": 14,
+        "directInitSha256": "5222d10b11c662c1e8ef9c36e1c6660da03ca965ced5b51dcba0c7ff807011b0",
+        "imageManifestSourceFileCount": 321,
+        "initialInterfacesSha256": "4dfe84595bf3825db436de3c9698d0e52d92bf773d0a5f00fd2912617dfb5b14",
+        "includeDirectoryEmpty": true,
+        "nbdDisconnected": true,
+        "mountGone": true,
+        "imageUnchanged": true
+      }
+    },
+    {
+      "id": "privateTemplateReady",
+      "sourceEvidencePath": "fixture/final5-template-registration-ACTUAL-PREPARED/final5-ready-ROOT-public.json",
+      "sha256": "80caa0c311bdf5803561a9da8aedbbe03c2dcda8e30deec4d59d297dfc13cd12",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Register1POST/privateUSER Ready/exact18; no default change",
+      "publicScalars": {
+        "templateUuid": "24dd891d-8798-4139-91b0-6151f9a86f43",
+        "sourceCommit": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "qcow2Sha256": "d9bbaec8808abe240ae13400c2a6ea28e154648986fdead070ad1306b0fdec5d",
+        "compressedBz2Sha256": "5105397a7d985ff5c3e3fd2e7cb08d58b64975ef24eb7b46ccf6e1db381c2e8f",
+        "dbChecksum": "{SHA-256}5105397a7d985ff5c3e3fd2e7cb08d58b64975ef24eb7b46ccf6e1db381c2e8f",
+        "apiChecksumRaw": "5105397a7d985ff5c3e3fd2e7cb08d58b64975ef24eb7b46ccf6e1db381c2e8f",
+        "detailsCount": 18,
+        "detailsSha256": "cd7e0633fefec68eb3a4067d9861cc8cf92ecfac99b150ab954e52b2ba79324c",
+        "registerPosts": 1,
+        "metadataUpdatePosts": 0,
+        "productionDefaultTemplateChanged": false
+      }
+    },
+    {
+      "id": "static69Create",
+      "sourceEvidencePath": "fixture/final3-template-network-DRAFT/registered/static-nogw-create-ACTUAL-public.json",
+      "sha256": "ad6f437277d78310dc2de13c8cea3d6a268d546ffe02e4700fad78dc14a6b42c",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Fresh347: normaljob/settled network/actual SPARSE2",
+      "publicScalars": {
+        "action": "create",
+        "jobId": "7965ad82-006e-492e-a71f-5fff6f9fc1e9",
+        "jobStatus": 1,
+        "vmUuid": "3faf032c-3be1-4502-99c5-ad4e7f8565a6",
+        "bootId": "5429425c-a31e-4f12-ae57-f7c02f54b24f",
+        "networkStatus": "OK",
+        "mode": "STATIC",
+        "ipAddresses": [
+          "10.10.13.237"
+        ],
+        "prefixLengths": [
+          16
+        ],
+        "defaultGateways": [],
+        "dns": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "dhcpProcessCount": 0,
+        "dhcpMasked": true,
+        "bootUptimeSeconds": 159.44,
+        "bootstrapNetworkIfupReconcileMonitorOrder": true,
+        "twoSparseQcow2NoBackingAllL2": true,
+        "resourcePosts": 1,
+        "automaticPostRetries": 0
+      }
+    },
+    {
+      "id": "dhcp70Create",
+      "sourceEvidencePath": "fixture/final3-template-network-DRAFT/registered/dhcp-create-ACTUAL-public.json",
+      "sha256": "49814718d9f2df7053979ed1f05f9875a44d8d250edfb75d4c6d3eae85fc7338",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Fresh347: normaljob/settled network/actual SPARSE2",
+      "publicScalars": {
+        "action": "create",
+        "jobId": "3be87013-39d1-4a81-b0d6-c7ec02e05004",
+        "jobStatus": 1,
+        "vmUuid": "0d52cd63-c378-4773-818e-609fa7d879ff",
+        "bootId": "89079168-6234-458a-a4a9-261608782484",
+        "networkStatus": "OK",
+        "mode": "DHCP",
+        "ipAddresses": [
+          "192.168.16.152"
+        ],
+        "prefixLengths": [
+          24
+        ],
+        "defaultGateways": [
+          "192.168.16.1"
+        ],
+        "dns": [
+          "192.168.16.1",
+          "8.8.8.8"
+        ],
+        "dhcpProcessCount": 1,
+        "dhcpMasked": false,
+        "bootUptimeSeconds": 156.48,
+        "bootstrapNetworkIfupReconcileMonitorOrder": true,
+        "twoSparseQcow2NoBackingAllL2": true,
+        "resourcePosts": 1,
+        "automaticPostRetries": 0
+      }
+    },
+    {
+      "id": "dhcp70Cold",
+      "sourceEvidencePath": "fixture/final3-template-network-DRAFT/registered/dhcp-reboot-ACTUAL-public.json",
+      "sha256": "b2c664a63d51b2d06817a470377c95dfa73aa6a814a2148d81aa3c55043194af",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Fresh347: normaljob/settled network/actual SPARSE2",
+      "publicScalars": {
+        "action": "reboot",
+        "jobId": "145df054-b1e6-4aca-aad8-4df4d8faac04",
+        "jobStatus": 1,
+        "vmUuid": "0d52cd63-c378-4773-818e-609fa7d879ff",
+        "bootId": "9d2aaa66-ae00-4837-834e-afc91c039b5b",
+        "networkStatus": "OK",
+        "mode": "DHCP",
+        "ipAddresses": [
+          "192.168.16.152"
+        ],
+        "prefixLengths": [
+          24
+        ],
+        "defaultGateways": [
+          "192.168.16.1"
+        ],
+        "dns": [
+          "192.168.16.1",
+          "8.8.8.8"
+        ],
+        "dhcpProcessCount": 1,
+        "dhcpMasked": false,
+        "bootUptimeSeconds": 157.48,
+        "bootstrapNetworkIfupReconcileMonitorOrder": true,
+        "twoSparseQcow2NoBackingAllL2": true,
+        "resourcePosts": 1,
+        "automaticPostRetries": 0
+      }
+    },
+    {
+      "id": "dhcp70Ui",
+      "sourceEvidencePath": "actual/actual-ui-fresh70-dhcp-after-cold-public.json",
+      "sha256": "043acef2f434eb3385fd663f6ecdacb6d8103ab35a7ec190b7d2458fd9d0d5e0",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Actual Chrome DHCP70 after normal cold; other gates not promoted",
+      "publicScalars": {
+        "networkSource": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "uiSource": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+        "networkStatus": "OK",
+        "mode": "DHCP",
+        "bootId": "9d2aaa66-ae00-4837-834e-afc91c039b5b",
+        "apiBootEqualsNormalColdProof": true,
+        "exactDhcpTuple": true,
+        "uiConfirmed": true,
+        "resourcePosts": 0,
+        "localPngExportClaimed": false
+      }
+    },
+    {
+      "id": "static69ControlledNegative",
+      "sourceEvidencePath": "actual/fresh69-controlled-extra-address-api-chrome-combined-public.json",
+      "sha256": "be9bcfd8777e097cca2724c3d17de9954c8c95e7814b6ddcf48f0707f53f4b81",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Finite DOC IP detected by real API/Chrome; exact owned removal restores original; no real DHCP lease claim",
+      "publicScalars": {
+        "sameBootId": "5429425c-a31e-4f12-ae57-f7c02f54b24f",
+        "extraAddress": "192.0.2.13/32",
+        "lifetimeSeconds": 300,
+        "addCalls": 1,
+        "exactOwnedDeleteCalls": 1,
+        "realDhcpLeaseClaimed": false,
+        "nativeConfigOrDataWrites": 0,
+        "beforeEqualsAfterRemoval": true,
+        "actualChromeErrorAndRestoredOk": true
+      },
+      "sourceChain": [
+        {
+          "role": "healthy",
+          "sourceEvidencePath": "actual/actual-ui-fresh69-static-nogw-healthy-baseline-public.json",
+          "sha256": "188abf30fd16182079e5dde571f97ecc2bafd8517b6e1e2da655880044fd5036"
+        },
+        {
+          "role": "add",
+          "sourceEvidencePath": "actual/fresh3-static-residual-address-ui-negative-ACTUAL69-ROOT-PREPARED/wire-v3/actual69-add-once-ROOT-public.json",
+          "sha256": "7ceee7cbeefe765d86a5757772b1f431ae5b6c979788788ed679d27d331c701e"
+        },
+        {
+          "role": "errorUi",
+          "sourceEvidencePath": "actual/actual-ui-fresh69-finite-extra-ipv4-error-public.json",
+          "sha256": "336e5dea6e3db62280344dd1adf890eadff151acc2ad1b153b8f78df48152327"
+        },
+        {
+          "role": "remove",
+          "sourceEvidencePath": "actual/fresh3-static-residual-address-ui-negative-ACTUAL69-ROOT-PREPARED/wire-v3/actual69-remove-once-ROOT-public.json",
+          "sha256": "1dad93f0a2c1205591b20d4d9deb3b9dc406d6476f25fd7014f4605fbd4a3b08"
+        },
+        {
+          "role": "restoredUi",
+          "sourceEvidencePath": "actual/actual-ui-fresh69-after-doc-address-remove-ok-public.json",
+          "sha256": "df5391e822c4e999fb992cad52c4d2ae1aded4a51d0ac12efeb4b61c62f94764"
+        }
+      ]
+    },
+    {
+      "id": "static69RestoredUi",
+      "sourceEvidencePath": "actual/actual-ui-fresh69-after-doc-address-remove-ok-public.json",
+      "sha256": "df5391e822c4e999fb992cad52c4d2ae1aded4a51d0ac12efeb4b61c62f94764",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Actual Chrome OK after exact owned address removal; cold separate",
+      "publicScalars": {
+        "pass": true,
+        "resourcePosts": 0,
+        "uiSource": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977"
+      }
+    },
+    {
+      "id": "static69Cold",
+      "sourceEvidencePath": "fixture/final3-template-network-DRAFT/registered/static-nogw-reboot-ACTUAL-public.json",
+      "sha256": "f27a193b8b184cac65a2af84ab1dc5331e2da676f0f549d0824d122ff0a2e1cc",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Normal restart job1 and3 stable observations after150s",
+      "publicScalars": {
+        "jobId": "f92d164f-85f4-40f3-8ac2-af2a142cca8a",
+        "jobStatus": 1,
+        "bootId": "3ae34b22-678f-4890-b5f0-32d2be932cd8",
+        "bootChanged": true,
+        "networkStatus": "OK",
+        "stableSampleCount": 3,
+        "stableUptimeSeconds": [
+          153.4,
+          155.84,
+          158.3
+        ],
+        "resourcePosts": 1,
+        "automaticPostRetries": 0
+      }
+    },
+    {
+      "id": "static69ColdUi",
+      "sourceEvidencePath": "actual/actual-ui-fresh69-static-nogw-after-cold-public.json",
+      "sha256": "16c5e4b690a9d3da32b22c3d8c2f4aff23ccd0ce7ec10105ed0d3bfc16bf68b5",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Actual Chrome same newBOOT/one237/noGW/DHCPmasked; no4protocol claim for empty fresh VM",
+      "publicScalars": {
+        "networkSource": "347b7e6bcf47e4050f3d214872ffef0c2992bcf4",
+        "uiSource": "9cbfda36e56f1e93ef68a73c7ef19c3b154c4977",
+        "bootMatchesNormalCold": true,
+        "bootChanged": true,
+        "singletonPrimary": true,
+        "networkErrorAlert": false,
+        "resourcePosts": 0,
+        "localPngExportClaimed": false
+      }
+    },
+    {
+      "id": "ownedNormalCleanup",
+      "sourceEvidencePath": "cleanup-final4-source347-DRAFT/actual-final3-owned8-absence-public.json",
+      "sha256": "4eb4e4bc22fb8ad451de84fb352964da29a765bb74d6314045d4576a515d2e69",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Normal3destroy+5deleteVolume(8POST) followed by separate read-only API/all3host absence witness(0POST)",
+      "publicScalars": {
+        "normalApiDestroyPosts": 3,
+        "normalApiDeleteVolumePosts": 5,
+        "normalApiResourcePosts": 8,
+        "automaticPostRetries": 0,
+        "normalDestroyJobs": [
+          {
+            "caseKey": "legacy65",
+            "jobId": "01ffbcda-2974-4d93-9004-404aef2548fd",
+            "jobStatus": 1,
+            "resultCode": 0
+          },
+          {
+            "caseKey": "static-nogw",
+            "jobId": "9f45e640-eaf2-4e24-9f76-02a054ff7c0c",
+            "jobStatus": 1,
+            "resultCode": 0
+          },
+          {
+            "caseKey": "dhcp",
+            "jobId": "33f63b95-5f11-4df2-92d7-d666b876964e",
+            "jobStatus": 1,
+            "resultCode": 0
+          }
+        ],
+        "fiveSynchronousDeleteSuccesses": true,
+        "readOnlyAbsenceWitnessResourcePosts": 0,
+        "ownedVmCount": 3,
+        "ownedVolumeCount": 8,
+        "apiFsInstancesVmsVolumesAbsent": true,
+        "allThreeHostsDomainsAndLiteralBackingFilesAbsent": true,
+        "hostFileContentsRead": 0,
+        "cases": [
+          {
+            "caseKey": "legacy65",
+            "sharedFsUuid": "51a45a12-99be-466f-a21c-75abd85c0442",
+            "instanceUuid": "5b8ffea6-d510-4cb9-b79e-2baf3a01d77f",
+            "vmUuid": "306295a9-4712-41d4-9384-6ffcd0439c69",
+            "volumeUuids": [
+              "54344e66-418d-4d01-917d-353eb43eda02",
+              "25a90e95-f24e-431c-a37f-6494bd03d591",
+              "d64566b2-bce3-4fba-a874-e99c0d66ecb0",
+              "8cf79adc-8638-4604-924c-2029d70bdd40"
+            ]
+          },
+          {
+            "caseKey": "static-nogw",
+            "sharedFsUuid": "f20dc400-8f5d-4594-aec4-ccf401bcd05c",
+            "instanceUuid": "ce19a161-560c-4704-a4f0-9adffa4697e7",
+            "vmUuid": "3faf032c-3be1-4502-99c5-ad4e7f8565a6",
+            "volumeUuids": [
+              "349817b3-25e2-43b8-88df-f769d1f5333c",
+              "6c16e3cf-0c92-408f-9c45-b5ad6c716e9f"
+            ]
+          },
+          {
+            "caseKey": "dhcp",
+            "sharedFsUuid": "fa46b19a-6f28-495e-95a8-ca31b68cd02a",
+            "instanceUuid": "de54fdc1-048e-4e31-b6d5-6763c1a23f25",
+            "vmUuid": "0d52cd63-c378-4773-818e-609fa7d879ff",
+            "volumeUuids": [
+              "8d350e4e-483a-40db-9c40-9f094221c0e3",
+              "daf2df3c-cd3c-4b14-9d70-8719d5d5343a"
+            ]
+          }
+        ]
+      },
+      "normalApiWave": {
+        "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/scoped-wave-complete.json",
+        "sha256": "514251d1ac2cee6533a51653e7928b484218089ab312eb2f456247934ec355cb"
+      },
+      "deleteSyncReceipts": [
+        {
+          "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/f20dc400-8f5d-4594-aec4-ccf401bcd05c/delete-data-6c16e3cf-0c92-408f-9c45-b5ad6c716e9f-sync-success.json",
+          "sha256": "5c7c84728d8ae2f2cb437ba7e26e60bdfd59e872c9fc3f179150670d5cc313fb",
+          "success": true
+        },
+        {
+          "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/51a45a12-99be-466f-a21c-75abd85c0442/delete-data-25a90e95-f24e-431c-a37f-6494bd03d591-sync-success.json",
+          "sha256": "5c7c84728d8ae2f2cb437ba7e26e60bdfd59e872c9fc3f179150670d5cc313fb",
+          "success": true
+        },
+        {
+          "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/51a45a12-99be-466f-a21c-75abd85c0442/delete-data-8cf79adc-8638-4604-924c-2029d70bdd40-sync-success.json",
+          "sha256": "5c7c84728d8ae2f2cb437ba7e26e60bdfd59e872c9fc3f179150670d5cc313fb",
+          "success": true
+        },
+        {
+          "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/51a45a12-99be-466f-a21c-75abd85c0442/delete-data-d64566b2-bce3-4fba-a874-e99c0d66ecb0-sync-success.json",
+          "sha256": "5c7c84728d8ae2f2cb437ba7e26e60bdfd59e872c9fc3f179150670d5cc313fb",
+          "success": true
+        },
+        {
+          "sourceEvidencePath": "cleanup-final4-source347-DRAFT/root-writer-checkpoints/fa46b19a-6f28-495e-95a8-ca31b68cd02a/delete-data-daf2df3c-cd3c-4b14-9d70-8719d5d5343a-sync-success.json",
+          "sha256": "5c7c84728d8ae2f2cb437ba7e26e60bdfd59e872c9fc3f179150670d5cc313fb",
+          "success": true
+        }
+      ]
+    },
+    {
+      "id": "finalOriginalReadOnlyPreservation",
+      "sourceEvidencePath": "cleanup-final4-source347-DRAFT/actual-final-original-preservation-public.json",
+      "sha256": "fa72893f4dc424ef31d81be6f66e48a4b7405cecd17b8047862c047496242945",
+      "status": "PASS_WITH_STATED_SCOPE",
+      "claim": "Original55f485 collector unchanged with runtime UIindex only; originalF1/ref59/retained61/partial/RC10/management/hosts/capacity preserved",
+      "publicScalars": {
+        "originalCollectorSha256": "55f485c1d768737fcab613afdb0a2a1498d6db4897b6ae761d8debadf7cd7c61",
+        "collectorOriginalKind": "ISSUE974_FINAL_READONLY_PRESERVATION",
+        "collectorSourceUnchanged": true,
+        "indexOverrideRuntimeOnly": true,
+        "readOnlyResourcePosts": 0,
+        "sqlWrites": 0,
+        "signals": 0,
+        "guestDataWrites": 0,
+        "fullOriginalDataHashClaimed": false,
+        "management": {
+          "pid": 2205817,
+          "jarSha256": "563e1b7d71806e48a94cd88f7aaaad345351ba74f334d3a452450f7d9ffa813f",
+          "uiIndexSha256": "2b6955c7bf43bd1b4acb7b054c205f619acae8bb1e054e6bee9e68b77dd5281a",
+          "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+          "configAndJarMetadataExact": true
+        },
+        "originalF1": {
+          "nativeRevision": 143,
+          "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+          "nativeMetadataExact": true,
+          "diskRosterCount": 5,
+          "diskRosterSha256": "7e5836d3242d3d1a3852c3cfe2ca525f83373d4815730962f77d7a7f9bbe0a21",
+          "diskRosterExact": true,
+          "dataContentsRead": false
+        },
+        "reference59": {
+          "nativeRevision": 7,
+          "nativeMetadataExact": true,
+          "sentinelSha256": "27dfaec631609fe4a6ff374b56404d43a32f456d24f837c0790c1fade24a6c78",
+          "sentinelBytes": 112
+        },
+        "protectedPartial": {
+          "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+          "vmUuid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+          "metadataExact": true,
+          "status": "RECONCILE_REQUIRED",
+          "filesystemCompletionProven": false,
+          "resumeAllowed": false,
+          "mutationCount": 0,
+          "directGuestCommands": 0
+        },
+        "retained61": {
+          "vmUuid": "26216595-48e8-4eff-8a5b-bb2598de6a9e",
+          "nativeRevision": 2,
+          "nativeCurrentExact": true,
+          "pendingAbsent": true,
+          "leaseAbsent": true,
+          "originalReceipt2Exact": true,
+          "originalReceipt2Sha256": "7d6b72dcd6688275b7b11466d8aa47a315da66bf13724c7b6450d5e8d6d95f34",
+          "nfsUuid": "0bec180e-c1d9-455e-b7f1-2e9a1e081a19",
+          "nfsState": "Ready"
+        },
+        "retained61Canary": {
+          "sha256": "92d54728cea7aafcb1a28ac44415a666919dff0ba7a6fd1950859d9bd8f50ab3",
+          "bytes": 85
+        },
+        "historicalRecoveryRequired": {
+          "count": 10,
+          "fullRowsExact": true,
+          "rowsSha256": "5aae77cab0b1a7f8661d615882158f35d9a95a81ca50d091af81ab4b5ef87bec",
+          "activeOwnedCount": 0
+        },
+        "hosts": [
+          {
+            "ip": "10.10.13.1",
+            "state": "Up",
+            "resourceState": "Enabled",
+            "agentPid": 344738,
+            "agentActive": true
+          },
+          {
+            "ip": "10.10.13.2",
+            "state": "Up",
+            "resourceState": "Enabled",
+            "agentPid": 2347086,
+            "agentActive": true
+          },
+          {
+            "ip": "10.10.13.3",
+            "state": "Up",
+            "resourceState": "Enabled",
+            "agentPid": 390092,
+            "agentActive": true
+          }
+        ],
+        "poolUuid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+        "poolFactor": 4,
+        "minimumObservedPhysicalFreeBytes": 3752053248000
+      }
+    }
+  ],
+  "evidenceEntryCount": 25,
+  "expectedEntriesAfterFinalTwo": 25,
+  "actualUiNetworkWires": {
+    "static69Error": {
+      "sourceEvidenceId": "static69ControlledNegative",
+      "value": {
+        "schemaVersion": 1,
+        "kind": "SHAREDFS_NETWORK_READINESS",
+        "mode": "STATIC",
+        "status": "ERROR",
+        "success": false,
+        "bootId": "5429425c-a31e-4f12-ae57-f7c02f54b24f",
+        "observedEpoch": 1792154802.821731,
+        "mismatches": [
+          "ADDRESS_MISMATCH"
+        ],
+        "expected": {
+          "mode": "STATIC",
+          "macAddress": "02:01:00:cc:00:1a",
+          "ipAddress": "10.10.13.237",
+          "cidr": "10.10.0.0/16",
+          "dns": []
+        },
+        "actual": {
+          "mode": "STATIC",
+          "interfaceName": "eth0",
+          "macAddress": "02:01:00:cc:00:1a",
+          "addresses": [
+            {
+              "ipAddress": "10.10.13.237",
+              "prefixLength": 16
+            },
+            {
+              "ipAddress": "192.0.2.13",
+              "prefixLength": 32
+            }
+          ],
+          "defaultRoutes": [],
+          "dns": [
+            "8.8.8.8",
+            "8.8.4.4"
+          ],
+          "dhcpProcessCount": 0,
+          "dhcpUnit": {
+            "name": "cloud-dhclient@eth0.service",
+            "active": false,
+            "masked": true
+          }
+        }
+      }
+    },
+    "static69Restored": {
+      "sourceEvidenceId": "static69ControlledNegative",
+      "value": {
+        "schemaVersion": 1,
+        "kind": "SHAREDFS_NETWORK_READINESS",
+        "mode": "STATIC",
+        "status": "OK",
+        "success": true,
+        "bootId": "5429425c-a31e-4f12-ae57-f7c02f54b24f",
+        "observedEpoch": 1792154891.0517387,
+        "mismatches": [],
+        "expected": {
+          "mode": "STATIC",
+          "macAddress": "02:01:00:cc:00:1a",
+          "ipAddress": "10.10.13.237",
+          "cidr": "10.10.0.0/16",
+          "dns": []
+        },
+        "actual": {
+          "mode": "STATIC",
+          "interfaceName": "eth0",
+          "macAddress": "02:01:00:cc:00:1a",
+          "addresses": [
+            {
+              "ipAddress": "10.10.13.237",
+              "prefixLength": 16
+            }
+          ],
+          "defaultRoutes": [],
+          "dns": [
+            "8.8.8.8",
+            "8.8.4.4"
+          ],
+          "dhcpProcessCount": 0,
+          "dhcpUnit": {
+            "name": "cloud-dhclient@eth0.service",
+            "active": false,
+            "masked": true
+          }
+        }
+      }
+    },
+    "static69Cold": {
+      "sourceEvidenceId": "static69ColdUi",
+      "value": {
+        "schemaVersion": 1,
+        "kind": "SHAREDFS_NETWORK_READINESS",
+        "mode": "STATIC",
+        "status": "OK",
+        "success": true,
+        "bootId": "3ae34b22-678f-4890-b5f0-32d2be932cd8",
+        "observedEpoch": 1792155140.2326002,
+        "mismatches": [],
+        "expected": {
+          "mode": "STATIC",
+          "macAddress": "02:01:00:cc:00:1a",
+          "ipAddress": "10.10.13.237",
+          "cidr": "10.10.0.0/16",
+          "dns": []
+        },
+        "actual": {
+          "mode": "STATIC",
+          "interfaceName": "eth0",
+          "macAddress": "02:01:00:cc:00:1a",
+          "addresses": [
+            {
+              "ipAddress": "10.10.13.237",
+              "prefixLength": 16
+            }
+          ],
+          "defaultRoutes": [],
+          "dns": [
+            "8.8.8.8",
+            "8.8.4.4"
+          ],
+          "dhcpProcessCount": 0,
+          "dhcpUnit": {
+            "name": "cloud-dhclient@eth0.service",
+            "active": false,
+            "masked": true
+          }
+        }
+      }
+    },
+    "dhcp70Cold": {
+      "sourceEvidenceId": "dhcp70Ui",
+      "value": {
+        "schemaVersion": 1,
+        "kind": "SHAREDFS_NETWORK_READINESS",
+        "mode": "DHCP",
+        "status": "OK",
+        "success": true,
+        "bootId": "9d2aaa66-ae00-4837-834e-afc91c039b5b",
+        "observedEpoch": 1792154559.6783087,
+        "mismatches": [],
+        "expected": {
+          "mode": "DHCP",
+          "dns": []
+        },
+        "actual": {
+          "mode": "DHCP",
+          "interfaceName": "eth0",
+          "macAddress": "02:01:00:d4:00:06",
+          "addresses": [
+            {
+              "ipAddress": "192.168.16.152",
+              "prefixLength": 24
+            }
+          ],
+          "defaultRoutes": [
+            {
+              "gateway": "192.168.16.1",
+              "interfaceName": "eth0"
+            }
+          ],
+          "dns": [
+            "192.168.16.1",
+            "8.8.8.8"
+          ],
+          "dhcpProcessCount": 1,
+          "dhcpUnit": {
+            "name": "cloud-dhclient@eth0.service",
+            "active": true,
+            "masked": false
+          }
+        }
+      }
+    }
+  },
+  "controlledNegativeDiagnosticWordingLimit": "기존 ADDRESS_MISMATCH 문구가 주소/프리픽스 부재라고 설명한다. 이 케이스는 primary가 유지된 채 추가주소가 존재하며 화면과 원 wire를 그대로 보존했다. 실제 불일치/ERROR 판정은 정확하나 추가주소를 별도 원인문구로 설명했다고 주장하지 않는다.",
+  "finalGates": {
+    "ownedNormalCleanup": {
+      "status": "PASS",
+      "sourceEvidencePath": "cleanup-final4-source347-DRAFT/actual-final3-owned8-absence-public.json",
+      "sha256": "4eb4e4bc22fb8ad451de84fb352964da29a765bb74d6314045d4576a515d2e69"
+    },
+    "finalOriginalReadOnlyPreservation": {
+      "status": "PASS",
+      "sourceEvidencePath": "cleanup-final4-source347-DRAFT/actual-final-original-preservation-public.json",
+      "sha256": "fa72893f4dc424ef31d81be6f66e48a4b7405cecd17b8047862c047496242945"
+    }
+  },
+  "boundaries": {
+    "newSchema": false,
+    "newPublicApi": false,
+    "productionDefaultTemplateChanged": false,
+    "liveAdJoinTrustRetested": false,
+    "joinedAdDnsPriorityNativeUnitCoverageOnly": true,
+    "thinAccepted": false,
+    "newDisksSparseOnly": true,
+    "wholeOriginalDataChecksumClaimed": false,
+    "ui1275Started": false,
+    "nextIssue": 914,
+    "nextIssueStarted": false,
+    "newIssueBranchPr": false
+  },
+  "copyScope": {
+    "rawSourceProofsReferencedByHashOnly": true,
+    "rawLogsIncluded": false,
+    "privateSnapshotsIncluded": false,
+    "credentialsIncluded": false,
+    "binaryArchivesIncluded": false,
+    "pngFilesClaimed": false
+  },
+  "nextIssue": 914,
+  "nextIssueStarted": false,
+  "ui1275Started": false,
+  "functionalAcceptanceComplete": true,
+  "publishedBeforeIssueClose": true,
+  "closureAuthority": "GitHub",
+  "closureAuthorityGithub": true,
+  "publicationState": {
+    "functionalEvidenceComplete": true,
+    "rootIndependentReviewComplete": true,
+    "publishedBeforeIssueClose": true,
+    "issueClosedAtEvidencePublication": false,
+    "laterClosureAuthority": "GitHub issue state after completion comment and close"
+  },
+  "rootReviewedAtUtc": "2026-10-16T13:03:34.696290+00:00",
+  "issueClosedAtEvidencePublication": false
+}
