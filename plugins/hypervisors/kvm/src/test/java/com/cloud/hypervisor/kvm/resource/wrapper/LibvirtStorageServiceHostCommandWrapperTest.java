@@ -145,6 +145,46 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertEquals(output, 0, process.exitValue());
     }
 
+    @Test
+    public void legacyInitPatchOnlyChangesTheActualUniqueSharedFsRoleBranch() throws Exception {
+        String legacy;
+        try (java.io.InputStream input = getClass().getResourceAsStream("/sharedfs-network/legacy-init.sh")) {
+            Assert.assertNotNull(input);
+            legacy = java.util.Base64.getEncoder().encodeToString(input.readAllBytes());
+        }
+        String canonical = java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(System.getProperty("basedir"),
+                        "../../../systemvm/debian/opt/cloud/bin/setup/init.sh").normalize()));
+        String encoded = java.util.Base64.getEncoder().encodeToString(
+                wrapper.buildSharedFsLegacyMonitorPatch().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String fixture = String.join("\n",
+                "import ast,base64",
+                "source=base64.b64decode('" + encoded + "').decode('utf-8')",
+                "nodes=[n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='rewrite_sharedfs_init']",
+                "assert len(nodes)==1,'Production installer omits its SharedFS init policy'",
+                "exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-init-policy>','exec'))",
+                "legacy=base64.b64decode('" + legacy + "')",
+                "canonical=base64.b64decode('" + canonical + "')",
+                "assert rewrite_sharedfs_init(legacy)==canonical",
+                "assert rewrite_sharedfs_init(canonical) is None",
+                "marker=b'  elif [ \"$TYPE\" == \"sharedfsvm\" ]; then\\n'",
+                "old=marker+b'    setup_common eth0\\n  fi\\n'",
+                "assert legacy.count(old)==1",
+                "bad_body=legacy.replace(old,marker+b'    setup_common eth0 eth1\\n  fi\\n')",
+                "weak=canonical.replace(b' && [ ! -L /etc/ablestack-storage/sharedfs-network.json ]',b'')",
+                "for rejected in (b'',bad_body,legacy+old,canonical+old,weak):",
+                "    try: rewrite_sharedfs_init(rejected)",
+                "    except ValueError: continue",
+                "    raise AssertionError('Malformed or ambiguous SharedFS init branch accepted')");
+        Process process = new ProcessBuilder("python3", "-c", fixture).redirectErrorStream(true).start();
+        if (!process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            Assert.fail("Whole-init installer fixture exceeded its deadline");
+        }
+        String output = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        Assert.assertEquals(output, 0, process.exitValue());
+    }
+
     private String installedContent(String shell, String path) {
         java.util.regex.Matcher encoded = java.util.regex.Pattern.compile(
                 "printf '%s' '([A-Za-z0-9+/=]+)' \\| base64 -d > "
