@@ -32,6 +32,7 @@ LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack
 sys.path.insert(0,str(LIB))
 from nvme_cleanup import NvmeManagedCleanup,nvme_loopback_network_request
 from nvme_credentials import NvmeCredentialStore
+from nvme_boot_configuration import NvmeSavedBootSource
 
 
 class StorageNvmeCleanupTest(unittest.TestCase):
@@ -184,7 +185,16 @@ class StorageNvmeCleanupTest(unittest.TestCase):
         cli=LIB.parent.parent/"bin/ablestack-storagectl";block=cli.read_text().split("apply_nvmeof_subsystems() {",1)[1].split("identity_capsule_command() {",1)[0]
         source=block.split("<<'PY'\n",1)[1].split("\nPY",1)[0];tree=ast.parse(source)
         index=next(i for i,node in enumerate(tree.body) if isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id=="preserved_shared_hosts" for target in node.targets))
+        # The full normal entry parses a separate sealed memfd before the tail.
+        # Reuse its real source guard here; a canonical boot source would preserve.
+        fd=os.memfd_create("normal-nvme-cleanup",os.MFD_CLOEXEC|os.MFD_ALLOW_SEALING)
+        self.addCleanup(lambda:os.close(fd))
+        os.fchmod(fd,0o600);os.write(fd,json.dumps(self.empty).encode())
+        fcntl.fcntl(fd,fcntl.F_ADD_SEALS,fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL)
+        saved_boot_source=NvmeSavedBootSource(f"/proc/self/fd/{fd}",json.loads(os.pread(fd,4096,0)),self.state)
+        self.assertFalse(saved_boot_source.preserve())
         printed=[];namespace={"cleanup":cleanup,"desired_port_ids":{},"previous_credentials":previous,
+                             "saved_boot_source":saved_boot_source,
                              "credential_store":store,"credential_record":{"schemaVersion":1,"instanceUuid":self.instance,"hosts":{}},
                              "payload":self.empty,"redact_sensitive":lambda value:value,"state_dir":str(self.state_dir),"applied":0,"skipped":0,
                              "os":os,"json":json,"print":lambda value:printed.append(json.loads(value))}
