@@ -47,7 +47,7 @@ public final class StorageVerifiedNfsAclTargetRecovery {
             "iscsi-targets.json", "nvmeof-subsystems.json", "posix-directory-policies.json", "network-endpoints.json", "sharedfs-network.json");
     private static final String NFS = "desired-state/nfs-export-apply.json";
     private static final Set<String> ACL_FIELDS = Set.of("id", "uuid", "resource_type", "resource_id", "principal_type",
-            "principal", "permission", "secret_ref", "state", "config_json", "created");
+            "principal", "permission", "secret_ref", "state", "config_json", "created", "updated", "removed");
     private static final Set<String> ACL_CONFIG = Set.of("readOnly", "rootSquash", "allSquash", "sync", "secure",
             "protocolMode", "endpointMode", "listenerGroupPorts", "anonUid", "anonGid");
     private static final Pattern NUMBER = Pattern.compile("-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
@@ -169,6 +169,14 @@ public final class StorageVerifiedNfsAclTargetRecovery {
                 && whole(acl, "resource_id") == whole(share, "id") && acl.get("secret_ref").isJsonNull()
                 && "Ready".equals(text(acl, "state")) && whole(acl, "created") > 0
                 && Set.of("READ_ONLY", "READ_WRITE").contains(text(acl, "permission")));
+        requireValue(acl.get("removed").isJsonNull()
+                && (acl.get("updated").isJsonNull() || whole(acl, "updated") > 0));
+        for (JsonElement item : array(target, "columns")) {
+            JsonObject column = item.getAsJsonObject();
+            if (Set.of("updated", "removed").contains(text(column, "name"))) {
+                requireValue(whole(column, "type") == java.sql.Types.TIMESTAMP);
+            }
+        }
         uuid(text(acl, "uuid"));
         String principal = text(acl, "principal"), type = text(acl, "principal_type");
         if ("CIDR".equals(type)) {
