@@ -88,13 +88,36 @@ public class StorageRuntimeConsumerObservationTest {
         StorageServiceGuestCommandDispatcher dispatcher=Mockito.mock(StorageServiceGuestCommandDispatcher.class);Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok",nativeJson));ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);return dispatcher;
     }
     @Test public void inactiveChildWithPartialJournalStillBlocksRuntimeMutation(){
-        StorageServiceGuestCommandDispatcher dispatcher=attachedDataJournal("{\"success\":true,\"status\":\"FOUND\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\"}}");Assert.assertThrows(CloudRuntimeException.class,()->manager.requireRuntimeActivationSafety(instance));Mockito.verify(dispatcher).dispatch(Mockito.any());
+        StorageServiceGuestCommandDispatcher dispatcher=attachedDataJournal("{\"success\":true,\"status\":\"TIMED_OUT_PENDING_RECONCILE\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\"}}");Assert.assertThrows(CloudRuntimeException.class,()->manager.requireRuntimeActivationSafety(instance));Mockito.verify(dispatcher).dispatch(Mockito.any());
     }
     @Test public void completedJournalPermitsMutationButMissingObservationDoesNot(){
-        attachedDataJournal("{\"success\":true,\"status\":\"FOUND\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"COMPLETE\"}}");manager.requireRuntimeActivationSafety(instance);attachedDataJournal("{\"success\":false}");Assert.assertThrows(CloudRuntimeException.class,()->manager.requireRuntimeActivationSafety(instance));
+        attachedDataJournal("{\"success\":true,\"status\":\"COMPLETE\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"COMPLETE\"}}");manager.requireRuntimeActivationSafety(instance);attachedDataJournal("{\"success\":false}");Assert.assertThrows(CloudRuntimeException.class,()->manager.requireRuntimeActivationSafety(instance));
     }
     @Test public void capabilitiesRemainsReadableWhenFormatterJournalWouldBlockMutation(){
-        attachedDataJournal("{\"success\":true,\"status\":\"FOUND\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\"}}");Assert.assertTrue(manager.freshConsumerObservation(instance).get("platformVersionKnown").getAsBoolean());
+        attachedDataJournal("{\"success\":true,\"status\":\"TIMED_OUT_PENDING_RECONCILE\",\"formatterActive\":false,\"operation\":{\"formatStarted\":true,\"phase\":\"TIMED_OUT_PENDING_RECONCILE\"}}");Assert.assertTrue(manager.freshConsumerObservation(instance).get("platformVersionKnown").getAsBoolean());
     }
 
+    // Produced by the actual 385d native project_volume_operation AST, without running its filesystem main.
+    @Test public void actualLegacyCompletedMountWithoutFormatFlagsRemainsUpgradeSafeButUnknownNeverDoes() {
+        String wire="{\"success\":true,\"status\":\"COMPLETE\",\"formatterActive\":false,\"formatterState\":null,\"terminationPending\":false,\"stale\":false,\"observedEpoch\":1001.0,\"elapsedSeconds\":null,\"diagnostic\":null,\"errorCode\":null,\"operationId\":\"volume-11111111-2222-4333-8444-555555555555\",\"operation\":{\"operationId\":\"volume-11111111-2222-4333-8444-555555555555\",\"volumeUuid\":\""
+                +"11111111-2222-4333-8444-555555555555\",\"phase\":\"COMPLETE\",\"filesystem\":\"xfs\",\"filesystemUuid\":\"66666666-7777-4888-8999-000000000000\",\"mountPath\":\"/srv/ablestack-storage/volumes/11111111-2222-4333-8444-555555555555\",\"heartbeat\":1000.0,\"formatDeadlineSeconds\":300},\"observedOperation\":{\"operationId\":\"volume-11111111-2222-4333-8444-555555555555\",\"volume"
+                +"Uuid\":\"11111111-2222-4333-8444-555555555555\",\"phase\":\"COMPLETE\",\"filesystem\":\"xfs\",\"filesystemUuid\":\"66666666-7777-4888-8999-000000000000\",\"mountPath\":\"/srv/ablestack-storage/volumes/11111111-2222-4333-8444-555555555555\",\"heartbeat\":1000.0,\"formatDeadlineSeconds\":300,\"formatterActive\":false,\"formatterState\":null,\"terminationPending\":false,\"elapsedS"
+                +"econds\":null,\"stale\":false,\"diagnostic\":null,\"errorCode\":null}}";
+        JsonObject actual=com.google.gson.JsonParser.parseString(wire).getAsJsonObject();
+        Assert.assertEquals("COMPLETE",actual.get("status").getAsString());
+        Assert.assertFalse(actual.getAsJsonObject("operation").has("formatStarted"));
+        Assert.assertFalse(actual.has("formatterObservationComplete"));
+        attachedDataJournal(wire);manager.requireRuntimeActivationSafety(instance);
+        for(int mode=0;mode<7;mode++){
+            JsonObject invalid=actual.deepCopy();
+            if(mode==0)invalid.addProperty("formatterObservationComplete",false);
+            if(mode==1)invalid.getAsJsonObject("operation").addProperty("formatterPid",41);
+            if(mode==2)invalid.getAsJsonObject("operation").remove("filesystemUuid");
+            if(mode==3)invalid.add("formatterActive",JsonNull.INSTANCE);
+            if(mode==4)invalid.getAsJsonObject("operation").add("formatterIdentity",new JsonObject());
+            if(mode==5)invalid.getAsJsonObject("operation").addProperty("formatterActive",false);
+            if(mode==6)invalid.getAsJsonObject("operation").addProperty("formatterObservationComplete",true);
+            attachedDataJournal(invalid.toString());Assert.assertThrows(CloudRuntimeException.class,()->manager.requireRuntimeActivationSafety(instance));
+        }
+    }
 }

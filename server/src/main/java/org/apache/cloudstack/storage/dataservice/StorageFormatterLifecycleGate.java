@@ -31,12 +31,30 @@ public final class StorageFormatterLifecycleGate {
             return; // The legacy no-journal response has no formatter fields.
         }
         if(!status.has("formatterActive")||journal==null||flag(journal,"terminationPending",false))throw blocked();
-        if(!journal.has("formatStarted"))throw blocked();
-        boolean started=flag(journal,"formatStarted",true);
         String recorded=text(journal,"phase");
+        if(!journal.has("formatStarted")) {
+            if("COMPLETE".equals(phase)&&"COMPLETE".equals(recorded)&&legacyExistingMountCompleted(status,journal))return;
+            throw blocked();
+        }
+        boolean started=flag(journal,"formatStarted",true);
         if(!phase.equals(recorded)||started&&!"COMPLETE".equals(recorded)
                 ||!started&&!java.util.Set.of("WAITING_DEVICE","VERIFYING_IDENTITY","RECOVERY_REQUIRED","COMPLETE").contains(recorded))throw blocked();
         if(started&&journal.has("formatterObservationComplete")&&!flag(journal,"formatterObservationComplete",true))throw blocked();
+    }
+    private static boolean legacyExistingMountCompleted(JsonObject status,JsonObject journal) {
+        // Older ordinary MOUNT_EXISTING never ran mkfs and did not write formatStarted.
+        // This permits the existing healthy lifecycle only; it is not a forward-resume receipt.
+        if(!status.has("terminationPending")||flag(status,"terminationPending",true))return false;
+        for(String key:new String[]{"formatterPid","formatterStartTicks","formatterBootId","formatterSuccessReceipt",
+                "formatterExitCode","formatter","formatterOptions","formatDiscardPolicy","formatReceiptUuid","formatReceipt","originalFormatOwner",
+                "formatterIdentity","formatterActive","formatterObservationComplete"})
+            if(journal.has(key))return false;
+        if(status.has("formatInvoked")&&flag(status,"formatInvoked",true)||journal.has("formatInvoked")&&flag(journal,"formatInvoked",true))return false;
+        String volume=text(journal,"volumeUuid");
+        if(!java.util.UUID.fromString(volume).toString().equals(volume)||!("volume-"+volume).equals(text(journal,"operationId"))
+                ||!("/srv/ablestack-storage/volumes/"+volume).equals(text(journal,"mountPath"))
+                ||!java.util.Set.of("xfs","ext4").contains(text(journal,"filesystem")))return false;
+        return !text(journal,"filesystemUuid").isBlank();
     }
     private static boolean flag(JsonObject value,String key,boolean required) {
         com.google.gson.JsonElement item=value.get(key);
