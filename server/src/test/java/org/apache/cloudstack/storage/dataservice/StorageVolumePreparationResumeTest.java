@@ -53,10 +53,11 @@ public class StorageVolumePreparationResumeTest {
     private StorageServiceOperationControlVO control;
     private final List<String> commands=new ArrayList<>();
     private final List<StorageServiceOperationVO> rows=new ArrayList<>();
-    private int mutations;private boolean wrongFilesystem,noFormat=true,partial,wrongResumeOwner,changedAfter,foreignPending;
+    private int mutations;private boolean wrongFilesystem,noFormat=true,partial,wrongResumeOwner,changedAfter,foreignPending,mountedExisting;
+    private JsonObject dispatchedResume;
     private String boot="33333333-3333-4333-8333-333333333333";
     @Before public void setup() {
-        commands.clear();rows.clear();mutations=0;wrongFilesystem=false;noFormat=true;partial=false;wrongResumeOwner=false;changedAfter=false;foreignPending=false;
+        commands.clear();rows.clear();mutations=0;wrongFilesystem=false;noFormat=true;partial=false;wrongResumeOwner=false;changedAfter=false;foreignPending=false;mountedExisting=false;dispatchedResume=null;
         manager=new Manager();volume=Mockito.mock(VolumeVO.class);manager.volume=volume;
         Mockito.when(volume.getId()).thenReturn(3L);Mockito.when(volume.getUuid()).thenReturn(UUID.randomUUID().toString());
         Mockito.when(volume.getVolumeType()).thenReturn(com.cloud.storage.Volume.Type.DATADISK);
@@ -125,6 +126,10 @@ public class StorageVolumePreparationResumeTest {
                 Assert.assertEquals(rows.contains(original)?original.getUuid():operation.getUuid(),request.get("operationUuid").getAsString());reply=reservation.deepCopy();
             }else{
                 Assert.assertEquals("volume operation resume",command.getOperation());Assert.assertEquals("MOUNT_EXISTING",request.get("importMode").getAsString());
+                dispatchedResume=request.deepCopy();
+                if(mountedExisting&&(!request.has("mountPath")
+                        ||!("/srv/ablestack-storage/volumes/"+volume.getUuid()).equals(request.get("mountPath").getAsString())))
+                    throw new CloudRuntimeException("Mounted-volume identity resolution requires the canonical mount root");
                 Assert.assertTrue(request.get("resumeOnly").getAsBoolean());Assert.assertFalse(request.has("devicePath"));
                 Assert.assertEquals(boot,request.get("expectedBootId").getAsString());Assert.assertEquals(owner,request.get("originalFormatOwner"));mutations++;
                 reply=current.deepCopy();reply.addProperty("success",true);reply.addProperty("resumed",true);reply.addProperty("resumeOnly",true);
@@ -164,6 +169,31 @@ public class StorageVolumePreparationResumeTest {
         manager.recoverVolumePreparation(instance,operation);Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",operation.getState());
         Assert.assertEquals(8,operation.getRevision());Assert.assertEquals(1,mutations);Assert.assertNull(operation.getSnapshotJson());
         Assert.assertEquals(7,manager.rootDesiredRevision(9));Assert.assertFalse(commands.stream().anyMatch(c->c.contains("generation commit")||c.contains("attach inspect")));
+    }
+    @Test public void mountedExistingExt4ResumeUsesCanonicalRootAndPreservesOriginalLease() {
+        for(boolean expired:new boolean[]{false,true}) {
+            setup();parked(expired);mountedExisting=true;
+            String root="/srv/ablestack-storage/volumes/"+volume.getUuid();
+            JsonObject journal=history.getAsJsonObject("operation"),receipt=journal.getAsJsonObject("formatterSuccessReceipt");
+            journal.addProperty("phase","PERSISTING_MOUNT");journal.addProperty("mountPath",root);
+            journal.addProperty("filesystem","ext4");receipt.addProperty("filesystem","ext4");current.addProperty("filesystem","ext4");
+            JsonArray options=new JsonArray();options.add("-F");options.add("-E");options.add("nodiscard,lazy_itable_init=1,lazy_journal_init=1");
+            journal.add("formatterOptions",options);receipt.add("formatterOptions",options.deepCopy());
+            JsonObject scope=JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            scope.addProperty("mountPath","/caller-supplied-path-is-not-authority");operation.setPreviousSnapshotJson(scope.toString());
+            String lease=reservation.toString(),originalSource=original.getPreviousSnapshotJson();
+            manager.recoverVolumePreparation(instance,operation);
+            Assert.assertEquals(root,dispatchedResume.get("mountPath").getAsString());
+            Assert.assertEquals(journal.get("originalFormatOwner"),dispatchedResume.get("originalFormatOwner"));
+            Assert.assertEquals("MOUNT_EXISTING",dispatchedResume.get("importMode").getAsString());
+            Assert.assertTrue(dispatchedResume.get("resumeOnly").getAsBoolean());
+            Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",operation.getState());Assert.assertEquals(7,manager.rootDesiredRevision(9));
+            Assert.assertEquals("RECOVERY_REQUIRED",original.getState());Assert.assertEquals(originalSource,original.getPreviousSnapshotJson());
+            Assert.assertEquals(lease,reservation.toString());Assert.assertEquals(1,mutations);
+            Assert.assertFalse(JsonParser.parseString(operation.getResultJson()).getAsJsonObject().getAsJsonObject("native").get("formatInvoked").getAsBoolean());
+            Assert.assertFalse(commands.stream().anyMatch(c->c.contains("attach inspect")||c.endsWith("acquire")||c.endsWith("renew")||c.endsWith("release")||c.endsWith("commit")));
+            Mockito.verify(operations,Mockito.never()).update(Mockito.eq(11L),Mockito.any());
+        }
     }
     @Test public void activeFormatterAndChangedPinnedSizeAreRejectedBeforeMutation() {
         idle.addProperty("writerIdle",false);Assert.assertThrows(CloudRuntimeException.class,()->manager.recoverVolumePreparation(instance,operation));
