@@ -254,6 +254,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if (recoverOperationFinalization(instance,operation)) return;
+        if (recoverVerifiedPendingNfsAclTarget(instance,operation)) return;
+        if (parseJsonObject(operation.getResultJson()).has("_verifiedPendingNfsAclTargetRecovery"))
+            throw new CloudRuntimeException("Verified pending TARGET recovery requires its original administrator's explicit reconciliation");
         if (parseJsonObject(operation.getResultJson()).has("_currentLocalIdentityRecovery"))
             throw new CloudRuntimeException("Approved CURRENT identity recovery requires its exact explicit retry; original identity import is forbidden");
         new InterruptedStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).recover(operation,
@@ -313,11 +316,149 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }, System.currentTimeMillis());
     }
 
+    /**
+     * A protected VERIFIED artifact authorizes only the exact original NFS ACL TARGET.
+     * This is separate from the ordinary committed-TARGET guard and never replays the ACL command.
+     */
+    private boolean recoverVerifiedPendingNfsAclTarget(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if (!java.util.Objects.equals(explicitVerifiedNfsAclRecovery.get(),operation.getId())
+                || !StorageVerifiedNfsAclTargetRecovery.eligible(operation)) return false;
+        JsonObject result=parseJsonObject(operation.getResultJson());
+        if (operation.getSnapshotJson()==null || !result.has("_response") || !result.has("_targetResourceBindings")
+                || !result.has("_targetNativeBootId") || !result.has("_targetConfigurationSha256")) return false;
+        JsonObject proof=verifiedPendingNfsAclTargetProof(instance,operation);
+        JsonObject authority=StorageVerifiedNfsAclTargetRecovery.authority(proof);
+        String key="_verifiedPendingNfsAclTargetRecovery";
+        if (result.has(key) && !authority.equals(result.get(key)))
+            throw new CloudRuntimeException("Verified pending NFS ACL TARGET recovery authority changed");
+        beginStorageWriterHeartbeat(operation);
+        try {
+            if (!result.has(key)) {
+                result.add(key,authority.deepCopy());operation.setResultJson(result.toString());
+                if (!storageOperationDao.update(operation.getId(),operation))
+                    throw new CloudRuntimeException("Verified pending NFS ACL TARGET intent could not be persisted");
+            }
+            proof=verifiedPendingNfsAclTargetProof(instance,operation);
+            requireVerifiedPendingNfsAclAuthority(authority,proof);
+            if ("SOURCE".equals(getJsonString(proof,"databasePosition")))
+                new StorageServiceDesiredSnapshot().restore(instance.getId(),operation.getSnapshotJson());
+            proof=verifiedPendingNfsAclTargetProof(instance,operation);
+            requireVerifiedPendingNfsAclAuthority(authority,proof);
+            if (!"TARGET".equals(getJsonString(proof,"databasePosition")))
+                throw new CloudRuntimeException("Verified pending NFS ACL TARGET declaration was not restored");
+            verifyRecoveredStorageWriter(instance);
+            nativeConfigurationGeneration(instance,operation,"verify");
+            // verify rewrites verifiedAt. The protected target's stable identity excludes only that timestamp.
+            proof=verifiedPendingNfsAclTargetProof(instance,operation);
+            requireVerifiedPendingNfsAclAuthority(authority,proof);
+            verifyRecoveredStorageWriter(instance);requireNoOperationCancellation(operation);
+            nativeConfigurationGeneration(instance,operation,"commit");
+            if (!recoverOperationFinalization(instance,operation))
+                throw new CloudRuntimeException("Verified NFS ACL TARGET still requires normal committed-target finalization");
+            return true;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    private void requireVerifiedPendingNfsAclAuthority(JsonObject authority,JsonObject proof) {
+        if (!authority.equals(StorageVerifiedNfsAclTargetRecovery.authority(proof)))
+            throw new CloudRuntimeException("Verified pending NFS ACL TARGET recovery authority changed");
+    }
+
+    private JsonObject verifiedPendingNfsAclTargetProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if (!java.util.Objects.equals(explicitVerifiedNfsAclRecovery.get(),operation.getId())
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || operation.getInstanceId()!=instance.getId() || instance.getVmId()==null
+                || storageOperationDao==null || storageOperationControlDao==null || storageTemplateUpgradeDao==null
+                || storageRuntimeUpgradeDao==null || volumeDao==null)
+            throw new CloudRuntimeException("Verified pending TARGET recovery requires its original administrator and available control guards");
+        requireNoOperationCancellation(operation);
+        StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());
+        if(control!=null && (control.getInstanceId()!=instance.getId() || control.getOperationId()!=operation.getId()))
+            throw new CloudRuntimeException("Verified pending TARGET control scope changed");
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        if (fresh==null || !StorageVerifiedNfsAclTargetRecovery.eligible(fresh)
+                || fresh.getInstanceId()!=operation.getInstanceId() || fresh.getCreatedBy()!=operation.getCreatedBy()
+                || fresh.getRevision()!=operation.getRevision() || !operation.getUuid().equals(fresh.getUuid())
+                || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),fresh.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(operation.getSnapshotJson(),fresh.getSnapshotJson())
+                || !java.util.Objects.equals(operation.getPhase(),fresh.getPhase()))
+            throw new CloudRuntimeException("Verified pending TARGET operation changed");
+        JsonObject result=parseJsonObject(operation.getResultJson()),freshResult=parseJsonObject(fresh.getResultJson());
+        for(String key:List.of("_response","_targetResourceBindings","_targetNativeBootId","_targetConfigurationSha256","_verifiedPendingNfsAclTargetRecovery"))
+            if(!java.util.Objects.equals(result.get(key),freshResult.get(key)))
+                throw new CloudRuntimeException("Verified pending TARGET witness changed");
+        List<StorageServiceOperationVO> operations=storageOperationDao.listByInstance(instance.getId());
+        if (operations==null || StorageOperationReconciliation.superseded(operation,operations))
+            throw new CloudRuntimeException("Verified pending TARGET has a later writer");
+        for(StorageServiceOperationVO row:operations) {
+            if(row.getId()!=operation.getId() && Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))
+                throw new CloudRuntimeException("Another unresolved writer prevents verified pending TARGET recovery");
+        }
+        JsonObject previous=parseJsonObject(operation.getPreviousSnapshotJson());
+        if (previous.has("renderedGeneration") || previous.has("nativeIdentityCapsule") || previous.has("localCheckpointIntent")
+                || result.has("_currentLocalIdentityRecovery") || storageWriterOperation.get()!=null && storageWriterOperation.get()!=operation)
+            throw new CloudRuntimeException("Verified pending TARGET cannot adopt a rendered or identity recovery writer");
+        requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
+        String snapshot=captureConfigurationSnapshot(instance.getId());JsonObject bindings=operationResourceBindings(instance);
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject source=previous.getAsJsonObject("nativeGeneration").getAsJsonObject("previous");
+        JsonObject frozenSource=rootGuest(instance,"operation generation frozen",source,30);
+        JsonObject frozenTarget=rootGuest(instance,"operation generation frozen",operationReservationScope(instance,operation),30);
+        JsonObject proof=StorageVerifiedNfsAclTargetRecovery.require(instance.getUuid(),operation,snapshot,bindings,status,frozenSource,frozenTarget);
+        JsonObject desired=frozenTarget.getAsJsonObject("configurationDesiredState");
+        Set<String> covered=new HashSet<>();Map<String,String> filesystemByVolume=new HashMap<>();
+        for(StorageServiceInstance.Protocol protocol:List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB)) {
+            JsonElement document=desired.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(protocol));
+            if(document==null || document.isJsonNull())continue;
+            JsonArray shares=document.getAsJsonObject().getAsJsonArray(protocol==StorageServiceInstance.Protocol.NFS?"exports":"shares");
+            if(shares==null)throw new CloudRuntimeException("Verified pending TARGET file backing declaration is unavailable");
+            for(JsonElement element:shares) {
+                JsonObject config=element.getAsJsonObject().getAsJsonObject("config");
+                String volumeUuid=getJsonString(config,"attachedVolumeUuid"),filesystemUuid=getJsonString(config,"filesystemUuid");
+                if(!nativeGenerationCanonicalUuid(volumeUuid) || !nativeGenerationCanonicalUuid(filesystemUuid))
+                    throw new CloudRuntimeException("Verified pending TARGET file backing identity is unavailable");
+                String priorFilesystem=filesystemByVolume.putIfAbsent(volumeUuid,filesystemUuid);
+                if(priorFilesystem!=null && !priorFilesystem.equals(filesystemUuid))
+                    throw new CloudRuntimeException("Verified pending TARGET declares conflicting DATA filesystems");
+                if(!covered.add(volumeUuid))continue;
+                VolumeVO volume=volumeDao.findByUuid(volumeUuid);
+                if(volume==null || !java.util.Objects.equals(volume.getInstanceId(),instance.getVmId())
+                        || !bindings.getAsJsonObject("dataVolumes").has(volumeUuid))
+                    throw new CloudRuntimeException("Verified pending TARGET DATA binding changed");
+                JsonObject observed=completedVolumePreparationObservation(instance,volume),identity=observed.getAsJsonObject("currentIdentity");
+                if(!getJsonString(status,"bootId").equals(getJsonString(observed,"bootId"))
+                        || !getJsonString(config,"filesystemUuid").equals(getJsonString(identity,"filesystemUuid"))
+                        || !volumeUuid.equals(getJsonString(identity,"volumeUuid"))
+                        || resourceWhole(identity,"sizeBytes")!=volume.getSize())
+                    throw new CloudRuntimeException("Verified pending TARGET physical DATA identity changed");
+            }
+        }
+        if(!covered.equals(bindings.getAsJsonObject("dataVolumes").keySet()))
+            throw new CloudRuntimeException("Verified pending TARGET must observe every attached file DATA disk");
+        JsonObject lease=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,operation),15);
+        requireFreshReservationObservation(lease);
+        if(!Boolean.TRUE.equals(getNativeBoolean(lease,"success")) || !Boolean.TRUE.equals(getNativeBoolean(lease,"reservationSupported"))
+                || !Boolean.TRUE.equals(getNativeBoolean(lease,"logicalReservationOnly"))
+                || !Boolean.FALSE.equals(getNativeBoolean(lease,"reservationAcquired")) || !Boolean.FALSE.equals(getNativeBoolean(lease,"expired"))
+                || !lease.has("scope") || !lease.get("scope").isJsonNull()
+                || !lease.has("requirements") || !lease.get("requirements").isJsonNull()
+                || !lease.has("leaseBootId") || !lease.get("leaseBootId").isJsonNull()
+                || !getJsonString(status,"bootId").equals(getJsonString(lease,"bootId")))
+            throw new CloudRuntimeException("Verified pending TARGET requires fresh logical reservation absence");
+        requireNoOperationCancellation(operation);
+        JsonObject latest=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject latestProof=StorageVerifiedNfsAclTargetRecovery.require(instance.getUuid(),operation,
+                captureConfigurationSnapshot(instance.getId()),operationResourceBindings(instance),latest,frozenSource,frozenTarget);
+        if(!proof.equals(latestProof))throw new CloudRuntimeException("Verified pending TARGET changed during physical observation");
+        return latestProof;
+    }
+
     private void verifyRecoveredStorageWriter(StorageServiceInstanceVO instance) {
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "operation verify", "", 60, Collections.emptySet()));
         JsonObject health = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
-        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(health, "success")) || !"ok".equalsIgnoreCase(getJsonString(health, "status"))) {
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getNativeBoolean(health, "success")) || !"ok".equalsIgnoreCase(getJsonString(health, "status"))) {
             throw new CloudRuntimeException("Recovered Storage Service runtime health is not verified");
         }
         verifyReconciledStorageDesiredState(instance);
@@ -407,6 +548,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     @Inject
     private org.apache.cloudstack.storage.dataservice.dao.StoragePosixDirectoryPolicyDao storagePosixPolicyDao;
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
+    // Set only by the explicit API under its instance writer lock, never by background recovery.
+    private final ThreadLocal<Long> explicitVerifiedNfsAclRecovery = new ThreadLocal<>();
     private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
     private final ThreadLocal<JsonObject> configurationRecoverySource = new ThreadLocal<>();
     private final ThreadLocal<JsonArray> configurationRecoveryBindings = new ThreadLocal<>();
@@ -4505,7 +4648,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
                     else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))recoverRenderedStorageWriter(instance,operation);
-                    else recoverInterruptedStorageWriter(instance, operation);
+                    else {
+                        Long previousExplicit=explicitVerifiedNfsAclRecovery.get();
+                        explicitVerifiedNfsAclRecovery.set(operation.getId());
+                        try {recoverInterruptedStorageWriter(instance, operation);}
+                        finally {if(previousExplicit==null)explicitVerifiedNfsAclRecovery.remove();else explicitVerifiedNfsAclRecovery.set(previousExplicit);}
+                    }
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
                     recovered.setState(operation.getState());recovered.setPhase(operation.getPhase());recovered.setRevision(operation.getRevision());
@@ -5336,64 +5484,180 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             request.addProperty("revision", operation.getRevision());
         }
         final String payload = operation == null ? "" : request.toString();
-        final boolean retryBegin = "begin".equals(action) && operation != null;
-        final long deadline = retryBegin ? rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(30) : 0;
+        final boolean retryScoped = operation != null && Set.of("begin", "verify", "commit", "finish").contains(action);
+        final long deadline = retryScoped ? rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(30) : 0;
         final long instanceId = instance.getId(), operationId = operation == null ? 0 : operation.getId();
         final Long vmId = instance.getVmId();
         final String instanceUuid = instance.getUuid(), operationUuid = operation == null ? null : operation.getUuid();
         final long revision = operation == null ? 0 : operation.getRevision();
         final String phase = operation == null ? null : operation.getPhase(), state = operation == null ? null : operation.getState();
         final String previous = operation == null ? null : operation.getPreviousSnapshotJson();
-        final Runnable sameBeginOwner = () -> {
-            if (Thread.currentThread().isInterrupted() || operation == null || storageWriterOperation.get() != operation
+        final StorageServiceOperationVO threadOwner = storageWriterOperation.get();
+        final boolean delegatedFinish = "finish".equals(action) && "COMPLETE".equals(state) && threadOwner != null
+                && threadOwner != operation && threadOwner.getInstanceId() == instanceId && threadOwner.getRevision() > revision
+                && Set.of("RUNNING", "RECOVERY_REQUIRED").contains(threadOwner.getState());
+        final long parentId = delegatedFinish ? threadOwner.getId() : 0, parentRevision = delegatedFinish ? threadOwner.getRevision() : 0;
+        final String parentUuid = delegatedFinish ? threadOwner.getUuid() : null, parentPhase = delegatedFinish ? threadOwner.getPhase() : null;
+        final String parentState = delegatedFinish ? threadOwner.getState() : null, parentPrevious = delegatedFinish ? threadOwner.getPreviousSnapshotJson() : null;
+        final StorageServiceOperationVO cancellationOwner = delegatedFinish ? threadOwner : operation;
+        final String witnessBoot = operation == null ? null : getJsonString(parseJsonObject(operation.getResultJson()), "_targetNativeBootId");
+        final String[] retryBoot = new String[1];
+        final JsonObject[] finishGeneration = new JsonObject[1];
+        final Runnable sameWriterOwner = () -> {
+            if (Thread.currentThread().isInterrupted() || operation == null
+                    || storageWriterOperation.get() != (delegatedFinish ? threadOwner : operation)
                     || instanceId <= 0 || operationId <= 0 || revision <= 0 || vmId == null
                     || StringUtils.isBlank(instanceUuid) || StringUtils.isBlank(operationUuid) || StringUtils.isBlank(phase)
-                    || !("RUNNING".equals(state) || "RECOVERY_REQUIRED".equals(state))
+                    || !(delegatedFinish || "RUNNING".equals(state) || "RECOVERY_REQUIRED".equals(state))
+                    || delegatedFinish && (parentId <= 0 || parentRevision <= revision || StringUtils.isBlank(parentUuid) || StringUtils.isBlank(parentPhase)
+                        || threadOwner.getId() != parentId || threadOwner.getInstanceId() != instanceId || threadOwner.getRevision() != parentRevision
+                        || !java.util.Objects.equals(threadOwner.getUuid(), parentUuid) || !java.util.Objects.equals(threadOwner.getPhase(), parentPhase)
+                        || !java.util.Objects.equals(threadOwner.getState(), parentState) || !java.util.Objects.equals(threadOwner.getPreviousSnapshotJson(), parentPrevious))
                     || instance.getId() != instanceId || !java.util.Objects.equals(instance.getVmId(), vmId)
                     || !java.util.Objects.equals(instance.getUuid(), instanceUuid) || operation.getId() != operationId
                     || operation.getInstanceId() != instanceId || operation.getRevision() != revision
                     || !java.util.Objects.equals(operation.getUuid(), operationUuid)
                     || !java.util.Objects.equals(operation.getPhase(), phase) || !java.util.Objects.equals(operation.getState(), state)
-                    || !java.util.Objects.equals(operation.getPreviousSnapshotJson(), previous)) {
-                throw new CloudRuntimeException("Native generation begin writer scope changed; begin is not retried");
+                    || !java.util.Objects.equals(operation.getPreviousSnapshotJson(), previous)
+                    || !java.util.Objects.equals(getJsonString(parseJsonObject(operation.getResultJson()), "_targetNativeBootId"), witnessBoot)) {
+                throw new CloudRuntimeException("Native generation writer scope changed; command is not retried");
             }
         };
+        JsonObject beginSource=null;
+        if ("begin".equals(action) && retryScoped) {
+            try {
+                JsonObject observed=rootGuest(instance,"operation generation status",new JsonObject(),30);
+                beginSource=nativeGenerationBeginSource(instanceUuid,operationUuid,revision,previous,observed);
+            } catch(RuntimeException unavailable) {
+                // An unavailable read has no mutation outcome. Preserve one original call, never authorize its retry.
+                if(Thread.currentThread().isInterrupted())throw unavailable;
+            }
+        }
         for (int attempt = 1; ; attempt++) {
             int timeout = 30;
-            if (attempt > 1) {
-                sameBeginOwner.run();
+            if (attempt > 1 || "begin".equals(action) && retryScoped) {
+                if(attempt>1)sameWriterOwner.run();
                 long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(deadline - rollbackNativeWriterNowNanos());
-                if (seconds < 1) throw new CloudRuntimeException("Native generation begin busy retry deadline expired");
+                if (seconds < 1) throw new CloudRuntimeException("Native generation busy retry deadline expired");
                 timeout = (int) Math.min(30, seconds);
             }
             StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(vmId,
                     "operation generation " + action, payload, timeout, Collections.emptySet()));
-            if (retryBegin && isClosedNativeWriterBusy(result)) {
-                // This exact native result is emitted before the handler and before pending state can be written.
-                sameBeginOwner.run();
+            if (retryScoped && isClosedNativeWriterBusy(result)) {
+                // This exact result is emitted before the native handler: it proves no command effect, not an unknown outcome.
+                sameWriterOwner.run();
                 long now = rollbackNativeWriterNowNanos();
                 if (attempt >= 4 || deadline - now < java.util.concurrent.TimeUnit.SECONDS.toNanos(1))
-                    throw new CloudRuntimeException("Native generation begin remained busy within its bounded retry limit");
+                    throw new CloudRuntimeException("Native generation remained busy within its bounded retry limit");
                 requireRollbackNativeWriterIdle(instance, Math.min(deadline, now + java.util.concurrent.TimeUnit.SECONDS.toNanos(15)));
-                sameBeginOwner.run();
+                sameWriterOwner.run();
                 long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(deadline - rollbackNativeWriterNowNanos());
-                if (seconds < 1) throw new CloudRuntimeException("Native generation begin busy retry deadline expired");
+                if (seconds < 1) throw new CloudRuntimeException("Native generation busy retry deadline expired");
                 JsonObject fresh = rootGuest(instance, "operation generation status", new JsonObject(), (int) Math.min(30, seconds));
                 if (fresh == null || !Boolean.TRUE.equals(getNativeBoolean(fresh, "success"))
-                        || !Boolean.TRUE.equals(getNativeBoolean(fresh, "generationSupported"))
-                        || !fresh.has("pendingOperationUuid") || !fresh.get("pendingOperationUuid").isJsonNull())
-                    throw new CloudRuntimeException("Native generation pending state is not absent; begin is not retried");
-                sameBeginOwner.run();
-                requireNoOperationCancellation(operation);
-                sameBeginOwner.run();
+                        || !Boolean.TRUE.equals(getNativeBoolean(fresh, "generationSupported")) || !fresh.has("pendingOperationUuid"))
+                    throw new CloudRuntimeException("Native generation status is incomplete; command is not retried");
+                String boot = getJsonString(fresh, "bootId");
+                if (!nativeGenerationCanonicalUuid(boot) || witnessBoot != null
+                        && (!nativeGenerationCanonicalUuid(witnessBoot) || !witnessBoot.equals(boot)))
+                    throw new CloudRuntimeException("Native generation retry boot differs from its durable witness");
+                if (retryBoot[0] == null) retryBoot[0] = boot;
+                else if (!retryBoot[0].equals(boot)) throw new CloudRuntimeException("Native generation boot changed during retry");
+                JsonElement pending = fresh.get("pendingOperationUuid");
+                boolean absent = pending.isJsonNull();
+                boolean own = pending.isJsonPrimitive() && pending.getAsJsonPrimitive().isString()
+                        && operationUuid.equals(pending.getAsString());
+                if ("begin".equals(action)) {
+                    JsonObject source=nativeGenerationBeginSource(instanceUuid,operationUuid,revision,previous,fresh);
+                    if (beginSource==null || source==null || !beginSource.equals(source))
+                        throw new CloudRuntimeException("Native generation SOURCE changed or is unobserved; begin is not retried");
+                } else {
+                    JsonObject current = getJsonObject(fresh, "generation");
+                    if (current == null) throw new CloudRuntimeException("Native generation current pointer is unavailable");
+                    if ("finish".equals(action)) {
+                        if (!nativeGenerationScopeMatches(current, instanceUuid, operationUuid, revision)
+                                || !java.util.Objects.equals(getJsonString(current, "configurationSha256"), getJsonString(fresh, "configurationSha256"))
+                                || !(own && "PENDING".equals(getJsonString(fresh, "generationStatus"))
+                                    || absent && "IN_SYNC".equals(getJsonString(fresh, "generationStatus"))))
+                            throw new CloudRuntimeException("Native generation finish lacks its exact committed target");
+                        if (finishGeneration[0] == null) finishGeneration[0] = current.deepCopy();
+                        else if (!finishGeneration[0].equals(current)) throw new CloudRuntimeException("Native committed target changed during finish retry");
+                    } else {
+                        JsonObject checkpoint = getJsonObject(parseJsonObject(previous), "nativeGeneration");
+                        JsonObject source = checkpoint == null ? null : getJsonObject(checkpoint, "previous");
+                        if (!own || !"PENDING".equals(getJsonString(fresh, "generationStatus")) || source == null || !source.equals(current)
+                                || current.size() > 0 && (!nativeGenerationScopeMatches(current, instanceUuid,
+                                    getJsonString(current, "operationUuid"), getJsonLong(current, "revision"))
+                                    || getJsonLong(current, "revision") >= revision))
+                            throw new CloudRuntimeException("Native generation retry lacks its exact pending writer and frozen source");
+                        // Public status exposes only the pending UUID. Native scoped/phase checks remain the final authority.
+                    }
+                }
+                sameWriterOwner.run();
+                requireNoOperationCancellation(cancellationOwner);
+                sameWriterOwner.run();
                 continue;
             }
             JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result == null ? null : result.getResultJson()));
-            if (result == null || !result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed, "success"))
-                    || !Boolean.TRUE.equals(getJsonBoolean(observed, "generationSupported"))) {
+            if (result == null || !result.isSuccess() || !Boolean.TRUE.equals(getNativeBoolean(observed, "success"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(observed, "generationSupported"))) {
                 throw new CloudRuntimeException("Native configuration generation " + action + " failed");
             }
             return observed;
+        }
+    }
+
+    private JsonObject nativeGenerationBeginSource(String instanceUuid,String operationUuid,long revision,String previous,JsonObject status) {
+        try {
+            if(status==null || !Boolean.TRUE.equals(getNativeBoolean(status,"success"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(status,"generationSupported"))
+                    || !status.has("pendingOperationUuid") || !status.get("pendingOperationUuid").isJsonNull()
+                    || !nativeGenerationCanonicalUuid(getJsonString(status,"bootId")))return null;
+            JsonObject current=getJsonObject(status,"generation"),desired=getJsonObject(status,"configurationDesiredState");
+            String checksum=getJsonString(status,"configurationSha256"),state=getJsonString(status,"generationStatus");
+            if(current==null || desired==null || !desired.keySet().equals(StorageRenderedDesiredState.PATHS)
+                    || checksum==null || !status.get("configurationSha256").getAsJsonPrimitive().isString()
+                    || !checksum.matches("[a-f0-9]{64}"))return null;
+            if(current.size()==0) {
+                if(!"UNVERIFIED".equals(state) || resourceWhole(status,"runtimeRevision")!=0)return null;
+            } else if(!nativeGenerationScopeMatches(current,instanceUuid,getJsonString(current,"operationUuid"),getJsonLong(current,"revision"))
+                    || resourceWhole(current,"revision")>=revision || operationUuid.equals(getJsonString(current,"operationUuid"))
+                    || resourceWhole(status,"runtimeRevision")!=resourceWhole(current,"revision")
+                    || !"IN_SYNC".equals(state) || !checksum.equals(getJsonString(current,"configurationSha256")))return null;
+            JsonObject snapshot=parseJsonObject(previous),checkpoint=getJsonObject(snapshot,"nativeGeneration");
+            if(checkpoint!=null && checkpoint.has("previous") && !current.equals(checkpoint.get("previous")))return null;
+            if(snapshot.has("nativeDesiredState") && !desired.equals(snapshot.get("nativeDesiredState")))return null;
+            JsonObject frozen=new JsonObject();
+            for(String key:List.of("bootId","generation","configurationSha256","configurationDesiredState","runtimeRevision","generationStatus"))
+                frozen.add(key,status.get(key).deepCopy());
+            return frozen;
+        } catch(RuntimeException malformed) {return null;}
+    }
+
+    private boolean nativeGenerationCanonicalUuid(String value) {
+        if (value == null) return false;
+        try { return java.util.UUID.fromString(value).toString().equals(value); }
+        catch (IllegalArgumentException invalid) { return false; }
+    }
+
+    private boolean nativeGenerationScopeMatches(JsonObject generation, String instanceUuid, String operationUuid, Long revision) {
+        if (generation == null || revision == null || revision <= 0
+                || !nativeGenerationCanonicalUuid(instanceUuid) || !nativeGenerationCanonicalUuid(operationUuid)
+                || !generation.keySet().equals(Set.of("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")))
+            return false;
+        JsonElement number = generation.get("revision"), verified = generation.get("verifiedAt");
+        try {
+            return instanceUuid.equals(getJsonString(generation, "instanceUuid")) && operationUuid.equals(getJsonString(generation, "operationUuid"))
+                    && number.isJsonPrimitive() && number.getAsJsonPrimitive().isNumber() && number.getAsString().matches("[0-9]+")
+                    && Long.parseLong(number.getAsString()) == revision
+                    && verified.isJsonPrimitive() && verified.getAsJsonPrimitive().isNumber()
+                    && Double.isFinite(verified.getAsDouble()) && verified.getAsDouble() > 0
+                    && getJsonString(generation, "configurationSha256") != null
+                    && generation.get("configurationSha256").isJsonPrimitive()
+                    && generation.get("configurationSha256").getAsJsonPrimitive().isString()
+                    && getJsonString(generation, "configurationSha256").matches("[a-f0-9]{64}");
+        } catch (NumberFormatException invalid) {
+            return false;
         }
     }
     private void rollbackNativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
