@@ -26,13 +26,14 @@ const sourceFiles = [
   'src/views/storage/PosixDirectoryPolicies.vue',
   'src/views/storage/PosixPolicyInheritance.vue',
   'src/views/storage/StorageServiceConfiguration.vue',
-  'src/views/storage/StorageOperationHistory.vue'
+  'src/views/storage/StorageOperationHistory.vue',
+  'src/views/storage/StorageVolumePreparation.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
   ko_KR: 'public/locales/ko_KR.json'
 }
-const storagePrefixes = ['label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.', 'label.storage.config.', 'message.storage.config.', 'label.storage.operation.', 'message.storage.operation.']
+const storagePrefixes = ['label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.', 'label.storage.config.', 'message.storage.config.', 'label.storage.operation.', 'message.storage.operation.', 'label.storage.volume.', 'message.storage.volume.']
 
 const readUiFile = relativePath => fs.readFileSync(path.join(uiRoot, relativePath), 'utf8')
 const isStorageKey = key => storagePrefixes.some(prefix => key.startsWith(prefix))
@@ -91,5 +92,12 @@ describe('Managed operation terminal-state locale contract', () => {
     })
     expect(missing).toEqual([])
     expect(localeMessages[locale]['label.storage.operation.state.CANCELLED']).toBe(locale === 'ko_KR' ? '취소됨' : 'Cancelled')
+  })
+})
+
+describe('Volume preparation phase locale contract', () => {
+  const phases = ['WAITING_DEVICE', 'VERIFYING_IDENTITY', 'FORMATTING', 'VERIFYING_FILESYSTEM', 'FILESYSTEM_VERIFIED', 'MOUNTING', 'PERSISTING_MOUNT', 'APPLYING_SERVICE', 'COMPLETE', 'TIMED_OUT_PENDING_RECONCILE', 'RECOVERY_REQUIRED', 'RECONCILE_REQUIRED', 'NOT_STARTED', 'IDENTITY_MISMATCH', 'ERROR']
+  it.each(Object.keys(localeFiles))('defines every preparation phase in %s', locale => {
+    for (const phase of phases) expect(localeMessages[locale]['label.storage.volume.phase.' + phase]).toEqual(expect.any(String))
   })
 })
