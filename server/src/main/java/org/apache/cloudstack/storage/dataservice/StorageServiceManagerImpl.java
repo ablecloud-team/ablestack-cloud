@@ -4934,13 +4934,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                     public void stageAndActivate(StorageServiceOperationVO operation){stageAndActivateRendered(instance,operation);}
                     public void verifyNativeGeneration(StorageServiceOperationVO operation) {
-                        if (storageOperationControlDao.findByOperation(operation.getId())!=null && hasNativeConfigurationGeneration(operation))
-                            persistTargetFinalizationWitness(instance,operation);
-                        if(renderedBatch.get()!=null)return;
-                        if (hasNativeConfigurationGeneration(operation)) {
-                            nativeConfigurationGeneration(instance, operation, "verify");
-                            nativeConfigurationGeneration(instance, operation, "commit");
-                        }
+                        verifyAndCommitNativeConfiguration(instance,operation);
                     }
                     public void rollbackNativeGeneration(StorageServiceOperationVO operation) {
                         if(renderedBatch.get()!=null)return;
@@ -13662,6 +13656,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject envelope = new JsonObject();envelope.add("_response",serialized);return envelope;
     }
 
+    /** Every native commit needs a durable target witness, including control-off operations. */
+    protected void verifyAndCommitNativeConfiguration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if (hasNativeConfigurationGeneration(operation)) persistTargetFinalizationWitness(instance,operation);
+        if (renderedBatch.get()!=null) return;
+        if (hasNativeConfigurationGeneration(operation)) {
+            nativeConfigurationGeneration(instance,operation,"verify");
+            nativeConfigurationGeneration(instance,operation,"commit");
+        }
+    }
+
     protected void persistTargetFinalizationWitness(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         JsonObject status = nativeConfigurationGeneration(instance,null,"status");
         String boot = getJsonString(status,"bootId"),digest = getJsonString(status,"configurationSha256");
@@ -13699,7 +13703,82 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 configuration.verifyReadOnlyArtifact(operation);
             }
+        } else if (StorageLegacyDeferredFixtureTargetRecovery.eligible(operation)
+                && storageOperationControlDao.findByOperation(operation.getId())==null) {
+            requireLegacyDeferredFixtureTargetRecovery(instance,operation,snapshot,status);
         } else StorageOperationReconciliation.requireTarget(instance.getUuid(),operation,snapshot,bindings,status);
+    }
+
+    /** Protected creation authority is re-read on every finalization; no missing historical witness is manufactured. */
+    protected void requireLegacyDeferredFixtureTargetRecovery(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,
+            String currentSnapshot,JsonObject status) {
+        requireConfigurationAdministrator();
+        if(operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || storageOperationControlDao.findByOperation(operation.getId())!=null)
+            throw new CloudRuntimeException("Legacy fixture recovery requires its original administrator and control-off operation");
+        VMInstanceVO vm=vmInstanceDao.findById(instance.getVmId());SharedFSVO shared=sharedFSDao.findByVm(instance.getVmId());
+        if(vm==null || vm.getState()!=com.cloud.vm.VirtualMachine.State.Running || shared==null
+                || shared.getAccountId()!=instance.getAccountId() || shared.getDataCenterId()!=instance.getDataCenterId())
+            throw new CloudRuntimeException("Legacy fixture VM ownership is unavailable");
+        List<VolumeVO> roots=volumeDao.findByInstanceAndType(vm.getId(),com.cloud.storage.Volume.Type.ROOT);
+        List<VolumeVO> data=volumeDao.findByInstanceAndType(vm.getId(),com.cloud.storage.Volume.Type.DATADISK);
+        if(roots.size()!=1 || data.size()!=1 || shared.getVolumeId()==null || shared.getVolumeId()!=data.get(0).getId())
+            throw new CloudRuntimeException("Legacy fixture requires one original ROOT and one NEW DATA disk");
+        StorageTemplateFixturePermit permits=legacyDeferredFixturePermits();
+        JsonObject created=permits.createdReceipt(shared.getUuid());
+        com.cloud.storage.VMTemplateVO original=rootUpgradeTemplateDao.findByUuid(getJsonString(created.getAsJsonObject("request"),"templateUuid"));
+        if(original==null || original.getTemplateType()!=com.cloud.storage.Storage.TemplateType.USER || original.isPublicTemplate()
+                || original.getAccountId()!=instance.getAccountId() || original.getRemoved()!=null
+                || original.getState()!=com.cloud.template.VirtualMachineTemplate.State.Active
+                || original.getFormat()!=com.cloud.storage.Storage.ImageFormat.QCOW2
+                || original.getHypervisorType()!=com.cloud.hypervisor.Hypervisor.HypervisorType.KVM)
+            throw new CloudRuntimeException("Legacy fixture requires its original owned private USER template");
+        rootUpgradeTemplateDao.loadDetails(original);
+        Set<String> excluded=new HashSet<>();
+        for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=instance.getId())excluded.add(other.getUuid());
+        created=permits.requireCreated(shared.getUuid(),vm.getId(),vm.getUuid(),instance.getAccountId(),instance.getDataCenterId(),original,excluded);
+        JsonObject current=new JsonObject();current.addProperty("vmId",vm.getId());current.addProperty("vmUuid",vm.getUuid());
+        current.addProperty("rootVolumeUuid",roots.get(0).getUuid());current.addProperty("dataVolumeUuid",data.get(0).getUuid());
+        current.add("rootDisk",legacyDeferredFixtureDisk(roots.get(0),vm.getId()));
+        current.add("dataDisk",legacyDeferredFixtureDisk(data.get(0),vm.getId()));
+        requireRollbackNativeWriterIdle(instance);requireNoPendingVolumeFormatter(instance);
+        JsonObject proof=completedVolumePreparationObservation(instance,data.get(0));
+        JsonObject lease=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,operation),15);
+        requireFreshReservationObservation(lease);
+        if(!Boolean.TRUE.equals(getNativeBoolean(lease,"success")) || !Boolean.TRUE.equals(getNativeBoolean(lease,"reservationSupported"))
+                || !Boolean.TRUE.equals(getNativeBoolean(lease,"logicalReservationOnly"))
+                || !Boolean.FALSE.equals(getNativeBoolean(lease,"reservationAcquired")) || !Boolean.FALSE.equals(getNativeBoolean(lease,"expired"))
+                || !lease.has("scope") || !lease.get("scope").isJsonNull()
+                || !lease.has("requirements") || !lease.get("requirements").isJsonNull()
+                || !lease.has("leaseBootId") || !lease.get("leaseBootId").isJsonNull()
+                || !getJsonString(status,"bootId").equals(getJsonString(lease,"bootId")))
+            throw new CloudRuntimeException("Legacy control-off fixture requires fresh logical reservation absence");
+        JsonObject fresh=nativeConfigurationGeneration(instance,null,"status");
+        for(String field:List.of("generation","configurationSha256","bootId","pendingOperationUuid"))
+            if(!java.util.Objects.equals(status.get(field),fresh.get(field)))throw new CloudRuntimeException("Native TARGET changed during legacy fixture observation");
+        JsonObject authority=StorageLegacyDeferredFixtureTargetRecovery.require(instance.getUuid(),operation,currentSnapshot,current,created,fresh,
+                proof.getAsJsonObject("history"),proof.getAsJsonObject("currentIdentity"),data.get(0).getId());
+        if(!parseJsonObject(currentSnapshot).equals(parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("TARGET declaration changed before legacy recovery authority publication");
+        JsonObject result=parseJsonObject(operation.getResultJson());String key=StorageLegacyDeferredFixtureTargetRecovery.RESULT_KEY;
+        if(result.has(key)) {
+            if(!authority.equals(result.get(key)))throw new CloudRuntimeException("Legacy fixture recovery authority changed");
+        } else {
+            result.add(key,authority);operation.setResultJson(result.toString());
+            if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Legacy fixture recovery authority could not be persisted");
+        }
+    }
+
+    protected StorageTemplateFixturePermit legacyDeferredFixturePermits() { return new StorageTemplateFixturePermit(); }
+
+    private JsonObject legacyDeferredFixtureDisk(VolumeVO volume,long vmId) {
+        JsonObject disk=new JsonObject();disk.addProperty("volumeUuid",volume.getUuid());disk.addProperty("path",volume.getPath());
+        disk.addProperty("poolId",volume.getPoolId());disk.addProperty("type",volume.getVolumeType().name());
+        disk.addProperty("accountId",volume.getAccountId());disk.addProperty("zoneId",volume.getDataCenterId());
+        disk.addProperty("sizeBytes",volume.getSize());disk.addProperty("provisioningType",volume.getProvisioningType()==null?null:volume.getProvisioningType().name());
+        disk.addProperty("templateId",volume.getTemplateId());disk.addProperty("state",volume.getState().name());
+        disk.addProperty("attachedToFixture",java.util.Objects.equals(volume.getInstanceId(),vmId));disk.addProperty("notRemoved",volume.getRemoved()==null);
+        disk.addProperty("newDataWithoutBacking",volume.getTemplateId()==null && StringUtils.isBlank(volume.getChainInfo()));return disk;
     }
 
     protected void requireCommittedOperationResources(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
@@ -13707,7 +13786,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());
         if(control!=null && (control.getInstanceId()!=instance.getId() || control.getOperationId()!=operation.getId()))
             throw new CloudRuntimeException("Committed recovery control scope changed");
-        if (parseJsonObject(operation.getResultJson()).has("_targetResourceBindings")) {
+        JsonObject durableResult=parseJsonObject(operation.getResultJson());
+        if (durableResult.has("_targetResourceBindings") || durableResult.has(StorageLegacyDeferredFixtureTargetRecovery.RESULT_KEY)) {
             requireOperationFinalizationWitness(instance,operation);
             synchronized(operationLeaseLocks.computeIfAbsent(operation.getId(),ignored->new Object())) {suspendedOperationLeases.add(operation.getId());}
         } else renewOperationResourceReservation(operation);
