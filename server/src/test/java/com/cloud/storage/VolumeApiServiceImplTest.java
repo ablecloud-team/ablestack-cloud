@@ -174,6 +174,10 @@ public class VolumeApiServiceImplTest {
     @Mock
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Mock
+    private org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
+    @Mock
+    private com.cloud.vm.VmCreationSourceService creationSourceService;
+    @Mock
     private AccountManager accountManagerMock;
     @Mock
     private UserVmDao userVmDaoMock;
@@ -623,6 +627,53 @@ public class VolumeApiServiceImplTest {
         dedicateIdField.setAccessible(true);
         dedicateIdField.set(detachCmd, 2L);
         volumeApiServiceImpl.detachVolumeFromVM(detachCmd);
+    }
+
+    @Test
+    public void testAblestackVmRemovalDetachesOwnDataVolumeWithoutOrdinaryTopologyCheck() {
+        VolumeVO data = mock(VolumeVO.class);
+        when(data.getId()).thenReturn(71L);
+        when(data.getInstanceId()).thenReturn(72L);
+        when(data.getVolumeType()).thenReturn(Volume.Type.DATADISK);
+        when(data.getPoolId()).thenReturn(null);
+        when(volumeDaoMock.findById(71L)).thenReturn(data);
+        com.cloud.vm.VMInstanceVO vm = mock(com.cloud.vm.VMInstanceVO.class);
+        when(vm.getState()).thenReturn(State.Stopped);
+        when(_vmInstanceDao.findById(72L)).thenReturn(vm);
+        when(virtualMachineManager.findClusterAndHostIdForVm(anyLong())).thenReturn(new Pair<>(null, null));
+        CallContext context = mock(CallContext.class);
+        when(context.getCallingAccount()).thenReturn(accountMock);
+        try (MockedStatic<CallContext> contexts = Mockito.mockStatic(CallContext.class);
+                MockedStatic<UsageEventUtils> usage = Mockito.mockStatic(UsageEventUtils.class)) {
+            contexts.when(CallContext::current).thenReturn(context);
+            Assert.assertSame(data, volumeApiServiceImpl.detachVolumeForAblestackVmRemoval(72L, 71L));
+        }
+        verify(ablestackBackupVmRemovalGuard).checkVmRemoval(72L);
+        verify(backupVolumeGuard, Mockito.never()).checkWorker(anyLong());
+        verify(creationSourceService).captureVolume(data);
+        verify(volumeDaoMock).detachVolume(71L);
+    }
+
+    @Test
+    public void testOrdinaryInternalDetachStillUsesExistingGuard() {
+        VolumeVO data = mock(VolumeVO.class);
+        when(volumeDaoMock.findById(71L)).thenReturn(data);
+        Mockito.doThrow(new CloudRuntimeException("VOLUME_BACKUP_BACKUP_EXISTS")).when(backupVolumeGuard).checkWorker(72L);
+        Assert.assertThrows(CloudRuntimeException.class, () -> volumeApiServiceImpl.detachVolumeViaDestroyVM(72L, 71L));
+        verify(ablestackBackupVmRemovalGuard, Mockito.never()).checkVmRemoval(anyLong());
+        verify(volumeDaoMock, Mockito.never()).detachVolume(anyLong());
+    }
+
+    @Test
+    public void testAblestackVmRemovalCannotDetachAnotherVmsVolumeOrRoot() {
+        VolumeVO data = mock(VolumeVO.class);
+        when(data.getInstanceId()).thenReturn(73L);
+        when(volumeDaoMock.findById(71L)).thenReturn(data);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> volumeApiServiceImpl.detachVolumeForAblestackVmRemoval(72L, 71L));
+        when(data.getInstanceId()).thenReturn(72L);
+        when(data.getVolumeType()).thenReturn(Volume.Type.ROOT);
+        Assert.assertThrows(InvalidParameterValueException.class, () -> volumeApiServiceImpl.detachVolumeForAblestackVmRemoval(72L, 71L));
+        verify(volumeDaoMock, Mockito.never()).detachVolume(anyLong());
     }
 
     /**

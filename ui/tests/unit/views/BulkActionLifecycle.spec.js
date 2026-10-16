@@ -17,6 +17,8 @@
 
 import AutogenView from '@/views/AutogenView'
 import eventBus from '@/config/eventBus'
+jest.mock('vue-code-highlight/src/CodeHighlight.vue', () => ({}), { virtual: true })
+jest.mock('vue-code-highlight/themes/prism-okaidia.css', () => ({}), { virtual: true })
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('@/vue-app', () => ({ vueProps: {} }))
 jest.mock('@/config/eventBus', () => ({ emit: jest.fn(), on: jest.fn(), off: jest.fn() }))
@@ -45,5 +47,47 @@ describe('Bulk action lifecycle', () => {
     callbacks.successMethod({ jobresult: {} })
     await pending
     expect(eventBus.emit).not.toHaveBeenCalledWith('update-resource-state', expect.anything())
+  })
+  it('tracks Commvault restore without a long lived loading message', async () => {
+    let pollOptions
+    const vm = {
+      resource: { id: 'backup', provider: 'ablestack-commvault' },
+      selectedItems: [],
+      $t: key => key,
+      $pollJob: options => { pollOptions = options; options.successMethod({ jobresult: {} }) },
+      fetchData: jest.fn().mockResolvedValue(),
+      markBackupRestoreStarted: jest.fn(),
+      shouldNavigateBack: () => false
+    }
+
+    await AutogenView.methods.pollActionCompletion.call(vm, 'job', { api: 'restoreBackup', label: 'label.backup.restore' }, '', 'backup')
+    expect(pollOptions.showLoading).toBe(false)
+    expect(pollOptions.showSuccessMessage).toBe(false)
+    expect(vm.markBackupRestoreStarted).toHaveBeenCalledWith(vm.resource)
+  })
+  it('marks a restore request on restore fields', () => {
+    const backup = { id: 'backup', status: 'BackedUp' }
+    const vm = { items: [backup] }
+
+    AutogenView.methods.markBackupRestoreStarted.call(vm, backup)
+
+    expect(backup).toEqual(expect.objectContaining({ restoreoperationpending: true, restorejobstate: 'STARTING', restorejobstep: 'REQUESTED' }))
+    expect(backup.backupjobstep).toBeUndefined()
+  })
+  it('acknowledges a Commvault restore as soon as the API returns a job id', async () => {
+    const backup = { id: 'backup', provider: 'ablestack-commvault' }
+    const vm = {
+      resource: backup,
+      selectedItems: [],
+      $t: key => key,
+      $message: { info: jest.fn() },
+      markBackupRestoreStarted: jest.fn(),
+      pollActionCompletion: jest.fn().mockResolvedValue(true)
+    }
+
+    await AutogenView.methods.handleResponse.call(vm, { restorebackupresponse: { jobid: 'job' } }, '', 'backup', { api: 'restoreBackup' })
+
+    expect(vm.$message.info).toHaveBeenCalledWith(expect.objectContaining({ content: 'label.backup.restore.requested' }))
+    expect(vm.pollActionCompletion).toHaveBeenCalledWith('job', { api: 'restoreBackup' }, '', 'backup', true, vm.selectedItems)
   })
 })

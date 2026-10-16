@@ -61,6 +61,11 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
         final VirtualMachineTO vmSpec = command.getVirtualMachine();
         vmSpec.setVncAddr(command.getHostIp());
         final String vmName = vmSpec.getName();
+        try {
+            LibvirtAblestackRestoreTransaction.assertStartAllowed(vmName);
+        } catch (com.cloud.utils.exception.CloudRuntimeException e) {
+            return new StartAnswer(command, e.getMessage());
+        }
         LibvirtVMDef vm = null;
 
         DomainState  state = DomainState.VIR_DOMAIN_SHUTOFF;

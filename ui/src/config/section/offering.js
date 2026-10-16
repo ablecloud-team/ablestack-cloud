@@ -17,6 +17,7 @@
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
 import { getFilteredExternalDetails } from '@/utils/extension'
+import { getAblestackBackupOfferingDeletionMessage } from '@/utils/ablestackBackupPolicy'
 
 export default {
   name: 'offering',
@@ -414,13 +415,13 @@ export default {
         docHelp: 'adminguide/virtual_machines.html#importing-backup-offerings',
         dataView: true,
         popup: true,
-        show: (record) => { return !['commvault', 'ablestack-commvault', 'netbackup', 'ablestack-netbackup'].includes(record.provider) },
+        show: (record) => { return !['ablestack-commvault', 'ablestack-netbackup'].includes(record.provider) },
         component: shallowRef(defineAsyncComponent(() => import('@/views/offering/CloneBackupOffering.vue')))
       }, {
         api: 'deleteBackupOffering',
         icon: 'delete-outlined',
         label: 'label.action.delete.backup.offering',
-        message: 'message.action.delete.backup.offering',
+        message: getAblestackBackupOfferingDeletionMessage,
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
         dataView: true,
         groupAction: true,

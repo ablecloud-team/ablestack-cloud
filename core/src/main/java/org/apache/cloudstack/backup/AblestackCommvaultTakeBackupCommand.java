@@ -28,6 +28,21 @@ import java.util.Map;
 
 public class AblestackCommvaultTakeBackupCommand extends Command {
     private String vmName;
+    private String volumeStagingManifest;
+    private String volumeBackupStartPlan;
+    private Integer stagingBufferPercent;
+    private Integer stagingQueueTimeout;
+
+    public Integer getStagingQueueTimeout() { return stagingQueueTimeout; }
+    public void setStagingQueueTimeout(Integer value) { stagingQueueTimeout = value; }
+
+    public String getVolumeStagingManifest() { return volumeStagingManifest; }
+    public void setVolumeStagingManifest(String value) { volumeStagingManifest = value; }
+    public String getVolumeBackupStartPlan() { return volumeBackupStartPlan; }
+    public void setVolumeBackupStartPlan(String value) { volumeBackupStartPlan = value; }
+    public Integer getStagingBufferPercent() { return stagingBufferPercent; }
+    public void setStagingBufferPercent(Integer value) { stagingBufferPercent = value; }
+    private String backupJobId;
     private String backupPath;
     private List<PrimaryDataStoreTO> volumePools;
     private List<String> volumePaths;
@@ -40,6 +55,7 @@ public class AblestackCommvaultTakeBackupCommand extends Command {
     private String parentCheckpointXml;
     private Map<String, String> parentCheckpointXmlChain;
     private List<String> backupFiles;
+    private boolean waitForCompletion = true;
     private Integer bandwidthLimitMbps;
 
     public AblestackCommvaultTakeBackupCommand(String vmName, String backupPath) {
@@ -54,6 +70,14 @@ public class AblestackCommvaultTakeBackupCommand extends Command {
 
     public void setVmName(String vmName) {
         this.vmName = vmName;
+    }
+
+    public String getBackupJobId() {
+        return backupJobId;
+    }
+
+    public void setBackupJobId(final String backupJobId) {
+        this.backupJobId = backupJobId;
     }
 
     public String getBackupPath() {
@@ -150,6 +174,14 @@ public class AblestackCommvaultTakeBackupCommand extends Command {
 
     public void setBackupFiles(List<String> backupFiles) {
         this.backupFiles = backupFiles;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     public Integer getBandwidthLimitMbps() {

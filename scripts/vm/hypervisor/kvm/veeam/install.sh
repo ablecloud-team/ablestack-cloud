@@ -27,21 +27,35 @@ SHARE_DIR="${MOLD_BACKUP_SHARE_DIR:-/usr/share/mold/backup/veeam}"
 LOG_DIR="/var/log/mold"
 ABLESTACK_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}"
 
-install -d -m 0755 "${SHARE_DIR}" "${ETC_DIR}" "${ETC_DIR}/secrets" "${ETC_DIR}/state" "${ETC_DIR}/hooks" "${ETC_DIR}/registry" "${LOG_DIR}"
+install -d -m 0755 "${SHARE_DIR}" "${ETC_DIR}" "${ETC_DIR}/state" "${ETC_DIR}/hooks" "${ETC_DIR}/registry" "${LOG_DIR}"
+install -d -m 0700 "${ETC_DIR}/secrets"
 
-ABLESTACK_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE}" bash "${SCRIPT_DIR}/install-ablestack-secret-key.sh"
-if [[ -f "${SCRIPT_DIR}/ablestack.key.default" ]]; then
-  install -m 0644 "${SCRIPT_DIR}/ablestack.key.default" "${SHARE_DIR}/ablestack.key.default"
-  install -m 0644 "${SCRIPT_DIR}/ablestack.key.default" "${ETC_DIR}/ablestack.key.default"
-fi
+COMMON_HELPERS=()
+for name in ablestack_backup_secret_key.py ablestack_backup_secret.py; do
+  source_file=""
+  for candidate in "${SCRIPT_DIR}/${name}" "${SCRIPT_DIR}/../${name}"; do
+    [[ -f "$candidate" ]] || continue
+    source_file="$candidate"
+    break
+  done
+  [[ -n "$source_file" ]] || { echo "ERROR: common credential helper missing from deployment: ${name}" >&2; exit 1; }
+  COMMON_HELPERS+=("$source_file")
+done
+ABLESTACK_VEEAM_ETC_DIR="${ETC_DIR}" ABLESTACK_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE}" \
+  bash "${SCRIPT_DIR}/install-ablestack-secret-key.sh" --secret-dir "${ETC_DIR}/secrets"
+for source_file in "${COMMON_HELPERS[@]}"; do
+  for destination in "${ETC_DIR}/$(basename "$source_file")" "${SHARE_DIR}/$(basename "$source_file")"; do
+    [[ "$source_file" -ef "$destination" ]] || install -m 0644 "$source_file" "$destination"
+  done
+done
 
-for f in install.sh install-ablestack-secret-key.sh mold-backup.lib.sh mold-backup-secret.sh mold-backup.sh veeam_config.sh \
+for f in install.sh install-ablestack-secret-key.sh mold-backup.lib.sh mold-backup-secret.sh mold-backup-secret.py mold-backup.sh veeam_config.sh \
   bootstrap-host-veeam-env.sh diagnose-mold-veeam-offering.sh \
   ablestack_veeam_pre_notify.sh ablestack_veeam_post_notify.sh ablestack_veeam_restore_notify.sh ablestack_veeam_restore_event.sh \
   mold-veeam-trigger-hook.sh; do
   [[ -f "${SCRIPT_DIR}/${f}" ]] || continue
-  install -m 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
-  install -m 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}" 2>/dev/null || true
+  [[ "${SCRIPT_DIR}/${f}" -ef "${ETC_DIR}/${f}" ]] || install -m 0755 "${SCRIPT_DIR}/${f}" "${ETC_DIR}/${f}"
+  [[ "${SCRIPT_DIR}/${f}" -ef "${SHARE_DIR}/${f}" ]] || install -m 0755 "${SCRIPT_DIR}/${f}" "${SHARE_DIR}/${f}" 2>/dev/null || true
 done
 
 EXPORT_SRC=""
@@ -103,9 +117,11 @@ fi
 install -m 0755 "${SCRIPT_DIR}/setup-datadisk-veeam-backup.sh" "${ETC_DIR}/setup-datadisk-veeam-backup.sh" 2>/dev/null || true
 install -m 0755 "${SCRIPT_DIR}/mold-guest-common.sh" "${ETC_DIR}/mold-guest-common.sh"
 
-if [[ -f "${SCRIPT_DIR}/README.ko.md" ]]; then
-  install -m 0644 "${SCRIPT_DIR}/README.ko.md" "${SHARE_DIR}/README.ko.md"
-fi
+for guide in "${SCRIPT_DIR}/BACKUP.md" "${SCRIPT_DIR}/../BACKUP.md"; do
+  [[ -f "$guide" ]] || continue
+  [[ "$guide" -ef "${SHARE_DIR}/BACKUP.md" ]] || install -m 0644 "$guide" "${SHARE_DIR}/BACKUP.md"
+  break
+done
 
 if [[ ! -f "${ETC_DIR}/mold-backup.conf" ]]; then
   install -m 0600 "${SCRIPT_DIR}/mold-backup.conf.default" "${ETC_DIR}/mold-backup.conf"

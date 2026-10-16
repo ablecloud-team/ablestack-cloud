@@ -1,0 +1,25 @@
+{
+  "backupsetProperties": [
+    {
+      "planEntity": {},
+      "backupSetEntity": {
+        "clientName": "ablecube4", "clientId": 13, "instanceId": 1,
+        "backupsetId": 25, "backupsetName": "defaultBackupSet", "applicationId": 29
+      }
+    },
+    {
+      "planEntity": {},
+      "backupSetEntity": {
+        "clientName": "ablecube4", "clientId": 13, "instanceId": 1,
+        "backupsetId": 28, "backupsetName": "i-2-218-VM", "applicationId": 29
+      }
+    },
+    {
+      "planEntity": {},
+      "backupSetEntity": {
+        "clientName": "ablecube4", "clientId": 13, "instanceId": 1,
+        "backupsetId": 30, "backupsetName": "i-2-220-VM", "applicationId": 29
+      }
+    }
+  ]
+}

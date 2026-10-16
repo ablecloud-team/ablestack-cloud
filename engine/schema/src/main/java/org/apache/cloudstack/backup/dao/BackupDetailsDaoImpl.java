@@ -19,6 +19,13 @@ package org.apache.cloudstack.backup.dao;
 
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
+import com.cloud.utils.db.Transaction;
+import com.cloud.utils.db.TransactionCallback;
+import org.apache.cloudstack.backup.AblestackBackupFrameworkUtils;
+import org.apache.cloudstack.backup.ThirdPartyBackupAdmission;
+import org.apache.cloudstack.backup.ThirdPartyBackupManifest;
+import org.apache.cloudstack.backup.ThirdPartyBackupRestore;
+import org.apache.cloudstack.backup.ThirdPartyBackupStart;
 import org.apache.cloudstack.backup.BackupDetailVO;
 import org.apache.cloudstack.resourcedetail.ResourceDetailsDaoBase;
 import org.springframework.stereotype.Component;
@@ -29,10 +36,22 @@ import javax.annotation.PostConstruct;
 public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO> implements BackupDetailsDao {
 
     private SearchBuilder<BackupDetailVO> backupDetailSearch;
+    private SearchBuilder<BackupDetailVO> ordinaryDetailsSearch;
 
     private static final String BACKUP_ID = "backup_id";
 
     private static final String KEY = "key";
+    private static final java.util.Set<String> COORDINATOR_DETAIL_KEYS = java.util.Set.of(
+            AblestackBackupFrameworkUtils.RESOURCE_COUNT_PENDING_DETAIL,
+            ThirdPartyBackupStart.DETAIL_KEY,
+            ThirdPartyBackupAdmission.BACKUP_KEY, ThirdPartyBackupAdmission.RESTORE_KEY,
+            ThirdPartyBackupAdmission.INSPECTION_BACKUP_KEY, ThirdPartyBackupAdmission.INSPECTION_RESTORE_KEY,
+            ThirdPartyBackupRestore.PLAN_KEY, ThirdPartyBackupRestore.TRANSFER_KEY,
+            ThirdPartyBackupRestore.CLEANUP_STATE_KEY, ThirdPartyBackupRestore.CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.CLEANUP_STATE_KEY, ThirdPartyBackupManifest.CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY, ThirdPartyBackupManifest.SOURCE_CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.JOB_CLEANUP_STATE_KEY, ThirdPartyBackupManifest.JOB_CLEANUP_DETAILS_KEY,
+            ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, ThirdPartyBackupManifest.FINALIZATION_DETAILS_KEY);
 
     @PostConstruct
     protected void init() {
@@ -40,6 +59,11 @@ public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO>
         backupDetailSearch.and(BACKUP_ID, backupDetailSearch.entity().getResourceId(), SearchCriteria.Op.EQ);
         backupDetailSearch.and(KEY, backupDetailSearch.entity().getName(), SearchCriteria.Op.NEQ);
         backupDetailSearch.done();
+        ordinaryDetailsSearch = createSearchBuilder();
+        ordinaryDetailsSearch.and(BACKUP_ID, ordinaryDetailsSearch.entity().getResourceId(), SearchCriteria.Op.EQ);
+        ordinaryDetailsSearch.and(KEY, ordinaryDetailsSearch.entity().getName(), SearchCriteria.Op.NOTIN);
+        ordinaryDetailsSearch.and("restoreHistory", ordinaryDetailsSearch.entity().getName(), SearchCriteria.Op.NLIKE);
+        ordinaryDetailsSearch.done();
     }
 
     @Override
@@ -53,5 +77,25 @@ public class BackupDetailsDaoImpl extends ResourceDetailsDaoBase<BackupDetailVO>
     @Override
     public void addDetail(long resourceId, String key, String value, boolean display) {
         super.addDetail(new BackupDetailVO(resourceId, key, value, display));
+    }
+
+    @Override
+    public void saveDetails(java.util.List<BackupDetailVO> details) {
+        if (details.isEmpty()) { return; }
+        // Resource accounting, admission, restore and source cleanup belong to their coordinators.
+        // A stale provider BackupVO must not overwrite reservations, requests,
+        // earlier transfer results or snapshot cleanup retries.
+        Transaction.execute((TransactionCallback<Boolean>) status -> {
+            SearchCriteria<BackupDetailVO> sc = ordinaryDetailsSearch.create();
+            sc.setParameters(BACKUP_ID, details.get(0).getResourceId());
+            sc.setParameters(KEY, COORDINATOR_DETAIL_KEYS.toArray());
+            sc.setParameters("restoreHistory", ThirdPartyBackupRestore.HISTORY_PREFIX + "%");
+            expunge(sc);
+            for (BackupDetailVO detail : details) {
+                if (!COORDINATOR_DETAIL_KEYS.contains(detail.getName())
+                        && !detail.getName().startsWith(ThirdPartyBackupRestore.HISTORY_PREFIX)) { persist(detail); }
+            }
+            return true;
+        });
     }
 }

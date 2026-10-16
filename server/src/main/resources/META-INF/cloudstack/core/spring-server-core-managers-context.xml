@@ -374,6 +374,7 @@
     <bean id="DiagnosticsService" class="org.apache.cloudstack.diagnostics.DiagnosticsServiceImpl" />
 
     <bean id="backupVolumeGuard" class="org.apache.cloudstack.backup.BackupVolumeGuard" />
+    <bean id="ablestackBackupVmRemovalGuard" class="org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard" />
 
     <bean id="backupManager" class="org.apache.cloudstack.backup.BackupManagerImpl">
         <property name="backupProviders" value="#{backupProvidersRegistry.registered}" />
@@ -381,6 +382,8 @@
     </bean>
 
     <bean id="backupSnapshotGuard" class="org.apache.cloudstack.backup.BackupSnapshotGuard" />
+    <bean id="thirdPartyBackupStagingService" class="org.apache.cloudstack.backup.ThirdPartyBackupStagingServiceImpl" />
+    <bean id="thirdPartyBackupVolumeService" class="org.apache.cloudstack.backup.ThirdPartyBackupVolumeServiceImpl" />
     <bean id="netBackupRestoreCoordinator" class="org.apache.cloudstack.backup.NetBackupRestoreCoordinator" />
 
     <bean id="backupRepositoryService" class="org.apache.cloudstack.backup.BackupRepositoryServiceImpl" />

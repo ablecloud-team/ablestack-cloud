@@ -830,6 +830,49 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
         return storagePoolManager;
     }
 
+    public boolean configureForDetachedBackupJob() throws ConfigurationException {
+        configureAblestackBackupScripts(AgentPropertiesFileHandler.getPropertyValue(AgentProperties.KVM_SCRIPTS_DIR));
+        cmdsTimeout = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.CMDS_TIMEOUT) * 1000;
+        final String cpuArchOverride = AgentPropertiesFileHandler.getPropertyValue(AgentProperties.GUEST_CPU_ARCH);
+        if (StringUtils.isNotEmpty(cpuArchOverride)) {
+            guestCpuArch = cpuArchOverride;
+        }
+        try {
+            hypervisorPath = getHypervisorPath(LibvirtConnection.getConnection());
+        } catch (LibvirtException e) {
+            final ConfigurationException configurationException =
+                    new ConfigurationException("Unable to resolve the KVM emulator for detached backup job");
+            configurationException.initCause(e);
+            throw configurationException;
+        }
+        storageLayer = new JavaStorageLayer();
+        if (!storageLayer.configure("StorageLayer", new HashMap<>())) {
+            return false;
+        }
+        kvmhaMonitor = new KVMHAMonitor(null, null, null, null, null, null);
+        storagePoolManager = new KVMStoragePoolManager(storageLayer, kvmhaMonitor);
+        return true;
+    }
+
+    private void configureAblestackBackupScripts(final String kvmScriptsDir) throws ConfigurationException {
+        ableNasBackupPath = Script.findScript(kvmScriptsDir, "ablestack_nasbackup.sh");
+        if (ableNasBackupPath == null) {
+            throw new ConfigurationException("Unable to find ablestack_nasbackup.sh");
+        }
+        ableCvtBackupPath = Script.findScript(kvmScriptsDir, "ablestack_cvtbackup.sh");
+        if (ableCvtBackupPath == null) {
+            throw new ConfigurationException("Unable to find ablestack_cvtbackup.sh");
+        }
+        ableNetBackupPath = Script.findScript(kvmScriptsDir, "ablestack_netbackup.sh");
+        if (ableNetBackupPath == null) {
+            throw new ConfigurationException("Unable to find ablestack_netbackup.sh");
+        }
+        ableVeeamPath = Script.findScript(kvmScriptsDir, "ablestack_veeam.sh");
+        if (ableVeeamPath == null) {
+            throw new ConfigurationException("Unable to find ablestack_veeam.sh");
+        }
+    }
+
     @Override
     public void disconnected() {
         cleanupUnavailableSecondaryNfsIsoMountsSafely("management server disconnect");
@@ -1478,30 +1521,12 @@ public class LibvirtComputingResource extends ServerResourceBase implements Serv
             throw new ConfigurationException("Unable to find nasbackup.sh");
         }
 
-        ableNasBackupPath = Script.findScript(kvmScriptsDir, "ablestack_nasbackup.sh");
-        if (ableNasBackupPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_nasbackup.sh");
-        }
-
-        ableCvtBackupPath = Script.findScript(kvmScriptsDir, "ablestack_cvtbackup.sh");
-        if (ableCvtBackupPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_cvtbackup.sh");
-        }
-
-        ableNetBackupPath = Script.findScript(kvmScriptsDir, "ablestack_netbackup.sh");
-        if (ableNetBackupPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_netbackup.sh");
-        }
+        configureAblestackBackupScripts(kvmScriptsDir);
         String imageServerMain = Script.findScript(kvmScriptsDir, "imageserver/__main__.py");
         if (imageServerMain == null) {
             throw new ConfigurationException("Unable to find imageserver package");
         }
         imageServerPath = new File(imageServerMain).getParent();
-
-        ableVeeamPath = Script.findScript(kvmScriptsDir, "ablestack_veeam.sh");
-        if (ableVeeamPath == null) {
-            throw new ConfigurationException("Unable to find ablestack_veeam.sh");
-        }
 
         createTmplPath = Script.findScript(storageScriptsDir, "createtmplt.sh");
         if (createTmplPath == null) {

@@ -27,6 +27,7 @@ import org.apache.cloudstack.api.ApiErrorCode;
 import org.apache.cloudstack.api.BaseAsyncCreateCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
+import org.apache.cloudstack.api.response.BackupScheduleResponse;
 import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.UserVmResponse;
 import org.apache.cloudstack.backup.BackupManager;
@@ -88,6 +89,14 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
             since = "4.21.0")
     private String policyId;
 
+    @Parameter(name = ApiConstants.SCHEDULE_ID,
+            type = CommandType.UUID,
+            entityType = BackupScheduleResponse.class,
+            required = false,
+            description = "the backup schedule ID that triggered this NetBackup staging request",
+            since = "4.23.0")
+    private Long scheduleId;
+
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
@@ -110,6 +119,10 @@ public class CreateNetBackupCmd extends BaseAsyncCreateCmd {
 
     public String getPolicyId() {
         return policyId;
+    }
+
+    public Long getScheduleId() {
+        return scheduleId;
     }
 
     /////////////////////////////////////////////////////

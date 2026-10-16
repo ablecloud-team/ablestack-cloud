@@ -328,7 +328,7 @@
       </a-list-item>
       <div v-else-if="item === 'backupofferingdetails'">
         <a-list-item
-          v-for="(value, key) in dataResource[item]"
+          v-for="(value, key) in visibleBackupOfferingDetails"
           :key="key">
           <div>
             <strong>{{ $t('label.' + String(key).toLowerCase()) }}</strong>
@@ -348,6 +348,7 @@
 
 <script>
 import { creationVmDetails } from '@/utils/creationVmPresentation'
+import { getAblestackBackupOfferingVisibleDetails } from '@/utils/ablestackBackupPolicy'
 import DedicateData from './DedicateData'
 import HostInfo from '@/views/infra/HostInfo'
 import VmwareData from './VmwareData'
@@ -410,6 +411,9 @@ export default {
     this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
   },
   computed: {
+    visibleBackupOfferingDetails () {
+      return getAblestackBackupOfferingVisibleDetails(this.dataResource)
+    },
     customDisplayItems () {
       var items = ['ip4routes', 'ip6routes', 'privatemtu', 'publicmtu', 'provider', 'migrationip', 'details', 'parameters', 'secretkey', 'backupofferingdetails']
       if (this.$route.meta.name === 'webhookdeliveries' || this.$route.meta.name === 'quotasummary') {

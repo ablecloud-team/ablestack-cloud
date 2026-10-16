@@ -22,5 +22,5 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -x "${DIR}/veeam/install.sh" ]]; then
   "${DIR}/veeam/install.sh"
 fi
-# veeam/install.sh deploys /root/.ssh/ablestack.key from ablestack.key.default when missing (chmod 600).
+# veeam/install.sh prepares a random shared Host key when missing and no encrypted secrets remain.
 # mold-backup hooks decrypt MOLD_API_SECRET via mold-backup-secret.sh + MOLD_SECRET_KEY_FILE.

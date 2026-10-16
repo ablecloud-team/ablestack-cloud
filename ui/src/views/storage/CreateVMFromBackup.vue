@@ -36,7 +36,7 @@
             <tooltip-label :title="$t('label.use.backup.ip.address')" :tooltip="$t('label.use.backup.ip.address.tooltip')"/>
           </template>
         </a-form-item>
-        <a-form-item name="quickRestore" ref="quickRestore" >
+        <a-form-item v-if="apiParams.quickrestore" name="quickRestore" ref="quickRestore" >
           <template #label>
             <tooltip-label :title="$t('label.quickrestore')" :tooltip="apiParams.quickrestore?.description"/>
           </template>
@@ -60,6 +60,7 @@
       v-else
       :key="resource.id"
         :preFillContent="dataPreFill"
+        @restore-started="$emit('restore-started', resource)"
         @close-action="closeAction"/>
   </div>
 </template>
@@ -71,6 +72,7 @@ import { getAPI, postAPI } from '@/api'
 import { Button } from 'ant-design-vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import eventBus from '@/config/eventBus'
+import { isAblestackInstanceCreation, trackBackupInstanceCreation } from '@/utils/backupInstanceCreation'
 
 import DeployVMFromBackup from '@/components/view/DeployVMFromBackup'
 
@@ -161,12 +163,31 @@ export default {
       this.dataPreFill.ostypeid = this.resource.vmdetails.ostypeid
       this.dataPreFill.ostypename = this.resource.vmdetails.osname
       this.dataPreFill.backupid = this.resource.id
+      this.dataPreFill.backupprovider = this.backupProvider
       this.dataPreFill.computeofferingid = this.vmdetails.serviceofferingid
       this.dataPreFill.templateid = this.vmdetails.templateid
       this.dataPreFill.backupArch = this.backupArch
       this.dataPreFill.allowtemplateisoselection = true
       this.dataPreFill.isoid = this.vmdetails.templateid
       this.dataPreFill.allowIpAddressesFetch = this.resource.isbackupvmexpunged
+      if (this.vmdetails.vmsettings) {
+        try {
+          const settings = JSON.parse(this.vmdetails.vmsettings)
+          this.dataPreFill.boottype = settings.UEFI ? 'UEFI' : 'BIOS'
+          this.dataPreFill.bootmode = settings.UEFI || 'LEGACY'
+          this.dataPreFill.backupBootType = this.dataPreFill.boottype
+          this.dataPreFill.backupBootMode = this.dataPreFill.bootmode
+          this.dataPreFill.iothreadsenabled = Object.prototype.hasOwnProperty.call(settings, 'iothreads') && settings.iothreads !== 'false'
+          this.dataPreFill.keyboard = settings.keyboard
+          this.dataPreFill.iodriverpolicy = settings['io.policy']
+          this.dataPreFill.nicmultiqueuenumber = settings['nic.multiqueue.number']
+          if (settings['nic.packed.virtqueues.enabled'] !== undefined) {
+            this.dataPreFill.nicpackedvirtqueuesenabled = settings['nic.packed.virtqueues.enabled'] === 'true'
+          }
+        } catch (e) {
+          // Older backups may not contain usable VM settings; retain the template defaults.
+        }
+      }
       if (this.vmdetails.nics) {
         const nics = JSON.parse(this.vmdetails.nics)
         this.dataPreFill.networkids = nics.map(nic => nic.networkid)
@@ -192,6 +213,9 @@ export default {
         type: volume.type,
         diskofferingid: volume.diskOfferingId
       })).filter(volume => volume.type === 'ROOT')
+      this.dataPreFill.backupRootDiskSize = rootdisksdetails[0].size
+      this.dataPreFill.rootdisksize = rootdisksdetails[0].size
+      this.dataPreFill.minrootdisksize = rootdisksdetails[0].size
       if (this.dataPreFill.isIso) {
         this.dataPreFill.diskofferingid = rootdisksdetails[0].diskofferingid
         this.dataPreFill.size = rootdisksdetails[0].size
@@ -267,7 +291,9 @@ export default {
         args.name = this.form.name
         args.displayname = this.form.name
       }
-      args.quickRestore = this.form.quickRestore
+      if (this.apiParams.quickrestore) {
+        args.quickrestore = this.form.quickRestore
+      }
       if (this.form.preserveIpAddresses) {
         args.preserveip = this.form.preserveIpAddresses
       }
@@ -275,6 +301,7 @@ export default {
       const title = this.$t('label.create.instance.from.backup')
       const description = ''
       const password = this.$t('label.password')
+      const trackCreation = isAblestackInstanceCreation(this.backupProvider)
 
       if (this.backupProvider === 'bx') {
         postAPI('createVMFromBxBackup', args, 'GET', null).then(response => {
@@ -308,10 +335,12 @@ export default {
       postAPI('createVMFromBackup', args, 'GET', null).then(response => {
         const jobId = response.deployvirtualmachineresponse.jobid
         if (jobId) {
+          this.$emit('restore-started', this.resource)
           this.$pollJob({
             jobId,
             title,
             description,
+            successMessage: this.$t('label.create.instance.from.backup.requested'),
             successMethod: result => {
               const vm = result.jobresult.virtualmachine
               const name = vm.displayname || vm.name || vm.id
@@ -331,7 +360,10 @@ export default {
                   duration: 0
                 })
               }
-              eventBus.emit('vm-refresh-data')
+              if (trackCreation) {
+                trackBackupInstanceCreation({ backupId: args.backupid, jobId, vm, router: this.$router })
+              }
+              eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
             },
             loadingMessage: `${title} ${this.$t('label.in.progress')}`,
             catchMessage: this.$t('error.fetching.async.job.result'),
@@ -339,10 +371,11 @@ export default {
               isFetchData: false
             }
           })
+          this.closeAction()
         }
         // Sending a refresh in case it hasn't picked up the new VM
         new Promise(resolve => setTimeout(resolve, 3000)).then(() => {
-          eventBus.emit('vm-refresh-data')
+          eventBus.emit(trackCreation ? 'backup-restore-updated' : 'vm-refresh-data')
         })
       }).catch(error => {
         this.$notifyError(error)
@@ -351,7 +384,6 @@ export default {
         this.form.stayonpage = false
         this.loading = false
       })
-      this.$emit('close-action')
     }
   }
 }

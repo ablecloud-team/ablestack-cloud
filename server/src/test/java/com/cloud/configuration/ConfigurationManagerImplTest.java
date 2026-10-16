@@ -892,6 +892,17 @@ public class ConfigurationManagerImplTest {
     }
 
     @Test
+    public void validateRestorePrimaryStorageCapacityBufferPercentRange() {
+        String name = org.apache.cloudstack.backup.BackupManager.RestorePrimaryStorageCapacityBufferPercent.key();
+        for (String value : new String[]{"0", "15", "20", "100"}) {
+            Assert.assertNull(configurationManagerImplSpy.validateValueRange(name, value, Integer.class, null));
+        }
+        for (String value : new String[]{"-1", "101"}) {
+            Assert.assertNotNull(configurationManagerImplSpy.validateValueRange(name, value, Integer.class, null));
+        }
+    }
+
+    @Test
     public void validateValueRangeTestValidatesValueWhenConfigHasRange() {
         Config config = Config.SecStorageEncryptCopy;
         String name = config.name();

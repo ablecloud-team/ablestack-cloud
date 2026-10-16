@@ -127,7 +127,14 @@
             <div class="resource-detail-item" v-if="(resource.state || resource.status) && !['zone', 'keypair'].includes($route.meta.name)">
           <div class="resource-detail-item__label">{{ $t('label.status') }}</div>
           <div class="resource-detail-item__details">
-            <status v-if="isFastCloneSourceFlattenActive(resource)" class="status" :text="resource.state || resource.status" displayText>
+            <backup-progress
+              v-if="$route.meta.name === 'backup'"
+              :record="resource"
+              :statusText="resource.status"
+              @capabilities-change="resource.capabilities !== $event && $emit('backup-controls-change', { capabilities: $event })"
+              @cancellation-change="resource.backupcancellationpending !== $event && $emit('backup-controls-change', { backupcancellationpending: $event })"
+              @restore-finished="$emit('backup-controls-change', { restoreoperationpending: false, restorejobstate: $event })" />
+            <status v-else-if="isFastCloneSourceFlattenActive(resource)" class="status" :text="resource.state || resource.status" displayText>
               <template #tooltip>
                 <div class="clone-fast-flatten-source-tooltip">
                   <div class="clone-fast-flatten-source-tooltip-title">{{ getCloneFastSourceTooltipTitle(resource) }}</div>
@@ -1175,6 +1182,7 @@ import { validateLinksAsync } from '@/utils/links'
 import Console from '@/components/widgets/Console'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
+import BackupProgress from '@/components/view/BackupProgress'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
 import { getFastClonePhaseLabel, getFastClonePhaseDescription, isFastCloneFlattenStatusVisible } from '@/utils/fastClone'
 import CopyLabel from '@/components/widgets/CopyLabel'
@@ -1194,6 +1202,7 @@ export default {
     Console,
     OsLogo,
     Status,
+    BackupProgress,
     CloneFlattenControl,
     CopyLabel,
     TooltipButton,

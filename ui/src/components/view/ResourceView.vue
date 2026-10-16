@@ -23,6 +23,7 @@
           :resource="resource"
           :loading="loading"
           :actions="actions"
+          @backup-controls-change="$emit('backup-controls-change', $event)"
           @exec-action="$emit('exec-action', $event)">
           <template #details><auto-scale-info-summary v-if="$route.meta?.name === 'autoscalevmgroup'" :resource="resource" /></template>
         </info-card>

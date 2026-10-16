@@ -21,14 +21,33 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { defineAsyncComponent, h, markRaw, reactive } from 'vue'
 import { mixinDevice } from '@/utils/mixin'
 import ResourceView from '@/components/view/ResourceView'
+import InfoCard from '@/components/view/InfoCard'
 import AutogenView from '@/views/AutogenView'
 
 jest.mock('@/components/view/InfoCard', () => ({ render: () => null }))
+jest.mock('@/components/view/DetailsTab', () => ({ render: () => null }))
 jest.mock('@/api', () => ({ getAPI: jest.fn() }))
 
 function context (query = {}, tabs = [{ name: 'details' }, { name: 'events' }]) {
   return { tabs, $route: { query }, historyTab: '', showTab: tab => !tab.hidden }
 }
+
+test.each([{ capabilities: '' }, { backupcancellationpending: true }, { restoreoperationpending: false, restorejobstate: 'COMPLETED' }])('forwards backup control changes %j from the detail card to the resource owner', patch => {
+  const resource = { id: 'backup-1', status: 'BackingUp', capabilities: 'cancel' }
+  const wrapper = mount(ResourceView, {
+    props: { resource, tabs: [] },
+    global: {
+      mocks: { $route: { path: '/backup/backup-1', query: {} }, $t: key => key, $store: { state: { app: { device: 'desktop' } }, getters: { userInfo: {} } } },
+      stubs: {
+        ResourceLayout: { render () { return h('div', this.$slots.left()) } }
+      }
+    }
+  })
+  wrapper.findComponent(InfoCard).vm.$emit('backup-controls-change', patch)
+  expect(wrapper.emitted('backup-controls-change')).toEqual([[patch]])
+  expect(resource.capabilities).toBe('cancel')
+  wrapper.unmount()
+})
 
 describe('ResourceView resource navigation', () => {
   it.each([

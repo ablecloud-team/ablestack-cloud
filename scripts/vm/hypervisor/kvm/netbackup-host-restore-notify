@@ -195,6 +195,7 @@ invoke_mold_api() {
   local request_key="$3"
   local external_id="$4"
   local netbackup_job_id="${5:-}"
+  local extra_params="${6:-}"
   local api_params signed_url response http_body http_code curl_exit
 
   log_line "RESTORE api-call command=${command_name} method=${method} externalid=${external_id} netbackup_jobid=${netbackup_job_id:-}"
@@ -202,6 +203,7 @@ invoke_mold_api() {
   if [[ -n "${netbackup_job_id}" ]]; then
     api_params="${api_params}&jobid=$(urlencode_plus "${netbackup_job_id}")"
   fi
+  [[ -z "${extra_params}" ]] || api_params="${api_params}&${extra_params}"
   api_params="$(build_api_params "${command_name}" "${api_params}")"
   signed_url="$(build_signed_url "${api_params}")"
   response="$(curl -sS -X "${method}" \
@@ -337,6 +339,34 @@ main() {
     log_line "RESTORE skip externalid=${external_id} operation=${operation} reason=unsupported-operation"
     return 0
   fi
+
+  # Resolve volume-pipeline child artifacts by their catalog ID or original selection.
+  # A metadata UI restore only triggers Mold; Mold reserves capacity and restores
+  # every volume itself. Its own restore jobs must never re-enter this post hook.
+  response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "resolveBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "provider=ablestack-netbackup")" || return 1
+  local matched tracked allowed reason
+  matched="$(extract_json_value_by_key "${response}" "matched" 2>/dev/null || true)"
+  [[ -n "${matched}" ]] || fail "Mold resolveBackupArtifact returned no resolution: ${response}"
+  if [[ "${matched,,}" == "true" ]]; then
+    tracked="$(extract_json_value_by_key "${response}" "tracked" 2>/dev/null || true)"
+    allowed="$(extract_json_value_by_key "${response}" "restoreallowed" 2>/dev/null || true)"
+    reason="$(extract_json_value_by_key "${response}" "reason" 2>/dev/null || true)"
+    if [[ "${tracked,,}" == "true" || "${allowed,,}" != "true" ]]; then
+      log_line "RESTORE volume-pipeline-skip externalid=${external_id} jobid=${netbackup_job_id} reason=${reason}"
+      printf 'SKIPPED restoreBackupArtifact reason=%s\n' "${reason}"
+      return 0
+    fi
+    [[ -n "${netbackup_job_id}" ]] || fail "Volume pipeline callback requires the exact NetBackup restore Job ID"
+    response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "restoreBackupArtifact" "externalid" "${external_id}" "${netbackup_job_id}" "provider=ablestack-netbackup")" || return 1
+    local pipeline_job_id
+    pipeline_job_id="$(extract_json_value_by_key "${response}" "jobid" 2>/dev/null || true)"
+    [[ -n "${pipeline_job_id}" ]] || fail "Mold restoreBackupArtifact returned no async jobid: ${response}"
+    log_line "RESTORE volume-pipeline-submitted externalid=${external_id} netbackup_jobid=${netbackup_job_id} mold_jobid=${pipeline_job_id}"
+    printf 'SUBMITTED restoreBackupArtifact jobid=%s\n' "${pipeline_job_id}"
+    return 0
+  fi
+
+  # Legacy VM-directory backups keep their existing restore coordinator.
 
   if looks_like_backup_id "${external_id}"; then
     request_key="backupid"

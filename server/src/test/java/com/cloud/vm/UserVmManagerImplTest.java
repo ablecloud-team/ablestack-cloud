@@ -326,6 +326,8 @@ public class UserVmManagerImplTest {
 
     @Mock
     BackupManager backupManager;
+    @Mock
+    org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
 
     @Mock
     VirtualMachineManager virtualMachineManager;
@@ -3506,6 +3508,7 @@ public class UserVmManagerImplTest {
         when(backupDao.findById(backupId)).thenReturn(backup);
 
         UserVmVO userVmVO = new UserVmVO();
+        userVmVO.setRemoved(new Date());
         when(userVmDao.findByIdIncludingRemoved(vmId)).thenReturn(userVmVO);
         VMTemplateVO template = mock(VMTemplateVO.class);
         when(template.getFormat()).thenReturn(Storage.ImageFormat.QCOW2);
@@ -3723,18 +3726,20 @@ public class UserVmManagerImplTest {
         when(cmd.getBackupId()).thenReturn(backupId);
         when(cmd.getStartVm()).thenReturn(true);
         when(cmd.getEntityId()).thenReturn(vmId);
+        when(cmd.getHostId()).thenReturn(null);
+        when(cmd.getBootIntoSetup()).thenReturn(null);
 
         UserVmVO vm = mock(UserVmVO.class);
         when(vm.getId()).thenReturn(vmId);
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
         when(vm.getTemplateId()).thenReturn(templateId);
 
-        when(backupManager.restoreBackupToVM(backupId, vmId, false)).thenReturn(true);
+        when(backupManager.requestRestoreBackupToVM(backupId, vmId, false, true))
+                .thenReturn(BackupManager.RestoreRequestStatus.COMPLETED);
 
         Map<VirtualMachineProfile.Param, Object> params = new HashMap<>();
         Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> vmPair = new Pair<>(vm, params);
         doReturn(vmPair).when(userVmManagerImpl).startVirtualMachine(anyLong(), isNull(), isNull(), isNull(), anyMap(), isNull());
-        doReturn(vmPair).when(userVmManagerImpl).startVirtualMachine(anyLong(), isNull(), isNull(), anyLong(), anyMap(), isNull());
         when(userVmDao.findById(vmId)).thenReturn(vm);
         when(templateDao.findByIdIncludingRemoved(templateId)).thenReturn(mock(VMTemplateVO.class));
 
@@ -3742,7 +3747,103 @@ public class UserVmManagerImplTest {
 
         assertNotNull(result);
         assertEquals(vm, result);
-        Mockito.verify(backupManager).restoreBackupToVM(backupId, vmId, false);
+        Mockito.verify(backupManager).requestRestoreBackupToVM(backupId, vmId, false, true);
+    }
+
+    @Test
+    public void testRestoreVMFromBackupReturnsAfterDetachedRestoreIsAccepted() throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException {
+        Long backupId = 5L;
+
+        CreateVMFromBackupCmd cmd = mock(CreateVMFromBackupCmd.class);
+        when(cmd.getBackupId()).thenReturn(backupId);
+        when(cmd.getStartVm()).thenReturn(true);
+        when(cmd.getEntityId()).thenReturn(vmId);
+        when(cmd.getHostId()).thenReturn(null);
+        when(cmd.getBootIntoSetup()).thenReturn(null);
+
+        UserVmVO vm = mock(UserVmVO.class);
+        when(vm.getId()).thenReturn(vmId);
+
+        Map<VirtualMachineProfile.Param, Object> params = new HashMap<>();
+        Pair<UserVmVO, Map<VirtualMachineProfile.Param, Object>> vmPair = new Pair<>(vm, params);
+        doReturn(vmPair).when(userVmManagerImpl).startVirtualMachine(anyLong(), isNull(), isNull(), isNull(), anyMap(), isNull());
+        when(userVmDao.findById(vmId)).thenReturn(vm);
+        when(backupManager.requestRestoreBackupToVM(backupId, vmId, false, true))
+                .thenReturn(BackupManager.RestoreRequestStatus.ACCEPTED);
+
+        UserVm result = userVmManagerImpl.restoreVMFromBackup(cmd);
+
+        assertEquals(vm, result);
+        Mockito.verify(backupManager).requestRestoreBackupToVM(backupId, vmId, false, true);
+        Mockito.verify(userVmManagerImpl, times(1))
+                .startVirtualMachine(anyLong(), isNull(), isNull(), isNull(), anyMap(), isNull());
+    }
+
+    @Test
+    public void testDetachedRestoreRetainsStartupPlacementWithoutChangingPreparationHost() throws Exception {
+        org.apache.cloudstack.api.command.admin.vm.CreateVMFromBackupCmdByAdmin cmd =
+                mock(org.apache.cloudstack.api.command.admin.vm.CreateVMFromBackupCmdByAdmin.class);
+        when(cmd.getBackupId()).thenReturn(5L);
+        when(cmd.getEntityId()).thenReturn(vmId);
+        when(cmd.getStartVm()).thenReturn(true);
+        when(cmd.getPodId()).thenReturn(10L);
+        when(cmd.getClusterId()).thenReturn(20L);
+        when(cmd.getHostId()).thenReturn(30L);
+        when(cmd.getDeploymentPlanner()).thenReturn("FirstFitPlanner");
+        UserVmVO vm = mock(UserVmVO.class);
+        when(vm.getId()).thenReturn(vmId);
+        doReturn(new Pair<>(vm, new HashMap<>())).when(userVmManagerImpl)
+                .startVirtualMachine(eq(vmId), isNull(), isNull(), isNull(), anyMap(), isNull());
+        when(userVmDao.findById(vmId)).thenReturn(vm);
+        when(backupManager.requestRestoreBackupToVM(eq(5L), eq(vmId), eq(false), eq(true), any()))
+                .thenReturn(BackupManager.RestoreRequestStatus.ACCEPTED);
+
+        assertEquals(vm, userVmManagerImpl.restoreVMFromBackup(cmd));
+
+        org.mockito.ArgumentCaptor<BackupManager.RestoreVmStartOptions> options =
+                org.mockito.ArgumentCaptor.forClass(BackupManager.RestoreVmStartOptions.class);
+        verify(backupManager).requestRestoreBackupToVM(eq(5L), eq(vmId), eq(false), eq(true), options.capture());
+        assertEquals(Long.valueOf(10L), options.getValue().getPodId());
+        assertEquals(Long.valueOf(20L), options.getValue().getClusterId());
+        assertEquals(Long.valueOf(30L), options.getValue().getHostId());
+        assertEquals("FirstFitPlanner", options.getValue().getDeploymentPlanner());
+        verify(userVmManagerImpl, times(1)).startVirtualMachine(eq(vmId), isNull(), isNull(), isNull(), anyMap(), isNull());
+    }
+
+    @Test
+    public void testAblestackCreationRequiresMatchingDiskCapacitiesForAllProviders() {
+        BackupVO backup = mock(BackupVO.class);
+        when(backupManager.getBackupProviderForOffering(any())).thenReturn(backupProviderMock);
+        DiskOfferingVO custom = mock(DiskOfferingVO.class);
+        when(custom.isCustomized()).thenReturn(true);
+        VmDiskInfo root = new VmDiskInfo(custom, 100L, null, null);
+        VmDiskInfo data = new VmDiskInfo(custom, 50L, null, null);
+        when(backupManager.getDataDiskInfoListFromBackup(backup)).thenReturn(Collections.singletonList(data));
+        DiskOfferingVO fixed = mock(DiskOfferingVO.class);
+        when(fixed.getDiskSize()).thenReturn(200L * 1024 * 1024 * 1024);
+        for (String provider : List.of("ablestack-nas", "ablestack-veeam", "ablestack-commvault", "ablestack-netbackup")) {
+            when(backupProviderMock.getName()).thenReturn(provider);
+            userVmManagerImpl.validateAblestackInstanceDiskSizes(backup, root, 100L, custom, Collections.singletonList(data));
+            assertThrows(InvalidParameterValueException.class, () -> userVmManagerImpl.validateAblestackInstanceDiskSizes(
+                    backup, root, 200L, custom, Collections.singletonList(data)));
+            assertThrows(InvalidParameterValueException.class, () -> userVmManagerImpl.validateAblestackInstanceDiskSizes(
+                    backup, root, 100L, fixed, Collections.singletonList(data)));
+            assertThrows(InvalidParameterValueException.class, () -> userVmManagerImpl.validateAblestackInstanceDiskSizes(
+                    backup, root, 100L, custom, Collections.singletonList(new VmDiskInfo(custom, 60L, null, null))));
+        }
+    }
+
+    @Test
+    public void testAblestackVmRemovalUsesDedicatedVolumePath() {
+        UserVmVO vm = mock(UserVmVO.class);
+        when(vm.getId()).thenReturn(vmId);
+        VolumeVO volume = mock(VolumeVO.class);
+        when(volume.getId()).thenReturn(4L);
+        when(ablestackBackupVmRemovalGuard.supports(vmId)).thenReturn(true);
+        ReflectionTestUtils.invokeMethod(userVmManagerImpl, "detachVolumeForVmRemoval", vm, volume);
+        verify(volumeApiService).detachVolumeForAblestackVmRemoval(vmId, 4L);
+        verify(volumeApiService, never()).detachVolumeViaDestroyVM(anyLong(), anyLong());
     }
 
     @Test
@@ -3787,6 +3888,7 @@ public class UserVmManagerImplTest {
             when(diskOfferingDao.findById(10L)).thenReturn(diskOffering);
 
             List<VolumeVO> dataVolumes = new ArrayList<>();
+            dataVolumes.add(vol);
             when(volumeDaoMock.findByInstanceAndType(vmId, Volume.Type.DATADISK)).thenReturn(dataVolumes);
 
             doReturn(vm).when(userVmManagerImpl).stopVirtualMachine(anyLong(), anyBoolean());
@@ -3801,6 +3903,8 @@ public class UserVmManagerImplTest {
                 assertEquals(vm, result);
                 Mockito.verify(userVmManagerImpl).stopVirtualMachine(vmId, false);
                 Mockito.verify(backupManager).checkAndRemoveBackupOfferingBeforeExpunge(vm);
+                Mockito.verify(volumeApiService).detachVolumeViaDestroyVM(vmId, volumeId);
+                Mockito.verify(volumeApiService, never()).detachVolumeForAblestackVmRemoval(anyLong(), anyLong());
             }
         }
     }
@@ -4176,6 +4280,10 @@ public class UserVmManagerImplTest {
         ReflectionTestUtils.setField(cmd, "templateId", templateId);
         ReflectionTestUtils.setField(cmd, "backupId", backupId);
         ReflectionTestUtils.setField(cmd, "zoneId", zoneId);
+        ReflectionTestUtils.setField(cmd, "bootType", "BIOS");
+        ReflectionTestUtils.setField(cmd, "bootMode", "LEGACY");
+        ReflectionTestUtils.setField(cmd, "iothreadsEnabled", false);
+        ReflectionTestUtils.setField(cmd, "nicPackedVirtQueues", false);
 
         ServiceOfferingVO serviceOffering = mock(ServiceOfferingVO.class);
         when(_serviceOfferingDao.findById(serviceOfferingId)).thenReturn(serviceOffering);
@@ -4188,7 +4296,8 @@ public class UserVmManagerImplTest {
         when(backup.getVmId()).thenReturn(vmId);
         when(backupDao.findById(backupId)).thenReturn(backup);
 
-        String vmSettingsJson = "{\"key1\":\"value1\",\"key2\":\"value2\",\"existingKey\":\"backupValue\"}";
+        String vmSettingsJson = "{\"key1\":\"value1\",\"key2\":\"value2\",\"existingKey\":\"backupValue\","
+                + "\"UEFI\":\"SECURE\",\"iothreads\":\"true\",\"nic.packed.virtqueues.enabled\":\"true\"}";
         when(backup.getDetail(ApiConstants.VM_SETTINGS)).thenReturn(vmSettingsJson);
 
         UserVmVO userVmVO = new UserVmVO();
@@ -4210,6 +4319,8 @@ public class UserVmManagerImplTest {
 
         Map<String, String> existingDetails = new HashMap<>();
         existingDetails.put("existingKey", "existingValue");
+        existingDetails.put(VmDetailConstants.IOTHREADS, "false");
+        existingDetails.put(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED, "false");
         when(vmInstanceDetailsDao.listDetailsKeyPairs(2L)).thenReturn(existingDetails);
 
         UserVmVO vmVO = mock(UserVmVO.class);
@@ -4224,6 +4335,11 @@ public class UserVmManagerImplTest {
         verify(vmInstanceDetailsDao).listDetailsKeyPairs(2L);
         verify(userVmDao).findById(2L);
         verify(userVmDao).saveDetails(any(UserVmVO.class));
+        assertEquals("existingValue", existingDetails.get("existingKey"));
+        assertEquals("value1", existingDetails.get("key1"));
+        assertFalse(existingDetails.containsKey("UEFI"));
+        assertFalse(existingDetails.containsKey(VmDetailConstants.IOTHREADS));
+        assertEquals("false", existingDetails.get(VmDetailConstants.NIC_PACKED_VIRTQUEUES_ENABLED));
     }
 
     @Test

@@ -380,6 +380,8 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
     @Inject
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Inject
+    private org.apache.cloudstack.backup.AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
+    @Inject
     private BackupOfferingDao backupOfferingDao;
     @Inject
     private StatsCollector statsCollector;
@@ -3645,13 +3647,40 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
         return orchestrateDetachVolumeFromVM(vmId, volumeId);
     }
 
+    @Override
+    @ActionEvent(eventType = EventTypes.EVENT_VOLUME_DETACH, eventDescription = "detaching volume during VM removal")
+    public Volume detachVolumeForAblestackVmRemoval(long vmId, long volumeId) {
+        Volume volume = _volsDao.findById(volumeId);
+        if (volume == null) {
+            throw new InvalidParameterValueException("Unable to find volume with ID: " + volumeId);
+        }
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, volume);
+        return orchestrateAblestackDetachVolumeForVmRemoval(vmId, volumeId);
+    }
+
     @Inject private com.cloud.vm.VmCreationSourceService creationSourceService;
 
     private Volume orchestrateDetachVolumeFromVM(long vmId, long volumeId) {
+        return orchestrateDetachVolumeFromVM(vmId, volumeId, false);
+    }
+
+    private Volume orchestrateAblestackDetachVolumeForVmRemoval(long vmId, long volumeId) {
+        return orchestrateDetachVolumeFromVM(vmId, volumeId, true);
+    }
+
+    private Volume orchestrateDetachVolumeFromVM(long vmId, long volumeId, boolean ablestackVmRemoval) {
         try (org.apache.cloudstack.backup.BackupVolumeGuard.Lease guard = backupVolumeGuard.acquire(vmId)) {
-            backupVolumeGuard.checkWorker(vmId);
+            if (ablestackVmRemoval) {
+                ablestackBackupVmRemovalGuard.checkVmRemoval(vmId);
+            } else {
+                backupVolumeGuard.checkWorker(vmId);
+            }
             Volume volume = _volsDao.findById(volumeId);
             VMInstanceVO vm = _vmInstanceDao.findById(vmId);
+            if (ablestackVmRemoval && (volume == null || !Objects.equals(volume.getInstanceId(), vmId)
+                    || volume.getVolumeType() != Volume.Type.DATADISK)) {
+                throw new InvalidParameterValueException("VM removal can only detach its own DATA volumes");
+            }
 
             String errorMsg = "Failed to detach volume " + volume.getName() + " from VM " + vm.getHostName();
             boolean sendCommand = vm.getState() == State.Running;

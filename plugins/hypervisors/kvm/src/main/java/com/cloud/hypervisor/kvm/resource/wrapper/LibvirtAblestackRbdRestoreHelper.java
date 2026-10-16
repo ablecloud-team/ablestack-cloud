@@ -42,11 +42,16 @@ import java.util.Map;
 final class LibvirtAblestackRbdRestoreHelper {
     private static final Logger LOGGER = LogManager.getLogger(LibvirtAblestackRbdRestoreHelper.class);
     private static final String COMMAND_EXIT_MARKER = "__CS_COMMAND_EXIT__=";
-    private static final long RESTORE_PRIMARY_SPACE_BUFFER_BYTES = 10L * 1024L * 1024L * 1024L;
     private static final String RBD_RESTORE_TEMP_SUFFIX = "-csrestore-";
     private static final String RBD_RESTORE_ORIGINAL_SUFFIX = "-csrestore-original-";
 
     private LibvirtAblestackRbdRestoreHelper() {
+    }
+
+    static String buildQemuImageUri(final KVMStoragePool storagePool, final String image) {
+        final String prefix = storagePool.getSourceDir() + "/";
+        final String qualifiedImage = image.startsWith(prefix) ? image : prefix + image;
+        return KVMPhysicalDisk.RBDStringBuilder(storagePool, qualifiedImage);
     }
 
     static boolean restoreRbdBackup(final String tracePrefix, final KVMStoragePool storagePool, final String volumePath,
@@ -55,20 +60,19 @@ final class LibvirtAblestackRbdRestoreHelper {
             return false;
         }
 
+        LibvirtAblestackRestoreProgress.phase("RESTORE_PREPARE_TARGET", "RBD");
         validateRbdStorageSpace(tracePrefix, storagePool, backupPaths, timeoutSeconds);
 
         final String temporaryVolumePath = buildTemporaryRbdImageName(volumePath);
-        boolean temporaryImageCreated = false;
         try {
             if (!restoreRbdBackupToImage(tracePrefix, storagePool, temporaryVolumePath, backupPaths, timeoutSeconds, true)) {
                 LOGGER.error("{} phase=[RBD_TEMP_RESTORE_FAILED], targetVolume=[{}], temporaryVolume=[{}]",
                         tracePrefix, volumePath, temporaryVolumePath);
                 return false;
             }
-            temporaryImageCreated = true;
             return promoteTemporaryRbdImage(tracePrefix, storagePool, volumePath, temporaryVolumePath, timeoutSeconds, createTargetVolume);
         } finally {
-            if (temporaryImageCreated && rbdImageExists(storagePool, temporaryVolumePath, timeoutSeconds)) {
+            if (rbdImageExists(storagePool, temporaryVolumePath, timeoutSeconds)) {
                 LOGGER.warn("{} phase=[RBD_TEMP_CLEANUP], temporaryVolume=[{}]", tracePrefix, temporaryVolumePath);
                 deleteRbdImageIfPresent(tracePrefix, storagePool, temporaryVolumePath, timeoutSeconds);
             }
@@ -105,13 +109,13 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static boolean restoreRbdBackupToImage(final String tracePrefix, final KVMStoragePool storagePool, final String volumePath,
+    static boolean restoreRbdBackupToImage(final String tracePrefix, final KVMStoragePool storagePool, final String volumePath,
             final List<String> backupPaths, final int timeoutSeconds, final boolean createTargetVolume) {
         if (backupPaths.stream().anyMatch(path -> path.endsWith(".rbdiff"))) {
             return restoreIncrementalRbdBackupChain(tracePrefix, storagePool, volumePath, backupPaths, timeoutSeconds, createTargetVolume);
         }
 
-        final String backupPath = getRestorableFileBackupPath(backupPaths);
+        final String backupPath = LibvirtAblestackFileRestoreHelper.getRestorableFileBackupPath(backupPaths);
         if (getBackupFileFormat(backupPath) == QemuImg.PhysicalDiskFormat.RAW) {
             return importRawBackupToRbd(storagePool, volumePath, backupPath, timeoutSeconds, createTargetVolume);
         }
@@ -132,7 +136,8 @@ final class LibvirtAblestackRbdRestoreHelper {
         QemuImgFile destVolumeFile = null;
         try {
             srcBackupFile = new QemuImgFile(backupPath, getBackupFileFormat(backupPath));
-            destVolumeFile = new QemuImgFile(KVMPhysicalDisk.RBDStringBuilder(storagePool, volumePath), QemuImg.PhysicalDiskFormat.RAW);
+            destVolumeFile = new QemuImgFile(buildQemuImageUri(storagePool, volumePath), QemuImg.PhysicalDiskFormat.RAW);
+            LibvirtAblestackRestoreProgress.phase("RESTORE_CONVERT", srcBackupFile.getFormat() + " → RBD (RAW)");
             LOGGER.debug("{} phase=[RBD_CONVERT_BEGIN], source=[{}], targetVolume=[{}]", tracePrefix, backupPath, volumePath);
             qemu.convert(srcBackupFile, destVolumeFile);
             LOGGER.debug("{} phase=[RBD_CONVERT_DONE], source=[{}], targetVolume=[{}]", tracePrefix, backupPath, volumePath);
@@ -179,6 +184,7 @@ final class LibvirtAblestackRbdRestoreHelper {
                 if (!rbdSnapshotExists(storagePool, volumePath, parentCheckpoint, timeoutSeconds)) {
                     throw new CloudRuntimeException(String.format("Required parent snapshot %s is missing on volume %s", parentCheckpoint, volumePath));
                 }
+                LibvirtAblestackRestoreProgress.phase("RESTORE_RBD_DIFF", "RBD · " + index + "/" + (backupPaths.size() - 1));
                 final CommandExecutionResult importDiffResult = executeBashCommandWithResult(
                         buildRbdCommand(storagePool, "import-diff", backupPath, volumePath), timeoutSeconds, "Import RBD diff to temporary volume");
                 if (importDiffResult.exitCode != 0) {
@@ -197,8 +203,38 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
+    /** Apply a single downloaded diff only to a transaction-owned prepared image. */
+    static void applyStagedDiff(KVMStoragePool pool, String image, String file, String parent, String checkpoint, int timeout) {
+        if (StringUtils.isBlank(parent) || StringUtils.isBlank(checkpoint) || !rbdSnapshotExists(pool, image, parent, timeout)) {
+            throw new CloudRuntimeException("RBD restore diff does not match the prepared parent checkpoint");
+        }
+        CommandExecutionResult result = executeBashCommandWithResult(buildRbdCommand(pool, "import-diff", file, image), timeout,
+                "Import staged RBD diff");
+        if (result.exitCode != 0 || !ensureRbdSnapshotExists(pool, image, checkpoint, timeout)) {
+            throw new CloudRuntimeException("Unable to apply staged RBD diff: " + result.output);
+        }
+        if (executeBashCommandWithResult(buildRbdCommand(pool, "snap", "rm", image + "@" + parent), timeout,
+                "Remove prepared parent checkpoint").exitCode != 0) {
+            throw new CloudRuntimeException("Unable to remove prepared RBD parent checkpoint");
+        }
+    }
+
+    static void createPreparedCheckpoint(KVMStoragePool pool, String image, String checkpoint, int timeout) {
+        if (StringUtils.isBlank(checkpoint) || !ensureRbdSnapshotExists(pool, image, checkpoint, timeout)) {
+            throw new CloudRuntimeException("Unable to create prepared RBD checkpoint");
+        }
+    }
+
+    static void removePreparedCheckpoint(KVMStoragePool pool, String image, String checkpoint, int timeout) {
+        if (executeBashCommandWithResult(buildRbdCommand(pool, "snap", "rm", image + "@" + checkpoint), timeout,
+                "Remove prepared RBD checkpoint").exitCode != 0) {
+            throw new CloudRuntimeException("Unable to remove prepared RBD checkpoint");
+        }
+    }
+
     private static boolean importRawBackupToRbd(final KVMStoragePool storagePool, final String volumePath, final String backupPath,
             final int timeoutSeconds, final boolean createTargetVolume) {
+        LibvirtAblestackRestoreProgress.phase("RESTORE_RBD_IMPORT", "RAW → RBD");
         if (!createTargetVolume && !deleteRbdImageIfPresent(storagePool, volumePath, timeoutSeconds)) {
             LOGGER.error("Failed to delete existing RBD volume {} before raw import", volumePath);
             return false;
@@ -216,6 +252,7 @@ final class LibvirtAblestackRbdRestoreHelper {
 
     private static boolean promoteTemporaryRbdImage(final String tracePrefix, final KVMStoragePool storagePool, final String targetVolumePath,
             final String temporaryVolumePath, final int timeoutSeconds, final boolean createTargetVolume) {
+        LibvirtAblestackRestoreProgress.phase("RESTORE_PROMOTE", "RBD");
         final String originalVolumePath = buildOriginalRbdImageName(targetVolumePath);
         boolean originalMovedAside = false;
         try {
@@ -277,8 +314,8 @@ final class LibvirtAblestackRbdRestoreHelper {
     private static void validateRbdStorageSpace(final String tracePrefix, final KVMStoragePool storagePool, final List<String> backupPaths,
             final int timeoutSeconds) {
         final long requiredBytes = estimateRequiredBytesForRbdRestore(backupPaths);
-        final long bufferBytes = Math.max(RESTORE_PRIMARY_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long bufferBytes = LibvirtAblestackRestoreCapacity.bufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final Long availableBytes = getCephPoolAvailableBytes(storagePool, timeoutSeconds);
         if (availableBytes == null) {
             LOGGER.warn("{} phase=[RBD_SPACE_CHECK_SKIPPED], pool=[{}], requiredBytes=[{}], bufferBytes=[{}]",
@@ -289,7 +326,7 @@ final class LibvirtAblestackRbdRestoreHelper {
                 tracePrefix, storagePool.getSourceDir(), requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);
         if (availableBytes < minimumAvailableBytes) {
             throw new CloudRuntimeException(String.format(
-                    "Insufficient Ceph RBD pool space for restore on pool [%s]. Required at least [%d] bytes including buffer, but only [%d] bytes are available.",
+                    "Insufficient Glue RBD pool space for restore on pool [%s]. Required at least [%d] bytes including buffer, but only [%d] bytes are available.",
                     storagePool.getSourceDir(), minimumAvailableBytes, availableBytes));
         }
     }
@@ -297,8 +334,8 @@ final class LibvirtAblestackRbdRestoreHelper {
     private static void validateRbdStorageSpace(final String tracePrefix, final RbdSourceImage sourceImage, final List<String> backupPaths,
             final int timeoutSeconds) {
         final long requiredBytes = estimateRequiredBytesForRbdRestore(backupPaths);
-        final long bufferBytes = Math.max(RESTORE_PRIMARY_SPACE_BUFFER_BYTES, requiredBytes / 5L);
-        final long minimumAvailableBytes = requiredBytes + bufferBytes;
+        final long bufferBytes = LibvirtAblestackRestoreCapacity.bufferBytes(requiredBytes);
+        final long minimumAvailableBytes = Math.addExact(requiredBytes, bufferBytes);
         final Long availableBytes = getCephPoolAvailableBytes(sourceImage, timeoutSeconds);
         if (availableBytes == null) {
             LOGGER.warn("{} phase=[RBD_SPACE_CHECK_SKIPPED], pool=[{}], requiredBytes=[{}], bufferBytes=[{}]",
@@ -309,14 +346,14 @@ final class LibvirtAblestackRbdRestoreHelper {
                 tracePrefix, sourceImage.getPoolName(), requiredBytes, bufferBytes, minimumAvailableBytes, availableBytes);
         if (availableBytes < minimumAvailableBytes) {
             throw new CloudRuntimeException(String.format(
-                    "Insufficient Ceph RBD pool space for restore on pool [%s]. Required at least [%d] bytes including buffer, but only [%d] bytes are available.",
+                    "Insufficient Glue RBD pool space for restore on pool [%s]. Required at least [%d] bytes including buffer, but only [%d] bytes are available.",
                     sourceImage.getPoolName(), minimumAvailableBytes, availableBytes));
         }
     }
 
     private static long estimateRequiredBytesForRbdRestore(final List<String> backupPaths) {
         final String sizeSource = backupPaths.stream().anyMatch(path -> path.endsWith(".rbdiff")) && backupPaths.get(0).endsWith(".raw")
-                ? backupPaths.get(0) : getRestorableFileBackupPath(backupPaths);
+                ? backupPaths.get(0) : LibvirtAblestackFileRestoreHelper.getRestorableFileBackupPath(backupPaths);
         try {
             final QemuImg qemu = new QemuImg(0);
             final Map<String, String> info = qemu.info(new QemuImgFile(sizeSource, getBackupFileFormat(sizeSource)));
@@ -334,9 +371,32 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static Long getCephPoolAvailableBytes(final KVMStoragePool storagePool, final int timeoutSeconds) {
+    static Long getCephPoolAvailableBytes(final KVMStoragePool storagePool, final int timeoutSeconds) {
         return getCephPoolAvailableBytes(buildCephCommand(storagePool, "df", "detail", "--format", "json"),
                 storagePool.getSourceDir(), timeoutSeconds);
+    }
+
+    static org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim getCephPoolCapacity(
+            final KVMStoragePool pool, final int timeoutSeconds) {
+        // Glue FSID + numeric pool ID remains the same across CloudStack pool aliases.
+        final CommandExecutionResult fsid = executeBashCommandWithResult(buildCephCommand(pool, "fsid"), timeoutSeconds,
+                "Query Glue cluster identity");
+        final CommandExecutionResult df = executeBashCommandWithResult(buildCephCommand(pool, "df", "detail", "--format", "json"),
+                timeoutSeconds, "Query Glue restore capacity");
+        if (fsid.exitCode != 0 || df.exitCode != 0) { throw new CloudRuntimeException("Glue primary capacity identity is unconfirmed"); }
+        String cluster = java.util.UUID.fromString(fsid.output.trim()).toString();
+        com.google.gson.JsonObject data = com.google.gson.JsonParser.parseString(df.output).getAsJsonObject();
+        for (com.google.gson.JsonElement item : data.getAsJsonArray("pools")) {
+            com.google.gson.JsonObject candidate = item.getAsJsonObject();
+            if (!pool.getSourceDir().equals(candidate.get("name").getAsString())) { continue; }
+            org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim result =
+                    new org.apache.cloudstack.backup.ThirdPartyBackupAdmission.PrimaryClaim();
+            result.storageKey = "rbd:" + cluster + ":" + candidate.get("id").getAsLong();
+            result.availableBytes = candidate.getAsJsonObject("stats").get("max_avail").getAsLong();
+            if (result.availableBytes < 0) { throw new CloudRuntimeException("Invalid Glue primary capacity"); }
+            return result;
+        }
+        throw new CloudRuntimeException("Restore Glue pool was not found in cluster capacity information");
     }
 
     private static Long getCephPoolAvailableBytes(final RbdSourceImage sourceImage, final int timeoutSeconds) {
@@ -353,7 +413,7 @@ final class LibvirtAblestackRbdRestoreHelper {
                 + "value=stats.get('max_avail') or stats.get('available') or stats.get('total_avail_bytes'); "
                 + "print(value if value is not None else '')";
         final String command = cephDfCommand + " | python3 -c " + quote(python) + " " + quote(StringUtils.defaultString(pool));
-        final CommandExecutionResult result = executeBashCommandWithResult(command, timeoutSeconds, "Query Ceph pool available bytes");
+        final CommandExecutionResult result = executeBashCommandWithResult(command, timeoutSeconds, "Query Glue pool available bytes");
         if (result.exitCode != 0 || StringUtils.isBlank(result.output)) {
             return null;
         }
@@ -365,19 +425,9 @@ final class LibvirtAblestackRbdRestoreHelper {
         try {
             return Long.parseLong(lastLine);
         } catch (final NumberFormatException e) {
-            LOGGER.warn("Failed to parse Ceph pool available bytes from output [{}]", result.output, e);
+            LOGGER.warn("Failed to parse Glue pool available bytes from output [{}]", result.output, e);
             return null;
         }
-    }
-
-    private static String getRestorableFileBackupPath(final List<String> backupPaths) {
-        for (int index = backupPaths.size() - 1; index >= 0; index--) {
-            final String backupPath = backupPaths.get(index);
-            if (StringUtils.isNotBlank(backupPath) && Files.exists(Paths.get(backupPath))) {
-                return backupPath;
-            }
-        }
-        return backupPaths.get(backupPaths.size() - 1);
     }
 
     private static QemuImg.PhysicalDiskFormat getBackupFileFormat(final String backupPath) {
@@ -433,16 +483,16 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
     }
 
-    private static boolean renameRbdImage(final KVMStoragePool storagePool, final String sourceImage, final String targetImage,
+    static boolean renameRbdImage(final KVMStoragePool storagePool, final String sourceImage, final String targetImage,
             final int timeoutSeconds) {
         return executeBashCommandWithResult(buildRbdCommand(storagePool, "rename", sourceImage, targetImage), timeoutSeconds, "Rename RBD image").exitCode == 0;
     }
 
-    private static boolean rbdImageExists(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
+    static boolean rbdImageExists(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
         return Script.runSimpleBashScriptForExitValue(buildRbdCommand(storagePool, "info", volumePath), timeoutSeconds * 1000, false) == 0;
     }
 
-    private static boolean deleteRbdImageIfPresent(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
+    static boolean deleteRbdImageIfPresent(final KVMStoragePool storagePool, final String volumePath, final int timeoutSeconds) {
         return deleteRbdImageIfPresent(null, storagePool, volumePath, timeoutSeconds);
     }
 
@@ -520,6 +570,9 @@ final class LibvirtAblestackRbdRestoreHelper {
         }
         if (StringUtils.isNotBlank(storagePool.getAuthSecret())) {
             command.append(" --key ").append(quote(storagePool.getAuthSecret()));
+        }
+        if ("rbd".equals(tool)) {
+            command.append(" --pool ").append(quote(storagePool.getSourceDir()));
         }
         command.append(" ").append(action);
         for (final String arg : args) {

@@ -16,8 +16,6 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
-import org.apache.commons.lang3.StringUtils;
-
 public final class BackupProviderNameUtils {
     public static final String NAS = "nas";
     public static final String COMMVAULT = "commvault";
@@ -30,57 +28,19 @@ public final class BackupProviderNameUtils {
     private BackupProviderNameUtils() {
     }
 
-    public static String canonicalize(final String providerName) {
-        if (StringUtils.isBlank(providerName)) {
-            return providerName;
-        }
-        if (NAS.equalsIgnoreCase(providerName) || ABLESTACK_NAS.equalsIgnoreCase(providerName)) {
-            return ABLESTACK_NAS;
-        }
-        if (COMMVAULT.equalsIgnoreCase(providerName) || ABLESTACK_COMMVAULT.equalsIgnoreCase(providerName)) {
-            return ABLESTACK_COMMVAULT;
-        }
-        if (NETBACKUP.equalsIgnoreCase(providerName) || ABLESTACK_NETBACKUP.equalsIgnoreCase(providerName)) {
-            return ABLESTACK_NETBACKUP;
-        }
-        if ("veeam".equalsIgnoreCase(providerName) || ABLESTACK_VEEAM.equalsIgnoreCase(providerName)) {
-            return ABLESTACK_VEEAM;
-        }
-        return providerName;
-    }
-
-    public static String toDisplayName(final String providerName) {
-        if (StringUtils.isBlank(providerName)) {
-            return providerName;
-        }
-        if (ABLESTACK_NAS.equalsIgnoreCase(providerName) || NAS.equalsIgnoreCase(providerName)) {
-            return NAS;
-        }
-        if (ABLESTACK_COMMVAULT.equalsIgnoreCase(providerName) || COMMVAULT.equalsIgnoreCase(providerName)) {
-            return COMMVAULT;
-        }
-        if (ABLESTACK_NETBACKUP.equalsIgnoreCase(providerName) || NETBACKUP.equalsIgnoreCase(providerName)) {
-            return NETBACKUP;
-        }
-        if (ABLESTACK_VEEAM.equalsIgnoreCase(providerName) || "veeam".equalsIgnoreCase(providerName)) {
-            return "veeam";
-        }
-        return providerName;
-    }
-
     public static boolean isNasFamily(final String providerName) {
-        return ABLESTACK_NAS.equalsIgnoreCase(canonicalize(providerName));
+        return ABLESTACK_NAS.equalsIgnoreCase(providerName);
     }
 
     public static boolean isCommvaultFamily(final String providerName) {
-        return ABLESTACK_COMMVAULT.equalsIgnoreCase(canonicalize(providerName));
+        return ABLESTACK_COMMVAULT.equalsIgnoreCase(providerName);
     }
 
     public static boolean isNetBackupFamily(final String providerName) {
-        return ABLESTACK_NETBACKUP.equalsIgnoreCase(canonicalize(providerName));
+        return ABLESTACK_NETBACKUP.equalsIgnoreCase(providerName);
     }
 
     public static boolean isVeeamFamily(final String providerName) {
-        return ABLESTACK_VEEAM.equalsIgnoreCase(canonicalize(providerName));
+        return ABLESTACK_VEEAM.equalsIgnoreCase(providerName);
     }
 }

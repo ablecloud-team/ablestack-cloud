@@ -42,10 +42,14 @@ import org.apache.cloudstack.api.command.user.backup.DeleteBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupOfferingsCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupScheduleCmd;
 import org.apache.cloudstack.api.command.user.backup.ListBackupsCmd;
+import org.apache.cloudstack.api.command.user.backup.ListNetBackupBackupCandidatesCmd;
 import org.apache.cloudstack.api.command.user.backup.PrepareNetBackupRestoreCmd;
 import org.apache.cloudstack.api.command.user.backup.RestoreNetBackupCmd;
 import org.apache.cloudstack.api.command.user.backup.CreateBackupOfferingCmd;
+import org.apache.cloudstack.api.response.BackupJobStatusResponse;
 import org.apache.cloudstack.api.response.BackupResponse;
+import org.apache.cloudstack.api.response.NetBackupBackupCandidateResponse;
+import org.apache.cloudstack.api.response.BackupStagingInfoResponse;
 import org.apache.cloudstack.framework.config.ConfigKey;
 import org.apache.cloudstack.framework.config.Configurable;
 
@@ -61,6 +65,34 @@ import com.cloud.vm.VmDiskInfo;
  */
 public interface BackupManager extends BackupService, Configurable, PluggableService, Manager {
 
+    enum RestoreRequestStatus {
+        ACCEPTED,
+        COMPLETED
+    }
+
+    /** Startup choices that must survive detached restore orchestration. */
+    class RestoreVmStartOptions {
+        private final Long podId;
+        private final Long clusterId;
+        private final Long hostId;
+        private final String deploymentPlanner;
+        private final Boolean bootIntoSetup;
+
+        public RestoreVmStartOptions(Long podId, Long clusterId, Long hostId, String deploymentPlanner, Boolean bootIntoSetup) {
+            this.podId = podId;
+            this.clusterId = clusterId;
+            this.hostId = hostId;
+            this.deploymentPlanner = deploymentPlanner;
+            this.bootIntoSetup = bootIntoSetup;
+        }
+
+        public Long getPodId() { return podId; }
+        public Long getClusterId() { return clusterId; }
+        public Long getHostId() { return hostId; }
+        public String getDeploymentPlanner() { return deploymentPlanner; }
+        public Boolean getBootIntoSetup() { return bootIntoSetup; }
+    }
+
     ConfigKey<Boolean> BackupFrameworkEnabled = new ConfigKey<>("Advanced", Boolean.class,
             "backup.framework.enabled",
             "false",
@@ -68,34 +100,134 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
 
     ConfigKey<String> BackupProviderPlugin = new ConfigKey<>("Advanced", String.class,
             "backup.framework.provider.plugin",
-            "dummy",
-            "The backup and recovery provider plugin (comma-separated). Example: dummy, veeam, networker, nas, commvault, netbackup", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
+            "ablestack-nas",
+            "The backup and recovery provider plugin (comma-separated). Use provider names explicitly. " +
+                    "Example: ablestack-nas, ablestack-commvault, ablestack-netbackup, ablestack-veeam, networker etc.", true, ConfigKey.Scope.Zone, BackupFrameworkEnabled.key());
 
     ConfigKey<Long> BackupSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
             "backup.framework.sync.interval",
             "300",
             "The backup and recovery background sync task polling interval in seconds.", true, BackupFrameworkEnabled.key());
 
-    ConfigKey<Integer> BackupCommandTimeout = new ConfigKey<>("Advanced", Integer.class,
-            "backup.command.timeout",
-            "7200",
-            "Timeout in seconds for KVM backup commands. A value of 0 uses the global command wait timeout.",
-            true,
-            BackupFrameworkEnabled.key());
+    ConfigKey<Long> BackupActiveJobSyncPollingInterval = new ConfigKey<>("Advanced", Long.class,
+            "backup.framework.active.job.sync.interval",
+            "10",
+            "The backup and recovery active backup/restore job status reconciliation interval in seconds.", true, BackupFrameworkEnabled.key());
 
-    ConfigKey<Integer> BackupRestoreTimeout = new ConfigKey<>("Advanced", Integer.class,
-            "backup.restore.timeout",
-            "7200",
-            "Timeout in seconds for KVM backup restore commands. A value of 0 uses the global command wait timeout.",
+    ConfigKey<Integer> BackupDataOperationTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.data.operation.timeout",
+            "43200",
+            "Maximum execution time in seconds for host-side KVM backup and restore data operations, external staging, and backup data cleanup.",
             true,
             BackupFrameworkEnabled.key());
 
     ConfigKey<Integer> BackupQosBandwidthLimitMbps = new ConfigKey<>("Advanced", Integer.class,
             "backup.qos.bandwidth.limit.mbps",
             "0",
-            "Limits the bandwidth of running VM KVM backup block jobs in Mbps. A value of 0 means unlimited.",
+            "Limits KVM backup bandwidth in Mbps for running VM block jobs and ABLESTACK third-party QCOW2 volume staging copies of running or stopped VMs. A value of 0 means no bandwidth limit.",
             true,
             BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> RestorePrimaryStorageCapacityBufferPercent = new ConfigKey<>("Advanced", Integer.class,
+            "backup.restore.primary.storage.capacity.buffer.percent",
+            "20",
+            "Percentage of additional primary storage capacity required for ABLESTACK NAS, Commvault, NetBackup and Veeam restores. " +
+                    "Valid values: 0-100. Each capacity check keeps a minimum 10 GiB buffer. " +
+                    "The value is captured for each new restore; running restores keep their original value.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Boolean> ThirdPartyStagingEnable = new ConfigKey<>("Advanced", Boolean.class,
+            "backup.thirdparty.staging.enable",
+            "false",
+            "Enable shared staging for ABLESTACK Commvault, NetBackup, and Veeam. " +
+                    "Activation prepares and validates the staging mount, write access, and capacity on all eligible KVM hosts " +
+                    "in zones using these providers. The value is saved only after validation succeeds.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingStorageType = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.storage.type",
+            "",
+            "Storage type used for ABLESTACK Commvault, NetBackup, and Veeam backup and restore staging. " +
+                    "Supported values: GFS2, NFS, LOCAL.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingRootPath = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.root.path",
+            "",
+            "Absolute KVM host path under which ABLESTACK third-party backup and restore staging job directories are created. " +
+                    "Size the staging storage based on the largest provisioned individual volume among all existing VMs, " +
+                    "plus capacity.buffer.percent for activation validation. Job checks also account for all artifacts staged by the execution engine.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingMountPath = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.mount.path",
+            "",
+            "Absolute KVM host mount point for ABLESTACK third-party staging storage. The staging root path must be this path or one of its subdirectories.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingNfsSource = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.nfs.source",
+            "",
+            "NFS source used for ABLESTACK third-party staging, in server:/export format. Use a service VIP when the NFS service is highly available.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<String> ThirdPartyStagingMountOptions = new ConfigKey<>("Advanced", String.class,
+            "backup.thirdparty.staging.mount.options",
+            "",
+            "Comma-separated mount options used when mounting ABLESTACK third-party staging storage.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingMountTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.mount.timeout",
+            "300",
+            "Maximum time in seconds to wait for an ABLESTACK third-party staging storage mount operation.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingCapacityBufferPercent = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.capacity.buffer.percent",
+            "20",
+            "Percentage of additional staging capacity above the largest provisioned volume size among all existing VMs. " +
+                    "Required staging capacity = largest volume size * (1 + percentage / 100). " +
+                    "This is the activation requirement; job checks apply the same percentage to the data staged by the execution engine.",
+            true,
+            ConfigKey.Scope.Global,
+            BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentHost = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.per.host", "1",
+            "Maximum concurrent volume staging Backup and Restore jobs combined on one Host. Jobs wait before reserving capacity.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentCluster = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.per.cluster", "4",
+            "Maximum concurrent volume staging Backup and Restore jobs combined in one cluster.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingConcurrentTotal = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.concurrent.jobs.total", "4",
+            "Maximum concurrent Backup and Restore jobs combined across all Hosts and all three ABLESTACK third-party providers using common staging.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
+
+    ConfigKey<Integer> ThirdPartyStagingQueueTimeout = new ConfigKey<>("Advanced", Integer.class,
+            "backup.thirdparty.staging.queue.timeout", "3600",
+            "Maximum staging queue wait in seconds for new jobs, separate from the data operation timeout. Waiting jobs are canceled when this expires; active reservations never expire by age.",
+            true, ConfigKey.Scope.Global, BackupFrameworkEnabled.key());
 
     ConfigKey<Boolean> BackupEnableAttachDetachVolumes = new ConfigKey<>("Advanced", Boolean.class,
             "backup.enable.attach.detach.of.volumes",
@@ -110,8 +242,8 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
             ConfigKey.Scope.Cluster,
             null);
 
-    ConfigKey<Integer> BackupChainSize = new ConfigKey<>(Integer.class,
-            "backup.chain.size",
+    ConfigKey<Integer> KvmBackupChainSize = new ConfigKey<>(Integer.class,
+            "kvm.backup.chain.size",
             "Advanced",
             "10",
             "Max incremental backup chain size before switching back to a full backup for KVM backup providers.",
@@ -257,6 +389,22 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     boolean createNetBackup(CreateNetBackupCmd cmd) throws ResourceAllocationException;
 
+    List<NetBackupBackupCandidateResponse> listNetBackupBackupCandidates(ListNetBackupBackupCandidatesCmd cmd);
+
+    boolean cancelBackup(Long backupId);
+
+    boolean cancelBackupStagingJob(Long backupId, String operation, String jobId);
+
+    BackupStagingInfoResponse getBackupStagingInfo(Long backupId, String operation, String stagingJobId);
+
+    org.apache.cloudstack.api.response.BackupArtifactResolutionResponse resolveBackupArtifact(String provider, String externalId, String jobId, Long vmId);
+
+    boolean restoreBackupArtifact(String provider, String externalId, String jobId);
+
+    BackupStagingInfoResponse reconcileBackupStagingJob(Long backupId, String operation,
+            String jobId, String action, Integer artifactIndex, String externalJobId);
+
+
     /**
      * Updates NetBackup-specific backup metadata for a VM backup row.
      * @param cmd UpdateNetBackupCmd
@@ -295,7 +443,7 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
      */
     boolean syncAblestackVeeamBackups(SyncAblestackVeeamBackupsCmd cmd);
 
-    boolean restoreAblestackVeeamBackup(Long backupId);
+    boolean restoreAblestackVeeamBackup(Long backupId, String sessionId);
 
     Pair<List<Backup>, Integer> listAblestackVeeamBackups(ListAblestackVeeamBackupsCmd cmd);
 
@@ -338,6 +486,17 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     boolean restoreBackupToVM(Long backupId, Long vmId, boolean quickrestore) throws ResourceUnavailableException;
 
     /**
+     * Starts restoring a backup to a newly allocated Instance. Providers with detached restore
+     * orchestration return {@link RestoreRequestStatus#ACCEPTED}; other providers complete the
+     * restore before returning {@link RestoreRequestStatus#COMPLETED}.
+     */
+    RestoreRequestStatus requestRestoreBackupToVM(Long backupId, Long vmId, boolean quickrestore,
+            boolean startVmAfterRestore) throws ResourceUnavailableException;
+
+    RestoreRequestStatus requestRestoreBackupToVM(Long backupId, Long vmId, boolean quickrestore,
+            boolean startVmAfterRestore, RestoreVmStartOptions startOptions) throws ResourceUnavailableException;
+
+    /**
      * Restore a backed up volume and attach it to a VM
      */
     boolean restoreBackupVolumeAndAttachToVM(final String backedUpVolumeUuid, final Long backupId, final Long vmId, boolean isQuickRestore, Long hostId) throws Exception;
@@ -367,6 +526,12 @@ public interface BackupManager extends BackupService, Configurable, PluggableSer
     String getBackupNameFromVM(VirtualMachine vm);
 
     BackupResponse createBackupResponse(Backup backup, Boolean listVmDetails);
+
+    BackupJobStatusResponse getBackupJobStatus(Long backupId, Long eventsOffset, Integer eventsLimit);
+
+    BackupJobStatusResponse getBackupRestoreJobStatus(Long backupId, Long eventsOffset, Integer eventsLimit);
+
+    boolean updateBackupJobBandwidth(Long backupId, Integer bandwidthLimitMbps);
 
     Capacity getBackupStorageUsedStats(Long zoneId);
 

@@ -46,6 +46,7 @@ VEEAM_RESTORE_POINT_ID=""
 BOOTSTRAP_CHECKPOINT="true"
 QUIESCE=""
 BACKUP_BANDWIDTH_LIMIT_MBPS=0
+DATA_OPERATION_TIMEOUT_SECONDS=43200
 FORCED="false"
 CLEANUP_CHECKPOINT_NAMES=""
 logFile="/var/log/cloudstack/agent/agent.log"
@@ -72,6 +73,7 @@ log_unhandled_error() {
 }
 
 trap 'log_unhandled_error "$LINENO"' ERR
+source "$(dirname "${BASH_SOURCE[0]}")/ablestack_backup_safety.sh"
 
 vercomp() {
   local IFS=.
@@ -191,16 +193,12 @@ backup_running_vm() {
   echo "</disks></domainbackup>" >> "$dest/backup.xml"
   echo "</disks></domaincheckpoint>" >> "$dest/checkpoint.xml"
 
-  local thaw=0
-  if [[ ${QUIESCE} == "true" ]]; then
-    if virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-freeze"}' > /dev/null 2>/dev/null; then
-      thaw=1
-    fi
-  fi
+  ablestack_freeze_guest || { cleanup; exit 1; }
 
   # Start push backup
   local backup_begin=0
   local backup_begin_output=""
+  ablestack_backup_job_started
   if backup_begin_output=$(virsh -c qemu:///system backup-begin --domain "$VM" --backupxml "$dest/backup.xml" --checkpointxml "$dest/checkpoint.xml" 2>&1); then
     backup_begin=1
   else
@@ -208,13 +206,7 @@ backup_running_vm() {
     echo "backup-begin failed for VM $VM: $backup_begin_output"
   fi
 
-  if [[ $thaw -eq 1 ]]; then
-    if ! response=$(virsh -c qemu:///system qemu-agent-command "$VM" '{"execute":"guest-fsfreeze-thaw"}' 2>&1 > /dev/null); then
-      echo "Failed to thaw the filesystem for vm $VM: $response"
-      cleanup
-      exit 1
-    fi
-  fi
+  ablestack_thaw_guest || { cleanup; exit 1; }
 
   if [[ $backup_begin -ne 1 ]]; then
     log -ne "FAILED libvirt backup-begin vm=[$VM] checkpoint=[$CHECKPOINT_NAME] output=[${backup_begin_output:-Unknown error}]"
@@ -227,25 +219,11 @@ backup_running_vm() {
 
   backup_domain_information "$VM"
 
-  local wait_count=0
-  while true; do
-    status=$(virsh -c qemu:///system domjobinfo "$VM" --completed --keep-completed | awk '/Job type:/ {print $3}')
-    case "$status" in
-      Completed)
-        break ;;
-      Failed)
-        log -ne "FAILED libvirt backup job vm=[$VM] checkpoint=[$CHECKPOINT_NAME]"
-        echo "Virsh backup job failed"
-        resume_vm_if_paused
-        cleanup
-        exit 1 ;;
-    esac
-    wait_count=$((wait_count + 1))
-    if (( wait_count == 12 || wait_count % 120 == 0 )); then
-      log -ne "WAIT libvirt backup job pending vm=[$VM] checkpoint=[$CHECKPOINT_NAME] elapsedSeconds=[$((wait_count * 5))] status=[${status:-unknown}]"
-    fi
-    sleep 5
-  done
+  if ! ablestack_wait_for_backup; then
+    resume_vm_if_paused
+    cleanup
+    exit 1
+  fi
 
   if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_BACKUP_DIR" ]]; then
     local index=0
@@ -345,8 +323,8 @@ backup_rbd_volumes() {
     if [[ "$BACKUP_TYPE" == "INCREMENTAL" && -n "$PARENT_CHECKPOINT_NAME" ]]; then
       local export_start
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      if ! timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export-diff --from-snap "$PARENT_CHECKPOINT_NAME" "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export-diff image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export incremental RBD diff for ${RBD_IMAGE}@${current_snapshot}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -355,8 +333,8 @@ backup_rbd_volumes() {
     else
       local export_start
       export_start=$(date +%s)
-      if ! timeout 6h "${RBD_CMD[@]}" export "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
-        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeout=[6h]"
+      if ! timeout "${DATA_OPERATION_TIMEOUT_SECONDS}s" "${RBD_CMD[@]}" export "${RBD_IMAGE}@${current_snapshot}" "$output" >> "$logFile" 2>&1; then
+        log -ne "FAILED RBD export image=[$RBD_IMAGE] snapshot=[$current_snapshot] output=[$output] elapsedSeconds=[$(($(date +%s) - export_start))] timeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
         echo "Failed to export full RBD snapshot ${RBD_IMAGE}@${current_snapshot}"
         cleanup_created_rbd_snapshots
         cleanup
@@ -690,6 +668,7 @@ mark_backup_complete() {
 }
 
 cleanup() {
+  ablestack_backup_cleanup_safe || exit $EXIT_CLEANUP_FAILED
   local status=0
 
   rm -rf "$dest" || { echo "Failed to delete $dest"; status=1; }
@@ -910,7 +889,8 @@ parse_rbd_uri() {
     if [[ "$payload" == *":mon_host="* ]]; then
       RBD_IMAGE="${payload%%:mon_host=*}"
       local mon_part="${payload#*:mon_host=}"
-      RBD_MON_HOST="${mon_part%%:auth_supported=*}"
+      RBD_MON_HOST="${mon_part%%:auth_client_required=*}"
+      RBD_MON_HOST="${RBD_MON_HOST%%:auth_supported=*}"
       RBD_MON_HOST="${RBD_MON_HOST//\\;/,}"
       RBD_MON_HOST="${RBD_MON_HOST//\\:/:}"
     else
@@ -1334,6 +1314,11 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    --data-operation-timeout-seconds)
+      DATA_OPERATION_TIMEOUT_SECONDS="$2"
+      shift
+      shift
+      ;;
     -x|--forced)
       FORCED="$2"
       shift
@@ -1380,10 +1365,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if ! [[ "$DATA_OPERATION_TIMEOUT_SECONDS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "Data operation timeout must be a positive number of seconds"
+  exit 1
+fi
+
 # Perform Initial sanity checks
 sanity_checks
 
-log -ne "ablestack_veeam_nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] bandwidthLimitMbps=[$BACKUP_BANDWIDTH_LIMIT_MBPS]"
+log -ne "ablestack_veeam_nasbackup.sh start op=[$OP] vm=[$VM] backupDir=[$BACKUP_DIR] nasType=[$NAS_TYPE] nasAddress=[$NAS_ADDRESS] mountTimeout=[$MOUNT_TIMEOUT] backupType=[$BACKUP_TYPE] checkpoint=[$CHECKPOINT_NAME] parentBackup=[$PARENT_BACKUP_DIR] parentCheckpoint=[$PARENT_CHECKPOINT_NAME] diskPaths=[$DISK_PATHS] backupFiles=[$BACKUP_FILES] bandwidthLimitMbps=[$BACKUP_BANDWIDTH_LIMIT_MBPS] dataOperationTimeoutSeconds=[$DATA_OPERATION_TIMEOUT_SECONDS]"
 
 if [ "$OP" = "backup-running" ]; then
   backup_running_vm

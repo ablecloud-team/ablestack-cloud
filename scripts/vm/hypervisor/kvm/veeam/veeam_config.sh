@@ -61,7 +61,6 @@ BACKUP_REPO_PROVIDER="localfs"
 NAS_REPO_MOUNT=""
 BACKUP_STORAGE_MODE="datadisk"
 MOLD_DATADISK_PATH="/data/backup"
-ENCRYPT_SECRET="true"
 SECRET_KEY_FILE=""
 VEEAM_BACKUP_TARGET=""
 VM_TARGETS=""
@@ -103,11 +102,11 @@ Other optional:
   --vm-exclude LIST       Extra libvirt names/globs to skip (auto-exclude still applies)
   --vm-name NAME          libvirt name (mold-backup.sh status 등)
   --vm-uuid UUID          Mold VM UUID
-  --max-chain N           Max incremental chain (default: 10; also sets Mold backup.chain.size)
-  --backup-chain-size N   Alias of --max-chain (Mold Global backup.chain.size)
+  --max-chain N           Max incremental chain (default: 10; also sets Mold kvm.backup.chain.size)
+  --backup-chain-size N   Alias of --max-chain (Mold Global kvm.backup.chain.size)
   --retention PERIOD      Backup offering retention (default: P7D)
-  --backup-mode MODE      host|api|local|auto (default: host = NetBackup-style /tmp/mold/veeam)
-  --host-backup-path PATH KVM stage root (default: /tmp/mold/veeam); also sets Mold backup.plugin.ablestack-veeam.stage.root.path
+  --backup-mode MODE      host|api|local|auto (default: host = Mold-managed common staging)
+  --host-backup-path PATH Legacy bootstrap path; jobs use Mold backup.thirdparty.staging.root.path/ablestack-veeam
   --stage-root-path PATH  Alias of --host-backup-path
   --backup-target MODE    host only (guest mode removed)
   --veeam-url URL         Mold zone setting backup.plugin.ablestack-veeam.url
@@ -121,7 +120,7 @@ Other optional:
   --kvm-ssh-user USER     (default: root)
   --kvm-ssh-key PATH      SSH private key
   --no-configure-mold     Skip listConfigurations/updateConfiguration calls
-  --no-encrypt-secret     Store API secret in plain text (not recommended)
+  --no-encrypt-secret     Removed; new credentials must be encrypted
   --secret-key-file PATH  Passphrase file (default: /root/.ssh/ablestack.key)
   --env-file PATH         Credentials/env file (default: /etc/ablestack/veeam/mold-backup.env)
   --install               Run install.sh after generating configs
@@ -189,6 +188,8 @@ veeam_config_import_env_file() {
       MOLD_API_URL) [[ -n "$val" ]] && MOLD_API_URL="$val" ;;
       MOLD_API_KEY) [[ -n "$val" ]] && MOLD_API_KEY="$val" ;;
       MOLD_API_SECRET) [[ -n "$val" ]] && MOLD_API_SECRET="$val" ;;
+      MOLD_API_SECRET_ENC_FILE) [[ -n "$val" ]] && MOLD_API_SECRET_ENC_FILE_CANDIDATE="$val" ;;
+      MOLD_SECRET_KEY_FILE) veeam_set_if_empty SECRET_KEY_FILE "$val" ;;
       ZONE_ID) [[ -n "$val" ]] && ZONE_ID="$val" ;;
       JOB_NAME) veeam_set_if_empty JOB_NAME "$val" ;;
       BACKUP_OFFERING_NAME) veeam_set_if_empty BACKUP_OFFERING_NAME "$val" ;;
@@ -376,7 +377,7 @@ while [[ $# -gt 0 ]]; do
     --kvm-ssh-user) KVM_SSH_USER="$2"; shift 2 ;;
     --kvm-ssh-key) KVM_SSH_KEY="$2"; shift 2 ;;
     --no-configure-mold) CONFIGURE_MOLD="false"; shift ;;
-    --no-encrypt-secret) ENCRYPT_SECRET="false"; shift ;;
+    --no-encrypt-secret) die "Plaintext API secret storage is no longer supported; use the shared encrypted Host key" ;;
     --secret-key-file) SECRET_KEY_FILE="$2"; shift 2 ;;
     --env-file) ENV_FILE="$2"; shift 2 ;;
     --install) RUN_INSTALL="true"; shift ;;
@@ -434,19 +435,13 @@ MOLD_API_SECRET_LINE=""
 MOLD_API_SECRET_ENC_FILE_LINE=""
 MOLD_SECRET_KEY_FILE_LINE=""
 
-if [[ "$ENCRYPT_SECRET" == "true" ]]; then
-  [[ -x "$SECRET_SCRIPT" ]] || chmod +x "$SECRET_SCRIPT"
-  KEY_FILE="${SECRET_KEY_FILE:-$DEFAULT_SECRET_KEY_FILE}"
-  [[ -f "$KEY_FILE" ]] || die "Secret key file not found: $KEY_FILE"
-  "$SECRET_SCRIPT" encrypt --secret "$MOLD_API_SECRET" --key-file "$KEY_FILE" --out "$ENC_FILE" >/dev/null
-  MOLD_API_SECRET_LINE='MOLD_API_SECRET=""'
-  MOLD_API_SECRET_ENC_FILE_LINE="MOLD_API_SECRET_ENC_FILE=\"${ENC_FILE}\""
-  MOLD_SECRET_KEY_FILE_LINE="MOLD_SECRET_KEY_FILE=\"${KEY_FILE}\""
-else
-  MOLD_API_SECRET_LINE="MOLD_API_SECRET=\"${MOLD_API_SECRET}\""
-  MOLD_API_SECRET_ENC_FILE_LINE='MOLD_API_SECRET_ENC_FILE=""'
-  MOLD_SECRET_KEY_FILE_LINE='MOLD_SECRET_KEY_FILE=""'
-fi
+[[ -x "$SECRET_SCRIPT" ]] || chmod +x "$SECRET_SCRIPT"
+KEY_FILE="${SECRET_KEY_FILE:-$DEFAULT_SECRET_KEY_FILE}"
+"$SECRET_SCRIPT" ensure-key --key-file "$KEY_FILE" --existing-secret "$ENC_FILE" --secret-dir "${ETC_DIR}/secrets" --upgrade-unused-legacy >/dev/null
+printf '%s' "$MOLD_API_SECRET" | "$SECRET_SCRIPT" encrypt --secret-stdin --key-file "$KEY_FILE" --out "$ENC_FILE" >/dev/null
+MOLD_API_SECRET_LINE='MOLD_API_SECRET=""'
+MOLD_API_SECRET_ENC_FILE_LINE="MOLD_API_SECRET_ENC_FILE=\"${ENC_FILE}\""
+MOLD_SECRET_KEY_FILE_LINE="MOLD_SECRET_KEY_FILE=\"${KEY_FILE}\""
 
 safe_job="$(echo "$JOB_NAME" | tr ' /' '__')"
 CONF="${ETC_DIR}/${safe_job}.conf"
@@ -482,7 +477,6 @@ RESTORE_WATCH_TRIGGER_MOLD="${RESTORE_WATCH_TRIGGER_MOLD:-true}"
 VEEAM_UI_RESTORE_SOURCE="${VEEAM_UI_RESTORE_SOURCE:-mold-only}"
 RESTORE_LOCK_DIR="${RESTORE_LOCK_DIR:-}"
 VEEAM_RESTORE_WATCH_WINDOW_MIN="${VEEAM_RESTORE_WATCH_WINDOW_MIN:-10}"
-
 # Bidirectional (mode C): Mold backup completion -> start matching Veeam Agent job.
 VEEAM_TRIGGER_ENABLED="${VEEAM_TRIGGER_ENABLED:-$([[ "${BACKUP_MODE}" == guest ]] && echo true || echo false)}"
 VEEAM_TRIGGER_TTL="${VEEAM_TRIGGER_TTL:-1800}"
@@ -516,6 +510,7 @@ VM_NAME="${VM_NAME_CFG}"
 
 CLEANUP_STAGING_AFTER_BACKUP="false"
 CLEANUP_STAGING_ON_ERROR="true"
+CLEANUP_DURABLE_STAGE_FORCE="false"
 
 NAS_BACKUP_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_nasbackup.sh"
 HOST_EXPORT_SCRIPT="/etc/ablestack/veeam/ablestack_veeam_host_export.sh"

@@ -100,6 +100,9 @@ kvm_ssh "$KVM_HOST" "mkdir -p /tmp/veeam-install"
 # Include parent Veeam NAS helper (seed import / local datadisk). Do not overwrite NAS/CVT originals.
 VEEAM_NAS_PARENT="${SCRIPT_DIR}/../ablestack_veeam_nasbackup.sh"
 kvm_scp -r "${SCRIPT_DIR}/"* "${KVM_HOST}:/tmp/veeam-install/"
+kvm_scp "${SCRIPT_DIR}/../ablestack_backup_secret_key.py" "${KVM_HOST}:/tmp/veeam-install/ablestack_backup_secret_key.py"
+kvm_scp "${SCRIPT_DIR}/../ablestack_backup_secret.py" "${KVM_HOST}:/tmp/veeam-install/ablestack_backup_secret.py"
+kvm_scp "${SCRIPT_DIR}/../BACKUP.md" "${KVM_HOST}:/tmp/veeam-install/BACKUP.md"
 [[ -f "$VEEAM_NAS_PARENT" ]] && kvm_scp "$VEEAM_NAS_PARENT" "${KVM_HOST}:/tmp/veeam-install/ablestack_veeam_nasbackup.sh"
 
 echo "=== install.sh on KVM ==="

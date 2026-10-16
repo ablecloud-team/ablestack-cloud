@@ -19,13 +19,12 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.List;
 
-public class AblestackNetBackupRestoreBackupCommand extends Command {
+public class AblestackNetBackupRestoreBackupCommand extends AblestackRestoreBackupCommand {
     private String vmName;
     private String backupPath;
     private List<String> backupVolumesUUIDs;
@@ -41,6 +40,12 @@ public class AblestackNetBackupRestoreBackupCommand extends Command {
     private VirtualMachine.State vmState;
     private Integer timeout;
     private String cacheMode;
+    private String restoreJobId;
+    private ThirdPartyBackupRestore.Plan volumeRestorePlan;
+
+    public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
+    public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
+    private boolean waitForCompletion = true;
 
     protected AblestackNetBackupRestoreBackupCommand() {
         super();
@@ -165,6 +170,22 @@ public class AblestackNetBackupRestoreBackupCommand extends Command {
 
     public void setCacheMode(final String cacheMode) {
         this.cacheMode = cacheMode;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(final String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     @Override

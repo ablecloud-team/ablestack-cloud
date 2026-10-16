@@ -151,6 +151,13 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
     }
 
     @Override
+    public List<BackupVO> listByZone(Long zoneId) {
+        SearchCriteria<BackupVO> sc = backupSearch.create();
+        sc.setParameters("zone_id", zoneId);
+        return listBy(sc);
+    }
+
+    @Override
     public List<Backup> listByVmIdAndOffering(Long zoneId, Long vmId, Long offeringId) {
         SearchCriteria<BackupVO> sc = backupSearch.create();
         sc.setParameters("vm_id", vmId);
@@ -159,6 +166,18 @@ public class BackupDaoImpl extends GenericDaoBase<BackupVO, Long> implements Bac
         }
         sc.setParameters("backup_offering_id", offeringId);
         return new ArrayList<>(listBy(sc));
+    }
+
+    @Override
+    public List<BackupVO> listByZoneAndStatus(Long zoneId, Backup.Status status) {
+        SearchBuilder<BackupVO> sb = createSearchBuilder();
+        sb.and("zone_id", sb.entity().getZoneId(), SearchCriteria.Op.EQ);
+        sb.and("status", sb.entity().getStatus(), SearchCriteria.Op.EQ);
+        sb.and("removed", sb.entity().getRemoved(), SearchCriteria.Op.NULL);
+        SearchCriteria<BackupVO> sc = sb.create();
+        sc.setParameters("zone_id", zoneId);
+        sc.setParameters("status", status);
+        return listBy(sc);
     }
 
     @Override

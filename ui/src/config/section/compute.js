@@ -17,6 +17,7 @@
 
 import { shallowRef, defineAsyncComponent } from 'vue'
 import store from '@/store'
+import { getAblestackBackupOfferingRemovalMessage, isAblestackBackupProvider } from '@/utils/ablestackBackupPolicy'
 import { snapshotBusy, snapshotActionReason } from '@/utils/vmSnapshotActions'
 import { isZoneCreated } from '@/utils/zone'
 import { partialScaleRecoverySize } from '@/utils/kubernetesScaleRecovery'
@@ -384,7 +385,10 @@ export default {
           message: 'message.backup.create',
           docHelp: 'adminguide/virtual_machines.html#creating-vm-backups',
           dataView: true,
-          show: (record) => { return record.backupofferingid },
+          show: (record) => {
+            const provider = (record.backupprovider || '').toLowerCase()
+            return record.backupofferingid && !['ablestack-netbackup', 'ablestack-veeam'].includes(provider)
+          },
           disabled: (record, store, selectedItems) => { return !!record.backupblockedreason || record.hostcontrolstate === 'Offline' || disableDuringFastCloneFlatten(record, store, selectedItems) },
           tooltip: (record, store, selectedItems) => record.backupblockedreason ? 'message.backup.snapshot.backup.blocked' : getFastCloneOperationTooltip(record, store, selectedItems, 'label.create.backup'),
           popup: true,
@@ -414,10 +418,10 @@ export default {
           api: 'removeVirtualMachineFromBackupOffering',
           icon: 'scissor-outlined',
           label: 'label.backup.offering.remove',
-          message: 'message.backup.offering.remove',
+          message: getAblestackBackupOfferingRemovalMessage,
           docHelp: 'adminguide/virtual_machines.html#restoring-vm-backups',
           dataView: true,
-          args: ['virtualmachineid', 'forced'],
+          args: (record) => isAblestackBackupProvider(record) ? ['virtualmachineid'] : ['virtualmachineid', 'forced'],
           show: (record) => { return record.backupofferingid },
           disabled: (record) => { return record.hostcontrolstate === 'Offline' },
           mapping: {

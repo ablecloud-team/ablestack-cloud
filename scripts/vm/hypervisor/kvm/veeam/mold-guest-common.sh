@@ -153,7 +153,9 @@ mold_host_ensure_kvm_prepost_scripts() {
   local post="${KVM_POST_NOTIFY_SCRIPT:-${etc}/ablestack_veeam_post_notify.sh}"
   local staging="${VEEAM_HOST_BACKUP_PATH:-/tmp/mold/veeam}"
   local ini="/etc/veeam/veeam.ini"
-  local timeout="${VEEAM_SCRIPT_TIMEOUT:-1800}"
+  # Keep the Veeam hook alive while Mold completes a detached host-side staging job.
+  # Keep this greater than backup.data.operation.timeout plus staging completion grace.
+  local timeout="${VEEAM_SCRIPT_TIMEOUT:-86400}"
 
   [[ -x "$pre" ]] || mold_guest_common_die "Missing pre-notify on KVM: ${pre} — run install.sh"
   [[ -x "$post" ]] || mold_guest_common_die "Missing post-notify on KVM: ${post} — run install.sh"

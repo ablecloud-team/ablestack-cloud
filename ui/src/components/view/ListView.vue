@@ -509,7 +509,15 @@
         </span>
       </template>
       <template v-if="column.key === 'status'">
+        <backup-progress
+          v-if="isBackupStatusColumn()"
+          :record="record"
+          :statusText="text ? text : ''"
+          @capabilities-change="record.capabilities = $event"
+              @cancellation-change="record.backupcancellationpending = $event"
+          @restore-finished="record.restoreoperationpending = false; record.restorejobstate = $event" />
         <status
+          v-else
           :text="text ? text : ''"
           displayText
         />
@@ -1192,6 +1200,7 @@ import InstanceGroupSummary from '@/views/compute/InstanceGroupSummary'
 import { listRowKey } from '@/utils/listRefresh'
 import { sshKeyPairLink } from '@/utils/sshKeyPairIdentity'
 import { getAPI, postAPI } from '@/api'
+import BackupProgress from '@/components/view/BackupProgress'
 import OsLogo from '@/components/widgets/OsLogo'
 import Status from '@/components/widgets/Status'
 import CloneFlattenControl from '@/components/widgets/CloneFlattenControl'
@@ -1212,6 +1221,7 @@ import { FileTextOutlined } from '@ant-design/icons-vue'
 export default {
   name: 'ListView',
   components: {
+    BackupProgress,
     AutoScaleListCell,
     InstanceGroupSummary,
     OsLogo,
@@ -1843,6 +1853,9 @@ export default {
         return name
       }
       return name.customTitle ?? name.field ?? Object.keys(name)[0]
+    },
+    isBackupStatusColumn () {
+      return this.$route.path.split('/')[1] === 'backup'
     },
     handleResizeColumn (w, col) {
       col.width = w
