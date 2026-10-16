@@ -254,6 +254,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if (recoverOperationFinalization(instance,operation)) return;
+        if (recoverUnchangedVerifiedSource(instance,operation)) return;
+        if (parseJsonObject(operation.getResultJson()).has(StorageUnchangedVerifiedSourceRecovery.RESULT_KEY))
+            throw new CloudRuntimeException("Unchanged verified SOURCE intent requires its original administrator's explicit reconciliation");
         if (recoverVerifiedPendingNfsAclTarget(instance,operation)) return;
         if (parseJsonObject(operation.getResultJson()).has("_verifiedPendingNfsAclTargetRecovery"))
             throw new CloudRuntimeException("Verified pending TARGET recovery requires its original administrator's explicit reconciliation");
@@ -314,6 +317,125 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove();adJoinRecoveryCredentials.remove(); }
             }
         }, System.currentTimeMillis());
+    }
+
+    /** Explicitly confirms a checkpointless create's unchanged prior verified SOURCE; never replays it. */
+    private boolean recoverUnchangedVerifiedSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId())
+                || !StorageUnchangedVerifiedSourceRecovery.eligible(operation)) return false;
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=unchangedVerifiedSourceProof(instance,operation);
+            verifyRecoveredStorageWriter(instance);
+            JsonObject result=parseJsonObject(operation.getResultJson());String key=StorageUnchangedVerifiedSourceRecovery.RESULT_KEY;
+            if(result.has(key) && !StorageUnchangedVerifiedSourceRecovery.same(result.get(key),proof))
+                throw new CloudRuntimeException("Unchanged SOURCE recovery intent no longer matches its original authority");
+            if(!result.has(key)) {
+                result.add(key,proof.deepCopy());operation.setResultJson(result.toString());
+                if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unchanged SOURCE intent could not be persisted");
+            }
+            verifyRecoveredStorageWriter(instance);
+            JsonObject finalProof=unchangedVerifiedSourceProof(instance,operation);
+            if(!StorageUnchangedVerifiedSourceRecovery.same(proof,finalProof))
+                throw new CloudRuntimeException("Unchanged verified SOURCE drifted before same-operation finalization");
+            requireNoOperationCancellation(operation);
+            String original=operation.getDiagnostic(),reason="Explicit original administrator verified unchanged prior SOURCE; no protocol replay or native configuration mutation";
+            String diagnostic=(original==null?"":original+" | ")+reason;
+            if(diagnostic.length()>2048)throw new CloudRuntimeException("Original failure cannot be preserved within the finalization diagnostic bound");
+            operation.setDiagnostic(diagnostic);completeOperationFinalization(operation,"ROLLED_BACK");return true;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    private JsonObject unchangedVerifiedSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if(!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId())
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || operation.getInstanceId()!=instance.getId() || instance.getVmId()==null
+                || storageOperationDao==null || storageOperationControlDao==null || storageTemplateUpgradeDao==null
+                || storageRuntimeUpgradeDao==null || volumeDao==null || storageWriterOperation.get()!=operation)
+            throw new CloudRuntimeException("Unchanged SOURCE recovery requires its explicit original administrator and available writer guards");
+        requireNoOperationCancellation(operation);
+        if(storageOperationControlDao.findByOperation(operation.getId())!=null)
+            throw new CloudRuntimeException("Checkpointless SOURCE recovery cannot adopt an operation resource control");
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        if(fresh==null || !StorageUnchangedVerifiedSourceRecovery.eligible(fresh)
+                || fresh.getInstanceId()!=operation.getInstanceId() || fresh.getCreatedBy()!=operation.getCreatedBy()
+                || fresh.getRevision()!=operation.getRevision() || !java.util.Objects.equals(fresh.getUuid(),operation.getUuid())
+                || !java.util.Objects.equals(fresh.getPhase(),operation.getPhase())
+                || !java.util.Objects.equals(fresh.getPreviousSnapshotJson(),operation.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(fresh.getSnapshotJson(),operation.getSnapshotJson())
+                || !java.util.Objects.equals(fresh.getResultJson(),operation.getResultJson()))
+            throw new CloudRuntimeException("Checkpointless SOURCE operation changed");
+        List<StorageServiceOperationVO> history=storageOperationDao.listByInstance(instance.getId());
+        if(history==null || StorageOperationReconciliation.superseded(operation,history))
+            throw new CloudRuntimeException("A later verified revision prevents unchanged SOURCE recovery");
+        StorageServiceOperationVO source=null;
+        for(StorageServiceOperationVO row:history) {
+            if(row.getId()!=operation.getId() && Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))
+                throw new CloudRuntimeException("Another unresolved writer prevents unchanged SOURCE recovery");
+            if("COMPLETE".equals(row.getState()) && (source==null || row.getRevision()>source.getRevision()))source=row;
+        }
+        if(source==null)throw new CloudRuntimeException("Unchanged SOURCE lacks its prior COMPLETE operation");
+        final long sourceId=source.getId(),sourceRevision=source.getRevision();
+        if(history.stream().filter(row->"COMPLETE".equals(row.getState()) && row.getRevision()==sourceRevision).count()!=1)
+            throw new CloudRuntimeException("Unchanged SOURCE has an ambiguous verified revision");
+        StorageServiceOperationVO currentSource=storageOperationDao.findById(sourceId);
+        if(currentSource==null || currentSource.getInstanceId()!=instance.getId()
+                || !java.util.Objects.equals(source.getUuid(),currentSource.getUuid()) || sourceRevision!=currentSource.getRevision()
+                || !java.util.Objects.equals(source.getSnapshotJson(),currentSource.getSnapshotJson())
+                || !java.util.Objects.equals(source.getResultJson(),currentSource.getResultJson()))
+            throw new CloudRuntimeException("Prior COMPLETE SOURCE changed");
+        requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
+        String snapshot=captureConfigurationSnapshot(instance.getId());JsonObject bindings=operationResourceBindings(instance);
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status"),generation=getJsonObject(status,"generation");
+        if(generation==null)throw new CloudRuntimeException("Unchanged SOURCE native pointer is unavailable");
+        JsonObject frozen=rootGuest(instance,"operation generation frozen",generation,30);
+        JsonObject proof=StorageUnchangedVerifiedSourceRecovery.require(instance.getUuid(),operation,currentSource,snapshot,bindings,status,frozen);
+        Set<String> covered=new HashSet<>();Map<String,String> filesystemByVolume=new HashMap<>();
+        JsonObject desired=frozen.getAsJsonObject("configurationDesiredState");
+        for(StorageServiceInstance.Protocol protocol:List.of(StorageServiceInstance.Protocol.NFS,StorageServiceInstance.Protocol.SMB)) {
+            JsonElement document=desired.get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(protocol));
+            if(document==null || document.isJsonNull())continue;
+            JsonArray shares=document.getAsJsonObject().getAsJsonArray(protocol==StorageServiceInstance.Protocol.NFS?"exports":"shares");
+            if(shares==null)throw new CloudRuntimeException("Unchanged SOURCE file DATA declaration is unavailable");
+            for(JsonElement element:shares) {
+                JsonObject config=element.getAsJsonObject().getAsJsonObject("config");
+                String volumeUuid=getJsonString(config,"attachedVolumeUuid"),filesystemUuid=getJsonString(config,"filesystemUuid");
+                if(!nativeGenerationCanonicalUuid(volumeUuid) || !nativeGenerationCanonicalUuid(filesystemUuid))
+                    throw new CloudRuntimeException("Unchanged SOURCE file DATA identity is unavailable");
+                String previous=filesystemByVolume.putIfAbsent(volumeUuid,filesystemUuid);
+                if(previous!=null && !previous.equals(filesystemUuid))throw new CloudRuntimeException("Unchanged SOURCE DATA filesystem is ambiguous");
+                if(!covered.add(volumeUuid))continue;
+                VolumeVO volume=volumeDao.findByUuid(volumeUuid);
+                if(volume==null || !java.util.Objects.equals(volume.getInstanceId(),instance.getVmId())
+                        || !bindings.getAsJsonObject("dataVolumes").has(volumeUuid))
+                    throw new CloudRuntimeException("Unchanged SOURCE DATA binding changed");
+                JsonObject observed=completedVolumePreparationObservation(instance,volume),identity=observed.getAsJsonObject("currentIdentity");
+                if(!getJsonString(status,"bootId").equals(getJsonString(observed,"bootId"))
+                        || !filesystemUuid.equals(getJsonString(identity,"filesystemUuid"))
+                        || !volumeUuid.equals(getJsonString(identity,"volumeUuid"))
+                        || resourceWhole(identity,"sizeBytes")!=volume.getSize())
+                    throw new CloudRuntimeException("Unchanged SOURCE physical DATA identity changed");
+            }
+        }
+        if(!covered.equals(bindings.getAsJsonObject("dataVolumes").keySet()))
+            throw new CloudRuntimeException("Unchanged SOURCE must freshly observe every attached file DATA disk");
+        JsonObject lease=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,operation),15);
+        requireFreshReservationObservation(lease);
+        if(!Boolean.TRUE.equals(getNativeBoolean(lease,"success")) || !Boolean.TRUE.equals(getNativeBoolean(lease,"reservationSupported"))
+                || !Boolean.TRUE.equals(getNativeBoolean(lease,"logicalReservationOnly"))
+                || !Boolean.FALSE.equals(getNativeBoolean(lease,"reservationAcquired")) || !Boolean.FALSE.equals(getNativeBoolean(lease,"expired"))
+                || !lease.has("scope") || !lease.get("scope").isJsonNull() || !lease.has("requirements") || !lease.get("requirements").isJsonNull()
+                || !lease.has("leaseBootId") || !lease.get("leaseBootId").isJsonNull()
+                || !getJsonString(status,"bootId").equals(getJsonString(lease,"bootId")))
+            throw new CloudRuntimeException("Unchanged SOURCE requires fresh logical reservation absence");
+        requireNoOperationCancellation(operation);
+        JsonObject latest=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject finalProof=StorageUnchangedVerifiedSourceRecovery.require(instance.getUuid(),operation,currentSource,
+                captureConfigurationSnapshot(instance.getId()),operationResourceBindings(instance),latest,frozen);
+        if(!StorageUnchangedVerifiedSourceRecovery.same(proof,finalProof))
+            throw new CloudRuntimeException("Unchanged SOURCE changed during physical observation");
+        return finalProof;
     }
 
     /**
@@ -550,6 +672,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     private final ThreadLocal<StorageServiceOperationVO> storageWriterOperation = new ThreadLocal<>();
     // Set only by the explicit API under its instance writer lock, never by background recovery.
     private final ThreadLocal<Long> explicitVerifiedNfsAclRecovery = new ThreadLocal<>();
+    private final ThreadLocal<Long> explicitUnchangedSourceRecovery = new ThreadLocal<>();
     private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
     private final ThreadLocal<JsonObject> configurationRecoverySource = new ThreadLocal<>();
     private final ThreadLocal<JsonArray> configurationRecoveryBindings = new ThreadLocal<>();
@@ -4649,10 +4772,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
                     else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))recoverRenderedStorageWriter(instance,operation);
                     else {
-                        Long previousExplicit=explicitVerifiedNfsAclRecovery.get();
-                        explicitVerifiedNfsAclRecovery.set(operation.getId());
+                        Long previousExplicit=explicitVerifiedNfsAclRecovery.get(), previousSource=explicitUnchangedSourceRecovery.get();
+                        explicitVerifiedNfsAclRecovery.set(operation.getId());explicitUnchangedSourceRecovery.set(operation.getId());
                         try {recoverInterruptedStorageWriter(instance, operation);}
-                        finally {if(previousExplicit==null)explicitVerifiedNfsAclRecovery.remove();else explicitVerifiedNfsAclRecovery.set(previousExplicit);}
+                        finally {
+                            if(previousExplicit==null)explicitVerifiedNfsAclRecovery.remove();else explicitVerifiedNfsAclRecovery.set(previousExplicit);
+                            if(previousSource==null)explicitUnchangedSourceRecovery.remove();else explicitUnchangedSourceRecovery.set(previousSource);
+                        }
                     }
                     final org.apache.cloudstack.api.response.StorageServiceOperationResponse recovered = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
                     recovered.setId(operation.getUuid());recovered.setInstanceid(instance.getUuid());recovered.setAction(operation.getAction());
