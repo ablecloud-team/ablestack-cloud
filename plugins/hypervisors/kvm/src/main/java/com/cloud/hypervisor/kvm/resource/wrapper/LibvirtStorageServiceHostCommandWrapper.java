@@ -190,81 +190,10 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     private static final String SHAREDFS_NETWORK_STATE = "/etc/ablestack-storage/sharedfs-network.json";
     private static final String SHAREDFS_NETWORK_HELPER = "/usr/local/sbin/ablestack-sharedfs-network";
     private static final String SHAREDFS_NETWORK_UNIT = "/etc/systemd/system/ablestack-sharedfs-network.service";
-    private static final String SHAREDFS_NETWORK_HELPER_CONTENT = String.join("\n",
-            "#!/usr/bin/env python3",
-            "import ipaddress",
-            "import json",
-            "import os",
-            "import signal",
-            "import time",
-            "import subprocess",
-            "import sys",
-            "from pathlib import Path",
-            "",
-            "def run(*args):",
-            "    return subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout",
-            "",
-            "state_path = Path(sys.argv[1])",
-            "state = json.loads(state_path.read_text(encoding='utf-8'))",
-            "network = ipaddress.ip_network(state['cidr'], strict=False)",
-            "address = ipaddress.ip_address(state['ipAddress'])",
-            "gateway = ipaddress.ip_address(state['gateway']) if state.get('gateway') else None",
-            "dns = [ipaddress.ip_address(state[key]) for key in ('dns1', 'dns2') if state.get(key)]",
-            "if network.version != 4 or address.version != 4 or address not in network or (gateway and (gateway.version != 4 or gateway not in network)):",
-            "    raise ValueError('invalid SharedFS static IPv4 configuration')",
-            "if address in (network.network_address, network.broadcast_address):",
-            "    raise ValueError('SharedFS static IP cannot be the network or broadcast address')",
-            "if gateway and (gateway == address or gateway in (network.network_address, network.broadcast_address) or gateway.is_unspecified or gateway.is_multicast or gateway.is_loopback or gateway.is_link_local):",
-            "    raise ValueError('SharedFS gateway must be a unicast router address in the selected CIDR')",
-            "mac = state['macAddress'].lower()",
-            "interfaces = [path for path in Path('/sys/class/net').iterdir() if path.name != 'lo']",
-            "interface = next((path.name for path in interfaces if (path / 'address').read_text().strip().lower() == mac), None)",
-            "if not interface:",
-            "    raise RuntimeError('unable to find SharedFS NIC by MAC address ' + mac)",
-            "subprocess.run(['systemctl', 'disable', '--now', 'cloud-dhclient@' + interface + '.service'], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
-            "run('systemctl', 'mask', '--now', 'cloud-dhclient@' + interface + '.service')",
-            "for proc in Path('/proc').iterdir():",
-            "    if not proc.name.isdigit(): continue",
-            "    try:",
-            "        argv = (proc / 'cmdline').read_bytes().split(bytes([0]))",
-            "        if not argv or Path(os.fsdecode(argv[0])).name != 'dhclient' or interface.encode() not in argv: continue",
-            "        os.kill(int(proc.name), signal.SIGTERM)",
-            "        deadline = time.monotonic() + 5",
-            "        while proc.exists() and time.monotonic() < deadline: time.sleep(0.1)",
-            "        if proc.exists(): raise RuntimeError('DHCP client did not stop for ' + interface)",
-            "    except (FileNotFoundError, ProcessLookupError): pass",
-            "run('ip', 'link', 'set', 'dev', interface, 'up')",
-            "run('ip', '-4', 'addr', 'flush', 'dev', interface, 'scope', 'global')",
-            "run('ip', 'addr', 'replace', str(address) + '/' + str(network.prefixlen), 'dev', interface)",
-            "subprocess.run(['ip', 'route', 'del', 'default', 'dev', interface], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)",
-            "if gateway:",
-            "    run('ip', 'route', 'replace', 'default', 'via', str(gateway), 'dev', interface)",
-            "if dns:",
-            "    Path('/etc/resolv.conf').write_text(''.join('nameserver ' + str(server) + '\\n' for server in dns), encoding='utf-8')",
-            "addresses = json.loads(run('ip', '-j', '-4', 'addr', 'show', 'dev', interface))",
-            "routes = json.loads(run('ip', '-j', '-4', 'route', 'show', 'default'))",
-            "configured = any(info.get('local') == str(address) and info.get('prefixlen') == network.prefixlen for item in addresses for info in item.get('addr_info', []))",
-            "routed = gateway is None or any(route.get('gateway') == str(gateway) and route.get('dev') == interface for route in routes)",
-            "if not configured or not routed:",
-            "    raise RuntimeError('SharedFS static network verification failed')",
-            "print(json.dumps({'interface': interface, 'ipAddress': str(address), 'cidr': str(network), 'gateway': str(gateway) if gateway else None, 'dns': [str(server) for server in dns]}, separators=(',', ':')))",
-            "");
-    private static final String SHAREDFS_NETWORK_UNIT_CONTENT = String.join("\n",
-            "[Unit]",
-            "Description=ABLESTACK SharedFS static network restore",
-            "After=local-fs.target",
-            "Before=network-pre.target network.target ablestack-storage-reconcile.service",
-            "Wants=network-pre.target",
-            "ConditionPathExists=" + SHAREDFS_NETWORK_STATE,
-            "",
-            "[Service]",
-            "Type=oneshot",
-            "ExecStart=" + SHAREDFS_NETWORK_HELPER + " " + SHAREDFS_NETWORK_STATE,
-            "RemainAfterExit=yes",
-            "",
-            "[Install]",
-            "WantedBy=multi-user.target",
-            "");
+    private static final String SHAREDFS_RECONCILE_UNIT = "/etc/systemd/system/ablestack-storage-reconcile.service";
+    private static final String SHAREDFS_DHCP_UNIT = "/etc/systemd/system/cloud-dhclient@.service";
+    private static final String SHAREDFS_NETWORK_RESOURCE_ROOT = "/META-INF/ablestack/sharedfs-network/";
+
 
     @Override
     public Answer execute(final StorageServiceHostCommand command, final LibvirtComputingResource libvirtComputingResource) {
@@ -549,20 +478,95 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
 
     protected String buildSharedFsStaticNetworkShell(final StorageServiceHostCommand command) {
         final String payload = command.getPayload() == null ? "" : command.getPayload();
-        final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
-        final String encodedHelper = Base64.getEncoder().encodeToString(SHAREDFS_NETWORK_HELPER_CONTENT.getBytes(StandardCharsets.UTF_8));
-        final String encodedUnit = Base64.getEncoder().encodeToString(SHAREDFS_NETWORK_UNIT_CONTENT.getBytes(StandardCharsets.UTF_8));
-        return "set -e; install -d -m 0755 /etc/ablestack-storage; " +
-                "printf '%s' '" + encodedPayload + "' | base64 -d > " + SHAREDFS_NETWORK_STATE + ".tmp; " +
-                "python3 -m json.tool " + SHAREDFS_NETWORK_STATE + ".tmp >/dev/null; " +
-                "mv " + SHAREDFS_NETWORK_STATE + ".tmp " + SHAREDFS_NETWORK_STATE + "; chmod 0600 " + SHAREDFS_NETWORK_STATE + "; " +
-                "printf '%s' '" + encodedHelper + "' | base64 -d > " + SHAREDFS_NETWORK_HELPER + ".tmp; " +
-                "mv " + SHAREDFS_NETWORK_HELPER + ".tmp " + SHAREDFS_NETWORK_HELPER + "; chmod 0755 " + SHAREDFS_NETWORK_HELPER + "; " +
-                "printf '%s' '" + encodedUnit + "' | base64 -d > " + SHAREDFS_NETWORK_UNIT + ".tmp; " +
-                "mv " + SHAREDFS_NETWORK_UNIT + ".tmp " + SHAREDFS_NETWORK_UNIT + "; chmod 0644 " + SHAREDFS_NETWORK_UNIT + "; " +
+        final String encodedLegacyPatch = Base64.getEncoder().encodeToString(
+                buildSharedFsLegacyMonitorPatch().getBytes(StandardCharsets.UTF_8));
+        return "set -e; umask 077; install -d -m 0755 /etc/ablestack-storage; " +
+                "printf '%s' '" + encodedLegacyPatch + "' | base64 -d | python3; " +
+                installSharedFsNetworkFile(SHAREDFS_NETWORK_HELPER,
+                        sharedFsNetworkResource("usr/local/sbin/ablestack-sharedfs-network"), "0755") +
+                installSharedFsNetworkFile(SHAREDFS_NETWORK_UNIT,
+                        sharedFsNetworkResource("etc/systemd/system/ablestack-sharedfs-network.service"), "0644") +
+                installSharedFsNetworkFile(SHAREDFS_RECONCILE_UNIT,
+                        sharedFsNetworkResource("etc/systemd/system/ablestack-storage-reconcile.service"), "0644") +
+                installSharedFsNetworkFile(SHAREDFS_DHCP_UNIT,
+                        sharedFsNetworkResource("etc/systemd/system/cloud-dhclient@.service"), "0644") +
+                installSharedFsNetworkFile(SHAREDFS_NETWORK_STATE, payload.getBytes(StandardCharsets.UTF_8), "0600") +
                 "systemctl daemon-reload; systemctl enable ablestack-sharedfs-network.service >/dev/null; " +
                 "systemctl restart ablestack-sharedfs-network.service; systemctl --no-pager --full status ablestack-sharedfs-network.service >/dev/null; " +
                 SHAREDFS_NETWORK_HELPER + " " + SHAREDFS_NETWORK_STATE;
+    }
+
+    private byte[] sharedFsNetworkResource(String path) {
+        try (java.io.InputStream resource = getClass().getResourceAsStream(SHAREDFS_NETWORK_RESOURCE_ROOT + path)) {
+            if (resource == null) {
+                throw new IllegalStateException("Canonical SharedFS network resource is unavailable: " + path);
+            }
+            return resource.readAllBytes();
+        } catch (java.io.IOException failure) {
+            throw new IllegalStateException("Unable to read canonical SharedFS network resource: " + path, failure);
+        }
+    }
+
+    private String installSharedFsNetworkFile(String path, byte[] content, String mode) {
+        String encoded = Base64.getEncoder().encodeToString(content);
+        String validate = SHAREDFS_NETWORK_STATE.equals(path)
+                ? "python3 -m json.tool " + path + ".tmp >/dev/null; " : "";
+        return "printf '%s' '" + encoded + "' | base64 -d > " + path + ".tmp; " +
+                validate + "chmod " + mode + " " + path + ".tmp; mv " + path + ".tmp " + path + "; ";
+    }
+
+    protected String buildSharedFsLegacyMonitorPatch() {
+        return String.join("\n",
+                "import os, stat, tempfile",
+                "from pathlib import Path",
+                "def rewrite_monitor_startup(raw):",
+                "    old = 'systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "    new = 'systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "    unmask = 'systemctl unmask ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "    lines = raw.decode('utf-8').splitlines(keepends=True)",
+                "    if sum(line.strip() == unmask for line in lines) > 1:",
+                "        raise ValueError('Duplicate SharedFS legacy monitor unmask')",
+                "    matches = [index for index, line in enumerate(lines)",
+                "               if not line.lstrip().startswith('#') and 'systemctl' in line",
+                "               and 'ablestack-storage-monitor.service' in line and line.strip() != unmask]",
+                "    if len(matches) != 1 or lines[matches[0]].strip() not in (old, new):",
+                "        raise ValueError('SharedFS legacy monitor startup is unknown')",
+                "    if lines[matches[0]].strip() == new:",
+                "        return None",
+                "    lines[matches[0]] = lines[matches[0]].replace(old, new)",
+                "    return ''.join(lines).encode('utf-8')",
+                "path = Path('/opt/cloud/bin/setup/sharedfsvm.sh')",
+                "def signature(value):",
+                "    return (value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_gid,",
+                "            value.st_size, value.st_mtime_ns, value.st_ctime_ns)",
+                "before = path.lstat()",
+                "if not stat.S_ISREG(before.st_mode) or before.st_uid != 0 or before.st_mode & 0o022:",
+                "    raise ValueError('SharedFS legacy setup identity rejected')",
+                "with path.open('rb') as stream:",
+                "    if signature(os.fstat(stream.fileno())) != signature(before):",
+                "        raise ValueError('SharedFS legacy setup identity changed')",
+                "    raw = stream.read(1048577)",
+                "    if len(raw) > 1048576 or signature(os.fstat(stream.fileno())) != signature(before):",
+                "        raise ValueError('SharedFS legacy setup content rejected')",
+                "if signature(path.lstat()) != signature(before):",
+                "    raise ValueError('SharedFS legacy setup identity changed')",
+                "replacement = rewrite_monitor_startup(raw)",
+                "if replacement is not None:",
+                "    descriptor, temporary = tempfile.mkstemp(prefix='.sharedfs-network-', dir=str(path.parent))",
+                "    try:",
+                "        with os.fdopen(descriptor, 'wb') as stream:",
+                "            os.fchmod(stream.fileno(), stat.S_IMODE(before.st_mode))",
+                "            os.fchown(stream.fileno(), before.st_uid, before.st_gid)",
+                "            stream.write(replacement)",
+                "            stream.flush()",
+                "            os.fsync(stream.fileno())",
+                "        if signature(path.lstat()) != signature(before):",
+                "            raise ValueError('SharedFS legacy setup identity changed')",
+                "        os.replace(temporary, path)",
+                "    finally:",
+                "        if os.path.lexists(temporary):",
+                "            os.unlink(temporary)",
+                "");
     }
 
     protected String decodeGuestData(final JsonObject response, final String field) {

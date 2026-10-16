@@ -41,6 +41,120 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
     }
 
     @Test
+    public void staticInstallerUsesCanonicalBootOrderingAndReconcileUnit() {
+        String shell = wrapper.buildStorageCtlShell(new StorageServiceHostCommand("sharedfs-test",
+                "configure-sharedfs-static-network", "{}", 60, Collections.emptySet()));
+        String unit = installedContent(shell, "/etc/systemd/system/ablestack-sharedfs-network.service");
+        Assert.assertTrue(unit.contains("cloud-preinit.service"));
+        Assert.assertTrue(unit.contains("cloud-early-config.service"));
+        String reconcile = installedContent(shell, "/etc/systemd/system/ablestack-storage-reconcile.service");
+        Assert.assertTrue(reconcile.contains("Requires="));
+        Assert.assertTrue(reconcile.contains("ablestack-sharedfs-network.service"));
+        Assert.assertFalse(reconcile.contains("cloud-dhclient@eth0.service"));
+        Assert.assertFalse(reconcile.contains("network-online.target"));
+    }
+
+    @Test
+    public void networkInstallerPublishesTheExactCanonicalTemplateBytes() throws Exception {
+        String shell = wrapper.buildStorageCtlShell(new StorageServiceHostCommand("sharedfs-test",
+                "configure-sharedfs-static-network", "{}", 60, Collections.emptySet()));
+        for (String path : new String[] {
+                "usr/local/sbin/ablestack-sharedfs-network",
+                "etc/systemd/system/ablestack-sharedfs-network.service",
+                "etc/systemd/system/ablestack-storage-reconcile.service",
+                "etc/systemd/system/cloud-dhclient@.service"}) {
+            byte[] canonical = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(
+                    System.getProperty("basedir"), "../../../systemvm/debian", path).normalize());
+            try (java.io.InputStream resource = getClass().getResourceAsStream(
+                    "/META-INF/ablestack/sharedfs-network/" + path)) {
+                Assert.assertNotNull(path, resource);
+                Assert.assertArrayEquals(canonical, resource.readAllBytes());
+            }
+            Assert.assertEquals(new String(canonical, java.nio.charset.StandardCharsets.UTF_8),
+                    installedContent(shell, "/" + path));
+        }
+        Assert.assertFalse(shell.contains("enable cloud-dhclient@"));
+    }
+
+    @Test
+    public void legacyMonitorPatchOnlyChangesItsKnownStartupLineAndIsIdempotent() throws Exception {
+        String encoded = java.util.Base64.getEncoder().encodeToString(
+                wrapper.buildSharedFsLegacyMonitorPatch().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String fixture = String.join("\n",
+                "import ast,base64",
+                "source=base64.b64decode('" + encoded + "').decode('utf-8')",
+                "nodes=[n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='rewrite_monitor_startup']",
+                "assert len(nodes)==1",
+                "exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-installer-policy>','exec'))",
+                "old=b'systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "new=b'systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "before=b'#!/bin/bash\\n# retained\\n  '+old+b'\\nkeep_other_setup\\n'",
+                "after=b'#!/bin/bash\\n# retained\\n  '+new+b'\\nkeep_other_setup\\n'",
+                "assert rewrite_monitor_startup(before)==after",
+                "assert rewrite_monitor_startup(after) is None",
+                "for rejected in (b'',old+b'\\n'+old,old+b'\\n'+new,b'systemctl start ablestack-storage-monitor.service'):",
+                "    try: rewrite_monitor_startup(rejected)",
+                "    except ValueError: continue",
+                "    raise AssertionError('unknown or duplicate startup accepted')");
+        Process process = new ProcessBuilder("python3", "-c", fixture).redirectErrorStream(true).start();
+        if (!process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            Assert.fail("Installer policy fixture exceeded its deadline");
+        }
+        String output = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        Assert.assertEquals(output, 0, process.exitValue());
+    }
+
+    @Test
+    public void legacyMonitorPatchAcceptsActualLegacyAndCanonicalWholeScripts() throws Exception {
+        String legacy;
+        try (java.io.InputStream input = getClass().getResourceAsStream("/sharedfs-network/legacy-sharedfsvm.sh")) {
+            Assert.assertNotNull(input);
+            legacy = java.util.Base64.getEncoder().encodeToString(input.readAllBytes());
+        }
+        String canonical = java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(System.getProperty("basedir"),
+                        "../../../systemvm/debian/opt/cloud/bin/setup/sharedfsvm.sh").normalize()));
+        String encoded = java.util.Base64.getEncoder().encodeToString(
+                wrapper.buildSharedFsLegacyMonitorPatch().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String fixture = String.join("\n",
+                "import ast,base64",
+                "source=base64.b64decode('" + encoded + "').decode('utf-8')",
+                "nodes=[n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name=='rewrite_monitor_startup']",
+                "exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-installer-policy>','exec'))",
+                "legacy=base64.b64decode('" + legacy + "')",
+                "canonical=base64.b64decode('" + canonical + "')",
+                "old=b'systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "new=b'systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "unmask=b'systemctl unmask ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "assert legacy.count(old)==1 and legacy.count(unmask)==1",
+                "assert canonical.count(new)==1 and canonical.count(unmask)==1",
+                "assert rewrite_monitor_startup(legacy)==legacy.replace(old,new)",
+                "assert rewrite_monitor_startup(canonical) is None",
+                "for rejected in (legacy+unmask+b'\\n',canonical+b'systemctl restart ablestack-storage-monitor.service\\n',",
+                "                 legacy.replace(unmask,b'systemctl unmask --now ablestack-storage-monitor.service')):",
+                "    try: rewrite_monitor_startup(rejected)",
+                "    except ValueError: continue",
+                "    raise AssertionError('unknown or duplicate monitor command accepted')");
+        Process process = new ProcessBuilder("python3", "-c", fixture).redirectErrorStream(true).start();
+        if (!process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            Assert.fail("Whole-script installer fixture exceeded its deadline");
+        }
+        String output = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        Assert.assertEquals(output, 0, process.exitValue());
+    }
+
+    private String installedContent(String shell, String path) {
+        java.util.regex.Matcher encoded = java.util.regex.Pattern.compile(
+                "printf '%s' '([A-Za-z0-9+/=]+)' \\| base64 -d > "
+                + java.util.regex.Pattern.quote(path + ".tmp")).matcher(shell);
+        Assert.assertTrue("Installer must publish " + path, encoded.find());
+        return new String(java.util.Base64.getDecoder().decode(encoded.group(1)),
+                java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    @Test
     public void testGenericStorageOperationStillUsesStorageCtl() {
         StorageServiceHostCommand command = new StorageServiceHostCommand("sharedfs-test",
                 "apply-nfs-desired-state", "{}", 60, Collections.emptySet());

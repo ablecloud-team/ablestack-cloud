@@ -134,6 +134,11 @@ function install_cloud_scripts() {
   systemctl enable cloud-preinit
   systemctl enable cloud-early-config
   systemctl enable cloud-postinit
+  if [ ! -x /usr/local/sbin/ablestack-sharedfs-network ] || [ ! -s /etc/systemd/system/ablestack-sharedfs-network.service ] || [ ! -s /etc/systemd/system/cloud-dhclient@.service ] || [ ! -s /etc/systemd/system/ablestack-storage-reconcile.service ] || [ ! -s /etc/systemd/system/ablestack-storage-monitor.service ]; then
+    echo "Missing SharedFS mode-aware network readiness runtime" >&2
+    exit 1
+  fi
+  systemctl enable ablestack-sharedfs-network.service
   if [ -f /etc/systemd/system/ablestack-storage-runtime-bootstrap.service ]; then
     chmod 0644 /etc/systemd/system/ablestack-storage-runtime-bootstrap.service
     systemctl unmask ablestack-storage-runtime-bootstrap.service || true

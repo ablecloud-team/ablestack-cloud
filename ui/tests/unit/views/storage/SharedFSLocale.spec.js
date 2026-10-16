@@ -17,6 +17,7 @@
 
 import fs from 'fs'
 import path from 'path'
+import { networkMismatchCodes } from '@/utils/storageNetworkReadiness'
 
 const uiRoot = path.resolve(__dirname, '../../../..')
 const sourceFiles = [
@@ -27,7 +28,8 @@ const sourceFiles = [
   'src/views/storage/PosixPolicyInheritance.vue',
   'src/views/storage/StorageServiceConfiguration.vue',
   'src/views/storage/StorageOperationHistory.vue',
-  'src/views/storage/StorageVolumePreparation.vue'
+  'src/views/storage/StorageVolumePreparation.vue',
+  'src/views/storage/StorageNetworkStatus.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
@@ -99,5 +101,18 @@ describe('Volume preparation phase locale contract', () => {
   const phases = ['WAITING_DEVICE', 'VERIFYING_IDENTITY', 'FORMATTING', 'VERIFYING_FILESYSTEM', 'FILESYSTEM_VERIFIED', 'MOUNTING', 'PERSISTING_MOUNT', 'APPLYING_SERVICE', 'COMPLETE', 'TIMED_OUT_PENDING_RECONCILE', 'RECOVERY_REQUIRED', 'RECONCILE_REQUIRED', 'NOT_STARTED', 'IDENTITY_MISMATCH', 'ERROR']
   it.each(Object.keys(localeFiles))('defines every preparation phase in %s', locale => {
     for (const phase of phases) expect(localeMessages[locale]['label.storage.volume.phase.' + phase]).toEqual(expect.any(String))
+  })
+})
+
+describe('#913 network readiness locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines every public mismatch and validation state in %s', locale => {
+    const keys = [
+      'message.sharedfs.static.gateway.invalid',
+      ...Array.from(readUiFile('src/views/storage/StorageNetworkStatus.vue').matchAll(/\{ key: '([^']+)'/g), match => 'label.storage.service.network.' + match[1]),
+      ...networkMismatchCodes.map(code => 'message.storage.service.network.reason.' + code),
+      ...['OK', 'ERROR', 'UNKNOWN'].map(status => 'label.storage.service.network.status.' + status)
+    ]
+    for (const key of keys) expect(localeMessages[locale][key]).toEqual(expect.any(String))
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })
 })
