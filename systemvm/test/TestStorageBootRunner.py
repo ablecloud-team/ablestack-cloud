@@ -74,4 +74,14 @@ class StorageBootRunnerTest(unittest.TestCase):
         result=subprocess.run([str(cli),'operation','writer-idle'],capture_output=True,text=True,env=environment,timeout=5)
         self.assertTrue(json.loads(result.stdout)['writerIdle'])
 
+
+    def test_actual_child_capture_stays_in_memfd_and_updates_heartbeat_while_running(self):
+        ticks=[]
+        result=module.BootRunner(time.monotonic()+4).run(
+            [sys.executable,'-c','import time;print("PUBLIC_RESULT",flush=True);time.sleep(1.1)'],
+            heartbeat=lambda:ticks.append(time.monotonic()),capture=True)
+        self.assertTrue(result['success']);self.assertEqual('PUBLIC_RESULT',result['output'].strip())
+        self.assertGreaterEqual(len(ticks),2)
+        self.assertEqual(['state'],[item.name for item in Path(self.temp.name).iterdir()])
+
 if __name__=='__main__':unittest.main()

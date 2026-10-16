@@ -225,4 +225,65 @@ class StorageRenderedDriverTest(unittest.TestCase):
             record=driver.runtime.nvme_credentials.read();record["instanceUuid"]=str(uuid.uuid4());driver.runtime.nvme_credentials.persist(record)
             with self.assertRaisesRegex(ValueError,"another source instance"):driver.baseline_credential_refs(request,source)
 
+    def test_rendered_boot_nfs_retry_does_not_reapply_verified_smb(self):
+        from boot_reconcile import BootCoordinator
+        from rendered_generation import DOMAINS
+        scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":3}
+        current={"scope":scope,"configurationSha256":"a"*64,"domainSha256":{domain:hashlib.sha256(domain.encode()).hexdigest() for domain in DOMAINS}}
+        store=RenderedGeneration(self.root/"render")
+        store.status=lambda:{"success":True,"bootHeld":False,"current":current,"activation":None}
+        store.pointer=lambda:self.root/"immutable"
+        driver=RenderedDriver(self.cli,store)
+        driver.generation=lambda:{"generation":scope,"generationStatus":"IN_SYNC","configurationSha256":"a"*64,"pendingOperationUuid":None}
+        driver.runtime.command=lambda *args,**kwargs:{"success":True,"bootHeld":False}
+        driver.verify=lambda path,domains=None:{domain:True for domain in domains or DOMAINS}
+        driver.persist_desired=lambda path:None
+        coordinator=BootCoordinator("a"*64,{"probeTasks":1,"endpointModeGroups":1,"configuredProtocolCount":2,"concurrency":1},
+            scope["instanceUuid"],journal=self.root/"progress"/"status.json",checkpoint_dir=self.root/"receipts",configured_protocols=("NFS","SMB"))
+        calls={domain:0 for domain in DOMAINS}
+        def report(success=True,domain="NFS"):
+            counted=domain=="NFS"
+            kind="MOUNT_PROBES_COMPLETE" if counted else "EXACT_RUNTIME_READBACK" if domain=="SMB" else "NOT_REQUIRED"
+            return {"success":success,"runtimeReady":True,"detailVerified":success,"probePending":0 if success else 1,
+                    "completedProbeCount":1 if success and counted else 0,"totalProbeCount":1 if counted else 0,"skippedAclCount":0,
+                    "detailVerificationKind":kind if success else "UNVERIFIED","lastFailure":None}
+        def replay(path,domain,**kwargs):
+            calls[domain]+=1
+            return report(domain!="NFS" or calls[domain]>1,domain)
+        driver.runtime.replay=replay
+        driver.runtime.boot_report=lambda path,domain:report(True,domain)
+        with patch("rendered_driver.BootCoordinator.attach_existing",return_value=coordinator),patch("rendered_driver.time.sleep"),patch.dict(os.environ,{},clear=False):
+            result=driver.execute("render-boot")
+        self.assertTrue(all(result["bootRuntimeVerified"].values()))
+        self.assertEqual(2,calls["NFS"]);self.assertEqual(1,calls["SMB"])
+
+    def test_rendered_boot_unknown_cleanup_holds_before_any_other_protocol_and_keeps_exact_failure(self):
+        from boot_reconcile import BootCoordinator
+        from rendered_generation import DOMAINS
+        scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":3}
+        current={"scope":scope,"configurationSha256":"a"*64,"domainSha256":{domain:hashlib.sha256(domain.encode()).hexdigest() for domain in DOMAINS}}
+        store=RenderedGeneration(self.root/"render")
+        store.status=lambda:{"success":True,"bootHeld":False,"current":current,"activation":None}
+        store.pointer=lambda:self.root/"immutable"
+        driver=RenderedDriver(self.cli,store)
+        driver.generation=lambda:{"generation":scope,"generationStatus":"IN_SYNC","configurationSha256":"a"*64,"pendingOperationUuid":None}
+        driver.runtime.command=lambda *args,**kwargs:{"success":True,"bootHeld":False}
+        coordinator=BootCoordinator("a"*64,{"probeTasks":1,"endpointModeGroups":1,"configuredProtocolCount":2,"concurrency":1},
+            scope["instanceUuid"],journal=self.root/"progress"/"status.json",checkpoint_dir=self.root/"receipts",configured_protocols=("NFS","SMB"))
+        failure=coordinator.failure("PROBE_CHILD_UNOBSERVABLE","NFS",retryable=False)
+        failure.update(phase="PROBE_EXPORTS",endpointIp="127.0.0.1",endpointPort=2049,exportUuid=str(uuid.uuid4()),exportName="public-export")
+        self.assertEqual({"complete":False,"childActive":False,"mountPresent":False},failure["cleanup"])
+        calls=[]
+        def replay(path,domain,**kwargs):
+            calls.append(domain)
+            return {"success":False,"runtimeReady":True,"detailVerified":False,"probePending":1,
+                    "completedProbeCount":0,"totalProbeCount":1,"skippedAclCount":0,
+                    "detailVerificationKind":"UNVERIFIED","lastFailure":failure}
+        driver.runtime.replay=replay
+        with patch("rendered_driver.BootCoordinator.attach_existing",return_value=coordinator),patch.dict(os.environ,{},clear=False):
+            with self.assertRaises(ValueError):driver.execute("render-boot")
+        self.assertEqual(["NFS"],calls)
+        self.assertEqual("HELD",coordinator.record["status"])
+        self.assertEqual(failure,coordinator.record["lastFailure"])
+
 if __name__=='__main__':unittest.main()

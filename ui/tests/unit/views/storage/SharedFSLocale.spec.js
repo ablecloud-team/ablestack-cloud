@@ -17,6 +17,7 @@
 
 import fs from 'fs'
 import path from 'path'
+import { bootStatuses, bootPhases, bootVerificationKinds } from '@/utils/storageBootReconcile'
 import { networkMismatchCodes } from '@/utils/storageNetworkReadiness'
 
 const uiRoot = path.resolve(__dirname, '../../../..')
@@ -29,13 +30,14 @@ const sourceFiles = [
   'src/views/storage/StorageServiceConfiguration.vue',
   'src/views/storage/StorageOperationHistory.vue',
   'src/views/storage/StorageVolumePreparation.vue',
-  'src/views/storage/StorageNetworkStatus.vue'
+  'src/views/storage/StorageNetworkStatus.vue',
+  'src/views/storage/StorageBootReconcileStatus.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
   ko_KR: 'public/locales/ko_KR.json'
 }
-const storagePrefixes = ['label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.', 'label.storage.config.', 'message.storage.config.', 'label.storage.operation.', 'message.storage.operation.', 'label.storage.volume.', 'message.storage.volume.']
+const storagePrefixes = ['label.storage.boot.', 'message.storage.boot.', 'label.storage.service.', 'message.storage.service.', 'label.posix.directory.', 'message.posix.directory.', 'label.storage.config.', 'message.storage.config.', 'label.storage.operation.', 'message.storage.operation.', 'label.storage.volume.', 'message.storage.volume.']
 
 const readUiFile = relativePath => fs.readFileSync(path.join(uiRoot, relativePath), 'utf8')
 const isStorageKey = key => storagePrefixes.some(prefix => key.startsWith(prefix))
@@ -113,6 +115,20 @@ describe('#913 network readiness locale coverage', () => {
       ...['OK', 'ERROR', 'UNKNOWN'].map(status => 'label.storage.service.network.status.' + status)
     ]
     for (const key of keys) expect(localeMessages[locale][key]).toEqual(expect.any(String))
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
+  })
+})
+
+describe('#914 boot reconciliation public state locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines boot states, phases, application and probe labels in %s', locale => {
+    const keys = [
+      ...[...bootStatuses, 'UNKNOWN'].map(value => 'label.storage.boot.status.' + value),
+      ...bootPhases.map(value => 'label.storage.boot.phase.' + value),
+      ...bootVerificationKinds.map(value => 'label.storage.boot.verification.' + value),
+      ...['PENDING', 'APPLYING', 'APPLIED', 'VERIFIED', 'FAILED', 'NOT_REQUIRED', 'HELD'].map(value => 'label.storage.boot.apply.' + value),
+      ...['NOT_STARTED', 'PENDING', 'VERIFIED', 'FAILED', 'NOT_REQUIRED'].map(value => 'label.storage.boot.probe.' + value),
+      ...Array.from(readUiFile('src/views/storage/StorageBootReconcileStatus.vue').matchAll(/['"]((?:label|message)\.storage\.boot\.[A-Za-z0-9_.]+)['"]/g), match => match[1]).filter(key => !key.endsWith('.'))
+    ]
     expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })
 })

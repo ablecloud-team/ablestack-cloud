@@ -107,7 +107,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             adapter.transition.return_value={'activationStrategy':'DBUS_DYNAMIC_UPDATE_VERIFIED','restartPerformed':False}
             commands=Mock();commands.which.side_effect=lambda name:'/usr/bin/ganesha.nfsd' if name=='ganesha.nfsd' else None
             network=Mock();network.create_connection.return_value.__enter__=Mock();network.create_connection.return_value.__exit__=Mock()
-            ns={'nfs_operation_deadline':time.monotonic()+30,'ganesha_remaining':lambda maximum=10:maximum,'rendered_context':(source,{}),'rendered_from_context':(source,{}),'Path':paths,'json':json,'os':os,'time':time,
+            ns={'NfsEndpointReadiness':Mock(return_value=Mock(reuse=Mock(return_value=None))),'nfs_control_command':Mock(),'nfs_operation_deadline':time.monotonic()+30,'ganesha_remaining':lambda maximum=10:maximum,'rendered_context':(source,{}),'rendered_from_context':(source,{}),'Path':paths,'json':json,'os':os,'time':time,
                 'subprocess':process,'GaneshaDbus':Mock(return_value=adapter),'shutil':commands,'socket':network,'ganesha_run_dir':str(run),
                 'root_maintenance_nfs_boundary':lambda:False,'stop_owned_rendered_ganesha':Mock(side_effect=AssertionError('unexpected stop')),'stop_default_ganesha_service':Mock(side_effect=AssertionError('default restart')),'stop_ganesha_endpoints':Mock(),
                 'ensure_ganesha_runtime_dirs':Mock(),'ensure_rpcbind_started':lambda:True,'managed_ganesha_process':lambda pid:True,
@@ -180,7 +180,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
         system.path=SimpleNamespace(isdir=lambda path:True,exists=lambda path:False,join=os.path.join)
         system.environ=dict(os.environ,ABLESTACK_STORAGE_RENDERED_REPLAY='fixture-rendered')
         ns={'Path':lambda value:SimpleNamespace(exists=lambda:False),'time':SimpleNamespace(monotonic=lambda:clock[0],time=lambda:clock[0],sleep=lambda interval:None),
-            'nfs_operation_deadline':1.0,'contextlib':contextlib,'pending_nfs':None,'os':system,'subprocess':process,'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
+            'NfsEndpointReadiness':Mock(return_value=Mock(reuse=Mock(return_value=None))),'GaneshaDbus':Mock(),'nfs_control_command':Mock(),'nfs_operation_deadline':1.0,'contextlib':contextlib,'pending_nfs':None,'os':system,'subprocess':process,'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
             'rendered_ganesha_dynamic_candidates':lambda configs:{},'stop_default_ganesha_service':lambda:None,'stop_ganesha_endpoints':lambda **kwargs:None,
             'ensure_ganesha_runtime_dirs':lambda:None,'ensure_rpcbind_started':lambda:True,'ganesha_run_dir':'/unused','open':mock_open(),
             'tail_file':lambda *args:'','rendered_context':None}
