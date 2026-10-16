@@ -24,6 +24,21 @@ import org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO;
 public interface StorageServiceOperationDao extends GenericDao<StorageServiceOperationVO, Long> {
     StorageServiceOperationVO findByRequest(long instanceId, String requestKey);
     List<StorageServiceOperationVO> listByInstance(long instanceId);
+    Admission readAdmission(long instanceId);
+    List<org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary> listSummariesByInstance(long instanceId);
+    List<org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary> listStaleRunningSummaries(java.util.Date before);
+
+    final class Admission {
+        private final long committedRevision, runningCount;
+        private final Long recoveryRevision;
+        public Admission(long committedRevision, long runningCount, Long recoveryRevision) {
+            if (committedRevision<0 || runningCount<0 || recoveryRevision!=null && recoveryRevision<0)
+                throw new IllegalArgumentException("Invalid operation admission state");
+            this.committedRevision=committedRevision;this.runningCount=runningCount;this.recoveryRevision=recoveryRevision;
+        }
+        public long getCommittedRevision() { return committedRevision; }
+        public boolean blocked() { return runningCount>0 || recoveryRevision!=null && recoveryRevision>committedRevision; }
+    }
     List<StorageServiceOperationVO> listStaleRunning(java.util.Date before);
     boolean touchHeartbeat(long id, String operationUuid, long instanceId);
 }

@@ -195,7 +195,7 @@ public class StorageServiceRuntimeHealthGateTest {
         com.google.gson.JsonObject nativeGeneration = new com.google.gson.JsonObject();nativeGeneration.add("previous", pausedBefore().get("generation"));source.add("nativeGeneration", nativeGeneration);
         source.add("renderedGeneration", com.google.gson.JsonNull.INSTANCE);row.setPreviousSnapshotJson(source.toString());
         org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao dao = org.mockito.Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);
-        org.mockito.Mockito.when(dao.listByInstance(7L)).thenReturn(java.util.List.of(row));org.springframework.test.util.ReflectionTestUtils.setField(actual, "rootWriterDao", dao);
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(dao,7L,java.util.List.of(row));org.mockito.Mockito.when(dao.findById(row.getId())).thenReturn(row);org.springframework.test.util.ReflectionTestUtils.setField(actual, "rootWriterDao", dao);
         Assert.assertEquals(pausedContext(), actual.runtimeStoppedSourceContext(instance));
         com.google.gson.JsonObject readonly = source.deepCopy();readonly.add("renderedGeneration", new com.google.gson.JsonObject());row.setPreviousSnapshotJson(readonly.toString());
         Assert.assertEquals(pausedContext(), actual.runtimeStoppedSourceContext(instance));
@@ -220,8 +220,8 @@ public class StorageServiceRuntimeHealthGateTest {
         }
         row.setAction("createstoragesmbaclresponse");row.setState("COMPLETE");Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, () -> actual.runtimeStoppedSourceContext(instance));row.setState("RECOVERY_REQUIRED");
         StorageServiceOperationVO another = new StorageServiceOperationVO();another.setInstanceId(7);another.setState("RECOVERY_REQUIRED");another.setAction("create");
-        org.mockito.Mockito.when(dao.listByInstance(7L)).thenReturn(java.util.List.of(row, another));Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, () -> actual.runtimeStoppedSourceContext(instance));
-        org.mockito.Mockito.when(dao.listByInstance(7L)).thenReturn(java.util.List.of(row));Assert.assertEquals(pausedContext(), actual.runtimeStoppedSourceContext(instance));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(dao,7L,java.util.List.of(row, another));Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class, () -> actual.runtimeStoppedSourceContext(instance));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(dao,7L,java.util.List.of(row));Assert.assertEquals(pausedContext(), actual.runtimeStoppedSourceContext(instance));
     }
 
 }

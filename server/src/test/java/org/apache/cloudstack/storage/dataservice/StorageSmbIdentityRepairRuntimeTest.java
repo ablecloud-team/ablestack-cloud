@@ -811,7 +811,7 @@ public class StorageSmbIdentityRepairRuntimeTest {
                 for (boolean unresolved : java.util.List.of(true, false)) {
                     fixture.local.cached = null;fixture.local.calls.clear();fixture.local.observed = fixture.local.before.deepCopy();fixture.local.failExport = true;fixture.local.unsafeResume = unresolved;
                     StorageServiceOperationVO previous = new StorageServiceOperationVO();previous.setRevision(3);previous.setState("COMPLETE");previous.setInstanceId(instance.getId());
-                    Mockito.when(operations.listByInstance(instance.getId())).thenReturn(java.util.List.of(previous));
+                    org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,instance.getId(),java.util.List.of(previous));
                     Mockito.when(operations.persist(Mockito.any())).thenAnswer(call -> {
                         StorageServiceOperationVO active = call.getArgument(0);fixture.local.writer = active;
                         ((ThreadLocal<StorageServiceOperationVO>) ReflectionTestUtils.getField(fixture.local, "storageWriterOperation")).set(active);return active;

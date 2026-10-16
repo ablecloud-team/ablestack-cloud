@@ -94,7 +94,11 @@ public class StorageVolumePreparationResumeTest {
         operation.setPreviousSnapshotJson(scope.toString());operation.setResultJson("{\"baseDesiredRevision\":7,\"desiredStateChanged\":false}");
         rows.add(operation);
         operations=Mockito.mock(StorageServiceOperationDao.class);controls=Mockito.mock(StorageServiceOperationControlDao.class);
-        Mockito.when(operations.listByInstance(9L)).thenAnswer(call->rows);
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,9L,()->rows);
+        Mockito.when(operations.findById(Mockito.anyLong())).thenAnswer(call->{
+            long id=call.getArgument(0);
+            return rows.stream().filter(row->row.getId()==id).findFirst().orElse(id==original.getId()?original:null);
+        });
         Mockito.when(operations.update(Mockito.anyLong(),Mockito.any())).thenReturn(true);
         ReflectionTestUtils.setField(manager,"storageOperationDao",operations);ReflectionTestUtils.setField(manager,"storageOperationControlDao",controls);
         ReflectionTestUtils.setField(manager,"storageAccountManager",Mockito.mock(com.cloud.user.AccountManager.class));

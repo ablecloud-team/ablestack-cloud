@@ -90,8 +90,15 @@ public final class StorageServiceConfiguration {
         } finally { lock.releaseRef(); }
     }
     private long revision(long instanceId) {
-        return operations.listByInstance(instanceId).stream().filter(row -> "COMPLETE".equals(row.getState()))
-                .mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.Admission state=operations.readAdmission(instanceId);
+        if(state==null)throw new CloudRuntimeException("Operation admission is unavailable");
+        return state.getCommittedRevision();
+    }
+    private StorageServiceOperationVO operationByUuid(long instanceId,String uuid) {
+        StorageServiceOperationVO operation=operations.findByUuid(uuid);
+        if(operation!=null && (operation.getInstanceId()!=instanceId || !uuid.equals(operation.getUuid())))
+            throw new CloudRuntimeException("Configuration operation authority is foreign");
+        return operation;
     }
     private StorageConfigArtifactVO row(StorageServiceInstanceVO instance, StorageConfigRequest request) {
         if (request.getArtifactId() == null) throw new InvalidParameterValueException("Configuration artifact ID is required");
@@ -188,7 +195,7 @@ public final class StorageServiceConfiguration {
         StorageServiceInstanceVO owner=manager.requireInstance(original.getInstanceId());JsonObject originalMetadata=metadata(original);
         if(!owner.getUuid().equals(descriptor.get("sourceInstanceUuid").getAsString())||!"VERIFIED_ENCRYPTED_FULL_IDENTITY".equals(originalMetadata.has("adIdentityCoverage")?originalMetadata.get("adIdentityCoverage").getAsString():null)
                 ||!descriptor.equals(originalMetadata.get("adIdentitySourceDescriptor"))||!originalMetadata.has("adIdentityCipherReference"))throw new InvalidParameterValueException("AD identity backup issuer, service owner or coverage changed");
-        StorageServiceOperationVO operation=operations.listByInstance(owner.getId()).stream().filter(value->descriptor.get("sourceOperationUuid").getAsString().equals(value.getUuid())).findFirst().orElse(null);
+        StorageServiceOperationVO operation=operationByUuid(owner.getId(),descriptor.get("sourceOperationUuid").getAsString());
         if(operation==null||!"COMPLETE".equals(operation.getState()))throw new InvalidParameterValueException("AD identity source operation is incomplete or requires recovery");
         JsonObject reference=StorageAdSemanticSource.validateManagedReference(descriptor,originalMetadata.getAsJsonObject("adIdentityCipherReference"));
         StorageConfigArtifactStore identityStore=new StorageConfigArtifactStore(Path.of(System.getProperty("cloudstack.storage.identity.path","/var/lib/cloudstack-management/storage-identity-capsules")));
@@ -891,7 +898,7 @@ public final class StorageServiceConfiguration {
             for(String field:Set.of("targetInstanceId","revision"))if(!scope.get(field).isJsonPrimitive()||!scope.get(field).getAsJsonPrimitive().isNumber()||!scope.get(field).getAsString().matches("[1-9][0-9]*"))throw new CloudRuntimeException("Semantic source recovery reservation numeric scope is invalid");
             for(String field:Set.of("targetInstanceUuid","operationUuid"))if(!scope.get(field).isJsonPrimitive()||!scope.get(field).getAsJsonPrimitive().isString()||!scope.get(field).getAsString().matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"))throw new CloudRuntimeException("Semantic source recovery reservation UUID is invalid");
             StorageServiceInstanceVO target=manager.requireInstance(scope.get("targetInstanceId").getAsLong());if(!target.getUuid().equals(scope.get("targetInstanceUuid").getAsString()))throw new CloudRuntimeException("Semantic source recovery reservation target changed");
-            StorageServiceOperationVO operation=operations.listByInstance(target.getId()).stream().filter(value->item.getKey().equals(value.getUuid())).findFirst().orElse(null);
+            StorageServiceOperationVO operation=operationByUuid(target.getId(),item.getKey());
             if(operation==null||operation.getRevision()!=scope.get("revision").getAsLong()||!Set.of("COMPLETE","ROLLED_BACK","CANCELLED","BLOCKED","RECONCILED_SUPERSEDED").contains(operation.getState()))return true;
         }
         return false;
@@ -905,7 +912,7 @@ public final class StorageServiceConfiguration {
             catch(RuntimeException unavailable){metadata.addProperty("identityCleanupState","RECOVERY_SCOPE_UNAVAILABLE");update(row,metadata,row.getState());continue;}
             if(metadata.has("adIdentityCipherReference")){
                 JsonObject reference=metadata.getAsJsonObject("adIdentityCipherReference");String sourceOperation=reference.get("sourceOperationUuid").getAsString();
-                StorageServiceOperationVO operation=operations.listByInstance(instance.getId()).stream().filter(value->sourceOperation.equals(value.getUuid())).findFirst().orElse(null);
+                StorageServiceOperationVO operation=operationByUuid(instance.getId(),sourceOperation);
                 if(operation==null||!Set.of("COMPLETE","ROLLED_BACK","CANCELLED","BLOCKED","RECONCILED_SUPERSEDED").contains(operation.getState())){
                     metadata.addProperty("identityCleanupState","RECOVERY_HELD");update(row,metadata,row.getState());continue;
                 }

@@ -53,7 +53,7 @@ public class DesiredStateChangeTest {
         snapshots = mock(StorageServiceDesiredSnapshot.class);
         runtime = mock(DesiredStateChange.Runtime.class);
         saved = new AtomicReference<>();
-        when(operations.listByInstance(7L)).thenReturn(Collections.emptyList());
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,Collections.emptyList());
         when(operations.update(anyLong(), any())).thenReturn(true);
         when(snapshots.capture(7L)).thenReturn("previous", "current");
         when(operations.persist(any())).thenAnswer(call -> {
@@ -193,7 +193,7 @@ public class DesiredStateChangeTest {
 
     @Test public void unresolvedWriterBlocksANewChangeBeforeCreatingAnOperation() {
         StorageServiceOperationVO active = new StorageServiceOperationVO();active.setState("RUNNING");active.setInstanceId(7L);
-        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(active));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(active));
         Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "new", "blocked-by-orphan", null, String.class,
                 () -> { throw new AssertionError("Unexpected mutation"); }, runtime));
         verify(operations, never()).persist(any());verify(runtime, never()).preflight();
@@ -202,7 +202,7 @@ public class DesiredStateChangeTest {
     @Test public void failedRecoveryWithoutALaterCommitBlocksNewMutations() {
         StorageServiceOperationVO recovery = new StorageServiceOperationVO();recovery.setState("RECOVERY_REQUIRED");recovery.setRevision(5);
         StorageServiceOperationVO committed = new StorageServiceOperationVO();committed.setState("COMPLETE");committed.setRevision(4);
-        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(recovery, committed));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(recovery, committed));
         Assert.assertThrows(CloudRuntimeException.class, () -> engine.execute(7L, "new", "failed-recovery", 4L, String.class,
                 () -> { throw new AssertionError("Unexpected mutation"); }, runtime));
         verify(operations, never()).persist(any());
@@ -210,7 +210,7 @@ public class DesiredStateChangeTest {
     @Test public void historicalFailureCannotBlockChangesAfterTheSameRevisionWasVerified() {
         StorageServiceOperationVO recovery = new StorageServiceOperationVO();recovery.setState("RECOVERY_REQUIRED");recovery.setRevision(5);
         StorageServiceOperationVO committed = new StorageServiceOperationVO();committed.setState("COMPLETE");committed.setRevision(5);
-        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(recovery, committed));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(recovery, committed));
         Assert.assertEquals("done", engine.execute(7L, "new", "later-verified", 5L, String.class, () -> "done", runtime));
         Assert.assertEquals(6, saved.get().getRevision());
     }
@@ -423,7 +423,7 @@ public class DesiredStateChangeTest {
         Assert.assertEquals("COMPLETE_NO_CONFIG_CHANGE",saved.get().getState());
         when(operations.findByRequest(7L,"CONFIGURATION_BACKUP_READ_ONLY:backup-one")).thenReturn(saved.get());
         Assert.assertEquals("artifact",engine.executeReadOnly(7L,"CONFIGURATION_BACKUP_READ_ONLY","backup-one",0L,null,String.class,()->{throw new AssertionError("duplicate backup");},runtime));
-        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(saved.get()));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(saved.get()));
         Assert.assertEquals("new",engine.execute(7L,"nfs","next-config",0L,String.class,()->"new",runtime));
         Assert.assertEquals(1,saved.get().getRevision());verify(snapshots,never()).restore(anyLong(),anyString());
     }
@@ -433,7 +433,7 @@ public class DesiredStateChangeTest {
         doThrow(new CloudRuntimeException("explicit cleanup required")).when(runtime).abortNativeCheckpoint(any());
         Assert.assertThrows(CloudRuntimeException.class,()->engine.executeReadOnly(7L,"CONFIGURATION_BACKUP_READ_ONLY","backup-unknown",0L,null,String.class,()->"artifact",runtime));
         Assert.assertEquals("RECOVERY_REQUIRED",saved.get().getState());
-        when(operations.listByInstance(7L)).thenReturn(java.util.List.of(saved.get()));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(saved.get()));
         Assert.assertThrows(CloudRuntimeException.class,()->engine.execute(7L,"nfs","next-after-backup",0L,String.class,()->"new",runtime));
         verify(snapshots,never()).restore(anyLong(),anyString());verify(runtime,never()).applyPrevious();
     }

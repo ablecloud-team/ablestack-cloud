@@ -58,7 +58,7 @@ public class StorageUnchangedVerifiedSourceRecoveryManagerTest {
             var accounts=Mockito.mock(com.cloud.user.AccountManager.class);Mockito.when(accounts.isRootAdmin(2L)).thenReturn(true);
             ReflectionTestUtils.setField(this,"storageAccountManager",accounts);
             Mockito.when(operations.findById(operation.getId())).thenReturn(operation);Mockito.when(operations.findById(source.getId())).thenReturn(source);
-            Mockito.when(operations.listByInstance(7L)).thenReturn(List.of(operation,source));
+            org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,List.of(operation,source));
             Mockito.when(operations.update(Mockito.eq(operation.getId()),Mockito.same(operation))).thenAnswer(call->{
                 effects.add("ROLLED_BACK".equals(operation.getState())?"finalize":"intent");
                 if(driftAfterIntent)data.status.addProperty("bootId","bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
@@ -142,7 +142,7 @@ public class StorageUnchangedVerifiedSourceRecoveryManagerTest {
         Assert.assertThrows(CloudRuntimeException.class,unavailable::invoke);Assert.assertTrue(unavailable.effects.isEmpty());
         for(String state:List.of("RUNNING","RECOVERY_REQUIRED","COMPLETE")){
             Fixture f=new Fixture();StorageServiceOperationVO other=new StorageServiceOperationVO();other.setInstanceId(7);other.setRevision(f.operation.getRevision()+1);other.setState(state);
-            Mockito.when(f.operations.listByInstance(7L)).thenReturn(List.of(f.operation,f.source,other));
+            org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(f.operations,7L,List.of(f.operation,f.source,other));
             Assert.assertThrows(CloudRuntimeException.class,f::invoke);Assert.assertTrue(f.effects.isEmpty());
         }
     }

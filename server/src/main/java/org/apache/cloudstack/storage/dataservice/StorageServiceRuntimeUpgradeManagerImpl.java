@@ -155,7 +155,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         try {
             if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
             try {
-                if (rootUpgradeDao.findActive(instance.getId()) != null || rootWriterDao.listByInstance(instance.getId()).stream()
+                if (rootUpgradeDao.findActive(instance.getId()) != null || StorageServiceOperationSummary.requireScope(rootWriterDao.listSummariesByInstance(instance.getId()),instance.getId()).stream()
                         .anyMatch(row -> row.getAction().startsWith("ROOT_TEMPLATE_") && java.util.Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))) {
                     throw new CloudRuntimeException("ROOT template maintenance must finish or recover before runtime activation");
                 }
@@ -1171,14 +1171,16 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     }
 
     protected JsonObject runtimeStoppedSourceContext(StorageServiceInstanceVO instance) {
-        StorageServiceOperationVO selected = null;
-        for (StorageServiceOperationVO row : rootWriterDao.listByInstance(instance.getId())) {
+        StorageServiceOperationSummary candidate = null;
+        for (StorageServiceOperationSummary row : StorageServiceOperationSummary.requireScope(
+                rootWriterDao.listSummariesByInstance(instance.getId()),instance.getId())) {
             if (!"RECOVERY_REQUIRED".equals(row.getState())) continue;
-            if (selected != null || row.getInstanceId() != instance.getId() || row.getAction() == null
+            if (candidate != null || row.getInstanceId() != instance.getId() || row.getAction() == null
                     || row.getAction().startsWith("ROOT_") || row.getAction().startsWith("RUNTIME_")
                     || row.getAction().contains("SERVICE_MAINTENANCE")) throw new CloudRuntimeException("Runtime code quarantine has another recovery purpose");
-            selected = row;
+            candidate = row;
         }
+        StorageServiceOperationVO selected=candidate==null?null:StorageServiceOperationSummary.requireFull(rootWriterDao,candidate);
         if (selected == null || selected.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Runtime code quarantine has no original recovery writer");
         JsonObject snapshot = JsonParser.parseString(selected.getPreviousSnapshotJson()).getAsJsonObject();
         if (!snapshot.has("localCheckpointIntent") || !snapshot.get("localCheckpointIntent").isJsonObject()

@@ -6143,3 +6143,39 @@ the affected layer.
    `message.storage.service.*` text.
 8. No management service, host agent, DB migration, or SystemVM template build
    is part of this UI-only closure.
+
+## #914: Read operation history without eager snapshot bodies
+
+The large NFS cohort exposed a Management Server heap failure in
+StorageServiceOperationDao.listByInstance: writer admission loaded every
+historical operation, including SOURCE/TARGET snapshots and result JSON,
+before creating the next operation. Increasing the heap or deleting history
+would not bound that request's memory.
+
+readAdmission now reads a single aggregate row while retaining the instance
+writer lock and the existing idempotency/actor/fingerprint order. Only COMPLETE
+contributes to the committed revision. Any RUNNING writer blocks admission;
+RECOVERY_REQUIRED blocks only above the committed revision. Expected-revision
+checks and completed-request replay retain their existing behavior.
+
+StorageServiceOperationSummary is an immutable, body-free read model.
+Operation-list API responses keep their existing metadata, date interpretation,
+ordering and full count. ROOT/lifecycle/runtime guards and recovery candidate
+selection use summaries or the scalar admission state. A selected recovery
+candidate must be reloaded as its full operation row and match its original
+id, UUID, instance, request, actor, action, state, phase and revision before
+the existing snapshot/witness/Native/control checks can use it. A summary is
+never a SOURCE/TARGET authority or a reason to take a checkpointless fallback.
+
+The stale writer scanner selects at most twenty metadata candidates, then
+rechecks each full row under its original instance lock. Existing DAO full-row
+methods remain available for binary compatibility, but production history
+consumers do not call them without bounds. Snapshots, receipts, historical
+results, DB columns, Native state and protocol retry policies are unchanged.
+
+Focused regression uses history-body reads that fail immediately, rather than
+allocating enough unrelated blobs to exhaust the test JVM. It covers scalar
+admission/idempotency, full metadata count, JDBC columns and GMT dates, selected
+authority drift, stale-candidate rechecks, and the existing SOURCE/TARGET,
+formatter, ROOT/runtime and lifecycle recovery boundaries. Actual cohort
+completion and deployment remain separate acceptance evidence.

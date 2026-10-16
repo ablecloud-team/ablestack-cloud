@@ -221,7 +221,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (sharedFS.getVmId() == null) return;
         StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
         if (instance == null) return;
-        for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO operation : storageOperationDao.listByInstance(instance.getId())) {
+        for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary operation
+                : org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary.requireScope(
+                        storageOperationDao.listSummariesByInstance(instance.getId()),instance.getId())) {
             if (operation.getUuid().equals(approvedScaleRecovery.get()) && "SHAREDFS_ONLINE_SCALE".equals(operation.getAction())
                     && operation.getInstanceId() == instance.getId() && "RUNNING".equals(operation.getState()) && "ROLLING_BACK".equals(operation.getPhase())) continue;
             if (Set.of("RUNNING", "RECOVERY_REQUIRED", "ROLLBACK_FAILED").contains(operation.getState())) {
@@ -1332,8 +1334,12 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected void reconcilePreviousScaleRecovery(SharedFSVO sharedFS,StorageServiceInstanceVO instance) {
-        for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO previous:storageOperationDao.listByInstance(instance.getId())) {
-            if (!"SHAREDFS_ONLINE_SCALE".equals(previous.getAction()) || !"RECOVERY_REQUIRED".equals(previous.getState())) continue;
+        for (org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary candidate
+                : org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary.requireScope(
+                        storageOperationDao.listSummariesByInstance(instance.getId()),instance.getId())) {
+            if (!"SHAREDFS_ONLINE_SCALE".equals(candidate.getAction()) || !"RECOVERY_REQUIRED".equals(candidate.getState())) continue;
+            org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO previous=
+                    org.apache.cloudstack.storage.dataservice.StorageServiceOperationSummary.requireFull(storageOperationDao,candidate);
             com.google.gson.JsonObject original=new com.google.gson.JsonParser().parse(previous.getPreviousSnapshotJson()).getAsJsonObject();
             com.google.gson.JsonObject observed=scalingGuestCommand(sharedFS.getVmId(),"operation resources","{}");
             com.google.gson.JsonObject health=scalingGuestCommand(sharedFS.getVmId(),"operation verify","{}");
@@ -1364,7 +1370,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         reconcilePreviousScaleRecovery(sharedFS,instance);
         org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO operation=new org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO();
         operation.setInstanceId(instance.getId());operation.setAction("SHAREDFS_ONLINE_SCALE");operation.setRequestKey(java.util.UUID.randomUUID().toString());
-        operation.setRevision(storageOperationDao.listByInstance(instance.getId()).stream().filter(row->"COMPLETE".equals(row.getState())).mapToLong(org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO::getRevision).max().orElse(0)+1);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.Admission admission=storageOperationDao.readAdmission(instance.getId());
+        if(admission==null)throw new CloudRuntimeException("Operation admission is unavailable");
+        operation.setRevision(admission.getCommittedRevision()+1);
         operation.setCreatedBy(CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");
         final org.apache.cloudstack.storage.dataservice.StorageServiceOperationVO journal=storageOperationDao.persist(operation);
         final Long originalId=sharedFS.getServiceOfferingId();

@@ -219,12 +219,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!StorageServiceInstance.StorageServiceVerifiedConfigurationEnabled.value()) return;
         try {
             org.apache.cloudstack.context.CallContext.registerSystemCallContextOnceOnly();
-            for (StorageServiceOperationVO row : storageOperationDao.listStaleRunning(new java.util.Date(System.currentTimeMillis() - 120000))) {
+            for (StorageServiceOperationSummary row : storageOperationDao.listStaleRunningSummaries(new java.util.Date(System.currentTimeMillis() - 120000))) {
                 com.cloud.utils.db.GlobalLock lock = com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-" + row.getInstanceId());
                 try {
                     if (!lock.lock(1)) continue;
                     try {
                         StorageServiceOperationVO current = storageOperationDao.findById(row.getId());
+                        if(!row.matches(current))continue;
                         StorageServiceInstanceVO instance = storageServiceInstanceDao.findById(row.getInstanceId());
                         if (current != null && instance != null && current.getAction().startsWith("ROOT_TEMPLATE_")) {
                             recoverInterruptedTemplateUpgrade(instance, current);
@@ -263,7 +264,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (parseJsonObject(operation.getResultJson()).has("_currentLocalIdentityRecovery"))
             throw new CloudRuntimeException("Approved CURRENT identity recovery requires its exact explicit retry; original identity import is forbidden");
         new InterruptedStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).recover(operation,
-                storageOperationDao.listByInstance(instance.getId()), new InterruptedStateChange.Runtime() {
+                latestCompleteHistory(instance.getId()), new InterruptedStateChange.Runtime() {
             public void idle() {
                 VMInstanceVO vm = instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId());
                 if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) throw new CloudRuntimeException("Interrupted writer SystemVM is unavailable");
@@ -366,11 +367,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !java.util.Objects.equals(fresh.getSnapshotJson(),operation.getSnapshotJson())
                 || !java.util.Objects.equals(fresh.getResultJson(),operation.getResultJson()))
             throw new CloudRuntimeException("Checkpointless SOURCE operation changed");
-        List<StorageServiceOperationVO> history=storageOperationDao.listByInstance(instance.getId());
-        if(history==null || StorageOperationReconciliation.superseded(operation,history))
+        List<StorageServiceOperationSummary> history=operationSummaries(instance.getId());
+        if(history==null || StorageOperationReconciliation.supersededSummaries(operation,history))
             throw new CloudRuntimeException("A later verified revision prevents unchanged SOURCE recovery");
-        StorageServiceOperationVO source=null;
-        for(StorageServiceOperationVO row:history) {
+        StorageServiceOperationSummary source=null;
+        for(StorageServiceOperationSummary row:history) {
             if(row.getId()!=operation.getId() && Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))
                 throw new CloudRuntimeException("Another unresolved writer prevents unchanged SOURCE recovery");
             if("COMPLETE".equals(row.getState()) && (source==null || row.getRevision()>source.getRevision()))source=row;
@@ -379,11 +380,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final long sourceId=source.getId(),sourceRevision=source.getRevision();
         if(history.stream().filter(row->"COMPLETE".equals(row.getState()) && row.getRevision()==sourceRevision).count()!=1)
             throw new CloudRuntimeException("Unchanged SOURCE has an ambiguous verified revision");
+        StorageServiceOperationVO sourceRow=fullOperation(source);
         StorageServiceOperationVO currentSource=storageOperationDao.findById(sourceId);
         if(currentSource==null || currentSource.getInstanceId()!=instance.getId()
                 || !java.util.Objects.equals(source.getUuid(),currentSource.getUuid()) || sourceRevision!=currentSource.getRevision()
-                || !java.util.Objects.equals(source.getSnapshotJson(),currentSource.getSnapshotJson())
-                || !java.util.Objects.equals(source.getResultJson(),currentSource.getResultJson()))
+                || !java.util.Objects.equals(sourceRow.getSnapshotJson(),currentSource.getSnapshotJson())
+                || !java.util.Objects.equals(sourceRow.getResultJson(),currentSource.getResultJson()))
             throw new CloudRuntimeException("Prior COMPLETE SOURCE changed");
         requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
         String snapshot=captureConfigurationSnapshot(instance.getId());JsonObject bindings=operationResourceBindings(instance);
@@ -510,10 +512,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         for(String key:List.of("_response","_targetResourceBindings","_targetNativeBootId","_targetConfigurationSha256","_verifiedPendingNfsAclTargetRecovery"))
             if(!java.util.Objects.equals(result.get(key),freshResult.get(key)))
                 throw new CloudRuntimeException("Verified pending TARGET witness changed");
-        List<StorageServiceOperationVO> operations=storageOperationDao.listByInstance(instance.getId());
-        if (operations==null || StorageOperationReconciliation.superseded(operation,operations))
+        List<StorageServiceOperationSummary> operations=operationSummaries(instance.getId());
+        if (operations==null || StorageOperationReconciliation.supersededSummaries(operation,operations))
             throw new CloudRuntimeException("Verified pending TARGET has a later writer");
-        for(StorageServiceOperationVO row:operations) {
+        for(StorageServiceOperationSummary row:operations) {
             if(row.getId()!=operation.getId() && Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()))
                 throw new CloudRuntimeException("Another unresolved writer prevents verified pending TARGET recovery");
         }
@@ -842,15 +844,31 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse response = new org.apache.cloudstack.api.response.StorageServiceTemplateUpgradeResponse();
         response.setId(id);response.setResult(StorageConfigSemantic.redact(result).toString());return response;
     }
+    private List<StorageServiceOperationSummary> operationSummaries(long instanceId) {
+        return StorageServiceOperationSummary.requireScope(storageOperationDao.listSummariesByInstance(instanceId),instanceId);
+    }
+    private StorageServiceOperationVO fullOperation(StorageServiceOperationSummary summary) {
+        return StorageServiceOperationSummary.requireFull(storageOperationDao,summary);
+    }
+    private List<StorageServiceOperationVO> latestCompleteHistory(long instanceId) {
+        StorageServiceOperationSummary latest=operationSummaries(instanceId).stream().filter(row->"COMPLETE".equals(row.getState()))
+                .max(java.util.Comparator.comparingLong(StorageServiceOperationSummary::getRevision)).orElse(null);
+        return latest==null?Collections.emptyList():List.of(fullOperation(latest));
+    }
+    private boolean operationSuperseded(StorageServiceOperationVO operation) {
+        return StorageOperationReconciliation.supersededSummaries(operation,operationSummaries(operation.getInstanceId()));
+    }
     protected long rootDesiredRevision(long instanceId) {
-        return storageOperationDao.listByInstance(instanceId).stream().filter(row -> "COMPLETE".equals(row.getState())).mapToLong(StorageServiceOperationVO::getRevision).max().orElse(0);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.Admission state=storageOperationDao.readAdmission(instanceId);
+        if(state==null)throw new CloudRuntimeException("Operation admission is unavailable");
+        return state.getCommittedRevision();
     }
     protected void requireRootWriterIdle(StorageServiceInstanceVO instance, StorageServiceTemplateUpgradeVO own) {
         if (storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId()) != null) throw new CloudRuntimeException("A runtime upgrade is active");
         StorageServiceTemplateUpgradeVO active = storageTemplateUpgradeDao.findActive(instance.getId());
         if (active != null && (own == null || active.getId() != own.getId())) throw new CloudRuntimeException("Another ROOT upgrade requires recovery");
         long committed = rootDesiredRevision(instance.getId());
-        for (StorageServiceOperationVO operation : storageOperationDao.listByInstance(instance.getId())) {
+        for (StorageServiceOperationSummary operation : operationSummaries(instance.getId())) {
             if (own != null && java.util.Objects.equals(own.getOperationId(), operation.getId())) continue;
             if ("RUNNING".equals(operation.getState()) || "RECOVERY_REQUIRED".equals(operation.getState()) && operation.getRevision() > committed) {
                 throw new CloudRuntimeException("An unresolved Storage Service writer requires recovery");
@@ -2093,8 +2111,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected StorageServiceOperationVO renderedProfileRecoveryOperation(StorageServiceInstanceVO instance,JsonObject previous,boolean enabled) {
         if(!enabled||!Boolean.TRUE.equals(getJsonBoolean(previous,"baselineImported")))return null;
         StorageServiceOperationVO selected=null;long committed=rootDesiredRevision(instance.getId());
-        for(StorageServiceOperationVO operation:storageOperationDao.listByInstance(instance.getId())) {
-            if(operation.getRevision()<=committed||!("RECOVERY_REQUIRED".equals(operation.getState())||InterruptedStateChange.stale(operation,System.currentTimeMillis())))continue;
+        for(StorageServiceOperationSummary summary:operationSummaries(instance.getId())) {
+            if(summary.getRevision()<=committed||!("RECOVERY_REQUIRED".equals(summary.getState())||summary.stale(System.currentTimeMillis())))continue;
+            StorageServiceOperationVO operation=fullOperation(summary);
             if(!parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration")||operation.getAction().startsWith("ROOT_TEMPLATE_")||selected!=null)throw new CloudRuntimeException("Validation reauthorization cannot adopt another unresolved writer");selected=operation;
         }
         return selected;
@@ -2816,16 +2835,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject policy=instanceControlPolicy(instance);if(policy.get("enabled").getAsBoolean())required.add("LOGICAL_RESOURCE_RESERVATION");
         JsonObject rendered=policy.has("renderedValidationProfile")&&policy.get("renderedValidationProfile").isJsonObject()?policy.getAsJsonObject("renderedValidationProfile"):null;
         if(rendered!=null&&(Boolean.TRUE.equals(getJsonBoolean(rendered,"enabled"))||Boolean.TRUE.equals(getJsonBoolean(rendered,"baselineImported"))))required.add("RENDERED_CONFIG_GENERATION_HANDLER");
-        for(StorageServiceOperationVO operation:storageOperationDao.listByInstance(instanceId)) {
+        for(StorageServiceOperationSummary operation:operationSummaries(instanceId)) {
             StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(operation.getId());
             if(operation.getInstanceId()!=instanceId)throw new CloudRuntimeException("Retained operation feature scope is foreign");
-            boolean unresolved=!Set.of("COMPLETE","ROLLED_BACK","BLOCKED","CANCELLED","RECONCILED_SUPERSEDED").contains(StringUtils.defaultString(operation.getState()));
+            boolean unresolved=!Set.of("COMPLETE","COMPLETE_NO_CONFIG_CHANGE","ROLLED_BACK","BLOCKED","CANCELLED","RECONCILED_SUPERSEDED").contains(StringUtils.defaultString(operation.getState()));
             if(control!=null) {
                 if(control.getInstanceId()!=instanceId || control.getOperationId()!=operation.getId())throw new CloudRuntimeException("Retained resource feature scope is foreign");
                 if(unresolved || Boolean.TRUE.equals(getJsonBoolean(parseJsonObject(control.getLeaseJson()),"reservationAcquired")))required.add("LOGICAL_RESOURCE_RESERVATION");
             }
             if(unresolved && "SERVICE_MAINTENANCE".equals(operation.getAction()))required.add("SERVICE_MAINTENANCE");
-            if(unresolved&&parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))required.add("RENDERED_CONFIG_GENERATION_HANDLER");
+            if(unresolved&&parseJsonObject(fullOperation(operation).getPreviousSnapshotJson()).has("renderedGeneration"))required.add("RENDERED_CONFIG_GENERATION_HANDLER");
         }
         return Collections.unmodifiableSet(required);
     }
@@ -4740,10 +4759,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     public ListResponse<org.apache.cloudstack.api.response.StorageServiceOperationResponse> listStorageServiceOperations(
             org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceOperationsCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
-        List<StorageServiceOperationVO> rows = storageOperationDao.listByInstance(instance.getId());
-        rows.sort(java.util.Comparator.comparing(StorageServiceOperationVO::getCreated).reversed());
+        List<StorageServiceOperationSummary> rows = operationSummaries(instance.getId());
+        rows.sort(java.util.Comparator.comparing(StorageServiceOperationSummary::getCreated).reversed());
         List<org.apache.cloudstack.api.response.StorageServiceOperationResponse> responses = new ArrayList<>();
-        for (StorageServiceOperationVO row : rows) {
+        for (StorageServiceOperationSummary row : rows) {
             org.apache.cloudstack.api.response.StorageServiceOperationResponse response = new org.apache.cloudstack.api.response.StorageServiceOperationResponse();
             response.setId(row.getUuid()); response.setInstanceid(instance.getUuid()); response.setAction(row.getAction());
             response.setState(row.getState()); response.setPhase(row.getPhase()); response.setRevision(row.getRevision()); response.setProgress(row.getProgress());
@@ -4766,7 +4785,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
                 if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
-                        && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || "SMB_IDENTITY_REPAIR".equals(operation.getAction()) || !StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId))))) {
+                        && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || "SMB_IDENTITY_REPAIR".equals(operation.getAction()) || !operationSuperseded(operation)))) {
                     if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
@@ -4787,12 +4806,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     recovered.setCompleted(operation.getCompleted());recovered.setDiagnostic(operation.getDiagnostic());recovered.setObjectName("storageserviceoperation");
                     return recovered;
                 }
-                final boolean superseded = StorageOperationReconciliation.superseded(operation, storageOperationDao.listByInstance(instanceId));
+                final boolean superseded = operationSuperseded(operation);
                 if (!superseded) throw new InvalidParameterValueException("No later verified revision exists; explicit rollback recovery is required");
-                final StorageServiceOperationVO latest = storageOperationDao.listByInstance(instanceId).stream()
-                        .filter(row -> "COMPLETE".equals(row.getState())).max(java.util.Comparator.comparingLong(StorageServiceOperationVO::getRevision)
-                                .thenComparing(StorageServiceOperationVO::getCreated))
+                final StorageServiceOperationSummary latestSummary = operationSummaries(instanceId).stream()
+                        .filter(row -> "COMPLETE".equals(row.getState())).max(java.util.Comparator.comparingLong(StorageServiceOperationSummary::getRevision)
+                                .thenComparing(StorageServiceOperationSummary::getCreated))
                         .orElseThrow(() -> new CloudRuntimeException("No verified desired-state snapshot is available"));
+                final StorageServiceOperationVO latest=fullOperation(latestSummary);
                 final String currentSnapshot = new StorageServiceDesiredSnapshot().capture(instanceId);
                 if (latest.getSnapshotJson() == null || !parseJsonObject(currentSnapshot).equals(parseJsonObject(latest.getSnapshotJson()))) {
                     throw new CloudRuntimeException("Current desired state differs from its latest verified revision");
@@ -5186,9 +5206,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                                 JsonObject generation = nativeConfigurationGeneration(instance, null, "status");
                                 String pending = getJsonString(generation, "pendingOperationUuid");
                                 if (pending != null) {
-                                    StorageServiceOperationVO completed = storageOperationDao.listByInstance(instanceId).stream()
-                                            .filter(row -> pending.equals(row.getUuid()) && "COMPLETE".equals(row.getState())).findFirst().orElse(null);
-                                    if (completed == null) throw new CloudRuntimeException("A native generation requires recovery");
+                                    StorageServiceOperationVO completed = storageOperationDao.findByUuid(pending);
+                                    if (completed == null || completed.getInstanceId()!=instanceId || !pending.equals(completed.getUuid())
+                                            || !"COMPLETE".equals(completed.getState())) throw new CloudRuntimeException("A native generation requires recovery");
                                     nativeConfigurationGeneration(instance, completed, "finish");
                                 }
                             }
@@ -7103,7 +7123,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-"+instance.getId());
         try {if(!lock.lock(120))throw new CloudRuntimeException("Owned JOIN recovery writer is busy");try {
             StorageServiceOperationVO current=storageOperationDao.findById(operation.getId());
-            if(current==null||!"RECOVERY_REQUIRED".equals(current.getState())||!operation.getUuid().equals(current.getUuid())||StorageOperationReconciliation.superseded(current,storageOperationDao.listByInstance(instance.getId())))throw new CloudRuntimeException("Owned JOIN recovery changed or was superseded");
+            if(current==null||!"RECOVERY_REQUIRED".equals(current.getState())||!operation.getUuid().equals(current.getUuid())||operationSuperseded(current))throw new CloudRuntimeException("Owned JOIN recovery changed or was superseded");
             RenderedBatch batch=restoreRenderedBatch(current);if(renderedCoordinator(instance,batch).recoveryDecision(batch.receipt)==StorageRenderedRecoveryState.Decision.COMMITTED)throw new CloudRuntimeException("Committed JOIN requires forward finalization");
             prepareAdIdentityRollback(instance,current,cmd.getUsername(),cmd.getPassword());recoverRenderedStorageWriter(instance,current);
         }finally{lock.unlock();}}finally{lock.releaseRef();}
@@ -7329,11 +7349,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own) {
         if(storageTemplateUpgradeDao.findActive(instance.getId())!=null || storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null)throw new CloudRuntimeException("ROOT or runtime upgrade is active");
         StorageServiceOperationVO parked=null;
-        for(StorageServiceOperationVO row:storageOperationDao.listByInstance(instance.getId())) {
+        long committed=rootDesiredRevision(instance.getId());
+        for(StorageServiceOperationSummary row:operationSummaries(instance.getId())) {
             if(own!=null&&own.getId()!=0&&row.getId()==own.getId())continue;
-            if("RUNNING".equals(row.getState())||"RECOVERY_REQUIRED".equals(row.getState())&&row.getRevision()>rootDesiredRevision(instance.getId())) {
-                if(parked!=null||!parkedVolumePreparationOwner(instance,own,row))throw new CloudRuntimeException("Resolve the existing desired writer before forward volume preparation resume");
-                parked=row;
+            if("RUNNING".equals(row.getState())||"RECOVERY_REQUIRED".equals(row.getState())&&row.getRevision()>committed) {
+                StorageServiceOperationVO candidate=fullOperation(row);
+                if(parked!=null||!parkedVolumePreparationOwner(instance,own,candidate))throw new CloudRuntimeException("Resolve the existing desired writer before forward volume preparation resume");
+                parked=candidate;
             }
         }
         if(parked!=null)requireParkedVolumePreparationSource(instance,own,parked);
