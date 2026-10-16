@@ -236,6 +236,66 @@ class NetworkTest(unittest.TestCase):
         with patch.object(self.net, "clients", side_effect=PermissionError()):
             value = self.net.inspect()
         self.assertEqual("UNKNOWN", value["status"]);self.assertFalse(value["success"])
+    def test_legacy_two_literal_newline_nameservers_correct_with_zero_ip_route_pid_effect(self):
+        content = r"nameserver 8.8.8.8\nnameserver 8.8.4.4\n"
+        self.state.write_text(json.dumps({**STATIC, "dns1": "8.8.8.8", "dns2": "8.8.4.4"}))
+        self.resolver.write_text(content)
+        before = (copy.deepcopy(self.fake.addresses), copy.deepcopy(self.fake.defaults), copy.deepcopy(self.fake.connected))
+        observed = self.net.inspect()
+        self.assertEqual("ERROR", observed["status"]);self.assertEqual(["DNS_MISMATCH"], observed["mismatches"])
+        self.assertEqual([], observed["actual"]["dns"]);self.assertEqual(content, self.resolver.read_text())
+        self.assertTrue(self.net.prepare()["success"])
+        self.assertEqual("nameserver 8.8.8.8\nnameserver 8.8.4.4\n", self.resolver.read_text())
+        self.assertEqual(before, (self.fake.addresses, self.fake.defaults, self.fake.connected));self.assertEqual([], self.fake.effects)
+
+    def test_single_literal_newline_is_typed_content_error_and_explicit_prepare_corrects(self):
+        self.resolver.write_text(r"nameserver 203.0.113.53\n")
+        observed = self.net.inspect()
+        self.assertEqual("ERROR", observed["status"]);self.assertEqual(["DNS_MISMATCH"], observed["mismatches"])
+        self.assertEqual([], observed["actual"]["dns"])
+        self.assertTrue(self.net.prepare()["success"]);self.assertEqual([], self.fake.effects)
+
+    def test_malformed_content_without_expected_dns_stays_blocked_with_no_guessed_dns(self):
+        content = r"nameserver 8.8.8.8\n"
+        self.state.write_text(json.dumps({**STATIC, "dns1": None}));self.resolver.write_text(content)
+        observed = self.net.inspect()
+        self.assertEqual("ERROR", observed["status"]);self.assertEqual(["DNS_MISMATCH"], observed["mismatches"])
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual(content, self.resolver.read_text());self.assertEqual([], self.fake.effects)
+
+    def test_resolver_unsafe_structure_and_mode_remain_unknown_and_are_not_rewritten(self):
+        original = self.base / "other-resolver";original.write_text("nameserver 203.0.113.53\n")
+        self.resolver.unlink();self.resolver.symlink_to(original)
+        observed = self.net.inspect();self.assertEqual("UNKNOWN", observed["status"])
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertTrue(self.resolver.is_symlink());self.assertEqual("nameserver 203.0.113.53\n", original.read_text())
+        self.resolver.unlink();self.resolver.write_text("nameserver 203.0.113.53\n");self.resolver.chmod(0o666)
+        self.assertEqual("UNKNOWN", self.net.inspect()["status"])
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual([], self.fake.effects)
+
+    def test_resolver_permission_eio_and_nonascii_remain_unknown(self):
+        for error in (PermissionError(), OSError(5, "SYNTHETIC_ONLY")):
+            with patch.object(m, "protected_text", side_effect=error):
+                self.assertEqual("UNKNOWN", self.net.inspect()["status"])
+                with self.assertRaises(ValueError):self.net.prepare()
+        self.resolver.write_bytes(b"nameserver \xff\n")
+        self.assertEqual("UNKNOWN", self.net.inspect()["status"])
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual([], self.fake.effects)
+
+    def test_malformed_content_uses_validated_joined_dns_without_static_dns_or_network_churn(self):
+        self.domain.write_text(json.dumps({"joinState": "JOINED", "domainName": "ablestack.local", "dnsServers": ["192.0.2.53"]}));self.domain.chmod(0o600)
+        self.resolver.write_text(r"nameserver 8.8.8.8\n")
+        self.assertEqual("ERROR", self.net.inspect()["status"]);self.assertTrue(self.net.prepare()["success"])
+        self.assertEqual("search ablestack.local\nnameserver 192.0.2.53\n", self.resolver.read_text())
+        self.assertEqual([], self.fake.effects)
+
+    def test_valid_commented_nameserver_retains_content_and_has_no_mismatch(self):
+        content = "# harmless\nnameserver 203.0.113.53 # declared\n"
+        self.resolver.write_text(content)
+        self.assertEqual("OK", self.net.inspect()["status"]);self.assertEqual(content, self.resolver.read_text())
+        self.assertEqual([], self.fake.effects)
 
 
 class MonitorAndBootTest(unittest.TestCase):
