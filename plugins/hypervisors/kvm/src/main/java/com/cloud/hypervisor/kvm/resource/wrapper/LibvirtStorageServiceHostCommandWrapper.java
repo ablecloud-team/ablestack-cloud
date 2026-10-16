@@ -45,6 +45,7 @@ import com.google.gson.stream.JsonToken;
 public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrapper<StorageServiceHostCommand, Answer, LibvirtComputingResource> {
     private static final int QGA_POLL_INTERVAL_MILLIS = 1000;
     static final int DIRECT_PROTECTED_STDIN_MAX_BYTES = 32768;
+    static final int PLAIN_NATIVE_STDIN_MAX_BYTES = 8 * 1024 * 1024;
     static final int PROTECTED_STDIN_CHUNK_BYTES = 32768;
     static final int PROTECTED_STDIN_MAX_BYTES = 64 * 1024 * 1024;
     private static final int PROTECTED_STDIN_CLEANUP_SECONDS = 2;
@@ -286,6 +287,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         final byte[] protectedPayload = usesProtectedStdin(command) && command.getPayload() != null
                 ? command.getPayload().getBytes(StandardCharsets.UTF_8) : null;
         try {
+            if (protectedPayload != null && !requiresProtectedStdin(command) && protectedPayload.length > PLAIN_NATIVE_STDIN_MAX_BYTES)
+                throw new IllegalArgumentException("Native stdin payload exceeds its existing limit");
             if (protectedPayload != null && protectedPayload.length > DIRECT_PROTECTED_STDIN_MAX_BYTES)
                 return executeLargeProtectedInput(domain, command, protectedPayload);
             final String qgaCommand = buildGuestExecCommand(command);
@@ -438,6 +441,12 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     }
 
     private boolean usesProtectedStdin(StorageServiceHostCommand command) {
+        return requiresProtectedStdin(command)
+                || (!CONFIGURE_SHAREDFS_STATIC_NETWORK.equals(command.getOperation()) && command.getPayload() != null
+                && command.getPayload().getBytes(StandardCharsets.UTF_8).length > DIRECT_PROTECTED_STDIN_MAX_BYTES);
+    }
+
+    private boolean requiresProtectedStdin(StorageServiceHostCommand command) {
         return (command.getOperation() != null && command.getOperation().startsWith("identity capsule ")) || (command.getMaskedFields() != null && !command.getMaskedFields().isEmpty())
                 || (command.getOperation() != null && java.util.Set.of("operation generation render-stage", "operation generation render-activate", "operation generation render-rollback").contains(command.getOperation()));
     }
@@ -466,10 +475,10 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             return buildSharedFsStaticNetworkShell(command);
         }
         final String payload = command.getPayload() == null ? "" : command.getPayload();
-        final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
         if (usesProtectedStdin(command)) {
             return "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " /dev/stdin";
         }
+        final String encodedPayload = Base64.getEncoder().encodeToString(payload.getBytes(StandardCharsets.UTF_8));
         return "payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); " +
                 "printf '%s' '" + encodedPayload + "' | base64 -d > \"$payload\"; " +
                 "/usr/local/bin/ablestack-storagectl " + command.getOperation() + " \"$payload\"; " +

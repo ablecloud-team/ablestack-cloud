@@ -622,6 +622,76 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         return domain;
     }
 
+
+    @Test public void largeUnmaskedNfsDesiredStateUsesBoundedRamInputWithoutPayloadArguments() throws Exception {
+        com.google.gson.JsonObject desired = new com.google.gson.JsonObject();
+        com.google.gson.JsonArray exports = new com.google.gson.JsonArray();
+        for (int index = 0; index < 13; index++) {
+            com.google.gson.JsonObject export = new com.google.gson.JsonObject();
+            export.addProperty("name", "nfs-" + index);
+            com.google.gson.JsonObject inspection = new com.google.gson.JsonObject();
+            inspection.addProperty("createdDirectoryReceipts", "PUBLIC_RECEIPT".repeat(1300));
+            export.add("lastInspection", inspection);exports.add(export);
+        }
+        desired.add("exports", exports);String payload = desired.toString();
+        Assert.assertTrue(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 131072);
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "nfs export apply", payload, 120, Collections.emptySet());
+        java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream captured = new java.io.ByteArrayOutputStream();
+        org.libvirt.Domain domain = chunkDomain(events, captured, "");
+        Assert.assertEquals(17, wrapper.executeGuestCommand(domain, command));
+        Assert.assertArrayEquals(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8), captured.toByteArray());
+        Assert.assertTrue(events.indexOf("CLOSE1") < events.indexOf("COMMIT"));
+        org.mockito.ArgumentCaptor<String> requests = org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.Mockito.verify(domain, org.mockito.Mockito.atLeastOnce()).qemuAgentCommand(requests.capture(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0));
+        for (String request : requests.getAllValues()) {
+            com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(request).getAsJsonObject();
+            if ("guest-exec".equals(value.get("execute").getAsString())) {
+                String argv = value.getAsJsonObject("arguments").getAsJsonArray("arg").toString();
+                Assert.assertFalse(argv.contains("PUBLIC_RECEIPT"));Assert.assertTrue(argv.length() < 32768);
+            }
+        }
+    }
+
+    @Test public void largeUnmaskedInputSelectsUtf8ByteBudgetAndPreservesSmallCommandShape() throws Exception {
+        StorageServiceHostCommand small = new StorageServiceHostCommand("same-vm", "nfs export apply", "X".repeat(32768), 120, Collections.emptySet());
+        com.google.gson.JsonObject smallArgs = com.google.gson.JsonParser.parseString(wrapper.buildGuestExecCommand(small)).getAsJsonObject().getAsJsonObject("arguments");
+        Assert.assertFalse(smallArgs.has("input-data"));Assert.assertTrue(smallArgs.get("arg").toString().contains("mktemp"));
+        String payload = "가".repeat(12000);
+        Assert.assertTrue(payload.length() < 32768);Assert.assertTrue(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 32768);
+        StorageServiceHostCommand large = new StorageServiceHostCommand("same-vm", "nfs export apply", payload, 120, Collections.emptySet());
+        java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream captured = new java.io.ByteArrayOutputStream();
+        Assert.assertEquals(17, wrapper.executeGuestCommand(chunkDomain(events, captured, ""), large));
+        Assert.assertArrayEquals(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8), captured.toByteArray());
+        Assert.assertEquals("/usr/local/bin/ablestack-storagectl nfs export apply /dev/stdin", wrapper.buildStorageCtlShell(large));
+    }
+
+    @Test public void largeUnmaskedNativeInputRejectsExistingEightMiBLimitBeforeAnyQgaCall() throws Exception {
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "nfs export apply", "X".repeat(8 * 1024 * 1024 + 1), 120, Collections.emptySet());
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail("Existing native stdin limit must be checked before launch");}
+        catch (IllegalArgumentException expected) {Assert.assertFalse(expected.getMessage().contains("XXXXXXXX"));}
+        org.mockito.Mockito.verifyNoInteractions(domain);
+    }
+
+    @Test public void largeUnmaskedUnknownCommitIsNotRetriedOrReplacedByDiskPayload() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();
+        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "commit-close");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "nfs export apply", "X".repeat(150000), 120, Collections.emptySet());
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+        catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("unknown"));}
+        Assert.assertEquals(1, events.stream().filter("COMMIT"::equals).count());
+        Assert.assertEquals(1, events.stream().filter("CLOSE2"::equals).count());
+    }
+
+    @Test public void largeUnmaskedInputRequiresChunkCapabilitiesWithoutArgumentFallback() throws Exception {
+        java.util.List<String> events = new java.util.ArrayList<>();
+        org.libvirt.Domain domain = chunkDomain(events, new java.io.ByteArrayOutputStream(), "unsupported");
+        StorageServiceHostCommand command = new StorageServiceHostCommand("same-vm", "nfs export apply", "X".repeat(150000), 120, Collections.emptySet());
+        try {wrapper.executeGuestCommand(domain, command);Assert.fail();}
+        catch (IllegalStateException expected) {Assert.assertTrue(expected.getMessage().contains("unavailable"));}
+        Assert.assertEquals(Collections.singletonList("guest-info"), events);
+    }
+
     @Test public void largeProtectedInputUsesActualDefaultSenderAndObserverWithBoundedChunksAndCloseBeforeCommit() throws Exception {
         java.util.List<String> events = new java.util.ArrayList<>();java.io.ByteArrayOutputStream captured = new java.io.ByteArrayOutputStream();
         org.libvirt.Domain domain = chunkDomain(events, captured, "");
