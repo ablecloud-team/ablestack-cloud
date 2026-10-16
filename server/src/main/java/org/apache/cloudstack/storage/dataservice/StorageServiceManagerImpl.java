@@ -7046,6 +7046,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             operation.setState("RUNNING");operation.setPhase("VERIFYING_EXISTING_FILESYSTEM");operation.setProgress(20);operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist forward resume intent");
             JsonObject request=scope.deepCopy();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("managerOperationUuid",operation.getUuid());request.addProperty("operationUuid",operation.getUuid());request.addProperty("revision",operation.getRevision());request.addProperty("resumeOnly",true);request.addProperty("importMode","MOUNT_EXISTING");
             request.add("originalFormatOwner",originalOwner.deepCopy());request.addProperty("expectedBootId",observed.get("bootId").getAsString());
+            request.addProperty("mountPath","/srv/ablestack-storage/volumes/"+volume.getUuid());
             JsonObject nativeResult=rootGuest(instance,"volume operation resume",request,120);
             if(!Boolean.TRUE.equals(getNativeBoolean(nativeResult,"resumed")) || !Boolean.TRUE.equals(getNativeBoolean(nativeResult,"resumeOnly")) || !Boolean.FALSE.equals(getNativeBoolean(nativeResult,"formatInvoked")) || !Boolean.FALSE.equals(getNativeBoolean(nativeResult,"formatterActive"))
                     || !volume.getUuid().equals(getJsonString(nativeResult,"volumeUuid")) || !getJsonString(scope,"operationId").equals(getJsonString(nativeResult,"operationId"))
