@@ -22,7 +22,10 @@ import com.cloud.vm.dao.NicDao;
 import org.apache.cloudstack.network.topology.NetworkTopologyVisitor;
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UserdataToRouterRulesTest {
     @Test public void deliversCandidateRatherThanOldDatabaseBodyWhileKeepingLoadedDetails() throws Exception {
