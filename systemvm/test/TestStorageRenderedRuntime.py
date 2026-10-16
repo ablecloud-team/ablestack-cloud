@@ -129,4 +129,33 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
             self.assertEqual("1",self.adapter.command(("fixed",),replay=Path("/synthetic/source"))["rootSourceMode"])
             self.assertIsNone(self.adapter.command(("fixed",))["rootSourceMode"])
 
+    def test_boot_inherits_workload_deadline_without_an_internal_240_second_reset(self):
+        deadline=time.monotonic()+1000
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC":str(deadline)}):
+            adapter=NativeRenderedRuntime(self.cli,None)
+        self.assertEqual(deadline,adapter.deadline)
+
+    def test_protocol_scoped_readback_never_touches_another_protocol(self):
+        self.adapter.store=type("Store",(),{"inspect":lambda self,path:{"manifestSha256":"a"*64},"read_journal":lambda self:None})()
+        self.adapter.command=lambda *args,**kwargs:{"smbRuntime":{"runtimeEndpoints":[]},"listenPorts":{}}
+        def read(path):
+            if path.name!="manifest.json" or path.parent.name!="smb":
+                raise AssertionError("Another protocol was unnecessarily observed")
+            return json.dumps({"listeners":[]}).encode()
+        with patch("native_render_runtime.rendered_read",side_effect=read):
+            self.assertEqual({"SMB":True},self.adapter.verify(Path("/unused"),("SMB",)))
+        with self.assertRaises(ValueError):self.adapter.verify(Path("/unused"),("FOREIGN",))
+
+    def test_boot_nfs_probe_uses_the_shared_workload_deadline_not_an_180_second_protocol_reset(self):
+        from unittest.mock import Mock
+        child=Mock(returncode=0)
+        child.communicate.return_value=(json.dumps({"success":True}),None)
+        self.adapter.deadline=time.monotonic()+1000
+        with patch("native_render_runtime.subprocess.Popen",return_value=child):
+            self.adapter.command(("nfs","export","apply"),allow_incomplete=True)
+        self.assertGreater(child.communicate.call_args.kwargs["timeout"],900)
+        with patch("native_render_runtime.subprocess.Popen",return_value=child):
+            self.adapter.command(("fixed",))
+        self.assertLessEqual(child.communicate.call_args.kwargs["timeout"],180)
+
 if __name__=='__main__':unittest.main()

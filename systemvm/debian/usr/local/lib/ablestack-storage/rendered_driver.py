@@ -48,6 +48,7 @@ from root_ad_identity_authority import root_ad_retained_authority
 from root_configuration_capsule import root_configuration_sha256
 from nvme_credentials import protected_credential_json
 from pending_nfs_authorization import PendingNfsAuthorization
+from boot_reconcile import BootCoordinator, boot_report
 
 
 class RenderedDriver:
@@ -124,14 +125,14 @@ class RenderedDriver:
                 "sourceConfigurationSha256":native["sourceConfigurationSha256"],"currentConfigurationSha256":actual["configurationSha256"],
                 "bootId":native["bootId"],"publicLocalMachineSid":native["sourcePublicIdentity"]["publicLocalMachineSid"]}
 
-    def verify(self,path):
+    def verify(self,path,domains=None):
         manifest=self.store.inspect(path);bindings=json.loads(rendered_read(path/"file-volumes.json"))
         for row in bindings["volumes"]:
             scope=manifest["scope"]
             actual=self.runtime.command(("operation","root-data","inspect"),{**scope,"templateUpgradeUuid":scope["operationUuid"],"volumes":[{"volumeUuid":row["volumeUuid"],"sizeBytes":row["sizeBytes"],"kind":"FILE_DATA"}]})["volumes"][0]
             if (actual.get("mappingStatus")!="EXACT" or actual.get("matchedBy")!="VOLUME_SERIAL" or actual.get("sizeBytes")!=row["sizeBytes"] or actual.get("filesystemUuid")!=row["filesystemUuid"]
                     or not any(mount.get("target")==row["mountPath"] for mount in actual.get("mounts",[]))):raise ValueError("Rendered FILE_DATA binding changed during activation/readback")
-        result=self.runtime.verify(path)
+        result=self.runtime.verify(path) if domains is None else self.runtime.verify(path,domains)
         self.prerequisites.verify(path)
         return result
 
@@ -776,14 +777,60 @@ class RenderedDriver:
             if actual.get("pendingOperationUuid") or actual.get("generationStatus") != "IN_SYNC" or actual["configurationSha256"] != current["configurationSha256"] or any(actual["generation"].get(key) != value for key, value in current["scope"].items()):
                 raise ValueError("Rendered boot current differs from the committed native generation")
             path = self.store.pointer()
-            # The current immutable generation remains pinned for the whole
-            # replay. Missing authentication material raises before readiness.
-            for domain in DOMAINS: self.runtime.replay(path, domain)
-            verified = self.verify(path)
-            if not all(verified[domain] is True for domain in DOMAINS):
-                raise ValueError("Rendered boot did not verify all four protocols")
-            self.persist_desired(path)
-            return {**status, "bootRuntimeVerified": verified}
+            # Reuse the outer coordinator; its immutable BOOT/desired binding
+            # is progress authority only, never a substitute for the guards above.
+            coordinator=BootCoordinator.attach_existing()
+            if coordinator is None:
+                nfs=json.loads(rendered_read(path/"nfs/manifest.json"))
+                groups=tasks=0
+                for endpoint in nfs.get("endpoints",[]):
+                    modes=2 if endpoint["mode"]=="V3V4_DUAL" else 1
+                    groups+=modes
+                    tasks+=modes*len(GaneshaDbus.configuration(rendered_read(path/endpoint["configurationPath"]).decode())["exports"])
+                configured=[]
+                for domain in DOMAINS:
+                    desired=self.runtime.payload(path,domain)
+                    key="exports" if domain=="NFS" else "shares" if domain=="SMB" else "targets" if domain=="ISCSI" else "subsystems"
+                    if desired.get("enabled") is not False and any(row.get("state","Ready") not in ("Disabled","Destroyed","Error") for row in desired.get(key,[])):
+                        configured.append(domain)
+                coordinator=BootCoordinator(current["configurationSha256"],{"probeTasks":tasks,"endpointModeGroups":groups,
+                    "configuredProtocolCount":len(configured),"concurrency":1},current["scope"]["instanceUuid"],configured_protocols=configured,new_transaction=True)
+            self.runtime.deadline=coordinator.deadline
+            os.environ.update(ABLESTACK_STORAGE_BOOT_COORDINATOR="1",ABLESTACK_STORAGE_BOOT_DESIRED_HASH=coordinator.desired_hash,
+                              ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC=str(coordinator.deadline))
+            configured=[domain for domain,row in coordinator.record["protocols"].items() if row["configured"]]
+            for attempt in range(1,13):
+                coordinator.begin_attempt(attempt)
+                complete=True
+                for domain in DOMAINS:
+                    def apply(domain=domain):
+                        result=self.runtime.replay(path,domain,boot=True)
+                        if domain=="NFS":return boot_report(result)
+                        return {"success":result.get("success") is True,"runtimeReady":False,"detailVerified":False,
+                                "probePending":0,"completedProbeCount":0,"totalProbeCount":0,"skippedAclCount":0,
+                                "detailVerificationKind":"UNVERIFIED","lastFailure":None}
+                    def verify(domain=domain):
+                        self.verify(path,(domain,))
+                        return self.runtime.boot_report(path,domain)
+                    if not coordinator.run_protocol(domain,current["domainSha256"][domain],apply,verify,configured=domain in configured):
+                        complete=False
+                    failure=coordinator.record.get("lastFailure") or {}
+                    cleanup=failure.get("cleanup") or {}
+                    if cleanup and (cleanup.get("complete") is not True or cleanup.get("childActive") or cleanup.get("mountPresent")):
+                        coordinator.hold("NFS_PROBE_CLEANUP_PENDING",failure=failure)
+                        raise ValueError("Rendered boot requires exact probe cleanup before further effects")
+                if complete:
+                    verified=self.verify(path)
+                    if not all(verified[domain] is True for domain in DOMAINS):
+                        raise ValueError("Rendered boot did not verify all four protocols")
+                    self.persist_desired(path)
+                    coordinator.finish()
+                    return {**status,"bootRuntimeVerified":verified}
+                failure=coordinator.record.get("lastFailure")
+                if coordinator.remaining()<=0 or failure and failure["retryable"] is False:break
+                time.sleep(min(2,coordinator.remaining()))
+            coordinator.finish()
+            raise ValueError("Rendered boot remains unverified within its workload deadline")
         scope = self.store.scope(request)
         retained=self.retained_authority(request,for_stage=action=="render-stage")
         if retained is not None and action=="render-rollback":raise ValueError("Retained ROOT historical rollback is prohibited; restore its captured latest ROOT")

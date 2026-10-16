@@ -32,6 +32,8 @@ import time
 
 from rendered_generation import rendered_read
 from ganesha_dbus import GaneshaDbus
+from boot_reconcile import BootCoordinator, boot_report
+from nfs_readiness import NfsProbeRunner, NfsEndpointReadiness
 from nvme_credentials import NvmeCredentialStore, protected_credential_json
 
 RENDER_COMMANDS = {"NFS": ("nfs", "export", "apply"), "SMB": ("smb", "share", "apply"),
@@ -44,9 +46,9 @@ class NativeRenderedRuntime:
     def __init__(self, cli, store, deadline=None, credentials=None):
         self.cli = str(cli)
         self.store = store
-        self.deadline = deadline or time.monotonic() + 240
-        if os.environ.get("ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC"):
-            self.deadline=min(self.deadline,float(os.environ["ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC"]))
+        inherited=os.environ.get("ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC")
+        self.deadline = deadline if deadline is not None else float(inherited) if inherited else time.monotonic()+240
+        if inherited:self.deadline=min(self.deadline,float(inherited))
         self.credentials = credentials or {}
         self.iscsi_root = Path("/sys/kernel/config/target/iscsi")
         self.nvme_root = Path("/sys/kernel/config/nvmet")
@@ -60,7 +62,7 @@ class NativeRenderedRuntime:
             raise TimeoutError("Rendered runtime operation exhausted its total deadline")
         return value
 
-    def command(self, arguments, payload=None, replay=None, replay_from=None):
+    def command(self, arguments, payload=None, replay=None, replay_from=None, allow_incomplete=False):
         # Secrets use sealed memfd input, never argv, logs or disk files. FD9
         # remains inherited so a stuck kernel child continues to hold the writer.
         descriptor = None
@@ -83,7 +85,8 @@ class NativeRenderedRuntime:
                 fcntl.fcntl(descriptor, fcntl.F_ADD_SEALS, fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW | fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_SEAL)
                 inherited = (*inherited, descriptor)
                 arguments = (*arguments, "/proc/self/fd/" + str(descriptor))
-            timeout = self.remaining(180)
+            boot_nfs=allow_incomplete and tuple(arguments[:3])==("nfs","export","apply")
+            timeout = self.remaining(1500 if boot_nfs else 180)
             child = subprocess.Popen([self.cli, *arguments], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                      text=True, env=environment, pass_fds=inherited, start_new_session=True)
             try:
@@ -99,10 +102,12 @@ class NativeRenderedRuntime:
                     try: child.communicate(timeout=2)
                     except subprocess.TimeoutExpired: pass
                 raise TimeoutError("Rendered native replay timed out; reconciliation is required")
-            if child.returncode or len(output) > 16 * 1024 * 1024:
+            if len(output) > 16 * 1024 * 1024:
                 raise ValueError("Fixed native rendered operation failed")
             result = json.loads(output)
-            if result.get("success") is not True:
+            if child.returncode or result.get("success") is not True:
+                if allow_incomplete and tuple(arguments[:3])==("nfs","export","apply"):
+                    return boot_report(result)
                 raise ValueError("Fixed native rendered operation did not verify success")
             return result
         finally:
@@ -180,7 +185,7 @@ class NativeRenderedRuntime:
                     or observed.get(field) != 0 or observed.get("warnings")):
                 raise ValueError("Block session observation is unavailable or busy; replay is held")
 
-    def replay(self, path, domain, rollback=False):
+    def replay(self, path, domain, rollback=False, boot=False):
         self.store.inspect(path)
         if domain not in RENDER_COMMANDS:
             raise ValueError("Unknown fixed rendered runtime adapter")
@@ -191,6 +196,8 @@ class NativeRenderedRuntime:
         if journal and journal.get("phase") not in ("COMPLETE","ROLLED_BACK"):
             source=self.store.generations/(journal["scope"]["operationUuid"] if rollback else journal["previousOperationUuid"])
             self.store.inspect(source)
+        if boot and domain=="NFS":
+            return self.command(RENDER_COMMANDS[domain],self.payload(path,domain,rollback),replay=path,replay_from=source,allow_incomplete=True)
         return self.command(RENDER_COMMANDS[domain], self.payload(path, domain, rollback), replay=path, replay_from=source)
 
     def tcp(self, ip, port):
@@ -198,53 +205,87 @@ class NativeRenderedRuntime:
         with socket.create_connection((ip, int(port)), timeout=self.remaining(1)):
             return True
 
-    def verify(self, path):
+    def verify(self, path, domains=None):
         manifest = self.store.inspect(path)
         health = self.command(("operation", "verify"))
-        result = {domain: False for domain in RENDER_COMMANDS}
+        selected=tuple(RENDER_COMMANDS) if domains is None else tuple(domains)
+        if not selected or len(set(selected))!=len(selected) or any(domain not in RENDER_COMMANDS for domain in selected):
+            raise ValueError("Rendered runtime readback has an unknown domain")
+        result = {domain: False for domain in selected}
         journal=self.store.read_journal() or {}
         credential_side="previous" if manifest["manifestSha256"]==journal.get("previousSha256") else "target"
-        nfs = json.loads(rendered_read(path / "nfs/manifest.json"))
-        nfs_health=health.get("nfsGanesha") or {}
-        observed_nfs={row.get("file"):row for row in nfs_health.get("endpoints",[])}
-        for endpoint in nfs.get("endpoints", []):
-            configuration = self.nfs_config_root / (endpoint["legacyUnitKey"] + ".conf")
-            if hashlib.sha256(configuration.read_bytes()).hexdigest() != manifest["files"][endpoint["configurationPath"]]:
-                raise ValueError("Live Ganesha configuration differs from its immutable generation")
-            row=observed_nfs.get(configuration.name) or {}
-            pid=int(row.get("pid") or 0)
-            if not pid or row.get("processRunning") is not True:raise ValueError("Rendered NFS owned process is unavailable")
-            process=Path("/proc/"+str(pid))
-            ticks=(process/"stat").read_text().rpartition(")")[2].split()[19]
-            arguments=(process/"cmdline").read_bytes().split(bytes([0]))
-            if (not arguments or not arguments[0].endswith(b"ganesha.nfsd") or arguments.count(b"-f")!=1
-                    or arguments[arguments.index(b"-f")+1].decode()!=str(configuration)):
-                raise ValueError("Rendered NFS process uses a foreign configuration")
-            adapter=GaneshaDbus(deadline=self.deadline)
-            name,manager=adapter.owned_endpoint_manager(endpoint["listenIp"],endpoint["port"],pid)
-            adapter.verify(manager,adapter.configuration(configuration.read_text())["exports"])
-            self.tcp(endpoint["listenIp"], endpoint["port"])
-            if (process/"stat").read_text().rpartition(")")[2].split()[19]!=ticks:raise ValueError("Rendered NFS process changed during readback")
-        result["NFS"] = (not nfs.get("endpoints") and nfs_health.get("active", 0) == 0 and not (health.get("listenPorts") or {}).get("nfs")) or bool(nfs_health.get("listening") and nfs_health.get("active", 0) >= len(nfs["endpoints"]))
-        smb = json.loads(rendered_read(path / "smb/manifest.json"))
-        actual_smb = Path("/etc/samba/smb.conf")
-        if smb.get("listeners"):
-            if hashlib.sha256(actual_smb.read_bytes()).hexdigest() != manifest["files"]["smb/smb.conf"]:
-                raise ValueError("Live Samba configuration differs from its immutable generation")
-            endpoints = {(str(item.get("listenIp")), int(item.get("port") or 0)): item for item in (health.get("smbRuntime") or {}).get("runtimeEndpoints", [])}
-            for endpoint in smb["listeners"]:
-                actual = endpoints.get((endpoint["listenIp"], endpoint["port"])) or {}
-                if actual.get("listenerOwned") is not True or actual.get("tcpReady") is not True:
-                    raise ValueError("Rendered Samba endpoint ownership/TCP readback failed")
+        if "NFS" in selected:
+            nfs = json.loads(rendered_read(path / "nfs/manifest.json"))
+            nfs_health=health.get("nfsGanesha") or {}
+            observed_nfs={row.get("file"):row for row in nfs_health.get("endpoints",[])}
+            for endpoint in nfs.get("endpoints", []):
+                configuration = self.nfs_config_root / (endpoint["legacyUnitKey"] + ".conf")
+                if hashlib.sha256(configuration.read_bytes()).hexdigest() != manifest["files"][endpoint["configurationPath"]]:
+                    raise ValueError("Live Ganesha configuration differs from its immutable generation")
+                row=observed_nfs.get(configuration.name) or {}
+                pid=int(row.get("pid") or 0)
+                if not pid or row.get("processRunning") is not True:raise ValueError("Rendered NFS owned process is unavailable")
+                process=Path("/proc/"+str(pid))
+                ticks=(process/"stat").read_text().rpartition(")")[2].split()[19]
+                arguments=(process/"cmdline").read_bytes().split(bytes([0]))
+                if (not arguments or not arguments[0].endswith(b"ganesha.nfsd") or arguments.count(b"-f")!=1
+                        or arguments[arguments.index(b"-f")+1].decode()!=str(configuration)):
+                    raise ValueError("Rendered NFS process uses a foreign configuration")
+                adapter=GaneshaDbus(deadline=self.deadline)
+                name,manager=adapter.owned_endpoint_manager(endpoint["listenIp"],endpoint["port"],pid)
+                adapter.verify(manager,adapter.configuration(configuration.read_text())["exports"])
                 self.tcp(endpoint["listenIp"], endpoint["port"])
-        if not smb.get("listeners") and any(item.get("listenerOwned") and item.get("tcpReady") for item in (health.get("smbRuntime") or {}).get("runtimeEndpoints", [])):
-            raise ValueError("Disabled rendered Samba still exposes an owned endpoint")
-        result["SMB"] = True
+                if (process/"stat").read_text().rpartition(")")[2].split()[19]!=ticks:raise ValueError("Rendered NFS process changed during readback")
+            result["NFS"] = (not nfs.get("endpoints") and nfs_health.get("active", 0) == 0 and not (health.get("listenPorts") or {}).get("nfs")) or bool(nfs_health.get("listening") and nfs_health.get("active", 0) >= len(nfs["endpoints"]))
+        if "SMB" in selected:
+            smb = json.loads(rendered_read(path / "smb/manifest.json"))
+            actual_smb = Path("/etc/samba/smb.conf")
+            if smb.get("listeners"):
+                if hashlib.sha256(actual_smb.read_bytes()).hexdigest() != manifest["files"]["smb/smb.conf"]:
+                    raise ValueError("Live Samba configuration differs from its immutable generation")
+                endpoints = {(str(item.get("listenIp")), int(item.get("port") or 0)): item for item in (health.get("smbRuntime") or {}).get("runtimeEndpoints", [])}
+                for endpoint in smb["listeners"]:
+                    actual = endpoints.get((endpoint["listenIp"], endpoint["port"])) or {}
+                    if actual.get("listenerOwned") is not True or actual.get("tcpReady") is not True:
+                        raise ValueError("Rendered Samba endpoint ownership/TCP readback failed")
+                    self.tcp(endpoint["listenIp"], endpoint["port"])
+            if not smb.get("listeners") and any(item.get("listenerOwned") and item.get("tcpReady") for item in (health.get("smbRuntime") or {}).get("runtimeEndpoints", [])):
+                raise ValueError("Disabled rendered Samba still exposes an owned endpoint")
+            result["SMB"] = True
         for domain, name in (("ISCSI", "iscsi"), ("NVMEOF", "nvmeof")):
+            if domain not in selected:continue
             plan = json.loads(rendered_read(path / ("block/" + name + "-plan.json")))
             resolved=self.reobserve_block(path,plan)
             result[domain] = self.verify_block(plan,credential_side,manifest["scope"]["instanceUuid"],resolved)
         return result
+
+    def boot_report(self,path,domain):
+        verified=self.verify(path,(domain,)).get(domain) is True
+        if domain!="NFS" or not verified:
+            configured=False
+            if domain!="NFS":
+                desired=json.loads(rendered_read(path/"desired-state.json"))[PROTOCOL_FILES[domain]] or {}
+                collection={"SMB":"shares","ISCSI":"targets","NVMEOF":"subsystems"}[domain]
+                configured=desired.get("enabled") is not False and any(row.get("state","Ready") not in ("Disabled","Destroyed","Error")
+                                                                     for row in desired.get(collection,[]))
+            kind=("EXACT_RUNTIME_READBACK" if configured else "NOT_REQUIRED") if verified else "UNVERIFIED"
+            return {"success":verified,"runtimeReady":verified,"detailVerified":verified,
+                    "probePending":0,"completedProbeCount":0,"totalProbeCount":0,"skippedAclCount":0,
+                    "detailVerificationKind":kind,"lastFailure":None}
+        nfs=json.loads(rendered_read(path/"nfs/manifest.json"))
+        if not nfs.get("endpoints"):
+            return {"success":True,"runtimeReady":True,"detailVerified":True,
+                    "probePending":0,"completedProbeCount":0,"totalProbeCount":0,"skippedAclCount":0,
+                    "detailVerificationKind":"NOT_REQUIRED","lastFailure":None}
+        health=self.command(("operation","verify"));observed={row.get("file"):row for row in (health.get("nfsGanesha") or {}).get("endpoints",[])}
+        readiness=NfsEndpointReadiness(self.deadline,GaneshaDbus,lambda *args:None)
+        endpoints=[]
+        for endpoint in nfs["endpoints"]:
+            configuration=self.nfs_config_root/(endpoint["legacyUnitKey"]+".conf")
+            row=observed.get(configuration.name) or {}
+            binding,_=readiness.snapshot(configuration,int(row.get("pid") or 0),True)
+            endpoints.append({**binding,"listenIp":endpoint["listenIp"],"port":endpoint["port"]})
+        return NfsProbeRunner({},"/run/ablestack-storage/nfs-probe",self.deadline,None).verified_summary(endpoints)
 
     def verify_block(self, plan,credential_side="target",instance_uuid=None,resolved=None):
         durable_nvme=None;durable_iscsi=None

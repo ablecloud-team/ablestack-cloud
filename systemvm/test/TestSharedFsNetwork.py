@@ -607,7 +607,7 @@ class MonitorAndBootTest(unittest.TestCase):
         setup = (base / "opt/cloud/bin/setup/sharedfsvm.sh").read_text()
         init = (base / "opt/cloud/bin/setup/init.sh").read_text()
         reconcile = (base / "etc/systemd/system/ablestack-storage-reconcile.service").read_text()
-        self.assertLess(boot.index("ablestack-sharedfs-network --prepare"), boot.index('rendered="$(boot_bounded_exec'))
+        self.assertLess(boot.index('prepared = command(["/usr/local/sbin/ablestack-sharedfs-network", "--prepare"])'), boot.index('rendered = command([cli, "operation", "generation", "render-status"])'))
         self.assertNotIn("dhclient -4", boot);self.assertNotIn("dhclient -4", setup)
         self.assertNotIn("enable --now ablestack-storage-monitor", setup)
         self.assertIn("systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true", setup)

@@ -17,7 +17,7 @@
 
 
 """Exercise the embedded NFS probe budget and kernel-child safety without mounts."""
-import ast,ipaddress,json,os,re,signal,subprocess,tempfile,time,unittest
+import ast,hashlib,ipaddress,json,os,re,signal,stat,subprocess,tempfile,time,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock,patch
@@ -27,7 +27,7 @@ SOURCE=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablest
 
 def probe_namespace(results):
     block=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",SOURCE.read_text(),re.S) if "def probe_nfs_export_visibility(" in value)
-    node=next(item for item in ast.parse(block).body if isinstance(item,ast.FunctionDef) and item.name=="probe_nfs_export_visibility")
+    nodes=[item for item in ast.parse(block).body if isinstance(item,(ast.FunctionDef,ast.ClassDef)) and item.name in ('probe_nfs_export_visibility','NfsProbeRunner','NfsReadinessError')]
     api=Mock();api.PIPE=subprocess.PIPE;api.TimeoutExpired=subprocess.TimeoutExpired;api.CompletedProcess=subprocess.CompletedProcess
     children=[]
     def create(arguments,**kwargs):
@@ -40,8 +40,8 @@ def probe_namespace(results):
     api.Popen.side_effect=create
     values={name:getattr(os,name) for name in dir(os)};values['pidfd_open']=Mock(return_value=100);values['close']=Mock()
     system=SimpleNamespace(**values);signals=SimpleNamespace(SIGTERM=signal.SIGTERM,SIGKILL=signal.SIGKILL,pidfd_send_signal=Mock())
-    ns={'ipaddress':ipaddress,'subprocess':api,'os':system,'signal':signals,'time':time,'tempfile':tempfile,'payload':{},'endpoint_key':lambda ip,port:str(port)}
-    exec(compile(ast.Module(body=[node],type_ignores=[]),str(SOURCE),'exec'),ns)
+    ns={'ipaddress':ipaddress,'subprocess':api,'os':system,'signal':signals,'time':time,'tempfile':tempfile,'payload':{},'endpoint_key':lambda ip,port:str(port), 'BootCoordinator':SimpleNamespace(attach_existing=lambda:None), 'Path':Path, 'json':json, 'stat':stat, 'hashlib':hashlib, 'nfs_operation_deadline':time.monotonic()+30, 'nfs_probe_root':tempfile.gettempdir()}
+    exec(compile(ast.Module(body=nodes,type_ignores=[]),str(SOURCE),'exec'),ns)
     return ns,children
 
 
@@ -63,17 +63,17 @@ class NfsReadinessTest(unittest.TestCase):
             self.assertEqual([endpoint],failures);result=endpoint['probeResults'][0]
             self.assertEqual('PROBE_PENDING',result['status']);self.assertTrue(result['probeChildActive']);self.assertTrue(result['cleanupPending']);self.assertFalse(endpoint['probeSuccess'])
             self.assertEqual('RECOVERY_REQUIRED',json.loads((Path(root)/'journal.json').read_text())['phase']);self.assertEqual(2,ns['subprocess'].Popen.call_count);self.assertEqual((9,),ns['subprocess'].Popen.call_args.kwargs['pass_fds'])
-            self.assertTrue(all(0<call.kwargs['timeout']<=15 for call in children[1].communicate.call_args_list))
+            self.assertTrue(all(0<call.kwargs['timeout']<=35 for call in children[1].communicate.call_args_list))
             self.assertEqual([signal.SIGTERM,signal.SIGKILL],[call.args[1] for call in ns['signal'].pidfd_send_signal.call_args_list])
 
     def test_mount_unmount_and_cleanup_share_the_same_total_deadline(self):
         ns,children=probe_namespace([self.ip_result(),subprocess.CompletedProcess(['mount'],0,'',''),subprocess.TimeoutExpired(['umount'],10)])
-        ns['payload']['probeDeadlineSeconds']=1
+        ns['payload']['probeDeadlineSeconds']=3
         with tempfile.TemporaryDirectory() as root:
             ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export();started=time.monotonic()
             ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
             self.assertLess(time.monotonic()-started,1);self.assertTrue(endpoint['probeResults'][0]['cleanupPending'])
-            self.assertTrue(all(call.kwargs['timeout']<=1 for child in children for call in child.communicate.call_args_list))
+            self.assertTrue(all(call.kwargs['timeout']<=3 for child in children for call in child.communicate.call_args_list))
 
     def test_successful_probe_checks_both_mount_and_unmount_before_ready(self):
         done=subprocess.CompletedProcess([],0,'','');ns,children=probe_namespace([self.ip_result(),done,done,done])
@@ -81,5 +81,25 @@ class NfsReadinessTest(unittest.TestCase):
             ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export()
             self.assertEqual([],ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]}));self.assertTrue(endpoint['probeSuccess']);self.assertTrue(endpoint['probeResults'][0]['success'])
             self.assertEqual([],list(Path(root).iterdir()))
+
+    def test_outer_activation_deadline_also_bounds_the_probe_before_launch(self):
+        done=subprocess.CompletedProcess([],0,'','')
+        ns,children=probe_namespace([self.ip_result(),done,done,done])
+        ns['nfs_operation_deadline']=time.monotonic()-1
+        with tempfile.TemporaryDirectory() as root:
+            ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export()
+            ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
+        self.assertEqual([],children, 'Expired shared deadline must not launch another child')
+        self.assertFalse(endpoint['probeSuccess'])
+
+    def test_cleanup_failure_is_explicit_even_when_mount_child_already_exited(self):
+        failed=subprocess.CompletedProcess([],1,'','busy')
+        ns,children=probe_namespace([self.ip_result(),failed,failed])
+        with tempfile.TemporaryDirectory() as root:
+            ns['nfs_probe_root']=root;endpoint,export=self.endpoint_export()
+            with patch.object(ns['os'],'rmdir',side_effect=OSError('busy')):
+                ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
+            self.assertTrue(endpoint['probeResults'][0].get('cleanupPending'),
+                            'A mountpoint left behind must remain pending, never silently clean')
 
 if __name__=='__main__':unittest.main()

@@ -70,7 +70,7 @@ def local_source_reviewed_body():
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','semantic_identity_alias','rendered_generation','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
+        modules=['ad_authority','semantic_identity_alias','rendered_generation','boot_reconcile','nfs_readiness','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
@@ -92,6 +92,16 @@ class StorageInlineSourcesTest(unittest.TestCase):
             expected=(LIB/(name+'.py')).read_text();expected=expected[expected.index(start):]
             actual=source.split('# BEGIN EMBEDDED '+marker+'\n',1)[1].split('# END EMBEDDED '+marker,1)[0]
             self.assertEqual(expected.strip(),actual.strip())
+
+    def test_nfs_boot_and_probe_closures_are_standalone_exact_sources(self):
+        source=CLI.read_text()
+        for name,marker in (("boot_reconcile","NFS BOOT COORDINATOR"),("nfs_readiness","NFS READINESS")):
+            actual=source.split("# BEGIN EMBEDDED "+marker+"\n",1)[1].split("# END EMBEDDED "+marker,1)[0]
+            self.assertEqual((LIB/(name+".py")).read_text().strip(),actual.strip())
+            ast.parse(actual)
+        actual=source.split("# BEGIN EMBEDDED NFS BOOT VERIFY SOURCES\n",1)[1].split("# END EMBEDDED NFS BOOT VERIFY SOURCES",1)[0]
+        expected="\n".join((LIB/(name+".py")).read_text() for name in ("boot_reconcile","ganesha_dbus","nfs_readiness"))
+        self.assertEqual(expected.strip(),actual.strip())
 
     def test_signed_service_and_ad_readonly_bodies_match_reviewed_modules_exactly(self):
         source=CLI.read_text()

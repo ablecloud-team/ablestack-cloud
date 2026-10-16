@@ -71,6 +71,7 @@ class="storage-service__alert"
       </a-tab-pane>
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
+        <storage-boot-reconcile-status v-if="storageService.instance" :instance-id="storageService.instance.id" :active="currentTab === 'operations'" :scope-key="$route.fullPath" />
         <storage-control-policy v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" @operation-updated="refreshStorageOperationHistory" />
         <storage-operation-history ref="storageOperationHistory" @read-started="storageOperationHistoryStarted" @read-complete="storageOperationHistoryLoaded" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" :active="currentTab === 'operations'" :initial-volume-id="typeof $route.query.volumeid === 'string' ? $route.query.volumeid : ''" @operation-updated="refreshStorageOperationHistory" />
@@ -2388,6 +2389,7 @@ import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storag
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
+import StorageBootReconcileStatus from '@/views/storage/StorageBootReconcileStatus'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
@@ -2650,6 +2652,7 @@ export default {
     StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
     StorageNetworkStatus,
+    StorageBootReconcileStatus,
     StorageSmbIdentityRepair,
     StorageAdMutationConsent,
     PosixDirectoryPolicies,

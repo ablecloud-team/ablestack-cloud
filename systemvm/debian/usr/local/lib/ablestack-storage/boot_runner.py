@@ -49,40 +49,65 @@ class BootRunner:
         finally:
             if os.path.exists(temporary):os.unlink(temporary)
 
-    def run(self,arguments,stdin_fd=None):
+    def run(self,arguments,stdin_fd=None,heartbeat=None,capture=False):
         remaining=self.deadline-time.monotonic()
         if remaining<=0:raise TimeoutError("Storage boot total deadline exceeded before another command")
         if not callable(getattr(os,"pidfd_open",None)) or not callable(getattr(signal,"pidfd_send_signal",None)):
             raise ValueError("Storage boot requires exact pidfd child control")
         inherited=(9,) if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")=="9" else ()
         if stdin_fd is not None:inherited=(*inherited,stdin_fd)
-        child=subprocess.Popen(arguments,stdin=stdin_fd if stdin_fd is not None else subprocess.DEVNULL,pass_fds=inherited)
+        output=os.memfd_create("storage-boot-public-output",os.MFD_CLOEXEC) if capture else None
+        child=subprocess.Popen(arguments,stdin=stdin_fd if stdin_fd is not None else subprocess.DEVNULL,
+                               stdout=output if capture else None,stderr=subprocess.DEVNULL if capture else None,
+                               pass_fds=inherited)
         descriptor=None
+        def terminate():
+            self.checkpoint("TIMED_OUT_PENDING_RECONCILE",child,arguments)
+            if descriptor is not None:
+                try:signal.pidfd_send_signal(descriptor,signal.SIGTERM,None,0)
+                except ProcessLookupError:pass
+            try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
+            except subprocess.TimeoutExpired:
+                if descriptor is not None:
+                    try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
+                    except ProcessLookupError:pass
+                try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
+                except subprocess.TimeoutExpired:pass
+            self.checkpoint("RECOVERY_REQUIRED" if child.poll() is None else "TIMED_OUT",child,arguments)
         try:
             try:descriptor=os.pidfd_open(child.pid,0)
             except ProcessLookupError:
                 if child.poll() is None:raise ValueError("Storage boot child identity is unavailable")
             self.checkpoint("RUNNING",child,arguments)
-            try:
-                code=child.wait(timeout=max(.001,self.deadline-time.monotonic()-1))
-                self.checkpoint("COMPLETE" if code==0 else "FAILED",child,arguments)
-                return {"success":code==0,"exitCode":code,"childActive":False}
-            except subprocess.TimeoutExpired:
-                self.checkpoint("TIMED_OUT_PENDING_RECONCILE",child,arguments)
-                # The caller's APPLYING protocol receipt already precedes this
-                # command. Never communicate()/wait without a bounded timeout.
-                if descriptor is not None:
-                    try:signal.pidfd_send_signal(descriptor,signal.SIGTERM,None,0)
-                    except ProcessLookupError:pass
-                try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
+            while True:
+                if heartbeat is not None:heartbeat()
+                if capture and os.fstat(output).st_size>16*1024*1024:
+                    raise ValueError("Storage boot output exceeds its bounded public result")
+                remaining=self.deadline-time.monotonic()-1
+                if remaining<=0:raise subprocess.TimeoutExpired(arguments,0)
+                try:
+                    code=child.wait(timeout=max(.001,min(1,remaining)))
+                    break
                 except subprocess.TimeoutExpired:
-                    if descriptor is not None:
-                        try:signal.pidfd_send_signal(descriptor,signal.SIGKILL,None,0)
-                        except ProcessLookupError:pass
-                    try:child.wait(timeout=max(.001,min(.5,self.deadline-time.monotonic())))
-                    except subprocess.TimeoutExpired:pass
-                self.checkpoint("RECOVERY_REQUIRED" if child.poll() is None else "TIMED_OUT",child,arguments)
-                return {"success":False,"exitCode":child.poll(),"childActive":child.poll() is None,"deadlineExceeded":True,
-                        "recoveryRequired":True,"childPid":child.pid}
+                    if time.monotonic()>=self.deadline-1:raise
+            self.checkpoint("COMPLETE" if code==0 else "FAILED",child,arguments)
+            result={"success":code==0,"exitCode":code,"childActive":False}
+            if capture:
+                if os.fstat(output).st_size>16*1024*1024:raise ValueError("Storage boot output exceeds its limit")
+                os.lseek(output,0,os.SEEK_SET);data=bytearray()
+                while len(data)<=16*1024*1024:
+                    piece=os.read(output,min(65536,16*1024*1024+1-len(data)))
+                    if not piece:break
+                    data.extend(piece)
+                result["output"]=data.decode("utf-8")
+            return result
+        except subprocess.TimeoutExpired:
+            terminate()
+            return {"success":False,"exitCode":child.poll(),"childActive":child.poll() is None,"deadlineExceeded":True,
+                    "recoveryRequired":True,"childPid":child.pid}
+        except BaseException:
+            if child.poll() is None:terminate()
+            raise
         finally:
             if descriptor is not None:os.close(descriptor)
+            if output is not None:os.close(output)

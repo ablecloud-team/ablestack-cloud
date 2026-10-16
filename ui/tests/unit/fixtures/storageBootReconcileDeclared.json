@@ -1,0 +1,233 @@
+{
+  "kind": "DECLARED_CONTRACT_GENERATED_BY_CURRENT_PRODUCT_CLASS_NOT_LIVE_ACCEPTANCE",
+  "schemaVersion": 1,
+  "productClassSourceSha256": "ac2191d90d8d0679323334519985b58c5c977395111c054a0b73840d4ea3bfae",
+  "actualRemoteOrGuestCalls": 0,
+  "samples": {
+    "listenerReadyDetailedProbePending": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": "00000000-0000-0000-0000-000000000002",
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "RECONCILING",
+      "phase": "PROBE_EXPORTS",
+      "attempt": 1,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 730,
+      "remainingSeconds": 730.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": false,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "APPLIED",
+          "completedProbeCount": 9,
+          "configured": true,
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "PENDING",
+          "totalProbeCount": 10,
+          "verified": false
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": {
+        "cleanup": {
+          "childActive": false,
+          "complete": true,
+          "mountPresent": false
+        },
+        "code": "NFS_PROBE_TIMEOUT",
+        "endpointIp": "192.0.2.10",
+        "endpointPort": 2049,
+        "exportName": "declared-example",
+        "exportUuid": null,
+        "phase": "PROBE_EXPORTS",
+        "protocol": "NFS",
+        "protocolMode": "NFS4",
+        "retryable": true,
+        "timedOut": true
+      }
+    },
+    "allRequiredDetailedVerified": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": "00000000-0000-0000-0000-000000000002",
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "READY",
+      "phase": "COMPLETE",
+      "attempt": 1,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 730,
+      "remainingSeconds": 730.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": true,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "VERIFIED",
+          "completedProbeCount": 10,
+          "configured": true,
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "VERIFIED",
+          "totalProbeCount": 10,
+          "verified": true
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": {
+        "cleanup": {
+          "childActive": false,
+          "complete": true,
+          "mountPresent": false
+        },
+        "code": "NFS_PROBE_TIMEOUT",
+        "endpointIp": "192.0.2.10",
+        "endpointPort": 2049,
+        "exportName": "declared-example",
+        "exportUuid": null,
+        "phase": "PROBE_EXPORTS",
+        "protocol": "NFS",
+        "protocolMode": "NFS4",
+        "retryable": true,
+        "timedOut": true
+      }
+    },
+    "noConfiguredProtocolsExplicitSkipped": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "status": "READY",
+      "phase": "SKIPPED",
+      "attempt": 0,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 600,
+      "remainingSeconds": 600.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": true,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": null
+    }
+  },
+  "freshnessPolicy": {
+    "reconciling": "sameBOOT and last heartbeat<=15seconds",
+    "terminal": "sameBOOT and fresh outer health.generatedEpoch/staleAfterSeconds; terminal updatedEpoch remains phase time"
+  },
+  "optionalNullableGsonMayOmit": [
+    "instanceUuid",
+    "lastFailure",
+    "lastFailure.endpointIp",
+    "lastFailure.endpointPort",
+    "lastFailure.exportUuid",
+    "lastFailure.exportName",
+    "lastFailure.protocolMode"
+  ]
+}
