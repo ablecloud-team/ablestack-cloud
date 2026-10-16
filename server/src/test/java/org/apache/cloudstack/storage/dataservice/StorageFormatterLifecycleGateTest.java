@@ -33,6 +33,19 @@ public class StorageFormatterLifecycleGateTest {
     }
 
 
+    @Test public void malformedFlagsAndContradictoryNoJournalStateCannotApproveLifecycle() {
+        for(int mode=0;mode<6;mode++){
+            JsonObject value=state("COMPLETE",false);
+            if(mode==0)value.addProperty("success","true");
+            if(mode==1)value.addProperty("formatterActive","false");
+            if(mode==2)value.addProperty("formatterObservationComplete",false);
+            if(mode==3)value.getAsJsonObject("operation").addProperty("formatStarted","false");
+            if(mode==4)value.addProperty("status","NOT_STARTED");
+            if(mode==5){value.getAsJsonObject("operation").addProperty("formatStarted",false);value.getAsJsonObject("operation").addProperty("phase","FORMATTING");}
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageFormatterLifecycleGate.requireIdle(value));
+        }
+    }
+
     private static JsonObject nativeIdle(boolean idle) {
         JsonObject value = new JsonObject();value.addProperty("success", true);
         value.addProperty("status", idle ? "WRITER_IDLE" : "WRITER_BUSY");value.addProperty("writerIdle", idle);

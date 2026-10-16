@@ -21,20 +21,35 @@ import com.google.gson.JsonObject;
 public final class StorageFormatterLifecycleGate {
     private StorageFormatterLifecycleGate() { }
     public static void requireIdle(JsonObject status) {
-        if(status==null || !status.has("success") || !status.get("success").getAsBoolean())throw new CloudRuntimeException("Formatter journal is unobserved; preserve VM/DATA");
-        String phase=status.has("status")?status.get("status").getAsString():"UNKNOWN";
-        if (status.has("formatterActive") && !status.get("formatterActive").isJsonNull() && status.get("formatterActive").getAsBoolean()
-                || status.has("terminationPending") && !status.get("terminationPending").isJsonNull() && status.get("terminationPending").getAsBoolean()) {
-            throw new CloudRuntimeException("Explicit active or terminating formatter overrides journal phase; preserve VM/DATA");
+        if(status==null||!flag(status,"success",true))throw blocked();
+        String phase=text(status,"status");
+        if(flag(status,"formatterActive",false)||flag(status,"terminationPending",false))throw blocked();
+        if(status.has("formatterObservationComplete")&&!flag(status,"formatterObservationComplete",true))throw blocked();
+        JsonObject journal=status.has("operation")&&status.get("operation").isJsonObject()?status.getAsJsonObject("operation"):null;
+        if("NOT_STARTED".equals(phase)) {
+            if(journal!=null&&(flag(journal,"formatStarted",false)||flag(journal,"terminationPending",false)))throw blocked();
+            return; // The legacy no-journal response has no formatter fields.
         }
-        if("NOT_STARTED".equals(phase))return;
-        if(!status.has("formatterActive") || status.get("formatterActive").getAsBoolean()
-                || status.has("terminationPending") && status.get("terminationPending").getAsBoolean())throw new CloudRuntimeException("Active or terminating formatter preserves VM/DATA");
-        JsonObject journal=status.has("operation") && status.get("operation").isJsonObject()?status.getAsJsonObject("operation"):null;
-        if(journal==null)throw new CloudRuntimeException("Formatter journal is unavailable; preserve VM/DATA");
-        if(journal.has("terminationPending") && journal.get("terminationPending").getAsBoolean())throw new CloudRuntimeException("Formatter termination is pending; preserve VM/DATA");
-        boolean started=journal.has("formatStarted") && journal.get("formatStarted").getAsBoolean();
-        String recorded=journal.has("phase")?journal.get("phase").getAsString():"UNKNOWN";
-        if(started && !"COMPLETE".equals(recorded))throw new CloudRuntimeException("Incomplete formatter journal requires forward recovery; UUID/type alone do not permit lifecycle or rollback mutation");
+        if(!status.has("formatterActive")||journal==null||flag(journal,"terminationPending",false))throw blocked();
+        if(!journal.has("formatStarted"))throw blocked();
+        boolean started=flag(journal,"formatStarted",true);
+        String recorded=text(journal,"phase");
+        if(!phase.equals(recorded)||started&&!"COMPLETE".equals(recorded)
+                ||!started&&!java.util.Set.of("WAITING_DEVICE","VERIFYING_IDENTITY","RECOVERY_REQUIRED","COMPLETE").contains(recorded))throw blocked();
+        if(started&&journal.has("formatterObservationComplete")&&!flag(journal,"formatterObservationComplete",true))throw blocked();
+    }
+    private static boolean flag(JsonObject value,String key,boolean required) {
+        com.google.gson.JsonElement item=value.get(key);
+        if(item==null&&!required)return false;
+        if(item==null||!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isBoolean())throw blocked();
+        return item.getAsBoolean();
+    }
+    private static String text(JsonObject value,String key) {
+        com.google.gson.JsonElement item=value.get(key);
+        if(item==null||!item.isJsonPrimitive()||!item.getAsJsonPrimitive().isString())throw blocked();
+        return item.getAsString();
+    }
+    private static CloudRuntimeException blocked() {
+        return new CloudRuntimeException("Formatter state is active, incomplete or unobserved; preserve VM/DATA for explicit forward recovery");
     }
 }
