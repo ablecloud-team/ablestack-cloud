@@ -185,6 +185,48 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertEquals(output, 0, process.exitValue());
     }
 
+    @Test
+    public void legacyNetworkStartupBecomesTheExactFailClosedCanonicalWholeScript() throws Exception {
+        String legacy;
+        try (java.io.InputStream input = getClass().getResourceAsStream("/sharedfs-network/legacy-sharedfsvm.sh")) {
+            Assert.assertNotNull(input);
+            legacy = java.util.Base64.getEncoder().encodeToString(input.readAllBytes());
+        }
+        String canonical = java.util.Base64.getEncoder().encodeToString(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get(System.getProperty("basedir"),
+                        "../../../systemvm/debian/opt/cloud/bin/setup/sharedfsvm.sh").normalize()));
+        String encoded = java.util.Base64.getEncoder().encodeToString(
+                wrapper.buildSharedFsLegacyMonitorPatch().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String fixture = String.join("\n",
+                "import ast,base64",
+                "source=base64.b64decode('" + encoded + "').decode('utf-8')",
+                "required={'rewrite_monitor_startup','rewrite_network_startup','rewrite_sharedfsvm_startup'}",
+                "nodes=[n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef) and n.name in required]",
+                "assert {n.name for n in nodes}==required,'Production installer omits legacy network startup correction'",
+                "exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-network-startup-policy>','exec'))",
+                "legacy=base64.b64decode('" + legacy + "')",
+                "canonical=base64.b64decode('" + canonical + "')",
+                "old_monitor=b'systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "new_monitor=b'systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true'",
+                "assert rewrite_sharedfsvm_startup(legacy)==canonical",
+                "assert rewrite_sharedfsvm_startup(legacy.replace(old_monitor,new_monitor))==canonical",
+                "assert rewrite_sharedfsvm_startup(canonical) is None",
+                "weak=canonical.replace(b'--prepare || exit 1',b'--prepare || true')",
+                "changed_old=legacy.replace(b'if [[ -s /etc/ablestack-storage/sharedfs-network.json ]]',b'if [[ -e /etc/ablestack-storage/sharedfs-network.json ]]')",
+                "for rejected in (legacy+legacy,weak,changed_old,canonical+b'dhclient eth0\\n',",
+                "                 canonical+b'/usr/local/sbin/ablestack-sharedfs-network --prepare || exit 1\\n'):",
+                "    try: rewrite_sharedfsvm_startup(rejected)",
+                "    except ValueError: continue",
+                "    raise AssertionError('Unknown/multiple startup or direct DHCP remainder accepted')");
+        Process process = new ProcessBuilder("python3", "-c", fixture).redirectErrorStream(true).start();
+        if (!process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            Assert.fail("Whole-network-startup fixture exceeded its deadline");
+        }
+        String output = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        Assert.assertEquals(output, 0, process.exitValue());
+    }
+
     private String installedContent(String shell, String path) {
         java.util.regex.Matcher encoded = java.util.regex.Pattern.compile(
                 "printf '%s' '([A-Za-z0-9+/=]+)' \\| base64 -d > "
