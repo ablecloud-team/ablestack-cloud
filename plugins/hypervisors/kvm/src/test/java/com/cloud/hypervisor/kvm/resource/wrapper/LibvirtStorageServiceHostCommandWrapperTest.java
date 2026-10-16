@@ -47,6 +47,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         String unit = installedContent(shell, "/etc/systemd/system/ablestack-sharedfs-network.service");
         Assert.assertTrue(unit.contains("cloud-preinit.service"));
         Assert.assertTrue(unit.contains("cloud-early-config.service"));
+        Assert.assertTrue(unit.contains("Before=networking.service "));
         String reconcile = installedContent(shell, "/etc/systemd/system/ablestack-storage-reconcile.service");
         Assert.assertTrue(reconcile.contains("Requires="));
         Assert.assertTrue(reconcile.contains("ablestack-sharedfs-network.service"));
@@ -170,9 +171,13 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
                 "marker=b'  elif [ \"$TYPE\" == \"sharedfsvm\" ]; then\\n'",
                 "old=marker+b'    setup_common eth0\\n  fi\\n'",
                 "assert legacy.count(old)==1",
+                "guarded=legacy.replace(old,b'  elif [ \"$TYPE\" == \"sharedfsvm\" ]; then\\n    # The persisted STATIC declaration, including malformed state, never falls\\n    # back to the legacy cmdline gateway/DNS or DHCP configuration.\\n    if [ ! -e /etc/ablestack-storage/sharedfs-network.json ] && [ ! -L /etc/ablestack-storage/sharedfs-network.json ]; then\\n      setup_common eth0\\n    fi\\n  fi\\n')",
+                "assert rewrite_sharedfs_init(guarded)==canonical",
                 "bad_body=legacy.replace(old,marker+b'    setup_common eth0 eth1\\n  fi\\n')",
                 "weak=canonical.replace(b' && [ ! -L /etc/ablestack-storage/sharedfs-network.json ]',b'')",
-                "for rejected in (b'',bad_body,legacy+old,canonical+old,weak):",
+                "weak_boot=canonical.replace(b'--bootstrap-only || exit 1',b'--bootstrap-only || true')",
+                "extra_setup=canonical.replace(b'--bootstrap-only || exit 1',b'--bootstrap-only || exit 1\\n    setup_common eth0')",
+                "for rejected in (b'',bad_body,legacy+old,canonical+old,weak,weak_boot,extra_setup):",
                 "    try: rewrite_sharedfs_init(rejected)",
                 "    except ValueError: continue",
                 "    raise AssertionError('Malformed or ambiguous SharedFS init branch accepted')");
