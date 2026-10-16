@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "kind": "ISSUE974_COMPLETION_PUBLIC",
+  "issue": 974,
+  "epic": 898,
+  "epicPr": 1271,
+  "functionalAcceptancePass": true,
+  "epicMerged": false,
+  "completedAtUtc": "2026-10-16T04:05:02.894670+00:00",
+  "branch": "epic/898-sharedfs",
+  "baseCommit": "4bd1a2cff50c83089dc23ff1c83def631a343e3d",
+  "localBaseUpstreamAheadBehind": [
+    0,
+    0
+  ],
+  "componentSources": {
+    "backend": "23f62349bbe33b73099e5b5b69ad63d2f5da4f6a",
+    "native": "91b7836412231c4f90ee5d16b0e9bea44a159c7b",
+    "ui": "03c9b79ce13d9e6d6f083f9e4f81c217f796fad7"
+  },
+  "normalCounts": {
+    "backend": {
+      "reactorModules": 39,
+      "suites": 132,
+      "tests": 1128,
+      "checkstyle": "PASS"
+    },
+    "native": {
+      "modules": 10,
+      "tests": 218
+    },
+    "ui": {
+      "relatedSuites": 35,
+      "tests": 794,
+      "lint": "PASS",
+      "production": "PASS"
+    },
+    "countsMustNotBeAddedAcrossScopes": true
+  },
+  "deployment": {
+    "managementJarSha256": "563e1b7d71806e48a94cd88f7aaaad345351ba74f334d3a452450f7d9ffa813f",
+    "managementPidAfterIntentionalRestart": 2205817,
+    "lastManagementReplacedClasses": 1,
+    "unchangedOtherJarEntries": 204648,
+    "uiIndexSha256": "ef9dd645acc56d2030ac9ee1cec725e4e3c18348cc7b8a3b6af12bae9b3f82c2",
+    "uiConfigSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+    "nativeCliSha256": "6453e7f03d76cbf20ffeb9dadd37feccfb7b3c592173c177e4400e53026cd16a"
+  },
+  "acceptance": {
+    "normalDelayedSparse10TiBXfs": {
+      "pass": true,
+      "apiJob": "2ae755c1-2ab9-44a6-b313-da70f43e56a0",
+      "jobstatus": 1,
+      "operation": "0ecf0c0f-3f97-458d-84f6-3bf782803502",
+      "operationState": "COMPLETE",
+      "nativeElapsedSeconds": 45.6087003,
+      "boundedInjectedDelaySeconds": 45,
+      "actualUiFormattingObservedSeconds": [
+        23,
+        30,
+        37,
+        44
+      ],
+      "resumeDisabledWhileFormatting": true,
+      "nfsReady": true
+    },
+    "qgaResponseLossAndMountedResume": {
+      "pass": true,
+      "fixtureGiB": 20,
+      "filesystem": "ext4",
+      "provisioning": "SPARSE",
+      "originalOperation": "bb1d978d-f7b2-46fb-b89a-2c9e3b299f64",
+      "firstJob": "5a8704ea-dedd-4b51-8299-ca5f00f0593a",
+      "firstJobstatus": 2,
+      "actualQgaServiceRestartAfterFormatterReceipt2": true,
+      "sameAuxRecoveredByActualUi": true,
+      "cachedSameKeyOneAuxNoNativeEffects": true,
+      "originalRolledBack": true,
+      "freshActualUiResumeJob": "c2c28391-25cc-4a8c-a4d5-4e61eac0f344",
+      "freshActualUiResumeJobstatus": 1,
+      "nfsMountExistingJob": "8e1a7442-6d17-4cfc-82db-5854778faeb7",
+      "nfsShare": "0bec180e-c1d9-455e-b7f1-2e9a1e081a19",
+      "nativeRevisionAfterMountExisting": 2
+    },
+    "managementRestartWhileFormatterActive": {
+      "pass": true,
+      "originalOperation": "2a639585-df3a-4029-9511-e451f05b33d3",
+      "interruptedJob": "b8c72408-6e16-4d41-9756-a2a1b76c38f5",
+      "interruptedJobstatus": 2,
+      "oldManagementGoneDuringSameFormatter": true,
+      "boundedHoldSeconds": 25,
+      "nativeElapsedSeconds": 25.6404743,
+      "automaticReconcileResult": "ROLLED_BACK",
+      "terminalActualUi": true
+    },
+    "largeSparseExt4": {
+      "pass": true,
+      "sizeBytes": 10995116277760,
+      "provisioning": "SPARSE",
+      "firstFormatJob": "d0d96f99-30e4-4aaf-9628-105d1cce4442",
+      "firstFormatJobstatus": 1,
+      "nativeElapsedSeconds": 4.653877019882202,
+      "filesystemUuid": "3636466d-e1ec-43b3-9e81-fef1f3a95af0",
+      "formatterReceiptSchemaVersion": 2,
+      "nfsId": "ef93418a-8b9b-4a53-964e-c7975abfa798",
+      "smbId": "728384a6-c7e5-40d2-b146-aa5095409173",
+      "restartJob": "5ab77b74-7046-41de-820b-cfe0684e16f3",
+      "restartJobstatus": 1,
+      "restartCount": 1,
+      "sameFileMetadataAndHashPreserved": true,
+      "sameRamSmbCredentialAcrossReboot": true,
+      "formatterReceiptAndConfigurationPreserved": true,
+      "nativeBefore": {
+        "bootId": "5471bccd-959b-4ba5-8e6f-1fdfe4461ddc",
+        "cliSha256": "6453e7f03d76cbf20ffeb9dadd37feccfb7b3c592173c177e4400e53026cd16a",
+        "current": {
+          "configurationSha256": "7d707e4efff6bf58bfb6f6870dd9678e661853598cd964f32fe65ec84c7c437e",
+          "instanceUuid": "d072330c-2261-4650-a0f4-d17b90b16861",
+          "operationUuid": "eba02301-470a-4ac7-8eb3-4b72bf909e2c",
+          "revision": 3,
+          "verifiedAt": 1792123172.0977263
+        },
+        "canonicalFilesSha256": {
+          "desired-state/nfs-export-apply.json": "e1754bcc788e7f2ecfbbf57776c58101b18ee582090bf37ee39792b4079752e3",
+          "desired-state/smb-share-apply.json": "03fc0fd1f93b884dcaa2f6fd40faf1491c1958390200e21043cce9f7e486131a",
+          "iscsi-targets.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "network-endpoints.json": null,
+          "sharedfs-network.json": "b1de0f12750010234f3e23d4e3002626a4e9a69b08c574de4d2fa243600f96d3"
+        },
+        "pendingAbsent": true,
+        "leaseAbsent": true,
+        "filesystemUuid": "3636466d-e1ec-43b3-9e81-fef1f3a95af0",
+        "filesystem": "ext4",
+        "formatterReceiptSha256": "18a79754c93879f5a092c32d266f311fb7350e4c1950135127947fb2d9842d97",
+        "formatterReceiptSchemaVersion": 2,
+        "formatterExitCode": 0,
+        "originalFormatOwner": {
+          "instanceUuid": "d072330c-2261-4650-a0f4-d17b90b16861",
+          "managerOperationUuid": "7c6ab7cb-ab66-4858-9dcb-5fa89b693814",
+          "revision": 1
+        },
+        "mount": {
+          "uuid": "3636466d-e1ec-43b3-9e81-fef1f3a95af0",
+          "fstype": "ext4",
+          "source": "/dev/sdb",
+          "target": "/srv/ablestack-storage/volumes/7d410891-2313-436e-bf3e-b38c27a2eff4"
+        }
+      },
+      "nativeAfter": {
+        "bootId": "3f17ba5b-cd2f-4432-9879-f31e6fd78a7c",
+        "cliSha256": "6453e7f03d76cbf20ffeb9dadd37feccfb7b3c592173c177e4400e53026cd16a",
+        "current": {
+          "configurationSha256": "7d707e4efff6bf58bfb6f6870dd9678e661853598cd964f32fe65ec84c7c437e",
+          "instanceUuid": "d072330c-2261-4650-a0f4-d17b90b16861",
+          "operationUuid": "eba02301-470a-4ac7-8eb3-4b72bf909e2c",
+          "revision": 3,
+          "verifiedAt": 1792123172.0977263
+        },
+        "canonicalFilesSha256": {
+          "desired-state/nfs-export-apply.json": "e1754bcc788e7f2ecfbbf57776c58101b18ee582090bf37ee39792b4079752e3",
+          "desired-state/smb-share-apply.json": "03fc0fd1f93b884dcaa2f6fd40faf1491c1958390200e21043cce9f7e486131a",
+          "iscsi-targets.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "network-endpoints.json": null,
+          "sharedfs-network.json": "b1de0f12750010234f3e23d4e3002626a4e9a69b08c574de4d2fa243600f96d3"
+        },
+        "pendingAbsent": true,
+        "leaseAbsent": true,
+        "filesystemUuid": "3636466d-e1ec-43b3-9e81-fef1f3a95af0",
+        "filesystem": "ext4",
+        "formatterReceiptSha256": "18a79754c93879f5a092c32d266f311fb7350e4c1950135127947fb2d9842d97",
+        "formatterReceiptSchemaVersion": 2,
+        "formatterExitCode": 0,
+        "originalFormatOwner": {
+          "instanceUuid": "d072330c-2261-4650-a0f4-d17b90b16861",
+          "managerOperationUuid": "7c6ab7cb-ab66-4858-9dcb-5fa89b693814",
+          "revision": 1
+        },
+        "mount": {
+          "uuid": "3636466d-e1ec-43b3-9e81-fef1f3a95af0",
+          "fstype": "ext4",
+          "source": "/dev/sdb",
+          "target": "/srv/ablestack-storage/volumes/7d410891-2313-436e-bf3e-b38c27a2eff4"
+        }
+      },
+      "actualUiInitialNfsAndAfterRebootNfsSmbReady": true
+    },
+    "firstNormalXfsNfsSmbIoReboot": {
+      "pass": true,
+      "elapsedSeconds": 0.5681298,
+      "over20SecondsClaimed": false,
+      "sameFileAndRamCredentialPreservedCycle2": true
+    },
+    "partialAndForeignIdentity": {
+      "pass": true,
+      "partialAutoFormat": false,
+      "foreignAndUnknownVolumeRejectedCode": 431,
+      "wrongUuidExistingFsGuardUnitTests": true
+    },
+    "actualUi": {
+      "pass": true,
+      "officialChromeControl": true,
+      "backgroundProgress": true,
+      "explicitMountOnlyResume": true,
+      "knownJobReadOnlyTracking": true,
+      "collapsedDiagnostic": true,
+      "lightAndDark": true,
+      "largeExt4BeforeSmbUiObserved": false
+    }
+  },
+  "cleanup": {
+    "largeOwnedFixturesRemoved": 4,
+    "normalDestroyExpungeAndDeleteVolumeOnly": true,
+    "retained20GiBFixtureForReview": "f3252c4a-091c-44c1-a697-4f1fc424c410",
+    "poolFactorRestored": 4,
+    "globalOverprovisioningFactorUnchanged": 1,
+    "globalAllocatedThresholdUnchanged": 0.85,
+    "newThinDisks": 0
+  },
+  "finalPreservation": {
+    "kind": "ISSUE974_FINAL_READONLY_PRESERVATION",
+    "pass": true,
+    "resourcePosts": 0,
+    "allPostsByThisHelper": 0,
+    "directSqlStatements": 0,
+    "sqlWrites": 0,
+    "signals": 0,
+    "remoteFilesCreated": 0,
+    "guestDataWrites": 0,
+    "fullOriginalDataHashClaimed": false,
+    "authenticationProvidedByRootOutsideHelper": true,
+    "management": {
+      "pid": 2205817,
+      "jarSha256": "563e1b7d71806e48a94cd88f7aaaad345351ba74f334d3a452450f7d9ffa813f",
+      "uiIndexSha256": "ef9dd645acc56d2030ac9ee1cec725e4e3c18348cc7b8a3b6af12bae9b3f82c2",
+      "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+      "configAndJarMetadataExact": true
+    },
+    "originalF1": {
+      "nativeRevision": 143,
+      "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+      "nativeMetadataExact": true,
+      "diskRosterCount": 5,
+      "diskRosterSha256": "7e5836d3242d3d1a3852c3cfe2ca525f83373d4815730962f77d7a7f9bbe0a21",
+      "diskRosterExact": true,
+      "dataContentsRead": false
+    },
+    "reference59": {
+      "nativeRevision": 7,
+      "bootId": "f92fd4eb-824f-4b34-8a18-3d0c8f66c3dd",
+      "nativeMetadataExact": true,
+      "sentinel": {
+        "sha256": "27dfaec631609fe4a6ff374b56404d43a32f456d24f837c0790c1fade24a6c78",
+        "size": 112,
+        "inode": 4194433,
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640"
+      }
+    },
+    "protectedPartial": {
+      "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+      "vmUuid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+      "metadataExact": true,
+      "status": "RECONCILE_REQUIRED",
+      "filesystemCompletionProven": false,
+      "resumeAllowed": false,
+      "mutationCount": 0,
+      "directGuestCommands": 0
+    },
+    "retained61": {
+      "vmUuid": "26216595-48e8-4eff-8a5b-bb2598de6a9e",
+      "nativeRevision": 2,
+      "nativeCurrentExact": true,
+      "pendingAbsent": true,
+      "leaseAbsent": true,
+      "originalReceipt2Exact": true,
+      "originalReceipt2Sha256": "7d6b72dcd6688275b7b11466d8aa47a315da66bf13724c7b6450d5e8d6d95f34",
+      "canary": {
+        "sha256": "92d54728cea7aafcb1a28ac44415a666919dff0ba7a6fd1950859d9bd8f50ab3",
+        "inode": 12,
+        "size": 85,
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640"
+      },
+      "nfsUuid": "0bec180e-c1d9-455e-b7f1-2e9a1e081a19",
+      "nfsState": "Ready"
+    },
+    "historicalRecoveryRequired": {
+      "historicalCount": 10,
+      "historicalFullRowsExact": true,
+      "historicalRowsSha256": "5aae77cab0b1a7f8661d615882158f35d9a95a81ca50d091af81ab4b5ef87bec",
+      "activeOwn": []
+    },
+    "hosts": [
+      {
+        "ip": "10.10.13.1",
+        "state": "Up",
+        "resourceState": "Enabled",
+        "service": {
+          "MainPID": "2982993",
+          "Result": "success",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "freeBytes": 3784093167616,
+        "totalBytes": 4079912058880
+      },
+      {
+        "ip": "10.10.13.2",
+        "state": "Up",
+        "resourceState": "Enabled",
+        "service": {
+          "MainPID": "2688127",
+          "Result": "success",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "freeBytes": 3784093167616,
+        "totalBytes": 4079912058880
+      },
+      {
+        "ip": "10.10.13.3",
+        "state": "Up",
+        "resourceState": "Enabled",
+        "service": {
+          "MainPID": "2496500",
+          "Result": "success",
+          "ActiveState": "active",
+          "SubState": "running"
+        },
+        "freeBytes": 3784093233152,
+        "totalBytes": 4079912058880
+      }
+    ],
+    "capacity": {
+      "poolUuid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "factor": 4,
+      "minimumPhysicalFreeBytes": 3628388371661,
+      "minimumObservedPhysicalFreeBytes": 3784093167616
+    },
+    "ownedLargeFixturesAbsent": 4,
+    "readOnlyApiCalls": 31
+  },
+  "limits": {
+    "initialXfs0568sIsNotOver20sProof": true,
+    "delay62IntentionalJob2IsNotNormalJob1": true,
+    "delay62ActiveFormattingUiMissed": true,
+    "sameAuxUiBrowserSubmitCaptureMissingRootJobCorrelationUsed": true,
+    "uiDisplayedRecoveryElapsedIsNotFormatterOver20sProof": true,
+    "allOriginalF1DataContentsHashNotClaimed": true,
+    "screenshotsAreInlineObservationsNoPngExportClaim": true,
+    "pastCapacityCacheTimingIsInferenceNotObservedHistoricalDb": true,
+    "largeExt4BeforeSmbUiMissedRootIoProvesBefore": true,
+    "normal45ActualUiCaptured": true,
+    "testCredentialRegularFiles": 0
+  },
+  "delivery": {
+    "systemVmTemplateBinaryRebuilt": false,
+    "nativeViaSignedTestCodeBundle": true,
+    "bundleUuid": "da8c8644-cde9-48d5-85a7-70883e167477",
+    "productionSigningKeyUsed": false,
+    "newDbDdl": false,
+    "newApiCommandName": false
+  },
+  "evidenceStorage": "External local immutable public evidence; whole SHA256 values bind original records. This JSON contains reviewed public projections, not raw command logs.",
+  "evidence": [
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/backend/normal-build-mounted-resume-v3/public-proof.json",
+      "sha256": "369a9b822516aa10d883bffb1de0cbf0abc73750981babfddafd41426fd71f36"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/native-normal-final-commit/public-proof.json",
+      "sha256": "ce555b3671460d12299f5c7e966d90c1de55ae39ac2ab569802f583e77012342"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/ui-normal-build/normal-build-proof-public.json",
+      "sha256": "d3dfc6b0f6ea7b5bdf6f9a6189747d700b4451c39dd1f118dabeb7b8f308f94e"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/ui-normal-build/root-deployment-public-proof.json",
+      "sha256": "b06b5ad2fa2fb53cf3d575946a0dba305e6d04809cd21cef7c260b7439ad27fc"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/management-974-mounted-resume-backend-deployment.json",
+      "sha256": "c2b64f604a454c7aa385fc9ff62ccdddd045e074bbc9c7c57081c2533e5a0a75"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/runtime-deployment/epic898-issue974-test-91b78364/normal-catalog-upgrade-public-proof.json",
+      "sha256": "97462a6720165d0a7530a217622e6e4037851f597e99c2e3534b2a4cf259081e"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/initial10t-xfs-first-normal-complete.json",
+      "sha256": "680d3b9fcf7ee1a7dd8434a37c8c1087df3649208cd0eeb9652d6073834a66ff"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/new60-reboot-cycle2-public.json",
+      "sha256": "12fdc23a313af7b8c073e5c7335cc18f3ae8f68e83543fb0a47f43df2752b5d4"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/new60-smb-source-recovered-preservation.json",
+      "sha256": "1047b5f4eb6f4d232ee17fd901e2b889dd38d698d747c7659ff3511ef87f03da"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/response20g-actual-qga-loss-public.json",
+      "sha256": "041cb12251c4385841310f766ce19e5d16b564ada8ddfb74e47eccbaa681a85b"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ui-response20g-same-aux-recovery-known-job-binding-public.json",
+      "sha256": "ef6c08829b1343b848ccb20c060109d9f4422c47609cb351c70ea1eaec79406c"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/response20g-same-aux-and-original-recovery-complete-public.json",
+      "sha256": "0ace71d32703a590df55d57f7b5ce43be0dbe88d0215d8331a7b521aad861623"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ui-response20g-direct-resume-happy-path-public.json",
+      "sha256": "75ca2b5432732e937b6dae6632d54f16f9a07134d9f014f8350ffecfb66991c3"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/response20g-nfs-mount-existing-after-recovery-public.json",
+      "sha256": "03445b43156ec071b16c6609c3ada1f7919c19b3f93f23c2481f02f889c5030b"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/delay62-actual-format-pause-mgt-restart-public-v3.json",
+      "sha256": "0a61b7c64ddc81b9b11ee59b5b4ed2b499c37586e6cc54b5c684ad548ad74267"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/delay62-native-format-and-auto-recovery-complete-public.json",
+      "sha256": "2e142b620ce56952abd317a3993deec6363fcfcfa992119cd8ff981d1d57e2d4"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/new60-owned-normal-cleanup-public.json",
+      "sha256": "52970e37bbe5bfe677657e12ee187c5f5a3aa1ebde8557cde256f6eee8b1e5eb"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/delay62-owned-normal-cleanup-public.json",
+      "sha256": "a6b6d6e2f307c33151a3ba4e62352ad2a4bc8e6020e1ce71de1da39a885d6e01"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/response20g-original-protection-root-readonly.json",
+      "sha256": "a7d7ef125ba862f0ebec360a93993943e220d22525641488625f3007e061969a"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/actual-partial-and-wrong-scope-readonly.json",
+      "sha256": "dbdf32ff2e60636dd240fa47bce046b60c382a4e70f708a36aca983c3ae9cc76"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/backend/capacity-readonly/final-readonly-handoff-public.json",
+      "sha256": "6d40563100fcbc870bcfce66c8171e8e362cbe927bc3203a780d0e38f4d99333"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/normal63-actual-delay45-api-public.json",
+      "sha256": "479bc884e8c9f54f39f5584f73cc0f1fa7f85ebd1a550dfa316558d878f3a735"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ui-normal63-delay45-live-format-and-ready-public.json",
+      "sha256": "fe7e9616c4921adfedf84f847cac4b204447ea9b0eba1e3667a71919b42fde68"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/normal63-owned-normal-cleanup-public.json",
+      "sha256": "e36f258354a787aa570d250984c71c6093ee685691eb2ee4956024b6ca5afc5d"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ext4-10t-first-nfs-api-public.json",
+      "sha256": "e0b8109b4b2746c5843060d53505d70f8d11caa59774e14b57fbe01beb4f7524"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ui-ext4-10t-64-initial-nfs-ready-public.json",
+      "sha256": "e2e970a32601b4265bfbeef080689cb0a1004ccfbf006043bf7135e11d9423e7"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-64-io-reboot-public.json",
+      "sha256": "90ae4c21578441e222978e71ab02032f4d7ca3f34ebab8a26e35a0ac7e85bd64"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ui-ext4-10t-64-after-io-reboot-ready-public.json",
+      "sha256": "a363aacf00db4eba66d5e0861955a4b2148773ac48d64ec7b87af7d2f93a13bc"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/ext4-64-owned-normal-cleanup-public.json",
+      "sha256": "a7f54afbe5967750e2e85445ec0ea5d638360d7c423ed7a6a3729ae5d5cb69ef"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/final-pool-factor4-restored-v2-public.json",
+      "sha256": "f676f1d7d80f0fa4e637308dca3f7b8040c8f1fe3e0b081e49540156b16f161a"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/final-preservation-readonly-root-v2-public.json",
+      "sha256": "57133638fcf4bd6a291e97f91e604b75c879fddb1564f97a53f8c78894e0fa29"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-ROOT-tool-review-v1.json",
+      "sha256": "058e1ae326ef0a132c4056c677f2c1ec24febfe6d2309e63fab55f2c49b53938"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-64-io-reboot-public-nfs-before-client.json",
+      "sha256": "82d0fcddf25700aa52e6148ac78700e24d38e654a170b8d71e6932f6b3cdc289"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-64-io-reboot-public-smb-before-client.json",
+      "sha256": "ecd175de67e6e361ec23781a54f4d97401aeee130c850f74f8d1c6bfd8bcaf58"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-64-io-reboot-public-nfs-after-client.json",
+      "sha256": "f7ae8091f1afa6f91144b5410f30b0d0e4312f90a8f24c5d6dc6f66b8eef4658"
+    },
+    {
+      "path": "/root/work/epic898-preparation/issue974-20261016/actual/large-ext4-64-io-reboot-public-smb-after-client.json",
+      "sha256": "c906b22125f60fd8a22e361367b2367d87e5a8a5870efa42cd9861952e976283"
+    }
+  ],
+  "nextIssue": {
+    "number": 913,
+    "state": "OPEN",
+    "priority": "high",
+    "autoStart": false
+  },
+  "issue1275Started": false,
+  "newIssueBranchPrCreated": false
+}
