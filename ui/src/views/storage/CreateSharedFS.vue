@@ -1052,6 +1052,7 @@
 </template>
 <script>
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
+import { validSharedFsGateway } from '@/utils/storageNetworkReadiness'
 import { storageReadDeadline } from '@/utils/storageRead'
 import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 
@@ -1492,6 +1493,7 @@ export default {
         networkid: [{ required: true, message: this.$t('label.required') }],
         networkmode: [{ required: true, message: this.$t('label.required') }],
         ipcidr: [{ validator: this.validateStaticIpCidr }],
+        gateway: [{ validator: this.validateStaticGateway }],
         serviceofferingid: [{ required: true, message: this.$t('label.required') }],
         diskofferingid: [{
           validator: async (rule, value) => {
@@ -2041,6 +2043,10 @@ export default {
       }
       return Promise.resolve()
     },
+    validateStaticGateway (rule, value) {
+      if (!this.isStaticNetwork || validSharedFsGateway(this.form.ipcidr, value)) return Promise.resolve()
+      return Promise.reject(this.$t('message.sharedfs.static.gateway.invalid'))
+    },
     buildCreateSharedFsRequest (values) {
       const existing = !!(values.useexistingvolume ?? this.form?.useexistingvolume)
       const data = {
@@ -2079,7 +2085,7 @@ export default {
       if (this.isStaticNetwork) {
         Object.assign(data, {
           ipcidr: values.ipcidr,
-          gateway: values.gateway,
+          gateway: typeof values.gateway === 'string' ? values.gateway.trim() : values.gateway,
           dns1: values.dns1
         })
         if (values.dns2) data.dns2 = values.dns2

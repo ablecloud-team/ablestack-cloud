@@ -1359,12 +1359,13 @@ v-if="'listStoragePosixDirectoryPolicies' in $store.getters.apis"
       </a-tab-pane>
 
       <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis">
-        <a-descriptions v-if="dataResource.networkmode === 'STATIC'" bordered size="small" :column="1" class="storage-static-network">
-          <a-descriptions-item :label="$t('label.sharedfs.network.mode')">STATIC</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.sharedfs.ip.cidr')">{{ dataResource.ipcidr || '—' }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.cidr')">{{ dataResource.cidr || '—' }}</a-descriptions-item>
-          <a-descriptions-item :label="$t('label.gateway')">{{ dataResource.gateway || '—' }}</a-descriptions-item>
+        <a-descriptions v-if="['STATIC', 'DHCP'].includes(dataResource.networkmode)" bordered size="small" :column="1" class="storage-static-network">
+          <a-descriptions-item :label="$t('label.sharedfs.network.mode')">{{ dataResource.networkmode }}</a-descriptions-item>
+          <a-descriptions-item v-if="dataResource.networkmode === 'STATIC'" :label="$t('label.sharedfs.ip.cidr')">{{ dataResource.ipcidr || '—' }}</a-descriptions-item>
+          <a-descriptions-item v-if="dataResource.networkmode === 'STATIC'" :label="$t('label.cidr')">{{ dataResource.cidr || '—' }}</a-descriptions-item>
+          <a-descriptions-item v-if="dataResource.networkmode === 'STATIC'" :label="$t('label.gateway')">{{ dataResource.gateway || '—' }}</a-descriptions-item>
         </a-descriptions>
+        <StorageNetworkStatus v-if="hasStorageServiceApi && storageService.instance" :readiness="parsedHealth.networkReadiness" :stale="monitorCacheInfo.stale" :read-failed="networkHealthReadFailed" :loading="storageService.loading" @refresh="fetchStorageServiceData" />
         <NicsTab :resource="vm"/>
       </a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
@@ -2386,6 +2387,7 @@ import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
+import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
@@ -2647,6 +2649,7 @@ export default {
     SmbCreationOptions,
     StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
+    StorageNetworkStatus,
     StorageSmbIdentityRepair,
     StorageAdMutationConsent,
     PosixDirectoryPolicies,
@@ -3791,11 +3794,16 @@ export default {
       }
       return commands
     },
+    networkHealthReadFailed () {
+      return (this.storageService.readErrors || []).some(section => ['health', 'listStorageServiceInstances', 'scopeChanged'].includes(section))
+    },
     monitorCacheInfo () {
       const health = this.parsedHealth || {}
       const cache = health.cache || health.monitorCache || health.monitor || {}
       const generatedAt = cache.generatedAt || health.generatedAt || health.timestamp || this.storageService.health[0]?.created || ''
-      const status = cache.status || cache.state || health.monitorStatus || health.status || '-'
+      const errorStatus = [cache.status, cache.state, health.monitorStatus, health.status].find(value =>
+        typeof value === 'string' && ['error', 'failed', 'failure', 'unhealthy'].includes(value.trim().toLowerCase()))
+      const status = errorStatus || cache.status || cache.state || health.monitorStatus || health.status || '-'
       const stale = cache.stale === true || cache.isStale === true || health.stale === true
       return {
         generatedAt,
@@ -3813,8 +3821,12 @@ export default {
       return this.monitorCacheInfo.status || this.$t('label.storage.service.cache.fresh')
     },
     monitorCacheColor () {
-      if (!this.storageService.health.length) return 'default'
-      return this.monitorCacheInfo.stale ? 'orange' : 'green'
+      if (!this.storageService.health.length || this.storageService.readErrors?.some(section => ['health', 'listStorageServiceInstances', 'scopeChanged'].includes(section))) return 'default'
+      const status = typeof this.monitorCacheInfo.status === 'string' ? this.monitorCacheInfo.status.trim().toLowerCase() : ''
+      const healthStatus = typeof this.parsedHealth?.status === 'string' ? this.parsedHealth.status.trim().toLowerCase() : ''
+      if (this.parsedHealth?.success === false || [status, healthStatus].some(value => ['error', 'failed', 'failure', 'unhealthy'].includes(value))) return 'red'
+      if (this.monitorCacheInfo.stale) return 'orange'
+      return ['ok', 'healthy', 'success', 'ready'].includes(status) ? 'green' : 'default'
     },
     monitorCacheTimestamp () {
       return this.monitorCacheInfo.generatedAt || '-'

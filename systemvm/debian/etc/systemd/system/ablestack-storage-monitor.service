@@ -1,7 +1,7 @@
 [Unit]
 Description=ABLESTACK Storage Service monitor cache
-After=network-online.target qemu-guest-agent.service
-Wants=network-online.target
+After=cloud-early-config.service ablestack-sharedfs-network.service ablestack-storage-reconcile.service qemu-guest-agent.service
+Wants=ablestack-sharedfs-network.service
 
 [Service]
 Type=simple

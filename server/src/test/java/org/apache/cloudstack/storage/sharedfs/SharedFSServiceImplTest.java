@@ -548,6 +548,43 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
+    public void testStaticNetworkRejectsSpecialGatewaysInsideTheirOwnCidr() {
+        String[][] cases = {
+                {"1.2.3.4/0", "0.0.0.0"},
+                {"127.1.2.3/8", "127.0.0.1"},
+                {"169.254.1.10/16", "169.254.1.1"},
+                {"224.1.2.3/4", "224.0.0.1"},
+                {"240.1.2.3/4", "240.0.0.1"}
+        };
+        for (String[] values : cases) {
+            CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+            when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+            when(cmd.getIpCidr()).thenReturn(values[0]);
+            when(cmd.getGateway()).thenReturn(values[1]);
+            NetworkVO network = mock(NetworkVO.class);
+            when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        }
+    }
+
+    @Test
+    public void testStaticNetworkAcceptsRouterAndRejectsOffCidrBeforeAllocation() {
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+        when(cmd.getIpCidr()).thenReturn("10.10.13.240/16");
+        when(cmd.getGateway()).thenReturn("10.10.0.1");
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getId()).thenReturn(s_networkId);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+        Assert.assertEquals("10.10.0.0/16",
+                sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network).networkCidr);
+        when(cmd.getGateway()).thenReturn("192.168.0.1");
+        Assert.assertThrows(InvalidParameterValueException.class,
+                () -> sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+    }
+
+    @Test
     public void testStaticNetworkNormalizesHostPrefixToNetworkCidr() {
         SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.parseStaticIpCidr("10.10.15.211/16");
 

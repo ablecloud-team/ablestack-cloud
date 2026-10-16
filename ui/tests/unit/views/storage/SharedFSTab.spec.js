@@ -635,3 +635,41 @@ describe('SharedFS NVMe ACL authentication request preservation', () => {
     expect(vm.runStorageAction).not.toHaveBeenCalled()
   })
 })
+
+describe('#913 monitor cache status is not promoted to green', () => {
+  const color = (status, extra = {}) => SharedFSTab.computed.monitorCacheColor.call({
+    storageService: { health: [{}], readErrors: [] },
+    monitorCacheInfo: { status, stale: false },
+    parsedHealth: {},
+    ...extra
+  })
+  it.each(['error', 'ERROR', 'failed', 'unhealthy'])('renders explicit %s as an error', status => {
+    expect(color(status)).toBe('red')
+  })
+  it('does not render an unknown status as healthy', () => { expect(color('UNKNOWN')).toBe('default') })
+  it('keeps an explicit error red when the cache is stale', () => {
+    expect(color('error', { monitorCacheInfo: { status: 'error', stale: true } })).toBe('red')
+  })
+  it('keeps known fresh OK green and ordinary stale data orange', () => {
+    expect(color('ok')).toBe('green')
+    expect(color('ok', { monitorCacheInfo: { status: 'ok', stale: true } })).toBe('orange')
+  })
+  it('does not keep an old green cache after the current health read failed', () => {
+    expect(color('ok', { storageService: { health: [{}], readErrors: ['health'] } })).toBe('default')
+  })
+})
+
+describe('#913 overall network error outranks a healthy cache transport', () => {
+  it('keeps an overall error visible when cache.status is ok', () => {
+    const context = { parsedHealth: { status: 'error', cache: { status: 'ok' } }, storageService: { health: [{}], readErrors: [] } }
+    const info = SharedFSTab.computed.monitorCacheInfo.call(context)
+    expect(info.status).toBe('error')
+    expect(SharedFSTab.computed.monitorCacheColor.call({ ...context, monitorCacheInfo: info })).toBe('red')
+  })
+  it('marks network evidence unknown after a health or scope failure but not an unrelated section failure', () => {
+    for (const section of ['health', 'listStorageServiceInstances', 'scopeChanged']) {
+      expect(SharedFSTab.computed.networkHealthReadFailed.call({ storageService: { readErrors: [section] } })).toBe(true)
+    }
+    expect(SharedFSTab.computed.networkHealthReadFailed.call({ storageService: { readErrors: ['domains'] } })).toBe(false)
+  })
+})

@@ -133,6 +133,22 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../../../systemvm/debian</directory>
+                <targetPath>META-INF/ablestack/sharedfs-network</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>usr/local/sbin/ablestack-sharedfs-network</include>
+                    <include>etc/systemd/system/ablestack-sharedfs-network.service</include>
+                    <include>etc/systemd/system/ablestack-storage-reconcile.service</include>
+                    <include>etc/systemd/system/cloud-dhclient@.service</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

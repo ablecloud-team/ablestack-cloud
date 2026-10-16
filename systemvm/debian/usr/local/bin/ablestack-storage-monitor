@@ -6,6 +6,7 @@ CACHE_DIR="${ABLESTACK_STORAGE_MONITOR_CACHE_DIR:-/run/ablestack-storage/monitor
 INTERVAL="${ABLESTACK_STORAGE_MONITOR_INTERVAL:-10}"
 STALE_AFTER="${ABLESTACK_STORAGE_MONITOR_STALE_AFTER:-30}"
 STORAGECTL="${ABLESTACK_STORAGECTL:-/usr/local/bin/ablestack-storagectl}"
+NETWORK_HELPER="${ABLESTACK_SHAREDFS_NETWORK_HELPER:-/usr/local/sbin/ablestack-sharedfs-network}"
 
 write_json() {
   local scope="$1"
@@ -14,7 +15,7 @@ write_json() {
   input="$(mktemp "${CACHE_DIR}/.${scope}.input.XXXXXX")"
   tmp="$(mktemp "${CACHE_DIR}/.${scope}.XXXXXX")"
   cat > "$input"
-  python3 - "$scope" "$STALE_AFTER" "$tmp" "$input" <<'PY'
+  python3 - "$scope" "$STALE_AFTER" "$tmp" "$input" "${CACHE_DIR}/network.json" <<'PY'
 import json
 import sys
 import time
@@ -57,6 +58,31 @@ def redact_sensitive(value):
     return value
 
 payload = redact_sensitive(payload)
+if scope == "health":
+    try:
+        with open(sys.argv[5], "r", encoding="utf-8") as handle:
+            observed = json.load(handle)
+        fields = {"schemaVersion", "kind", "success", "status", "mode", "observedEpoch", "bootId", "expected", "actual", "mismatches"}
+        network = {key: observed[key] for key in fields}
+        if (type(network["success"]) is not bool or network["kind"] != "SHAREDFS_NETWORK_READINESS"
+                or network["status"] not in ("OK", "ERROR", "UNKNOWN")
+                or network["success"] != (network["status"] == "OK")):
+            raise ValueError("invalid network cache")
+    except (OSError, ValueError, KeyError, TypeError):
+        network = {"schemaVersion": 1, "kind": "SHAREDFS_NETWORK_READINESS", "success": False, "status": "UNKNOWN",
+                   "mode": "UNKNOWN", "observedEpoch": time.time(), "bootId": None,
+                   "expected": {"mode": "UNKNOWN", "macAddress": None, "ipAddress": None, "cidr": None, "gateway": None, "dns": []},
+                   "actual": {"mode": "UNKNOWN", "interfaceName": None, "macAddress": None, "addresses": [], "defaultRoutes": [],
+                              "dns": [], "dhcpUnit": {"name": None, "active": None, "masked": None}, "dhcpProcessCount": None},
+                   "mismatches": ["OBSERVATION_UNAVAILABLE"]}
+    payload["networkReadiness"] = network
+    if not network["success"]:
+        payload["success"] = False
+        payload["status"] = "error"
+        errors = payload.get("errors")
+        if not isinstance(errors, list):
+            errors = []
+        payload["errors"] = errors + [{"collector": "network", "code": code} for code in network["mismatches"]]
 payload.setdefault("schemaVersion", 1)
 payload.setdefault("collector", scope)
 payload.setdefault("generatedAt", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
@@ -82,6 +108,16 @@ reconcile_network_endpoints() {
     return 0
   fi
   "$STORAGECTL" network endpoints reconcile >/dev/null 2>&1 || true
+}
+
+collect_network_readiness() {
+  local observed
+  observed="$(timeout --signal=TERM --kill-after=1s 12 "$NETWORK_HELPER" --inspect 2>/dev/null)" || true
+  if [[ -n "$observed" ]]; then
+    printf '%s' "$observed" | write_json network || true
+  else
+    printf '{"success":false,"status":"UNKNOWN"}\n' | write_json network || true
+  fi
 }
 
 collect_scope() {
@@ -191,6 +227,7 @@ PY
 
 collect_once() {
   mkdir -p "$CACHE_DIR"
+  collect_network_readiness
   reconcile_network_endpoints
   collect_scope health || true
   collect_scope inventory || true

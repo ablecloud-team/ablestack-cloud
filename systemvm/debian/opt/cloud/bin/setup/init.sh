@@ -213,7 +213,11 @@ setup_interface_sshd() {
     setup_common eth0
 
   elif [ "$TYPE" == "sharedfsvm" ]; then
-    setup_common eth0
+    # The persisted STATIC declaration, including malformed state, never falls
+    # back to the legacy cmdline gateway/DNS or DHCP configuration.
+    if [ ! -e /etc/ablestack-storage/sharedfs-network.json ] && [ ! -L /etc/ablestack-storage/sharedfs-network.json ]; then
+      setup_common eth0
+    fi
   fi
 
   systemctl restart systemd-journald

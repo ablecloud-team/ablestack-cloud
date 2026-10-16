@@ -46,11 +46,9 @@ setup_sharedfsvm() {
     enable_irqbalance 0
     setup_ntp
     mkdir -p /var/lib/dhcp
-    if [[ -s /etc/ablestack-storage/sharedfs-network.json ]]; then
-      /usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json
-    else
-      dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
-    fi
+    # QGA remains available when a new L2 VM has no DHCP server yet.
+    systemctl enable --now qemu-guest-agent >/dev/null 2>&1 || true
+    /usr/local/sbin/ablestack-sharedfs-network --prepare || exit 1
 
     rm -f /etc/logrotate.d/cloud
     mkdir -p /etc/ablestack-storage
@@ -83,7 +81,7 @@ setup_sharedfsvm() {
       chmod +x /usr/local/bin/ablestack-storage-monitor
       chmod 0644 /etc/systemd/system/ablestack-storage-monitor.service
       systemctl unmask ablestack-storage-monitor.service >/dev/null 2>&1 || true
-      systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true
+      systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true
     fi
     if [ -f /etc/systemd/system/ablestack-storage-runtime-bootstrap.service ]; then
       chmod 0644 /etc/systemd/system/ablestack-storage-runtime-bootstrap.service
