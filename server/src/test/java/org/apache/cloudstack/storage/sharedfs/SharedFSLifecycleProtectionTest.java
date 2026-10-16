@@ -81,7 +81,7 @@ public class SharedFSLifecycleProtectionTest {
         verifyNoInteractions(guest);
     }
     @Test public void persistentRecoveryWriterBlocksBeforeAnyGuestProbe() {
-        StorageServiceOperationVO writer=new StorageServiceOperationVO();writer.setState("RECOVERY_REQUIRED");when(operations.listByInstance(8L)).thenReturn(List.of(writer));
+        StorageServiceOperationVO writer=new StorageServiceOperationVO();writer.setState("RECOVERY_REQUIRED");org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,8L,List.of(writer));
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
         Assert.assertThrows(CloudRuntimeException.class,()->service.requireNativeLifecycleIdle(shared));
         verifyNoInteractions(guest,details);

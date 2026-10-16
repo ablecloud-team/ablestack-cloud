@@ -88,7 +88,7 @@ public class StorageConfigRuntimeCollectionTest {
             });
             StorageServiceOperationVO committed=new StorageServiceOperationVO();committed.setInstanceId(7);committed.setState("COMPLETE");committed.setRevision(6);
             readOnly.setInstanceId(7);readOnly.setCreatedBy(2);readOnly.setRevision(7);readOnly.setAction("CONFIGURATION_BACKUP_READ_ONLY");readOnly.setState("RECOVERY_REQUIRED");
-            org.mockito.Mockito.when(operations.listByInstance(7L)).thenReturn(java.util.List.of(committed,readOnly));
+            org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(committed,readOnly));
             StorageServiceManagerImpl manager=new StorageServiceManagerImpl() {
                 @Override protected void requireConfigurationAdministrator() { }
                 @Override protected StorageServiceInstanceVO requireInstance(Long id) {Assert.assertEquals(Long.valueOf(7),id);return instance;}

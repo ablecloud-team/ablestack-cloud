@@ -77,7 +77,7 @@ public class StorageVerifiedNfsAclTargetRecoveryManagerTest {
                 return new StorageServiceGuestCommandResult(success,"",success?"{\"success\":true,\"status\":\"ok\"}":"{\"success\":false,\"status\":\"error\"}");
             });
             Mockito.when(operations.findById(99L)).thenReturn(operation);
-            Mockito.when(operations.listByInstance(7L)).thenReturn(List.of(operation));
+            org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,List.of(operation));
             Mockito.when(operations.update(Mockito.eq(99L),Mockito.same(operation))).thenAnswer(call->{
                 effects.add("intent");
                 if(changeAfterIntent)bindings.addProperty("vmUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
@@ -203,7 +203,7 @@ public class StorageVerifiedNfsAclTargetRecoveryManagerTest {
     }
     @Test public void foreignWriterAndRenderedIdentityRecoveryNeverGainTargetAuthority()throws Exception {
         Fixture f=new Fixture();StorageServiceOperationVO other=new StorageServiceOperationVO();other.setInstanceId(7);other.setState("RUNNING");
-        Mockito.when(f.operations.listByInstance(7L)).thenReturn(List.of(f.operation,other));
+        org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(f.operations,7L,List.of(f.operation,other));
         Assert.assertThrows(CloudRuntimeException.class,f::invoke);f.noEffects();
         f=new Fixture();JsonObject previous=object(f.operation.getPreviousSnapshotJson());previous.add("localCheckpointIntent",new JsonObject());
         f.operation.setPreviousSnapshotJson(previous.toString());Assert.assertThrows(CloudRuntimeException.class,f::invoke);f.noEffects();

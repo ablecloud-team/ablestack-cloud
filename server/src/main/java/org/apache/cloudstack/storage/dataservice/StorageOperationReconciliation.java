@@ -32,6 +32,14 @@ public final class StorageOperationReconciliation {
                 && row.getRevision() >= operation.getRevision());
     }
 
+    public static boolean supersededSummaries(final StorageServiceOperationVO operation,
+            final List<StorageServiceOperationSummary> history) {
+        // Preserve the same operation eligibility rules before using metadata for this existence test.
+        superseded(operation,java.util.Collections.emptyList());
+        return history.stream().anyMatch(row -> row.getInstanceId()==operation.getInstanceId()
+                && "COMPLETE".equals(row.getState()) && row.getRevision()>=operation.getRevision());
+    }
+
     /** Native current is authoritative only with exact scope, digest and BOOT evidence. */
     public static boolean committedTarget(String instanceUuid, StorageServiceOperationVO operation, com.google.gson.JsonObject status) {
         try {
