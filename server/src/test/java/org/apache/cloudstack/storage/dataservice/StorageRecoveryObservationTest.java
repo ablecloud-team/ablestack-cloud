@@ -77,4 +77,55 @@ public class StorageRecoveryObservationTest {
         Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requireNfsClients(expected, observed));
     }
 
+
+    private JsonArray listeners(String json) { return new JsonParser().parse(json).getAsJsonArray(); }
+
+    @Test public void deferredAllocationIsVerifiedAbsentWithoutClaimingRuntimeReady() {
+        Assert.assertFalse(StorageRecoveryObservation.requiresNfsRuntime(StorageServiceInstance.ResourceState.Allocated,
+                "pending-export", new JsonArray()));
+        Assert.assertFalse(StorageRecoveryObservation.requiresNfsRuntime(StorageServiceInstance.ResourceState.Allocated,
+                "pending-export", listeners("[{'status':'active','listening':true,'entries':[{'pseudo':'/other','path':'/srv/other','clients':[]}]}]")));
+    }
+
+    @Test public void deferredAllocationCannotHideAnAlreadyExposedExport() {
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requiresNfsRuntime(
+                StorageServiceInstance.ResourceState.Allocated, "pending-export",
+                listeners("[{'status':'active','listening':true,'entries':[{'pseudo':'/pending-export','path':'/srv/pending','clients':[]}]}]")));
+    }
+
+    @Test public void deferredAllocationRequiresAnObservedExportInventoryAndName() {
+        Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requiresNfsRuntime(
+                StorageServiceInstance.ResourceState.Allocated, "pending-export", null));
+        for (String name : new String[] {null, ""}) Assert.assertThrows(CloudRuntimeException.class,
+                () -> StorageRecoveryObservation.requiresNfsRuntime(StorageServiceInstance.ResourceState.Allocated, name, new JsonArray()));
+    }
+
+    @Test public void failedParserWithAnEmptyEntryListDoesNotProveAbsence() {
+        for (String json : new String[] {
+                "[{'status':'error','error':'parse failure','listening':true,'entries':[]}]",
+                "[{'status':'active','error':'pid read failed','listening':true,'entries':[]}]",
+                "[{'status':'inactive','listening':false,'entries':[]}]",
+                "[{'status':'active','listening':'true','entries':[]}]",
+                "[{'status':'active','listening':true,'entries':{}}]"}) {
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requiresNfsRuntime(
+                    StorageServiceInstance.ResourceState.Allocated, "pending-export", listeners(json)));
+        }
+    }
+
+    @Test public void partialExportIdentityDoesNotProveAbsence() {
+        for (String entry : new String[] {"{}", "{'pseudo':''}", "{'pseudo':true}",
+                "{'pseudo':'/other','path':'/srv/other'}", "{'pseudo':'/other','path':'','clients':[]}"}) {
+            Assert.assertThrows(CloudRuntimeException.class, () -> StorageRecoveryObservation.requiresNfsRuntime(
+                    StorageServiceInstance.ResourceState.Allocated, "pending-export",
+                    listeners("[{'status':'active','listening':true,'entries':[" + entry + "]}]")));
+        }
+    }
+
+    @Test public void readyAndFailedStatesStillRequireTheExistingRuntimeVerification() {
+        for (StorageServiceInstance.ResourceState state : StorageServiceInstance.ResourceState.values()) {
+            if (state != StorageServiceInstance.ResourceState.Allocated) Assert.assertTrue(
+                    StorageRecoveryObservation.requiresNfsRuntime(state, "export", null));
+        }
+    }
+
 }
