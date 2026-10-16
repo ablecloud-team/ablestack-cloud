@@ -58,7 +58,16 @@ export function storageNetworkObservation (value) {
       !mode(value.mode) || typeof value.observedEpoch !== 'number' || !Number.isFinite(value.observedEpoch) ||
       value.observedEpoch <= 0 || value.observedEpoch > 8640000000000 || !nullableText(value.bootId) ||
       !plain(value.expected) || !plain(value.actual) || !textList(value.mismatches)) return null
-  const expected = value.expected
+  // The registered health wire omits null expected values. Keep this limited to
+  // each explicit mode's optional configuration, never missing observed fields.
+  const optional = value.expected.mode === 'DHCP' ? ['macAddress', 'ipAddress', 'cidr', 'gateway']
+    : value.expected.mode === 'STATIC' ? ['gateway'] : []
+  const omitted = optional.filter(key => !Object.prototype.hasOwnProperty.call(value.expected, key))
+  let expected = value.expected
+  if (omitted.length) {
+    expected = { ...expected }
+    for (const key of omitted) expected[key] = null
+  }
   const actual = value.actual
   if (!mode(expected.mode) || !mode(actual.mode) ||
       !['macAddress', 'ipAddress', 'cidr', 'gateway'].every(key => nullableText(expected[key])) ||
@@ -75,7 +84,7 @@ export function storageNetworkObservation (value) {
       value.mode === 'UNKNOWN' || expected.mode === 'UNKNOWN' || actual.mode === 'UNKNOWN' || value.mode !== expected.mode || actual.mode !== value.mode ||
       actual.interfaceName === null || actual.macAddress === null || actual.addresses.length === 0 ||
       actual.dhcpUnit.active === null || actual.dhcpUnit.masked === null || actual.dhcpProcessCount === null))) return null
-  return value
+  return omitted.length ? { ...value, expected } : value
 }
 
 export function storageNetworkStatus (value, { stale = false, readFailed = false } = {}) {

@@ -29,6 +29,11 @@ import tempfile
 import time
 
 STATE = Path("/etc/ablestack-storage/sharedfs-network.json")
+CLOUD_CONFIG = Path("/etc/cloud/cloud.cfg.d/zz-ablestack-sharedfs-network.cfg")
+CLOUD_CONFIG_CONTENT = ("# SharedFS primary networking is owned by ablestack-sharedfs-network.\n"
+                        "network:\n  config: disabled\n"
+                        "disable_network_activation: true\n"
+                        "datasource_list: [NoCloud, ConfigDrive]\n")
 MISMATCHES = {"INVALID_STATE", "INTERFACE_UNAVAILABLE", "ADDRESS_MISMATCH", "CONNECTED_ROUTE_MISMATCH",
               "GATEWAY_MISMATCH", "UNEXPECTED_DEFAULT_ROUTE", "DNS_MISMATCH", "DHCP_UNIT_NOT_MASKED",
               "DHCP_UNIT_NOT_RUNNING", "DHCP_CLIENT_RUNNING", "DHCP_ADDRESS_UNAVAILABLE", "OBSERVATION_UNAVAILABLE"}
@@ -171,6 +176,7 @@ class Network:
     def __init__(self, state=STATE, run=None, resolver=Path("/etc/resolv.conf"), domain=Path("/etc/ablestack-storage/smb-domain.json"), proc=Path("/proc"), leases=Path("/var/lib/dhcp"), aliases=Path("/etc/ablestack-storage/network-endpoints.json")):
         self.state, self.resolver, self.domain, self.proc = Path(state), Path(resolver), Path(domain), Path(proc)
         self.leases, self.aliases = Path(leases), Path(aliases)
+        self.cloud_config, self.role = CLOUD_CONFIG, Path("/var/cache/cloud/cmdline")
         self.run = run or subprocess.run
 
     def command(self, args, required=True):
@@ -420,10 +426,50 @@ class Network:
             if os.path.exists(temporary):
                 os.unlink(temporary)
 
+
+    def prepare_cloud_init(self):
+        # SharedFS alone owns this exclusion. Local NoCloud/ConfigDrive user-data
+        # remains available; network metadata discovery must not start DHCP.
+        if [part for part in protected_text(self.role).split() if part.startswith("type=")] != ["type=sharedfsvm"]:
+            raise ValueError("INVALID_STATE")
+        parent = self.cloud_config.parent
+        directory = parent.lstat()
+        if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or directory.st_mode & 0o022:
+            raise ValueError("INVALID_STATE")
+        try:
+            existing = protected_text(self.cloud_config)
+        except FileNotFoundError:
+            if os.path.lexists(self.cloud_config):
+                raise ValueError("INVALID_STATE")
+        else:
+            if existing != CLOUD_CONFIG_CONTENT:
+                raise ValueError("INVALID_STATE")
+            return
+        fd, temporary = tempfile.mkstemp(prefix=".sharedfs-cloud-init-", dir=parent)
+        try:
+            os.fchmod(fd, 0o644)
+            with os.fdopen(fd, "w") as stream:
+                stream.write(CLOUD_CONFIG_CONTENT)
+                stream.flush()
+                os.fsync(stream.fileno())
+            named = parent.lstat()
+            if any(getattr(directory, key) != getattr(named, key) for key in ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode")) or os.path.lexists(self.cloud_config):
+                raise ValueError("INVALID_STATE")
+            os.link(temporary, self.cloud_config, follow_symlinks=False)
+            directory_fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
     def prepare(self):
         expected, search = self.expected()
         link = self.interface(expected)
         name = link["ifname"]
+        self.prepare_cloud_init()
         unit = "cloud-dhclient@" + name + ".service"
         if expected["mode"] == "DHCP":
             self.command(["systemctl", "unmask", unit])
