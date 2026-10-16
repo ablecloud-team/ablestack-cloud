@@ -39,12 +39,29 @@ public class StorageVolumeFormatCapabilityTest {
     }
     @Test public void actualSkipSparseAndSuccessReceiptSupportMustAllBeAttested() {
         Manager manager=new Manager();JsonArray policies=new JsonArray();policies.add("SKIP_DISCARD");manager.capability.add("formatDiscardPolicies",policies);manager.capability.addProperty("sparseFormatRequired",true);
-        Assert.assertThrows(InvalidParameterValueException.class,()->manager.requireNewVolumeFormatSupport(null));manager.capability.addProperty("formatterSuccessReceiptSupported",true);manager.requireNewVolumeFormatSupport(null);
+        Assert.assertThrows(InvalidParameterValueException.class,()->manager.requireNewVolumeFormatSupport(null));manager.capability.addProperty("formatterSuccessReceiptSupported",true);
+        Assert.assertThrows(InvalidParameterValueException.class,()->manager.requireNewVolumeFormatSupport(null));
+        manager.capability.addProperty("success",true);manager.capability.addProperty("formatterSuccessReceiptSchemaVersion",2);
+        manager.capability.addProperty("formatterOriginalOwnerSupported",true);manager.capability.addProperty("formatterIdentitySupported",true);manager.requireNewVolumeFormatSupport(null);
+        manager.capability.addProperty("formatterSuccessReceiptSchemaVersion","2");Assert.assertThrows(InvalidParameterValueException.class,()->manager.requireNewVolumeFormatSupport(null));
     }
     @Test public void missingOrWrongPolicyEchoCannotClaimFormattedDataReady() {
         Manager manager=new Manager();JsonObject result=new JsonObject();Assert.assertThrows(CloudRuntimeException.class,()->manager.requireNewVolumeFormatEcho(result));
         result.addProperty("formatInvoked",false);manager.requireNewVolumeFormatEcho(result);
         result.addProperty("formatInvoked",true);JsonObject operation=new JsonObject();operation.addProperty("formatDiscardPolicy","DEFAULT");operation.add("formatterSuccessReceipt",new JsonObject());result.add("operation",operation);
-        Assert.assertThrows(CloudRuntimeException.class,()->manager.requireNewVolumeFormatEcho(result));operation.addProperty("formatDiscardPolicy","SKIP_DISCARD");manager.requireNewVolumeFormatEcho(result);
+        Assert.assertThrows(CloudRuntimeException.class,()->manager.requireNewVolumeFormatEcho(result));operation.addProperty("formatDiscardPolicy","SKIP_DISCARD");
+        Assert.assertThrows(CloudRuntimeException.class,()->manager.requireNewVolumeFormatEcho(result));
+        JsonObject valid=StorageVolumePreparationProofTest.history();for(java.util.Map.Entry<String,com.google.gson.JsonElement> field:StorageVolumePreparationProofTest.current().entrySet())valid.add(field.getKey(),field.getValue());
+        valid.addProperty("formatInvoked",true);manager.requireNewVolumeFormatEcho(valid);
+        valid.getAsJsonObject("operation").addProperty("formatDiscardPolicy","DEFAULT");
+        Assert.assertThrows(CloudRuntimeException.class,()->manager.requireNewVolumeFormatEcho(valid));
+    }
+    @Test public void sizePolicyUsesCeilingAndCannotOverflowTheNativeMaximum() {
+        Assert.assertEquals(420,StorageServiceManagerImpl.backingVolumeFormatDeadline(1L<<40,300,120,7200));
+        Assert.assertEquals(540,StorageServiceManagerImpl.backingVolumeFormatDeadline((1L<<40)+1,300,120,7200));
+        Assert.assertEquals(1500,StorageServiceManagerImpl.backingVolumeFormatDeadline(10L<<40,300,120,7200));
+        Assert.assertEquals(7200,StorageServiceManagerImpl.backingVolumeFormatDeadline(Long.MAX_VALUE,300,Integer.MAX_VALUE,7200));
+        Assert.assertEquals(7200,StorageServiceManagerImpl.backingVolumeFormatDeadline(1,Integer.MAX_VALUE,120,Integer.MAX_VALUE));
+        Assert.assertEquals(30,StorageServiceManagerImpl.backingVolumeFormatDeadline(-1,-1,-1,-1));
     }
 }

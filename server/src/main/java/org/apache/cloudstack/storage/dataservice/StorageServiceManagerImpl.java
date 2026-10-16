@@ -6847,11 +6847,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     if(operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId() || !fingerprint.equals(getJsonString(previous,"_requestFingerprint")))throw new InvalidParameterValueException("Volume resume idempotency key belongs to another actor or request");
                     if("COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()))return volumeResumeResponse(instance,operation);
                 } else {
-                    requireVolumeResumeIdle(instance,null);
+                    JsonObject observed=completedVolumePreparationObservation(instance,volume);
                     long committed=rootDesiredRevision(instanceId);if(cmd.getExpectedRevision()!=null && cmd.getExpectedRevision()!=committed)throw new InvalidParameterValueException("Desired revision changed; refresh preparation status");
                     JsonObject scope=new JsonObject();scope.addProperty("volumeId",volume.getId());scope.addProperty("volumeUuid",volume.getUuid());scope.addProperty("volumeSizeBytes",volume.getSize());scope.addProperty("operationId",cmd.getOperationId());scope.addProperty("expectedFilesystemUuid",cmd.getExpectedFilesystemUuid());
                     scope.addProperty("provisioningType",volume.getProvisioningType()==null?"UNKNOWN":volume.getProvisioningType().name());
+                    scope.addProperty("vmId",instance.getVmId());scope.add("resourceBindings",volumePreparationResourceBindings(instance));
+                    scope.add("originalFormatOwner",observed.getAsJsonObject("history").getAsJsonObject("operation").get("originalFormatOwner").deepCopy());
                     operation=new StorageServiceOperationVO();operation.setInstanceId(instanceId);operation.setRequestKey(requestKey);operation.setAction("VOLUME_PREPARATION_RESUME");operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setRevision(committed+1);operation.setState("RUNNING");operation.setPhase("PREFLIGHT_VOLUME_RESUME");operation.setPreviousSnapshotJson(scope.toString());
+                    requireVolumeResumeIdle(instance,operation);
                     JsonObject result=new JsonObject();result.addProperty("_requestFingerprint",fingerprint);result.addProperty("desiredStateChanged",false);result.addProperty("baseDesiredRevision",committed);operation.setResultJson(result.toString());operation=storageOperationDao.persist(operation);
                 }
                 recoverVolumePreparation(instance,operation);return volumeResumeResponse(instance,operation);
@@ -6882,14 +6885,42 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
     protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own) {
         if(storageTemplateUpgradeDao.findActive(instance.getId())!=null || storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId())!=null)throw new CloudRuntimeException("ROOT or runtime upgrade is active");
+        StorageServiceOperationVO parked=null;
         for(StorageServiceOperationVO row:storageOperationDao.listByInstance(instance.getId())) {
-            if(own!=null && row.getId()==own.getId())continue;
-            if("RUNNING".equals(row.getState()) || "RECOVERY_REQUIRED".equals(row.getState()) && row.getRevision()>rootDesiredRevision(instance.getId()))throw new CloudRuntimeException("Resolve the existing desired writer before forward volume preparation resume");
+            if(own!=null&&own.getId()!=0&&row.getId()==own.getId())continue;
+            if("RUNNING".equals(row.getState())||"RECOVERY_REQUIRED".equals(row.getState())&&row.getRevision()>rootDesiredRevision(instance.getId())) {
+                if(parked!=null||!parkedVolumePreparationOwner(instance,own,row))throw new CloudRuntimeException("Resolve the existing desired writer before forward volume preparation resume");
+                parked=row;
+            }
+        }
+        if(parked!=null)requireParkedVolumePreparationSource(instance,own,parked);
+        else if(own!=null&&"VOLUME_PREPARATION_RESUME".equals(own.getAction())) {
+            JsonObject generation=nativeConfigurationGeneration(instance,null,"status");
+            if(getJsonString(generation,"pendingOperationUuid")!=null)throw new CloudRuntimeException("Unparked resume cannot adopt a pending native generation");
+            JsonObject reservation=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,own),15);
+            requireFreshReservationObservation(reservation);
+            if(!Boolean.TRUE.equals(getNativeBoolean(reservation,"success"))||!Boolean.TRUE.equals(getNativeBoolean(reservation,"reservationSupported"))
+                    ||!Boolean.TRUE.equals(getNativeBoolean(reservation,"logicalReservationOnly"))
+                    ||!Boolean.FALSE.equals(getNativeBoolean(reservation,"reservationAcquired"))||!Boolean.FALSE.equals(getNativeBoolean(reservation,"expired"))
+                    ||!reservation.has("scope")||!reservation.get("scope").isJsonNull()
+                    ||!reservation.has("requirements")||!reservation.get("requirements").isJsonNull()
+                    ||!reservation.has("leaseBootId")||!reservation.get("leaseBootId").isJsonNull()
+                    ||getJsonString(generation,"bootId")==null||!getJsonString(generation,"bootId").equals(getJsonString(reservation,"bootId")))
+                throw new CloudRuntimeException("Unparked resume requires fresh logical reservation absence");
         }
         JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),15);
-        if(!"WRITER_IDLE".equals(getJsonString(idle,"status")))throw new CloudRuntimeException("A native formatter/writer is active; resume cannot run concurrently");
+        if(!Boolean.TRUE.equals(getNativeBoolean(idle,"success"))||!"WRITER_IDLE".equals(getJsonString(idle,"status"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(idle,"writerIdle"))||!Boolean.TRUE.equals(getNativeBoolean(idle,"writerLockSupported"))
+                ||!Boolean.FALSE.equals(getNativeBoolean(idle,"bootChildActive"))||!Boolean.FALSE.equals(getNativeBoolean(idle,"bootRecoveryRequired")))
+            throw new CloudRuntimeException("A native formatter/writer or unobserved BOOT authority prevents forward resume");
     }
-    protected void requireVolumeFormatterCompletion(StorageServiceInstanceVO instance, VolumeVO volume) {
+    protected void requireVolumeFormatterCompletion(StorageServiceInstanceVO instance,VolumeVO volume) {
+        completedVolumePreparationObservation(instance,volume);
+    }
+    protected JsonObject volumePreparationResourceBindings(StorageServiceInstanceVO instance) {
+        return operationResourceBindings(instance);
+    }
+    protected JsonObject completedVolumePreparationObservation(StorageServiceInstanceVO instance, VolumeVO volume) {
         JsonObject payload = new JsonObject();payload.addProperty("volumeUuid", volume.getUuid());
         JsonObject history = rootGuest(instance, "volume operation status", payload, 5);
         JsonObject request = new JsonObject();request.addProperty("instanceUuid", instance.getUuid());
@@ -6900,7 +6931,102 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonArray volumes = new JsonArray();volumes.add(disk);request.add("volumes", volumes);
         JsonObject observed = StorageRootDataManifest.freeze(volumes, rootGuest(instance, "operation root-data inspect", request, 5),
                 Collections.emptyMap(), System.currentTimeMillis());
-        StorageVolumePreparationProof.requireCompleted(history, observed.getAsJsonArray("volumes").get(0).getAsJsonObject());
+        JsonObject current=observed.getAsJsonArray("volumes").get(0).getAsJsonObject();
+        StorageVolumePreparationProof.requireCompleted(history,current);
+        JsonObject proof=new JsonObject();proof.add("history",history);proof.add("currentIdentity",current);
+        String boot=getJsonString(observed,"bootId");
+        if(boot==null||!java.util.UUID.fromString(boot).toString().equals(boot))throw new CloudRuntimeException("Forward preparation current BOOT is unobserved");
+        proof.addProperty("bootId",boot);return proof;
+    }
+
+    private boolean parkedVolumePreparationOwner(StorageServiceInstanceVO instance,StorageServiceOperationVO resume,StorageServiceOperationVO original) {
+        if(resume==null||!"VOLUME_PREPARATION_RESUME".equals(resume.getAction())||!"RECOVERY_REQUIRED".equals(original.getState())
+                ||original.getInstanceId()!=instance.getId()||resume.getInstanceId()!=instance.getId()||original.getCreatedBy()!=resume.getCreatedBy()
+                ||original.getAction()==null||original.getAction().isBlank()||"VOLUME_PREPARATION_RESUME".equals(original.getAction()))return false;
+        JsonObject owner=getJsonObject(parseJsonObject(resume.getPreviousSnapshotJson()),"originalFormatOwner");
+        try {
+            JsonObject source=parseJsonObject(original.getPreviousSnapshotJson());JsonArray tables=source.getAsJsonArray("tables");Set<String> names=new HashSet<>();
+            if(getJsonLong(source,"schemaVersion")==null||getJsonLong(source,"schemaVersion")!=2
+                    ||getJsonLong(source,"instanceId")==null||getJsonLong(source,"instanceId")!=instance.getId()||tables==null)return false;
+            for(JsonElement table:tables){JsonObject row=table.getAsJsonObject();if(!names.add(getJsonString(row,"table"))
+                    ||!row.has("columns")||!row.get("columns").isJsonArray()||!row.has("rows")||!row.get("rows").isJsonArray())return false;}
+            if(!names.equals(Set.of("storage_service_protocol","storage_file_share","storage_block_target","storage_identity_domain","storage_access_rule","storage_posix_directory_policy")))return false;
+            return owner!=null&&owner.keySet().equals(Set.of("instanceUuid","managerOperationUuid","revision"))
+                    &&instance.getUuid().equals(owner.get("instanceUuid").getAsString())
+                    &&original.getUuid().equals(owner.get("managerOperationUuid").getAsString())
+                    &&owner.get("revision").isJsonPrimitive()&&owner.get("revision").getAsJsonPrimitive().isNumber()
+                    &&owner.get("revision").getAsBigDecimal().longValueExact()==original.getRevision();
+        }catch(RuntimeException malformed){return false;}
+    }
+    private void requireParkedVolumePreparationSource(StorageServiceInstanceVO instance,StorageServiceOperationVO resume,StorageServiceOperationVO original) {
+        JsonObject scope=parseJsonObject(resume.getPreviousSnapshotJson());VolumeVO volume=requireVolume(getJsonLong(scope,"volumeId"));
+        JsonObject proof=completedVolumePreparationObservation(instance,volume);
+        if(!scope.get("originalFormatOwner").equals(proof.getAsJsonObject("history").getAsJsonObject("operation").get("originalFormatOwner"))
+                ||getJsonLong(scope,"vmId")==null||!instance.getVmId().equals(getJsonLong(scope,"vmId"))
+                ||!volumePreparationResourceBindings(instance).equals(scope.get("resourceBindings")))throw new CloudRuntimeException("Parked formatter VM/DATA ownership changed");
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status");
+        String pending=getJsonString(status,"pendingOperationUuid");JsonObject current=getJsonObject(status,"generation");
+        JsonObject snapshot=parseJsonObject(original.getPreviousSnapshotJson()),saved=getJsonObject(snapshot,"nativeGeneration");
+        JsonElement source=saved==null?null:saved.get("previous");
+        boolean checkpoint=hasNativeConfigurationGeneration(original);
+        if(!Boolean.TRUE.equals(getNativeBoolean(status,"success"))||!Boolean.TRUE.equals(getNativeBoolean(status,"generationSupported"))
+                ||!proof.get("bootId").getAsString().equals(getJsonString(status,"bootId"))
+                ||pending!=null&&(!checkpoint||!original.getUuid().equals(pending))
+                ||current!=null&&original.getUuid().equals(getJsonString(current,"operationUuid"))
+                ||checkpoint&&(source==null||!source.equals(current==null?com.google.gson.JsonNull.INSTANCE:current))
+                ||snapshot.has("vmId")&&!instance.getVmId().equals(getJsonLong(snapshot,"vmId")))
+            throw new CloudRuntimeException("Parked formatter native SOURCE or pending owner changed");
+        JsonObject oldBindings=getJsonObject(parseJsonObject(original.getResultJson()),"_leaseSourceResourceBindings");
+        if(oldBindings!=null&&oldBindings.has("vmUuid")&&!oldBindings.get("vmUuid").equals(volumePreparationResourceBindings(instance).get("vmUuid")))
+            throw new CloudRuntimeException("Parked formatter original VM binding changed");
+        StorageServiceOperationControlVO control=storageOperationControlDao.findByOperation(original.getId());
+        {
+            if(control!=null&&(control.getInstanceId()!=instance.getId()||control.getOperationId()!=original.getId()
+                    ||getJsonObject(parseJsonObject(control.getPolicyJson()),"requirements")==null))
+                throw new CloudRuntimeException("Parked formatter resource control ownership changed");
+            JsonObject reservation=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,original),15);
+            requireFreshReservationObservation(reservation);
+            if(!Boolean.TRUE.equals(getNativeBoolean(reservation,"success"))||!Boolean.TRUE.equals(getNativeBoolean(reservation,"reservationSupported"))
+                    ||!Boolean.TRUE.equals(getNativeBoolean(reservation,"logicalReservationOnly"))||!reservation.has("scope")
+                    ||getNativeBoolean(reservation,"reservationAcquired")==null||getNativeBoolean(reservation,"expired")==null)
+                throw new CloudRuntimeException("Parked formatter resource reservation is unobserved");
+            if(!proof.get("bootId").getAsString().equals(getJsonString(reservation,"bootId")))
+                throw new CloudRuntimeException("Parked formatter reservation BOOT changed");
+            if(reservation.get("scope").isJsonNull()) {
+                if(!Boolean.FALSE.equals(getNativeBoolean(reservation,"reservationAcquired"))||!Boolean.FALSE.equals(getNativeBoolean(reservation,"expired"))
+                        ||!reservation.has("requirements")||!reservation.get("requirements").isJsonNull()
+                        ||!reservation.has("leaseBootId")||!reservation.get("leaseBootId").isJsonNull())
+                    throw new CloudRuntimeException("Parked formatter absent reservation is inconsistent");
+            } else {
+                if(control==null)throw new CloudRuntimeException("Unmanaged parked formatter cannot adopt an existing resource reservation");
+                requireOperationReservationScope(instance,original,reservation);
+                JsonObject requirements=getJsonObject(reservation,"requirements"),frozen=getJsonObject(parseJsonObject(control.getPolicyJson()),"requirements");
+                if(!validVolumePreparationRequirements(requirements)||!validVolumePreparationRequirements(frozen)||!frozen.equals(requirements))
+                    throw new CloudRuntimeException("Parked formatter reservation requirements changed");
+                String sourceBoot=getJsonString(proof.getAsJsonObject("history").getAsJsonObject("operation"),"formatterBootId");
+                if(!sourceBoot.equals(getJsonString(reservation,"leaseBootId")))throw new CloudRuntimeException("Parked formatter reservation original BOOT changed");
+                JsonElement expires=reservation.get("leaseExpiresAt");
+                if(expires==null||!expires.isJsonPrimitive()||!expires.getAsJsonPrimitive().isNumber())throw new CloudRuntimeException("Parked formatter reservation expiry is unobserved");
+                long deadline=expires.getAsBigDecimal().longValueExact();boolean active=Boolean.TRUE.equals(getNativeBoolean(reservation,"reservationAcquired"));
+                boolean expired=Boolean.TRUE.equals(getNativeBoolean(reservation,"expired"));
+                if(deadline<=0||active==expired||active&&(deadline<=System.currentTimeMillis()||!sourceBoot.equals(getJsonString(reservation,"bootId")))
+                        ||expired&&deadline>System.currentTimeMillis()&&sourceBoot.equals(getJsonString(reservation,"bootId")))
+                    throw new CloudRuntimeException("Parked formatter reservation expiry is inconsistent");
+            }
+        }
+    }
+
+    private boolean validVolumePreparationRequirements(JsonObject requirements) {
+        if(requirements==null||!requirements.keySet().equals(Set.of("minimumMemoryAvailableBytes","stagingRequiredBytes","maxLoadPerCpu","requireSessionDrain")))return false;
+        try {
+            for(String key:new String[]{"minimumMemoryAvailableBytes","stagingRequiredBytes"}) {
+                JsonElement value=requirements.get(key);
+                if(!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber()||value.getAsBigDecimal().longValueExact()<0)return false;
+            }
+            JsonElement load=requirements.get("maxLoadPerCpu");
+            return load.isJsonPrimitive()&&load.getAsJsonPrimitive().isNumber()&&load.getAsBigDecimal().signum()>0
+                    &&requirements.get("requireSessionDrain").isJsonPrimitive()&&requirements.get("requireSessionDrain").getAsJsonPrimitive().isBoolean();
+        }catch(RuntimeException malformed){return false;}
     }
 
     protected void recoverVolumePreparation(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
@@ -6910,22 +7036,57 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !java.util.Objects.equals(getJsonString(scope,"provisioningType"),volume.getProvisioningType()==null?"UNKNOWN":volume.getProvisioningType().name()))throw new InvalidParameterValueException("Pinned resume DATA UUID or size changed");
         requireVolumeResumeIdle(instance,operation);beginStorageWriterHeartbeat(operation);
         try {
-            requireVolumeFormatterCompletion(instance, volume);
+            JsonObject observed=completedVolumePreparationObservation(instance,volume);
+            if(scope.has("vmId")&&(!instance.getVmId().equals(getJsonLong(scope,"vmId"))
+                    ||!volumePreparationResourceBindings(instance).equals(scope.get("resourceBindings"))))
+                throw new CloudRuntimeException("Pinned resume VM/DATA binding changed");
+            JsonObject originalOwner=observed.getAsJsonObject("history").getAsJsonObject("operation").getAsJsonObject("originalFormatOwner");
+            if(scope.has("originalFormatOwner")&&!scope.get("originalFormatOwner").equals(originalOwner))
+                throw new CloudRuntimeException("Pinned original formatter owner changed");
             operation.setState("RUNNING");operation.setPhase("VERIFYING_EXISTING_FILESYSTEM");operation.setProgress(20);operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist forward resume intent");
             JsonObject request=scope.deepCopy();request.addProperty("instanceUuid",instance.getUuid());request.addProperty("managerOperationUuid",operation.getUuid());request.addProperty("operationUuid",operation.getUuid());request.addProperty("revision",operation.getRevision());request.addProperty("resumeOnly",true);request.addProperty("importMode","MOUNT_EXISTING");
+            request.add("originalFormatOwner",originalOwner.deepCopy());request.addProperty("expectedBootId",observed.get("bootId").getAsString());
             JsonObject nativeResult=rootGuest(instance,"volume operation resume",request,120);
-            if(!Boolean.TRUE.equals(getJsonBoolean(nativeResult,"resumed")) || !Boolean.TRUE.equals(getJsonBoolean(nativeResult,"resumeOnly")) || !Boolean.FALSE.equals(getJsonBoolean(nativeResult,"formatInvoked")) || !Boolean.FALSE.equals(getJsonBoolean(nativeResult,"formatterActive"))
+            if(!Boolean.TRUE.equals(getNativeBoolean(nativeResult,"resumed")) || !Boolean.TRUE.equals(getNativeBoolean(nativeResult,"resumeOnly")) || !Boolean.FALSE.equals(getNativeBoolean(nativeResult,"formatInvoked")) || !Boolean.FALSE.equals(getNativeBoolean(nativeResult,"formatterActive"))
                     || !volume.getUuid().equals(getJsonString(nativeResult,"volumeUuid")) || !getJsonString(scope,"operationId").equals(getJsonString(nativeResult,"operationId"))
                     || !"VOLUME_SERIAL".equals(getJsonString(nativeResult,"matchedBy")) || getJsonString(nativeResult,"filesystemUuid")==null
                     || !instance.getUuid().equals(getJsonString(nativeResult,"instanceUuid")) || !operation.getUuid().equals(getJsonString(nativeResult,"managerOperationUuid"))
                     || getJsonLong(nativeResult,"revision")==null || operation.getRevision()!=getJsonLong(nativeResult,"revision"))throw new CloudRuntimeException("Native forward resume did not verify the exact existing filesystem without formatting");
             String expected=getJsonString(scope,"expectedFilesystemUuid");if(expected!=null && !expected.equals(getJsonString(nativeResult,"filesystemUuid")))throw new CloudRuntimeException("Completed filesystem UUID differs from the approved resume scope");
+            requireVolumeResumeReceipt(instance,volume,operation,originalOwner,observed,nativeResult);
+            JsonObject after=completedVolumePreparationObservation(instance,volume);
+            if(!observed.get("bootId").equals(after.get("bootId")))throw new CloudRuntimeException("Resume BOOT changed before fresh filesystem verification");
+            for(String field:new String[]{"volumeUuid","serial","sizeBytes","filesystemUuid","filesystem"})
+                if(!observed.getAsJsonObject("currentIdentity").get(field).equals(after.getAsJsonObject("currentIdentity").get(field)))
+                    throw new CloudRuntimeException("Resume DATA identity changed before fresh filesystem verification");
             markVolumeLifecycleVerified(volume);
             JsonObject result=parseJsonObject(operation.getResultJson());result.add("native",nativeResult);result.addProperty("managedOperationUuid",operation.getUuid());result.addProperty("desiredStateChanged",false);operation.setResultJson(result.toString());operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("EXISTING_FILESYSTEM_RECONCILED");operation.setProgress(100);operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Unable to persist verified volume resume");
         } catch(RuntimeException failed) {
             operation.setState("RECOVERY_REQUIRED");operation.setPhase("VOLUME_RESUME_RECOVERY_REQUIRED");operation.setDiagnostic("Existing filesystem resume failed; DATA preserved without mkfs");operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(),operation);throw failed;
         } finally {endStorageWriterHeartbeat();}
     }
+    private void requireVolumeResumeReceipt(StorageServiceInstanceVO instance,VolumeVO volume,StorageServiceOperationVO operation,
+            JsonObject originalOwner,JsonObject before,JsonObject result) {
+        JsonObject receipt=getJsonObject(getJsonObject(result,"operation"),"resumeReceipt"),identity=before.getAsJsonObject("currentIdentity");
+        if(receipt==null||!Boolean.TRUE.equals(getNativeBoolean(result,"success"))||!Boolean.TRUE.equals(getNativeBoolean(result,"formatterObservationComplete"))
+                ||!Boolean.FALSE.equals(getNativeBoolean(result,"terminationPending"))||!Boolean.FALSE.equals(getNativeBoolean(receipt,"formatInvoked"))
+                ||!originalOwner.equals(receipt.get("originalFormatOwner"))||!instance.getUuid().equals(getJsonString(receipt,"instanceUuid"))
+                ||!operation.getUuid().equals(getJsonString(receipt,"managerOperationUuid"))||!volume.getUuid().equals(getJsonString(receipt,"volumeUuid"))
+                ||!("volume-"+volume.getUuid()).equals(getJsonString(receipt,"operationId"))
+                ||!("/srv/ablestack-storage/volumes/"+volume.getUuid()).equals(getJsonString(receipt,"mountPath"))
+                ||!before.get("bootId").getAsString().equals(getJsonString(receipt,"bootId"))
+                ||!identity.get("serial").equals(receipt.get("serial"))||!identity.get("filesystemUuid").equals(receipt.get("filesystemUuid"))
+                ||!identity.get("filesystem").equals(receipt.get("filesystem"))||!receipt.has("completedEpoch")
+                ||!receipt.get("completedEpoch").isJsonPrimitive()||!receipt.get("completedEpoch").getAsJsonPrimitive().isNumber()
+                ||receipt.get("completedEpoch").getAsBigDecimal().signum()<=0)
+            throw new CloudRuntimeException("Native forward resume receipt did not preserve its exact original owner, BOOT and DATA");
+        for(String key:new String[]{"schemaVersion","revision","sizeBytes"}) {
+            JsonElement value=receipt.get(key);long expected="schemaVersion".equals(key)?1:"revision".equals(key)?operation.getRevision():volume.getSize();
+            if(value==null||!value.isJsonPrimitive()||!value.getAsJsonPrimitive().isNumber()||value.getAsBigDecimal().longValueExact()!=expected)
+                throw new CloudRuntimeException("Native forward resume numeric receipt scope changed");
+        }
+    }
+
     private StorageServiceRuntimeResponse volumeResumeResponse(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         JsonObject result=parseJsonObject(operation.getResultJson());result.remove("_requestFingerprint");result.addProperty("managedOperationUuid",operation.getUuid());result.addProperty("managedOperationState",operation.getState());
         return createRuntimeResponse(instance,"volume operation resume","COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState()),operation.getState(),operation.getDiagnostic(),result.toString());
@@ -8812,8 +8973,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         boolean supported = capability.has("formatDiscardPolicies") && capability.get("formatDiscardPolicies").isJsonArray()
                 && java.util.stream.StreamSupport.stream(capability.getAsJsonArray("formatDiscardPolicies").spliterator(), false)
                     .anyMatch(value -> value.isJsonPrimitive() && "SKIP_DISCARD".equals(value.getAsString()));
-        if (!supported || !Boolean.TRUE.equals(getJsonBoolean(capability, "sparseFormatRequired"))
-                || !Boolean.TRUE.equals(getJsonBoolean(capability, "formatterSuccessReceiptSupported"))) {
+        JsonElement version=capability.get("formatterSuccessReceiptSchemaVersion");
+        boolean receiptVersion=version!=null&&version.isJsonPrimitive()&&version.getAsJsonPrimitive().isNumber()
+                &&new java.math.BigDecimal("2").compareTo(version.getAsBigDecimal())==0;
+        if (!Boolean.TRUE.equals(getNativeBoolean(capability,"success"))||!supported||!receiptVersion
+                ||!Boolean.TRUE.equals(getNativeBoolean(capability,"formatterOriginalOwnerSupported"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(capability,"formatterIdentitySupported"))
+                || !Boolean.TRUE.equals(getNativeBoolean(capability, "sparseFormatRequired"))
+                || !Boolean.TRUE.equals(getNativeBoolean(capability, "formatterSuccessReceiptSupported"))) {
             throw new InvalidParameterValueException("Signed native runtime does not attest SPARSE/FAT SKIP_DISCARD and successful formatter receipts; no format command was issued");
         }
     }
@@ -8822,11 +8989,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!result.has("formatInvoked") || !result.get("formatInvoked").isJsonPrimitive()
                 || !result.get("formatInvoked").getAsJsonPrimitive().isBoolean()) throw new CloudRuntimeException("Native preparation did not attest whether a formatter ran");
         if (!result.get("formatInvoked").getAsBoolean()) return; // Exact existing-FS preparation remains mount-only.
-        JsonObject operation = result.has("operation") && result.get("operation").isJsonObject() ? result.getAsJsonObject("operation") : new JsonObject();
-        if (!"SKIP_DISCARD".equals(getJsonString(operation, "formatDiscardPolicy"))
-                || !operation.has("formatterSuccessReceipt") || !operation.get("formatterSuccessReceipt").isJsonObject()) {
-            throw new CloudRuntimeException("Formatter policy/completion receipt is unverified; DATA preserved for explicit recovery");
-        }
+        JsonObject formatted=getJsonObject(result,"operation");
+        if(formatted==null||!"SKIP_DISCARD".equals(getJsonString(formatted,"formatDiscardPolicy"))||!StorageVolumePreparationProof.completionProven(result,result))
+            throw new CloudRuntimeException("Formatter policy, owner or exact completion receipt is unverified; DATA preserved for explicit recovery");
     }
 
     protected void requireSparseNewFilesystem(VolumeVO volume) {
@@ -8837,11 +9002,15 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected int backingVolumeFormatDeadline(long bytes) {
-        final long minimum = Math.max(30, StorageServiceInstance.StorageServiceFormatMinimumTimeout.value());
-        final long perTiB = Math.max(0, StorageServiceInstance.StorageServiceFormatSecondsPerTiB.value());
-        final long maximum = Math.min(7200, Math.max(minimum, StorageServiceInstance.StorageServiceFormatMaximumTimeout.value()));
-        final long tib = Math.max(1, (bytes + (1L << 40) - 1) / (1L << 40));
-        return (int) Math.min(maximum, minimum + tib * perTiB);
+        return backingVolumeFormatDeadline(bytes, StorageServiceInstance.StorageServiceFormatMinimumTimeout.value(),
+                StorageServiceInstance.StorageServiceFormatSecondsPerTiB.value(), StorageServiceInstance.StorageServiceFormatMaximumTimeout.value());
+    }
+    static int backingVolumeFormatDeadline(long bytes,int configuredMinimum,int configuredPerTiB,int configuredMaximum) {
+        long minimum=Math.min(7200,Math.max(30,configuredMinimum));
+        long maximum=Math.min(7200,Math.max(minimum,configuredMaximum)),perTiB=Math.max(0,configuredPerTiB);
+        long tib=bytes<=0?1:1+(bytes-1)/(1L<<40);
+        if(perTiB>0&&tib>(maximum-minimum)/perTiB)return (int)maximum;
+        return (int)(minimum+tib*perTiB);
     }
 
     protected void growFileShareFilesystem(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
