@@ -152,6 +152,50 @@ def declaration(value):
     return {"mode": mode, "macAddress": mac.lower(), "ipAddress": str(ip), "cidr": str(network), "gateway": gateway, "dns": dns}
 
 
+
+def ifupdown_manual(text, name, empty_standard_include=False):
+    # Only the MAC-selected primary IPv4 stanza changes. Aliases/other NICs
+    # retain their exact bytes; unknown hooks/includes do not grant authority.
+    lines = text.splitlines(keepends=True)
+    includes = [line for line in lines if re.match(r"^\s*(?:source|source-directory|mapping)\s+", line)]
+    if includes and (not empty_standard_include or len(includes) != 1 or includes[0].strip() != "source /etc/network/interfaces.d/*"):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    header = re.compile(r"^(\s*iface[ \t]+" + re.escape(name) + r"[ \t]+inet[ \t]+)([^ \t\r\n#]+)([ \t]*(?:#[^\r\n]*)?)(\r?\n|$)")
+    positions = [i for i, line in enumerate(lines) if re.match(r"^\s*iface[ \t]+" + re.escape(name) + r"[ \t]+inet(?:[ \t]|$)", line)]
+    if len(positions) > 1 or any(header.fullmatch(lines[i]) is None for i in positions):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    if not positions:
+        return text + ("" if not text or text.endswith("\n") else "\n") + "iface " + name + " inet manual\n"
+    start = positions[0]
+    match = header.fullmatch(lines[start])
+    if match[2] not in ("dhcp", "static", "manual"):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    end = start + 1
+    while end < len(lines) and not re.match(r"^\s*(?:iface|auto|allow-[A-Za-z-]+|mapping|source|source-directory)\s+", lines[end]):
+        end += 1
+    body = []
+    for line in lines[start + 1:end]:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            body.append(line)
+            continue
+        fields = stripped.split()
+        if fields[0] in ("address", "netmask", "gateway", "broadcast", "network", "dns-nameservers", "dns-search", "dns-domain", "metric"):
+            if len(fields) < 2:
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            continue
+        if fields[0] == "mtu" and len(fields) == 2 and fields[1].isdigit() and 576 <= int(fields[1]) <= 65535:
+            body.append(line)
+            continue
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    return "".join(lines[:start] + [match[1] + "manual" + match[3] + match[4]] + body + lines[end:])
+
+
+def dynamic_address(info):
+    lifetime = info.get("valid_life_time")
+    return info.get("dynamic") is True or type(lifetime) is int and 0 <= lifetime < 4294967295
+
+
 def process(pid, root=Path("/proc")):
     folder = root / str(pid)
     def identity():
@@ -204,6 +248,7 @@ class Network:
         self.state, self.resolver, self.domain, self.proc = Path(state), Path(resolver), Path(domain), Path(proc)
         self.leases, self.aliases = Path(leases), Path(aliases)
         self.cloud_config, self.role = CLOUD_CONFIG, Path("/var/cache/cloud/cmdline")
+        self.interfaces = Path("/etc/network/interfaces")
         self.run = run or subprocess.run
 
     def command(self, args, required=True):
@@ -352,8 +397,9 @@ class Network:
             result.update(mode=expected["mode"], expected=expected)
             link = self.interface(expected)
             name = link["ifname"]
-            addresses = [{"ipAddress": x["local"], "prefixLength": x["prefixlen"]} for r in self.json(["ip", "-j", "-4", "addr", "show", "dev", name])
-                         for x in r.get("addr_info", []) if x.get("family") == "inet" and x.get("scope") == "global"]
+            information = [x for r in self.json(["ip", "-j", "-4", "addr", "show", "dev", name])
+                           for x in r.get("addr_info", []) if x.get("family") == "inet" and x.get("scope") == "global"]
+            addresses = [{"ipAddress": x["local"], "prefixLength": x["prefixlen"]} for x in information]
             routes = self.json(["ip", "-j", "-4", "route", "show", "default"])
             defaults = [{"gateway": r.get("gateway"), "interfaceName": name} for r in routes if r.get("dev") == name]
             unit = self.unit("cloud-dhclient@" + name + ".service")
@@ -371,8 +417,18 @@ class Network:
             mismatches = []
             if expected["mode"] == "STATIC":
                 prefix = ipaddress.IPv4Network(expected["cidr"]).prefixlen
-                if {"ipAddress": expected["ipAddress"], "prefixLength": prefix} not in addresses:
+                if ({"ipAddress": expected["ipAddress"], "prefixLength": prefix} not in addresses
+                        or any(dynamic_address(info) and info["local"] == expected["ipAddress"] for info in information)):
                     mismatches.append("ADDRESS_MISMATCH")
+                desired = protected_json(self.aliases) or {}
+                endpoints = desired.get("endpoints") or []
+                if type(endpoints) is not list or any(type(row) is not dict for row in endpoints):
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+                declared = {row.get("listenIp") or row.get("listenip") for row in endpoints}
+                if any(dynamic_address(info) and info["local"] != expected["ipAddress"] and info["local"] not in declared
+                       and not str(info.get("label") or "").startswith(name + ":") for info in information):
+                    if "ADDRESS_MISMATCH" not in mismatches:
+                        mismatches.append("ADDRESS_MISMATCH")
                 connected = self.json(["ip", "-j", "-4", "route", "show", "dev", name])
                 if not any(str(ipaddress.IPv4Network(r.get("dst"), strict=False)) == expected["cidr"] and r.get("scope") == "link" for r in connected if r.get("dst") not in (None, "default")):
                     mismatches.append("CONNECTED_ROUTE_MISMATCH")
@@ -492,13 +548,72 @@ class Network:
             if os.path.exists(temporary):
                 os.unlink(temporary)
 
+
+    def prepare_ifupdown(self, name):
+        parent = self.interfaces.parent.lstat()
+        before = self.interfaces.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        current = protected_text(self.interfaces)
+        include = None
+        if any(re.match(r"^\s*(?:source|source-directory|mapping)\s+", line) for line in current.splitlines()):
+            folder = self.interfaces.parent / "interfaces.d"
+            include = folder.lstat()
+            if not stat.S_ISDIR(include.st_mode) or include.st_uid != os.geteuid() or include.st_mode & 0o022 or list(folder.iterdir()):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+        def verify_include():
+            if include is not None:
+                after = folder.lstat()
+                fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if any(getattr(include, key) != getattr(after, key) for key in fields) or list(folder.iterdir()):
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+        content = ifupdown_manual(current, name, include is not None)
+        verify_include()
+        if content == current:
+            return
+        fd, temporary = tempfile.mkstemp(prefix=".sharedfs-interfaces-", dir=self.interfaces.parent)
+        try:
+            os.fchown(fd, before.st_uid, before.st_gid)
+            os.fchmod(fd, stat.S_IMODE(before.st_mode))
+            with os.fdopen(fd, "w") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            named, directory = self.interfaces.lstat(), self.interfaces.parent.lstat()
+            fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")
+            if (any(getattr(before, k) != getattr(named, k) for k in fields)
+                    or any(getattr(parent, k) != getattr(directory, k) for k in ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode"))):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            verify_include()
+            os.replace(temporary, self.interfaces)
+            directory_fd = os.open(self.interfaces.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def bootstrap_only(self):
+        expected, _search = self.expected()
+        link = self.interface(expected)
+        self.prepare_cloud_init()
+        self.prepare_ifupdown(link["ifname"])
+        return {"schemaVersion": 1, "kind": "SHAREDFS_NETWORK_BOOTSTRAP", "success": True, "status": "PREPARED",
+                "mode": expected["mode"], "interfaceName": link["ifname"], "macAddress": link["address"].lower(),
+                "networkEffects": False}
+
     def prepare(self):
         expected, search = self.expected()
         link = self.interface(expected)
         name = link["ifname"]
         self.prepare_cloud_init()
+        self.prepare_ifupdown(name)
         unit = "cloud-dhclient@" + name + ".service"
         if expected["mode"] == "DHCP":
+            if "UP" not in link.get("flags", []):
+                self.command(["ip", "link", "set", "dev", name, "up"])
             self.command(["systemctl", "unmask", unit])
             if not self.unit(unit)["active"]:
                 self.command(["systemctl", "start", "--no-block", unit])
@@ -561,13 +676,15 @@ class Network:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--inspect", action="store_true")
-    parser.add_argument("--prepare", action="store_true")
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--inspect", action="store_true")
+    action.add_argument("--prepare", action="store_true")
+    action.add_argument("--bootstrap-only", action="store_true")
     parser.add_argument("state", nargs="?", type=Path, default=STATE)
     args = parser.parse_args()
     helper = Network(args.state)
     try:
-        result = helper.inspect() if args.inspect else helper.prepare()
+        result = helper.inspect() if args.inspect else helper.bootstrap_only() if args.bootstrap_only else helper.prepare()
     except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError):
         result = helper.inspect()
         if result["success"]:

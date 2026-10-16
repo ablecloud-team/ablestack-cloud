@@ -3,7 +3,7 @@ Description=ABLESTACK SharedFS mode-aware network readiness
 DefaultDependencies=no
 Requires=local-fs.target cloud-preinit.service
 After=local-fs.target cloud-preinit.service
-Before=cloud-early-config.service ablestack-storage-reconcile.service
+Before=networking.service cloud-early-config.service ablestack-storage-reconcile.service
 ConditionPathExists=/usr/local/sbin/ablestack-sharedfs-network
 
 [Service]

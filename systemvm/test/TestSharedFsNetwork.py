@@ -73,6 +73,10 @@ class Fake:
                 self.active, self.client_count = True, 1
                 if self.on_start:
                     self.on_start()
+            elif args[:3] == ["ip", "link", "set"]:
+                for link in self.links:
+                    if link["ifname"] == args[4] and "UP" not in link["flags"]:
+                        link["flags"].append("UP")
             elif args[:4] == ["ip", "-4", "addr", "replace"]:
                 ip, prefix = args[4].split("/")
                 self.addresses = [r for r in self.addresses if r["local"] != ip]
@@ -107,6 +111,9 @@ class NetworkTest(unittest.TestCase):
         self.net.cloud_config = self.base / "cloud.cfg.d" / m.CLOUD_CONFIG.name
         self.net.cloud_config.parent.mkdir()
         self.net.role = self.base / "cmdline";self.net.role.write_text("type=sharedfsvm name=isolated-test\n")
+        self.net.interfaces = self.base / "interfaces"
+        self.net.interfaces.write_text("source /etc/network/interfaces.d/*\n\nauto lo ens913\niface lo inet loopback\niface ens913 inet dhcp\n")
+        (self.base / "interfaces.d").mkdir()
     def tearDown(self):
         self.tmp.cleanup()
 
@@ -226,6 +233,128 @@ class NetworkTest(unittest.TestCase):
         self.assertIn("cloud-init modules --mode=config &&", postinit)
         self.assertIn("cloud-init modules --mode=final", postinit)
         self.assertIn("  - scripts-user", postinit)
+
+    def test_bootstrap_only_claims_selected_ipv4_before_ifupdown_without_network_effects(self):
+        other = "auto eth9\niface eth9 inet dhcp\n"
+        alias = "iface ens913:1 inet static\n address 192.0.2.20\n netmask 255.255.255.0\n"
+        self.net.interfaces.write_text("# keep\n" + other + "auto ens913\niface ens913 inet dhcp\n" + alias)
+        self.net.interfaces.chmod(0o640);before = copy.deepcopy(self.fake.addresses)
+        result = self.net.bootstrap_only()
+        self.assertEqual("PREPARED", result["status"]);self.assertEqual("ens913", result["interfaceName"])
+        self.assertIn("iface ens913 inet manual\n", self.net.interfaces.read_text())
+        self.assertIn(other, self.net.interfaces.read_text());self.assertIn(alias, self.net.interfaces.read_text())
+        self.assertEqual(0o640, stat.S_IMODE(self.net.interfaces.stat().st_mode))
+        self.assertEqual(before, self.fake.addresses);self.assertEqual([], self.fake.effects)
+        info = self.net.interfaces.stat();self.net.bootstrap_only();self.assertEqual(info, self.net.interfaces.stat())
+
+    def test_prepare_is_also_manual_before_starting_owned_dhcp_and_brings_link_up(self):
+        self.state.unlink();self.fake.links[0]["flags"] = [];self.fake.active = False;self.fake.masked = True
+        self.fake.on_start = lambda: self.assertIn("iface ens913 inet manual\n", self.net.interfaces.read_text())
+        self.assertTrue(self.net.prepare()["success"])
+        self.assertLess(self.fake.effects.index(["ip", "link", "set", "dev", "ens913", "up"]),
+                        self.fake.effects.index(["systemctl", "start", "--no-block", "cloud-dhclient@ens913.service"]))
+
+    def test_ifupdown_static_primary_options_removed_other_alias_bytes_preserved(self):
+        alias = "iface ens913:2 inet static\n address 192.0.2.21\n"
+        self.net.interfaces.write_text("auto ens913\niface ens913 inet static\n address 192.0.2.99\n netmask 255.255.255.0\n gateway 192.0.2.254\n dns-nameservers 203.0.113.99\n mtu 1400\n" + alias)
+        self.net.bootstrap_only();text = self.net.interfaces.read_text()
+        self.assertIn("iface ens913 inet manual\n", text);self.assertIn(" mtu 1400\n", text);self.assertIn(alias, text)
+        self.assertNotIn("192.0.2.99", text);self.assertNotIn("gateway", text);self.assertNotIn("dns-nameservers", text)
+
+    def test_ifupdown_ambiguous_include_hook_and_unsafe_file_never_mutate_network(self):
+        for value in ("iface ens913 inet dhcp\niface ens913 inet static\n",
+                      "source /unreviewed/interfaces.d/*\niface ens913 inet dhcp\n",
+                      "iface ens913 inet dhcp\n up ip addr flush dev ens913\n"):
+            self.net.interfaces.write_text(value)
+            with self.assertRaises(ValueError):self.net.bootstrap_only()
+            self.assertEqual(value, self.net.interfaces.read_text())
+        self.net.interfaces.chmod(0o666)
+        with self.assertRaises(ValueError):self.net.bootstrap_only()
+        self.assertEqual([], self.fake.effects)
+
+    def test_bootstrap_invalid_static_never_falls_back_or_writes_interfaces(self):
+        self.state.write_text("{}");before = self.net.interfaces.read_bytes()
+        with self.assertRaises(ValueError):self.net.bootstrap_only()
+        self.assertEqual(before, self.net.interfaces.read_bytes());self.assertFalse(self.net.cloud_config.exists())
+        self.assertEqual([], self.fake.effects)
+
+    def test_unowned_dynamic_extra_is_address_mismatch_never_ok_or_deleted_without_lease(self):
+        self.fake.addresses.append({"family":"inet", "scope":"global", "local":"192.0.2.183", "prefixlen":24,
+                                    "dynamic":True, "valid_life_time":6855, "label":"ens913"})
+        result = self.net.inspect()
+        self.assertEqual("ERROR", result["status"]);self.assertIn("ADDRESS_MISMATCH", result["mismatches"])
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertIn("192.0.2.183", {v["local"]for v in self.fake.addresses})
+        self.assertFalse(any("del" in row or "flush" in row for row in self.fake.effects))
+        self.fake.addresses[-1]["label"] = "ens913:3"
+        self.assertTrue(self.net.inspect()["success"])
+
+    def test_standard_empty_include_is_preserved_but_nonempty_or_racing_include_is_rejected(self):
+        self.assertTrue(self.net.bootstrap_only()["success"])
+        self.assertTrue(self.net.interfaces.read_text().startswith("source /etc/network/interfaces.d/*\n"))
+        include = self.base / "interfaces.d"
+        (include / "unknown").write_text("iface ens913 inet dhcp\n")
+        with self.assertRaises(ValueError):self.net.bootstrap_only()
+        (include / "unknown").unlink()
+        self.net.interfaces.write_text("source /etc/network/interfaces.d/*\niface ens913 inet dhcp\n")
+        original = m.ifupdown_manual
+        def race(text, name, allowed):
+            value = original(text, name, allowed);(include / "late").write_text("iface ens913 inet dhcp\n");return value
+        with patch.object(m, "ifupdown_manual", side_effect=race):
+            with self.assertRaises(ValueError):self.net.bootstrap_only()
+        self.assertIn("iface ens913 inet dhcp", self.net.interfaces.read_text())
+        self.assertEqual([], self.fake.effects)
+
+    def test_ifupdown_header_crlf_eof_inet6_and_alias_preservation(self):
+        text = ("source /etc/network/interfaces.d/*\r\n"
+                "auto ens913 eth9\r\niface ens913 inet dhcp # primary\r\n"
+                "iface ens913 inet6 static\r\n address 2001:db8::10\r\n"
+                "iface ens913:4 inet static\r\n address 192.0.2.24\r\n"
+                "iface eth9 inet dhcp\r\n# EOF comment")
+        self.net.interfaces.write_bytes(text.encode())
+        self.net.bootstrap_only()
+        self.assertEqual(text.replace("ens913 inet dhcp", "ens913 inet manual"), self.net.interfaces.read_bytes().decode())
+        metadata = self.net.interfaces.stat();self.net.bootstrap_only();self.assertEqual(metadata, self.net.interfaces.stat())
+        for header in ("iface ens913 inet dhcp ; unexpected\n", "iface ens913 inet\n", "iface ens913 inet dhcp extra\n"):
+            self.net.interfaces.write_text(header)
+            with self.assertRaises(ValueError):self.net.bootstrap_only()
+            self.assertEqual(header, self.net.interfaces.read_text())
+
+    def test_ifupdown_root_regular_owner_and_named_identity_are_required(self):
+        path = self.net.interfaces;original = self.base / "saved-interfaces"
+        original.write_bytes(path.read_bytes());path.unlink();path.symlink_to(original)
+        with self.assertRaises(ValueError):self.net.prepare_ifupdown("ens913")
+        path.unlink();path.write_bytes(original.read_bytes())
+        lstat = Path.lstat
+        def foreign(p):
+            value = lstat(p)
+            return os.stat_result(tuple(value)[:4] + (value.st_uid + 1,) + tuple(value)[5:]) if p == path else value
+        with patch.object(Path, "lstat", new=foreign):
+            with self.assertRaises(ValueError):self.net.prepare_ifupdown("ens913")
+        read = m.protected_text
+        def replace(p):
+            value = read(p)
+            if p == path:
+                alternate = self.base / "external";alternate.write_text("EXTERNAL_CHANGE\n");os.replace(alternate, path)
+            return value
+        with patch.object(m, "protected_text", side_effect=replace):
+            with self.assertRaises(ValueError):self.net.prepare_ifupdown("ens913")
+        self.assertEqual("EXTERNAL_CHANGE\n", path.read_text());self.assertEqual([], self.fake.effects)
+
+    def test_dynamic_primary_is_not_static_ok_and_prepare_makes_it_permanent(self):
+        self.fake.addresses[0].update(dynamic=True, valid_life_time=600)
+        self.assertIn("ADDRESS_MISMATCH", self.net.inspect()["mismatches"])
+        self.assertTrue(self.net.prepare()["success"])
+        primary = next(row for row in self.fake.addresses if row["local"] == STATIC["ipAddress"])
+        self.assertFalse(m.dynamic_address(primary))
+
+    def test_declared_endpoint_dynamic_alias_is_retained_and_not_reported_as_primary_drift(self):
+        extra = {"family":"inet", "scope":"global", "local":"192.0.2.183", "prefixlen":24,
+                 "dynamic":True, "valid_life_time":600, "label":"ens913"}
+        self.fake.addresses.append(extra)
+        self.net.aliases.write_text(json.dumps({"instanceUuid":"public-test", "endpoints":[{"listenIp":"192.0.2.183","protocol":"ISCSI"}]}));self.net.aliases.chmod(0o600)
+        self.assertTrue(self.net.inspect()["success"]);self.assertTrue(self.net.prepare()["success"])
+        self.assertIn(extra, self.fake.addresses);self.assertEqual([], self.fake.effects)
 
     def test_valid_static_matching_is_idempotent_and_keeps_aliases(self):
         before = copy.deepcopy(self.fake.addresses);meta = self.resolver.stat()
@@ -483,6 +612,11 @@ class MonitorAndBootTest(unittest.TestCase):
         self.assertNotIn("enable --now ablestack-storage-monitor", setup)
         self.assertIn("systemctl enable ablestack-storage-monitor.service >/dev/null 2>&1 || true", setup)
         self.assertIn('if [ ! -e /etc/ablestack-storage/sharedfs-network.json ]', init)
+        sharedfs = init.split('elif [ "$TYPE" == "sharedfsvm" ]; then', 1)[1].split("\n  fi", 1)[0]
+        self.assertNotIn("setup_common", sharedfs)
+        self.assertIn("ablestack-sharedfs-network --bootstrap-only || exit 1", sharedfs)
+        network = (base / "etc/systemd/system/ablestack-sharedfs-network.service").read_text()
+        self.assertIn("Before=networking.service ", network)
         self.assertIn("Requires=ablestack-storage-runtime-bootstrap.service ablestack-sharedfs-network.service", reconcile)
         self.assertNotIn("cloud-dhclient@", reconcile);self.assertNotIn("network-online", reconcile)
 
@@ -491,11 +625,13 @@ class MonitorAndBootTest(unittest.TestCase):
         base = ROOT / "systemvm/debian"
         names = ["ablestack-sharedfs-network.service", "cloud-dhclient@.service", "ablestack-storage-reconcile.service",
                  "ablestack-storage-monitor.service", "ablestack-storage-runtime-bootstrap.service",
-                 "cloud-preinit.service", "cloud-early-config.service"]
+                 "cloud-preinit.service", "cloud-early-config.service", "networking.service"]
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory);units = root / "etc/systemd/system";units.mkdir(parents=True)
             for name in names:
-                shutil.copyfile(base / "etc/systemd/system" / name, units / name)
+                if name != "networking.service":
+                    shutil.copyfile(base / "etc/systemd/system" / name, units / name)
+            (units / "networking.service").write_text("[Unit]\nDescription=External ifupdown dependency\nDefaultDependencies=no\nAfter=local-fs.target network-pre.target\nBefore=network.target\n[Service]\nType=oneshot\nExecStart=/bin/true\n")
             for target in ("local-fs", "sysinit", "basic", "shutdown", "multi-user", "network", "network-pre", "network-online", "sockets", "paths", "timers"):
                 (units / (target + ".target")).write_text("[Unit]\nDescription=Isolated verification target\nDefaultDependencies=no\n")
             for name in ("qemu-guest-agent", "rtslib-fb-targetctl"):
