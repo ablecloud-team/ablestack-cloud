@@ -5493,6 +5493,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final String phase = operation == null ? null : operation.getPhase(), state = operation == null ? null : operation.getState();
         final String previous = operation == null ? null : operation.getPreviousSnapshotJson();
         final StorageServiceOperationVO threadOwner = storageWriterOperation.get();
+        final boolean ownCompletedFinish = "finish".equals(action) && "COMPLETE".equals(state) && "COMPLETE".equals(phase)
+                && threadOwner == operation;
         final boolean delegatedFinish = "finish".equals(action) && "COMPLETE".equals(state) && threadOwner != null
                 && threadOwner != operation && threadOwner.getInstanceId() == instanceId && threadOwner.getRevision() > revision
                 && Set.of("RUNNING", "RECOVERY_REQUIRED").contains(threadOwner.getState());
@@ -5508,7 +5510,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     || storageWriterOperation.get() != (delegatedFinish ? threadOwner : operation)
                     || instanceId <= 0 || operationId <= 0 || revision <= 0 || vmId == null
                     || StringUtils.isBlank(instanceUuid) || StringUtils.isBlank(operationUuid) || StringUtils.isBlank(phase)
-                    || !(delegatedFinish || "RUNNING".equals(state) || "RECOVERY_REQUIRED".equals(state))
+                    || !(ownCompletedFinish || delegatedFinish || "RUNNING".equals(state) || "RECOVERY_REQUIRED".equals(state))
                     || delegatedFinish && (parentId <= 0 || parentRevision <= revision || StringUtils.isBlank(parentUuid) || StringUtils.isBlank(parentPhase)
                         || threadOwner.getId() != parentId || threadOwner.getInstanceId() != instanceId || threadOwner.getRevision() != parentRevision
                         || !java.util.Objects.equals(threadOwner.getUuid(), parentUuid) || !java.util.Objects.equals(threadOwner.getPhase(), parentPhase)
