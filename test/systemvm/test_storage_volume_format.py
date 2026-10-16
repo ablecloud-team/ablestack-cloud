@@ -263,6 +263,31 @@ class VolumeFreshDeadlineObservationTest(unittest.TestCase):
         result=namespace['project_volume_operation'](history,{'active':False,'state':None},1700)
         self.assertEqual('RECONCILE_REQUIRED',result['status']);self.assertFalse(result['formatterActive'])
 
+class VolumeTerminalElapsedObservationTest(unittest.TestCase):
+    def projector(self):
+        block=re.search(r"<<'PYVOLUME'\n(.*?)\nPYVOLUME",SOURCE.read_text(),re.S).group(1)
+        function=next(node for node in ast.parse(block).body if isinstance(node,ast.FunctionDef) and node.name=='project_volume_operation')
+        namespace={};exec(compile(ast.Module(body=[function],type_ignores=[]),str(SOURCE),'exec'),namespace)
+        return namespace['project_volume_operation']
+
+    def test_completed_elapsed_is_durable_duration_not_time_since_start(self):
+        project=self.projector()
+        history={'phase':'COMPLETE','started':100,'elapsedSeconds':0.568,'operationId':'volume-fixture'}
+        before=dict(history)
+        for now in (101,1700,1000000):
+            result=project(history,{'active':False,'state':None,'observationComplete':True},now)
+            self.assertEqual(0.568,result['elapsedSeconds'])
+            self.assertEqual(0.568,result['observedOperation']['elapsedSeconds'])
+            self.assertEqual(now,result['observedEpoch'])
+            self.assertEqual(before,history)
+
+    def test_invalid_or_legacy_completed_duration_is_unknown_not_a_growing_runtime(self):
+        project=self.projector()
+        for duration in (None,True,False,-1,float('nan'),float('inf'),'0.568',10**1000):
+            history={'phase':'COMPLETE','started':100,'elapsedSeconds':duration}
+            result=project(history,{'active':False,'state':None,'observationComplete':True},1700)
+            self.assertIsNone(result['elapsedSeconds'])
+
 class VolumeMutationIdentityTest(unittest.TestCase):
     def setUp(self):
         block = next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if "def format_empty_device():" in value)
