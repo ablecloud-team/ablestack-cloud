@@ -56,7 +56,7 @@ class StorageNvmeBootConfigurationTest(unittest.TestCase):
         self.source["privateCapsule"] = {"reference": "PRESERVE PRIVATE REFERENCE"}
         self.state = self.config / "nvmeof-subsystems.json"
         self.write(self.state, self.source)
-        self.write(self.config / "desired-state/nfs-export-apply.json", {"exports": [{"name": "KEEP"}]})
+        self.write(self.config / "desired-state/nfs-export-apply.json", {"exports": [{"name": "KEEP", "readOnly": True, "count": 1}]})
         self.desired = generation.Generation(self.generations, self.config).files()
         self.digest = module.NvmeBootRecovery.digest(self.desired)
         current = {**self.scope, "configurationSha256": self.digest, "verifiedAt": 1}
@@ -159,6 +159,20 @@ class StorageNvmeBootConfigurationTest(unittest.TestCase):
         value = copy.deepcopy(self.changed); value["subsystems"][0]["namespaces"][0]["volumeSizeBytes"] += 1
         self.write(self.state, value); self.request["expectedObservedConfigurationSha256"] = generation.Generation(self.generations, self.config).digest()
         self.rejected()
+
+    def test_other_declaration_boolean_integer_and_integer_float_drift_is_never_adopted(self):
+        nfs = self.config / "desired-state/nfs-export-apply.json"
+        original = copy.deepcopy(self.desired["desired-state/nfs-export-apply.json"])
+        for key, replacement in (("readOnly", 1), ("count", 1.0)):
+            with self.subTest(key=key):
+                self.write(self.state, self.changed)
+                value = copy.deepcopy(original)
+                value["exports"][0][key] = replacement
+                self.write(nfs, value)
+                # The caller can attest the real changed digest, but cannot
+                # authorize a second semantic/type difference from VERIFIED.
+                self.request["expectedObservedConfigurationSha256"] = generation.Generation(self.generations, self.config).digest()
+                self.rejected()
 
     def test_root_or_ambiguous_serial_size_formatted_and_mounted_disks_fail_closed(self):
         original = copy.deepcopy(self.devices)

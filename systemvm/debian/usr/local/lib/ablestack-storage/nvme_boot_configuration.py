@@ -290,7 +290,8 @@ class NvmeBootRecovery:
         corrected_namespace = next(ns for sub in corrected[name]["subsystems"] for ns in sub["namespaces"]
                                    if ns.get("uuid") == request["namespaceUuid"])
         corrected_namespace["runtime"]["backingPath"] = old_path
-        if corrected != desired or (observed != request["expectedConfigurationSha256"] and observed_path == old_path):
+        if (corrected != desired or self.digest(corrected) != request["expectedConfigurationSha256"]
+                or (observed != request["expectedConfigurationSha256"] and observed_path == old_path)):
             raise ValueError("NVMe boot recovery permits only one cached backingPath difference")
         live = self.live(subsystem, namespace)
         if observed != request["expectedConfigurationSha256"] and live[0] != observed_path:
@@ -332,6 +333,7 @@ class NvmeBootRecovery:
         if ((after[name]["raw"] != raw if changed else after[name] != before[name]) or
                 any(after[key] != record for key, record in expected.items()) or
                 {key: redact(record["value"]) if record else None for key, record in after.items()} != desired
+                or self.digest({key: redact(record["value"]) if record else None for key, record in after.items()}) != request["expectedConfigurationSha256"]
                 or nvme_boot_read(current_path) != current or nvme_boot_read(artifact_path) != artifact
                 or self.boot() != request["expectedBootId"] or self.live(subsystem, namespace) != live):
             raise ValueError("NVMe boot repair postcondition failed")
