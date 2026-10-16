@@ -308,6 +308,81 @@ public class StorageNativeGenerationBeginBusyTest {
         }
     }
 
+    private static Fixture ownCompletedFinish() throws Exception {
+        Fixture f = new Fixture();Mockito.when(f.operation.getState()).thenReturn("COMPLETE");
+        Mockito.when(f.operation.getPhase()).thenReturn("COMPLETE");f.statusReply = committedTarget(true);
+        JsonObject witness = new JsonObject();witness.addProperty("_targetNativeBootId", f.statusReply.get("bootId").getAsString());
+        Mockito.when(f.operation.getResultJson()).thenReturn(witness.toString());return f;
+    }
+
+    @Test public void ownCompletedWriterFinishesOnlyItsExactTargetAfterClosedBusy() throws Exception {
+        for (boolean pending : new boolean[]{true, false}) {
+            Fixture f = ownCompletedFinish();f.statusReply = committedTarget(pending);f.replies.add(busy());f.replies.add(success());
+            f.dispatchNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(2);
+            Assert.assertTrue(f.run("finish").get("success").getAsBoolean());Assert.assertEquals(2, f.sent.size());
+            Assert.assertEquals(1, f.idleReads);Assert.assertEquals(1, f.statusReads);Assert.assertEquals(1, f.cancellationChecks);
+            Assert.assertEquals("operation generation finish", f.sent.get(1).getOperation());
+            Assert.assertEquals(f.sent.get(0).getPayload(), f.sent.get(1).getPayload());Assert.assertEquals(72L, f.sent.get(1).getVmId());
+            Assert.assertTrue(f.sent.get(1).getTimeoutSeconds() < 30);
+        }
+    }
+
+    @Test public void ownCompletedFinishCannotRetryOtherActionsTerminalStatesPhasesOrOwners() throws Exception {
+        for (String action : new String[]{"begin", "verify", "commit", "rollback"}) {
+            Fixture f = ownCompletedFinish();
+            Assert.assertThrows(CloudRuntimeException.class, () -> f.run(action));Assert.assertEquals(1, f.sent.size());
+        }
+        for (int mode = 0; mode < 5; mode++) {
+            Fixture f = ownCompletedFinish();
+            if (mode == 0) Mockito.when(f.operation.getState()).thenReturn("ROLLED_BACK");
+            if (mode == 1) Mockito.when(f.operation.getState()).thenReturn("CANCELLED");
+            if (mode == 2) Mockito.when(f.operation.getPhase()).thenReturn("VERIFYING");
+            if (mode == 3) f.owner(null);
+            if (mode == 4) { StorageServiceOperationVO other = Mockito.mock(StorageServiceOperationVO.class);
+                Mockito.when(other.getInstanceId()).thenReturn(72L);Mockito.when(other.getRevision()).thenReturn(9L);f.owner(other); }
+            Assert.assertThrows(CloudRuntimeException.class, () -> f.run("finish"));Assert.assertEquals(1, f.sent.size());
+        }
+    }
+
+    @Test public void ownCompletedFinishRejectsChangedOwnerOrImmutableScopeBeforeResend() throws Exception {
+        for (int mode = 0; mode < 6; mode++) {
+            Fixture f = ownCompletedFinish();final int change = mode;
+            f.afterStatus = () -> {
+                if (change == 0) Mockito.when(f.operation.getPhase()).thenReturn("PREPARED");
+                if (change == 1) Mockito.when(f.operation.getState()).thenReturn("RECOVERY_REQUIRED");
+                if (change == 2) Mockito.when(f.operation.getPreviousSnapshotJson()).thenReturn("{}");
+                if (change == 3) Mockito.when(f.operation.getRevision()).thenReturn(10L);
+                if (change == 4) Mockito.when(f.instance.getVmId()).thenReturn(73L);
+                if (change == 5) { try { f.owner(null); } catch (Exception failure) { throw new AssertionError(failure); } }
+            };
+            Assert.assertThrows(CloudRuntimeException.class, () -> f.run("finish"));Assert.assertEquals(1, f.sent.size());
+        }
+    }
+
+    @Test public void ownCompletedFinishRequiresExactCommittedTargetBootAndCancellation() throws Exception {
+        for (int mode = 0; mode < 5; mode++) {
+            Fixture f = ownCompletedFinish();
+            if (mode == 0) f.statusReply.getAsJsonObject("generation").addProperty("configurationSha256", "c".repeat(64));
+            if (mode == 1) f.statusReply.addProperty("pendingOperationUuid", "11111111-1111-4111-8111-111111111111");
+            if (mode == 2) f.statusReply.addProperty("bootId", "44444444-4444-4444-8444-444444444444");
+            if (mode == 3) f.statusReply.getAsJsonObject("generation").addProperty("revision", 8L);
+            if (mode == 4) f.cancellationFailure = new CloudRuntimeException("cancelled");
+            Assert.assertThrows(CloudRuntimeException.class, () -> f.run("finish"));Assert.assertEquals(1, f.sent.size());
+        }
+    }
+
+    @Test public void ownCompletedFinishRetainsFourAttemptDeadlineAndUnknownOutcomeBounds() throws Exception {
+        Fixture repeated = ownCompletedFinish();
+        Assert.assertThrows(CloudRuntimeException.class, () -> repeated.run("finish"));Assert.assertEquals(4, repeated.sent.size());
+        Fixture expired = ownCompletedFinish();expired.dispatchNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(31);
+        Assert.assertThrows(CloudRuntimeException.class, () -> expired.run("finish"));Assert.assertEquals(1, expired.sent.size());
+        Fixture unknown = ownCompletedFinish();unknown.transportFailure = new IllegalStateException("unknown");
+        Assert.assertThrows(IllegalStateException.class, () -> unknown.run("finish"));Assert.assertEquals(1, unknown.sent.size());
+        Fixture unclosed = ownCompletedFinish();
+        unclosed.replies.add(new StorageServiceGuestCommandResult(false, "exit code 75", "{\"success\":false}"));
+        Assert.assertThrows(CloudRuntimeException.class, () -> unclosed.run("finish"));Assert.assertEquals(1, unclosed.sent.size());
+    }
+
     @Test public void finishRetriesOnlyOwnCommittedTargetIncludingExactAbsentPendingIdempotency() throws Exception {
         for (boolean pending : new boolean[]{true, false}) {
             Fixture f = new Fixture();f.statusReply = committedTarget(pending);f.replies.add(busy());f.replies.add(success());
