@@ -4246,6 +4246,9 @@ def project_volume_operation(operation, formatter, now):
     original = operation.get("phase") or "RECOVERY_REQUIRED"
     started = operation.get("started")
     elapsed = max(0, now - float(started)) if isinstance(started, (int, float)) else None
+    if original == "COMPLETE":
+        final_elapsed = operation.get("elapsedSeconds")
+        elapsed = final_elapsed if type(final_elapsed) in (int, float) and 0 <= final_elapsed <= 9007199254740991 else None
     deadline = float(operation.get("formatDeadlineSeconds") or 300)
     active = formatter["active"]
     complete = formatter.get("observationComplete", type(active) is bool)
