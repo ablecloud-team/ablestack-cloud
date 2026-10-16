@@ -144,6 +144,36 @@ class NetworkTest(unittest.TestCase):
         self.assertIn("datasource_list: [NoCloud, ConfigDrive]", self.net.cloud_config.read_text())
         self.assertEqual(1, self.fake.client_count)
 
+    def test_qga_public_0666_role_selector_does_not_relax_persistent_network_state(self):
+        self.net.role.chmod(0o666)
+        self.assertTrue(self.net.prepare()["success"])
+        self.assertEqual(0o666, stat.S_IMODE(self.net.role.stat().st_mode))
+        self.state.chmod(0o666)
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual("ERROR", self.net.inspect()["status"])
+        self.assertEqual([], self.fake.effects)
+
+    def test_qga_public_role_does_not_relax_resolver_protection(self):
+        self.net.role.chmod(0o666);self.resolver.chmod(0o666)
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual("UNKNOWN", self.net.inspect()["status"])
+        self.assertEqual([], self.fake.effects)
+
+    def test_public_role_requires_regular_owner_stable_identity_and_bounded_read(self):
+        role = self.net.role
+        role.unlink();role.symlink_to(self.state)
+        with self.assertRaises((ValueError, OSError)):m.sharedfs_role(role)
+        role.unlink();role.write_text("type=sharedfsvm");role.chmod(0o666)
+        with patch.object(m.os, "geteuid", return_value=os.geteuid() + 1):
+            with self.assertRaises(ValueError):m.sharedfs_role(role)
+        read = os.read
+        def changed(fd, size):
+            raw = read(fd, size);role.write_text("type=router");return raw
+        with patch.object(m.os, "read", side_effect=changed):
+            with self.assertRaises(ValueError):m.sharedfs_role(role)
+        role.write_bytes(b"x" * (1024 * 1024 + 1))
+        with self.assertRaises(ValueError):m.sharedfs_role(role)
+
     def test_inspect_never_creates_cloud_init_configuration(self):
         self.assertTrue(self.net.inspect()["success"])
         self.assertFalse(self.net.cloud_config.exists())
