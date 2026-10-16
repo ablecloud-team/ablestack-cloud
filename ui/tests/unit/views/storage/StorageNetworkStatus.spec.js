@@ -82,6 +82,57 @@ describe('#913 network readiness UI', () => {
       expect(unknown.find('.ant-tag-green').exists()).toBe(false)
     } finally { wrapper.unmount(); unknown.unmount() }
   })
+  it('renders actual omitted-gateway STATIC ERROR in red instead of hiding its route evidence as UNKNOWN', () => {
+    const value = networkReadiness()
+    Object.assign(value, { status: 'ERROR', success: false, mismatches: ['UNEXPECTED_DEFAULT_ROUTE'] })
+    delete value.expected.gateway
+    value.expected.dns = []
+    const wrapper = render(value)
+    try {
+      expect(wrapper.get('[role="status"]').classes()).toContain('ant-tag-red')
+      expect(wrapper.find('.ant-alert-error').exists()).toBe(true)
+      expect(wrapper.text()).toContain('message.storage.service.network.reason.UNEXPECTED_DEFAULT_ROUTE')
+      expect(row(wrapper, 'expected.gateway').text()).toContain('label.none')
+      expect(row(wrapper, 'actual.routes').text()).toContain('default via 10.10.0.1 dev ens3')
+      expect(getAPI).not.toHaveBeenCalled()
+      expect(postAPI).not.toHaveBeenCalled()
+    } finally { wrapper.unmount() }
+  })
+  it('renders omitted STATIC gateway and empty configured DNS separately from existing resolver DNS', () => {
+    const value = networkReadiness()
+    delete value.expected.gateway
+    value.expected.dns = []
+    value.actual.defaultRoutes = []
+    const wrapper = render(value)
+    try {
+      expect(wrapper.get('[role="status"]').classes()).toContain('ant-tag-green')
+      expect(row(wrapper, 'expected.gateway').text()).toContain('label.none')
+      expect(row(wrapper, 'actual.routes').text()).toContain('label.none')
+      expect(row(wrapper, 'expected.dns').text()).toContain('label.none')
+      expect(row(wrapper, 'actual.dns').text()).toContain('10.10.13.10')
+    } finally { wrapper.unmount() }
+  })
+  it('renders real DHCP expected-mode-only wire with no configured values and complete observed values', () => {
+    const value = networkReadiness()
+    value.mode = value.actual.mode = 'DHCP'
+    value.expected = { mode: 'DHCP', dns: [] }
+    Object.assign(value.actual.dhcpUnit, { active: true, masked: false })
+    value.actual.dhcpProcessCount = 1
+    const wrapper = render(value)
+    try {
+      expect(wrapper.get('[role="status"]').classes()).toContain('ant-tag-green')
+      for (const key of ['expected.mac', 'expected.ip', 'expected.cidr', 'expected.gateway', 'expected.dns']) {
+        expect(row(wrapper, key).text()).toContain('label.none')
+      }
+      expect(row(wrapper, 'actual.addresses').text()).toContain('10.10.13.236/16')
+      expect(row(wrapper, 'actual.routes').text()).toContain('default via 10.10.0.1 dev ens3')
+      expect(row(wrapper, 'dhcp.active').text()).toContain('label.yes')
+      expect(row(wrapper, 'dhcp.masked').text()).toContain('label.no')
+      expect(row(wrapper, 'dhcp.clients').text()).toContain('1')
+      expect(getAPI).not.toHaveBeenCalled()
+      expect(postAPI).not.toHaveBeenCalled()
+    } finally { wrapper.unmount() }
+  })
   it('renders DHCP mode, learned routes and a real zero process count without inventing STATIC configuration', () => {
     const value = networkReadiness()
     value.mode = value.expected.mode = value.actual.mode = 'DHCP'

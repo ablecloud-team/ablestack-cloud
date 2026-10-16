@@ -104,8 +104,98 @@ class NetworkTest(unittest.TestCase):
         self.net = m.Network(self.state, self.fake, self.resolver, self.domain, leases=self.base, aliases=self.base / "endpoints.json")
         self.net.clients = lambda name: [{"argv": [b"dhclient", name.encode()]}] * self.fake.client_count
         self.net.stop_clients = lambda name: setattr(self.fake, "client_count", 0)
+        self.net.cloud_config = self.base / "cloud.cfg.d" / m.CLOUD_CONFIG.name
+        self.net.cloud_config.parent.mkdir()
+        self.net.role = self.base / "cmdline";self.net.role.write_text("type=sharedfsvm name=isolated-test\n")
     def tearDown(self):
         self.tmp.cleanup()
+
+
+    def test_prepare_installs_network_exclusion_before_static_or_dhcp_effects(self):
+        self.fake.masked = False
+        original = self.net.run
+        seen = []
+        def run(args, **kwargs):
+            if args[0] == "systemctl" and args[1] in ("mask", "stop", "start", "unmask"):
+                seen.append(self.net.cloud_config.read_text())
+            return original(args, **kwargs)
+        self.net.run = run
+        self.assertTrue(self.net.prepare()["success"])
+        expected = ("# SharedFS primary networking is owned by ablestack-sharedfs-network.\n"
+                    "network:\n  config: disabled\n"
+                    "disable_network_activation: true\n"
+                    "datasource_list: [NoCloud, ConfigDrive]\n")
+        self.assertEqual("zz-ablestack-sharedfs-network.cfg", m.CLOUD_CONFIG.name)
+        self.assertGreater(m.CLOUD_CONFIG.name, "cloudstack.cfg")
+        self.assertEqual(expected, self.net.cloud_config.read_text())
+        self.assertTrue(seen);self.assertTrue(all(text == expected for text in seen))
+        before = self.net.cloud_config.stat()
+        self.net.prepare()
+        self.assertEqual(before, self.net.cloud_config.stat())
+        self.state.unlink();self.fake.active = True;self.fake.masked = False;self.fake.client_count = 1
+        self.assertTrue(self.net.prepare()["success"])
+        self.assertEqual(before, self.net.cloud_config.stat())
+        self.assertEqual(0o644, stat.S_IMODE(before.st_mode))
+
+    def test_initial_dhcp_excludes_cloud_init_before_starting_owned_client(self):
+        self.state.unlink();self.fake.masked = False;self.fake.active = False
+        self.fake.on_start = lambda: self.assertTrue(self.net.cloud_config.is_file())
+        self.assertTrue(self.net.prepare()["success"])
+        self.assertIn("datasource_list: [NoCloud, ConfigDrive]", self.net.cloud_config.read_text())
+        self.assertEqual(1, self.fake.client_count)
+
+    def test_inspect_never_creates_cloud_init_configuration(self):
+        self.assertTrue(self.net.inspect()["success"])
+        self.assertFalse(self.net.cloud_config.exists())
+        self.assertEqual([], self.fake.effects)
+
+    def test_cloud_init_exclusion_rejects_foreign_role_or_conflicting_owned_file(self):
+        for role in ("type=router", "type=sharedfsvm type=router", "type=sharedfsvm-extra", ""):
+            self.net.role.write_text(role)
+            with self.assertRaises(ValueError):self.net.prepare()
+            self.assertFalse(self.net.cloud_config.exists())
+        self.net.role.write_text("type=sharedfsvm")
+        self.net.cloud_config.write_text("network:\n  config: enabled\n")
+        before = self.net.cloud_config.read_bytes()
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertEqual(before, self.net.cloud_config.read_bytes())
+        self.assertEqual([], self.fake.effects)
+
+    def test_cloud_init_exclusion_rejects_symlink_or_writable_directory(self):
+        foreign = self.base / "foreign";foreign.write_text("untouched")
+        self.net.cloud_config.symlink_to(foreign)
+        with self.assertRaises((ValueError, OSError)):self.net.prepare()
+        self.assertEqual("untouched", foreign.read_text())
+        self.net.cloud_config.unlink()
+        self.net.cloud_config.parent.chmod(0o777)
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertFalse(self.net.cloud_config.exists())
+        self.assertEqual([], self.fake.effects)
+
+    def test_cloud_init_atomic_publication_does_not_clobber_concurrent_file(self):
+        original = os.link
+        def concurrent(source, target, **kwargs):
+            self.net.cloud_config.write_text("CONCURRENT_CONFIGURATION")
+            return original(source, target, **kwargs)
+        with patch.object(m.os, "link", side_effect=concurrent):
+            with self.assertRaises(FileExistsError):self.net.prepare()
+        self.assertEqual("CONCURRENT_CONFIGURATION", self.net.cloud_config.read_text())
+        self.assertEqual([self.net.cloud_config], list(self.net.cloud_config.parent.iterdir()))
+        self.assertEqual([], self.fake.effects)
+
+    def test_invalid_static_never_installs_cloud_init_config_or_starts_dhcp(self):
+        self.state.write_text("{}")
+        with self.assertRaises(ValueError):self.net.prepare()
+        self.assertFalse(self.net.cloud_config.exists());self.assertEqual([], self.fake.effects)
+
+    def test_postinit_userdata_seed_and_modules_remain_available(self):
+        postinit = (ROOT / "systemvm/debian/opt/cloud/bin/setup/postinit.sh").read_text()
+        self.assertIn("datasource_list: ['NoCloud']", postinit)
+        self.assertIn("/var/lib/cloud/seed/nocloud/user-data", postinit)
+        self.assertIn("cloud-init init --local &&", postinit)
+        self.assertIn("cloud-init modules --mode=config &&", postinit)
+        self.assertIn("cloud-init modules --mode=final", postinit)
+        self.assertIn("  - scripts-user", postinit)
 
     def test_valid_static_matching_is_idempotent_and_keeps_aliases(self):
         before = copy.deepcopy(self.fake.addresses);meta = self.resolver.stat()
@@ -275,8 +365,13 @@ class NetworkTest(unittest.TestCase):
         self.assertEqual([], self.fake.effects)
 
     def test_resolver_permission_eio_and_nonascii_remain_unknown(self):
+        original = m.protected_text
         for error in (PermissionError(), OSError(5, "SYNTHETIC_ONLY")):
-            with patch.object(m, "protected_text", side_effect=error):
+            def read(path):
+                if path == self.resolver:
+                    raise error
+                return original(path)
+            with patch.object(m, "protected_text", side_effect=read):
                 self.assertEqual("UNKNOWN", self.net.inspect()["status"])
                 with self.assertRaises(ValueError):self.net.prepare()
         self.resolver.write_bytes(b"nameserver \xff\n")
