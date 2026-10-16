@@ -7427,6 +7427,16 @@ class NfsEndpointReadiness:
         return {"bootId": self.records.boot_id, "configurationSha256": hashlib.sha256(data).hexdigest(),
                 "pid": pid, "startTicks": ticks}, data.decode()
 
+    def listener_deadline(self, configuration, pid, rendered=False):
+        identity, content = self.snapshot(configuration, pid, rendered)
+        # Ganesha initializes CLIENT policies before opening its listener. Use
+        # the exact protected serializer's clients (expanded principals are a
+        # conservative upper bound on CLIENT blocks), not only export count.
+        clients = sum(len(row["clients"]) for row in self.adapter_type.configuration(content)["exports"])
+        # Share the caller's total deadline; keep five seconds for its existing
+        # stop/rollback cleanup. Waiting does not restart a healthy initializer.
+        return min(self.deadline - 5, time.monotonic() + 15 + 2 * clients), identity
+
     def path(self, key):
         if not key or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-" for char in key):
             raise ValueError("NFS endpoint unit key is invalid")
@@ -7696,7 +7706,7 @@ def start_ganesha_endpoints(configs):
     runtime = []
     for key, conf_path, ip, port, mode, pid, log_path in started:
         ganesha_remaining()
-        deadline = min(time.monotonic()+15,nfs_operation_deadline)
+        deadline, startup_identity = readiness.listener_deadline(conf_path,pid,bool(globals().get("rendered_context")))
         item = {
             "key": key,
             "listenIp": ip,
@@ -7731,14 +7741,17 @@ def start_ganesha_endpoints(configs):
                     item["logTail"] = log_tail
                 break
             try:
-                with socket.create_connection((candidate_ip, port), timeout=ganesha_remaining(1)):
+                with socket.create_connection((candidate_ip, port), timeout=min(ganesha_remaining(1),max(.01,deadline-time.monotonic()))):
                     item["listening"] = True
                     break
             except Exception as exc:
                 last_error = str(exc)
                 if time.monotonic()>=nfs_operation_deadline:break
-                time.sleep(min(.5,ganesha_remaining(.5)))
+                time.sleep(min(.5,ganesha_remaining(.5),max(0,deadline-time.monotonic())))
         if item.get("listening"):
+            observed_identity,_ = readiness.snapshot(conf_path,pid,bool(globals().get("rendered_context")))
+            if observed_identity != startup_identity:
+                raise NfsReadinessError("ENDPOINT_IDENTITY_CHANGED",item)
             managed_deadline = min(time.monotonic()+3,nfs_operation_deadline)
             while pid and not managed_ganesha_process(pid) and process_exists(pid) and time.monotonic() < managed_deadline:
                 time.sleep(0.2)
@@ -28825,6 +28838,16 @@ class NfsEndpointReadiness:
         return {"bootId": self.records.boot_id, "configurationSha256": hashlib.sha256(data).hexdigest(),
                 "pid": pid, "startTicks": ticks}, data.decode()
 
+    def listener_deadline(self, configuration, pid, rendered=False):
+        identity, content = self.snapshot(configuration, pid, rendered)
+        # Ganesha initializes CLIENT policies before opening its listener. Use
+        # the exact protected serializer's clients (expanded principals are a
+        # conservative upper bound on CLIENT blocks), not only export count.
+        clients = sum(len(row["clients"]) for row in self.adapter_type.configuration(content)["exports"])
+        # Share the caller's total deadline; keep five seconds for its existing
+        # stop/rollback cleanup. Waiting does not restart a healthy initializer.
+        return min(self.deadline - 5, time.monotonic() + 15 + 2 * clients), identity
+
     def path(self, key):
         if not key or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-" for char in key):
             raise ValueError("NFS endpoint unit key is invalid")
@@ -37320,6 +37343,16 @@ class NfsEndpointReadiness:
             raise ValueError("NFS endpoint process has a foreign binding")
         return {"bootId": self.records.boot_id, "configurationSha256": hashlib.sha256(data).hexdigest(),
                 "pid": pid, "startTicks": ticks}, data.decode()
+
+    def listener_deadline(self, configuration, pid, rendered=False):
+        identity, content = self.snapshot(configuration, pid, rendered)
+        # Ganesha initializes CLIENT policies before opening its listener. Use
+        # the exact protected serializer's clients (expanded principals are a
+        # conservative upper bound on CLIENT blocks), not only export count.
+        clients = sum(len(row["clients"]) for row in self.adapter_type.configuration(content)["exports"])
+        # Share the caller's total deadline; keep five seconds for its existing
+        # stop/rollback cleanup. Waiting does not restart a healthy initializer.
+        return min(self.deadline - 5, time.monotonic() + 15 + 2 * clients), identity
 
     def path(self, key):
         if not key or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-" for char in key):

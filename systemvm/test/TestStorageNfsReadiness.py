@@ -427,4 +427,110 @@ class StorageNfsReadinessTest(unittest.TestCase):
         self.assertFalse(value["lastFailure"]["retryable"]);self.assertNotIn("SYNTHETIC",output.getvalue())
 
 
+    def actual_startup(self, clients=15, ready_at=16, overall=180, groups=1, process_exit=None, bad_snapshot=None, dual=False):
+        from types import SimpleNamespace
+        import contextlib
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        body=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",cli.read_text(),re.S)
+                  if "def start_ganesha_endpoints(" in value)
+        function=next(node for node in ast.parse(body).body if isinstance(node,ast.FunctionDef)
+                      and node.name=="start_ganesha_endpoints")
+        now=[0.0];restarts=[];stops=[];connections=[];remembered=[];verified=[]
+        clock=SimpleNamespace(monotonic=lambda:now[0],sleep=lambda seconds:now.__setitem__(0,now[0]+seconds))
+        # Actual fixed producer/parser are used, including multiple CLIENTs for one export.
+        render=next(node for node in ast.parse(body).body if isinstance(node,ast.FunctionDef)and node.name=="render_ganesha_export")
+        render_scope={"nfs_protocols_for_mode":lambda mode:"3,4" if mode=="V3V4_DUAL" else "4",
+                      "quote_ganesha":json.dumps,"ganesha_client_list":lambda value:value}
+        exec(compile(ast.Module(body=[render],type_ignores=[]),str(cli),"exec"),render_scope)
+        content="NFS_Core_Param {\n Protocols = 4;\n}\n"+render_scope["render_ganesha_export"](
+            {"id":1000,"path":"/export/test","pseudo":"/test","protocolMode":"V3V4_DUAL" if dual else "V4_ONLY","clients":[
+                {"clients":"192.0.2."+str(index%250+1),"access":"RW","squash":"Root_Squash"}for index in range(clients)]})+"\n"
+        if bad_snapshot=="eof":content=content[:-3]
+        snapshots=[]
+        def snapshot(*args):
+            if bad_snapshot=="foreign":raise ValueError("NFS endpoint process has a foreign binding")
+            snapshots.append(args)
+            return {"pid":123,"startTicks":"789" if bad_snapshot=="changed" and len(snapshots)>1 else "456",
+                    "configurationSha256":"a"*64},content
+        def readiness(*args):
+            value=NfsEndpointReadiness(overall,GaneshaDbus,Mock(),config_root=self.root)
+            value.snapshot=snapshot;value.reuse=lambda *args:None
+            value.remember=lambda *args:remembered.append(args)
+            value.wait=lambda *args:verified.append(args)
+            return value
+        def command(args,**kwargs):
+            if args[1]=="restart":restarts.append(args[-1])
+            return subprocess.CompletedProcess(args,0,"123","")
+        def connect(*args,**kwargs):
+            connections.append(now[0])
+            if now[0]<ready_at:raise ConnectionRefusedError("not yet listening")
+            return contextlib.nullcontext()
+        def remaining(maximum=10):
+            if now[0]>=overall:raise TimeoutError("total activation deadline exhausted")
+            return min(maximum,overall-now[0])
+        scope={"Path":lambda *args:SimpleNamespace(exists=lambda:False),"ganesha_acl_capabilities":Mock(),
+            "shutil":SimpleNamespace(which=lambda name:"/usr/bin/"+name),
+            "os":SimpleNamespace(environ={},path=SimpleNamespace(isdir=lambda path:True,exists=lambda path:False,join=os.path.join)),
+            "rendered_ganesha_dynamic_candidates":lambda configs:{},
+            "stop_default_ganesha_service":Mock(),"stop_ganesha_endpoints":lambda **kwargs:stops.append((now[0],kwargs)),
+            "ensure_ganesha_runtime_dirs":Mock(),"ensure_rpcbind_started":lambda:True,"ganesha_run_dir":str(self.root),
+            "ganesha_remaining":remaining,"nfs_operation_deadline":overall,"NfsEndpointReadiness":readiness,
+            "GaneshaDbus":GaneshaDbus,"nfs_control_command":Mock(),"NfsReadinessError":NfsReadinessError,
+            "subprocess":SimpleNamespace(run=command,DEVNULL=subprocess.DEVNULL,PIPE=subprocess.PIPE),
+            "contextlib":contextlib,"pending_nfs":SimpleNamespace(grant=lambda *args:contextlib.nullcontext()),
+            "payload":{},"time":clock,"socket":SimpleNamespace(create_connection=connect),
+            "managed_ganesha_process":lambda pid:process_exit is None or now[0]<process_exit,
+            "process_exists":lambda pid:process_exit is None or now[0]<process_exit,
+            "tail_file":lambda *args:"","open":lambda *args,**kwargs:io.StringIO(content)}
+        exec(compile(ast.Module(body=[function],type_ignores=[]),str(cli),"exec"),scope)
+        result={"clock":now,"restarts":restarts,"stops":stops,"connections":connections,"remembered":remembered,"verified":verified}
+        try:
+            with patch("nfs_readiness.time.monotonic",clock.monotonic):
+                result["runtime"]=scope["start_ganesha_endpoints"](
+                    [("owned"+str(index),str(self.root/("owned"+str(index)+".conf")),"127.0.0."+str(index+1),2049,"V3V4_DUAL" if dual else "V4_ONLY")for index in range(groups)])
+        except Exception as error:result["error"]=error
+        return result
+
+    def test_actual_listener_startup_15_clients_can_become_ready_after_old_15_second_cutoff(self):
+        result=self.actual_startup()
+        self.assertNotIn("error",result)
+        self.assertEqual(16,result["clock"][0])
+        self.assertEqual(1,len(result["restarts"]))
+        self.assertEqual(1,len(result["stops"])) # Initial stale-endpoint cleanup only.
+        self.assertEqual(1,len(result["verified"]))
+
+    def test_actual_100_client_and_multi_endpoint_startup_share_the_existing_overall_budget(self):
+        for groups in (1,3):
+            for dual in (False,True):
+                result=self.actual_startup(clients=100,ready_at=101,groups=groups,dual=dual)
+                self.assertNotIn("error",result)
+                self.assertEqual(101,result["clock"][0]);self.assertEqual(groups,len(result["restarts"]))
+                self.assertEqual(groups,len(result["verified"]));self.assertEqual(1,len(result["stops"]))
+
+    def test_client_workload_not_export_count_and_deadline_always_retains_cleanup_reserve(self):
+        result=self.actual_startup(clients=60,ready_at=61) # One EXPORT, 60 actual CLIENT blocks.
+        self.assertNotIn("error",result);self.assertEqual(61,result["clock"][0])
+        result=self.actual_startup(clients=100,ready_at=200,overall=20,groups=3)
+        self.assertEqual("ENDPOINT_LISTENER_NOT_READY",result["error"].public["code"])
+        self.assertLessEqual(result["clock"][0],15)
+        self.assertEqual(2,len(result["stops"]));self.assertEqual([],result["verified"])
+
+    def test_listener_dead_pid_is_not_extended_or_accepted_as_an_open_foreign_port(self):
+        result=self.actual_startup(ready_at=100,process_exit=3)
+        self.assertEqual("ENDPOINT_LISTENER_NOT_READY",result["error"].public["code"])
+        self.assertEqual(3,result["clock"][0]);self.assertEqual([],result["verified"])
+        self.assertEqual(2,len(result["stops"]))
+        result=self.actual_startup(ready_at=0,process_exit=0)
+        self.assertIn("error",result);self.assertEqual([],result["connections"])
+        result=self.actual_startup(ready_at=1,bad_snapshot="changed")
+        self.assertEqual("ENDPOINT_IDENTITY_CHANGED",result["error"].public["code"])
+        self.assertEqual([],result["verified"]);self.assertEqual([],result["remembered"])
+
+    def test_listener_workload_requires_exact_owned_snapshot_and_complete_rendered_export(self):
+        for broken in ("foreign","eof"):
+            result=self.actual_startup(bad_snapshot=broken)
+            self.assertIsInstance(result.get("error"),ValueError)
+            self.assertEqual([],result["connections"]);self.assertEqual([],result["verified"])
+
+
 if __name__=="__main__":unittest.main()

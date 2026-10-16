@@ -836,6 +836,26 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));Assert.assertFalse(detail.contains("lastFailure"));
     }
 
+    @Test public void actualNativeEndpointListenerAndExportBindingFailuresRemainClosedAndVisible() throws Exception {
+        java.nio.file.Path source = java.nio.file.Paths.get(System.getProperty("basedir"),
+                "../../../systemvm/debian/usr/local/lib/ablestack-storage/nfs_readiness.py").normalize();
+        for (String code : new String[]{"ENDPOINT_LISTENER_NOT_READY", "EXPORT_BINDING_MISMATCH"}) {
+            String program = String.join("\n", "import ast,json,sys", "tree=ast.parse(open(sys.argv[1]).read())",
+                    "cls=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='NfsReadinessError');scope={}",
+                    "exec(compile(ast.Module(body=[cls],type_ignores=[]),'<actual-native-readiness-failure>','exec'),scope)",
+                    "failure=scope['NfsReadinessError'](sys.argv[2],{'listenIp':'0.0.0.0','port':2049}).public",
+                    "print(json.dumps({'success':False,'lastFailure':failure,'privateBody':'SYNTH_PRIVATE_BODY'}))");
+            Process process = new ProcessBuilder("python3", "-c", program, source.toString(), code).redirectErrorStream(true).start();
+            Assert.assertTrue(process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS));
+            String value = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            Assert.assertEquals(value, 0, process.exitValue());
+            String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value, "");
+            Assert.assertTrue(detail, detail.contains("code=" + code));
+            Assert.assertTrue(detail.contains("phase=WAIT_RUNTIME_READY"));
+            Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));Assert.assertFalse(detail.contains("exportName"));
+        }
+    }
+
     @Test public void nullableNativeNfsFailureContextKeepsUnknownContextUninvented() throws Exception {
         com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(actualNfsPublicFailure()).getAsJsonObject();
         com.google.gson.JsonObject failure = value.getAsJsonObject("lastFailure");
