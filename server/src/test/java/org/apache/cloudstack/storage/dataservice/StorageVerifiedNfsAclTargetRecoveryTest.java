@@ -26,6 +26,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,16 +77,22 @@ public class StorageVerifiedNfsAclTargetRecoveryTest {
             JsonObject share=obj("{\"id\":11,\"uuid\":\""+SHARE+"\",\"instance_id\":7,\"protocol\":\"NFS\",\"name\":\"issue914-nfs023\",\"path\":\"/export/nfs023\",\"volume_id\":42,\"filesystem\":\"ext4\",\"state\":\"Allocated\",\"created\":1000,\"quota_bytes\":null,\"posix_policy_id\":null}");
             JsonObject nativeExport=targetDesired.getAsJsonObject("desired-state/nfs-export-apply.json").getAsJsonArray("exports").get(0).getAsJsonObject();
             share.addProperty("config_json",nativeExport.getAsJsonObject("config").toString());
-            JsonObject acl=obj("{\"id\":36,\"uuid\":\""+ACL+"\",\"resource_type\":\"FILE_SHARE\",\"resource_id\":11,\"principal_type\":\"CIDR\",\"principal\":\"10.10.0.0/16\",\"permission\":\"READ_WRITE\",\"secret_ref\":null,\"state\":\"Ready\",\"created\":1001}");
+            JsonObject acl=obj("{\"id\":36,\"uuid\":\""+ACL+"\",\"resource_type\":\"FILE_SHARE\",\"resource_id\":11,\"principal_type\":\"CIDR\",\"principal\":\"10.10.0.0/16\",\"permission\":\"READ_WRITE\",\"secret_ref\":null,\"state\":\"Ready\"}");
             JsonObject aclConfig=nativeExport.getAsJsonArray("acls").get(0).getAsJsonObject().getAsJsonObject("config");
             acl.addProperty("config_json",aclConfig.toString());
+            acl.addProperty("created",1001);acl.add("updated",JsonNull.INSTANCE);acl.add("removed",JsonNull.INSTANCE);
             source=obj("{\"schemaVersion\":2,\"instanceId\":7}");JsonArray tables=new JsonArray();
             for(String name:TABLES){
                 JsonObject t=new JsonObject();t.addProperty("table",name);JsonArray columns=new JsonArray(),rows=new JsonArray();
                 JsonObject sample="storage_file_share".equals(name)?share:("storage_access_rule".equals(name)?acl:obj("{\"id\":1,\"uuid\":\""+ROOT+"\",\"instance_id\":7}"));
                 for(Map.Entry<String,JsonElement> entry:sample.entrySet()){
                     JsonObject column=new JsonObject();column.addProperty("name",entry.getKey());
-                    column.addProperty("type",entry.getValue().isJsonPrimitive()&&entry.getValue().getAsJsonPrimitive().isNumber()?-5:12);columns.add(column);
+                    int sqlType=entry.getValue().isJsonPrimitive()&&entry.getValue().getAsJsonPrimitive().isNumber()?-5:12;
+                    if("storage_access_rule".equals(name)){
+                        if(List.of("created","updated","removed").contains(entry.getKey()))sqlType=java.sql.Types.TIMESTAMP;
+                        else if("config_json".equals(entry.getKey()))sqlType=java.sql.Types.LONGVARCHAR;
+                    }
+                    column.addProperty("type",sqlType);columns.add(column);
                 }
                 if("storage_file_share".equals(name))rows.add(share.deepCopy());
                 t.add("columns",columns);t.add("rows",rows);tables.add(t);
@@ -112,6 +119,56 @@ public class StorageVerifiedNfsAclTargetRecoveryTest {
         f.live=f.target.toString();JsonObject after=f.require();Assert.assertEquals("TARGET",after.get("databasePosition").getAsString());
         Assert.assertEquals(StorageVerifiedNfsAclTargetRecovery.authority(before),StorageVerifiedNfsAclTargetRecovery.authority(after));
         Assert.assertEquals(ACL,after.get("aclUuid").getAsString());Assert.assertEquals(SHARE,after.get("shareUuid").getAsString());
+    }
+    @Test public void actualCanonicalThirteenColumnsAcceptNullAuditAndPositiveWholeUpdatedWithoutInferredOrdering()throws Exception{
+        Fixture f=new Fixture();JsonObject proof=f.require();
+        Assert.assertEquals(13,row(f.target,4).size());Assert.assertTrue(row(f.target,4).get("updated").isJsonNull());
+        Assert.assertTrue(row(f.target,4).get("removed").isJsonNull());
+        for(JsonElement column:table(f.target,4).getAsJsonArray("columns")){
+            JsonObject c=column.getAsJsonObject();String name=c.get("name").getAsString();
+            if(List.of("created","updated","removed").contains(name))Assert.assertEquals(java.sql.Types.TIMESTAMP,c.get("type").getAsInt());
+            if("config_json".equals(name))Assert.assertEquals(java.sql.Types.LONGVARCHAR,c.get("type").getAsInt());
+        }
+        f.live=f.target.toString();Assert.assertEquals(StorageVerifiedNfsAclTargetRecovery.authority(proof),StorageVerifiedNfsAclTargetRecovery.authority(f.require()));
+        Fixture positive=new Fixture();row(positive.target,4).addProperty("updated",1000);
+        Assert.assertEquals("SOURCE",positive.require().get("databasePosition").getAsString());
+    }
+    private static void auditColumn(Fixture f,String name,Integer sqlType,boolean remove){
+        for(JsonObject snapshot:List.of(f.source,f.previous,f.target)){
+            JsonArray columns=table(snapshot,4).getAsJsonArray("columns");
+            for(int i=columns.size()-1;i>=0;i--){
+                JsonObject column=columns.get(i).getAsJsonObject();
+                if(name.equals(column.get("name").getAsString())){
+                    if(remove)columns.remove(i);else column.addProperty("type",sqlType);
+                }
+            }
+        }
+        if(remove)row(f.target,4).remove(name);
+        f.live=f.source.toString();
+    }
+    @Test public void legacyElevenPartialAuditPairAndUnknownColumnsNeverGainAuthority()throws Exception{
+        deny(f->{auditColumn(f,"updated",null,true);auditColumn(f,"removed",null,true);});
+        deny(f->auditColumn(f,"updated",null,true));deny(f->auditColumn(f,"removed",null,true));
+        deny(f->{
+            for(JsonObject snapshot:List.of(f.source,f.previous,f.target)){
+                JsonObject column=new JsonObject();column.addProperty("name","foreign_audit");column.addProperty("type",93);
+                table(snapshot,4).getAsJsonArray("columns").add(column);
+            }
+            row(f.target,4).add("foreign_audit",JsonNull.INSTANCE);f.live=f.source.toString();
+        });
+    }
+    @Test public void removedValueAndAuditSqlTypeOrUpdatedJsonTypesAreClosed()throws Exception{
+        for(String name:List.of("updated","removed")){
+            deny(f->auditColumn(f,name,java.sql.Types.BIGINT,false));
+            deny(f->auditColumn(f,name,java.sql.Types.VARCHAR,false));
+        }
+        deny(f->row(f.target,4).addProperty("removed",1002));
+        deny(f->row(f.target,4).addProperty("removed","null"));
+        deny(f->row(f.target,4).addProperty("updated",0));
+        deny(f->row(f.target,4).addProperty("updated",-1));
+        deny(f->row(f.target,4).addProperty("updated",1002.0));
+        deny(f->row(f.target,4).addProperty("updated","1002"));
+        deny(f->row(f.target,4).addProperty("updated",true));
     }
     @Test public void repeatedNormalVerifyTimestampKeepsTargetAuthorityButSourceTimestampIsImmutable()throws Exception{
         Fixture f=new Fixture();JsonObject original=StorageVerifiedNfsAclTargetRecovery.authority(f.require());
