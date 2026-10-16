@@ -22,6 +22,7 @@ LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack
 sys.path.insert(0,str(LIB))
 import ganesha_dbus as dbus_module
 from ganesha_dbus import GaneshaDbus
+from nfs_readiness import NfsEndpointReadiness
 
 class StorageGaneshaDbusTest(unittest.TestCase):
     def setUp(self):
@@ -107,7 +108,11 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             adapter.transition.return_value={'activationStrategy':'DBUS_DYNAMIC_UPDATE_VERIFIED','restartPerformed':False}
             commands=Mock();commands.which.side_effect=lambda name:'/usr/bin/ganesha.nfsd' if name=='ganesha.nfsd' else None
             network=Mock();network.create_connection.return_value.__enter__=Mock();network.create_connection.return_value.__exit__=Mock()
-            ns={'NfsEndpointReadiness':Mock(return_value=Mock(reuse=Mock(return_value=None))),'nfs_control_command':Mock(),'nfs_operation_deadline':time.monotonic()+30,'ganesha_remaining':lambda maximum=10:maximum,'rendered_context':(source,{}),'rendered_from_context':(source,{}),'Path':paths,'json':json,'os':os,'time':time,
+            readiness=NfsEndpointReadiness(time.monotonic()+30,GaneshaDbus,Mock(),config_root=directory)
+            identity={"pid":123,"startTicks":"456","configurationSha256":"a"*64}
+            readiness.snapshot=Mock(return_value=(identity,config))
+            readiness.reuse=Mock(return_value=None);readiness.remember=Mock();readiness.wait=Mock()
+            ns={'NfsEndpointReadiness':Mock(return_value=readiness),'nfs_control_command':Mock(),'nfs_operation_deadline':time.monotonic()+30,'ganesha_remaining':lambda maximum=10:maximum,'rendered_context':(source,{}),'rendered_from_context':(source,{}),'Path':paths,'json':json,'os':os,'time':time,
                 'subprocess':process,'GaneshaDbus':Mock(return_value=adapter),'shutil':commands,'socket':network,'ganesha_run_dir':str(run),
                 'root_maintenance_nfs_boundary':lambda:False,'stop_owned_rendered_ganesha':Mock(side_effect=AssertionError('unexpected stop')),'stop_default_ganesha_service':Mock(side_effect=AssertionError('default restart')),'stop_ganesha_endpoints':Mock(),
                 'ensure_ganesha_runtime_dirs':Mock(),'ensure_rpcbind_started':lambda:True,'managed_ganesha_process':lambda pid:True,
@@ -116,6 +121,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             result=ns['start_ganesha_endpoints']([(key,str(conf),'10.10.13.240',2049,'V4_ONLY')])
             self.assertEqual('DBUS_DYNAMIC_UPDATE_VERIFIED',result[0]['activationStrategy']);self.assertFalse(result[0]['restartPerformed'])
             self.assertEqual(before,pidfile.stat());adapter.transition.assert_called_once()
+            self.assertEqual(2,readiness.snapshot.call_count);readiness.wait.assert_called_once()
             self.assertEqual(['show'],[call.args[0][1] for call in process.run.call_args_list])
 
     def test_legacy_bus_fallback_requires_same_pid_and_prefix_only_change_keeps_global_policy(self):

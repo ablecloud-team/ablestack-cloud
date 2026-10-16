@@ -409,6 +409,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                     "PROBE_DEADLINE", "PROBING", "PROBE_PERMISSION_DENIED", "PROBE_NOT_READY", "MOUNT_FAILED",
                     "PROBE_TIMEOUT", "PROBE_OBSERVATION_FAILED", "CLEANUP_TIMEOUT", "CLEANUP_OBSERVATION_FAILED",
                     "CLEANUP_PENDING", "PROBE_CHECKPOINT_FAILED", "ENDPOINT_IDENTITY_CHANGED", "EXPORT_INVENTORY_NOT_READY",
+                    "ENDPOINT_LISTENER_NOT_READY", "EXPORT_BINDING_MISMATCH",
                     "NFS_RUNTIME_DEADLINE", "NFS_RUNTIME_NOT_READY", "RPC_REGISTRATION_NOT_READY", "NFS_BOOT_DETAIL_UNVERIFIED");
             if (!nfsDiagnosticText(failure, "protocol", false) || !"NFS".equals(failure.get("protocol").getAsString())
                     || !nfsDiagnosticText(failure, "phase", false)

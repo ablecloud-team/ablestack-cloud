@@ -481,6 +481,16 @@ class NfsEndpointReadiness:
         return {"bootId": self.records.boot_id, "configurationSha256": hashlib.sha256(data).hexdigest(),
                 "pid": pid, "startTicks": ticks}, data.decode()
 
+    def listener_deadline(self, configuration, pid, rendered=False):
+        identity, content = self.snapshot(configuration, pid, rendered)
+        # Ganesha initializes CLIENT policies before opening its listener. Use
+        # the exact protected serializer's clients (expanded principals are a
+        # conservative upper bound on CLIENT blocks), not only export count.
+        clients = sum(len(row["clients"]) for row in self.adapter_type.configuration(content)["exports"])
+        # Share the caller's total deadline; keep five seconds for its existing
+        # stop/rollback cleanup. Waiting does not restart a healthy initializer.
+        return min(self.deadline - 5, time.monotonic() + 15 + 2 * clients), identity
+
     def path(self, key):
         if not key or any(char not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-" for char in key):
             raise ValueError("NFS endpoint unit key is invalid")
