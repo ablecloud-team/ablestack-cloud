@@ -5335,14 +5335,66 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             request.addProperty("instanceUuid", instance.getUuid());request.addProperty("operationUuid", operation.getUuid());
             request.addProperty("revision", operation.getRevision());
         }
-        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                "operation generation " + action, operation == null ? "" : request.toString(), 30, Collections.emptySet()));
-        JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
-        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed, "success"))
-                || !Boolean.TRUE.equals(getJsonBoolean(observed, "generationSupported"))) {
-            throw new CloudRuntimeException("Native configuration generation " + action + " failed");
+        final String payload = operation == null ? "" : request.toString();
+        final boolean retryBegin = "begin".equals(action) && operation != null;
+        final long deadline = retryBegin ? rollbackNativeWriterNowNanos() + java.util.concurrent.TimeUnit.SECONDS.toNanos(30) : 0;
+        final long instanceId = instance.getId(), operationId = operation == null ? 0 : operation.getId();
+        final Long vmId = instance.getVmId();
+        final String instanceUuid = instance.getUuid(), operationUuid = operation == null ? null : operation.getUuid();
+        final long revision = operation == null ? 0 : operation.getRevision();
+        final String phase = operation == null ? null : operation.getPhase(), state = operation == null ? null : operation.getState();
+        final String previous = operation == null ? null : operation.getPreviousSnapshotJson();
+        final Runnable sameBeginOwner = () -> {
+            if (Thread.currentThread().isInterrupted() || operation == null || storageWriterOperation.get() != operation
+                    || instanceId <= 0 || operationId <= 0 || revision <= 0 || vmId == null
+                    || StringUtils.isBlank(instanceUuid) || StringUtils.isBlank(operationUuid) || StringUtils.isBlank(phase)
+                    || !("RUNNING".equals(state) || "RECOVERY_REQUIRED".equals(state))
+                    || instance.getId() != instanceId || !java.util.Objects.equals(instance.getVmId(), vmId)
+                    || !java.util.Objects.equals(instance.getUuid(), instanceUuid) || operation.getId() != operationId
+                    || operation.getInstanceId() != instanceId || operation.getRevision() != revision
+                    || !java.util.Objects.equals(operation.getUuid(), operationUuid)
+                    || !java.util.Objects.equals(operation.getPhase(), phase) || !java.util.Objects.equals(operation.getState(), state)
+                    || !java.util.Objects.equals(operation.getPreviousSnapshotJson(), previous)) {
+                throw new CloudRuntimeException("Native generation begin writer scope changed; begin is not retried");
+            }
+        };
+        for (int attempt = 1; ; attempt++) {
+            int timeout = 30;
+            if (attempt > 1) {
+                sameBeginOwner.run();
+                long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(deadline - rollbackNativeWriterNowNanos());
+                if (seconds < 1) throw new CloudRuntimeException("Native generation begin busy retry deadline expired");
+                timeout = (int) Math.min(30, seconds);
+            }
+            StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(vmId,
+                    "operation generation " + action, payload, timeout, Collections.emptySet()));
+            if (retryBegin && isClosedNativeWriterBusy(result)) {
+                // This exact native result is emitted before the handler and before pending state can be written.
+                sameBeginOwner.run();
+                long now = rollbackNativeWriterNowNanos();
+                if (attempt >= 4 || deadline - now < java.util.concurrent.TimeUnit.SECONDS.toNanos(1))
+                    throw new CloudRuntimeException("Native generation begin remained busy within its bounded retry limit");
+                requireRollbackNativeWriterIdle(instance, Math.min(deadline, now + java.util.concurrent.TimeUnit.SECONDS.toNanos(15)));
+                sameBeginOwner.run();
+                long seconds = java.util.concurrent.TimeUnit.NANOSECONDS.toSeconds(deadline - rollbackNativeWriterNowNanos());
+                if (seconds < 1) throw new CloudRuntimeException("Native generation begin busy retry deadline expired");
+                JsonObject fresh = rootGuest(instance, "operation generation status", new JsonObject(), (int) Math.min(30, seconds));
+                if (fresh == null || !Boolean.TRUE.equals(getNativeBoolean(fresh, "success"))
+                        || !Boolean.TRUE.equals(getNativeBoolean(fresh, "generationSupported"))
+                        || !fresh.has("pendingOperationUuid") || !fresh.get("pendingOperationUuid").isJsonNull())
+                    throw new CloudRuntimeException("Native generation pending state is not absent; begin is not retried");
+                sameBeginOwner.run();
+                requireNoOperationCancellation(operation);
+                sameBeginOwner.run();
+                continue;
+            }
+            JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result == null ? null : result.getResultJson()));
+            if (result == null || !result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed, "success"))
+                    || !Boolean.TRUE.equals(getJsonBoolean(observed, "generationSupported"))) {
+                throw new CloudRuntimeException("Native configuration generation " + action + " failed");
+            }
+            return observed;
         }
-        return observed;
     }
     private void rollbackNativeConfigurationGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if(operation!=null){

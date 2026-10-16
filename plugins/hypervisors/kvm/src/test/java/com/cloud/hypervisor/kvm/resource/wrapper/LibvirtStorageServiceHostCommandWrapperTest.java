@@ -798,6 +798,115 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         return new StorageServiceHostCommand("public-test-vm", operation, "{}", 120, java.util.Set.of("chapSecret", "mutualChapSecret"));
     }
 
+
+    private String actualNfsPublicFailure() throws Exception {
+        java.nio.file.Path source = java.nio.file.Paths.get(System.getProperty("basedir"),
+                "../../../systemvm/debian/usr/local/lib/ablestack-storage/nfs_readiness.py").normalize();
+        String program = String.join("\n",
+                "import ast,json,sys",
+                "tree=ast.parse(open(sys.argv[1]).read())",
+                "cls=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=='NfsProbeRunner')",
+                "method=next(n for n in cls.body if isinstance(n,ast.FunctionDef)and n.name=='failure')",
+                "cls.body=[method];scope={}",
+                "exec(compile(ast.Module(body=[cls],type_ignores=[]),'<actual-native-public-failure>','exec'),scope)",
+                "failure=scope['NfsProbeRunner'].__new__(scope['NfsProbeRunner']).failure('PROBE_TIMEOUT',",
+                " {'listenIp':'192.0.2.7','port':2049},{'uuid':'11111111-1111-4111-8111-111111111111','name':'SYNTH_PRIVATE_EXPORT_NAME'},'NFSv4',cleanup=True,active=True)",
+                "print(json.dumps({'success':False,'runtimeReady':True,'completedProbeCount':2,'totalProbeCount':15,'probePending':1,'skippedAclCount':0,'lastFailure':failure,'privateBody':'SYNTH_PRIVATE_BODY'},sort_keys=True,separators=(',',':')))");
+        Process process = new ProcessBuilder("python3", "-c", program, source.toString()).redirectErrorStream(true).start();
+        if (!process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS)) {
+            process.destroyForcibly();Assert.fail("Pure native failure producer exceeded local deadline");
+        }
+        String value = new String(process.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
+        Assert.assertEquals(value, 0, process.exitValue());return value;
+    }
+
+    private StorageServiceHostCommand nfsDiagnosticCommand() {
+        return new StorageServiceHostCommand("same-vm", "nfs export apply", "{}", 30, Collections.emptySet());
+    }
+
+    @Test public void actualNativeNfsFailureProducesOnlyClosedContextAndCleanupDiagnostic() throws Exception {
+        String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, actualNfsPublicFailure(), "");
+        Assert.assertTrue(detail.contains("NFS phase=PROBE_EXPORTS; code=PROBE_TIMEOUT"));
+        Assert.assertTrue(detail.contains("timedOut=true"));Assert.assertTrue(detail.contains("retryable=true"));
+        Assert.assertTrue(detail.contains("cleanupComplete=false"));Assert.assertTrue(detail.contains("childActive=true"));
+        Assert.assertTrue(detail.contains("mountPresent=true"));Assert.assertTrue(detail.contains("endpointIp=192.0.2.7"));
+        Assert.assertTrue(detail.contains("endpointPort=2049"));Assert.assertTrue(detail.contains("exportUuid=11111111-1111-4111-8111-111111111111"));
+        Assert.assertTrue(detail.contains("protocolMode=NFS4"));Assert.assertTrue(detail.contains("completedProbes=2"));
+        Assert.assertTrue(detail.contains("totalProbes=15"));Assert.assertTrue(detail.contains("pendingProbes=1"));
+        Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));Assert.assertFalse(detail.contains("lastFailure"));
+    }
+
+    @Test public void nullableNativeNfsFailureContextKeepsUnknownContextUninvented() throws Exception {
+        com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(actualNfsPublicFailure()).getAsJsonObject();
+        com.google.gson.JsonObject failure = value.getAsJsonObject("lastFailure");
+        for (String key : new String[]{"endpointIp", "endpointPort", "exportUuid", "exportName", "protocolMode"}) failure.add(key, com.google.gson.JsonNull.INSTANCE);
+        failure.addProperty("code", "NFS_RUNTIME_NOT_READY");failure.addProperty("phase", "WAIT_RUNTIME_READY");
+        String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "");
+        Assert.assertTrue(detail.contains("code=NFS_RUNTIME_NOT_READY"));Assert.assertFalse(detail.contains("endpointIp="));
+        Assert.assertFalse(detail.contains("endpointPort="));Assert.assertFalse(detail.contains("exportUuid="));
+        Assert.assertFalse(detail.contains("protocolMode="));Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));
+    }
+
+    @Test public void malformedNfsPublicFailureValuesNeverLeakOrClaimValidatedContext() throws Exception {
+        String original = actualNfsPublicFailure();
+        for (String[] edit : new String[][]{{"code","SYNTH_PRIVATE_CODE"},{"protocol","SMB"},{"phase","SYNTH_PRIVATE_PHASE"},
+                {"endpointIp","192.0.2.7;SYNTH_PRIVATE_IP"},{"endpointIp","256.1.2.3"},{"exportUuid","SYNTH_PRIVATE_UUID"},{"protocolMode","SYNTH_PRIVATE_MODE"}}) {
+            com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(original).getAsJsonObject();
+            value.getAsJsonObject("lastFailure").addProperty(edit[0], edit[1]);
+            String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "");
+            Assert.assertTrue(detail.endsWith("No guest diagnostic"));Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));
+        }
+        for (String[] edit : new String[][]{{"endpointPort","\"2049\""},{"endpointPort","65536"},{"endpointPort","-1"},
+                {"endpointPort","2049.5"},{"timedOut","\"true\""},{"retryable","1"}}) {
+            com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(original).getAsJsonObject();
+            value.getAsJsonObject("lastFailure").add(edit[0], com.google.gson.JsonParser.parseString(edit[1]));
+            Assert.assertTrue(wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "").endsWith("No guest diagnostic"));
+        }
+    }
+
+    @Test public void unknownDuplicateOrNonObjectNfsFailureIsClosedWithoutBodyFallback() throws Exception {
+        String original = actualNfsPublicFailure();
+        com.google.gson.JsonObject extra = com.google.gson.JsonParser.parseString(original).getAsJsonObject();
+        extra.getAsJsonObject("lastFailure").addProperty("privateBody", "SYNTH_PRIVATE_BODY");
+        com.google.gson.JsonObject malformed = com.google.gson.JsonParser.parseString(original).getAsJsonObject();
+        malformed.addProperty("lastFailure", "SYNTH_PRIVATE_BODY");
+        for (String value : new String[]{extra.toString(), malformed.toString(),
+                original.replace("\"code\":\"PROBE_TIMEOUT\"", "\"code\":\"PROBE_TIMEOUT\",\"code\":\"PROBE_TIMEOUT\""),
+                original.replace("\"complete\":false", "\"complete\":false,\"complete\":false")}) {
+            String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value, "");
+            Assert.assertTrue(detail.endsWith("No guest diagnostic"));Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));
+        }
+    }
+
+    @Test public void sensitiveNfsPayloadRetainsOriginalMaskEvenWithValidPublicFailure() throws Exception {
+        StorageServiceHostCommand sensitive = new StorageServiceHostCommand("same-vm", "nfs export apply", "SYNTH_PRIVATE_REQUEST", 30, Collections.singleton("secret"));
+        String detail = wrapper.commandFailureDetails(sensitive, 1, actualNfsPublicFailure(), "SYNTH_PRIVATE_STDERR");
+        Assert.assertEquals("Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted", detail);
+    }
+
+    @Test public void legacyGuestMessageErrorCodeStderrAndNonNfsSemanticsRemainUnchanged() throws Exception {
+        com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(actualNfsPublicFailure()).getAsJsonObject();
+        value.addProperty("message", "legacy-message");
+        Assert.assertEquals("Storage Service command failed with exit code 1: legacy-message", wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), ""));
+        value.addProperty("errorCode", "LEGACY_CODE");
+        Assert.assertEquals("Storage Service command failed with exit code 1: LEGACY_CODE: legacy-message", wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), ""));
+        Assert.assertEquals("Storage Service command failed with exit code 1: legacy-stderr", wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "legacy-stderr"));
+        StorageServiceHostCommand smb = new StorageServiceHostCommand("same-vm", "smb share apply", "{}", 30, Collections.emptySet());
+        Assert.assertTrue(wrapper.commandFailureDetails(smb, 1, actualNfsPublicFailure(), "").endsWith("No guest diagnostic"));
+    }
+
+    @Test public void actualGuestExitRetainsStructuredResultJsonAndSurfacesOnlyClosedNfsSummary() throws Exception {
+        String stdout = actualNfsPublicFailure();
+        org.libvirt.Domain domain = org.mockito.Mockito.mock(org.libvirt.Domain.class);
+        com.google.gson.JsonObject returned = new com.google.gson.JsonObject();returned.addProperty("exited", true);returned.addProperty("exitcode", 1);
+        returned.addProperty("out-data", java.util.Base64.getEncoder().encodeToString(stdout.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        com.google.gson.JsonObject response = new com.google.gson.JsonObject();response.add("return", returned);
+        org.mockito.Mockito.when(domain.qemuAgentCommand(org.mockito.Mockito.anyString(), org.mockito.Mockito.anyInt(), org.mockito.Mockito.eq(0))).thenReturn(response.toString());
+        com.cloud.agent.api.StorageServiceHostAnswer answer = (com.cloud.agent.api.StorageServiceHostAnswer) wrapper.waitForGuestCommand(nfsDiagnosticCommand(), domain, 51);
+        Assert.assertFalse(answer.getResult());Assert.assertEquals(stdout, answer.getResultJson());
+        Assert.assertTrue(answer.getDetails().contains("code=PROBE_TIMEOUT"));Assert.assertFalse(answer.getDetails().contains("SYNTH_PRIVATE"));
+    }
+
     private String fixedIscsiFailure() {
         return "{\"success\":false,\"kind\":\"ISCSI_TARGETCLI_COMMAND_FAILED\",\"stage\":\"TARGET_CREATE\",\"returnCode\":1,\"category\":\"TYPE_ERROR\"}";
     }

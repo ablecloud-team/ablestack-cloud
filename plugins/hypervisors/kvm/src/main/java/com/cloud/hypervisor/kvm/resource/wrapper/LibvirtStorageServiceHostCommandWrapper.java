@@ -368,8 +368,130 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 if (result.has("errorCode") && result.get("errorCode").isJsonPrimitive()) diagnostic=result.get("errorCode").getAsString()+": "+diagnostic;
             } catch (RuntimeException unavailable) { diagnostic="No structured guest diagnostic"; }
         }
-        if (diagnostic == null || diagnostic.trim().isEmpty()) diagnostic="No guest diagnostic";
+        if (diagnostic == null || diagnostic.trim().isEmpty()) {
+            final String fixed = "nfs export apply".equals(command.getOperation()) ? fixedNfsFailureDiagnostic(stdout) : null;
+            diagnostic = fixed == null ? "No guest diagnostic" : fixed;
+        }
         return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
+    }
+
+    private String fixedNfsFailureDiagnostic(String stdout) {
+        if (stdout == null || stdout.length() > 1024 * 1024) return null;
+        final java.util.Set<String> countFields = java.util.Set.of("completedProbeCount", "totalProbeCount", "probePending", "skippedAclCount");
+        final JsonObject counters = new JsonObject();
+        JsonObject failure = null;
+        try (JsonReader reader = new JsonReader(new StringReader(stdout))) {
+            reader.setLenient(false);reader.beginObject();java.util.Set<String> seen = new java.util.HashSet<>();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (!seen.add(name)) return null;
+                if ("lastFailure".equals(name)) {
+                    failure = readNfsDiagnosticObject(reader, false);
+                } else if (countFields.contains(name)) {
+                    if (reader.peek() != JsonToken.NUMBER) return null;
+                    String number = reader.nextString();
+                    if (!number.matches("[0-9]{1,7}")) return null;
+                    int count = Integer.parseInt(number);
+                    if (count > 1_000_000) return null;
+                    counters.addProperty(name, count);
+                } else if ("runtimeReady".equals(name) || "success".equals(name)) {
+                    if (reader.peek() != JsonToken.BOOLEAN) return null;
+                    boolean value = reader.nextBoolean();
+                    if ("success".equals(name) && value) return null;
+                    if ("runtimeReady".equals(name)) counters.addProperty(name, value);
+                } else {
+                    reader.skipValue();
+                }
+            }
+            reader.endObject();
+            if (reader.peek() != JsonToken.END_DOCUMENT || failure == null) return null;
+            final java.util.Set<String> codes = java.util.Set.of("PROBE_PROGRESS_UNAVAILABLE", "PROBE_CHILD_UNOBSERVABLE",
+                    "PROBE_DEADLINE", "PROBING", "PROBE_PERMISSION_DENIED", "PROBE_NOT_READY", "MOUNT_FAILED",
+                    "PROBE_TIMEOUT", "PROBE_OBSERVATION_FAILED", "CLEANUP_TIMEOUT", "CLEANUP_OBSERVATION_FAILED",
+                    "CLEANUP_PENDING", "PROBE_CHECKPOINT_FAILED", "ENDPOINT_IDENTITY_CHANGED", "EXPORT_INVENTORY_NOT_READY",
+                    "NFS_RUNTIME_DEADLINE", "NFS_RUNTIME_NOT_READY", "RPC_REGISTRATION_NOT_READY", "NFS_BOOT_DETAIL_UNVERIFIED");
+            if (!nfsDiagnosticText(failure, "protocol", false) || !"NFS".equals(failure.get("protocol").getAsString())
+                    || !nfsDiagnosticText(failure, "phase", false)
+                    || !java.util.Set.of("WAIT_RUNTIME_READY", "PROBE_ENDPOINTS", "PROBE_EXPORTS").contains(failure.get("phase").getAsString())
+                    || !nfsDiagnosticText(failure, "code", false) || !codes.contains(failure.get("code").getAsString())
+                    || !nfsDiagnosticText(failure, "endpointIp", true) || !nfsDiagnosticText(failure, "exportUuid", true)
+                    || !nfsDiagnosticText(failure, "exportName", true) || !nfsDiagnosticText(failure, "protocolMode", true)) return null;
+            for (String name : new String[]{"timedOut", "retryable"}) {
+                if (!failure.get(name).isJsonPrimitive() || !failure.getAsJsonPrimitive(name).isBoolean()) return null;
+            }
+            if (!failure.get("endpointPort").isJsonNull()) {
+                if (!failure.get("endpointPort").isJsonPrimitive() || !failure.getAsJsonPrimitive("endpointPort").isNumber()
+                        || failure.get("endpointPort").getAsLong() < 1 || failure.get("endpointPort").getAsLong() > 65535) return null;
+            }
+            if (!failure.get("endpointIp").isJsonNull()) {
+                String[] octets = failure.get("endpointIp").getAsString().split("\\.", -1);
+                if (octets.length != 4) return null;
+                for (String octet : octets) {
+                    if (!octet.matches("[0-9]{1,3}") || Integer.parseInt(octet) > 255
+                            || !Integer.toString(Integer.parseInt(octet)).equals(octet)) return null;
+                }
+            }
+            if (!failure.get("exportUuid").isJsonNull()) {
+                String value = failure.get("exportUuid").getAsString();
+                if (!value.matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")
+                        || !java.util.UUID.fromString(value).toString().equals(value)) return null;
+            }
+            if (!failure.get("protocolMode").isJsonNull()
+                    && !java.util.Set.of("NFS3", "NFS4").contains(failure.get("protocolMode").getAsString())) return null;
+            if (counters.has("completedProbeCount") && counters.has("totalProbeCount")
+                    && counters.get("completedProbeCount").getAsInt() > counters.get("totalProbeCount").getAsInt()) return null;
+            JsonObject cleanup = failure.getAsJsonObject("cleanup");
+            String result = "NFS phase=" + failure.get("phase").getAsString() + "; code=" + failure.get("code").getAsString()
+                    + "; timedOut=" + failure.get("timedOut").getAsBoolean() + "; retryable=" + failure.get("retryable").getAsBoolean()
+                    + "; cleanupComplete=" + cleanup.get("complete").getAsBoolean() + "; childActive=" + cleanup.get("childActive").getAsBoolean()
+                    + "; mountPresent=" + cleanup.get("mountPresent").getAsBoolean();
+            for (String name : new String[]{"endpointIp", "endpointPort", "exportUuid", "protocolMode"}) {
+                if (!failure.get(name).isJsonNull()) result += "; " + name + "=" + failure.get(name).getAsString();
+            }
+            for (String[] field : new String[][]{{"runtimeReady", "runtimeReady"}, {"completedProbeCount", "completedProbes"},
+                    {"totalProbeCount", "totalProbes"}, {"probePending", "pendingProbes"}, {"skippedAclCount", "skippedAcl"}}) {
+                if (counters.has(field[0])) result += "; " + field[1] + "=" + counters.get(field[0]).getAsString();
+            }
+            return result;
+        } catch (java.io.IOException | RuntimeException unavailable) {
+            return null;
+        }
+    }
+
+    private boolean nfsDiagnosticText(JsonObject value, String name, boolean nullable) {
+        return nullable && value.get(name).isJsonNull()
+                || value.get(name).isJsonPrimitive() && value.getAsJsonPrimitive(name).isString();
+    }
+
+    private JsonObject readNfsDiagnosticObject(JsonReader reader, boolean cleanup) throws java.io.IOException {
+        final java.util.Set<String> fields = cleanup ? java.util.Set.of("complete", "childActive", "mountPresent")
+                : java.util.Set.of("protocol", "phase", "endpointIp", "endpointPort", "exportUuid", "exportName",
+                        "protocolMode", "code", "timedOut", "retryable", "cleanup");
+        JsonObject value = new JsonObject();reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            if (!fields.contains(name) || value.has(name)) throw new IllegalArgumentException();
+            if (!cleanup && "cleanup".equals(name)) {
+                value.add(name, readNfsDiagnosticObject(reader, true));
+            } else if (reader.peek() == JsonToken.NULL && !cleanup) {
+                reader.nextNull();value.add(name, com.google.gson.JsonNull.INSTANCE);
+            } else if (reader.peek() == JsonToken.BOOLEAN) {
+                value.addProperty(name, reader.nextBoolean());
+            } else if (!cleanup && reader.peek() == JsonToken.STRING) {
+                String text = reader.nextString();
+                if (text.length() > 256) throw new IllegalArgumentException();
+                value.addProperty(name, text);
+            } else if (!cleanup && reader.peek() == JsonToken.NUMBER) {
+                String number = reader.nextString();
+                if (!number.matches("-?[0-9]{1,10}")) throw new IllegalArgumentException();
+                value.addProperty(name, Long.parseLong(number));
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        reader.endObject();
+        if (!value.keySet().equals(fields)) throw new IllegalArgumentException();
+        return value;
     }
 
     private String fixedIscsiFailureDiagnostic(String stdout) {
