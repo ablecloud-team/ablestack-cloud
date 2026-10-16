@@ -81,6 +81,260 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         return {**self.request,"capsule":result["capsule"],"credentialPrivateKey":self.pem(self.newkey),
             "localSourceCheckpointReference":result["localSourceCheckpointReference"],"deferNvmeReplay":True,"restoreDomains":["SMB"]}
 
+    def verified_unconfigured_source(self):
+        # Actual first-SMB source: a verified NFS generation, no SAM or daemon.
+        # Keep the real inspect/session implementations, including smbstatus's
+        # observed unconfigured wire shape (open_files is absent).
+        for path in self.private.values():path.unlink()
+        self.active=False;self.active_units.clear()
+        self.handler.database_identity=lambda:{label:{"path":path,"present":False}for label,path in module.IDENTITY_DATABASES.items()}
+        self.handler.sessions=fixture.smb_identity.SmbIdentity.sessions.__get__(self.handler)
+        config=self.root/"unconfigured-smb.conf";config.write_bytes(b"PUBLIC FIXTURE CONFIG");config.chmod(0o644)
+        boot=self.root/"boot-id";boot.write_text(self.boot)
+        original_path=Path
+        def path(value):
+            return config if str(value)=="/etc/samba/smb.conf" else boot if str(value)=="/proc/sys/kernel/random/boot_id" else original_path(value)
+        mapping=patch.object(fixture.smb_identity,"Path",side_effect=path)
+        mapping.start();self.addCleanup(mapping.stop)
+        self.native.reader=lambda value,*args:capsule.regular_file(config if str(value)=="/etc/samba/smb.conf"else value,*args)
+        self.native.observe=module.SmbSourceCheckpoint.observe.__get__(self.native)
+        self.native.stopped_observation=module.SmbSourceCheckpoint.stopped_observation.__get__(self.native)
+        self.native.collector=lambda names,hosts,**kwargs:{**self.empty_payload(),"posixPolicies":{}}
+        original_run=self.handler.run
+        def run(args):
+            self.calls.append(args)
+            if args[0]=="smbstatus":return json.dumps({"sessions":{},"tcons":{}})
+            if args[:2]==["systemctl","show"]and args[-2:]==["--property=MainPID","--value"]:return "0\n"
+            return original_run(args)
+        self.handler.run=run
+        return config
+
+    def test_verified_unconfigured_source_missing_open_files_exports_without_smbstatus_or_signals(self):
+        config=self.verified_unconfigured_source()
+        before=(self.gen.digest(),config.read_bytes())
+        result=self.native.export(self.export_request)
+        self.assertTrue(result["sourceSmbResumed"]);self.assertEqual(0,result["priorActiveUnitCount"])
+        self.assertEqual(before,(self.gen.digest(),config.read_bytes()))
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+        self.assertFalse(any(args[0]=="smbstatus"for args in self.calls))
+        self.assertTrue(all(not path.exists()for path in self.private.values()))
+
+    def test_verified_unconfigured_source_original_import_stop_rechecks_absence(self):
+        self.verified_unconfigured_source()
+        # Seed the original cache independently so the old import-stop path is
+        # exercised even when the first-export regression also fails.
+        with patch.object(self.handler,"sessions",return_value={"safeToRebind":True}):
+            result=self.native.export(self.export_request)
+        observed=self.native.import_source(self.imported_request(result))
+        self.assertTrue(observed["sourceIdentityRestored"]);self.assertTrue(observed["sourceRuntimeVerified"])
+        self.assertTrue(self.native.status(self.request)["sourceSmbResumed"])
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+        self.assertFalse(any(args[0]=="smbstatus"for args in self.calls))
+        self.assertTrue(all(not path.exists()for path in self.private.values()))
+
+    def test_unconfigured_stop_fresh_foreign_presence_is_not_empty_session_authority(self):
+        self.verified_unconfigured_source()
+        original=self.native.write
+        def write(scope,kind,value,**kwargs):
+            result=original(scope,kind,value,**kwargs)
+            if kind=="journal"and value.get("phase")=="QUIESCING":
+                self.handler.identity_holders=lambda:[{"pid":999}]
+            return result
+        self.native.write=write
+        with self.assertRaisesRegex(ValueError,"holder"):self.native.export(self.export_request)
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+        self.assertEqual("RECOVERY_REQUIRED",self.native.read(self.native.path(self.request,"journal"))["phase"])
+
+    def test_unconfigured_stop_changed_source_canonical_does_not_reuse_absence(self):
+        self.verified_unconfigured_source()
+        original=self.native.write
+        def write(scope,kind,value,**kwargs):
+            result=original(scope,kind,value,**kwargs)
+            if kind=="journal"and value.get("phase")=="QUIESCING":
+                generation.atomic_json(self.config/"desired-state/smb-share-apply.json",{"enabled":False})
+            return result
+        self.native.write=write
+        with self.assertRaisesRegex(ValueError,"canonical seven"):self.native.export(self.export_request)
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+
+    def test_unconfigured_stop_unknown_fresh_absence_and_permission_errors_fail_closed(self):
+        self.verified_unconfigured_source()
+        original=self.handler.inspect
+        for failure in ("missing-kind","unknown-sessions","foreign-boot","foreign-generation","PermissionError","OSError"):
+            with self.subTest(failure=failure):
+                def inspect(*args,**kwargs):
+                    if failure=="PermissionError":raise PermissionError()
+                    if failure=="OSError":raise OSError(5,"synthetic")
+                    view=original(*args,**kwargs)
+                    if failure=="missing-kind":view.pop("identityBaselineKind")
+                    if failure=="unknown-sessions":view["sessions"]["openFileCount"]=None
+                    if failure=="foreign-boot":view["bootId"]=str(uuid.uuid4())
+                    if failure=="foreign-generation":view["generation"]={}
+                    return view
+                before=self.native.stopped_observation()
+                with patch.object(self.handler,"inspect",side_effect=inspect),self.assertRaises((ValueError,PermissionError,OSError)):
+                    self.native.stable_sessions_empty(self.request,before)
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+
+    def test_empty_rows_without_verified_unconfigured_source_still_require_smbstatus(self):
+        self.verified_unconfigured_source()
+        before=self.native.stopped_observation()
+        with self.assertRaisesRegex(ValueError,"session/byte-lock"):
+            self.handler.sessions([],[])
+        for mode in ("initial","configured"):
+            with self.subTest(mode=mode):
+                request=copy.deepcopy(self.request)
+                if mode=="initial":request["sourceGeneration"]={}
+                else:
+                    self.desired["desired-state/smb-share-apply.json"]={"enabled":False,"shares":[]}
+                    self.update_source()
+                    request=copy.deepcopy(self.request)
+                with self.assertRaisesRegex(ValueError,"session/byte-lock"):
+                    self.native.stable_sessions_empty(request,before)
+
+    def historical_unconfigured_cli(self):
+        import ast
+        current=fixture.CLI.read_bytes();original=current
+        for label in("PYIDENTITY","PYRENDEREDGENERATION"):
+            begin=("<<'"+label+"'\n").encode();end=("\n"+label+"\n").encode()
+            start=original.index(begin)+len(begin);finish=original.index(end,start);block=original[start:finish]
+            tree=ast.parse(block.decode());cls=next(node for node in tree.body if isinstance(node,ast.ClassDef)and node.name=="SmbSourceCheckpoint")
+            lines=block.splitlines(keepends=True)
+            added={"stable_sessions_empty","unconfigured_stop_bridge_cli","unconfigured_stop_empty_identity","unconfigured_stop_bridge"}
+            for node in cls.body:
+                if isinstance(node,ast.FunctionDef)and node.name in added:
+                    raw=b"".join(lines[node.lineno-1:node.end_lineno])+b"\n"
+                    self.assertEqual(1,block.count(raw));block=block.replace(raw,b"",1)
+            block=b"".join(line for line in block.splitlines(keepends=True)if not line.startswith(b"LOCAL_UNCONFIGURED_STOP_BRIDGE_METHOD_SHA256="))
+            block=block.replace(b"\n\n\nLOCAL_SOURCE_FAILURE_STAGES",b"\n\nLOCAL_SOURCE_FAILURE_STAGES")
+            block=block.replace(b"            if not self.unconfigured_stop_bridge(value,journal):self.code_compatibility(value,journal)\n",
+                b"            self.code_compatibility(value,journal)\n")
+            block=block.replace(b"not self.stable_sessions_empty(value,before)",
+                b'self.handler.sessions(before["ownedEndpoints"],before["units"])["safeToRebind"]is not True')
+            block=block.replace(b"        if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():\n            self.unconfigured_stop_bridge(value,journal,payload)\n",b"")
+            original=original[:start]+block+original[finish:]
+        return original,current
+
+    def unconfigured_bridge_fixture(self):
+        self.verified_unconfigured_source()
+        captured=self.native.export(self.export_request)
+        original,current=self.historical_unconfigured_cli()
+        runtime=self.root/"bridge-runtime";runtime.mkdir(mode=0o700);(runtime/"releases").mkdir(mode=0o700)
+        installs=self.root/"bridge-installs";installs.mkdir(mode=0o700)
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+        from cryptography.hazmat.primitives import serialization
+        signer=Ed25519PrivateKey.generate()
+        keys=runtime/"trusted-keys";keys.mkdir(mode=0o700)
+        (keys/"bridge-fixture.pem").write_bytes(signer.public_key().public_bytes(serialization.Encoding.PEM,serialization.PublicFormat.SubjectPublicKeyInfo))
+        for version,raw in(("original-stop",original),("current-fixed",current)):
+            release=runtime/"releases"/version;release.mkdir(mode=0o700)
+            entry=release/"ablestack-storagectl";entry.write_bytes(raw);entry.chmod(0o755)
+            manifest={"bundleVersion":version,"keyId":"bridge-fixture","files":[{"path":"ablestack-storagectl",
+                "sha256":hashlib.sha256(raw).hexdigest(),"mode":"0755","owner":"root","group":"root"}]}
+            generation.atomic_json(release/"manifest.json",manifest)
+            tx=installs/("runtime-"+version);tx.mkdir(mode=0o700)
+            (tx/"manifest.json").write_bytes((release/"manifest.json").read_bytes())
+            (tx/"manifest.sig").write_bytes(signer.sign((tx/"manifest.json").read_bytes()))
+            generation.atomic_json(tx/"state.json",{"transactionId":tx.name,"bundleVersion":version,"releasePath":str(release),
+                "keyId":"bridge-fixture","phase":"COMPLETE","archiveSha256":"a"*64,
+                "manifestSha256":hashlib.sha256((tx/"manifest.json").read_bytes()).hexdigest()})
+        (runtime/"current").symlink_to(runtime/"releases/current-fixed")
+        self.native.runtime_root=runtime;self.native.installation_root=installs
+        self.native.cli=runtime/"releases/current-fixed/ablestack-storagectl"
+        journal=self.native.read(self.native.path(self.request,"journal"))
+        journal["cliSha256"]=hashlib.sha256(original).hexdigest();journal["phase"]="RECOVERY_REQUIRED"
+        self.native.write(self.request,"journal",journal)
+        pending=generation.read_json(self.gen.pending);pending["startedAt"]=1234
+        generation.atomic_json(self.gen.pending,pending)
+        return captured,journal,original,current
+
+    def test_known_unconfigured_bridge_status_mints_nothing_then_authenticated_import_restores(self):
+        captured,journal,original,current=self.unconfigured_bridge_fixture()
+        before={path.name:path.read_bytes()for path in self.native.root.glob("*.json")}
+        self.assertTrue(self.native.status(self.request)["sourceIdentityRestoreSupported"])
+        self.assertEqual(before,{path.name:path.read_bytes()for path in self.native.root.glob("*.json")})
+        bridge=self.native.path(self.request,"unconfigured-stop-code-compatibility")
+        self.assertFalse(bridge.exists())
+        result=self.native.import_source(self.imported_request(captured))
+        self.assertTrue(result["sourceIdentityRestored"]);self.assertTrue(result["sourceSmbResumed"])
+        receipt=self.native.read(bridge)
+        self.assertEqual("LOCAL_UNCONFIGURED_SOURCE_STOP_GUARD_COMPATIBILITY",receipt["kind"])
+        self.assertTrue(receipt["emptySmbIdentityAuthenticated"]);self.assertFalse(receipt["formatOrAccountMutationAuthorized"])
+        self.assertEqual(before[self.native.path(self.request,"cipher").name],self.native.path(self.request,"cipher").read_bytes())
+        saved=bridge.read_bytes()
+        self.assertTrue(self.native.import_source(self.imported_request(captured))["sourceIdentityRestored"])
+        self.assertEqual(saved,bridge.read_bytes())
+        self.assertFalse(self.signals);self.assertFalse(self.starts)
+
+    def test_known_unconfigured_bridge_rejects_unreviewed_whole_cli_and_method_changes(self):
+        original,current=self.historical_unconfigured_cli()
+        self.assertTrue(self.native.unconfigured_stop_bridge_cli(current,original))
+        changes=(current+b"\n# foreign shell header\n",
+            current.replace(b"    def stable_sessions_empty",b"    def unknown_stable_sessions_empty",1),
+            current.replace(b"accounts={",b"accounts = {",1),
+            current.replace(b"smb_endpoint_run() {",b"foreign_smb_endpoint_run() {",1),
+            current.replace(b"self._failure_stage=None",b"self._failure_stage='UNKNOWN'",1),
+            current.replace(b'pending.get("phase")',b'pending.get("foreignPhase")',1))
+        for changed in changes:
+            with self.subTest(hash=hashlib.sha256(changed).hexdigest()):
+                self.assertNotEqual(hashlib.sha256(current).hexdigest(),hashlib.sha256(changed).hexdigest())
+                with self.assertRaises(ValueError):self.native.unconfigured_stop_bridge_cli(changed,original)
+        with self.assertRaises(ValueError):self.native.unconfigured_stop_bridge_cli(current,original+b"\n# foreign original header\n")
+
+    def test_known_unconfigured_bridge_cannot_publish_from_read_or_export_requests(self):
+        captured,journal,_,_=self.unconfigured_bridge_fixture()
+        record=self.native.read(self.native.path(self.request,"cipher"));payload=self.native.decode(self.imported_request(captured),record)
+        for request in(self.request,self.export_request):
+            with self.subTest(fields=sorted(request)),self.assertRaises(ValueError):
+                self.native.unconfigured_stop_bridge(request,journal,payload)
+        self.assertFalse(self.native.path(self.request,"unconfigured-stop-code-compatibility").exists())
+
+    def test_known_unconfigured_bridge_rejects_nonempty_or_incomplete_authenticated_domains(self):
+        self.verified_unconfigured_source()
+        payload=self.empty_payload()
+        for mode in("file","missing-file","account","missing-account","ad"):
+            with self.subTest(mode=mode):
+                changed=copy.deepcopy(payload)
+                if mode=="file":
+                    raw=b"PUBLIC SYNTHETIC BODY";changed["files"]["/etc/ablestack-storage/smb-managed-identities.json"]={
+                        "data":base64.b64encode(raw).decode(),"sha256":hashlib.sha256(raw).hexdigest(),"mode":0o600,"uid":0,"gid":0}
+                if mode=="missing-file":changed["files"].pop("/etc/ablestack-storage/smb-managed-identities.json")
+                if mode=="account":changed["accounts"]["/etc/group"]=["fixture_group:x:1001:"]
+                if mode=="missing-account":changed["accounts"].pop("/etc/gshadow")
+                if mode=="ad":changed["adIdentity"]={}
+                with self.assertRaises(ValueError):self.native.unconfigured_stop_empty_identity(changed)
+
+    def test_known_unconfigured_bridge_rejects_source_boot_pending_target_and_collection_changes(self):
+        captured,journal,_,_=self.unconfigured_bridge_fixture()
+        for mode in("names","hosts","auth","source","scope","boot","target"):
+            with self.subTest(mode=mode):
+                changed=copy.deepcopy(journal);request=copy.deepcopy(self.request)
+                if mode=="names":changed["names"]=["fixture_user"]
+                if mode=="hosts":changed["nvmeHosts"]=["nqn.2026-01.fixture:host"]
+                if mode=="auth":changed["authReplayDomains"]=["ISCSI"]
+                if mode=="source":changed["sourceDesiredState"]["desired-state/smb-share-apply.json"]={}
+                if mode=="scope":request["operationUuid"]=str(uuid.uuid4())
+                if mode=="boot":request["expectedBootId"]=str(uuid.uuid4())
+                target=self.gen.root/(self.scope["operationUuid"]+".json")
+                if mode=="target":generation.atomic_json(target,{"phase":"VERIFIED"})
+                try:
+                    with self.assertRaises((ValueError,TypeError)):self.native.unconfigured_stop_bridge(request,changed)
+                finally:
+                    if mode=="target":target.unlink()
+        self.assertFalse(self.native.path(self.request,"unconfigured-stop-code-compatibility").exists())
+
+    def test_known_unconfigured_bridge_rejects_unsigned_receipt_foreign_current_identity_and_no_fd9(self):
+        captured,journal,_,_=self.unconfigured_bridge_fixture()
+        signature=self.native.installation_root/"runtime-original-stop"/"manifest.sig";raw=signature.read_bytes();signature.unlink()
+        with self.assertRaisesRegex(ValueError,"signed installation"):self.native.status(self.request)
+        signature.write_bytes(raw)
+        original=os.path.lexists
+        with patch.object(os.path,"lexists",side_effect=lambda path:str(path)=="/etc/ablestack-storage/smb-managed-identities.json"or original(path)):
+            with self.assertRaisesRegex(ValueError,"current SMB identity"):self.native.status(self.request)
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_WRITER_LOCK_FD":""}):
+            with self.assertRaises(ValueError):self.native.import_source(self.imported_request(captured))
+        self.assertFalse(self.native.path(self.request,"unconfigured-stop-code-compatibility").exists())
+
     def configured_generated_smb_source(self):
         import native_renderers
         import shutil
