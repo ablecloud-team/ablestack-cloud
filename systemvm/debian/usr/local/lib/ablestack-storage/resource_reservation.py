@@ -117,6 +117,8 @@ class ResourceReservation:
         return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"drainSupported":False,"logicalReservationOnly":True,
                 "reservationAcquired":bool(record and not expired),"scope":record.get("scope") if record else None,
                 "leaseExpiresAt":record.get("leaseExpiresAt") if record else None,"expired":expired,
+                "requirements":self.requirements(record) if record else None,
+                "bootId":self.boot_id,"leaseBootId":record.get("bootId") if record else None,
                 "observed":observed,"blockers":[]}
 
     def write(self,value):

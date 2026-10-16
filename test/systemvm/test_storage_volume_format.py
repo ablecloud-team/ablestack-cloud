@@ -28,6 +28,9 @@ import tempfile
 import subprocess
 import unittest
 import uuid
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"))
+import volume_formatter as formatter
 from unittest.mock import Mock
 
 SOURCE = Path(__file__).resolve().parents[2] / "systemvm/debian/usr/local/bin/ablestack-storagectl"
@@ -55,11 +58,14 @@ def formatter_namespace():
         phases.append(name)
     def recovery(code, message):
         raise RuntimeError(code)
+    owner={"instanceUuid":str(uuid.uuid4()),"managerOperationUuid":str(uuid.uuid4()),"managerRevision":1}
     ns = dict(requested_filesystem="xfs", operation=operation, device="/dev/verified-data",
-              expected_size=10 * (1 << 40), format_deadline=1500, volume_key='fixture-volume', resolved_device={'serial':'fixture-serial'}, shutil=Mock(which=Mock(return_value="/sbin/mkfs.xfs")),
+              expected_size=10 * (1 << 40), format_deadline=1500, volume_key=str(uuid.uuid4()), resolved_device={'serial':'fixture-serial'}, shutil=Mock(which=Mock(return_value="/sbin/mkfs.xfs")),
               run=Mock(return_value=subprocess.CompletedProcess(["wipefs"], 0, '{"signatures":[]}', "")),
               subprocess=command, time=clock, phase=phase, recovery=recovery,
-              blkid_value=lambda device, field: "xfs" if field == "TYPE" else "fs-uuid", json=__import__("json"), uuid=uuid, os=os, payload={"provisioningType":"SPARSE"})
+              blkid_value=lambda device, field: "xfs" if field == "TYPE" else "00000000-0000-4000-8000-000000000001", json=__import__("json"), uuid=uuid, os=os, payload={"provisioningType":"SPARSE",**owner}, current_boot=str(uuid.uuid4()),
+              volume_format_owner=formatter.volume_format_owner,
+              volume_capture_formatter=lambda pid,args,device,boot:{"startTicks":123,"bootId":boot,"pid":pid})
     exec(compile(ast.Module(body=[node], type_ignores=[]), str(SOURCE), "exec"), ns)
     return ns, phases, process
 
@@ -72,13 +78,13 @@ class VolumeFormatTest(unittest.TestCase):
         self.assertGreaterEqual(phases.count("FORMATTING"), 3)
         self.assertEqual(111, ns["operation"]["formatterPid"])
         self.assertEqual(3, process.communicate.call_count)
-        self.assertEqual("fs-uuid", ns["operation"]["filesystemUuid"])
+        self.assertEqual("00000000-0000-4000-8000-000000000001", ns["operation"]["filesystemUuid"])
         self.assertEqual(10 * (1 << 40), ns["operation"]["volumeSizeBytes"])
         uuid.UUID(ns["operation"]["formatReceiptUuid"])
 
     def test_new_format_rejects_thin_or_unknown_provisioning_before_mkfs(self):
         for provision in ("THIN", None, "UNKNOWN"):
-            ns, _, _ = formatter_namespace(); ns["payload"] = {"provisioningType": provision}
+            ns, _, _ = formatter_namespace(); ns["payload"]["provisioningType"] = provision
             with self.assertRaises(SystemExit): ns["format_empty_device"]()
             ns["subprocess"].Popen.assert_not_called()
 
@@ -88,7 +94,7 @@ class VolumeFormatTest(unittest.TestCase):
         self.assertEqual(["mkfs.xfs","-f","-K","/dev/verified-data"],ns["subprocess"].Popen.call_args.args[0])
         self.assertEqual("SKIP_DISCARD",ns["operation"]["formatDiscardPolicy"])
         ns, _, _ = formatter_namespace();ns["payload"]["formatDiscardPolicy"]="SKIP_DISCARD";ns["requested_filesystem"]="ext4"
-        ns["blkid_value"]=lambda device,field:"ext4" if field=="TYPE" else "fs-uuid"
+        ns["blkid_value"]=lambda device,field:"ext4" if field=="TYPE" else "00000000-0000-4000-8000-000000000001"
         self.assertEqual("ext4",ns["format_empty_device"]())
         self.assertEqual(["mkfs.ext4","-F","-E","nodiscard,lazy_itable_init=1,lazy_journal_init=1","/dev/verified-data"],ns["subprocess"].Popen.call_args.args[0])
         ns, _, _ = formatter_namespace();ns["payload"]["formatDiscardPolicy"]="-f /dev/foreign"
@@ -102,6 +108,23 @@ class VolumeFormatTest(unittest.TestCase):
             self.assertEqual(0,result.returncode,result.stderr);value=json.loads(result.stdout)
             self.assertEqual(['DEFAULT','SKIP_DISCARD'],value['formatDiscardPolicies']);self.assertTrue(value['sparseFormatRequired']);self.assertTrue(value['formatterSuccessReceiptSupported'])
             self.assertEqual([],list(Path(folder).iterdir()))
+
+    def test_original_owner_boot_and_geometry_are_durable_before_any_formatter_bytes(self):
+        ns,_,process=formatter_namespace()
+        def spawn(*args,**kwargs):
+            record=ns["operation"]
+            self.assertTrue(record["formatStarted"])
+            self.assertEqual(ns["payload"]["instanceUuid"],record["originalFormatOwner"]["instanceUuid"])
+            self.assertEqual(ns["payload"]["managerOperationUuid"],record["originalFormatOwner"]["managerOperationUuid"])
+            self.assertEqual(ns["payload"]["managerRevision"],record["originalFormatOwner"]["revision"])
+            self.assertEqual(ns["current_boot"],record["formatterBootId"])
+            self.assertEqual(ns["resolved_device"]["serial"],record["serial"])
+            self.assertEqual(ns["expected_size"],record["volumeSizeBytes"])
+            return process
+        ns["subprocess"].Popen.side_effect=spawn
+        ns["format_empty_device"]()
+        self.assertEqual(2,ns["operation"]["formatterSuccessReceipt"]["schemaVersion"])
+        self.assertEqual(123,ns["operation"]["formatterSuccessReceipt"]["formatterStartTicks"])
 
     def test_prior_format_never_authorizes_automatic_reformat(self):
         ns, _, _ = formatter_namespace()
@@ -149,15 +172,26 @@ class VolumeResumeSafetyTest(unittest.TestCase):
     def setUp(self):
         block = next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY", SOURCE.read_text(), re.S) if "def format_empty_device():" in value)
         nodes = [node for node in ast.parse(block).body if isinstance(node, ast.FunctionDef) and node.name in ("require_resume_request", "require_resume_filesystem", "require_completed_format_receipt", "legacy_complete_mount_is_verified")]
-        self.ns = {"uuid": uuid, "active_formatter": lambda record: False}
+        self.ns = {"uuid": uuid, "active_formatter": lambda record: False,
+                   "volume_format_owner":formatter.volume_format_owner,
+                   "volume_original_owner":formatter.volume_original_owner,
+                   "volume_verify_format_receipt":formatter.volume_verify_format_receipt}
         exec(compile(ast.Module(body=nodes, type_ignores=[]), str(SOURCE), "exec"), self.ns)
         volume = str(uuid.uuid4()); self.fs = str(uuid.uuid4())
         self.request = {"instanceUuid":str(uuid.uuid4()), "managerOperationUuid":str(uuid.uuid4()), "revision":3,
                         "volumeUuid":volume, "operationId":"volume-"+volume, "provisioningType":"SPARSE",
                         "importMode":"MOUNT_EXISTING", "resumeOnly":True, "expectedFilesystemUuid":self.fs}
-        self.record = {"volumeUuid":volume, "operationId":"volume-"+volume, "formatStarted":True,
-                       "filesystem":"xfs", "filesystemUuid":self.fs, "formatterExitCode":0,
-                       "formatterSuccessReceipt":{"schemaVersion":1,"volumeUuid":volume,"filesystemUuid":self.fs,"filesystem":"xfs","formatterExitCode":0}}
+        owner={key:self.request[key]for key in("instanceUuid","managerOperationUuid","revision")}
+        serial=volume.replace("-","")[:20];size=20*(1<<30);boot=str(uuid.uuid4())
+        self.ns.update(resolved_device={"serial":serial},expected_size=size)
+        self.record = {"volumeUuid":volume,"operationId":"volume-"+volume,"formatStarted":True,
+                       "filesystem":"xfs","filesystemUuid":self.fs,"formatterExitCode":0,
+                       "originalFormatOwner":owner,"formatterBootId":boot,"formatterStartTicks":123,
+                       "formatterPid":111,"serial":serial,"volumeSizeBytes":size,
+                       "formatDiscardPolicy":"DEFAULT","formatterOptions":["-f"],
+                       "formatterSuccessReceipt":{"schemaVersion":2,"volumeUuid":volume,"filesystemUuid":self.fs,"filesystem":"xfs","formatterExitCode":0,
+                          "originalFormatOwner":owner,"formatterBootId":boot,"formatterStartTicks":123,"formatterPid":111,
+                          "serial":serial,"sizeBytes":size,"formatDiscardPolicy":"DEFAULT","formatterOptions":["-f"],"verifiedEpoch":1}}
 
     def test_fixed_resume_accepts_only_same_scoped_known_existing_filesystem(self):
         self.assertTrue(self.ns["require_resume_request"](self.request, True))
@@ -176,6 +210,16 @@ class VolumeResumeSafetyTest(unittest.TestCase):
         for changes in ({"formatterSuccessReceipt":None},{"formatterExitCode":None},{"terminationPending":True},
                         {"formatterSuccessReceipt":{**self.record["formatterSuccessReceipt"],"formatterExitCode":1}}):
             with self.assertRaises(ValueError):self.ns['require_resume_filesystem'](self.request,{**self.record,**changes},'xfs',self.fs)
+
+    def test_new_aux_caller_does_not_replace_original_owner_and_foreign_owner_is_rejected(self):
+        fresh={**self.request,"managerOperationUuid":str(uuid.uuid4()),"revision":4,
+               "originalFormatOwner":self.record["originalFormatOwner"]}
+        before=__import__("copy").deepcopy(self.record)
+        self.ns["require_resume_filesystem"](fresh,self.record,"xfs",self.fs)
+        self.assertEqual(before,self.record)
+        for changed in ({**fresh,"instanceUuid":str(uuid.uuid4())},
+                        {**fresh,"originalFormatOwner":{**self.record["originalFormatOwner"],"revision":4}}):
+            with self.assertRaises(ValueError):self.ns["require_resume_filesystem"](changed,self.record,"xfs",self.fs)
 
     def test_resume_requires_its_exact_frozen_filesystem_uuid(self):
         with self.assertRaises(ValueError):

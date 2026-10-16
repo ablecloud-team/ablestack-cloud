@@ -3111,6 +3111,187 @@ volume_attach_inspect() {
   python3 - "$payload_file" "$resume_mode" <<'PY'
 import json
 import fcntl
+# BEGIN_CANONICAL_VOLUME_FORMATTER
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Public formatter identity and completion proof. Never signals, formats or mounts."""
+import hashlib
+import math
+import os
+from pathlib import Path
+import re
+import stat
+import uuid
+
+
+def volume_formatter_boot():
+    return str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+
+
+def volume_format_owner(request):
+    owner = {key: request[key] for key in ("instanceUuid", "managerOperationUuid")}
+    for value in owner.values():
+        if not isinstance(value, str) or str(uuid.UUID(value)) != value:
+            raise ValueError("Format owner UUID is invalid")
+    revision = request.get("managerRevision", request.get("revision"))
+    if type(revision) is not int or revision < 1 or ("revision" in request and request["revision"] != revision):
+        raise ValueError("Format owner revision is invalid")
+    return {**owner, "revision": revision}
+
+
+def volume_original_owner(value):
+    if not isinstance(value, dict) or set(value) != {"instanceUuid", "managerOperationUuid", "revision"}:
+        raise ValueError("Original format owner is unavailable")
+    return volume_format_owner(value)
+
+
+def volume_formatter_process(pid):
+    root = Path("/proc") / str(pid)
+    def identity():
+        info = root.stat()
+        with (root / "stat").open("rb", buffering=0) as stream:
+            raw = stream.read(4097)
+        if len(raw) > 4096:
+            raise ValueError("Formatter process metadata exceeds its bound")
+        fields = raw[raw.rindex(b")") + 2:].split()
+        if len(fields) < 20 or info.st_uid != os.geteuid():
+            raise ValueError("Formatter process owner is unavailable")
+        return {"pid": pid, "uid": info.st_uid, "startTicks": int(fields[19]),
+                "state": fields[0].decode("ascii")}
+    before = identity()
+    with (root / "cmdline").open("rb", buffering=0) as stream:
+        raw = stream.read(8193)
+    if len(raw) > 8192:
+        raise ValueError("Formatter argv exceeds its bound")
+    argv = raw.rstrip(b"\0").split(b"\0") if raw else []
+    after = identity()
+    if any(before[key] != after[key] for key in ("pid", "uid", "startTicks")):
+        raise ValueError("Formatter PID identity changed")
+    return {**after, "argv": argv}
+
+
+def volume_capture_formatter(pid, command, device, boot_id, process_reader=volume_formatter_process):
+    # Capture before communicate()/wait(): even an already exited own child is
+    # still a zombie with an exact start tick until this parent reaps it.
+    observed = process_reader(pid)
+    if type(observed["startTicks"]) is not int or observed["startTicks"] <= 0:
+        raise ValueError("Formatter start ticks are unavailable")
+    expected = [os.fsencode(value) for value in command]
+    if observed["state"] not in ("Z", "X", "x") and observed["argv"] != expected:
+        raise ValueError("Formatter argv differs from its owned child")
+    return {"bootId": str(uuid.UUID(boot_id)), "pid": pid, "startTicks": observed["startTicks"],
+            "argvSha256": hashlib.sha256(b"\0".join(expected)).hexdigest(),
+            "devicePath": device, "formatter": Path(command[0]).name}
+
+
+def volume_observe_formatter(record, boot_id=None, process_reader=volume_formatter_process):
+    try:
+        current_boot = str(uuid.UUID(boot_id)) if boot_id is not None else volume_formatter_boot()
+    except (OSError, ValueError, UnicodeError, TypeError):
+        return {"active": None, "state": None, "observationComplete": False, "bootId": None, "reason": "BOOT_UNAVAILABLE"}
+    def answer(active, complete, reason, state=None):
+        return {"active": active, "state": state, "observationComplete": complete,
+                "bootId": current_boot, "reason": reason}
+    if not record.get("formatStarted"):
+        return answer(False, True, "NOT_STARTED")
+    identity = record.get("formatterIdentity")
+    recorded_boot = record.get("formatterBootId")
+    if recorded_boot is not None:
+        try:
+            if str(uuid.UUID(recorded_boot)) != recorded_boot:
+                raise ValueError()
+        except (ValueError, TypeError, AttributeError):
+            return answer(None, False, "INVALID_FORMATTER_BOOT")
+        if recorded_boot != current_boot:
+            # A process cannot survive a guest BOOT change. Never inspect an old
+            # numeric PID that may now belong to an unrelated process.
+            return answer(False, True, "PREVIOUS_BOOT")
+    if not isinstance(identity, dict):
+        # Ordinary historical completed mounts remain readable. An old weak
+        # receipt is never upgraded into new explicit-resume authority.
+        if record.get("phase") == "COMPLETE" and record.get("originalFormatOwner") is None and (record.get("formatterSuccessReceipt") or {}).get("schemaVersion") != 2:
+            return answer(False, True, "LEGACY_COMPLETE")
+        return answer(None, False, "MISSING_PINNED_IDENTITY")
+    if (set(identity) != {"bootId", "pid", "startTicks", "argvSha256", "devicePath", "formatter"}
+            or identity.get("bootId") != recorded_boot or identity.get("pid") != record.get("formatterPid")
+            or identity.get("startTicks") != record.get("formatterStartTicks")
+            or type(record.get("formatterPid")) is not int or type(record.get("formatterStartTicks")) is not int
+            or type(identity.get("pid")) is not int or identity["pid"] <= 0
+            or type(identity.get("startTicks")) is not int or identity["startTicks"] <= 0
+            or not isinstance(identity.get("argvSha256"), str)
+            or re.fullmatch("[a-f0-9]{64}", identity["argvSha256"]) is None
+            or identity.get("devicePath") != record.get("devicePath")
+            or identity.get("formatter") != record.get("formatter")):
+        return answer(None, False, "INVALID_PINNED_IDENTITY")
+    try:
+        observed = process_reader(identity["pid"])
+    except (FileNotFoundError, ProcessLookupError):
+        return answer(False, True, "EXITED")
+    except (OSError, ValueError, UnicodeError, IndexError):
+        return answer(None, False, "PROCESS_READ_UNAVAILABLE")
+    if observed.get("startTicks") != identity["startTicks"]:
+        return answer(False, True, "PID_REUSED")
+    if observed.get("state") in ("Z", "X", "x"):
+        return answer(False, True, "EXITED", observed["state"])
+    if hashlib.sha256(b"\0".join(observed["argv"])).hexdigest() != identity["argvSha256"]:
+        return answer(None, False, "PROCESS_ARGV_CHANGED")
+    return answer(True, True, "EXACT_PROCESS", observed["state"])
+
+
+def volume_verify_format_receipt(record, existing_type, observed_uuid, serial, size):
+    receipt = record.get("formatterSuccessReceipt")
+    if not isinstance(receipt, dict) or type(receipt.get("schemaVersion")) is not int or receipt["schemaVersion"] != 2:
+        raise ValueError("Explicit resume requires the strong formatter completion receipt")
+    owner = volume_original_owner(record.get("originalFormatOwner"))
+    if volume_original_owner(receipt.get("originalFormatOwner")) != owner:
+        raise ValueError("Formatter receipt original owner differs")
+    boot = record.get("formatterBootId")
+    if not isinstance(boot, str) or str(uuid.UUID(boot)) != boot or receipt.get("formatterBootId") != boot:
+        raise ValueError("Formatter receipt original BOOT differs")
+    for key, recorded in (("formatterStartTicks", record.get("formatterStartTicks")), ("formatterPid", record.get("formatterPid"))):
+        if type(recorded) is not int or recorded <= 0 or type(receipt.get(key)) is not int or receipt[key] != recorded:
+            raise ValueError("Formatter receipt original process differs")
+    normalized = lambda value: "".join(char for char in str(value or "").lower() if char.isalnum())
+    token = str(uuid.UUID(record["volumeUuid"])).replace("-", "")
+    live_serial = normalized(serial)
+    if (live_serial not in (token, token[:20]) or normalized(receipt.get("serial")) != live_serial
+            or normalized(record.get("serial")) != live_serial
+            or type(size) is not int or size <= 0 or type(receipt.get("sizeBytes")) is not int
+            or receipt["sizeBytes"] != size or type(record.get("volumeSizeBytes")) is not int or record.get("volumeSizeBytes") != size):
+        raise ValueError("Formatter receipt live volume identity or geometry differs")
+    if (record.get("terminationPending") or receipt.get("formatterExitCode") != 0 or type(receipt.get("formatterExitCode")) is not int
+            or record.get("formatterExitCode") != 0 or type(record.get("formatterExitCode")) is not int
+            or receipt.get("volumeUuid") != record.get("volumeUuid") or existing_type not in ("xfs", "ext4")
+            or receipt.get("filesystemUuid") != observed_uuid or record.get("filesystemUuid") != observed_uuid
+            or not isinstance(observed_uuid, str) or str(uuid.UUID(observed_uuid)) != observed_uuid
+            or receipt.get("filesystem") != existing_type or record.get("filesystem") != existing_type):
+        raise ValueError("Filesystem headers alone cannot prove successful format completion")
+    policy = receipt.get("formatDiscardPolicy")
+    expected_options = ["-f"] if existing_type == "xfs" else ["-F"]
+    if policy == "SKIP_DISCARD":
+        expected_options += ["-K"] if existing_type == "xfs" else ["-E", "nodiscard,lazy_itable_init=1,lazy_journal_init=1"]
+    elif policy != "DEFAULT":
+        raise ValueError("Formatter receipt discard policy is unknown")
+    if receipt.get("formatterOptions") != expected_options or record.get("formatterOptions") != expected_options or record.get("formatDiscardPolicy") != policy:
+        raise ValueError("Formatter receipt options differ from the reviewed invocation")
+    verified = receipt.get("verifiedEpoch")
+    if type(verified) not in (int, float) or not math.isfinite(verified) or verified <= 0:
+        raise ValueError("Formatter receipt verification timestamp is invalid")
+    return receipt
+# END_CANONICAL_VOLUME_FORMATTER
 import re
 import time
 import uuid
@@ -3197,7 +3378,7 @@ def require_resume_request(request, required):
         raise ValueError("Volume resume cannot authorize a format import mode")
     for key in ("instanceUuid", "managerOperationUuid", "volumeUuid"):
         uuid.UUID(str(request[key]))
-    revision = request["revision"]
+    revision = volume_format_owner(request)["revision"]
     if isinstance(revision, bool) or not isinstance(revision, int) or revision < 1:
         raise ValueError("Volume resume manager revision is invalid")
     if request.get("operationId") != "volume-" + str(uuid.UUID(request["volumeUuid"])):
@@ -3207,6 +3388,10 @@ def require_resume_request(request, required):
     return True
 
 resume_only = require_resume_request(payload, len(sys.argv) > 2 and sys.argv[2] == "resume")
+current_boot = volume_formatter_boot()
+if payload.get("expectedBootId") is not None and payload["expectedBootId"] != current_boot:
+    raise ValueError("Volume preparation BOOT changed after its current preflight")
+current_owner = volume_format_owner(payload) if payload.get("managerOperationUuid") is not None else None
 
 PROBE_TIMEOUT_SECONDS = 20
 format_deadline = max(1, min(7200, int(payload.get("formatDeadlineSeconds") or 300)))
@@ -3509,12 +3694,19 @@ def format_empty_device():
         # the deadline while punching metadata holes in the shared backend.
         command += ["-K"] if fs == "xfs" else ["-E", "nodiscard,lazy_itable_init=1,lazy_journal_init=1"]
     command.append(device)
-    phase("FORMATTING", formatStarted=True, formatReceiptUuid=str(uuid.uuid4()), filesystem=fs, devicePath=device,
+    owner = volume_format_owner(payload)
+    phase("FORMATTING", formatStarted=True, originalFormatOwner=owner, formatterBootId=current_boot, serial=resolved_device["serial"],
+          formatReceiptUuid=str(uuid.uuid4()), filesystem=fs, devicePath=device,
           started=time.time(), volumeSizeBytes=expected_size, formatter=tool, formatterOptions=command[1:-1], formatDiscardPolicy=discard_policy)
     inherited = (9,) if os.path.exists("/proc/self/fd/9") else ()
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, pass_fds=inherited)
     format_invoked = True
     phase("FORMATTING", formatterPid=process.pid)
+    try:
+        identity = volume_capture_formatter(process.pid, command, device, current_boot)
+        phase("FORMATTING", formatterStartTicks=identity["startTicks"], formatterIdentity=identity)
+    except (OSError, ValueError, UnicodeError):
+        recovery("RECOVERY_REQUIRED", "Formatter process identity could not be pinned; preserve the original volume and its writer")
     deadline = time.monotonic() + format_deadline
     while True:
         try:
@@ -3548,25 +3740,25 @@ def format_empty_device():
     if process.returncode != 0:
         recovery("RECOVERY_REQUIRED", (stderr.strip() or "Filesystem formatter failed")[:1024])
     phase("VERIFYING_FILESYSTEM", filesystemUuid=blkid_value(device, "UUID"))
-    if blkid_value(device, "TYPE") != fs or not operation.get("filesystemUuid"):
+    try:
+        fs_uuid_valid = str(uuid.UUID(operation.get("filesystemUuid"))) == operation.get("filesystemUuid")
+    except (ValueError, TypeError, AttributeError):
+        fs_uuid_valid = False
+    if blkid_value(device, "TYPE") != fs or not fs_uuid_valid:
         recovery("RECOVERY_REQUIRED", "Formatted filesystem identity cannot be verified")
     phase("FILESYSTEM_VERIFIED", formatterExitCode=0, formatterActive=False, terminationPending=False,
-          formatterSuccessReceipt={"schemaVersion": 1, "volumeUuid": volume_key, "filesystemUuid": operation["filesystemUuid"],
+          formatterSuccessReceipt={"schemaVersion": 2, "originalFormatOwner": owner, "formatterBootId": current_boot,
+                                   "formatterStartTicks": identity["startTicks"], "volumeUuid": volume_key, "filesystemUuid": operation["filesystemUuid"],
                                    "filesystem": fs, "formatterPid": process.pid, "formatterExitCode": 0,
                                    "serial": resolved_device["serial"], "sizeBytes": expected_size, "formatDiscardPolicy": discard_policy,
                                    "formatterOptions": command[1:-1], "verifiedEpoch": time.time()})
     return fs
 
 def active_formatter(record):
-    pid = record.get("formatterPid")
-    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0:
-        return False
-    try:
-        command = Path("/proc/" + str(pid) + "/cmdline").read_bytes().split(b"\x00")
-    except FileNotFoundError:
-        return False
-    expected = str(record.get("formatter") or "mkfs." + str(record.get("filesystem") or ""))
-    return bool(command and os.path.basename(os.fsdecode(command[0])) == expected)
+    observed = volume_observe_formatter(record, current_boot)
+    if not observed["observationComplete"]:
+        raise ValueError("Formatter process observation is unavailable; preserve the volume")
+    return observed["active"]
 
 
 def legacy_complete_mount_is_verified(request, record, existing_type, observed_uuid):
@@ -3579,12 +3771,7 @@ def legacy_complete_mount_is_verified(request, record, existing_type, observed_u
             and record.get("filesystem") == existing_type and existing_type in ("xfs", "ext4"))
 
 def require_completed_format_receipt(record, existing_type, observed_uuid):
-    receipt = record.get("formatterSuccessReceipt")
-    if (record.get("terminationPending") or not isinstance(receipt, dict) or receipt.get("schemaVersion") != 1
-            or receipt.get("formatterExitCode") != 0 or record.get("formatterExitCode") != 0
-            or receipt.get("volumeUuid") != record.get("volumeUuid") or receipt.get("filesystemUuid") != observed_uuid
-            or receipt.get("filesystem") != existing_type or record.get("filesystemUuid") != observed_uuid):
-        raise ValueError("Filesystem signatures alone do not prove mkfs completion; preserve partial state for explicit recovery")
+    volume_verify_format_receipt(record, existing_type, observed_uuid, resolved_device["serial"], expected_size)
 
 def require_resume_filesystem(request, record, existing_type, observed_uuid):
     if not request.get("resumeOnly"):
@@ -3593,6 +3780,11 @@ def require_resume_filesystem(request, record, existing_type, observed_uuid):
         raise ValueError("Volume resume lacks its original scoped format journal")
     if active_formatter(record):
         raise ValueError("Volume resume is blocked by its active formatter")
+    original = volume_original_owner(record.get("originalFormatOwner"))
+    if request["instanceUuid"] != original["instanceUuid"]:
+        raise ValueError("Volume resume belongs to another format-owner instance")
+    if request.get("originalFormatOwner") is not None and volume_original_owner(request["originalFormatOwner"]) != original:
+        raise ValueError("Parked resume requires its exact original durable format owner")
     require_completed_format_receipt(record, existing_type, observed_uuid)
     known = record.get("filesystemUuid")
     if not known or not observed_uuid or known != observed_uuid or record.get("filesystem") != existing_type or existing_type not in ("xfs", "ext4"):
@@ -3614,6 +3806,8 @@ if resume_only:
 
 resume_format = bool(operation.get("formatStarted"))
 if resume_format:
+    if operation.get("originalFormatOwner") is not None and payload.get("instanceUuid") != volume_original_owner(operation["originalFormatOwner"])["instanceUuid"]:
+        recovery("RECOVERY_REQUIRED", "Prepared volume belongs to another original format-owner instance")
     observed_uuid = blkid_value(device, "UUID")
     if active_formatter(operation):
         recovery("RECOVERY_REQUIRED", "An active formatter prohibits mount, probe or a second format")
@@ -3750,7 +3944,19 @@ if import_mode != "INSPECT_ONLY":
                                           "sizeBytes": expected_size, "directoryIdentity": identity, "createdEpoch": time.time()}
         finally:
             os.close(root_descriptor)
+    if resume_only:
+        phase("PERSISTING_MOUNT", resumeReceipt={"schemaVersion": 1, **current_owner,
+              "originalFormatOwner": volume_original_owner(operation.get("originalFormatOwner")),
+              "volumeUuid": volume_key, "operationId": "volume-" + volume_key, "filesystemUuid": fs_uuid, "filesystem": filesystem,
+              "serial": resolved_device["serial"], "sizeBytes": expected_size, "mountPath": mount_path,
+              "bootId": current_boot, "formatInvoked": False, "completedEpoch": time.time()})
     phase("COMPLETE", filesystemUuid=fs_uuid, mountPath=mount_path, createdDirectoryReceipts=(operation.get("createdDirectoryReceipts") or []) + created_directory_receipts, elapsedSeconds=time.time() - operation.get("started", time.time()))
+
+try:
+    assert_mutating_volume_identity(resolved_device, payload, devices, expected_size)
+    observed_mapping = "EXACT"
+except ValueError:
+    observed_mapping = "UNVERIFIED"
 
 print(json.dumps({
     "success": True,
@@ -3760,7 +3966,7 @@ print(json.dumps({
     "operationId": operation.get("operationId"),
     "instanceUuid": payload.get("instanceUuid"),
     "managerOperationUuid": payload.get("managerOperationUuid"),
-    "revision": payload.get("revision"),
+    "revision": current_owner["revision"] if current_owner else payload.get("revision"),
     "resumed": resume_only,
     "resumeOnly": resume_only,
     "formatInvoked": format_invoked,
@@ -3768,6 +3974,10 @@ print(json.dumps({
     "formatterOptions": operation.get("formatterOptions"),
     "formatterActive": active_formatter(operation),
     "volumeUuid": payload.get("volumeUuid"),
+    "sizeBytes": parse_size(device_info.get("size")),
+    "mappingStatus": observed_mapping,
+    "terminationPending": bool(operation.get("terminationPending")),
+    "formatterObservationComplete": volume_observe_formatter(operation, current_boot)["observationComplete"],
     "devicePath": device,
     "observedDevicePath": device,
     "matchedBy": resolved_device.get("matchedBy"),
@@ -3792,6 +4002,187 @@ PY
 volume_operation_status() {
   local payload_file="$1"
   python3 - "$payload_file" <<'PYVOLUME'
+# BEGIN_CANONICAL_VOLUME_FORMATTER
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+"""Public formatter identity and completion proof. Never signals, formats or mounts."""
+import hashlib
+import math
+import os
+from pathlib import Path
+import re
+import stat
+import uuid
+
+
+def volume_formatter_boot():
+    return str(uuid.UUID(Path("/proc/sys/kernel/random/boot_id").read_text().strip()))
+
+
+def volume_format_owner(request):
+    owner = {key: request[key] for key in ("instanceUuid", "managerOperationUuid")}
+    for value in owner.values():
+        if not isinstance(value, str) or str(uuid.UUID(value)) != value:
+            raise ValueError("Format owner UUID is invalid")
+    revision = request.get("managerRevision", request.get("revision"))
+    if type(revision) is not int or revision < 1 or ("revision" in request and request["revision"] != revision):
+        raise ValueError("Format owner revision is invalid")
+    return {**owner, "revision": revision}
+
+
+def volume_original_owner(value):
+    if not isinstance(value, dict) or set(value) != {"instanceUuid", "managerOperationUuid", "revision"}:
+        raise ValueError("Original format owner is unavailable")
+    return volume_format_owner(value)
+
+
+def volume_formatter_process(pid):
+    root = Path("/proc") / str(pid)
+    def identity():
+        info = root.stat()
+        with (root / "stat").open("rb", buffering=0) as stream:
+            raw = stream.read(4097)
+        if len(raw) > 4096:
+            raise ValueError("Formatter process metadata exceeds its bound")
+        fields = raw[raw.rindex(b")") + 2:].split()
+        if len(fields) < 20 or info.st_uid != os.geteuid():
+            raise ValueError("Formatter process owner is unavailable")
+        return {"pid": pid, "uid": info.st_uid, "startTicks": int(fields[19]),
+                "state": fields[0].decode("ascii")}
+    before = identity()
+    with (root / "cmdline").open("rb", buffering=0) as stream:
+        raw = stream.read(8193)
+    if len(raw) > 8192:
+        raise ValueError("Formatter argv exceeds its bound")
+    argv = raw.rstrip(b"\0").split(b"\0") if raw else []
+    after = identity()
+    if any(before[key] != after[key] for key in ("pid", "uid", "startTicks")):
+        raise ValueError("Formatter PID identity changed")
+    return {**after, "argv": argv}
+
+
+def volume_capture_formatter(pid, command, device, boot_id, process_reader=volume_formatter_process):
+    # Capture before communicate()/wait(): even an already exited own child is
+    # still a zombie with an exact start tick until this parent reaps it.
+    observed = process_reader(pid)
+    if type(observed["startTicks"]) is not int or observed["startTicks"] <= 0:
+        raise ValueError("Formatter start ticks are unavailable")
+    expected = [os.fsencode(value) for value in command]
+    if observed["state"] not in ("Z", "X", "x") and observed["argv"] != expected:
+        raise ValueError("Formatter argv differs from its owned child")
+    return {"bootId": str(uuid.UUID(boot_id)), "pid": pid, "startTicks": observed["startTicks"],
+            "argvSha256": hashlib.sha256(b"\0".join(expected)).hexdigest(),
+            "devicePath": device, "formatter": Path(command[0]).name}
+
+
+def volume_observe_formatter(record, boot_id=None, process_reader=volume_formatter_process):
+    try:
+        current_boot = str(uuid.UUID(boot_id)) if boot_id is not None else volume_formatter_boot()
+    except (OSError, ValueError, UnicodeError, TypeError):
+        return {"active": None, "state": None, "observationComplete": False, "bootId": None, "reason": "BOOT_UNAVAILABLE"}
+    def answer(active, complete, reason, state=None):
+        return {"active": active, "state": state, "observationComplete": complete,
+                "bootId": current_boot, "reason": reason}
+    if not record.get("formatStarted"):
+        return answer(False, True, "NOT_STARTED")
+    identity = record.get("formatterIdentity")
+    recorded_boot = record.get("formatterBootId")
+    if recorded_boot is not None:
+        try:
+            if str(uuid.UUID(recorded_boot)) != recorded_boot:
+                raise ValueError()
+        except (ValueError, TypeError, AttributeError):
+            return answer(None, False, "INVALID_FORMATTER_BOOT")
+        if recorded_boot != current_boot:
+            # A process cannot survive a guest BOOT change. Never inspect an old
+            # numeric PID that may now belong to an unrelated process.
+            return answer(False, True, "PREVIOUS_BOOT")
+    if not isinstance(identity, dict):
+        # Ordinary historical completed mounts remain readable. An old weak
+        # receipt is never upgraded into new explicit-resume authority.
+        if record.get("phase") == "COMPLETE" and record.get("originalFormatOwner") is None and (record.get("formatterSuccessReceipt") or {}).get("schemaVersion") != 2:
+            return answer(False, True, "LEGACY_COMPLETE")
+        return answer(None, False, "MISSING_PINNED_IDENTITY")
+    if (set(identity) != {"bootId", "pid", "startTicks", "argvSha256", "devicePath", "formatter"}
+            or identity.get("bootId") != recorded_boot or identity.get("pid") != record.get("formatterPid")
+            or identity.get("startTicks") != record.get("formatterStartTicks")
+            or type(record.get("formatterPid")) is not int or type(record.get("formatterStartTicks")) is not int
+            or type(identity.get("pid")) is not int or identity["pid"] <= 0
+            or type(identity.get("startTicks")) is not int or identity["startTicks"] <= 0
+            or not isinstance(identity.get("argvSha256"), str)
+            or re.fullmatch("[a-f0-9]{64}", identity["argvSha256"]) is None
+            or identity.get("devicePath") != record.get("devicePath")
+            or identity.get("formatter") != record.get("formatter")):
+        return answer(None, False, "INVALID_PINNED_IDENTITY")
+    try:
+        observed = process_reader(identity["pid"])
+    except (FileNotFoundError, ProcessLookupError):
+        return answer(False, True, "EXITED")
+    except (OSError, ValueError, UnicodeError, IndexError):
+        return answer(None, False, "PROCESS_READ_UNAVAILABLE")
+    if observed.get("startTicks") != identity["startTicks"]:
+        return answer(False, True, "PID_REUSED")
+    if observed.get("state") in ("Z", "X", "x"):
+        return answer(False, True, "EXITED", observed["state"])
+    if hashlib.sha256(b"\0".join(observed["argv"])).hexdigest() != identity["argvSha256"]:
+        return answer(None, False, "PROCESS_ARGV_CHANGED")
+    return answer(True, True, "EXACT_PROCESS", observed["state"])
+
+
+def volume_verify_format_receipt(record, existing_type, observed_uuid, serial, size):
+    receipt = record.get("formatterSuccessReceipt")
+    if not isinstance(receipt, dict) or type(receipt.get("schemaVersion")) is not int or receipt["schemaVersion"] != 2:
+        raise ValueError("Explicit resume requires the strong formatter completion receipt")
+    owner = volume_original_owner(record.get("originalFormatOwner"))
+    if volume_original_owner(receipt.get("originalFormatOwner")) != owner:
+        raise ValueError("Formatter receipt original owner differs")
+    boot = record.get("formatterBootId")
+    if not isinstance(boot, str) or str(uuid.UUID(boot)) != boot or receipt.get("formatterBootId") != boot:
+        raise ValueError("Formatter receipt original BOOT differs")
+    for key, recorded in (("formatterStartTicks", record.get("formatterStartTicks")), ("formatterPid", record.get("formatterPid"))):
+        if type(recorded) is not int or recorded <= 0 or type(receipt.get(key)) is not int or receipt[key] != recorded:
+            raise ValueError("Formatter receipt original process differs")
+    normalized = lambda value: "".join(char for char in str(value or "").lower() if char.isalnum())
+    token = str(uuid.UUID(record["volumeUuid"])).replace("-", "")
+    live_serial = normalized(serial)
+    if (live_serial not in (token, token[:20]) or normalized(receipt.get("serial")) != live_serial
+            or normalized(record.get("serial")) != live_serial
+            or type(size) is not int or size <= 0 or type(receipt.get("sizeBytes")) is not int
+            or receipt["sizeBytes"] != size or type(record.get("volumeSizeBytes")) is not int or record.get("volumeSizeBytes") != size):
+        raise ValueError("Formatter receipt live volume identity or geometry differs")
+    if (record.get("terminationPending") or receipt.get("formatterExitCode") != 0 or type(receipt.get("formatterExitCode")) is not int
+            or record.get("formatterExitCode") != 0 or type(record.get("formatterExitCode")) is not int
+            or receipt.get("volumeUuid") != record.get("volumeUuid") or existing_type not in ("xfs", "ext4")
+            or receipt.get("filesystemUuid") != observed_uuid or record.get("filesystemUuid") != observed_uuid
+            or not isinstance(observed_uuid, str) or str(uuid.UUID(observed_uuid)) != observed_uuid
+            or receipt.get("filesystem") != existing_type or record.get("filesystem") != existing_type):
+        raise ValueError("Filesystem headers alone cannot prove successful format completion")
+    policy = receipt.get("formatDiscardPolicy")
+    expected_options = ["-f"] if existing_type == "xfs" else ["-F"]
+    if policy == "SKIP_DISCARD":
+        expected_options += ["-K"] if existing_type == "xfs" else ["-E", "nodiscard,lazy_itable_init=1,lazy_journal_init=1"]
+    elif policy != "DEFAULT":
+        raise ValueError("Formatter receipt discard policy is unknown")
+    if receipt.get("formatterOptions") != expected_options or record.get("formatterOptions") != expected_options or record.get("formatDiscardPolicy") != policy:
+        raise ValueError("Formatter receipt options differ from the reviewed invocation")
+    verified = receipt.get("verifiedEpoch")
+    if type(verified) not in (int, float) or not math.isfinite(verified) or verified <= 0:
+        raise ValueError("Formatter receipt verification timestamp is invalid")
+    return receipt
+# END_CANONICAL_VOLUME_FORMATTER
 import json
 import os
 from pathlib import Path
@@ -3848,18 +4239,7 @@ operation = read_volume_operation(path)
 if operation.get("volumeUuid") != volume:
     raise SystemExit("Volume operation identity mismatch")
 def formatter_observation(operation):
-    pid = operation.get("formatterPid")
-    if isinstance(pid, bool) or not isinstance(pid, int) or pid <= 0:
-        return {"active": False, "state": None}
-    try:
-        args = Path("/proc/" + str(pid) + "/cmdline").read_bytes().split(bytes([0]))
-        active = bool(args and Path(os.fsdecode(args[0])).name in ("mkfs.xfs", "mkfs.ext4")
-                      and str(operation.get("devicePath") or "").encode() in args)
-        raw = Path("/proc/" + str(pid) + "/stat").read_text()
-        state = raw[raw.rfind(")") + 2:].split()[0]
-        return {"active": active, "state": state if active else None}
-    except (OSError, ValueError, IndexError):
-        return {"active": False, "state": None}
+    return volume_observe_formatter(operation)
 
 
 def project_volume_operation(operation, formatter, now):
@@ -3868,13 +4248,19 @@ def project_volume_operation(operation, formatter, now):
     elapsed = max(0, now - float(started)) if isinstance(started, (int, float)) else None
     deadline = float(operation.get("formatDeadlineSeconds") or 300)
     active = formatter["active"]
+    complete = formatter.get("observationComplete", type(active) is bool)
     expired = elapsed is not None and elapsed >= deadline
     observed = original
     stale = original == "FORMATTING" and expired
     pending = bool(operation.get("terminationPending"))
     diagnostic = operation.get("diagnostic")
     error = operation.get("errorCode")
-    if original in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE", "RECOVERY_REQUIRED"):
+    if not complete:
+        observed = "RECOVERY_REQUIRED"
+        pending = True
+        error = "FORMATTER_OBSERVATION_UNAVAILABLE"
+        diagnostic = "Formatter identity is unobserved; preserve the volume and do not retry mkfs, mount or detach"
+    elif original in ("FORMATTING", "TIMED_OUT_PENDING_RECONCILE", "RECOVERY_REQUIRED"):
         if active and expired:
             observed = "RECOVERY_REQUIRED" if formatter.get("state") == "D" or pending else "TIMED_OUT_PENDING_RECONCILE"
             pending = True
@@ -3884,9 +4270,11 @@ def project_volume_operation(operation, formatter, now):
             observed = "RECONCILE_REQUIRED"
             diagnostic = "Formatter no longer runs; verify the exact existing filesystem before an explicit resume"
     projection = {**operation, "phase": observed, "formatterActive": active, "formatterState": formatter.get("state"),
+                  "formatterObservationComplete": complete, "bootId": formatter.get("bootId"),
                   "terminationPending": pending, "elapsedSeconds": elapsed, "stale": stale,
                   "diagnostic": diagnostic, "errorCode": error}
     return {"success": True, "status": observed, "formatterActive": active, "formatterState": formatter.get("state"),
+                  "formatterObservationComplete": complete, "bootId": formatter.get("bootId"),
             "terminationPending": pending, "stale": stale, "observedEpoch": now, "elapsedSeconds": elapsed,
             "diagnostic": diagnostic, "errorCode": error, "operationId": operation.get("operationId"),
             "operation": operation, "observedOperation": projection}
@@ -23524,6 +23912,8 @@ class ResourceReservation:
         return {"success":True,"reservationSupported":True,"supportedFeatures":["LOGICAL_RESOURCE_RESERVATION"],"drainSupported":False,"logicalReservationOnly":True,
                 "reservationAcquired":bool(record and not expired),"scope":record.get("scope") if record else None,
                 "leaseExpiresAt":record.get("leaseExpiresAt") if record else None,"expired":expired,
+                "requirements":self.requirements(record) if record else None,
+                "bootId":self.boot_id,"leaseBootId":record.get("bootId") if record else None,
                 "observed":observed,"blockers":[]}
 
     def write(self,value):
@@ -31574,7 +31964,7 @@ PYRESOURCES
     ;;
   volume)
     if [[ "$subcommand" == "operation" && "$action" == "capabilities" ]]; then
-      printf '%s\n' '{"success":true,"formatDiscardPolicies":["DEFAULT","SKIP_DISCARD"],"sparseFormatRequired":true,"formatterSuccessReceiptSupported":true,"readonlyVolumeIdentitySupported":true}'
+      printf '%s\n' '{"success":true,"formatDiscardPolicies":["DEFAULT","SKIP_DISCARD"],"sparseFormatRequired":true,"formatterSuccessReceiptSupported":true,"formatterSuccessReceiptSchemaVersion":2,"formatterOriginalOwnerSupported":true,"formatterIdentitySupported":true,"readonlyVolumeIdentitySupported":true}'
     elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."

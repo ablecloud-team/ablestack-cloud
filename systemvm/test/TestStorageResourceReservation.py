@@ -36,6 +36,21 @@ class StorageResourceReservationTest(unittest.TestCase):
     def test_status_never_creates_files_and_does_not_claim_ram_allocation(self):
         result=self.store.status();self.assertTrue(result['reservationSupported']);self.assertFalse(result['reservationAcquired']);self.assertTrue(result['logicalReservationOnly']);self.assertIn('LOGICAL_RESOURCE_RESERVATION',result['supportedFeatures']);self.assertFalse((self.root/'reservation').exists())
 
+    def test_status_projects_only_frozen_requirements_without_rewriting_lease(self):
+        self.assertIsNone(self.store.status()["requirements"]);self.assertIsNone(self.store.status()["leaseBootId"]);self.assertEqual("boot1",self.store.status()["bootId"])
+        self.store.execute("acquire",self.request)
+        before=self.store.record.read_bytes()
+        self.assertEqual(self.requirements,self.store.status()["requirements"]);self.store.boot_id="boot2"
+        self.assertEqual("boot2",self.store.status()["bootId"]);self.assertEqual("boot1",self.store.status()["leaseBootId"]);self.assertTrue(self.store.status()["expired"])
+        self.assertEqual(before,self.store.record.read_bytes())
+
+    def test_status_never_projects_unknown_or_private_requirement_fields(self):
+        self.store.execute("acquire",self.request)
+        value=json.loads(self.store.record.read_text());value["requirements"]["privateBody"]="DO_NOT_PUBLISH"
+        self.store.record.write_text(json.dumps(value));before=self.store.record.read_bytes()
+        with self.assertRaises(ValueError):self.store.status()
+        self.assertEqual(before,self.store.record.read_bytes())
+
     def test_acquire_renew_release_are_scoped_and_keep_a_logical_expiry(self):
         result=self.store.execute('acquire',self.request);self.assertTrue(result['reservationAcquired']);self.assertEqual(91000,result['leaseExpiresAt'])
         self.now=2000;self.assertEqual(92000,self.store.execute('renew',self.scope)['leaseExpiresAt'])

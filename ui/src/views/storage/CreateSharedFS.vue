@@ -1055,7 +1055,7 @@ import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 import { storageReadDeadline } from '@/utils/storageRead'
 import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive, toRaw, h } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
@@ -2141,23 +2141,33 @@ export default {
       })
     },
     async runInitialStorageServiceSetup (jobId, setup, notificationKey) {
+      const preparation = {}
       try {
         if (this.initialAdInteractive && this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
         const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
-        await this.configureInitialStorageServices(result, setup, notificationKey)
+        await this.configureInitialStorageServices(result, setup, notificationKey, preparation)
       } catch (error) {
         this.notifyStorageServiceSetup(
           notificationKey,
           'error',
           'message.storage.service.setup.partial.failed',
-          error?.message || setup.name,
+          this.initialSetupFailureDescription(preparation),
           0
         )
       } finally {
         this.clearInitialBlockSecrets(setup)
         this.clearInitialAdCredentials(setup)
       }
+    },
+    initialSetupFailureDescription (preparation = {}) {
+      const description = [h('p', this.$t('message.storage.volume.setup.failed.summary'))]
+      if (typeof preparation.sharedFsId === 'string' && preparation.sharedFsId) {
+        let href = '#/sharedfs/' + encodeURIComponent(preparation.sharedFsId) + '?tab=operations'
+        if (typeof preparation.volumeId === 'string' && preparation.volumeId) href += '&volumeid=' + encodeURIComponent(preparation.volumeId)
+        description.push(h('a', { href }, this.$t('label.storage.volume.preparation.open')))
+      }
+      return h('div', description)
     },
     notifyStorageServiceSetup (key, type, messageKey, description, duration = 4.5) {
       const notifier = this.$notification[type] || this.$notification.info
@@ -2168,7 +2178,7 @@ export default {
         duration
       })
     },
-    async configureInitialStorageServices (result, setup, notificationKey) {
+    async configureInitialStorageServices (result, setup, notificationKey, preparation = {}) {
       if (!setup?.services || setup.services.length === 0) {
         return
       }
@@ -2176,6 +2186,8 @@ export default {
         this.assertStorageServiceSetupApis(setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resolve.running', setup.name, 0)
         const sharedfs = await this.resolveCreatedSharedFileSystem(result)
+        preparation.sharedFsId = sharedfs.id
+        preparation.volumeId = setup.useexistingvolume ? setup.existingvolumeid : (sharedfs.volumeid || sharedfs.volumeId)
         if (setup.useexistingvolume) setup = { ...setup, importmode: 'MOUNT_EXISTING', filesystem: sharedfs.filesystem || setup.filesystem }
         const instance = await this.findStorageServiceInstance(sharedfs, setup)
         if (!instance) {
