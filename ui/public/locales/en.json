@@ -361,7 +361,7 @@
   "label.storage.config.confirmation": "Enter the target service name",
   "label.storage.config.apply": "Apply reviewed plan",
   "message.storage.operation.reconcile.running": "Verifying the current configuration. Progress appears in operation history.",
-  "message.storage.operation.reconcile.help": "The server checks the operation type and any later verified revision. When recovery is needed, it restores the preserved source configuration. When a later verified revision supersedes the operation, it verifies the current configuration and retains the original diagnostic and supersession history. DATA volumes are not formatted.",
+  "message.storage.operation.reconcile.help": "The server validates preserved evidence. When exact proof exists, it completes the verified target configuration of the same original request; otherwise, it restores the preserved source configuration when authorized. If a later verified revision has superseded the operation, it verifies the current configuration and retains the original diagnostic and supersession history. DATA volumes are not formatted.",
   "message.storage.operation.read.failed": "Operation history could not be refreshed. Last known rows remain visible.",
   "label.storage.operation.state.RUNNING": "Applying",
   "label.storage.operation.state.ROLLED_BACK": "Previous configuration restored",
