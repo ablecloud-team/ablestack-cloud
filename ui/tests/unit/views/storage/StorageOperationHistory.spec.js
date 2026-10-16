@@ -27,8 +27,16 @@ jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 describe('Configuration operation recovery history', () => {
   beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
   it.each([
-    ['ko_KR', ['보존된 원본 설정', '후속 정상 리비전', 'DATA는 포맷하지 않습니다']],
-    ['en', ['preserved source configuration', 'later verified revision', 'DATA volumes are not formatted']]
+    ['ko_KR', [
+      '보존된 원본 설정', '후속 정상 리비전', 'DATA는 포맷하지 않습니다',
+      '동일한 원래 요청에서', '검증을 마친 목표 구성', '정확한 증거가 있으면',
+      '권한이 허용하는 경우', '원래 진단과 대체 이력'
+    ]],
+    ['en', [
+      'preserved source configuration', 'later verified revision', 'DATA volumes are not formatted',
+      'same original request', 'verified target configuration', 'When exact proof exists',
+      'when authorized', 'original diagnostic and supersession history'
+    ]]
   ])('shows both recovery outcomes in the actual %s confirmation dialog', async (locale, requiredInformation) => {
     const messages = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../public/locales', locale + '.json'), 'utf8'))
     getAPI.mockResolvedValue({ liststorageserviceoperationsresponse: { storageserviceoperation: [] } })
