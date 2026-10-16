@@ -292,9 +292,15 @@ class Network:
                 raise ValueError("OBSERVATION_UNAVAILABLE")
         return removals, keep
 
-    def resolver_values(self):
-        return [str(ipaddress.ip_address(line.split()[1])) for line in self.resolver.read_text().splitlines()
-                if line.split() and line.split()[0] == "nameserver" and len(line.split()) == 2]
+    def resolver_values(self, text):
+        values = []
+        for line in text.splitlines():
+            fields = line.split("#", 1)[0].split()
+            if fields and fields[0] == "nameserver":
+                if len(fields) != 2:
+                    raise ValueError("DNS_MISMATCH")
+                values.append(str(ipaddress.ip_address(fields[1])))
+        return values
 
     def inspect(self):
         now = time.time()
@@ -319,9 +325,15 @@ class Network:
             defaults = [{"gateway": r.get("gateway"), "interfaceName": name} for r in routes if r.get("dev") == name]
             unit = self.unit("cloud-dhclient@" + name + ".service")
             count = len(self.clients(name))
+            resolver_text = protected_text(self.resolver)
+            malformed_dns = False
+            try:
+                dns = self.resolver_values(resolver_text)
+            except ValueError:
+                dns, malformed_dns = [], True
             actual = {"mode": "STATIC" if unit["masked"] and not count else "DHCP" if unit["active"] or count else "UNKNOWN",
                       "interfaceName": name, "macAddress": link["address"].lower(), "addresses": addresses, "defaultRoutes": defaults,
-                      "dns": self.resolver_values(), "dhcpUnit": unit, "dhcpProcessCount": count}
+                      "dns": dns, "dhcpUnit": unit, "dhcpProcessCount": count}
             result["actual"] = actual
             mismatches = []
             if expected["mode"] == "STATIC":
@@ -345,9 +357,9 @@ class Network:
                     mismatches.append("DHCP_ADDRESS_UNAVAILABLE")
                 if not unit["active"] or unit["masked"] or not count:
                     mismatches.append("DHCP_UNIT_NOT_RUNNING")
-            search_domains = [value for line in self.resolver.read_text().splitlines() for fields in [line.split("#", 1)[0].split()]
+            search_domains = [value for line in resolver_text.splitlines() for fields in [line.split("#", 1)[0].split()]
                               if fields and fields[0] == "search" for value in fields[1:]]
-            if expected["dns"] and actual["dns"] != expected["dns"] or _search and search_domains != [_search]:
+            if malformed_dns or expected["dns"] and actual["dns"] != expected["dns"] or _search and search_domains != [_search]:
                 mismatches.append("DNS_MISMATCH")
             result.update(success=not mismatches, status="ERROR" if mismatches else "OK", mismatches=mismatches)
         except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError):
