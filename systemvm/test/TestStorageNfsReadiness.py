@@ -78,6 +78,59 @@ class StorageNfsReadinessTest(unittest.TestCase):
                 self.assertEqual(1,self.runner.concurrency)
                 self.assertEqual([],list(self.root.iterdir()))
 
+    def actual_ctl_progress_coordinator(self):
+        from boot_reconcile import BootCoordinator
+        cli=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        body=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",cli.read_text(),re.S)
+                  if "def probe_nfs_export_visibility(" in value)
+        function=next(node for node in ast.parse(body).body if isinstance(node,ast.FunctionDef)
+                      and node.name=="probe_nfs_export_visibility")
+        progress=next(node for node in function.body if isinstance(node,ast.FunctionDef) and node.name=="progress")
+        coordinator=BootCoordinator("a"*64,{"probeTasks":100,"endpointModeGroups":1,
+            "configuredProtocolCount":1,"concurrency":1},journal=self.root/"progress/status.json",
+            checkpoint_dir=self.root/"receipts",configured_protocols=("NFS",))
+        endpoint=self.endpoint()
+        namespace={"coordinator":coordinator,"runtime":[endpoint]}
+        exec(compile(ast.Module(body=[progress],type_ignores=[]),str(cli),"exec"),namespace)
+        self.runner.report=namespace["progress"]
+        return coordinator,endpoint
+
+    def test_actual_ctl_last_successful_probe_100_of_100_waits_for_verification(self):
+        coordinator,endpoint=self.actual_ctl_progress_coordinator()
+        failures,endpoint,_=self.run_exports(100,endpoint=endpoint)
+        self.assertEqual([],failures)
+        row=coordinator.heartbeat()["protocols"]["NFS"]
+        self.assertEqual((100,100),(row["completedProbeCount"],row["totalProbeCount"]))
+        self.assertEqual("PENDING",row["probeState"])
+        self.assertFalse(row["verified"])
+        self.assertEqual("UNVERIFIED",row["detailVerificationKind"])
+        self.assertIsNone(coordinator.record["lastFailure"])
+        verified={"success":True,"runtimeReady":True,"detailVerified":True,"probePending":0,
+            "completedProbeCount":100,"totalProbeCount":100,"skippedAclCount":0,
+            "detailVerificationKind":"MOUNT_PROBES_COMPLETE","lastFailure":None}
+        self.assertTrue(coordinator.report_protocol("NFS","VERIFY_ALL",verified))
+        self.assertEqual("VERIFIED",coordinator.heartbeat()["protocols"]["NFS"]["probeState"])
+        self.assertEqual("READY",coordinator.finish()["status"])
+
+    def test_actual_ctl_permission_denial_at_99_of_100_remains_failed(self):
+        coordinator,endpoint=self.actual_ctl_progress_coordinator()
+        def command(args,maximum,context=None):
+            if args[0]=="mount" and args[-2].endswith("/share99"):
+                self.calls.append(args)
+                return subprocess.CompletedProcess(args,32,"","mount.nfs: access denied by server")
+            return self.command(args,maximum,context)
+        self.runner.run_command=command
+        failures,endpoint,_=self.run_exports(100,endpoint=endpoint)
+        self.assertTrue(failures)
+        row=coordinator.heartbeat()["protocols"]["NFS"]
+        self.assertEqual((99,100),(row["completedProbeCount"],row["totalProbeCount"]))
+        self.assertEqual("FAILED",row["probeState"])
+        self.assertFalse(row["verified"])
+        self.assertEqual("PROBE_PERMISSION_DENIED",coordinator.record["lastFailure"]["code"])
+        self.assertFalse(coordinator.record["lastFailure"]["retryable"])
+        self.assertEqual({"complete":True,"childActive":False,"mountPresent":False},
+                         coordinator.record["lastFailure"]["cleanup"])
+
     def test_representative_endpoint_modes_precede_remaining_exports(self):
         a,b=self.endpoint(),self.endpoint(1)
         exports=[self.export(0,True),self.export(1,True)]

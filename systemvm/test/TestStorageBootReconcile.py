@@ -91,6 +91,82 @@ class StorageBootReconcileTest(unittest.TestCase):
         self.assertFalse(c.run_protocol("NFS", "b" * 64, lambda: result, lambda: result))
         self.assertFalse(c.record["protocols"]["NFS"]["verified"])
 
+    def test_successful_apply_ack_stays_pending_until_failed_fresh_verify(self):
+        c = self.coordinator()
+        ack = dict(self.report(True), runtimeReady=False, probePending=0,
+                   completedProbeCount=0, totalProbeCount=0)
+        failure = c.failure("PROBE_PERMISSION_DENIED", "NFS", cleanup_complete=True)
+        denied = dict(self.report(), success=False, detailVerified=False,
+                      completedProbeCount=99, totalProbeCount=100,
+                      detailVerificationKind="UNVERIFIED", lastFailure=failure)
+        def verify():
+            row = c.heartbeat()["protocols"]["NFS"]
+            self.assertEqual("PENDING", row["probeState"])
+            self.assertFalse(row["verified"])
+            self.assertEqual("UNVERIFIED", row["detailVerificationKind"])
+            return denied
+        self.assertFalse(c.run_protocol("NFS", "b" * 64, lambda: ack, verify))
+        row = c.heartbeat()["protocols"]["NFS"]
+        self.assertEqual("FAILED", row["probeState"])
+        self.assertEqual(99, row["completedProbeCount"])
+        self.assertEqual(failure, c.record["lastFailure"])
+
+    def test_explicit_progress_cannot_hide_structured_or_cleanup_failure(self):
+        c = self.coordinator()
+        failure = c.failure("PROBE_PERMISSION_DENIED", "NFS", cleanup_complete=True)
+        result = dict(self.report(True), success=False, completedProbeCount=99,
+                      totalProbeCount=100, lastFailure=failure)
+        self.assertFalse(c.report_protocol("NFS", "PROBE_EXPORTS", result, in_progress=True))
+        self.assertEqual("FAILED", c.heartbeat()["protocols"]["NFS"]["probeState"])
+        self.assertEqual(failure, c.record["lastFailure"])
+        failure = c.failure("CLEANUP_PENDING", "NFS")
+        result["lastFailure"] = failure
+        c.report_protocol("NFS", "PROBE_EXPORTS", result, in_progress=True)
+        self.assertEqual("FAILED", c.heartbeat()["protocols"]["NFS"]["probeState"])
+        held = c.hold("NFS_PROBE_CLEANUP_PENDING", failure)
+        self.assertEqual("HELD", held["status"])
+        self.assertEqual(failure, held["lastFailure"])
+        self.assertFalse(held["detailedVerified"])
+
+    def test_progress_flag_and_failure_schema_are_strict_before_journal_update(self):
+        c = self.coordinator()
+        before = c.journal.read_bytes()
+        for flag in (1, "true", None):
+            with self.subTest(flag=flag), self.assertRaises(ValueError):
+                c.report_protocol("NFS", "PROBE_EXPORTS", self.report(True), in_progress=flag)
+            self.assertEqual(before, c.journal.read_bytes())
+        for failure in ({}, {"code": "PROBE_PERMISSION_DENIED"}, "FAILED", False):
+            with self.subTest(failure=failure), self.assertRaises(ValueError):
+                c.report_protocol("NFS", "PROBE_EXPORTS",
+                                  dict(self.report(True), lastFailure=failure), in_progress=True)
+            self.assertEqual(before, c.journal.read_bytes())
+
+    def test_disabled_apply_ack_waits_for_fresh_verified_absence(self):
+        c = self.coordinator(workload=dict(self.work, configuredProtocolCount=0,
+                                          probeTasks=0, endpointModeGroups=0),
+                             configured_protocols=())
+        ack = dict(self.report(True), runtimeReady=False, probePending=0,
+                   completedProbeCount=0, totalProbeCount=0)
+        absent = dict(ack, runtimeReady=True, detailVerified=True,
+                      detailVerificationKind="NOT_REQUIRED")
+        def verify():
+            row = c.heartbeat()["protocols"]["NFS"]
+            self.assertEqual("PENDING", row["probeState"])
+            self.assertFalse(row["verified"])
+            return absent
+        self.assertTrue(c.run_protocol("NFS", "b" * 64, lambda: ack, verify, configured=False))
+        row = c.heartbeat()["protocols"]["NFS"]
+        self.assertEqual("NOT_REQUIRED", row["probeState"])
+        self.assertFalse(row["listenerReady"])
+
+    def test_terminal_failure_without_progress_flag_is_never_silent_pending(self):
+        c = self.coordinator()
+        result = dict(self.report(), success=False, detailVerified=False,
+                      detailVerificationKind="UNVERIFIED")
+        self.assertFalse(c.report_protocol("NFS", "VERIFY_ALL", result))
+        self.assertEqual("FAILED", c.heartbeat()["protocols"]["NFS"]["probeState"])
+        self.assertFalse(c.record["protocols"]["NFS"]["verified"])
+
     def test_boot_and_desired_and_payload_change_invalidate_reuse(self):
         c = self.coordinator()
         c.run_protocol("SMB", "b" * 64, lambda: self.report(domain="SMB"), lambda: self.report(domain="SMB"))
