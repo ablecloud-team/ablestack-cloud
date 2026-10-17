@@ -74,6 +74,10 @@ public class StorageConfigCloneTemplatePinTest {
         int cloudCreates;
         int runtimeCalls;
         int bindCalls;
+        StorageServiceInstanceVO databaseTarget;
+        StorageServiceInstanceVO runtimeUpdatedTarget;
+        StorageServiceInstanceVO boundTarget;
+        Runnable runtimeMutation;
         @Override protected void requireConfigurationAdministrator() { }
         @Override public String captureConfigurationSnapshot(long instanceId) { return "{}"; }
         @Override protected void preflightConfigurationRuntimeBundle(String bundleUuid) { }
@@ -96,15 +100,24 @@ public class StorageConfigCloneTemplatePinTest {
         }
         @Override protected void upgradeConfigurationNewServiceRuntime(StorageServiceInstanceVO instance, String bundleUuid) {
             runtimeCalls++;
-            throw new BoundaryStop();
+            if (runtimeUpdatedTarget == null) throw new BoundaryStop();
+            Assert.assertSame(target, instance);
+            // Match the real upgrade manager: a distinct DAO instance is persisted, while the caller VO stays stale.
+            databaseTarget = runtimeUpdatedTarget;
+            if (runtimeMutation != null) runtimeMutation.run();
         }
         @Override protected StorageServiceInstanceVO configurationInstanceByUuid(String uuid) {
             Assert.assertEquals(target.getUuid(), uuid);
-            return target;
+            return databaseTarget == null ? target : databaseTarget;
         }
         @Override protected JsonObject bindConfigurationVolumeExecution(StorageServiceInstanceVO instance,
                 StorageConfigArtifactVO artifact, JsonObject plan) {
             bindCalls++;
+            boundTarget = instance;
+            if (runtimeUpdatedTarget != null) {
+                Assert.assertSame(runtimeUpdatedTarget, instance);
+                Assert.assertEquals(Long.valueOf(19L), instance.getCurrentRuntimeBundleId());
+            }
             throw new BoundaryStop();
         }
     }
@@ -209,6 +222,7 @@ public class StorageConfigCloneTemplatePinTest {
         Mockito.when(target.getUuid()).thenReturn(id(902));
         Mockito.when(target.getVmId()).thenReturn(VM_ID);
         Mockito.when(target.getAccountId()).thenReturn(2L);
+        Mockito.when(target.getDomainId()).thenReturn(1L);
         Mockito.when(target.getDataCenterId()).thenReturn(1L);
         UserVmDao vms = Mockito.mock(UserVmDao.class);
         vm = Mockito.mock(UserVmVO.class);
@@ -341,6 +355,63 @@ public class StorageConfigCloneTemplatePinTest {
         Assert.assertFalse(saved().has("planToken"));
         Assert.assertEquals(target.getUuid(), saved().get("createdTargetInstanceUuid").getAsString());
         Assert.assertEquals(root.getUuid(), saved().getAsJsonObject("createdTargetTemplateBinding").get("rootVolumeUuid").getAsString());
+    }
+
+    private StorageServiceInstanceVO upgradedDaoTarget() {
+        StorageServiceInstanceVO fresh = Mockito.mock(StorageServiceInstanceVO.class);
+        long instanceId = target.getId(), accountId = target.getAccountId();
+        long domainId = target.getDomainId(), zoneId = target.getDataCenterId();
+        String instanceUuid = target.getUuid();Long vmId = target.getVmId();
+        Mockito.when(fresh.getId()).thenReturn(instanceId);
+        Mockito.when(fresh.getUuid()).thenReturn(instanceUuid);
+        Mockito.when(fresh.getVmId()).thenReturn(vmId);
+        Mockito.when(fresh.getAccountId()).thenReturn(accountId);
+        Mockito.when(fresh.getDomainId()).thenReturn(domainId);
+        Mockito.when(fresh.getDataCenterId()).thenReturn(zoneId);
+        Mockito.when(fresh.getCurrentRuntimeBundleId()).thenReturn(19L);
+        return fresh;
+    }
+
+    @Test public void firstApplyReloadsIndependentDaoRuntimeProjectionBeforeFoundationBinding() {
+        Mockito.when(target.getCurrentRuntimeBundleId()).thenReturn((Long) null);
+        manager.runtimeUpdatedTarget = upgradedDaoTarget();
+        reviewed(manager.pinConfigurationCloneTemplate(blueprint));
+        Assert.assertThrows(BoundaryStop.class, this::applyReviewed);
+        Assert.assertEquals(1, manager.cloudCreates);
+        Assert.assertEquals(1, manager.runtimeCalls);
+        Assert.assertEquals(1, manager.bindCalls);
+        Assert.assertSame(manager.runtimeUpdatedTarget, manager.boundTarget);
+        Assert.assertNull(target.getCurrentRuntimeBundleId());
+        Assert.assertEquals(BUNDLE, saved().get("runtimePreparedBundleUuid").getAsString());
+        Assert.assertEquals(target.getUuid(), saved().get("createdTargetInstanceUuid").getAsString());
+        Assert.assertEquals(root.getUuid(), saved().getAsJsonObject("createdTargetTemplateBinding").get("rootVolumeUuid").getAsString());
+    }
+
+    @Test public void changedTargetRelationsOrRecordedRootAfterRuntimeRejectBeforeFoundationBinding() {
+        for (String relation : List.of("id", "uuid", "vm", "account", "domain", "zone", "root")) {
+            Mockito.when(root.getUuid()).thenReturn(id(56));
+            manager.runtimeMutation = null;
+            manager.runtimeUpdatedTarget = upgradedDaoTarget();
+            StorageServiceInstanceVO fresh = manager.runtimeUpdatedTarget;
+            switch (relation) {
+                case "id": Mockito.when(fresh.getId()).thenReturn(78L);break;
+                case "uuid": Mockito.when(fresh.getUuid()).thenReturn(id(999));break;
+                case "vm": Mockito.when(fresh.getVmId()).thenReturn(VM_ID + 1);break;
+                case "account": Mockito.when(fresh.getAccountId()).thenReturn(3L);break;
+                case "domain": Mockito.when(fresh.getDomainId()).thenReturn(2L);break;
+                case "zone": Mockito.when(fresh.getDataCenterId()).thenReturn(2L);break;
+                case "root": manager.runtimeMutation = () -> Mockito.when(root.getUuid()).thenReturn(id(999));break;
+                default: Assert.fail("Unexpected relation fixture");
+            }
+            reviewed(manager.pinConfigurationCloneTemplate(blueprint));
+            Assert.assertThrows(InvalidParameterValueException.class, this::applyReviewed);
+            Assert.assertEquals(0, manager.bindCalls);
+            Assert.assertEquals("FAILED", saved().get("restoreState").getAsString());
+            Assert.assertEquals(target.getUuid(), saved().get("createdTargetInstanceUuid").getAsString());
+            Assert.assertEquals(id(56), saved().getAsJsonObject("createdTargetTemplateBinding").get("rootVolumeUuid").getAsString());
+        }
+        Assert.assertEquals(7, manager.cloudCreates);
+        Assert.assertEquals(7, manager.runtimeCalls);
     }
 
     @Test public void explicitSystemDoesNotAcquireUnrelatedDefaultSemantics() {

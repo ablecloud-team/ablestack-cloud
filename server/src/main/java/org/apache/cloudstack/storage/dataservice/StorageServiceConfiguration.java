@@ -847,11 +847,27 @@ public final class StorageServiceConfiguration {
             if (!metadata.has("createdTargetTemplateBinding") || !realizedTemplate.equals(metadata.get("createdTargetTemplateBinding")))
                 throw new InvalidParameterValueException("Clone realized ROOT or template differs from its preserved target");
             manager.requireConfigurationResolvedPrimary(selectedTarget, plan);
+            long targetId = selectedTarget.getId(), targetAccount = selectedTarget.getAccountId();
+            long targetDomain = selectedTarget.getDomainId(), targetZone = selectedTarget.getDataCenterId();
+            String targetUuid = selectedTarget.getUuid();Long targetVm = selectedTarget.getVmId();
             if (!plan.get("runtimeBundleUuid").getAsString().equals(metadata.has("runtimePreparedBundleUuid") ? metadata.get("runtimePreparedBundleUuid").getAsString() : null)) {
                 manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
                 metadata.add("runtimePreparedBundleUuid", plan.get("runtimeBundleUuid").deepCopy());
                 update(row, metadata, row.getState());
             }
+            // Runtime activation persists a separately loaded DAO object; never carry its pre-upgrade projection into foundation.
+            StorageServiceInstanceVO freshTarget = manager.configurationInstanceByUuid(targetUuid);
+            if (freshTarget.getId() != targetId
+                    || !java.util.Objects.equals(freshTarget.getUuid(), targetUuid)
+                    || !java.util.Objects.equals(freshTarget.getVmId(), targetVm)
+                    || freshTarget.getAccountId() != targetAccount
+                    || freshTarget.getDomainId() != targetDomain
+                    || freshTarget.getDataCenterId() != targetZone
+                    || !metadata.get("createdTargetInstanceUuid").getAsString().equals(freshTarget.getUuid())
+                    || !metadata.get("createdTargetTemplateBinding").equals(
+                            manager.configurationCloneCreatedTemplateBinding(freshTarget, plan.getAsJsonObject("cloneTemplatePin"))))
+                throw new InvalidParameterValueException("Clone target ownership, VM or recorded template binding changed after runtime preparation");
+            selectedTarget = freshTarget;
             executionPlan.addProperty("targetInstanceUuid", selectedTarget.getUuid());executionPlan.addProperty("expectedRevision", 0);
             JsonObject realized = manager.bindConfigurationVolumeExecution(selectedTarget, row, plan.getAsJsonObject("volumeAllocationPlan"));
             if (metadata.has("volumeExecutionPlan") && !realized.equals(metadata.get("volumeExecutionPlan"))) throw new CloudRuntimeException("Clone execution realization changed after persistence");
