@@ -6820,22 +6820,27 @@ class BootCoordinator:
                 "code": code, "timedOut": timed_out, "retryable": retryable,
                 "cleanup": {"complete": cleanup_complete, "childActive": False, "mountPresent": False}}
 
-    def report_protocol(self, domain, phase, result):
-        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES)
+    def report_protocol(self, domain, phase, result, *, in_progress=False):
+        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES and type(in_progress) is bool)
         report = boot_report(result)
-        verified = (report["success"] and report["runtimeReady"] and report["detailVerified"]
+        verified = (not in_progress and report["lastFailure"] is None
+                    and report["success"] and report["runtimeReady"] and report["detailVerified"]
                     and report["probePending"] == 0
                     and report["completedProbeCount"] == report["totalProbeCount"])
+        # A completed mount count is still provisional until its final report.
+        # A structured failure always takes precedence over progress.
+        pending = report["lastFailure"] is None and (in_progress or report["probePending"] > 0)
         def update():
             row = self.record["protocols"][domain]
             row.update(listenerReady=report["runtimeReady"], observationComplete=True,
-                       probeState="VERIFIED" if verified else "PENDING" if report["probePending"] else "FAILED",
+                       probeState="VERIFIED" if verified else "PENDING" if pending else "FAILED",
                        verified=verified, completedProbeCount=report["completedProbeCount"],
                        totalProbeCount=report["totalProbeCount"], skippedAclCount=report["skippedAclCount"],
                        detailVerificationKind=report["detailVerificationKind"])
             if not row["configured"]:
-                row.update(listenerReady=False, applyState="NOT_REQUIRED" if verified else "FAILED",
-                           probeState="NOT_REQUIRED" if verified else "FAILED")
+                row.update(listenerReady=False,
+                           applyState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED",
+                           probeState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED")
             elif verified:
                 row["applyState"] = "VERIFIED"
             elif report["runtimeReady"]:
@@ -6878,7 +6883,9 @@ class BootCoordinator:
                 applyState="APPLYING", verified=False, observationComplete=False,
                 probeState="PENDING", detailVerificationKind="UNVERIFIED"))
             applied = boot_report(apply_callback())
-            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied)
+            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied,
+                                 in_progress=applied["success"] and not applied["detailVerified"]
+                                 and applied["lastFailure"] is None)
             if applied["success"] and self.remaining() > 0:
                 verified = self.report_protocol(domain, "VERIFY_ALL", verify_callback())
                 if verified:
@@ -8139,7 +8146,7 @@ def probe_nfs_export_visibility(runtime, endpoint_exports):
     def progress(phase,counts):
         if coordinator:
             coordinator.report_protocol("NFS",phase,{"success":False,"runtimeReady":all(row.get("exportInventoryReady") is True for row in runtime),
-                "detailVerified":False,"probePending":max(0,counts["totalProbeCount"]-counts["completedProbeCount"]),**counts})
+                "detailVerified":False,"probePending":max(0,counts["totalProbeCount"]-counts["completedProbeCount"]),**counts},in_progress=True)
     coordinator=BootCoordinator.attach_existing()
     return NfsProbeRunner(payload,nfs_probe_root,deadline,select_mount_host,progress).run(runtime,endpoint_exports)
 
@@ -8573,7 +8580,7 @@ try:
     if coordinator:
         coordinator.report_protocol("NFS","WAIT_RUNTIME_READY",{"success":False,"runtimeReady":False,"detailVerified":False,
             "probePending":1,"completedProbeCount":0,"totalProbeCount":0,"skippedAclCount":0,
-            "detailVerificationKind":"UNVERIFIED","lastFailure":None})
+            "detailVerificationKind":"UNVERIFIED","lastFailure":None},in_progress=True)
     runtime_endpoints=start_ganesha_endpoints(configs if enabled else [])
     runtime_probe_failures=probe_nfs_export_visibility(runtime_endpoints,endpoint_exports if enabled else {})
 except NfsReadinessError as failure:
@@ -28239,22 +28246,27 @@ class BootCoordinator:
                 "code": code, "timedOut": timed_out, "retryable": retryable,
                 "cleanup": {"complete": cleanup_complete, "childActive": False, "mountPresent": False}}
 
-    def report_protocol(self, domain, phase, result):
-        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES)
+    def report_protocol(self, domain, phase, result, *, in_progress=False):
+        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES and type(in_progress) is bool)
         report = boot_report(result)
-        verified = (report["success"] and report["runtimeReady"] and report["detailVerified"]
+        verified = (not in_progress and report["lastFailure"] is None
+                    and report["success"] and report["runtimeReady"] and report["detailVerified"]
                     and report["probePending"] == 0
                     and report["completedProbeCount"] == report["totalProbeCount"])
+        # A completed mount count is still provisional until its final report.
+        # A structured failure always takes precedence over progress.
+        pending = report["lastFailure"] is None and (in_progress or report["probePending"] > 0)
         def update():
             row = self.record["protocols"][domain]
             row.update(listenerReady=report["runtimeReady"], observationComplete=True,
-                       probeState="VERIFIED" if verified else "PENDING" if report["probePending"] else "FAILED",
+                       probeState="VERIFIED" if verified else "PENDING" if pending else "FAILED",
                        verified=verified, completedProbeCount=report["completedProbeCount"],
                        totalProbeCount=report["totalProbeCount"], skippedAclCount=report["skippedAclCount"],
                        detailVerificationKind=report["detailVerificationKind"])
             if not row["configured"]:
-                row.update(listenerReady=False, applyState="NOT_REQUIRED" if verified else "FAILED",
-                           probeState="NOT_REQUIRED" if verified else "FAILED")
+                row.update(listenerReady=False,
+                           applyState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED",
+                           probeState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED")
             elif verified:
                 row["applyState"] = "VERIFIED"
             elif report["runtimeReady"]:
@@ -28297,7 +28309,9 @@ class BootCoordinator:
                 applyState="APPLYING", verified=False, observationComplete=False,
                 probeState="PENDING", detailVerificationKind="UNVERIFIED"))
             applied = boot_report(apply_callback())
-            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied)
+            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied,
+                                 in_progress=applied["success"] and not applied["detailVerified"]
+                                 and applied["lastFailure"] is None)
             if applied["success"] and self.remaining() > 0:
                 verified = self.report_protocol(domain, "VERIFY_ALL", verify_callback())
                 if verified:
@@ -36832,22 +36846,27 @@ class BootCoordinator:
                 "code": code, "timedOut": timed_out, "retryable": retryable,
                 "cleanup": {"complete": cleanup_complete, "childActive": False, "mountPresent": False}}
 
-    def report_protocol(self, domain, phase, result):
-        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES)
+    def report_protocol(self, domain, phase, result, *, in_progress=False):
+        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES and type(in_progress) is bool)
         report = boot_report(result)
-        verified = (report["success"] and report["runtimeReady"] and report["detailVerified"]
+        verified = (not in_progress and report["lastFailure"] is None
+                    and report["success"] and report["runtimeReady"] and report["detailVerified"]
                     and report["probePending"] == 0
                     and report["completedProbeCount"] == report["totalProbeCount"])
+        # A completed mount count is still provisional until its final report.
+        # A structured failure always takes precedence over progress.
+        pending = report["lastFailure"] is None and (in_progress or report["probePending"] > 0)
         def update():
             row = self.record["protocols"][domain]
             row.update(listenerReady=report["runtimeReady"], observationComplete=True,
-                       probeState="VERIFIED" if verified else "PENDING" if report["probePending"] else "FAILED",
+                       probeState="VERIFIED" if verified else "PENDING" if pending else "FAILED",
                        verified=verified, completedProbeCount=report["completedProbeCount"],
                        totalProbeCount=report["totalProbeCount"], skippedAclCount=report["skippedAclCount"],
                        detailVerificationKind=report["detailVerificationKind"])
             if not row["configured"]:
-                row.update(listenerReady=False, applyState="NOT_REQUIRED" if verified else "FAILED",
-                           probeState="NOT_REQUIRED" if verified else "FAILED")
+                row.update(listenerReady=False,
+                           applyState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED",
+                           probeState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED")
             elif verified:
                 row["applyState"] = "VERIFIED"
             elif report["runtimeReady"]:
@@ -36890,7 +36909,9 @@ class BootCoordinator:
                 applyState="APPLYING", verified=False, observationComplete=False,
                 probeState="PENDING", detailVerificationKind="UNVERIFIED"))
             applied = boot_report(apply_callback())
-            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied)
+            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied,
+                                 in_progress=applied["success"] and not applied["detailVerified"]
+                                 and applied["lastFailure"] is None)
             if applied["success"] and self.remaining() > 0:
                 verified = self.report_protocol(domain, "VERIFY_ALL", verify_callback())
                 if verified:
