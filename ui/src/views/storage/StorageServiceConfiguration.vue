@@ -336,7 +336,7 @@ export default {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
       const body = value[api.toLowerCase() + 'response'] || value
-      const result = body.storageserviceconfiguration || body
+      const result = body.storageserviceconfigartifact || body.storageserviceconfiguration || body
       return typeof result.result === 'string' ? JSON.parse(result.result) : result.result || result
     },
     async refresh () {

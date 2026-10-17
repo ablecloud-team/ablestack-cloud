@@ -85,6 +85,18 @@ describe('Configuration backup and restore UI boundaries', () => {
     expect(Widget.methods.unwrap({ liststorageserviceconfigbackupsresponse: { result: JSON.stringify(value) } }, 'listStorageServiceConfigBackups')).toEqual(value)
     expect(Widget.methods.unwrap({ storageserviceconfiguration: { result: JSON.stringify(value) } }, 'queryAsyncJobResult')).toEqual(value)
   })
+  it('parses the actual async backup artifact envelope without promoting unavailable runtime', async () => {
+    const artifact = { id: 'b958c838-4b8a-408b-bccd-0327a99e3e06', kind: 'BACKUP', state: 'PARTIAL', metadata: { runtimeStatus: 'UNAVAILABLE', sourceNativeVerified: false } }
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
+    postAPI.mockResolvedValue({ createstorageserviceconfigbackupresponse: { jobid: '904a89e5-0c7e-41ab-a6c3-e55ac47dd637' } })
+    getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 1, jobresultcode: 0, jobresult: { storageserviceconfigartifact: { id: artifact.id, result: JSON.stringify(artifact) } } } })
+    await expect(Widget.methods.mutation.call(vm, 'createStorageServiceConfigBackup', {})).resolves.toEqual(artifact)
+    expect(getAPI.mock.calls[0][1]).toEqual({ jobid: '904a89e5-0c7e-41ab-a6c3-e55ac47dd637' })
+  })
+  it('keeps legacy configuration wrappers when the artifact envelope is absent', () => {
+    const value = { id: 'legacy-artifact', metadata: { plan: { blockers: [] } } }
+    expect(Widget.methods.unwrap({ planstorageserviceconfigrestoreresponse: { storageserviceconfigartifact: null, storageserviceconfiguration: { result: JSON.stringify(value) } } }, 'planStorageServiceConfigRestore')).toEqual(value)
+  })
   it('does not use a previous service download token after navigating away', async () => {
     let complete
     postAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
