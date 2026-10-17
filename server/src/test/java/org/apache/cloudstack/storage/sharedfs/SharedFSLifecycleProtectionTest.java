@@ -43,6 +43,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyBoolean;
 
 public class SharedFSLifecycleProtectionTest {
     private SharedFSServiceImpl service;
@@ -97,5 +101,19 @@ public class SharedFSLifecycleProtectionTest {
         when(vm.getState()).thenReturn(VirtualMachine.State.Running);
         when(guest.dispatch(any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);return new StorageServiceGuestCommandResult(true,"observed",command.getOperation().equals("operation writer-idle")?"{\"success\":true,\"status\":\"WRITER_IDLE\"}":"{\"success\":true,\"status\":\"RECOVERY_REQUIRED\",\"formatterActive\":false,\"operation\":{\"phase\":\"FORMATTING\",\"formatStarted\":true}}");});
         Assert.assertThrows(CloudRuntimeException.class,()->service.requireNativeLifecycleIdle(shared));verifyNoInteractions(details);
+    }
+
+    @Test public void missingNativeJournalCannotClearPersistentUnverifiedFormatIntent() {
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running);receipt("UNVERIFIED_FORMAT_INTENT");
+        when(guest.dispatch(any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);return new StorageServiceGuestCommandResult(true,"observed",command.getOperation().equals("operation writer-idle")?"{\"success\":true,\"status\":\"WRITER_IDLE\"}":"{\"success\":true,\"status\":\"NOT_STARTED\",\"formatterActive\":false}");});
+        Assert.assertThrows(CloudRuntimeException.class,()->service.requireNativeLifecycleIdle(shared));
+        verify(details,never()).addDetail(anyLong(),anyString(),anyString(),anyBoolean());
+    }
+    @Test public void missingNativeJournalRetainsOnlyAnExactAlreadyVerifiedReceipt() {
+        when(vm.getState()).thenReturn(VirtualMachine.State.Running);receipt("VERIFIED");
+        when(guest.dispatch(any())).thenAnswer(call->{StorageServiceGuestCommand command=call.getArgument(0);return new StorageServiceGuestCommandResult(true,"observed",command.getOperation().equals("operation writer-idle")?"{\"success\":true,\"status\":\"WRITER_IDLE\"}":"{\"success\":true,\"status\":\"NOT_STARTED\",\"formatterActive\":false}");});
+        when(data.getSize()).thenReturn(2048L);
+        Assert.assertThrows(CloudRuntimeException.class,()->service.requireNativeLifecycleIdle(shared));
+        verify(details,never()).addDetail(anyLong(),anyString(),anyString(),anyBoolean());
     }
 }

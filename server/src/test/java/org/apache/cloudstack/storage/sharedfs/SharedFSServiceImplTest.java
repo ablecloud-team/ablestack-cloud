@@ -224,6 +224,14 @@ public class SharedFSServiceImplTest {
         when(diskOfferingDao.findById(124L)).thenReturn(sparseRootOffering);
         VolumeVO allocatedSparseRoot = mock(VolumeVO.class);
         when(allocatedSparseRoot.getProvisioningType()).thenReturn(com.cloud.storage.Storage.ProvisioningType.SPARSE);
+        when(allocatedSparseRoot.getVolumeType()).thenReturn(Volume.Type.ROOT);
+        when(allocatedSparseRoot.getId()).thenReturn(10L);
+        when(allocatedSparseRoot.getUuid()).thenReturn("33333333-3333-4333-8333-333333333333");
+        when(allocatedSparseRoot.getAccountId()).thenReturn(s_ownerId);
+        when(allocatedSparseRoot.getDomainId()).thenReturn(s_domainId);
+        when(allocatedSparseRoot.getDataCenterId()).thenReturn(s_zoneId);
+        when(allocatedSparseRoot.getSize()).thenReturn(5_242_880_000L);
+        when(allocatedSparseRoot.getInstanceId()).thenReturn(s_vmId);
         when(volumeDao.findByInstanceAndType(s_vmId,Volume.Type.ROOT)).thenReturn(java.util.List.of(allocatedSparseRoot));
 
     }

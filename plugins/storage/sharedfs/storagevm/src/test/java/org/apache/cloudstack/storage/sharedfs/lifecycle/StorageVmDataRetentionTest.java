@@ -65,7 +65,7 @@ public class StorageVmDataRetentionTest {
             VolumeVO volume=mock(VolumeVO.class);AtomicReference<Long> attached=new AtomicReference<>(41L);
             when(volume.getId()).thenReturn(id);when(volume.getAccountId()).thenReturn(2L);when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);
             when(volume.getInstanceId()).thenAnswer(call->attached.get());when(volume.getState()).thenReturn(Volume.State.Ready);
-            when(volumes.findById(id)).thenReturn(volume);
+            when(volumes.findById(id)).thenReturn(volume);when(volumes.findByIdIncludingRemoved(id)).thenReturn(volume);
             when(api.detachVolumeViaDestroyVM(41L,id)).thenAnswer(call->{attached.set(null);return volume;});return volume;
         }
     }
@@ -91,4 +91,47 @@ public class StorageVmDataRetentionTest {
         Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Collections.singleton(42L)));
         verify(f.api,never()).detachVolumeViaDestroyVM(anyLong(),anyLong());verify(f.userService,never()).destroyVm(anyLong(),anyBoolean());
     }
+    @Test public void foreignDomainOrZoneIsRejectedBeforeTheFirstDetach() throws Exception {
+        Fixture f=new Fixture();VolumeVO data=f.volume(42);
+        when(f.volumes.findByInstanceAndType(41L,Volume.Type.DATADISK)).thenReturn(Collections.singletonList(data));
+        when(data.getDomainId()).thenReturn(999L);
+        Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Collections.singleton(42L)));
+        when(data.getDomainId()).thenReturn(0L);when(data.getDataCenterId()).thenReturn(999L);
+        Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,Collections.singleton(42L)));
+        verify(f.api,never()).detachVolumeViaDestroyVM(anyLong(),anyLong());verify(f.userService,never()).destroyVm(anyLong(),anyBoolean());
+    }
+    @Test public void tupleChangeAfterFirstDetachBlocksSecondDetachAndVmRemoval() throws Exception {
+        Fixture f=new Fixture();VolumeVO a=f.volume(42),b=f.volume(43);
+        when(f.volumes.findByInstanceAndType(41L,Volume.Type.DATADISK)).thenReturn(Arrays.asList(a,b));
+        org.mockito.Mockito.doAnswer(call->{when(a.getInstanceId()).thenReturn(null);when(b.getPoolId()).thenReturn(999L);return a;}).when(f.api).detachVolumeViaDestroyVM(41L,42L);
+        Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,new LinkedHashSet<>(Arrays.asList(42L,43L))));
+        verify(f.api,never()).detachVolumeViaDestroyVM(41L,43L);verify(f.userService,never()).destroyVm(anyLong(),anyBoolean());
+        verify(f.api,never()).destroyVolume(anyLong(),any(),anyBoolean(),anyBoolean(),any());
+    }
+    @Test public void partiallyDeletedDataRetriesWithIncludingRemovedIdentityWithoutRepeatingDeletion() throws Exception {
+        Fixture f=new Fixture();VolumeVO a=f.volume(42),b=f.volume(43);
+        when(f.volumes.findByInstanceAndType(41L,Volume.Type.DATADISK)).thenAnswer(call->java.util.stream.Stream.of(a,b).filter(v->v.getInstanceId()!=null).collect(java.util.stream.Collectors.toList()));
+        when(f.userService.destroyVm(41L,true)).thenAnswer(call->{when(f.vms.findById(41L)).thenReturn(null);return null;});
+        java.util.concurrent.atomic.AtomicBoolean failed=new java.util.concurrent.atomic.AtomicBoolean();
+        when(f.api.destroyVolume(org.mockito.Mockito.eq(42L),any(),anyBoolean(),anyBoolean(),any())).thenAnswer(call->{when(a.getState()).thenReturn(Volume.State.Expunged);when(f.volumes.findById(42L)).thenReturn(null);return a;});
+        when(f.api.destroyVolume(org.mockito.Mockito.eq(43L),any(),anyBoolean(),anyBoolean(),any())).thenAnswer(call->{if(!failed.getAndSet(true))throw new CloudRuntimeException("own second deletion failure");when(b.getState()).thenReturn(Volume.State.Expunged);when(f.volumes.findById(43L)).thenReturn(null);return b;});
+        try(org.mockito.MockedStatic<org.apache.cloudstack.context.CallContext> contexts=org.mockito.Mockito.mockStatic(org.apache.cloudstack.context.CallContext.class)){
+            org.apache.cloudstack.context.CallContext context=mock(org.apache.cloudstack.context.CallContext.class);when(context.getCallingAccount()).thenReturn(mock(com.cloud.user.Account.class));contexts.when(org.apache.cloudstack.context.CallContext::current).thenReturn(context);
+            java.util.Set<Long> ids=new LinkedHashSet<>(Arrays.asList(42L,43L));
+            Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.DELETE_VOLUMES,ids));
+            Assert.assertTrue(f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.DELETE_VOLUMES,ids));
+        }
+        verify(f.api,org.mockito.Mockito.times(1)).destroyVolume(org.mockito.Mockito.eq(42L),any(),anyBoolean(),anyBoolean(),any());
+        verify(f.api,org.mockito.Mockito.times(2)).destroyVolume(org.mockito.Mockito.eq(43L),any(),anyBoolean(),anyBoolean(),any());
+        verify(f.api,org.mockito.Mockito.times(1)).detachVolumeViaDestroyVM(41L,42L);verify(f.api,org.mockito.Mockito.times(1)).detachVolumeViaDestroyVM(41L,43L);
+    }
+
+    @Test public void dataRemovedDuringPreservationCannotBeClaimedAsRetained() throws Exception {
+        Fixture f=new Fixture();VolumeVO a=f.volume(42),b=f.volume(43);
+        when(f.volumes.findByInstanceAndType(41L,Volume.Type.DATADISK)).thenReturn(Arrays.asList(a,b));
+        org.mockito.Mockito.doAnswer(call->{when(a.getInstanceId()).thenReturn(null);when(a.getState()).thenReturn(Volume.State.Destroy);return a;}).when(f.api).detachVolumeViaDestroyVM(41L,42L);
+        Assert.assertThrows(CloudRuntimeException.class,()->f.life.deleteSharedFS(f.fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES,new LinkedHashSet<>(Arrays.asList(42L,43L))));
+        verify(f.api,never()).detachVolumeViaDestroyVM(41L,43L);verify(f.userService,never()).destroyVm(anyLong(),anyBoolean());
+    }
+
 }

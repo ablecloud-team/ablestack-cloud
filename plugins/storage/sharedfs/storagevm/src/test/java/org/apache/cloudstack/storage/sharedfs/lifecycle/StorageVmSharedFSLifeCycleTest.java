@@ -399,7 +399,6 @@ public class StorageVmSharedFSLifeCycleTest {
         when(userVmManager.expunge(vm)).thenReturn(true);
 
         VolumeVO volume = mock(VolumeVO.class);
-        when(volumeDao.findById(s_volumeId)).thenReturn(volume);
         when(volumeDao.findByIdIncludingRemoved(s_volumeId)).thenReturn(volume);
         when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);
         when(volume.getInstanceId()).thenReturn(null);
