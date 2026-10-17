@@ -79,9 +79,11 @@ class StorageRenderedDriverTest(unittest.TestCase):
         driver.nfs_config_root=self.root/'configs';driver.nfs_config_root.mkdir()
         config='NFS_Core_Param {\n NFS_Port = 2049;\n Protocols = 4;\n}\nEXPORT {\n Export_Id = 1001;\n Path = "/export/share";\n Pseudo = "/share";\n Access_Type = RO;\n FSAL {\n Name = VFS;\n }\n}\n'
         actual=driver.nfs_config_root/'known.conf';actual.write_text(config);actual.chmod(0o600)
-        generated=config.replace(' Protocols',' Dbus_Name_Prefix = "org.ablestack.storage.ganesha.e'+'a'*24+'";\n Protocols')
+        generated=config.replace(' Protocols',' Dbus_Name_Prefix = "ablestack_storage_ganesha_e'+'a'*24+'";\n Protocols')
         files={'nfs/manifest.json':json.dumps({'endpoints':[{'legacyUnitKey':'known','configurationPath':'nfs/ganesha/generated.conf'}]}),'nfs/ganesha/generated.conf':generated}
-        self.assertEqual(config,driver.retain_legacy_nfs_baseline(dict(files))['nfs/ganesha/generated.conf'])
+        for previous in (config,generated.replace('ablestack_storage_ganesha_e','org.ablestack.storage.ganesha.e'),generated):
+            actual.write_text(previous)
+            self.assertEqual(previous,driver.retain_legacy_nfs_baseline(dict(files))['nfs/ganesha/generated.conf'])
         for foreign in (config.replace('RO','RW'),config.replace('/export/share','/export/foreign')):
             actual.write_text(foreign)
             with self.assertRaisesRegex(ValueError,'source bytes differ'):driver.retain_legacy_nfs_baseline(dict(files))

@@ -13,7 +13,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""Owned Ganesha 4.x DBus export updates with exact inventory readback."""
+"""Owned Ganesha DBus export updates with exact inventory readback."""
 import ipaddress
 import hashlib
 import json
@@ -38,10 +38,10 @@ class GaneshaDbus:
 
     def name(self,listen_ip,port):
         key=hashlib.sha256((listen_ip+":"+str(port)).encode()).hexdigest()[:24]
-        return "org.ablestack.storage.ganesha.e"+key+".org.ganesha.nfsd"
+        return "ablestack_storage_ganesha_e"+key+".org.ganesha.nfsd"
 
     def owned_manager(self,name,pid):
-        if not re.fullmatch(r"(?:org\.ganesha\.nfsd|org\.ablestack\.storage\.ganesha\.e[0-9a-f]{24}\.org\.ganesha\.nfsd)",name):
+        if not re.fullmatch(r"(?:org\.ganesha\.nfsd|ablestack_storage_ganesha_e[0-9a-f]{24}\.org\.ganesha\.nfsd)",name):
             raise ValueError("Ganesha bus name is outside its managed namespace")
         owner=self.bus.get_object('org.freedesktop.DBus','/org/freedesktop/DBus').get_dbus_method('GetConnectionUnixProcessID','org.freedesktop.DBus')
         if int(owner(name,timeout=self.budget()))!=pid:raise ValueError("Ganesha DBus owner differs from the owned endpoint process")
@@ -51,6 +51,10 @@ class GaneshaDbus:
         name=self.name(listen_ip,port)
         try:return name,self.owned_manager(name,pid)
         except Exception as current_error:
+            # An old daemon can retain its one legacy name until its next boot.
+            # A foreign managed owner or unknown lookup failure is not absence.
+            missing=getattr(current_error,"get_dbus_name",None)
+            if not callable(missing) or missing()!="org.freedesktop.DBus.Error.NameHasNoOwner":raise
             try:return "org.ganesha.nfsd",self.owned_manager("org.ganesha.nfsd",pid)
             except Exception:raise ValueError("No managed or legacy Ganesha bus belongs to the owned endpoint PID") from current_error
 
@@ -150,9 +154,11 @@ class GaneshaDbus:
         # The managed DBus name is claimed at daemon startup. Updating only this
         # prefix does not alter NFS binding/global behavior of a running daemon;
         # the old owned bus is used until its next boot, then the new name.
+        # The locked Ganesha consumer accepts one alnum/underscore identifier.
+        # Its former dotted prefix is accepted here only to parse old configs.
         global_content=''.join(chunks)
         prefixes=re.findall(r'(?m)^[ \t]*Dbus_Name_Prefix[ \t]*=[ \t]*"([^"\n]+)"[ \t]*;[ \t]*$',global_content)
-        if len(prefixes)>1 or any(not re.fullmatch(r'org\.ablestack\.storage\.ganesha\.e[0-9a-f]{24}',prefix) for prefix in prefixes):
+        if len(prefixes)>1 or any(not re.fullmatch(r'(?:org\.ablestack\.storage\.ganesha\.e|ablestack_storage_ganesha_e)[0-9a-f]{24}',prefix) for prefix in prefixes):
             raise ValueError("Ganesha DBus prefix is outside the fixed endpoint namespace")
         global_content=re.sub(r'(?m)^[ \t]*Dbus_Name_Prefix[ \t]*=[ \t]*"[^"\n]+"[ \t]*;[ \t]*\n?', '', global_content)
         if len({row['exportId'] for row in exports})!=len(exports):raise ValueError("Fixed Ganesha export IDs duplicate")
