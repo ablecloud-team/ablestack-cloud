@@ -282,7 +282,7 @@ class RenderedDriver:
         manifest=json.loads(files["nfs/manifest.json"])
         def without_managed_prefix(content):
             GaneshaDbus.configuration(content)
-            return re.sub(r'(?m)^[ \t]*Dbus_Name_Prefix[ \t]*=[ \t]*"org\.ablestack\.storage\.ganesha\.e[0-9a-f]{24}"[ \t]*;[ \t]*\n?', '',content)
+            return re.sub(r'(?m)^[ \t]*Dbus_Name_Prefix[ \t]*=[ \t]*"(?:org\.ablestack\.storage\.ganesha\.e|ablestack_storage_ganesha_e)[0-9a-f]{24}"[ \t]*;[ \t]*\n?', '',content)
         for endpoint in manifest["endpoints"]:
             key=endpoint["legacyUnitKey"]
             if not re.fullmatch(r'[A-Za-z0-9_.-]+',key):raise ValueError("Legacy NFS config key is invalid")
