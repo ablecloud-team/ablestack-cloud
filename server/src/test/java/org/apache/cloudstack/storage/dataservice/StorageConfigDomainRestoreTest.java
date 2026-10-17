@@ -209,4 +209,60 @@ public class StorageConfigDomainRestoreTest {
         manager.requireCloneProfileDataSet(target,plan,binding,initial);Assert.assertEquals("OWNED_SPARSE_ALL4_VALIDATION",manager.configurationCloneProfileKind(plan));
         volumes.remove(additional);Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet(target,plan,binding,initial));volumes.add(additional,new JsonObject());volumes.getAsJsonObject(additional).addProperty("type","DATADISK");blueprint.addProperty("backingvolumemode","EXISTING");Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet(target,plan,binding,initial));blueprint.addProperty("backingvolumemode","NEW");Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet("foreign-target",plan,binding,initial));
     }
+
+    private JsonObject actualFourProtocolPlan(boolean update) throws Exception {
+        JsonObject fixture;
+        try(java.io.InputStream in=getClass().getResourceAsStream("/storage-config/issue909-public-four-protocol-bindings.json")){
+            Assert.assertNotNull(in);fixture=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        Assert.assertEquals("2d0aeca0b75e7f4fcb45869052e81077ec9c222d69a9dbbdfb624c931288207e",fixture.get("sourceArchiveSha256").getAsString());
+        JsonObject plan=new JsonObject();for(String action:java.util.List.of("create","update","keep"))plan.add(action,new JsonArray());
+        int count=0;java.util.Set<String> protocols=new java.util.HashSet<>();
+        for(var entry:fixture.getAsJsonObject("publicSemanticResources").entrySet())for(var value:entry.getValue().getAsJsonArray()){
+            JsonObject desired=value.getAsJsonObject(),change=new JsonObject();change.addProperty("kind",entry.getKey());change.add("sourceUuid",desired.get("uuid").deepCopy());change.add("desired",desired.deepCopy());
+            plan.getAsJsonArray(update?"update":"create").add(change);count++;
+            if(desired.has("protocol"))protocols.add(desired.get("protocol").getAsString());
+        }
+        Assert.assertEquals(16,count);Assert.assertEquals(java.util.Set.of("NFS","SMB","ISCSI","NVME_OF"),protocols);return plan;
+    }
+    @Test public void actualFourProtocolArchiveCreatesAndUpdatesBindWithoutForwardingObservedNvmeState() throws Exception {
+        StorageServiceManagerImpl manager=Mockito.mock(StorageServiceManagerImpl.class);StorageConfigDomainRestore restore=new StorageConfigDomainRestore(manager);
+        restore.validateBindings(actualFourProtocolPlan(false));restore.validateBindings(actualFourProtocolPlan(true));Mockito.verifyNoInteractions(manager);
+    }
+    private JsonObject nvmeResource(String type) {
+        JsonObject row=new JsonObject();row.addProperty("protocol","NVME_OF");JsonObject config=new JsonObject();config.addProperty("type",type);row.add("config",config);return row;
+    }
+    @Test public void knownNvmeProjectionKeepsEngineTransportListenerPortsAndOriginalResourceUnchanged() {
+        JsonObject subsystem=nvmeResource("subsystem"),config=subsystem.getAsJsonObject("config");
+        config.addProperty("engine","KERNEL_NVMET");config.addProperty("engineState","SUPPORTED");config.addProperty("transport","tcp");config.addProperty("allowAnyHost",false);
+        JsonObject original=subsystem.deepCopy();JsonObject parameters=StorageConfigCommandBinding.parameters(subsystem,"block-targets");
+        Assert.assertFalse(parameters.has("enginestate"));Assert.assertEquals("KERNEL_NVMET",parameters.get("engine").getAsString());Assert.assertEquals("tcp",parameters.get("transport").getAsString());Assert.assertEquals(original,subsystem);
+        StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNvmeOfSubsystemCmd.class,parameters);
+        config.addProperty("engine","SPDK");config.addProperty("engineState","PREPARATION_REQUIRED");
+        Assert.assertEquals("SPDK",StorageConfigCommandBinding.parameters(subsystem,"block-targets").get("engine").getAsString());
+        JsonObject namespace=nvmeResource("namespace"),ns=namespace.getAsJsonObject("config");ns.addProperty("backstoreType","BLOCK");ns.addProperty("endpointMode","LISTENER_GROUP");
+        JsonArray ports=new JsonArray();ports.add(4420);ns.add("listenerGroupPorts",ports);ns.addProperty("namespaceSizeBytes",2147483648L);
+        original=namespace.deepCopy();parameters=StorageConfigCommandBinding.parameters(namespace,"block-targets");
+        Assert.assertFalse(parameters.has("backstoretype"));Assert.assertFalse(parameters.has("endpointmode"));Assert.assertEquals("4420",parameters.get("listenerports").getAsString());Assert.assertEquals(2147483648L,parameters.get("namespacesizebytes").getAsLong());Assert.assertEquals(original,namespace);
+        StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNvmeOfNamespaceCmd.class,parameters);
+    }
+    @Test public void unsupportedNvmeNamespaceSemanticsTypesAndUnknownFieldsRemainRejected() {
+        for(String key:java.util.List.of("backstoreType","endpointMode")){
+            for(com.google.gson.JsonElement value:java.util.List.of(new com.google.gson.JsonPrimitive(key.equals("backstoreType")?"FILE":"ALL"),new com.google.gson.JsonPrimitive(true),com.google.gson.JsonNull.INSTANCE)){
+                JsonObject namespace=nvmeResource("namespace");namespace.getAsJsonObject("config").add(key,value);
+                Assert.assertThrows(InvalidParameterValueException.class,()->StorageConfigCommandBinding.parameters(namespace,"block-targets"));
+            }
+        }
+        for(com.google.gson.JsonElement value:java.util.List.of(new com.google.gson.JsonPrimitive("UNVERIFIED"),new com.google.gson.JsonPrimitive(true),com.google.gson.JsonNull.INSTANCE)){
+            JsonObject subsystem=nvmeResource("subsystem");subsystem.getAsJsonObject("config").addProperty("engine","KERNEL_NVMET");subsystem.getAsJsonObject("config").add("engineState",value);
+            Assert.assertThrows(InvalidParameterValueException.class,()->StorageConfigCommandBinding.parameters(subsystem,"block-targets"));
+        }
+        JsonObject subsystem=nvmeResource("subsystem");subsystem.getAsJsonObject("config").addProperty("engine","KERNEL_NVMET");subsystem.getAsJsonObject("config").addProperty("engineState","SUPPORTED");subsystem.getAsJsonObject("config").addProperty("executeScript","untrusted");
+        Assert.assertThrows(InvalidParameterValueException.class,()->StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNvmeOfSubsystemCmd.class,StorageConfigCommandBinding.parameters(subsystem,"block-targets")));
+    }
+    @Test public void iscsiBackstoreAndEndpointParametersAreNotDroppedByNvmeOnlyProjection() {
+        JsonObject row=nvmeResource("target");row.addProperty("protocol","ISCSI");row.getAsJsonObject("config").addProperty("backstoreType","FILE");row.getAsJsonObject("config").addProperty("endpointMode","ALL");
+        JsonObject parameters=StorageConfigCommandBinding.parameters(row,"block-targets");Assert.assertEquals("FILE",parameters.get("backstoretype").getAsString());Assert.assertEquals("ALL",parameters.get("endpointmode").getAsString());
+        StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageIscsiTargetCmd.class,parameters);
+    }
 }

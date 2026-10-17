@@ -79,8 +79,23 @@ public final class StorageConfigCommandBinding {
         Set<String> informational = Set.of("posixPolicy", "volumeMode", "importMode", "posixPolicyUuid", "localAccount", "resourceKind", "type",
                 "volumeName", "volumeUuid", "backstoreName", "devicePath", "blockBackstore", "schemaVersion", "managedDirectoryMode",
                 "aclManaged", "adPrincipalReceipt", "localSemanticIdentityReceipt", "semanticManagedIdentityReceipt", "crossProtocolPosix", "protocolMode", "idMappingMode", "securityType", "listenerGroups");
+        boolean nvme = "block-targets".equals(kind) && isText(resource.get("protocol"),"NVME_OF");
+        boolean namespace = nvme && isText(config.get("type"),"namespace");
+        boolean subsystem = nvme && isText(config.get("type"),"subsystem");
         for (Map.Entry<String, JsonElement> field : config.entrySet()) {
-            String key = field.getKey();JsonElement value = field.getValue();if (value == null || value.isJsonNull() || informational.contains(key)) continue;
+            String key = field.getKey();JsonElement value = field.getValue();
+            if (subsystem && "engineState".equals(key)) {
+                if (!(isText(config.get("engine"),"KERNEL_NVMET") && isText(value,"SUPPORTED")
+                        || isText(config.get("engine"),"SPDK") && isText(value,"PREPARATION_REQUIRED")))
+                    throw new InvalidParameterValueException("NVMe subsystem engine observation differs from its configured engine");
+                continue;
+            }
+            if (namespace && Set.of("backstoreType","endpointMode").contains(key)) {
+                if (!isText(value,"backstoreType".equals(key) ? "BLOCK" : "LISTENER_GROUP"))
+                    throw new InvalidParameterValueException("NVMe namespace requires its current BLOCK listener-group API semantics");
+                continue;
+            }
+            if (value == null || value.isJsonNull() || informational.contains(key)) continue;
             String parameter = "relativeSharePath".equals(key) ? "relativepath" : "listenerGroupPorts".equals(key) ? "listenerports" :
                     "accessEntries".equals(key) ? "accessentries" : "defaultEntries".equals(key) ? "defaultentries" : key.toLowerCase(java.util.Locale.ROOT);
             if (value.isJsonArray() && Set.of("listenerports", "listenips").contains(parameter)) {
@@ -100,5 +115,8 @@ public final class StorageConfigCommandBinding {
             result.addProperty("importmode", "MOUNT_EXISTING");result.addProperty("createdirectory", false);// Cleanup defaults remain false; backup restore never requests volume deletion.
         }
         return result;
+    }
+    private static boolean isText(JsonElement value,String expected) {
+        return value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isString() && expected.equals(value.getAsString());
     }
 }
