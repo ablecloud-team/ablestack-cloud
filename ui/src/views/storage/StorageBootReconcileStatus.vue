@@ -28,7 +28,7 @@
     <a-alert v-if="lifetimeEnded" type="info" show-icon :message="$t('message.storage.boot.auto.limit')" />
     <template v-if="observation">
       <a-alert v-if="observation.phase === 'SKIPPED'" type="info" show-icon :message="$t('message.storage.boot.skipped')" />
-      <a-alert v-else-if="observation.runtimeReady && !observation.detailedVerified" type="info" show-icon :message="$t('message.storage.boot.probes.pending')" />
+      <a-alert v-else-if="status === 'RECONCILING' && observation.runtimeReady && !observation.detailedVerified" type="info" show-icon :message="$t('message.storage.boot.probes.pending')" />
       <a-descriptions bordered size="small" :column="2" aria-live="polite">
         <a-descriptions-item :label="$t('label.storage.operation.phase')">{{ $t('label.storage.boot.phase.' + observation.phase) }}</a-descriptions-item>
         <a-descriptions-item :label="$t('label.storage.boot.attempt')">{{ observation.attempt }}</a-descriptions-item>
