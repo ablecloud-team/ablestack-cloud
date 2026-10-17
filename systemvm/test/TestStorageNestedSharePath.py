@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+import os
+import ast
+import hashlib
+import importlib.util
+import json
+import ipaddress
+import re
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+from pathlib import Path
+
+SOURCE = Path(__file__).resolve().parents[1] / "debian/usr/local/bin/ablestack-storagectl"
+text = SOURCE.read_text()
+start = text.index("def resolve_backing_path(")
+end = text.index("\nbacking_path = resolve_backing_path", start)
+helper=SOURCE.parents[1]/"lib/ablestack-storage/new_directory.py"
+spec=importlib.util.spec_from_file_location("nested_directory_test",helper);directory=importlib.util.module_from_spec(spec);spec.loader.exec_module(directory)
+namespace = {"os": os,"re":re,"config":{},"created_directory_receipts":[],"fs_uuid":"11111111-1111-4111-8111-111111111111","volume_key":"22222222-2222-4222-8222-222222222222",
+             "publish_new_directory":directory.publish_new_directory,"run": lambda args: subprocess.run(args, capture_output=True, text=True)}
+exec(compile(text[start:end], str(SOURCE), "exec"), namespace)
+resolve = namespace["resolve_backing_path"]
+
+class NestedPathTest(unittest.TestCase):
+    def test_nested_creation_and_existing_directory(self):
+        with tempfile.TemporaryDirectory() as root, patch.dict(namespace,{"run":lambda args:subprocess.CompletedProcess(args,0,root,"")}):
+            target = resolve(root, "parent/child", True)
+            self.assertTrue(Path(target).is_dir())
+            self.assertEqual(target, resolve(root, "parent/child", False))
+            Path(target, "keep.txt").write_text("preserved")
+            resolve(root, "parent/child", False)
+            self.assertEqual("preserved", Path(target, "keep.txt").read_text())
+
+    def test_absolute_traversal_symlink_and_file_are_rejected(self):
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as outside, patch.dict(namespace,{"run":lambda args:subprocess.CompletedProcess(args,0,root,"")}):
+            Path(root, "link").symlink_to(outside)
+            Path(root, "file").write_text("data")
+            for path in ("/absolute", "../outside", "parent/../other", "parent/./child", "link/child", "file/child", "missing"):
+                with self.subTest(path=path), self.assertRaises((SystemExit,OSError)):
+                    resolve(root, path, False)
+
+    def test_mount_boundary_is_verified_before_directory_creation(self):
+        with tempfile.TemporaryDirectory() as root:
+            Path(root, "parent").mkdir()
+            original = namespace["run"]
+            namespace["run"] = lambda args: subprocess.CompletedProcess(args, 0, "/different" if args[-1].endswith("parent") else root, "")
+            try:
+                with self.assertRaises(SystemExit):
+                    resolve(root, "parent/child", True)
+                self.assertFalse(Path(root, "parent/child").exists())
+            finally:
+                namespace["run"] = original
+
+class NestedExportIdentityTest(unittest.TestCase):
+    def functions(self):
+        start = text.index("import json", text.index("apply_nfs_exports()"))
+        end = text.index("\nPY\n", start)
+        tree = ast.parse(text[start:end])
+        functions = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef)], type_ignores=[])
+        context = {"hashlib": hashlib, "json": json, "ipaddress": ipaddress, "re": re}
+        exec(compile(functions, str(SOURCE), "exec"), context)
+        return context
+
+    def test_stable_uuid_based_identity_and_legacy_export_preservation(self):
+        functions = self.functions()
+        identity = functions["nested_export_filesystem_id"]
+        self.assertEqual(identity("72b2a015-d89e-470d-9efb-80109ff08211"), identity("72b2a015-d89e-470d-9efb-80109ff08211"))
+        self.assertNotEqual(identity("parent"), identity("child"))
+        rendered = {"id": 1001, "path": "/export/child", "pseudo": "/child", "protocolMode": "V4_ONLY", "clients": []}
+        self.assertNotIn("Filesystem_Id", functions["render_ganesha_export"](rendered))
+        rendered["filesystemId"] = identity("child")
+        self.assertIn("Filesystem_Id = " + identity("child") + ";", functions["render_ganesha_export"](rendered))
+
+if __name__ == "__main__":
+    unittest.main()

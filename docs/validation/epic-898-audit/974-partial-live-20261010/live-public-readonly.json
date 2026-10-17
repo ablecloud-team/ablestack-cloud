@@ -1,0 +1,170 @@
+{
+  "success": true,
+  "readOnly": true,
+  "domainName": "i-2-51-VM",
+  "vmUuid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+  "samples": [
+    {
+      "atEpoch": 1791577216.207686,
+      "readOnly": true,
+      "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+      "formatRepairMountInvoked": false,
+      "originalProcessSignals": false,
+      "fullCmdlineRead": false,
+      "bootId": "b1118a63-398b-4d2e-8bca-b6a6dd23da7f",
+      "target": {
+        "path": "/dev/sdd",
+        "type": "disk",
+        "serial": "021b0cac327e444b9cff",
+        "size": 10995116277760,
+        "fstype": "xfs",
+        "uuid": "f8c35b5d-3cb3-4a7f-82a8-06dce2c2108d",
+        "pkname": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      "rootAncestors": [
+        "/dev/sda6",
+        "/dev/sda"
+      ],
+      "targetMounts": [],
+      "formatJournal": {
+        "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+        "operationId": "volume-021b0cac-327e-444b-9cff-3c9da0d1f539",
+        "phase": "TIMED_OUT_PENDING_RECONCILE",
+        "errorCode": "TIMED_OUT_PENDING_RECONCILE",
+        "filesystem": "xfs",
+        "volumeSizeBytes": 10995116277760,
+        "formatStarted": true,
+        "formatter": "mkfs.xfs",
+        "formatterPid": 78663,
+        "formatDeadlineSeconds": 1500,
+        "elapsedSeconds": 1500.1901800632477,
+        "heartbeat": 1791437322.5215604,
+        "started": 1791435398.5158503,
+        "formatReceiptUuid": "5836bc7a-121c-4254-8286-bf96e59bfdfd"
+      },
+      "journalFormatter": {
+        "pid": 78663,
+        "exists": false
+      },
+      "guard1960": {
+        "pid": 1960,
+        "exists": false
+      },
+      "filesystemProcesses": [],
+      "targetBlockCounters": [
+        995194,
+        0,
+        1018690065,
+        128831,
+        4,
+        0,
+        4174337,
+        645120,
+        0,
+        1931784,
+        2603812,
+        10240,
+        0,
+        21474836480,
+        1829860,
+        0,
+        0
+      ],
+      "header64KiBSha256": "1f036503a7447d1c8cf2c9b046a8337a831f4d4b5487b3dfc799a82703d98eec",
+      "headerBytesRead": 65536,
+      "filesystemHealthPromoted": false
+    },
+    {
+      "atEpoch": 1791577226.719545,
+      "readOnly": true,
+      "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+      "formatRepairMountInvoked": false,
+      "originalProcessSignals": false,
+      "fullCmdlineRead": false,
+      "bootId": "b1118a63-398b-4d2e-8bca-b6a6dd23da7f",
+      "target": {
+        "path": "/dev/sdd",
+        "type": "disk",
+        "serial": "021b0cac327e444b9cff",
+        "size": 10995116277760,
+        "fstype": "xfs",
+        "uuid": "f8c35b5d-3cb3-4a7f-82a8-06dce2c2108d",
+        "pkname": null,
+        "mountpoints": [
+          null
+        ]
+      },
+      "rootAncestors": [
+        "/dev/sda6",
+        "/dev/sda"
+      ],
+      "targetMounts": [],
+      "formatJournal": {
+        "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+        "operationId": "volume-021b0cac-327e-444b-9cff-3c9da0d1f539",
+        "phase": "TIMED_OUT_PENDING_RECONCILE",
+        "errorCode": "TIMED_OUT_PENDING_RECONCILE",
+        "filesystem": "xfs",
+        "volumeSizeBytes": 10995116277760,
+        "formatStarted": true,
+        "formatter": "mkfs.xfs",
+        "formatterPid": 78663,
+        "formatDeadlineSeconds": 1500,
+        "elapsedSeconds": 1500.1901800632477,
+        "heartbeat": 1791437322.5215604,
+        "started": 1791435398.5158503,
+        "formatReceiptUuid": "5836bc7a-121c-4254-8286-bf96e59bfdfd"
+      },
+      "journalFormatter": {
+        "pid": 78663,
+        "exists": false
+      },
+      "guard1960": {
+        "pid": 1960,
+        "exists": false
+      },
+      "filesystemProcesses": [],
+      "targetBlockCounters": [
+        995195,
+        0,
+        1018690321,
+        128831,
+        4,
+        0,
+        4174337,
+        645120,
+        0,
+        1931784,
+        2603813,
+        10240,
+        0,
+        21474836480,
+        1829860,
+        0,
+        0
+      ],
+      "header64KiBSha256": "1f036503a7447d1c8cf2c9b046a8337a831f4d4b5487b3dfc799a82703d98eec",
+      "headerBytesRead": 65536,
+      "filesystemHealthPromoted": false
+    }
+  ],
+  "matchedPartialDiskFiles": [
+    {
+      "serial": "021b0cac327e444b9cff",
+      "fileBasename": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+      "virtualSizeBytes": 10995116277760,
+      "format": "qcow2",
+      "backingFilePresent": false,
+      "allocatedBytes": 1807904768,
+      "qemuActualBytes": 1807904768,
+      "inode": 1231335,
+      "diskReadOnly": false
+    }
+  ],
+  "dataOrServiceWrites": 0,
+  "originalProcessSignals": 0,
+  "otherVmQgaCalls": 0
+}

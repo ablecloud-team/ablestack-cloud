@@ -1,0 +1,31 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "bootCliGenerationPendingMatched": true,
+    "endpoints": [
+      {
+        "endpointKey": "675fcbc172f7cb71e442afce",
+        "keyMatchesExactDeclaredAddress": true,
+        "listenIp": "0.0.0.0",
+        "listenIpType": "str",
+        "originalReadinessAddress": "127.0.0.1",
+        "port": 445,
+        "portType": "int"
+      }
+    ],
+    "journalMetadata": {
+      "metadataUnchangedDuringRead": true,
+      "mode": 384,
+      "uid": 0
+    },
+    "keyCipherSidTdbOrUnknownBodyPrinted": false,
+    "kind": "DF11_OWNED_ORIGINAL_READINESS_ENDPOINT_PROJECTION",
+    "scopeMatched": true,
+    "source": "same-scope original journal prior.ownedEndpoints",
+    "tcpOrSignalOrWriteOrActionCalls": 0
+  },
+  "unknownAttemptRetriedOrKilled": false
+}

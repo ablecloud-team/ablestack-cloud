@@ -1,0 +1,161 @@
+{
+  "events": [
+    {
+      "category": "HOST_NONZERO",
+      "exitCode": 1,
+      "time": "2026-10-10 09:25:27"
+    },
+    {
+      "category": "LOCAL_RECONCILIATION",
+      "time": "2026-10-10 09:25:27"
+    }
+  ],
+  "jobid": "227ca3ee-3044-4e66-9c7f-bfce6a34cb32",
+  "kind": "DF11_MANAGEMENT_FIXED_PUBLIC_STACK_OBSERVATION",
+  "knownLogPath": "/var/log/cloudstack/management/management-server.log",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "rawLogMessagesStackContextOrPrivateValuesPrinted": false,
+  "sinceKst": "2026-10-10 09:25:13",
+  "sourceDbOrStateMutations": 0,
+  "stackBlocks": [
+    {
+      "causes": [
+        {
+          "class": "com.cloud.utils.exception.CloudRuntimeException"
+        }
+      ],
+      "fixedPublicErrorCategories": [
+        {
+          "category": "LOCAL_RECONCILIATION"
+        }
+      ],
+      "frames": [
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.InterruptedStateChange",
+          "file": "InterruptedStateChange.java",
+          "line": 72,
+          "method": "recover"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 255,
+          "method": "recoverInterruptedStorageWriter"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 3846,
+          "method": "reconcileStorageServiceOperation"
+        },
+        {
+          "class": "org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd",
+          "file": "ReconcileStorageServiceOperationCmd.java",
+          "line": 41,
+          "method": "execute"
+        },
+        {
+          "class": "com.cloud.api.ApiDispatcher",
+          "file": "ApiDispatcher.java",
+          "line": 173,
+          "method": "dispatch"
+        },
+        {
+          "class": "com.cloud.api.ApiAsyncJobDispatcher",
+          "file": "ApiAsyncJobDispatcher.java",
+          "line": 111,
+          "method": "runJob"
+        },
+        {
+          "class": "org.apache.cloudstack.framework.jobs.impl.AsyncJobManagerImpl$5",
+          "file": "AsyncJobManagerImpl.java",
+          "line": 687,
+          "method": "runInContext"
+        },
+        {
+          "class": "org.apache.cloudstack.managed.context.ManagedContextRunnable$1",
+          "file": "ManagedContextRunnable.java",
+          "line": 49,
+          "method": "run"
+        },
+        {
+          "class": "org.apache.cloudstack.managed.context.impl.DefaultManagedContext$1",
+          "file": "DefaultManagedContext.java",
+          "line": 56,
+          "method": "call"
+        },
+        {
+          "class": "org.apache.cloudstack.managed.context.impl.DefaultManagedContext",
+          "file": "DefaultManagedContext.java",
+          "line": 103,
+          "method": "callWithContext"
+        },
+        {
+          "class": "org.apache.cloudstack.managed.context.impl.DefaultManagedContext",
+          "file": "DefaultManagedContext.java",
+          "line": 53,
+          "method": "runWithContext"
+        },
+        {
+          "class": "org.apache.cloudstack.managed.context.ManagedContextRunnable",
+          "file": "ManagedContextRunnable.java",
+          "line": 46,
+          "method": "run"
+        },
+        {
+          "class": "org.apache.cloudstack.framework.jobs.impl.AsyncJobManagerImpl$5",
+          "file": "AsyncJobManagerImpl.java",
+          "line": 635,
+          "method": "run"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 4457,
+          "method": "localSourceGuest"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 4566,
+          "method": "restoreLocalSourceIdentity"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 3354,
+          "method": "restoreConfigurationIdentity"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 10088,
+          "method": "restoreNativePosixOperation"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImpl$1",
+          "file": "StorageServiceManagerImpl.java",
+          "line": 282,
+          "method": "applyPrevious"
+        },
+        {
+          "class": "org.apache.cloudstack.storage.dataservice.InterruptedStateChange",
+          "file": "InterruptedStateChange.java",
+          "line": 66,
+          "method": "recover"
+        }
+      ],
+      "operationMatched": true,
+      "time": "2026-10-10 09:25:27"
+    },
+    {
+      "causes": [],
+      "fixedPublicErrorCategories": [],
+      "frames": [],
+      "operationMatched": true,
+      "time": "2026-10-10 09:25:27"
+    }
+  ],
+  "tailBytesInspected": 16777216,
+  "untilKst": "2026-10-10 09:25:40"
+}

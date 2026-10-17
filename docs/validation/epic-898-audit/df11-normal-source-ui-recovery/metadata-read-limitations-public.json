@@ -1,0 +1,21 @@
+{
+  "kind": "SCOPED_ORIGINAL_UI_JOB_METADATA_LOOKUP_WITHOUT_MATCH",
+  "uiSubmitAtKst": "2026-10-10 11:33:29",
+  "scopeOperationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "normalQueryReturnsNoRows": true,
+  "jobIdConfirmed": false,
+  "jobStatus1Claim": false,
+  "normalUiNativeRollbackClaimsIndependent": true,
+  "stateWrites": 0,
+  "rawParamsPrintedOrSaved": false,
+  "privateCredentialsPersisted": false,
+  "history": [
+    "Two SSH helper failures before public stage classification",
+    "Public remote helper FileNotFoundError: javac absent; query0",
+    "Local public Java compile; one remote syntax error before query, corrected and syntax-checked",
+    "Prepared SELECT with original op/command/actor/time/JSON parameter defaultTZ0rows",
+    "Same prepared SELECT explicit KST0rows",
+    "Command/actor/short submit-time candidate query without JSON expression0rows"
+  ],
+  "stopBroaderLookup": true
+}

@@ -1,0 +1,75 @@
+{
+  "kind": "EPIC898_COLLECTOR_FIX_COMMITTED_SOURCE_AND_TEST_SIGNED_PUBLICATION",
+  "nativeSourcePin": "03485cd931ede6ab4c1792b1c4aa1f411fc4d66f",
+  "nativeCliSha256": "e7b721eb20522a18e41f8c9fe4fb1a59f5cc2c5581d7352bb69d3af83748c45e",
+  "focusedTests": 43,
+  "normalTests": 456,
+  "selectors": 49,
+  "normalFailuresErrorsSkipped": 0,
+  "normalWallSeconds": 101.065,
+  "source59AndStorage141BeforeAfterIdentical": true,
+  "allStorage141NulSha256": "038266f65f375d1c7f8ed152d925b5f7d9889055ef96fbc871b2833f5e977d64",
+  "originalStopCliSha256": "2dc47c3a31ac5f1e7250281e52bce50e10e428d541252b099f3cb8a539548c38",
+  "journalPinRehashed": false,
+  "wholeCliExactAuthorizedNormalization": true,
+  "consumerJavaPin": "b9c91b829ba1863b476b3a412afd69cc3c240a17",
+  "consumerNormalTests": 882,
+  "consumerPositive": 6,
+  "consumerNegative": 9,
+  "providerScope": "real RSA/AEAD/libtdb/FD9; service control and authentication are fixtures",
+  "version": "epic898-smb-collector-03485c-20261010",
+  "keyId": "epic898-test-smb-collector-03485c",
+  "archiveBytes": 395640,
+  "archiveSha256": "f29c0c48025a67e1d9ba373148e072bffff9ca52383b35e6123535261a1fce67",
+  "manifestBytes": 1441,
+  "manifestSha256": "fbee7b7e239aa9ef562710fe878970a8f3b7cdbbb30c7518f9b93d93ae9d437f",
+  "signatureVerified": true,
+  "signatureBytes": 64,
+  "testKeyOnly": true,
+  "privateKeyFiles": 0,
+  "publicFilesPublished": 5,
+  "oldTrustPreserved": true,
+  "publicUrl": "http://10.10.13.10:8080/client/epic898-runtime-smb-collector-03485c/",
+  "actualRuntimeAppliedAtPublication": false,
+  "actualSameFefRecoveryAcceptedAtPublication": false,
+  "managementRedeployed": false,
+  "uiAssetsDeployed": false,
+  "finalUi1275Started": false,
+  "evidenceFiles": [
+    {
+      "name": "source-proof-final.json",
+      "relativePreparationPath": "local-source-collector-fix/source-proof-final.json",
+      "sha256": "c15cbad6ad4caca08bb8e9ed0ac4dc72f0b9f78ec3232554e19a2d4a5ed0cbba"
+    },
+    {
+      "name": "release-result.json",
+      "relativePreparationPath": "local-source-collector-fix/release-result.json",
+      "sha256": "6286177456d82b2608cc68ff9c0eeb9c94f80bcb84731ad89a04fab5b7b1d2af"
+    },
+    {
+      "name": "release-03485.log",
+      "relativePreparationPath": "local-source-collector-fix/release-03485.log",
+      "sha256": "53b95f307d36ffd64fef6f2e4e443ffa644735f1af922812a2eccd8c0eaa233c"
+    },
+    {
+      "name": "public-issuer-fixture.json",
+      "relativePreparationPath": "local-source-collector-fix/public-issuer-fixture.json",
+      "sha256": "07d033b7d66438c26f0080363e9cc4a4aab9f7014d859262018787610192b059"
+    },
+    {
+      "name": "actual-issuer-java-bridge-proof.json",
+      "relativePreparationPath": "local-source-collector-final-bridge/actual-issuer-java-bridge-proof.json",
+      "sha256": "07b05a9481e916029acf8263382fc8e87b192d58739d050d3181246736f78022"
+    },
+    {
+      "name": "proof.json",
+      "relativePreparationPath": "runtime-smb-collector-03485c/proof.json",
+      "sha256": "d5732fd9d31f730eb678443360117fe539b57f959b8a6d042cd95412028a73ff"
+    },
+    {
+      "name": "upload-proof.json",
+      "relativePreparationPath": "runtime-smb-collector-03485c/upload-proof.json",
+      "sha256": "774c15b65f4cd5319bb2f08603f7bb0f7920c70b73187f0d3f02d164caad0a9d"
+    }
+  ]
+}

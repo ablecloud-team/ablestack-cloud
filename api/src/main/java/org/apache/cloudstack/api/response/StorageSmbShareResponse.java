@@ -27,6 +27,87 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = StorageFileShare.class)
 public class StorageSmbShareResponse extends BaseResponse {
+    @SerializedName("networkaccessmode")
+    @Param(description="Source policy, ANY_SOURCE or ALLOW_LIST, independent of account ACLs")
+    private String networkAccessMode;
+
+    @SerializedName("allowedsources")
+    @Param(description="Canonical client source IP/CIDR allow-list")
+    private java.util.List<String> allowedSources;
+
+    @SerializedName("runtimestate") @Param(description="Fresh owned SMB listener state") private String runtimeState;
+    @SerializedName("listenerobservations") @Param(description="Fresh per-IP and port owned SMB listeners") private String listenerObservations;
+    @SerializedName("listenerscope") @Param(description="SMB shares are exposed through all enabled service listeners") private String listenerScope;
+    public void setListenerScope(String value){listenerScope=value;}
+    public void setRuntimeState(String value){runtimeState=value;}
+    public void setListenerObservations(String value){listenerObservations=value;}
+
+    public void setNetworkAccessMode(String value) { networkAccessMode=value; }
+    public void setAllowedSources(java.util.List<String> value) { allowedSources=value; }
+
+    @SerializedName("creationpolicy")
+    @Param(description = "Desired SMB new file and directory permission policy")
+    private String creationPolicy;
+
+    @SerializedName("effectivecreationpolicy")
+    @Param(description = "Observed SMB creation permission policy; absent when unobserved")
+    private String effectiveCreationPolicy;
+
+    @SerializedName("creationpolicydrift")
+    @Param(description = "CONSISTENT, DRIFT or UNOBSERVED creation policy state")
+    private String creationPolicyDrift;
+
+    public void setCreationPolicy(String value) { creationPolicy = value; }
+    public void setEffectiveCreationPolicy(String value) { effectiveCreationPolicy = value; }
+    public void setCreationPolicyDrift(String value) { creationPolicyDrift = value; }
+
+    @SerializedName("posixpolicyid")
+    @Param(description = "Common protocol-neutral POSIX directory policy UUID")
+    private String posixPolicyId;
+    public void setPosixPolicyId(String value) { posixPolicyId = value; }
+
+    @SerializedName("ownershipinheritance")
+    @Param(description = "Requested new-object owner inheritance mode")
+    private String ownershipInheritance;
+    @SerializedName("effectiveownershipinheritance")
+    @Param(description = "Observed Samba inheritance mode")
+    private String effectiveOwnershipInheritance;
+    @SerializedName("inheritgroup")
+    @Param(description = "Requested parent group inheritance via setgid")
+    private Boolean inheritGroup;
+    @SerializedName("effectiveowneruid")
+    @Param(description = "Observed current parent owner UID")
+    private Long effectiveOwnerUid;
+    @SerializedName("effectiveownergid")
+    @Param(description = "Observed current parent owner GID")
+    private Long effectiveOwnerGid;
+    @SerializedName("effectivedirectorymode")
+    @Param(description = "Observed current directory mode including setgid")
+    private String effectiveDirectoryMode;
+    public void setOwnershipInheritance(String value) { ownershipInheritance = value; }
+    public void setEffectiveOwnershipInheritance(String value) { effectiveOwnershipInheritance = value; }
+    public void setInheritGroup(Boolean value) { inheritGroup = value; }
+    public void setEffectiveOwnerUid(Long value) { effectiveOwnerUid = value; }
+    public void setEffectiveOwnerGid(Long value) { effectiveOwnerGid = value; }
+    public void setEffectiveDirectoryMode(String value) { effectiveDirectoryMode = value; }
+
+    @SerializedName("posixownershipmode")
+    @Param(description = "Requested authenticated or forced POSIX file-operation identity")
+    private String posixOwnershipMode;
+    @SerializedName("effectiveposixownershipmode")
+    @Param(description = "Observed POSIX file-operation identity mode")
+    private String effectivePosixOwnershipMode;
+    @SerializedName("managedposixuser")
+    @Param(description = "Managed non-login UNIX identity; never a Samba authentication account")
+    private String managedPosixUser;
+    @SerializedName("managedposixgroup")
+    @Param(description = "Managed UNIX group for fixed file-operation identity")
+    private String managedPosixGroup;
+    public void setPosixOwnershipMode(String value) { posixOwnershipMode = value; }
+    public void setEffectivePosixOwnershipMode(String value) { effectivePosixOwnershipMode = value; }
+    public void setManagedPosixUser(String value) { managedPosixUser = value; }
+    public void setManagedPosixGroup(String value) { managedPosixGroup = value; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the SMB share")
     private String id;
@@ -94,6 +175,17 @@ public class StorageSmbShareResponse extends BaseResponse {
     @SerializedName("config")
     @Param(description = "SMB share configuration")
     private String config;
+
+    @SerializedName("volumerelativepath")
+    @Param(description = "directory relative to the managed backing volume root")
+    private String volumeRelativePath;
+
+    @SerializedName("backingpath")
+    @Param(description = "physical backing directory resolved by the Storage Service runtime")
+    private String backingPath;
+
+    public void setVolumeRelativePath(final String value) { this.volumeRelativePath = value; }
+    public void setBackingPath(final String value) { this.backingPath = value; }
 
     public void setId(String id) {
         this.id = id;

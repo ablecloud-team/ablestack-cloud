@@ -56,6 +56,14 @@ public class StorageIdentityDomainResponse extends BaseResponse {
     @Param(description = "identity domain configuration")
     private String config;
 
+    @SerializedName("identityreceipt")
+    @Param(description = "Fresh read-only joined identity receipt; absent for stored status observations")
+    private com.google.gson.JsonObject identityReceipt;
+
+    public void setIdentityReceipt(com.google.gson.JsonObject receipt) {
+        identityReceipt = receipt == null ? null : receipt.deepCopy();
+    }
+
     public void setId(String id) {
         this.id = id;
     }

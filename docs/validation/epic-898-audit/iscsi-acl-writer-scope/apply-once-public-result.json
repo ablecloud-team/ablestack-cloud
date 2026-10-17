@@ -1,0 +1,33 @@
+{
+  "kind": "MANAGEMENT_ACL_WRITER_SCOPE_OUTER_ONE_APPLY",
+  "observedAtUtc": "2026-10-10T07:23:25.987730+00:00",
+  "helperExitCode": 0,
+  "helperPublicResult": {
+    "success": true,
+    "javaSourceCommit": "6f830e4b6d04528d01eed50133bf9d37a4f66dd2",
+    "normalTests": 979,
+    "normalSelectors": 129,
+    "backup": "/root/epic898-acl-writer-scope-6f830e4b-backup-20261010-162214",
+    "beforeJarSha256": "ed3a6be2492af27d2c57072959e25db232050fecd7715154695244f6c5d424bf",
+    "afterJarSha256": "1909d30c4ea4297508a4a11ec9cd7ed5286f7acbc4cb6350877059707425e934",
+    "beforePid": 1408330,
+    "afterPid": 1413104,
+    "changedClassCount": 1,
+    "newClassCount": 0,
+    "otherJarEntryContentsPreserved": true,
+    "otherLibraryFilesPreserved": true,
+    "runtimeFamilyPreserved": true,
+    "uiConfigWebInfAssetsPreserved": true,
+    "activationAt": "2026-10-10T16:23:25.875967+09:00",
+    "applicationReadinessVerified": false,
+    "guestInvocations": 0,
+    "df11ReconcileInvocations": 0,
+    "finalUi1275Started": false
+  },
+  "applyInvocations": 1,
+  "rawErrorStored": false,
+  "rawErrorPrinted": false,
+  "safeFailureClass": null,
+  "applicationReadinessVerified": false,
+  "finalUi1275Started": false
+}

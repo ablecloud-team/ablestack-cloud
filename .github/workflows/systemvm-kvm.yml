@@ -36,6 +36,11 @@ on:
         description: GitHub Actions artifact name
         required: true
         type: string
+      require_stable_runtime_signing_key:
+        description: Reject ephemeral signing for published runtime releases
+        required: false
+        default: false
+        type: boolean
       release_display_version:
         description: ABLESTACK display version recorded in the build manifest
         required: false
@@ -72,24 +77,6 @@ jobs:
           ref: ${{ env.SYSTEMVM_REF }}
           fetch-depth: 0
 
-      - name: Prepare Storage Service runtime signing key
-        env:
-          STORAGE_RUNTIME_SIGNING_PRIVATE_KEY: ${{ secrets.storage_runtime_signing_private_key }}
-        run: |
-          key_dir="$RUNNER_TEMP/storage-runtime-signing"
-          mkdir -p "$key_dir" systemvm/debian/etc/ablestack-storage/runtime-trusted-keys
-          private_key="$key_dir/private.pem"
-          if [ -n "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" ]; then
-            printf '%s' "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" > "$private_key"
-          else
-            openssl genpkey -algorithm ED25519 -out "$private_key"
-            echo "::warning::Using an ephemeral CI key; configure storage_runtime_signing_private_key for release publication"
-          fi
-          chmod 600 "$private_key"
-          openssl pkey -in "$private_key" -pubout \
-            -out "systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem"
-          echo "STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE=$private_key" >> "$GITHUB_ENV"
-
       - name: Restore Debian installer ISO cache
         uses: actions/cache@v4
         with:
@@ -103,6 +90,8 @@ jobs:
             bzip2 \
             curl \
             jq \
+            acl \
+            python3-cryptography \
             qemu-system-x86 \
             qemu-utils \
             sharutils \
@@ -115,6 +104,40 @@ jobs:
           sudo unzip -o "$packer_archive" -d /usr/local/bin
           rm -f "$packer_archive" "packer_${PACKER_VERSION}_SHA256SUMS"
           packer version
+
+      - name: Verify Storage Service release contracts
+        run: |
+          python3 -m unittest \
+            systemvm.test.TestStorageRuntimeUpdater \
+            systemvm.test.TestStorageQuiesce \
+            systemvm.test.TestStorageNfsOwnershipSafety \
+            systemvm.test.TestStoragePosixRootInitialization \
+            systemvm.test.TestStorageNewDirectory \
+            systemvm.test.TestStorageTemplateBuild \
+            systemvm.test.TestStorageSmbEndpointReadiness \
+            systemvm.test.TestStorageSmbEndpointLifecycle \
+            systemvm.test.TestStorageNetworkRootBinding \
+            systemvm.test.TestStorageTemplateMaintenance \
+            systemvm.test.TestStorageRootDataInspection \
+            systemvm.test.TestStorageSmbFreshHealth \
+            systemvm.test.TestStorageSmbIdentity \
+            systemvm.test.TestStorageResourceReservation \
+            systemvm.test.TestStorageInlineSources \
+            systemvm.test.TestStorageNativeRenderers \
+            systemvm.test.TestStorageRenderedGeneration \
+            systemvm.test.TestStorageRenderedDriver \
+            systemvm.test.TestStorageRenderedRuntime \
+            systemvm.test.TestStorageRenderedNetwork \
+            systemvm.test.TestStorageRenderedPrerequisites \
+            systemvm.test.TestStorageGaneshaDbus \
+            systemvm.test.TestStorageNvmeCredentials \
+            systemvm.test.TestStorageBootRunner \
+            systemvm.test.TestStorageBootProtocolCheckpoint
+          python3 test/systemvm/test_storage_config_generation.py
+          python3 test/systemvm/test_storage_identity_capsule.py
+          python3 test/systemvm/test_storage_writer_lock.py
+          sudo python3 test/systemvm/test_storage_posix_directory_policy.py
+          sudo python3 systemvm/test/TestStorageGaneshaFeatures.py
 
       - name: Download and verify Debian installer ISO
         run: |
@@ -177,21 +200,17 @@ jobs:
           qemu-system-x86_64 --version
           qemu-img --version
 
-      - name: Build KVM System VM template
+      - name: Build KVM System VM template and signed runtime from the same checkout
+        env:
+          STORAGE_RUNTIME_SIGNING_PRIVATE_KEY: ${{ secrets.storage_runtime_signing_private_key }}
+          REQUIRE_STABLE_RUNTIME_SIGNING_KEY: ${{ inputs.require_stable_runtime_signing_key }}
         run: |
-          mkdir -p dist/systemvm-kvm
-          set -o pipefail
-          cd tools/appliance
-          sudo -E env \
-            PATH="$PATH" \
-            PACKER_LOG=1 \
-            bash ./build.sh \
-              systemvmtemplate \
-              "$SYSTEMVM_VERSION" \
-              x86_64 \
-              "$SYSTEMVM_BUILD_NUMBER" \
-            2>&1 | tee "$GITHUB_WORKSPACE/dist/systemvm-kvm/systemvm-kvm-build.log"
-          sudo chown -R "$(id -u):$(id -g)" dist "$GITHUB_WORKSPACE/dist/systemvm-kvm"
+          sudo -E env PATH="$PATH" python3 tools/build/with-storage-runtime-signing-key.py \
+            --key-id "$STORAGE_RUNTIME_SIGNING_KEY_ID" \
+            --trusted-key-dir systemvm/debian/etc/ablestack-storage/runtime-trusted-keys \
+            --require-stable "$REQUIRE_STABLE_RUNTIME_SIGNING_KEY" \
+            -- bash tools/build/build-systemvm-storage-release.sh
+          sudo chown -R "$(id -u):$(id -g)" tools/appliance/dist dist/systemvm-kvm
 
       - name: Validate and stage KVM System VM artifact
         run: |
@@ -223,7 +242,9 @@ jobs:
           trap 'rm -f "$roundtrip_image"' EXIT
           bunzip2 -c "$image" > "$roundtrip_image"
           qemu-img check "$roundtrip_image"
+          mkdir -p dist/systemvm-kvm/release
           sudo env SYSTEMVM_VALIDATE_NBD_DEVICE=/dev/nbd7 \
+            SYSTEMVM_STORAGE_TEMPLATE_MANIFEST_OUTPUT="$GITHUB_WORKSPACE/dist/systemvm-kvm/release/SYSTEMVM-TEMPLATE-MANIFEST.json" \
             tools/appliance/scripts/validate_systemvm_image.sh "$roundtrip_image"
 
           stage_dir=dist/systemvm-kvm/release
@@ -262,42 +283,6 @@ jobs:
             echo "- Architecture: \`x86_64\`"
             echo "- Format: \`qcow2.bz2\`"
             echo "- Image: \`$image\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Build signed Storage Service runtime bundle
-        env:
-          ABLESTACK_STORAGE_RUNTIME_BUILD_COMMIT: ${{ github.sha }}
-          ABLESTACK_STORAGE_RUNTIME_BUILD_TIME: ${{ inputs.release_display_version }}
-        run: |
-          runtime_version="${SYSTEMVM_VERSION}-${SYSTEMVM_BUILD_NUMBER}"
-          runtime_dir="dist/systemvm-kvm/release/storage-runtime"
-          tools/build/build-storage-runtime-bundle.sh \
-            --version "$runtime_version" \
-            --private-key "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE" \
-            --key-id "$STORAGE_RUNTIME_SIGNING_KEY_ID" \
-            --output-dir "$runtime_dir"
-          (cd "$runtime_dir" && sha256sum -c SHA256SUMS)
-          openssl pkeyutl -verify -pubin \
-            -inkey "systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" \
-            -sigfile "$runtime_dir/manifest.sig" -rawin -in "$runtime_dir/manifest.json"
-          runtime_prefix="ablestack-storage-runtime-${runtime_version}"
-          mv "$runtime_dir/manifest.json" "$runtime_dir/${runtime_prefix}.manifest.json"
-          mv "$runtime_dir/manifest.sig" "$runtime_dir/${runtime_prefix}.manifest.sig"
-          cp "systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" \
-            "$runtime_dir/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem"
-          (
-            cd "$runtime_dir"
-            rm -f SHA256SUMS
-            sha256sum \
-              "${runtime_prefix}.tar.gz" \
-              "${runtime_prefix}.manifest.json" \
-              "${runtime_prefix}.manifest.sig" \
-              "${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" \
-              > "${runtime_prefix}.SHA256SUMS"
-          )
-          {
-            echo "- Runtime bundle: \`ablestack-storage-runtime-${runtime_version}.tar.gz\`"
-            echo "- Runtime signing key: \`${STORAGE_RUNTIME_SIGNING_KEY_ID}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload KVM System VM build outputs

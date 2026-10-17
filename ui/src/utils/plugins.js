@@ -18,6 +18,7 @@
 import { clearIsoOperations } from '@/utils/vmIsoActions'
 import { clearNicOperations } from '@/utils/vmNicActions'
 import { clearVolumeOperations } from '@/utils/vmVolumeActions'
+import { clearSharedfsRemovalIntents } from '@/utils/sharedfsRemoval'
 import { trackSnapshotJob, finishSnapshotJob, clearSnapshotJobs } from '@/utils/vmSnapshotActions'
 import _ from 'lodash'
 import { i18n } from '@/locales'
@@ -113,13 +114,13 @@ export const pollJobPlugin = {
         }
         safe(() => eventBus.emit('update-job-details', { jobId, resourceId: options.resourceId }))
         const samePage = normalizePath(router.currentRoute.value.path) === originalPage
-        if (samePage && (options.retry || !action || !('isFetchData' in action) || action.isFetchData)) {
+        if (samePage && options.refreshOnComplete !== false && (options.retry || !action || !('isFetchData' in action) || action.isFetchData)) {
           safe(() => eventBus.emit('async-job-complete', action))
         }
       }
     })
     // A route change may cancel one query; retry it. A security scope change must stop tracking.
-    store.watch(() => [store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id].join('|'), () => { tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations() })
+    store.watch(() => [store.state.user.token, store.getters.userInfo?.id, store.getters.project?.id].join('|'), () => { tracker.clear(); clearSnapshotJobs(); clearVolumeOperations(); clearNicOperations(); clearIsoOperations(); clearSharedfsRemovalIntents() })
     app.config.globalProperties.$pollJob = function (options) {
       if (options.retry) options = { ...tracker.metadata(options.jobId)?.options, ...options }
       const originalPage = normalizePath(options.originalPage || this.$router.currentRoute.value.path)

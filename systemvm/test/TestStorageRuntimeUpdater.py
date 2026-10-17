@@ -58,16 +58,21 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
             "ABLESTACK_STORAGE_RUNTIME_TRUSTED_KEYS": str(self.trusted_keys),
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT": str(self.entrypoint_root),
             "ABLESTACK_STORAGE_RUNTIME_LOCK": str(self.lock_file),
+            "ABLESTACK_STORAGE_TEMPLATE_MANIFEST": str(self.temp / 'template-manifest.json'),
         })
         for name in ENTRYPOINTS:
             self.write_script(self.entrypoint_root / name, "bootstrap")
             self.write_script(self.source / name, "v2")
-        self.private_key = self.temp / "private.pem"
+        self.private_key_fd = os.memfd_create("storage-runtime-test-key", os.MFD_CLOEXEC)
+        private = subprocess.check_output(["openssl", "genpkey", "-algorithm", "ED25519"], stderr=subprocess.DEVNULL)
+        os.write(self.private_key_fd, private)
+        os.lseek(self.private_key_fd, 0, os.SEEK_SET)
+        self.private_key = Path(f"/proc/self/fd/{self.private_key_fd}")
         self.public_key = self.trusted_keys / "test-key.pem"
-        subprocess.run(["openssl", "genpkey", "-algorithm", "ED25519", "-out", str(self.private_key)], check=True)
-        subprocess.run(["openssl", "pkey", "-in", str(self.private_key), "-pubout", "-out", str(self.public_key)], check=True)
+        subprocess.run(["openssl", "pkey", "-in", str(self.private_key), "-pubout", "-out", str(self.public_key)], check=True, pass_fds=(self.private_key_fd,))
 
     def tearDown(self):
+        os.close(self.private_key_fd)
         shutil.rmtree(self.temp, ignore_errors=True)
 
     def write_script(self, path, value):
@@ -97,7 +102,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         subprocess.run([
             str(BUNDLE_BUILDER), "--version", version, "--private-key", str(self.private_key),
             "--key-id", "test-key", "--output-dir", str(self.output), "--source-root", str(self.source),
-        ], check=True, env=env, capture_output=True, text=True)
+        ], check=True, env=env, capture_output=True, text=True, pass_fds=(self.private_key_fd,))
         return self.output / f"ablestack-storage-runtime-{version}.tar.gz"
 
     def stage_transaction(self, transaction="tx-1", version="v2"):
@@ -124,6 +129,43 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.run_updater("preflight", request)
         return request
 
+    def platform_manifest(self, version='4.23.0.0'):
+        path = Path(self.env['ABLESTACK_STORAGE_TEMPLATE_MANIFEST'])
+        path.write_text(json.dumps({'platformVersion':version, 'productVersion':version,
+                                    'registrationDetails':{'storage.service.platform.version':version},
+                                    'platformVersionSource':{'path':'pom.xml','sha256':'a'*64,'declaredVersion':version},
+                                    'sourceFiles':{'pom.xml':'a'*64}}))
+        path.chmod(0o644)
+        return path
+
+    def test_fresh_platform_capabilities_bind_the_protected_guest_manifest_without_writes(self):
+        path = self.platform_manifest(); content = path.read_bytes(); before = path.stat()
+        result = self.run_updater('capabilities')
+        self.assertTrue(result['platformVersionKnown']); self.assertEqual('4.23.0.0', result['platformVersion'])
+        self.assertEqual(result['platformVersion'], result['productVersion'])
+        self.assertEqual(hashlib.sha256(content).hexdigest(), result['templateManifestSha256'])
+        self.assertEqual(before, path.stat()); self.assertEqual(content, path.read_bytes())
+
+    def test_absence_build_number_and_writable_or_symlink_platform_evidence_remain_unknown(self):
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        self.assertIsNone(self.run_updater('capabilities')['platformVersion'])
+        path = self.platform_manifest('4.23.0.0.88')
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path = self.platform_manifest(); value = json.loads(path.read_text())
+        value['platformVersionSource']['declaredVersion'] = '4.22.0.0'; path.write_text(json.dumps(value))
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path = self.platform_manifest(); path.chmod(0o666)
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+        path.chmod(0o644); real = path.with_suffix('.real'); path.rename(real); path.symlink_to(real)
+        self.assertFalse(self.run_updater('capabilities')['platformVersionKnown'])
+
+    def test_signed_builder_pins_all_three_platform_compatibility_ranges(self):
+        self.build_bundle()
+        compatibility = json.loads((self.output / 'manifest.json').read_text())['compatibility']
+        self.assertEqual(1, compatibility['schemaVersion'])
+        for domain in ('manager', 'agent', 'template'):
+            self.assertEqual({'minimumVersion': '4.23.0.0', 'maximumVersionExclusive': '4.24.0.0'}, compatibility[domain])
+
     def test_signed_bundle_activation_and_rollback(self):
         bootstrap = self.run_updater("bootstrap")
         self.assertEqual("BOOTSTRAPPED", bootstrap["phase"])
@@ -136,6 +178,87 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.assertTrue(rolled_back["currentVersion"].startswith("bootstrap-"))
         result = subprocess.run([str(self.entrypoint_root / "ablestack-storagectl")], text=True, capture_output=True, check=True)
         self.assertEqual("bootstrap", result.stdout.strip())
+
+    def activate_signed(self):
+        self.run_updater("bootstrap")
+        request = self.stage_transaction()
+        self.run_updater("activate", request)
+        return request
+
+    def make_activating(self, switched=False):
+        bootstrap = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        state = self.run_updater("status", request)
+        state.update(phase="ACTIVATING", previousVersion=bootstrap)
+        (self.state_root / request['transactionId'] / 'state.json').write_text(json.dumps(state))
+        if switched:
+            previous = self.runtime_root / 'previous'
+            previous.symlink_to(self.runtime_root / 'releases' / bootstrap)
+            current = self.runtime_root / 'current'
+            current.unlink()
+            current.symlink_to(self.runtime_root / 'releases/v2')
+        return request, bootstrap
+
+    def test_activation_resume_after_pointer_switch_keeps_the_original_previous_release(self):
+        request, previous = self.make_activating(switched=True)
+        result = self.run_updater('activate', request)
+        self.assertEqual('COMPLETE', result['phase'])
+        self.assertEqual(previous, result['previousVersion'])
+        self.assertEqual(previous, self.run_updater('capabilities')['previousVersion'])
+        self.assertTrue(self.run_updater('readback', request)['signedRuntimeVerified'])
+
+    def test_activation_resume_before_pointer_switch_replays_the_pinned_release(self):
+        request, previous = self.make_activating()
+        result = self.run_updater('activate', request)
+        self.assertEqual('COMPLETE', result['phase'])
+        self.assertEqual(previous, result['previousVersion'])
+        self.assertEqual('v2', result['currentVersion'])
+
+    def test_activation_resume_rejects_a_third_current_release_without_writing_state(self):
+        request, previous = self.make_activating()
+        third = self.runtime_root / 'releases/third'
+        third.mkdir()
+        current = self.runtime_root / 'current'
+        current.unlink()
+        current.symlink_to(third)
+        state_path = self.state_root / request['transactionId'] / 'state.json'
+        before = state_path.read_bytes()
+        result = self.run_updater('activate', request, success=False)
+        self.assertEqual('ACTIVATION_RESUME_STATE_MISMATCH', result['errorCode'])
+        self.assertEqual(before, state_path.read_bytes())
+        self.assertEqual('third', self.run_updater('capabilities')['currentVersion'])
+
+    def test_signed_readback_verifies_exact_release_and_has_no_state_or_target_writes(self):
+        request = self.activate_signed()
+        before = {str(path): (path.read_bytes(), path.stat().st_mtime_ns) for path in self.temp.rglob('*') if path.is_file() and not path.is_symlink()}
+        result = self.run_updater("readback", request)
+        self.assertTrue(result["signedRuntimeVerified"])
+        self.assertTrue(result["installedFilesVerified"])
+        self.assertTrue(result["entrypointsVerified"])
+        after = {str(path): (path.read_bytes(), path.stat().st_mtime_ns) for path in self.temp.rglob('*') if path.is_file() and not path.is_symlink()}
+        self.assertEqual(before, after)
+
+    def test_signed_readback_rejects_different_scope_installed_bytes_and_entrypoint_binding(self):
+        request = self.activate_signed()
+        different = self.run_updater("readback", dict(request, archiveSha256="0" * 64), success=False)
+        self.assertEqual("RUNTIME_READBACK_SCOPE_MISMATCH", different["errorCode"])
+        entrypoint = self.entrypoint_root / ENTRYPOINTS[0]
+        entrypoint.unlink()
+        entrypoint.symlink_to(self.runtime_root / 'releases/v2' / ENTRYPOINTS[0])
+        wrong_binding = self.run_updater("readback", request, success=False)
+        self.assertEqual("RUNTIME_ENTRYPOINT_BINDING_INVALID", wrong_binding["errorCode"])
+        entrypoint.unlink()
+        entrypoint.symlink_to(self.runtime_root / 'current' / ENTRYPOINTS[0])
+        target = self.runtime_root / 'releases/v2' / ENTRYPOINTS[0]
+        target.write_text('#!/bin/bash\necho changed\n')
+        changed = self.run_updater("readback", request, success=False)
+        self.assertEqual("RELEASE_HASH_MISMATCH", changed["errorCode"])
+
+    def test_unsigned_bootstrap_cannot_pass_signed_readback(self):
+        self.run_updater("bootstrap")
+        request = self.stage_transaction()
+        result = self.run_updater("readback", request, success=False)
+        self.assertEqual("SIGNED_RUNTIME_NOT_INSTALLED", result["errorCode"])
 
     def test_manifest_signature_tamper_is_rejected(self):
         self.run_updater("bootstrap")

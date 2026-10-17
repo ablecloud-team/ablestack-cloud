@@ -1,0 +1,46 @@
+{
+  "kind": "GUARD_8DE_NORMAL_UI_CODE_COMPLETE_PUBLIC_PROOF",
+  "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+  "nativeCliSha256": "c2655694946b7e1ec630940233ba59fb64724593a74a6c569674269727734f12",
+  "normalProofSha256": "e92c2a2ff19138ba30c3288d2d8858c032297ada105c50bfea39dcdf528b6204",
+  "preflightProofSha256": "e4e9976b5e7d3fe3fcb5ab06a30d9f1adb3567af6b6ef465232495bbc3906cda",
+  "observedSubmitButtonAtUtc": "2026-10-10T04:41:26.235Z",
+  "normalUiApplyButtonClicks": 1,
+  "actualInitialApplyJobId": null,
+  "actualInitialApplyJobStatus": null,
+  "initialJobCaptureLimitation": "Network observation was not re-enabled before apply in this turn; initial job was not captured; no retry or broader search.",
+  "upgrade": {
+    "id": "9ca27ee4-fba4-433f-8883-abe72873537d",
+    "instanceid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "bundleid": "e069857e-0f35-4f3b-9525-5444febbbe78",
+    "bundleversion": "epic898-iscsi-guard-8de98e-20261010",
+    "state": "COMPLETE",
+    "phase": "COMPLETE",
+    "progress": 100,
+    "transactionid": "runtime-20a74635-939e-4208-ba80-1c7c31c4601d",
+    "started": "2026-10-10T13:38:23+0900",
+    "completed": "2026-10-10T13:41:32+0900"
+  },
+  "verification": {
+    "runtimeCodeVerified": true,
+    "healthSuccess": true,
+    "serviceAvailabilityVerified": true,
+    "activation": {
+      "success": true,
+      "phase": "COMPLETE",
+      "transactionId": "runtime-20a74635-939e-4208-ba80-1c7c31c4601d",
+      "bundleVersion": "epic898-iscsi-guard-8de98e-20261010",
+      "currentVersion": "epic898-iscsi-guard-8de98e-20261010",
+      "previousVersion": "epic898-iscsi-safe-ffef35c-20261010",
+      "archiveSha256": "cb41ade95acc852d453b750679ea54287fc5f479d3e1ff5105f2848e12d37240",
+      "manifestSha256": "ee849b8721f2aa5375f8f85b3231f6c77d901394e025dba985515781f59d2cc2",
+      "keyId": "epic898-test-iscsi-guard-8de98e"
+    }
+  },
+  "actualSignedRuntimeAfterProofSha256": "799d5b526355a69334e90bd9aff9148b8d32e753d66d7db733e78dc8c53e0595",
+  "sameOperationAndTransactionAsPreflight": true,
+  "rawHealthOrPrivateFieldsIncluded": false,
+  "targetWriterCalls": 0,
+  "sourceHistoricalStatusImportOrExportCalls": 0,
+  "ui1275": "UNSTARTED"
+}

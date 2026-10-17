@@ -1,0 +1,40 @@
+{
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "files": [
+    {
+      "path": "css/vendors.eb47fec1.css",
+      "status": 200,
+      "sha256": "87e73d06b55f2d91287dc1b7d991da92be9cfee9675266a11d81e9b9ea7fc678",
+      "bytes": 576163,
+      "manifestMatch": true
+    },
+    {
+      "path": "css/app.9bb96c0e.css",
+      "status": 200,
+      "sha256": "eec57fbe8243589af24bb6e72fe619583fbb4e11de75268ee385ae3948dbf31a",
+      "bytes": 245937,
+      "manifestMatch": true
+    },
+    {
+      "path": "js/less.min.js",
+      "status": 200,
+      "sha256": "2dda5306b20a89556c4b85c23ef074e796cbf47bbb547baf21611ca9ebdf1f74",
+      "bytes": 143622,
+      "manifestMatch": true
+    },
+    {
+      "path": "js/vendors.ce3def06.js",
+      "status": 200,
+      "sha256": "c8f607dab2327d1ee0659b42dc662ae975825cbe6bd28182da7673ce26836ae5",
+      "bytes": 6041642,
+      "manifestMatch": true
+    },
+    {
+      "path": "js/app.3f294902.js",
+      "status": 200,
+      "sha256": "99576350e1a149e2b86a467fb68f6588d62f226cdc779ff10dbd6603fbf851d1",
+      "bytes": 1327340,
+      "manifestMatch": true
+    }
+  ]
+}

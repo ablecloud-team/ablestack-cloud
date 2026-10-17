@@ -6,20 +6,865 @@ CACHE_DIR="${ABLESTACK_STORAGE_MONITOR_CACHE_DIR:-/run/ablestack-storage/monitor
 INTERVAL="${ABLESTACK_STORAGE_MONITOR_INTERVAL:-10}"
 STALE_AFTER="${ABLESTACK_STORAGE_MONITOR_STALE_AFTER:-30}"
 STORAGECTL="${ABLESTACK_STORAGECTL:-/usr/local/bin/ablestack-storagectl}"
+NETWORK_HELPER="${ABLESTACK_SHAREDFS_NETWORK_HELPER:-/usr/local/sbin/ablestack-sharedfs-network}"
 
-write_json() {
-  local scope="$1"
-  local tmp
-  local input
-  input="$(mktemp "${CACHE_DIR}/.${scope}.input.XXXXXX")"
-  tmp="$(mktemp "${CACHE_DIR}/.${scope}.XXXXXX")"
-  cat > "$input"
-  python3 - "$scope" "$STALE_AFTER" "$tmp" "$input" <<'PY'
+boot_monitor_json() {
+  python3 - "$@" 3<&0 <<'PYBOOTMONITOR'
+# BEGIN EMBEDDED STORAGE_BOOT_COORDINATOR
+"""One bounded boot transaction; public progress never authorizes configuration."""
+import contextlib
+import fcntl
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import re
+import stat
+import tempfile
+import time
+import uuid as boot_uuid
+
+BOOT_PROTOCOLS = ("NFS", "SMB", "ISCSI", "NVMEOF")
+BOOT_DETAIL_KINDS = ("MOUNT_PROBES_COMPLETE", "EXACT_INVENTORY_AND_ELIGIBLE_MOUNTS",
+                     "EXACT_RUNTIME_READBACK", "NOT_REQUIRED", "UNVERIFIED")
+BOOT_PHASES = ("MOUNT_BACKING", "RESTORE_ENDPOINTS", "RESTORE_POSIX", "START_PROTOCOL_RUNTIME",
+               "WAIT_RUNTIME_READY", "PROBE_ENDPOINTS", "PROBE_EXPORTS", "APPLY_REMAINING_PROTOCOLS",
+               "VERIFY_ALL", "COMPLETE", "SKIPPED", "HELD", "FAILED")
+BOOT_PUBLIC_FIELDS = ("schemaVersion", "kind", "bootId", "instanceUuid", "desiredHash", "status", "phase",
+                      "attempt", "elapsedSeconds", "deadlineSeconds", "remainingSeconds", "updatedEpoch",
+                      "heartbeatStaleAfterSeconds", "runtimeReady", "detailedVerified", "protocols", "lastFailure")
+
+
+def boot_need(value):
+    if not value:
+        raise ValueError("INVALID_BOOT_RECONCILE_STATE")
+
+
+def boot_uuid_text(value):
+    if type(value) is not str:
+        return False
+    try:
+        return str(boot_uuid.UUID(value)) == value
+    except ValueError:
+        return False
+
+
+def boot_number(value, minimum=0):
+    return type(value) in (int, float) and math.isfinite(value) and value >= minimum
+
+
+def boot_identity(path):
+    item = path.lstat()
+    return tuple(getattr(item, key) for key in
+                 ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns"))
+
+
+def boot_directory(path, create=False, private=True):
+    boot_need(path.is_absolute() and ".." not in path.parts)
+    for parent in (path, *path.parents):
+        if parent.exists() or parent.is_symlink():
+            boot_need(stat.S_ISDIR(parent.lstat().st_mode))
+    if create:
+        path.mkdir(mode=0o700, parents=True, exist_ok=True)
+    value = path.lstat()
+    boot_need(stat.S_ISDIR(value.st_mode) and value.st_uid == os.geteuid()
+              and not value.st_mode & (0o077 if private else 0o022))
+
+
+def boot_read_json(path, private=True):
+    boot_directory(path.parent, private=private)
+    before = boot_identity(path)
+    boot_need(stat.S_ISREG(before[2]) and before[3] == os.geteuid()
+              and stat.S_IMODE(before[2]) == 0o600 and before[5] <= 1024 * 1024)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        item = os.fstat(descriptor)
+        boot_need(tuple(getattr(item, key) for key in
+                        ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")) == before)
+        raw = bytearray()
+        while len(raw) <= 1024 * 1024:
+            piece = os.read(descriptor, min(65536, 1024 * 1024 + 1 - len(raw)))
+            if not piece:
+                break
+            raw.extend(piece)
+        boot_need(len(raw) <= 1024 * 1024 and boot_identity(path) == before)
+        item = os.fstat(descriptor)
+        boot_need(tuple(getattr(item, key) for key in
+                        ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")) == before)
+        return json.loads(raw)
+    finally:
+        os.close(descriptor)
+
+
+def _boot_write_json_unlocked(path, value, private=True):
+    boot_directory(path.parent, create=True, private=private)
+    before = None
+    if path.exists() or path.is_symlink():
+        boot_read_json(path, private=private)
+        before = boot_identity(path)
+    descriptor, temporary = tempfile.mkstemp(prefix=".boot-state-", dir=path.parent)
+    try:
+        os.fchmod(descriptor, 0o600)
+        with os.fdopen(descriptor, "w") as output:
+            json.dump(value, output, allow_nan=False, sort_keys=True)
+            output.flush()
+            os.fsync(output.fileno())
+        boot_need((boot_identity(path) if path.exists() or path.is_symlink() else None) == before)
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+
+def boot_lock(descriptor):
+    until = time.monotonic() + 1
+    inherited = os.environ.get("ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC")
+    if inherited is not None:
+        value = float(inherited)
+        boot_need(boot_number(value))
+        until = min(until, value)
+    while True:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return
+        except BlockingIOError:
+            if time.monotonic() >= until:
+                raise ValueError("BOOT_STATE_WRITER_BUSY")
+            time.sleep(.01)
+
+
+def boot_write_json(path, value, private=True):
+    boot_directory(path.parent, create=True, private=private)
+    lock = path.parent / (".write-" + path.name + ".lock")
+    if lock.exists() or lock.is_symlink():
+        item = lock.lstat()
+        boot_need(stat.S_ISREG(item.st_mode) and item.st_uid == os.geteuid()
+                  and stat.S_IMODE(item.st_mode) == 0o600)
+    descriptor = os.open(lock, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+    try:
+        boot_lock(descriptor)
+        _boot_write_json_unlocked(path, value, private=private)
+    finally:
+        os.close(descriptor)
+
+
+def boot_workload_deadline(workload):
+    boot_need(type(workload) is dict and set(workload) ==
+              {"probeTasks", "endpointModeGroups", "configuredProtocolCount", "concurrency"})
+    for field in ("probeTasks", "endpointModeGroups", "configuredProtocolCount", "concurrency"):
+        boot_need(type(workload[field]) is int and workload[field] >= 0)
+    boot_need(workload["concurrency"] == 1 and workload["probeTasks"] <= 65536
+              and workload["endpointModeGroups"] <= 4096 and workload["configuredProtocolCount"] <= 4)
+    # Sequential probes are the production implementation; never budget imaginary parallelism.
+    seconds = 90 + 2 * (15 * workload["probeTasks"] + 5 * workload["endpointModeGroups"])
+    seconds += 20 * workload["configuredProtocolCount"]
+    return min(1500, max(600, seconds))
+
+
+def boot_failure(value):
+    if value is None:
+        return None
+    required = {"protocol", "phase", "endpointIp", "endpointPort", "exportUuid", "exportName",
+                "protocolMode", "code", "timedOut", "retryable", "cleanup"}
+    boot_need(type(value) is dict and set(value) == required)
+    boot_need(value["protocol"] is None or value["protocol"] in BOOT_PROTOCOLS)
+    boot_need(value["phase"] in BOOT_PHASES and type(value["code"]) is str
+              and re.fullmatch(r"[A-Z][A-Z0-9_]{0,63}", value["code"]))
+    for field in ("endpointIp", "exportName"):
+        boot_need(value[field] is None or type(value[field]) is str and len(value[field]) <= 256)
+    boot_need(value["endpointPort"] is None or type(value["endpointPort"]) is int and 1 <= value["endpointPort"] <= 65535)
+    boot_need(value["exportUuid"] is None or boot_uuid_text(value["exportUuid"]))
+    boot_need(value["protocolMode"] is None or value["protocolMode"] in ("NFS3", "NFS4"))
+    boot_need(type(value["timedOut"]) is bool and type(value["retryable"]) is bool)
+    cleanup = value["cleanup"]
+    boot_need(type(cleanup) is dict and set(cleanup) == {"complete", "childActive", "mountPresent"}
+              and all(type(item) is bool for item in cleanup.values()))
+    return {key: value[key] for key in required}
+
+
+def boot_report(value):
+    required = {"success", "runtimeReady", "detailVerified", "probePending",
+                "completedProbeCount", "totalProbeCount", "skippedAclCount", "detailVerificationKind"}
+    boot_need(type(value) is dict and required <= set(value))
+    boot_need(all(type(value[field]) is bool for field in ("success", "runtimeReady", "detailVerified")))
+    boot_need(all(type(value[field]) is int and value[field] >= 0
+                  for field in ("probePending", "completedProbeCount", "totalProbeCount")))
+    boot_need(value["completedProbeCount"] <= value["totalProbeCount"] <= 65536)
+    boot_need(type(value["skippedAclCount"]) is int and 0 <= value["skippedAclCount"] <= 65536
+              and value["detailVerificationKind"] in BOOT_DETAIL_KINDS)
+    if value["detailVerified"]:
+        boot_need(value["detailVerificationKind"] != "UNVERIFIED")
+    failure = boot_failure(value.get("lastFailure"))
+    return {**{key: value[key] for key in required}, "lastFailure": failure}
+
+
+def boot_validate_public(value):
+    boot_need(type(value) is dict and set(BOOT_PUBLIC_FIELDS) <= set(value))
+    boot_need(value["schemaVersion"] == 1 and type(value["schemaVersion"]) is int
+              and value["kind"] == "STORAGE_BOOT_RECONCILE")
+    boot_need(boot_uuid_text(value["bootId"]))
+    boot_need(value["instanceUuid"] is None or boot_uuid_text(value["instanceUuid"]))
+    boot_need(type(value["desiredHash"]) is str and re.fullmatch("[0-9a-f]{64}", value["desiredHash"]))
+    boot_need(value["status"] in ("RECONCILING", "READY", "DEGRADED", "FAILED", "HELD") and value["phase"] in BOOT_PHASES)
+    boot_need(type(value["attempt"]) is int and value["attempt"] >= 0)
+    boot_need(all(boot_number(value[key]) for key in ("elapsedSeconds", "deadlineSeconds", "remainingSeconds", "updatedEpoch")))
+    boot_need(600 <= value["deadlineSeconds"] <= 1500 and value["updatedEpoch"] > 0
+              and value["heartbeatStaleAfterSeconds"] == 15)
+    boot_need(type(value["runtimeReady"]) is bool and type(value["detailedVerified"]) is bool)
+    boot_need(type(value["protocols"]) is dict and set(value["protocols"]) == set(BOOT_PROTOCOLS))
+    for domain, row in value["protocols"].items():
+        boot_need(set(row) == {"configured", "applyState", "listenerReady", "observationComplete", "probeState",
+                              "verified", "completedProbeCount", "totalProbeCount",
+                              "skippedAclCount", "detailVerificationKind"})
+        boot_need(all(type(row[key]) is bool for key in ("configured", "listenerReady", "observationComplete", "verified")))
+        boot_need(row["applyState"] in ("PENDING", "APPLYING", "APPLIED", "VERIFIED", "FAILED", "NOT_REQUIRED", "HELD"))
+        boot_need(row["probeState"] in ("NOT_STARTED", "PENDING", "VERIFIED", "FAILED", "NOT_REQUIRED"))
+        boot_need(type(row["completedProbeCount"]) is int and type(row["totalProbeCount"]) is int
+                  and 0 <= row["completedProbeCount"] <= row["totalProbeCount"] <= 65536)
+        boot_need(type(row["skippedAclCount"]) is int and 0 <= row["skippedAclCount"] <= 65536
+                  and row["detailVerificationKind"] in BOOT_DETAIL_KINDS)
+        if row["verified"]:
+            boot_need(row["observationComplete"] and row["completedProbeCount"] == row["totalProbeCount"]
+                      and row["detailVerificationKind"] != "UNVERIFIED")
+            if not row["configured"]:
+                boot_need(row["applyState"] == row["probeState"] == row["detailVerificationKind"] == "NOT_REQUIRED")
+            elif domain == "NFS":
+                boot_need((row["detailVerificationKind"] == "MOUNT_PROBES_COMPLETE"
+                           and row["skippedAclCount"] == 0 and row["totalProbeCount"] > 0)
+                          or (row["detailVerificationKind"] == "EXACT_INVENTORY_AND_ELIGIBLE_MOUNTS"
+                              and row["skippedAclCount"] > 0))
+            else:
+                boot_need(row["detailVerificationKind"] == "EXACT_RUNTIME_READBACK" and row["skippedAclCount"] == 0)
+        elif row["detailVerificationKind"] != "UNVERIFIED":
+            boot_need(row["detailVerificationKind"] == "NOT_REQUIRED" and not row["configured"])
+    if value["runtimeReady"]:
+        boot_need(all(not row["configured"] or row["observationComplete"] and row["listenerReady"]
+                      for row in value["protocols"].values()))
+    if value["detailedVerified"]:
+        boot_need(all(row["verified"] for row in value["protocols"].values()))
+    if value["status"] == "READY":
+        boot_need(value["detailedVerified"] and all(row["verified"] for row in value["protocols"].values()))
+    boot_failure(value["lastFailure"])
+    return {key: value[key] for key in BOOT_PUBLIC_FIELDS}
+
+
+def read_boot_progress(path=None, boot_id=None, now=None):
+    """Read-only projection. Terminal timestamps remain historical, not refreshed heartbeats."""
+    path = Path(path or os.environ.get("ABLESTACK_STORAGE_BOOT_PROGRESS_JOURNAL",
+                                     "/run/ablestack-storage/boot-reconcile/status.json"))
+    value = boot_validate_public(boot_read_json(path))
+    current = boot_id or Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+    boot_need(value["bootId"] == current)
+    observed = time.time() if now is None else now
+    if value["status"] == "RECONCILING":
+        boot_need(boot_number(observed) and -2 <= observed - value["updatedEpoch"] <= 15)
+    return value
+
+
+class BootCoordinator:
+    def __init__(self, desired_hash, workload, instance_uuid=None, *, deadline=None, boot_id=None,
+                 journal=None, checkpoint_dir=None, clock=None, epoch=None, publish_cache=False, configured_protocols=None, new_transaction=False):
+        self.clock = clock or time.monotonic
+        self.epoch = epoch or time.time
+        self.boot_id = boot_id or Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        boot_need(boot_uuid_text(self.boot_id))
+        boot_need(instance_uuid is None or boot_uuid_text(instance_uuid))
+        boot_need(type(desired_hash) is str and re.fullmatch("[0-9a-f]{64}", desired_hash))
+        self.desired_hash, self.instance_uuid = desired_hash, instance_uuid
+        self.budget = boot_workload_deadline(workload)
+        boot_need(type(new_transaction) is bool)
+        self.new_transaction = new_transaction
+        if new_transaction:
+            boot_require_writer_fd9()
+        self.started = self.clock()
+        self.deadline = self.started + self.budget
+        inherited = None if new_transaction else os.environ.get("ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC")
+        for limit in (deadline, float(inherited) if inherited is not None else None):
+            if limit is not None:
+                boot_need(boot_number(limit))
+                self.deadline = min(self.deadline, limit)
+        self.journal = Path(journal or os.environ.get("ABLESTACK_STORAGE_BOOT_PROGRESS_JOURNAL",
+                                                    "/run/ablestack-storage/boot-reconcile/status.json"))
+        self.checkpoints = Path(checkpoint_dir or os.environ.get("ABLESTACK_STORAGE_BOOT_CHECKPOINT_DIR",
+                                                                "/run/ablestack-storage/boot-checkpoints"))
+        self.publish_cache = publish_cache or os.environ.get("ABLESTACK_STORAGE_BOOT_PUBLISH_CACHE") == "1"
+        self.cache = Path(os.environ.get("ABLESTACK_STORAGE_MONITOR_CACHE_DIR", "/run/ablestack-storage/monitor"))
+        self.record = {"schemaVersion": 1, "kind": "STORAGE_BOOT_RECONCILE", "bootId": self.boot_id,
+                       "instanceUuid": instance_uuid, "desiredHash": desired_hash, "status": "RECONCILING",
+                       "phase": "MOUNT_BACKING", "attempt": 0, "elapsedSeconds": 0, "deadlineSeconds": self.budget,
+                       "remainingSeconds": max(0, self.deadline - self.started), "updatedEpoch": self.epoch(),
+                       "heartbeatStaleAfterSeconds": 15, "runtimeReady": False, "detailedVerified": False,
+                       "protocols": {domain: self.empty_protocol() for domain in BOOT_PROTOCOLS}, "lastFailure": None,
+                       "_internal": {"startedMonotonic": self.started, "deadlineMonotonic": self.deadline,
+                                     "workload": dict(workload), "payloadDigests": {}}}
+        selected = tuple(configured_protocols) if configured_protocols is not None else (
+            BOOT_PROTOCOLS if workload["configuredProtocolCount"] else ())
+        boot_need(len(set(selected)) == len(selected) and all(domain in BOOT_PROTOCOLS for domain in selected))
+        if configured_protocols is not None:
+            boot_need(len(selected) == workload["configuredProtocolCount"])
+        for domain in selected:
+            self.record["protocols"][domain].update(configured=True, applyState="PENDING",
+                                                   observationComplete=False, probeState="NOT_STARTED", verified=False,
+                                                   detailVerificationKind="UNVERIFIED")
+        self._update(lambda: None)
+        self.new_transaction = False
+
+    @classmethod
+    def attach_existing(cls):
+        """Only progress attachment, never permission to replay a protocol."""
+        if os.environ.get("ABLESTACK_STORAGE_BOOT_COORDINATOR") != "1":
+            return None
+        path = Path(os.environ.get("ABLESTACK_STORAGE_BOOT_PROGRESS_JOURNAL",
+                                   "/run/ablestack-storage/boot-reconcile/status.json"))
+        record = boot_read_json(path)
+        public = boot_validate_public(record)
+        current = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        boot_need(public["bootId"] == current and public["status"] == "RECONCILING"
+                  and os.environ.get("ABLESTACK_STORAGE_BOOT_DESIRED_HASH") == public["desiredHash"])
+        internal = record["_internal"]
+        boot_need(boot_number(internal["startedMonotonic"]) and boot_number(internal["deadlineMonotonic"]))
+        boot_workload_deadline(internal["workload"])
+        return cls(public["desiredHash"], internal["workload"], public["instanceUuid"],
+                   deadline=internal["deadlineMonotonic"], boot_id=current, journal=path)
+
+    @staticmethod
+    def empty_protocol():
+        return {"configured": False, "applyState": "NOT_REQUIRED", "listenerReady": False,
+                "observationComplete": True, "probeState": "NOT_REQUIRED", "verified": True,
+                "completedProbeCount": 0, "totalProbeCount": 0, "skippedAclCount": 0,
+                "detailVerificationKind": "NOT_REQUIRED"}
+
+    def _update(self, change):
+        boot_directory(self.journal.parent, create=True)
+        lock = self.journal.parent / ".status.lock"
+        if lock.exists() or lock.is_symlink():
+            info = lock.lstat()
+            boot_need(stat.S_ISREG(info.st_mode) and info.st_uid == os.geteuid()
+                      and stat.S_IMODE(info.st_mode) == 0o600)
+        descriptor = os.open(lock, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        try:
+            boot_lock(descriptor)
+            if self.journal.exists() or self.journal.is_symlink():
+                previous = boot_read_json(self.journal)
+                boot_validate_public(previous)
+                reuse = previous["bootId"] == self.boot_id and previous["desiredHash"] == self.desired_hash
+                if self.new_transaction and reuse:
+                    boot_need(previous["status"] in ("READY", "DEGRADED", "FAILED", "HELD"))
+                    reuse = False
+                if reuse:
+                    internal = previous["_internal"]
+                    boot_need(boot_number(internal["startedMonotonic"]) and boot_number(internal["deadlineMonotonic"]))
+                    boot_need(previous["instanceUuid"] in (None, self.instance_uuid) or self.instance_uuid is None)
+                    self.record = previous
+                    if self.instance_uuid is not None:
+                        self.record["instanceUuid"] = self.instance_uuid
+                    self.started = internal["startedMonotonic"]
+                    self.deadline = min(self.deadline, internal["deadlineMonotonic"])
+                    self.budget = previous["deadlineSeconds"]
+            change()
+            self.record["elapsedSeconds"] = max(0, self.clock() - self.started)
+            self.record["remainingSeconds"] = max(0, self.deadline - self.clock())
+            self.record["updatedEpoch"] = self.epoch()
+            self.record["_internal"]["deadlineMonotonic"] = self.deadline
+            self.record["runtimeReady"] = all(not row["configured"] or
+                                               row["observationComplete"] and row["listenerReady"]
+                                               for row in self.record["protocols"].values())
+            self.record["detailedVerified"] = all(row["verified"] for row in self.record["protocols"].values())
+            public = boot_validate_public(self.record)
+            boot_write_json(self.journal, self.record)
+            if self.publish_cache:
+                # Old CODE3 units may order monitor after reconcile. This minimal
+                # cache publishes actual boot observations without pretending a
+                # previous full-health snapshot was freshly collected.
+                status = {"READY": "ok", "RECONCILING": "reconciling", "DEGRADED": "degraded",
+                          "FAILED": "error", "HELD": "error"}[public["status"]]
+                payload = {"schemaVersion": 1, "collector": "boot-reconcile", "success": status != "error",
+                           "status": status, "bootId": self.boot_id, "generatedEpoch": self.epoch(),
+                           "staleAfterSeconds": 30, "bootReconcile": public}
+                try:
+                    network = boot_read_json(self.cache / "network.json", private=False)
+                    fields = {"schemaVersion", "kind", "success", "status", "mode", "observedEpoch",
+                              "bootId", "expected", "actual", "mismatches"}
+                    boot_need(fields <= set(network) and network["kind"] == "SHAREDFS_NETWORK_READINESS"
+                              and network["bootId"] == self.boot_id and type(network["success"]) is bool
+                              and network["status"] in ("OK", "ERROR", "UNKNOWN")
+                              and network["success"] == (network["status"] == "OK")
+                              and boot_number(network["observedEpoch"])
+                              and -5 <= self.epoch() - network["observedEpoch"] <= 30)
+                    payload["networkReadiness"] = {key: network[key] for key in fields}
+                    if not network["success"]:
+                        payload.update(success=False, status="error")
+                        payload["errors"] = [{"collector": "network", "code": code}
+                                             for code in network["mismatches"]]
+                except (OSError, ValueError, KeyError, TypeError):
+                    # Absence is not invented health. The UI can still display
+                    # valid progress while its network panel remains unknown.
+                    pass
+                boot_write_json(self.cache / "health.json", payload, private=False)
+            return public
+        finally:
+            os.close(descriptor)
+
+    def remaining(self):
+        return max(0, self.deadline - self.clock())
+
+    def heartbeat(self):
+        return self._update(lambda: None)
+
+    def phase(self, name):
+        boot_need(name in BOOT_PHASES)
+        return self._update(lambda: self.record.update(phase=name))
+
+    def begin_attempt(self, number):
+        boot_need(type(number) is int and number > 0)
+        return self._update(lambda: self.record.update(attempt=number, status="RECONCILING"))
+
+    def _receipt(self, domain, digest, phase, detail=False):
+        boot_write_json(self.checkpoints / (domain.lower() + ".json"),
+                        {"schemaVersion": 1, "protocol": domain, "desiredSha256": digest,
+                         "desiredHash": self.desired_hash, "bootId": self.boot_id, "phase": phase,
+                         "detailVerified": detail, "updatedEpoch": self.epoch()})
+
+    def _previous_verified(self, domain, digest):
+        path = self.checkpoints / (domain.lower() + ".json")
+        if not path.exists() and not path.is_symlink():
+            return False
+        value = boot_read_json(path)
+        boot_need(type(value) is dict)
+        return value.get("desiredHash") == self.desired_hash and all(value.get(key) == expected for key, expected in
+                   (("protocol", domain), ("desiredSha256", digest), ("bootId", self.boot_id),
+                    ("phase", "VERIFIED")))
+
+    def failure(self, code, protocol=None, retryable=False, timed_out=False, cleanup_complete=False):
+        return {"protocol": protocol, "phase": self.record["phase"], "endpointIp": None,
+                "endpointPort": None, "exportUuid": None, "exportName": None, "protocolMode": None,
+                "code": code, "timedOut": timed_out, "retryable": retryable,
+                "cleanup": {"complete": cleanup_complete, "childActive": False, "mountPresent": False}}
+
+    def report_protocol(self, domain, phase, result, *, in_progress=False):
+        boot_need(domain in BOOT_PROTOCOLS and phase in BOOT_PHASES and type(in_progress) is bool)
+        report = boot_report(result)
+        verified = (not in_progress and report["lastFailure"] is None
+                    and report["success"] and report["runtimeReady"] and report["detailVerified"]
+                    and report["probePending"] == 0
+                    and report["completedProbeCount"] == report["totalProbeCount"])
+        # A completed mount count is still provisional until its final report.
+        # A structured failure always takes precedence over progress.
+        pending = report["lastFailure"] is None and (in_progress or report["probePending"] > 0)
+        def update():
+            row = self.record["protocols"][domain]
+            row.update(listenerReady=report["runtimeReady"], observationComplete=True,
+                       probeState="VERIFIED" if verified else "PENDING" if pending else "FAILED",
+                       verified=verified, completedProbeCount=report["completedProbeCount"],
+                       totalProbeCount=report["totalProbeCount"], skippedAclCount=report["skippedAclCount"],
+                       detailVerificationKind=report["detailVerificationKind"])
+            if not row["configured"]:
+                row.update(listenerReady=False,
+                           applyState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED",
+                           probeState="NOT_REQUIRED" if verified else "PENDING" if pending else "FAILED")
+            elif verified:
+                row["applyState"] = "VERIFIED"
+            elif report["runtimeReady"]:
+                row["applyState"] = "APPLIED"
+            self.record["phase"] = phase
+            if report["lastFailure"] is not None:
+                self.record["lastFailure"] = report["lastFailure"]
+        self._update(update)
+        return verified
+
+    def run_protocol(self, domain, payload_digest, apply_callback, verify_callback, configured=True):
+        boot_need(domain in BOOT_PROTOCOLS and re.fullmatch("[0-9a-f]{64}", payload_digest)
+                  and type(configured) is bool)
+        def prepare():
+            self.record["status"] = "RECONCILING"
+            old = self.record["_internal"]["payloadDigests"].get(domain)
+            if old != payload_digest:
+                self.record["protocols"][domain] = self.empty_protocol()
+                self.record["_internal"]["payloadDigests"][domain] = payload_digest
+            row = self.record["protocols"][domain]
+            row["configured"] = configured
+            if configured and row["applyState"] == "NOT_REQUIRED":
+                row.update(applyState="PENDING", probeState="NOT_STARTED", observationComplete=False, verified=False,
+                           detailVerificationKind="UNVERIFIED")
+        self._update(prepare)
+        if self.remaining() <= 0:
+            def exhausted():
+                self.record["protocols"][domain].update(verified=False, observationComplete=False, probeState="PENDING",
+                                                        detailVerificationKind="UNVERIFIED")
+                self.record.update(lastFailure=self.failure("BOOT_DEADLINE_EXCEEDED", domain, timed_out=True))
+            self._update(exhausted)
+            return False
+        try:
+            if self._previous_verified(domain, payload_digest):
+                if self.report_protocol(domain, "VERIFY_ALL", verify_callback()):
+                    self._receipt(domain, payload_digest, "VERIFIED", True)
+                    return True
+            self._receipt(domain, payload_digest, "APPLYING")
+            self._update(lambda: self.record["protocols"][domain].update(
+                applyState="APPLYING", verified=False, observationComplete=False,
+                probeState="PENDING", detailVerificationKind="UNVERIFIED"))
+            applied = boot_report(apply_callback())
+            self.report_protocol(domain, "WAIT_RUNTIME_READY", applied,
+                                 in_progress=applied["success"] and not applied["detailVerified"]
+                                 and applied["lastFailure"] is None)
+            if applied["success"] and self.remaining() > 0:
+                verified = self.report_protocol(domain, "VERIFY_ALL", verify_callback())
+                if verified:
+                    self._receipt(domain, payload_digest, "VERIFIED", True)
+                    return True
+            self._receipt(domain, payload_digest, "FAILED")
+            return False
+        except (OSError, ValueError, RuntimeError, TimeoutError):
+            self._receipt(domain, payload_digest, "FAILED")
+            self._update(lambda: self.record.update(lastFailure=self.failure("BOOT_CALLBACK_FAILED", domain)))
+            return False
+
+    def hold(self, code, failure=None):
+        preserved = boot_failure(failure) if failure is not None else None
+        def update():
+            self.record.update(status="HELD", phase="HELD",
+                               lastFailure=preserved if preserved is not None else self.failure(code))
+        return self._update(update)
+
+    def finish(self, skipped=False):
+        def update():
+            verified = all(row["verified"] for row in self.record["protocols"].values())
+            if skipped:
+                boot_need(not any(row["configured"] for row in self.record["protocols"].values()))
+            status = "READY" if verified else "DEGRADED" if self.record["runtimeReady"] else "FAILED"
+            self.record.update(status=status, phase="SKIPPED" if skipped else "COMPLETE" if verified else "FAILED")
+            if self.remaining() <= 0 and not verified:
+                self.record["lastFailure"] = self.failure("BOOT_DEADLINE_EXCEEDED", timed_out=True)
+        return self._update(update)
+
+
+def boot_require_writer_fd9():
+    boot_need(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9")
+    path = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE",
+                               "/run/ablestack-storage/desired-writer.lock"))
+    boot_directory(path.parent, private=False)
+    named, opened = path.lstat(), os.fstat(9)
+    boot_need(stat.S_ISREG(named.st_mode) and stat.S_IMODE(named.st_mode) == 0o600
+              and named.st_uid == os.geteuid()
+              and (named.st_dev, named.st_ino, named.st_mode, named.st_uid) ==
+                  (opened.st_dev, opened.st_ino, opened.st_mode, opened.st_uid))
+    fcntl.flock(9, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+@contextlib.contextmanager
+def boot_writer_lock():
+    """Reuse the native writer inode/OFD; children inherit FD9 through completion."""
+    path = Path(os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FILE",
+                               "/run/ablestack-storage/desired-writer.lock"))
+    boot_directory(path.parent, create=True, private=False)
+    if not path.exists() and not path.is_symlink():
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+        os.close(descriptor)
+    named = path.lstat()
+    boot_need(stat.S_ISREG(named.st_mode) and named.st_uid == os.geteuid()
+              and stat.S_IMODE(named.st_mode) == 0o600)
+    inherited = os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD") == "9"
+    descriptor = 9 if inherited else os.open(path, os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        opened = os.fstat(descriptor)
+        boot_need((opened.st_dev, opened.st_ino, opened.st_mode, opened.st_uid) ==
+                  (named.st_dev, named.st_ino, named.st_mode, named.st_uid))
+        if not inherited and descriptor != 9:
+            os.dup2(descriptor, 9, inheritable=True)
+            os.close(descriptor)
+            descriptor = 9
+        os.set_inheritable(9, True)
+        fcntl.flock(9, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        after = path.lstat()
+        boot_need((after.st_dev, after.st_ino, after.st_mode, after.st_uid) ==
+                  (named.st_dev, named.st_ino, named.st_mode, named.st_uid))
+        os.environ["ABLESTACK_STORAGE_WRITER_LOCK_FILE"] = str(path)
+        os.environ["ABLESTACK_STORAGE_WRITER_LOCK_FD"] = "9"
+        yield
+    finally:
+        os.close(descriptor)
+        if not inherited:
+            os.environ.pop("ABLESTACK_STORAGE_WRITER_LOCK_FD", None)
+
+
+def boot_payload(path):
+    if not path.exists() and not path.is_symlink():
+        return None, None
+    boot_directory(path.parent, private=False)
+    before = boot_identity(path)
+    boot_need(stat.S_ISREG(before[2]) and before[3] == os.geteuid()
+              and not before[2] & 0o022 and before[5] <= 8 * 1024 * 1024)
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        value = os.fstat(descriptor)
+        boot_need((value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_size) ==
+                  (before[0], before[1], before[2], before[3], before[5]))
+        raw = bytearray()
+        while len(raw) <= 8 * 1024 * 1024:
+            part = os.read(descriptor, min(65536, 8 * 1024 * 1024 + 1 - len(raw)))
+            if not part:
+                break
+            raw.extend(part)
+        boot_need(len(raw) <= 8 * 1024 * 1024 and boot_identity(path) == before)
+        after = os.fstat(descriptor)
+        boot_need((after.st_dev, after.st_ino, after.st_mode, after.st_uid, after.st_size) ==
+                  (before[0], before[1], before[2], before[3], before[5]))
+        payload = json.loads(raw)
+        boot_need(type(payload) is dict)
+        return payload, hashlib.sha256(raw).hexdigest()
+    finally:
+        os.close(descriptor)
+
+
+def boot_sources():
+    desired = Path(os.environ.get("ABLESTACK_STORAGE_DESIRED_STATE_DIR",
+                                  "/etc/ablestack-storage/desired-state"))
+    configuration = Path(os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_ROOT", "/etc/ablestack-storage"))
+    paths = {
+        "NFS": Path(os.environ.get("ABLESTACK_STORAGE_NFS_DESIRED_STATE_FILE", str(desired / "nfs-export-apply.json"))),
+        "SMB": Path(os.environ.get("ABLESTACK_STORAGE_SMB_DESIRED_STATE_FILE", str(desired / "smb-share-apply.json"))),
+        "ISCSI": Path(os.environ.get("ABLESTACK_STORAGE_ISCSI_DESIRED_STATE_FILE", str(configuration / "iscsi-targets.json"))),
+        "NVMEOF": Path(os.environ.get("ABLESTACK_STORAGE_NVMEOF_DESIRED_STATE_FILE", str(configuration / "nvmeof-subsystems.json"))),
+        "POSIX": Path(os.environ.get("ABLESTACK_STORAGE_POSIX_POLICY_FILE", str(configuration / "posix-directory-policies.json"))),
+        "ENDPOINTS": configuration / "network-endpoints.json", "NETWORK": configuration / "sharedfs-network.json"}
+    values = {name: boot_payload(path) for name, path in paths.items()}
+    digest = hashlib.sha256(json.dumps({name: item[1] for name, item in values.items()},
+                                      sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return paths, values, digest
+
+
+def boot_configured(payloads):
+    result = []
+    for domain, collection in (("NFS", "exports"), ("SMB", "shares"), ("ISCSI", "targets"), ("NVMEOF", "subsystems")):
+        item = payloads[domain][0]
+        if item and item.get("enabled") is not False and any(
+                row.get("state", "Ready") not in ("Disabled", "Destroyed", "Error") for row in item.get(collection, [])):
+            result.append(domain)
+    return tuple(result)
+
+
+def _boot_locked_main(runner_type, nfs_planner):
+    """Fixed standalone orchestration. Callbacks are internal code, never RPC input."""
+    cli = os.environ.get("ABLESTACK_STORAGECTL", "/usr/local/bin/ablestack-storagectl")
+    monitor = os.environ.get("ABLESTACK_STORAGE_MONITOR", "/usr/local/bin/ablestack-storage-monitor")
+    paths, payloads, desired_hash = boot_sources()
+    configured = boot_configured(payloads)
+    workload = dict(nfs_planner(payloads["NFS"][0] or {}), configuredProtocolCount=len(configured))
+    instance = None
+    for value, _ in payloads.values():
+        if value and value.get("instanceUuid") is not None:
+            candidate = value["instanceUuid"]
+            boot_need(boot_uuid_text(candidate) and instance in (None, candidate))
+            instance = candidate
+    c = BootCoordinator(desired_hash, workload, instance, publish_cache=True, configured_protocols=configured,
+                        new_transaction=True)
+    os.environ.update(ABLESTACK_STORAGE_BOOT_COORDINATOR="1",
+                      ABLESTACK_STORAGE_BOOT_DESIRED_HASH=desired_hash,
+                      ABLESTACK_STORAGE_BOOT_PUBLISH_CACHE="1",
+                      ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC=str(c.deadline))
+    runner = runner_type(c.deadline)
+    def command(arguments, json_result=True, terminal=False):
+        result = runner.run(arguments, capture=True, heartbeat=None if terminal else c.heartbeat)
+        if not json_result:
+            return result
+        try:
+            value = json.loads(result.get("output", ""))
+            boot_need(type(value) is dict)
+        except (ValueError, TypeError):
+            value = {"success": False}
+        if not result["success"]:
+            value.setdefault("success", False)
+            value.setdefault("lastFailure", c.failure("BOOT_COMMAND_TIMEOUT" if result.get("deadlineExceeded")
+                                                     else "BOOT_COMMAND_FAILED", timed_out=bool(result.get("deadlineExceeded"))))
+        return value
+    def report_for(domain, value):
+        if all(key in value for key in ("runtimeReady", "detailVerified", "probePending",
+                                         "completedProbeCount", "totalProbeCount")):
+            return boot_report(value)
+        return {"success": value.get("success") is True, "runtimeReady": False, "detailVerified": False,
+                "probePending": 0, "completedProbeCount": 0, "totalProbeCount": 0,
+                "skippedAclCount": 0, "detailVerificationKind": "UNVERIFIED",
+                "lastFailure": value.get("lastFailure") or c.failure("BOOT_PROTOCOL_OBSERVATION_INCOMPLETE", domain)}
+    def verify(domain):
+        if domain == "NFS":
+            summary = report_for(domain, command([cli, "nfs", "export", "boot-verify", str(paths[domain])]))
+            health = command([cli, "operation", "verify"])
+            observed = health.get("nfsGanesha") or {}
+            rows = observed.get("endpoints") or []
+            active = domain in configured
+            ready = (bool(rows) and observed.get("status") == "ok" and all(
+                row.get("processRunning") is True and row.get("listening") is True for row in rows)) if active else not (
+                    health.get("listenPorts") or {}).get("nfs")
+            if health.get("success") is not True or not ready:
+                summary.update(success=False, runtimeReady=False, detailVerified=False,
+                               lastFailure=c.failure("BOOT_RUNTIME_NOT_READY", domain, retryable=True, cleanup_complete=True))
+            return summary
+        health = command([cli, "operation", "verify"])
+        active = domain in configured
+        if domain == "SMB":
+            observed = health.get("smbRuntime") or {}
+            rows = observed.get("runtimeEndpoints") or []
+            ready = observed.get("available") is True and bool(rows) and all(
+                row.get("listenerOwned") is True and row.get("tcpReady") is True for row in rows)
+        else:
+            ready = (health.get("listenPorts") or {}).get("iscsi" if domain == "ISCSI" else "nvmeof") is True
+        if not active:
+            ready = not (health.get("listenPorts") or {}).get({"SMB": "smb", "ISCSI": "iscsi", "NVMEOF": "nvmeof"}[domain])
+        valid = health.get("success") is True and ready
+        return {"success": valid, "runtimeReady": valid, "detailVerified": valid, "probePending": 0,
+                "completedProbeCount": 0, "totalProbeCount": 0, "skippedAclCount": 0,
+                "detailVerificationKind": ("EXACT_RUNTIME_READBACK" if active else "NOT_REQUIRED") if valid else "UNVERIFIED",
+                "lastFailure": None if valid else c.failure("BOOT_RUNTIME_NOT_READY", domain, retryable=True,
+                                                          cleanup_complete=True)}
+    adapters = {"NFS": ("nfs", "export", "apply"), "SMB": ("smb", "share", "apply"),
+                "ISCSI": ("iscsi", "target", "apply"), "NVMEOF": ("nvmeof", "subsystem", "apply")}
+    def apply(domain):
+        value = command([cli, *adapters[domain], str(paths[domain])])
+        if domain == "NFS":
+            return report_for(domain, value)
+        if value.get("success") is not True:
+            return report_for(domain, value)
+        return verify(domain)
+    try:
+        role = Path("/var/cache/cloud/cmdline")
+        sharedfs = paths["NETWORK"].exists()
+        if role.is_file():
+            sharedfs = sharedfs or bool(re.search(r"(^|\s)type=sharedfsvm(\s|$)", role.read_text()[:16384]))
+        if sharedfs:
+            # Same canonical readiness path as the network unit; never DHCP fallback.
+            prepared = command(["/usr/local/sbin/ablestack-sharedfs-network", "--prepare"])
+            if prepared.get("success") is not True:
+                c.hold("BOOT_NETWORK_NOT_READY")
+                return 1
+        rendered = command([cli, "operation", "generation", "render-status"])
+        maintenance = command([cli, "operation", "maintenance", "status"])
+        if rendered.get("success") is not True or rendered.get("bootHeld") is not False:
+            c.hold("BOOT_RENDERED_RECOVERY_HELD")
+            return 1
+        if maintenance.get("success") is not True or maintenance.get("bootHeld") is not False:
+            c.hold("BOOT_MAINTENANCE_HELD")
+            return 1
+        # Also protects legacy boot before its first rendered baseline.
+        gate = command([cli, "operation", "generation", "render-boot-gate", "ablestack-storage-reconcile.service"])
+        if gate.get("success") is not True or gate.get("bootHeld") is not False:
+            c.hold("BOOT_NATIVE_GENERATION_HELD")
+            return 1
+        if rendered.get("current"):
+            c.begin_attempt(1)
+            value = command([cli, "operation", "generation", "render-boot"])
+            if value.get("success") is not True:
+                c.hold("BOOT_RENDERED_FINALIZATION_UNVERIFIED")
+                return 1
+            final = c.finish()
+        elif not any(value is not None for name, (value, _) in payloads.items()
+                     if name in (*BOOT_PROTOCOLS, "POSIX")):
+            final = c.finish(skipped=True)
+        else:
+            attempts = int(os.environ.get("ABLESTACK_STORAGE_BOOT_RECONCILE_ATTEMPTS", "12"))
+            sleep_seconds = float(os.environ.get("ABLESTACK_STORAGE_BOOT_RECONCILE_SLEEP", "5"))
+            boot_need(1 <= attempts <= 100 and boot_number(sleep_seconds) and sleep_seconds <= 30)
+            for attempt in range(1, attempts + 1):
+                if c.remaining() <= 0:
+                    break
+                c.begin_attempt(attempt)
+                if boot_sources()[2] != desired_hash:
+                    c.hold("BOOT_DESIRED_SOURCE_CHANGED")
+                    return 1
+                c.phase("MOUNT_BACKING")
+                if not command(["mount", "-a"], json_result=False)["success"]:
+                    c.hold("BOOT_BACKING_MOUNT_FAILED")
+                    return 1
+                c.phase("RESTORE_ENDPOINTS")
+                endpoint = command([cli, "network", "endpoints", "reconcile"])
+                if endpoint.get("success") is not True:
+                    c.hold("BOOT_ENDPOINT_RESTORE_FAILED")
+                    return 1
+                policies = payloads["POSIX"][0]
+                if policies and not c._previous_verified("POSIX", payloads["POSIX"][1]):
+                    c.phase("RESTORE_POSIX")
+                    for item in policies.values():
+                        request = item.get("request")
+                        boot_need(type(request) is dict)
+                        fd = os.memfd_create("boot-posix-request", os.MFD_CLOEXEC | os.MFD_ALLOW_SEALING)
+                        try:
+                            os.write(fd, json.dumps(request, allow_nan=False).encode())
+                            os.lseek(fd, 0, os.SEEK_SET)
+                            fcntl.fcntl(fd, fcntl.F_ADD_SEALS, fcntl.F_SEAL_WRITE | fcntl.F_SEAL_GROW
+                                        | fcntl.F_SEAL_SHRINK | fcntl.F_SEAL_SEAL)
+                            # Only this fixed public request FD; no arbitrary callback/path input.
+                            os.set_inheritable(fd, True)
+                            result = runner.run([cli, "posix", "directory", "apply", "/proc/self/fd/" + str(fd)],
+                                                stdin_fd=fd, heartbeat=c.heartbeat, capture=True)
+                            boot_need(result["success"])
+                        finally:
+                            os.close(fd)
+                    c._receipt("POSIX", payloads["POSIX"][1], "VERIFIED", True)
+                success = True
+                for domain in BOOT_PROTOCOLS:
+                    if payloads[domain][0] is not None:
+                        success = c.run_protocol(domain, payloads[domain][1], lambda d=domain: apply(d),
+                                                 lambda d=domain: verify(d), configured=domain in configured) and success
+                        failure = c.record.get("lastFailure")
+                        cleanup = (failure or {}).get("cleanup")
+                        if cleanup and (cleanup.get("complete") is not True or cleanup.get("childActive")
+                                        or cleanup.get("mountPresent")):
+                            c.hold("NFS_PROBE_CLEANUP_PENDING", failure)
+                            return 1
+                if success:
+                    break
+                failure = c.record["lastFailure"]
+                if failure and failure["retryable"] is False:
+                    break
+                command(["sleep", str(min(sleep_seconds, c.remaining()))], json_result=False)
+            final = c.finish()
+        if Path(monitor).is_file():
+            command([monitor, "--boot-readonly", "--once"], json_result=False, terminal=True)
+        return 0 if final["status"] == "READY" else 1
+    except BlockingIOError:
+        c.hold("BOOT_WRITER_BUSY")
+        return 1
+    except (OSError, ValueError, RuntimeError, TimeoutError):
+        c.hold("BOOT_RECONCILE_FAILED")
+        return 1
+
+
+def boot_main(runner_type, nfs_planner):
+    # Only the exact writer owner may reset public progress. A concurrent root
+    # invocation cannot overwrite its running owner's journal/cache with HELD.
+    try:
+        with boot_writer_lock():
+            return _boot_locked_main(runner_type, nfs_planner)
+    except BlockingIOError:
+        print(json.dumps({"success": False, "status": "HELD", "code": "BOOT_WRITER_BUSY"}))
+        return 1
+    except (OSError, ValueError, RuntimeError, TimeoutError):
+        print(json.dumps({"success": False, "status": "HELD", "code": "BOOT_RECONCILE_START_HELD"}))
+        return 1
+# END EMBEDDED STORAGE_BOOT_COORDINATOR
+import subprocess,sys
+if sys.argv[1] == "active":
+    path=Path(os.environ.get("ABLESTACK_STORAGE_BOOT_PROGRESS_JOURNAL","/run/ablestack-storage/boot-reconcile/status.json"))
+    try:
+        if not path.exists() and not path.is_symlink():
+            state=subprocess.run(["systemctl","show","--property=ActiveState","--value","ablestack-storage-reconcile.service"],
+                                 capture_output=True,text=True,timeout=2)
+            raise SystemExit(1 if state.returncode==0 and state.stdout.strip() in("inactive","failed")else 0)
+        progress=read_boot_progress()
+        raise SystemExit(0 if progress["status"] in("RECONCILING","HELD")else 1)
+    except (OSError,ValueError,KeyError,TypeError,subprocess.TimeoutExpired):
+        raise SystemExit(0)
 import json
 import sys
 import time
 
-scope, stale_after, output, input_path = sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4]
+scope, stale_after, cache_directory, input_path = sys.argv[2], int(sys.argv[3]), sys.argv[4], sys.argv[5]
 try:
     with open(input_path, "r", encoding="utf-8") as handle:
         payload = json.load(handle)
@@ -57,21 +902,84 @@ def redact_sensitive(value):
     return value
 
 payload = redact_sensitive(payload)
+if scope == "health":
+    try:
+        with open(sys.argv[6], "r", encoding="utf-8") as handle:
+            observed = json.load(handle)
+        fields = {"schemaVersion", "kind", "success", "status", "mode", "observedEpoch", "bootId", "expected", "actual", "mismatches"}
+        network = {key: observed[key] for key in fields}
+        if (type(network["success"]) is not bool or network["kind"] != "SHAREDFS_NETWORK_READINESS"
+                or network["status"] not in ("OK", "ERROR", "UNKNOWN")
+                or network["success"] != (network["status"] == "OK")):
+            raise ValueError("invalid network cache")
+    except (OSError, ValueError, KeyError, TypeError):
+        network = {"schemaVersion": 1, "kind": "SHAREDFS_NETWORK_READINESS", "success": False, "status": "UNKNOWN",
+                   "mode": "UNKNOWN", "observedEpoch": time.time(), "bootId": None,
+                   "expected": {"mode": "UNKNOWN", "macAddress": None, "ipAddress": None, "cidr": None, "gateway": None, "dns": []},
+                   "actual": {"mode": "UNKNOWN", "interfaceName": None, "macAddress": None, "addresses": [], "defaultRoutes": [],
+                              "dns": [], "dhcpUnit": {"name": None, "active": None, "masked": None}, "dhcpProcessCount": None},
+                   "mismatches": ["OBSERVATION_UNAVAILABLE"]}
+    payload["networkReadiness"] = network
+    if not network["success"]:
+        payload["success"] = False
+        payload["status"] = "error"
+        errors = payload.get("errors")
+        if not isinstance(errors, list):
+            errors = []
+        payload["errors"] = errors + [{"collector": "network", "code": code} for code in network["mismatches"]]
 payload.setdefault("schemaVersion", 1)
 payload.setdefault("collector", scope)
 payload.setdefault("generatedAt", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
 payload["generatedEpoch"] = time.time()
 payload["staleAfterSeconds"] = stale_after
-with open(output, "w", encoding="utf-8") as handle:
-    json.dump(payload, handle, sort_keys=True)
-    handle.write("\n")
-PY
+payload["bootId"] = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+if scope == "health":
+    try:
+        progress = read_boot_progress()
+        payload["bootReconcile"] = progress
+        if progress["status"] == "RECONCILING" and payload.get("status") != "error":
+            payload["status"] = "reconciling"
+        elif progress["status"] in ("DEGRADED", "FAILED", "HELD") and payload.get("status") != "error":
+            payload["status"] = "degraded"
+    except FileNotFoundError:
+        pass
+    except (OSError, ValueError, KeyError, TypeError):
+        payload["bootReconcileReadError"] = True
+boot_write_json(Path(cache_directory)/(scope+".json"),payload,private=False)
+
+PYBOOTMONITOR
+}
+write_json() {
+  local scope="$1" input result=0
+  input="$(mktemp "${CACHE_DIR}/.${scope}.input.XXXXXX")"
+  cat > "$input"
+  boot_monitor_json write "$scope" "$STALE_AFTER" "$CACHE_DIR" "$input" "${CACHE_DIR}/network.json" || result=$?
   rm -f "$input"
-  mv "$tmp" "${CACHE_DIR}/${scope}.json"
+  return "$result"
 }
 
 reconcile_network_endpoints() {
+  local maintenance
+  maintenance="$($STORAGECTL operation maintenance status 2>/dev/null)" || return 0
+  if ! printf '%s' "$maintenance" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)' >/dev/null 2>&1; then
+    return 0
+  fi
+  local rendered
+  rendered="$($STORAGECTL operation generation render-status 2>/dev/null)" || return 0
+  if ! printf '%s' "$rendered" | python3 -c 'import json,sys; value=json.load(sys.stdin); raise SystemExit(0 if value.get("success") and not value.get("bootHeld") else 1)' >/dev/null 2>&1; then
+    return 0
+  fi
   "$STORAGECTL" network endpoints reconcile >/dev/null 2>&1 || true
+}
+
+collect_network_readiness() {
+  local observed
+  observed="$(timeout --signal=TERM --kill-after=1s 12 "$NETWORK_HELPER" --inspect 2>/dev/null)" || true
+  if [[ -n "$observed" ]]; then
+    printf '%s' "$observed" | write_json network || true
+  else
+    printf '{"success":false,"status":"UNKNOWN"}\n' | write_json network || true
+  fi
 }
 
 collect_scope() {
@@ -181,13 +1089,20 @@ PY
 
 collect_once() {
   mkdir -p "$CACHE_DIR"
-  reconcile_network_endpoints
+  collect_network_readiness
+  if [[ "${ABLESTACK_STORAGE_BOOT_READONLY:-0}" != "1" ]] && ! boot_monitor_json active; then
+    reconcile_network_endpoints
+  fi
   collect_scope health || true
   collect_scope inventory || true
   collect_scope sessions || true
   collect_capacity || printf '{"success":false,"status":"error","errors":[{"collector":"capacity","message":"collector failed"}]}\n' | write_json capacity || true
 }
 
+if [[ "${1:-}" == "--boot-readonly" ]]; then
+  export ABLESTACK_STORAGE_BOOT_READONLY=1
+  shift
+fi
 if [[ "${1:-}" == "--once" ]]; then
   collect_once
   exit 0

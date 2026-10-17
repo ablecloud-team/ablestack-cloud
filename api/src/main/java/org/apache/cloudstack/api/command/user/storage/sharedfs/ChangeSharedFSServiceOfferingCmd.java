@@ -77,6 +77,11 @@ public class ChangeSharedFSServiceOfferingCmd extends BaseAsyncCmd implements Us
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
+    @Inject private org.apache.cloudstack.storage.dataservice.StorageService storageScope;
+    public Long getSharedFileSystemId() { return id; }
+    @Override public String getSyncObjType() { return "StorageServiceInstance"; }
+    @Override public Long getSyncObjId() { return storageScope.getStorageServiceSyncId(this); }
+
     public Long getId() {
         return id;
     }

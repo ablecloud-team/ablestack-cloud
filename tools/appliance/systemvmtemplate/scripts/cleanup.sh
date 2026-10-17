@@ -84,12 +84,57 @@ function cleanup_machine_id() {
   fi
 }
 
+# Packer finalization of a new image only. Existing images and running VMs
+# retain their identities; bootstrap later creates one per-instance local SID.
+function cleanup_storage_identity_seed() {
+  local image_root="${1:-/}" proc_root="${2:-/proc}"
+  if test "$image_root" != "/"; then image_root="${image_root%/}"; fi
+  if test "$image_root" = "/"; then test "$proc_root" = "/proc"; fi
+  test ! -L "$image_root"
+  test -d "$image_root/etc"
+  if test "$image_root" = "/"; then
+    systemctl stop smbd.service nmbd.service winbind.service 2>/dev/null || true
+    local unit
+    for unit in smbd.service nmbd.service winbind.service; do
+      if systemctl is-active --quiet "$unit"; then
+        echo "Identity daemon remains active during new-image finalization" >&2
+        return 1
+      fi
+    done
+  fi
+  # Match the native ROOT_IDENTITY_COMMS observer scope. This is evidence
+  # about known identity processes, not a claim to observe every process.
+  python3 - "$proc_root" <<'PY_IDENTITY_SEED_PROCESS_CHECK'
+import sys
+from pathlib import Path
+known=("smbd","nmbd","winbindd","samba","samba-dcerpcd","samba-bgqd")
+for process in Path(sys.argv[1]).iterdir():
+    if not process.name.isdigit():continue
+    try:name=(process/"comm").read_text().strip()
+    except FileNotFoundError:continue
+    if name in known:raise SystemExit("Known identity process remains active during new-image finalization")
+PY_IDENTITY_SEED_PROCESS_CHECK
+  local relative parent
+  for relative in var/lib/samba/private/secrets.tdb var/lib/samba/private/passdb.tdb     var/lib/samba/winbindd_idmap.tdb var/lib/samba/private/winbindd_idmap.tdb     var/lib/samba/winbindd_cache.tdb etc/krb5.keytab     etc/ablestack-storage/ad-machine.conf etc/ablestack-storage/smb-domain.json     etc/ablestack-storage/smb-semantic-identity-aliases.json; do
+    parent="$(dirname "$image_root/$relative")"
+    while test "$parent" != "$image_root" && test "$parent" != "/"; do
+      test ! -L "$parent"
+      parent="$(dirname "$parent")"
+    done
+    test ! -L "$image_root/$relative"
+    test ! -d "$image_root/$relative"
+    rm -f -- "$image_root/$relative"
+    test ! -e "$image_root/$relative" && test ! -L "$image_root/$relative"
+  done
+}
+
 function cleanup() {
   cleanup_apt
   cleanup_dhcp
   cleanup_dev
   cleanup_misc
   cleanup_machine_id
+  cleanup_storage_identity_seed
 }
 
 return 2>/dev/null || cleanup

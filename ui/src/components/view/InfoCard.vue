@@ -508,6 +508,7 @@
             </div>
             <div class="resource-detail-item" v-if="resource.volumes || resource.sizegb">
               <div class="resource-detail-item__label" v-if="$route.meta.name === 'backup'">{{ $t('label.size') }}</div>
+              <div class="resource-detail-item__label" v-else-if="$route.meta.name === 'sharedfs'">{{ $t('label.totalprovisionedbytes') }}</div>
               <div class="resource-detail-item__label" v-else>{{ $t('label.disksize') }}</div>
               <div class="resource-detail-item__details">
                 <hdd-outlined />
@@ -521,6 +522,7 @@
                     <QuestionCircleOutlined />
                   </a-tooltip>
                 </span>
+                <span style="width: 100%;" v-else-if="$route.meta.name === 'sharedfs'">{{ resource.totalprovisionedbytes === undefined || resource.totalprovisionedbytes === null ? '-' : $bytesToHumanReadableSize(resource.totalprovisionedbytes) }}</span>
                 <span style="width: 100%;" v-else-if="resource.sizegb || resource.size">{{ resource.sizegb || (resource.size/1024.0) }}</span>
               </div>
               <div style="margin-left: 25px; margin-top: 5px" v-if="resource.diskkbsread && resource.diskkbswrite && resource.diskioread && resource.diskiowrite">

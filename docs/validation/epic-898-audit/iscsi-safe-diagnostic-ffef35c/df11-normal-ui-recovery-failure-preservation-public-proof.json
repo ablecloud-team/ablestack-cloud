@@ -1,0 +1,70 @@
+{
+  "kind": "DF11_FIRST_NORMAL_UI_SOURCE_RECOVERY_FAILURE_PRESERVATION",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "normalUiSubmissions": 1,
+  "jobid": "227ca3ee-3044-4e66-9c7f-bfce6a34cb32",
+  "jobstatus": 2,
+  "errorcode": 530,
+  "sameObservedFields": {
+    "cliSha256": true,
+    "bootId": true,
+    "vmUuid": true,
+    "current": true,
+    "pending": true,
+    "databases": true,
+    "smbDesiredPresent": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true
+  },
+  "beforeLocalPhase": "RESUMED",
+  "afterLocalPhase": "RECOVERY_REQUIRED",
+  "afterImported": false,
+  "cipherMetadataUnchanged": true,
+  "sourceScopeAndPinUnchanged": true,
+  "checkpointReferenceUnchanged": true,
+  "beforeHolders": {
+    "anyDeleted": false,
+    "count": 2,
+    "databaseLabels": [
+      "passdb.tdb",
+      "secrets.tdb"
+    ],
+    "observedByActualInstalledGuard": true,
+    "pids": [
+      978600
+    ]
+  },
+  "afterHolders": {
+    "anyDeleted": false,
+    "count": 2,
+    "databaseLabels": [
+      "passdb.tdb",
+      "secrets.tdb"
+    ],
+    "observedByActualInstalledGuard": true,
+    "pids": [
+      978600
+    ]
+  },
+  "afterStatus": {
+    "currentConfigurationSha256": "10d361deafdb00298a9e16e6923a671839bdcf2fae3e62c2ce71b5c6af87f569",
+    "currentRuntimeOwnershipVerified": true,
+    "currentSessionsVerifiedEmpty": true,
+    "currentSmbConfigurationSha256": "58838129055b8310d68e0f0db0498d5296091e275c140f859c6e4b8775117025",
+    "errorCode": null,
+    "exitCode": 0,
+    "localSourceCheckpointReference": {
+      "localCheckpointUuid": "09845f87-bfbb-3bdd-b395-7a447b093701",
+      "sha256": "a6d984679ad38f9302fd294611ecfd69e6a9b91e0a9f1402b610545501d5ef54"
+    },
+    "phase": "RECOVERY_REQUIRED",
+    "sourceIdentityRestoreSupported": true,
+    "sourceRuntimeVerified": false,
+    "sourceSmbResumed": false,
+    "success": true
+  },
+  "rootOrFileOrRawIoWrites": 0,
+  "additionalSubmitOrWriterCalls": 0,
+  "failureStageCauseNotYetProven": true
+}

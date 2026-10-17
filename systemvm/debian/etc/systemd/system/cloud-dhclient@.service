@@ -1,0 +1,11 @@
+[Unit]
+Description=CloudStack DHCP client for %I
+After=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/sbin/dhclient -4 -d -v -pf /run/dhclient.%i.pid -lf /var/lib/dhcp/dhclient.%i.leases %i
+StateDirectory=dhcp
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=5

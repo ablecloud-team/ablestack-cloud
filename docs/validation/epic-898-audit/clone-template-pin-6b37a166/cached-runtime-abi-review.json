@@ -1,0 +1,120 @@
+{
+  "sourcePin": "6b37a166f2d05c9d88eb64912ccf5e9146c733a3",
+  "baselineManagementJarSha256": "15f361afb6b33517e37e3930e825649558a34eb65e96f821ee402fcfb6f272e8",
+  "baselineManagementPid": "1331803",
+  "baselineDeploymentProofSha256": "4b9421469e87a67a6d3b23b00db08e39b95975052b52e1be8d5f8a9c5efc0c85",
+  "baselineClassSpaceFiles": 214,
+  "cachedDeployedLibraryCount": 9,
+  "cachedDeployedLibrarySha256": {
+    "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+    "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+    "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+    "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+    "cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar": "48168dbcdf6e40f15fae6ff37fd0b31af4943c6ea6db22b942b820245b04e893",
+    "cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar": "cfb0d309db1549df6e0ac550604e85f326b49d2e62c355ff63542d7513376c17",
+    "cloudstack-4.23.0.0-Mold.Europa-202610011115.jar": "ade51548bcdce95d6f9783458da009432c6f7f0904618b742000176c6f6443e5",
+    "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+    "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5"
+  },
+  "managementCandidateClasses": 6,
+  "constantPoolMemberReferences": 2708,
+  "abi": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$1.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": []
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+      "existingExportedMembersPreserved": true,
+      "hierarchyPreserved": true,
+      "newExportedMembers": [
+        [
+          "METHOD",
+          "configurationCloneCreatedTemplateBinding",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "configurationCloneFailedTemplateProvenance",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;Ljava/lang/String;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "pinConfigurationCloneTemplate",
+          "(Lcom/google/gson/JsonObject;)Lcom/google/gson/JsonObject;",
+          4
+        ],
+        [
+          "METHOD",
+          "requireConfigurationCloneTemplatePin",
+          "(Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;)V",
+          4
+        ],
+        [
+          "METHOD",
+          "reviewConfigurationCloneFailedTemplateBinding",
+          "(Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;Ljava/lang/String;)Lcom/google/gson/JsonObject;",
+          4
+        ]
+      ]
+    }
+  ],
+  "checks": {
+    "class-signature-link": {
+      "exitCode": 0,
+      "logSha256": "4b269cdb90df0c66ae99dc31b4ac2331d99a828a8cc9a554e9aceabc77c33098",
+      "summary": [
+        "CLASS_SIGNATURE_LINK_PASS 6"
+      ]
+    },
+    "member-link": {
+      "exitCode": 0,
+      "logSha256": "af65cbe009f418fc9ae31a7e90adebb45566b367e18abfb26d58089ec73b7919",
+      "summary": [
+        "RESOLVED 2708 FAILED 0"
+      ]
+    }
+  },
+  "method": "Offline cached actual deployed class/library chain plus exact new management production delta; no fresh process/SSH probe. Parent must compare live JAR/PID before deployment.",
+  "actualDeployment": false,
+  "hostKvmDeltaIncludedInManagementPayload": false,
+  "schemaMigration": false,
+  "apiFieldChanges": false,
+  "payloadSha256": "f935001a0908007d0378a7338d9926520e1798b92569852f54c62f062ca8816a",
+  "managementClassSha256": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$1.class": "acf59d8c25269581314e79b7c526b4d4829a04c04e2f51220ceeed9e4e4c4e44",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class": "1a067a4143182d58c0ac4d18def11d89fa1548a6980f14353a0b893a64ffeadf",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "678a93dfc8d38fb1ab073ff5675425accc26fc0138e9274c8de0350edf16761f",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "9b3b37f958eacd6e493a442cd8e6b8c6a988739fb063fea48f885506d5bf935d",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "63bb74984471c96e34ff2b3ab8f0cb0917a6d2d87ee90c8627bf75690acc57d5",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "8f29aa88236cf5dbc0bec391510b7a95d1923a432fba5c46390825eb7d3f512a"
+  }
+}

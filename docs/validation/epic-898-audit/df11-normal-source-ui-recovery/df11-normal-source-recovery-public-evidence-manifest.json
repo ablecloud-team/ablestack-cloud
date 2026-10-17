@@ -1,0 +1,66 @@
+{
+  "kind": "DF11_ONE_NORMAL_SOURCE_UI_RECOVERY_PUBLIC_EVIDENCE",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "revision": 11,
+  "normalUiRecoverySubmissions": 1,
+  "uiState": "ROLLED_BACK",
+  "uiPhase": "INTERRUPTED_WRITER_ROLLED_BACK",
+  "uiProgress": 100,
+  "nativeImported": true,
+  "nativePhase": "RESUMED",
+  "pending": null,
+  "sourceGeneration": 10,
+  "sourceGenerationOperationUuid": "e4f4325b-8a61-481a-86fb-1194ca7e8a33",
+  "sourceConfigurationSha256": "10d361deafdb00298a9e16e6923a671839bdcf2fae3e62c2ce71b5c6af87f569",
+  "bootId": "dc4b6429-35d3-4224-b199-3a0c6c829de0",
+  "installedCliSha256": "19adfa998ab568b2e16e89002d239a1d5d121444f6a4510e180d7a638e5388f4",
+  "sourceReferenceSha256": "a6d984679ad38f9302fd294611ecfd69e6a9b91e0a9f1402b610545501d5ef54",
+  "opaqueImportedOriginalDatabaseFingerprints2Equal": true,
+  "dbProtectionOwnerSizeLinksPreserved": true,
+  "expectedRestoreDbInodeAndProcessChangesRecorded": true,
+  "rootDevicesTwoXfsMountsSmbAndNfsOwnFilesRawBlankPreserved": true,
+  "jobId": "UNOBSERVED",
+  "normalApiBoundedJobReadRows": 0,
+  "jobStatus1ApiProofConfirmed": false,
+  "strictNativeReasonFailureObserved": false,
+  "originalImportFailureCause": "UNCONFIRMED",
+  "diagnosticChangeClaimedToFixOriginalCause": false,
+  "extraRecoverySubmitsWriterIoSignalKeyDeletionOrJournalEdits": 0,
+  "managerNormalCleanupFreshObserved": false,
+  "ui1275": "UNSTARTED",
+  "files": {
+    "fresh-current-df11-bounded-public-snapshot.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/fresh-current-df11-bounded-public-snapshot.json",
+      "sha256": "8e06551fa1441597d281642d599c6f529bca7aed0590668c4db6c7a6736760aa"
+    },
+    "fresh-existing-writer-idle-public-proof.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/fresh-existing-writer-idle-public-proof.json",
+      "sha256": "c5c0d9093c8928391993ed3b3b581e28cdec852a1901476e89514a87fb91b98e"
+    },
+    "after-df11-native-reason-ui-recovery-bounded-public-snapshot.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/after-df11-native-reason-ui-recovery-bounded-public-snapshot.json",
+      "sha256": "8173d83fef5bd17f0dfa5b86465d4864d44b73bd67b34c286e60138fd12d49ab"
+    },
+    "df11-normal-ui-recovery-after-preservation-public-proof.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-normal-ui-recovery-after-preservation-public-proof.json",
+      "sha256": "3cb7ed8bc9b04882a15b1062e14d5b986478e0b2efc5241ef9734e31143f8325"
+    },
+    "df11-normal-ui-recovery-exact-api-job-public.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-normal-ui-recovery-exact-api-job-public.json",
+      "sha256": "55b18527234ebf0e15aafa6f3c158dae5613fd8733ec6a11b1e41c0e69bcf0be"
+    },
+    "df11-native-reason-source-recovery-consent.jpg": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-native-reason-source-recovery-consent.jpg",
+      "sha256": "a1272416697a229d7210dfd8db06e5b35e4baa7ac5835acd5b4645c6f51ae167"
+    },
+    "df11-native-reason-source-recovery-terminal-visible-state.jpg": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-native-reason-source-recovery-terminal-visible-state.jpg",
+      "sha256": "a941310a1eb1eb447d17095f2c514389345fb66959d93c83ef2fe49ccf72c53e"
+    },
+    "df11-native-reason-source-recovery-ui-terminal-public.json": {
+      "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-native-reason-source-recovery-ui-terminal-public.json",
+      "sha256": "a7cc9ad2c98a4127a062aa11e5e82e81629008a0fbdd5eb77e56a2a7c344af3c"
+    }
+  },
+  "windowsViewerRoot": "C:/Users/ablecloud/.codex/artifacts/epic898-current-500"
+}

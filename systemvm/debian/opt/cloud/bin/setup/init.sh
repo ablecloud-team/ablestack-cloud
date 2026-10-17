@@ -213,7 +213,14 @@ setup_interface_sshd() {
     setup_common eth0
 
   elif [ "$TYPE" == "sharedfsvm" ]; then
-    setup_common eth0
+    # SharedFS networking has one MAC-selected owner. Preinit claims ifupdown
+    # before network-pre.target without waiting for DHCP or STATIC injection.
+    if [ ! -e /etc/ablestack-storage/sharedfs-network.json ] && [ ! -L /etc/ablestack-storage/sharedfs-network.json ]; then
+      echo "$NAME" > /etc/hostname
+      echo 'AVAHI_DAEMON_DETECT_LOCAL=0' > /etc/default/avahi-daemon
+      hostnamectl set-hostname "$NAME"
+    fi
+    /usr/local/sbin/ablestack-sharedfs-network --bootstrap-only || exit 1
   fi
 
   systemctl restart systemd-journald

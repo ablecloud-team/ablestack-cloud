@@ -1,0 +1,196 @@
+{
+  "kind": "ISSUE892_FIXED_OPERATION_SCHEMA_METADATA_READONLY",
+  "readOnly": true,
+  "sqlMutations": 0,
+  "operationDataQueries": 0,
+  "all17ColumnsMatch": true,
+  "allFourIndexesMatch": true,
+  "migrationPhase": "europa-4.23-sharedfs-operation-v1",
+  "migrationPhaseComplete": true,
+  "migrationRows": 1,
+  "selectCount": 3,
+  "rollbackPerformed": true,
+  "columns": [
+    {
+      "ordinal": 1,
+      "name": "id",
+      "normalizedType": "bigint unsigned",
+      "nullable": "NO",
+      "extra": "AUTO_INCREMENT",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 2,
+      "name": "uuid",
+      "normalizedType": "varchar(40)",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 3,
+      "name": "instance_id",
+      "normalizedType": "bigint unsigned",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 4,
+      "name": "request_key",
+      "normalizedType": "varchar(191)",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 5,
+      "name": "action",
+      "normalizedType": "varchar(128)",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 6,
+      "name": "state",
+      "normalizedType": "varchar(40)",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 7,
+      "name": "phase",
+      "normalizedType": "varchar(64)",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 8,
+      "name": "revision",
+      "normalizedType": "bigint unsigned",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 9,
+      "name": "progress",
+      "normalizedType": "int",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 10,
+      "name": "previous_snapshot_json",
+      "normalizedType": "longtext",
+      "nullable": "YES",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 11,
+      "name": "snapshot_json",
+      "normalizedType": "longtext",
+      "nullable": "YES",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 12,
+      "name": "result_json",
+      "normalizedType": "longtext",
+      "nullable": "YES",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 13,
+      "name": "diagnostic",
+      "normalizedType": "text",
+      "nullable": "YES",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 14,
+      "name": "created_by",
+      "normalizedType": "bigint unsigned",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 15,
+      "name": "created",
+      "normalizedType": "datetime",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 16,
+      "name": "heartbeat",
+      "normalizedType": "datetime",
+      "nullable": "NO",
+      "extra": "NONE",
+      "matchesSource": true
+    },
+    {
+      "ordinal": 17,
+      "name": "completed",
+      "normalizedType": "datetime",
+      "nullable": "YES",
+      "extra": "NONE",
+      "matchesSource": true
+    }
+  ],
+  "indexColumns": [
+    {
+      "name": "PRIMARY",
+      "nonUnique": 0,
+      "sequence": 1,
+      "column": "id",
+      "matchesSource": true
+    },
+    {
+      "name": "idx_storage_operation_instance",
+      "nonUnique": 1,
+      "sequence": 1,
+      "column": "instance_id",
+      "matchesSource": true
+    },
+    {
+      "name": "idx_storage_operation_instance",
+      "nonUnique": 1,
+      "sequence": 2,
+      "column": "revision",
+      "matchesSource": true
+    },
+    {
+      "name": "uk_storage_operation_request",
+      "nonUnique": 0,
+      "sequence": 1,
+      "column": "instance_id",
+      "matchesSource": true
+    },
+    {
+      "name": "uk_storage_operation_request",
+      "nonUnique": 0,
+      "sequence": 2,
+      "column": "request_key",
+      "matchesSource": true
+    },
+    {
+      "name": "uk_storage_operation_uuid",
+      "nonUnique": 0,
+      "sequence": 1,
+      "column": "uuid",
+      "matchesSource": true
+    }
+  ],
+  "additionalDdlInCurrentUiFix": false
+}

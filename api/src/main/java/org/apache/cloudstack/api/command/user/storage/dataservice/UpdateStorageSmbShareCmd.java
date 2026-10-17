@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -38,7 +37,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class UpdateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
+public class UpdateStorageSmbShareCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -50,6 +49,9 @@ public class UpdateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
 
     @Parameter(name = ApiConstants.PATH, type = CommandType.STRING, description = "SMB share path")
     private String path;
+
+    @Parameter(name = "relativepath", type = CommandType.STRING, description = "directory relative to the selected backing volume root")
+    private String relativePath;
 
     @Parameter(name = ApiConstants.VOLUME_ID, type = CommandType.UUID, entityType = VolumeResponse.class, description = "backing volume ID")
     private Long volumeId;
@@ -81,12 +83,64 @@ public class UpdateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name = "directorymode", type = CommandType.STRING, description = "POSIX mode to apply to a new SMB backing directory")
     private String directoryMode;
 
+    @Parameter(name = "createmask", type = CommandType.STRING, description = "maximum octal mode for new files, 0000 through 0777")
+    private String createMask;
+
+    @Parameter(name = "forcecreatemode", type = CommandType.STRING, description = "octal bits forced on new files, contained by create mask")
+    private String forceCreateMode;
+
+    @Parameter(name = "directorymask", type = CommandType.STRING, description = "maximum octal mode for new directories, 0000 through 0777")
+    private String directoryMask;
+
+    @Parameter(name = "forcedirectorymode", type = CommandType.STRING, description = "octal bits forced on new directories, contained by directory mask")
+    private String forceDirectoryMode;
+
+    @Parameter(name = "inheritpermissions", type = CommandType.BOOLEAN, description = "inherit parent permissions instead of masks; force modes must be zero")
+    private Boolean inheritPermissions;
+
+    @Parameter(name = "confirmfileexecute", type = CommandType.BOOLEAN, description = "explicit confirmation when forcing execute permission on regular files")
+    private Boolean confirmFileExecute;
+
+    public String getCreateMask() { return createMask; }
+    public String getForceCreateMode() { return forceCreateMode; }
+    public String getDirectoryMask() { return directoryMask; }
+    public String getForceDirectoryMode() { return forceDirectoryMode; }
+    public Boolean getInheritPermissions() { return inheritPermissions; }
+    public Boolean getConfirmFileExecute() { return confirmFileExecute; }
+
+    @Parameter(name = "posixpolicyid", type = CommandType.UUID, entityType = org.apache.cloudstack.api.response.StoragePosixDirectoryPolicyResponse.class,
+            description = "Common directory policy to inherit; protocol-local owner and mode must match it")
+    private Long posixPolicyId;
+
+    @Parameter(name = "ownershipinheritance", type = CommandType.STRING, description = "AUTHENTICATED_USER or INHERIT_PARENT_OWNER for new objects only")
+    private String ownershipInheritance;
+    @Parameter(name = "inheritgroup", type = CommandType.BOOLEAN, description = "inherit parent GID using directory setgid without changing owner")
+    private Boolean inheritGroup;
+    public String getOwnershipInheritance() { return ownershipInheritance; }
+    public Boolean getInheritGroup() { return inheritGroup; }
+
+    @Parameter(name = "posixownershipmode", type = CommandType.STRING, description = "AUTHENTICATED_USER or FORCED_UID_GID after authentication")
+    private String posixOwnershipMode;
+    @Parameter(name = "owneruid", type = CommandType.LONG, description = "non-protected forced POSIX UID for new SMB objects")
+    private Long ownerUid;
+    @Parameter(name = "ownergid", type = CommandType.LONG, description = "non-protected forced POSIX GID for new SMB objects")
+    private Long ownerGid;
+    public String getPosixOwnershipMode() { return posixOwnershipMode; }
+    public Long getOwnerUid() { return ownerUid; }
+    public Long getOwnerGid() { return ownerGid; }
+
+    public Long getPosixPolicyId() { return posixPolicyId; }
+
     public Long getId() {
         return id;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getRelativePath() {
+        return relativePath;
     }
 
     public String getPath() {
@@ -133,10 +187,7 @@ public class UpdateStorageSmbShareCmd extends BaseAsyncCmd implements UserCmd {
         return directoryMode;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

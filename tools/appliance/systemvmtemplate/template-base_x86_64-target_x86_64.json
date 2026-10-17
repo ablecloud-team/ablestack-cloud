@@ -34,11 +34,11 @@
       "qemuargs": [
         [
           "-m",
-          "500M"
+          "2048M"
         ],
         [
           "-smp",
-          "1"
+          "2"
         ]
       ],
       "shutdown_command": "sudo halt -p",
@@ -46,20 +46,52 @@
       "ssh_timeout": "120m",
       "ssh_username": "cloud",
       "type": "qemu",
-      "vm_name": "systemvmtemplate"
+      "vm_name": "systemvmtemplate",
+      "qemu_img_args": {
+        "create": [
+          "-o",
+          "preallocation=metadata"
+        ],
+        "convert": [
+          "-o",
+          "preallocation=metadata"
+        ]
+      }
     }
   ],
   "description": "CloudStack SystemVM template",
   "provisioners": [
     {
+      "type": "file",
+      "source": "storage-kernel-amd64.json",
+      "destination": "/tmp/storage-kernel-amd64.json"
+    },
+    {
+      "type": "file",
+      "source": "storage-ganesha-vfs-amd64.json",
+      "destination": "/tmp/storage-ganesha-vfs-amd64.json"
+    },
+    {
+      "type": "file",
+      "source": "../scripts/package_storage_ganesha.py",
+      "destination": "/tmp/package_storage_ganesha.py"
+    },
+    {
+      "type": "file",
+      "source": "scripts/test_storage_ganesha_acl.sh",
+      "destination": "/tmp/test_storage_ganesha_acl.sh"
+    },
+    {
       "execute_command": "echo 'cloud' | sudo -u root -S bash {{.Path}}",
       "scripts": [
         "scripts/apt_upgrade.sh",
+        "scripts/install_storage_kernel.sh",
         "scripts/configure_grub.sh",
         "scripts/configure_locale.sh",
         "scripts/configure_networking.sh",
         "scripts/configure_acpid.sh",
         "scripts/install_systemvm_packages.sh",
+        "scripts/build_storage_ganesha.sh",
         "scripts/configure_conntrack.sh",
         "scripts/authorized_keys.sh",
         "scripts/configure_persistent_config.sh",

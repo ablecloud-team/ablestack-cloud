@@ -1,0 +1,32 @@
+{
+  "oldFeature": "301331a021894a41c561921e63fb2f016133d3e1",
+  "oldBase": "b274443dadefd9d802f42d136ef04fc85b1c1a25",
+  "upstream": "a5a811387476ac87a8774fc729cc68021104684a",
+  "rebasedSource": "5754bf725f306e2bd8edccbc574123b6c163c4ba",
+  "featureCommits": 521,
+  "commitSequencePreserved": true,
+  "nonoverlapTreePreserved": true,
+  "overlap": [
+    "engine/schema/src/main/java/com/cloud/upgrade/DatabaseUpgradeChecker.java",
+    "engine/schema/src/main/resources/META-INF/cloudstack/core/spring-engine-schema-core-daos-context.xml",
+    "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/LibvirtComputingResource.java",
+    "server/src/main/java/com/cloud/vm/UserVmManagerImpl.java",
+    "ui/public/locales/en.json",
+    "ui/public/locales/ko_KR.json",
+    "ui/src/api/index.js",
+    "ui/src/components/view/InfoCard.vue",
+    "ui/src/components/view/ListView.vue",
+    "ui/src/views/AutogenView.vue"
+  ],
+  "localeSemanticUnionPass": true,
+  "localeKeys": {
+    "ui/public/locales/en.json": 9202,
+    "ui/public/locales/ko_KR.json": 9167
+  },
+  "manualResolution": "Retain upstream VMgroup query/async status with SharedFS preserveOnFailure15s; retain all independent autoscale and SharedFS schema phases; retain both import groups.",
+  "implementationSource": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "implementationChangePaths": [
+    "ui/src/views/storage/SharedFSTab.vue",
+    "ui/tests/unit/views/storage/SharedFSHistoryLifecycle.spec.js"
+  ]
+}

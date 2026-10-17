@@ -1,0 +1,19 @@
+{
+  "kind": "DF11_NORMAL_OPERATION_API_TERMINAL",
+  "api": "listStorageServiceOperations",
+  "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "operationUuid": "df1641b6-c42a-443c-8521-a47fa6dc8c4f",
+  "revision": 11,
+  "state": "ROLLED_BACK",
+  "phase": "INTERRUPTED_WRITER_ROLLED_BACK",
+  "progress": 100,
+  "exactOperationMatches": 1,
+  "boundedOwnInstanceRows": 17,
+  "operationReadCalls": 1,
+  "jobId": "UNOBSERVED",
+  "jobStatus1Confirmed": false,
+  "strictNativeReasonFailureObserved": false,
+  "originalFailureCause": "UNCONFIRMED",
+  "writerCalls": 0,
+  "rawOtherRowsCredentialsOrPrivatePayloadPrinted": false
+}

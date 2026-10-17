@@ -1,0 +1,390 @@
+{
+  "kind": "ISSUE897_COMPLETED_FUNCTIONAL_ACCEPTANCE_PUBLIC",
+  "issue": 897,
+  "epic": 898,
+  "epicPr": 1271,
+  "preparedAtUtc": "2026-10-15T19:01:50.377086+00:00",
+  "functionalAcceptance": "PASS",
+  "issueClosureRecordedSeparatelyAfterComment": true,
+  "epicPrMergeClaimed": false,
+  "base": {
+    "branch": "ablestack-europa",
+    "oid": "4bd1a2cff50c83089dc23ff1c83def631a343e3d",
+    "localBaseUpstreamLeftRight": [
+      0,
+      0
+    ]
+  },
+  "components": {
+    "backend": {
+      "sourcePin": "976ab023c60e28468f952fd99a29edf5065fc98c",
+      "reactors": 39,
+      "suites": 132,
+      "tests": 1111,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "checkstyle": "PASS",
+      "deployedJarSha256": "29da9fc552e76c4c022926046fd347ce85ad4d620b9ed214333b8264b8daff6e",
+      "pid": 2151866,
+      "latestOverlayClasses": 2,
+      "otherJarEntriesPreserved": 204647
+    },
+    "ui": {
+      "sourcePin": "ef7cb93f0e0e0c83acffcd0569efce1310b17963",
+      "suites": 30,
+      "tests": 686,
+      "failures": 0,
+      "skipped": 0,
+      "lint": "PASS",
+      "productionBuild": "PASS",
+      "deployment": "92f4 functional JS plus ef7cb normal-built en/ko locales; existing index and other static artifacts retained",
+      "verifiedStaticFileCount": 864,
+      "indexSha256": "12dcaff036e57f6862422f399661df6c18115d17c91d1c0c88acceff91ae95f8"
+    },
+    "native": {
+      "sourcePin": "213a92d2bb7c5f83ea0ab8d49ed02af925b48b97",
+      "relatedTests": 73,
+      "modules": 5,
+      "cliSha256": "385d28f88ee725fafa5ab6acc23147c8c93939f5b0611514a75187afdb342973",
+      "signedTestCodeBundle": "cde70fd2-e376-4242-bb5f-994569d400dd",
+      "upgrade": "9ed62180-734f-41c1-84ef-cebfb27b6b7c",
+      "normalCatalogUpgrade": "COMPLETE"
+    },
+    "kvm": {
+      "changedBy897": false,
+      "preserved892ClassSha256": "baaa226ff0e393756380adc5b3af14846feb3d0f301df74588030058e588d195"
+    }
+  },
+  "actualSchema": {
+    "controlTable": "cloud.storage_service_operation_control",
+    "columnCount": 12,
+    "columnNames": [
+      "id",
+      "operation_id",
+      "instance_id",
+      "control_revision",
+      "cancel_requested",
+      "cancel_requested_by",
+      "drain_state",
+      "policy_json",
+      "lease_json",
+      "created_by",
+      "created",
+      "updated"
+    ],
+    "indexCount": 3,
+    "indexNames": [
+      "idx_storage_operation_control_instance",
+      "PRIMARY",
+      "uk_storage_operation_control_operation"
+    ],
+    "instancePolicyColumn": "cloud.storage_service_instance.operation_control_policy_json LONGTEXT",
+    "migrationPhases": [
+      {
+        "name": "europa-4.23-sharedfs-operation-control-policy-v1",
+        "state": "Complete"
+      },
+      {
+        "name": "europa-4.23-sharedfs-operation-control-v1",
+        "state": "Complete"
+      }
+    ],
+    "readOnly": true,
+    "sqlMutations": 0,
+    "newDdlInCurrentPatch": false
+  },
+  "actualCases": [
+    {
+      "case": "memory-headroom-pre-effect-block",
+      "operation": "1d8177eb-1b69-40db-9640-045e21841342",
+      "outcome": "BLOCKED",
+      "requiredBytes": 17179869184,
+      "observedBytes": 7936098304,
+      "effects": 0
+    },
+    {
+      "case": "same-key-two-jobs",
+      "operation": "d867d831-c984-4900-881a-12cb3f7c5e79",
+      "jobs": 2,
+      "operations": 1,
+      "effects": 1
+    },
+    {
+      "case": "actual-ui-safe-cancel",
+      "operation": "8ab0e1e0-47e6-4a73-a9f8-b006ceccd8aa",
+      "outcome": "CANCELLED",
+      "sourceNativeRevisionPreserved": 6
+    },
+    {
+      "case": "native-real-admission-and-ttl",
+      "outcome": "PASS",
+      "ttlSeconds": 30,
+      "stagingLoadDrainForeignScopeAndChangedRequirementsRejected": true
+    },
+    {
+      "case": "same-read-only-backup-after-actual-management-restart",
+      "operation": "74436bfa-ad42-4cf1-bb9f-84e7c6ee639f",
+      "outcome": "COMPLETE_NO_CONFIG_CHANGE",
+      "sourceNativeRevisionPreserved": 6,
+      "newOperations": 0,
+      "artifact": "928592e0-e1cc-424f-bdcb-ba026f7ac82b",
+      "sha256": "4e2ec3d4ee8da4f9613a2f908c79d11842469e3478d3ff42dfc715a600b01ce8",
+      "sizeBytes": 6432
+    },
+    {
+      "case": "fresh-actual-ui-read-only-backup",
+      "operation": "2cab7dbe-2a5c-42d3-8829-0c6e24974c67",
+      "outcome": "COMPLETE_NO_CONFIG_CHANGE",
+      "sourceNativeRevisionPreserved": 6,
+      "artifact": "30337049-50b1-4d52-914a-df4e7e298d3c",
+      "sha256": "37d0ffa0ffe3576143aae2589a06a9885b9adedcb9033b6bfd36866b4fa755a6",
+      "sizeBytes": 6435
+    },
+    {
+      "case": "actual-qga-loss",
+      "operation": "59934fb3-eff1-4231-b089-47f5b32fa1ce",
+      "outcome": "CAPTURE_FAILED_BLOCKED_SOURCE_EXACT",
+      "stopSeconds": 40.0,
+      "guestPingTimeoutSeconds": 4.001,
+      "errorCode": 112,
+      "sameQgaPidRestored": true,
+      "sourceNativeRevisionPreserved": 6
+    },
+    {
+      "case": "actual-guest-reboot-native-component-lease",
+      "nativeComponentProbeOnly": true,
+      "reboots": 1,
+      "managementOperationCount": 0,
+      "oldLeaseTtlSeconds": 300,
+      "bootChangedBeforeTtl": true,
+      "oldLeaseInvalidatedByBoot": true,
+      "exactOwnLeaseReleased": true,
+      "sourceNativeRevisionPreserved": 6
+    },
+    {
+      "case": "actual-ui-normal-change-after-qga-and-boot",
+      "operation": "c7684b01-4f6e-4e74-9899-d65b072bb252",
+      "outcome": "COMPLETE",
+      "nativeRevision": 7,
+      "onlyNfsReadOnlyChanged": true,
+      "newBootAndDurableTargetWitnessMatched": true
+    },
+    {
+      "case": "actual-post-boot-nfs-client-read",
+      "outcome": "PASS",
+      "fileSha256": "27dfaec631609fe4a6ff374b56404d43a32f456d24f837c0790c1fade24a6c78",
+      "bytes": 112,
+      "clientMountRemoved": true
+    }
+  ],
+  "final": {
+    "fixtureSharedFs": "71893316-6d13-4e68-9a41-6bbb0bbdd2f9",
+    "fixtureInstance": "d4614c63-7922-4b11-a834-19ec9cf6f775",
+    "fixtureVm": "577f2c20-b2bf-4f4a-88d2-4a2b26ccc78c",
+    "nativeRevision": 7,
+    "nativeConfigurationSha256": "d5b5fee7d2b52aac4453404d1ca0b9d92c1208a6cd0e9cae0a9ec938251f139e",
+    "bootId": "f92fd4eb-824f-4b34-8a18-3d0c8f66c3dd",
+    "runningOrRecoveryRequiredOperations": 0,
+    "nativeLeaseOrPending": false,
+    "routingHostsUp": 3,
+    "optedInInstanceCount": 1,
+    "otherPoliciesDisabled": 8,
+    "fixtureRetainedForReview": true,
+    "createdDisks": [
+      {
+        "type": "ROOT",
+        "bytes": 5242880000,
+        "provisioning": "SPARSE"
+      },
+      {
+        "type": "DATA",
+        "bytes": 8589934592,
+        "provisioning": "SPARSE"
+      }
+    ]
+  },
+  "originalPreservation": {
+    "instance": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "nativeRevision": 143,
+    "nativeBootCliExact": true,
+    "diskCount": 5,
+    "diskProjectionExact": true,
+    "databaseGroups": 11,
+    "databaseProjectionExact": true,
+    "physicalOriginalDataContentsReRead": false,
+    "protectedVolume": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+    "protectedDataReadFormattedRepairedMountedOrDeleted": false
+  },
+  "limits": {
+    "logicalReservationNotPhysicalAllocation": true,
+    "tcpObservationNotGracefulDrain": true,
+    "drainSupported": false,
+    "automaticPhysicalScaleUpNotClaimed": true,
+    "testsNotSummedAcrossStages": true,
+    "repositoryWideFullSuitePassNotClaimed": true,
+    "everyManagedActionRealEnvironmentAcceptanceNotClaimed": true,
+    "large10TiBFormattingAcceptanceBelongsTo974": true,
+    "catalogAndRootTemplateAcceptanceNotClaimed": true,
+    "finalUi1275Started": false,
+    "newIssueBranchPrCreated": false,
+    "notExecutedHelpers": [
+      "FINALIZING_RELEASE ACK-loss",
+      "op-watch committed-target capture",
+      "additional management SIGKILL"
+    ]
+  },
+  "evidence": [
+    {
+      "path": "backend/backup-integrity-publication-fix/normal-build/public-proof.json",
+      "sha256": "c4d125d16f9151b26909a6930af87b9de642d57c95b908634745dd9cf1b47f05",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "backend/backup-integrity-publication-fix/focused-red/public-proof.json",
+      "sha256": "a2a87ad7077a4281596040f4860fe7845ad48cf46ba42b337deb6925d869d6fd",
+      "status": "ARCHIVED_ORIGINAL_FAILURE"
+    },
+    {
+      "path": "backend/backup-integrity-publication-fix/focused-green/public-proof.json",
+      "sha256": "fe4a6efb3a204814d133f1be2e43bf9871ba3bc14b29d1ae01fe2c579545c854",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "native-normal-commit/public-proof.json",
+      "sha256": "9bb5f6006299f3229dfedda3047ccd0b21b6921cbfcb80c6fc71eccc528787b8",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "runtime-deployment/epic898-issue897-test-213a92d2/normal-catalog-upgrade-public-proof.json",
+      "sha256": "1b561c85487d6729d8db647b7140d02ae3338bf7b7d9428ca66cc23e495133b8",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "ui-normal-build-cancelled-locale/normal-build-proof-public.json",
+      "sha256": "f73d78c164ec1d6be4c521ae52823e76b931e5ccc0f4d9ea01c65d4225ac2c07",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "ui-normal-build-cancelled-locale/root-deployment-readonly-locale-confirmation.json",
+      "sha256": "376136e798f6ca4943b81a5fd6a7be63f7296f62ffe09488e8fc449db7730fe0",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/management-backup-integrity-deployment.json",
+      "sha256": "949c7ecc1fa189cbd459f9f1173697963780c771d927445e4795d9f15e5166f8",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/initial-nfs-and-loopback-acl-ui-public.json",
+      "sha256": "59bbc206a6ba57a8968c783f41378108df8b657ec178277a3824a8b0a55fad2e",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-policy-opt-in-public.json",
+      "sha256": "2f1a761783495283f72f50652c2a2e637241975472675c5b28d26cad227c72bd",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-memory-headroom-blocked-public.json",
+      "sha256": "a43402bf6d19c49769fc9c0bce385aa8289913aaae71b00b547a879b50af1bd8",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/api-positive-correct-dynamic-budget-readonly-validation.json",
+      "sha256": "729ea07a1bf2490573b629e6c2f140b1d057f4dd68e66b576c0bed5106209017",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/api-serialized-duplicate-intent.json",
+      "sha256": "ba8d758274b32df1434e71bdaef64e2c46281d0e8c4a71a55b3329e652388768",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/native-real-lease-admission-and-ttl-validated.json",
+      "sha256": "18aeb8dd0e20d0863c1c3443ecdb00690a5e54b6246c4c22852e5cbb3d7fb27c",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-normalized-load-and-normal-positive-public.json",
+      "sha256": "9c0f2509d01f527c7c599f5e6480fef1be513dada174bdcf26d57ae7c313425d",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/actual-ui-safe-cancel-api-native-data-verified.json",
+      "sha256": "838bbe676902f48a2e52ca4d4c62764e0080e596c5ee7842e30ba968ace768b6",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-safe-boundary-cancel-cases-public.json",
+      "sha256": "d6dd0e1002bf5c8acbaa5a066d2bec91696619c42499178e89e78baee36ddb2f",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-runtime-backup-first-failure-public.json",
+      "sha256": "36357c573668810d853188b2ab3a2381d2ec56fb2dc71812c51516928813e64f",
+      "status": "ARCHIVED_ORIGINAL_FAILURE"
+    },
+    {
+      "path": "backend/backup-integrity-publication-fix/metadata-reader/actual-744-backup-durable-response-archive-metadata-public.json",
+      "sha256": "944dda953181434798b9f37dbac8c5ddc24b7294777671a07c230d3b26e01bb3",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/same-operation-backup-management-restart-verified.json",
+      "sha256": "9f84688b21013919a317c30ab1ad10a465e43863787005547f1f2dda0c5414e6",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-same-operation-backup-recovery-public.json",
+      "sha256": "cbc74df43b5507ccb8bd037b799b2a428068ed520af1dbd880a1f8f9d2bd04f5",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/fresh-ui-backup-producer-root-verified.json",
+      "sha256": "e96596945267d3ae676ad84bb401ee122d15d0059e8a77fb00a94d396014da06",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-normal-runtime-backup-and-final-locale-public.json",
+      "sha256": "4e31d957747b33b8abd50186581a2111cb709f3e38ba47000ad5ba5966867ade",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/qga-loss-actual-20261016-result.json",
+      "sha256": "0c2c7be22235dacfb5f345da86a52376cf6e3f8e3e5f183c99cac17dae1fbe1d",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/guest-reboot-actual-20261016.json",
+      "sha256": "7985278714333e6bbe49f11ea5d159e1508a2b3af49645213df15706f2e3273f",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/final-post-boot-ui-positive-root-verified.json",
+      "sha256": "bb36bf03a6372c5c41c55996103a9a668fcc0c7e5c2aa8a6c83b000fb04514bd",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/ui-post-qga-reboot-final-nfs-public.json",
+      "sha256": "fefe8f27c2b31ab38932b4a093db48e201cd16b910c167e70a08142c5c5bbcd1",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/final-post-boot-actual-nfs-client-read.json",
+      "sha256": "35c144b7dcb2e896541e0f0d12b444b68976804016ce66fe8520dd57a2e49c31",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/final-original-preservation-verified.json",
+      "sha256": "e04b83e25bb2cf71ebed8d0041d9b4249acfd38332e9d56de027720c96ef5d3d",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    },
+    {
+      "path": "actual/final-operational-readiness.json",
+      "sha256": "df975e72a91827e902b05d5b164b31c2d92881ec0782aa4d5d9243b4a5352bd6",
+      "status": "FINAL_OR_SUPPORTING_PROOF"
+    }
+  ],
+  "credentialsSnapshotsOrArchiveBodiesCopied": false
+}

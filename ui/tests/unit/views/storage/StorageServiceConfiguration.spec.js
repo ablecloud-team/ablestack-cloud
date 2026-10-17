@@ -1,0 +1,213 @@
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import Widget from '@/views/storage/StorageServiceConfiguration'
+import { getAPI, postAPI } from '@/api'
+import SHA from 'sha.js'
+jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
+
+describe('Configuration backup and restore UI boundaries', () => {
+  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  it.each([1, 2])('notifies the matching history after a configuration job ends with status %s', async status => {
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
+    postAPI.mockResolvedValue({ verifystorageserviceconfigurationresponse: { jobid: 'job' } })
+    getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: status, jobresult: { result: '{}', errortext: 'failed' } } })
+    if (status === 1) await Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})
+    else await expect(Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})).rejects.toThrow('failed')
+    expect(vm.$emit).toHaveBeenCalledWith('operation-updated', 'a')
+  })
+  it('does not refresh a different service history after navigation', async () => {
+    let complete
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
+    postAPI.mockResolvedValue({ verifystorageserviceconfigurationresponse: { jobid: 'job' } })
+    let entered
+    const queryStarted = new Promise(resolve => { entered = resolve })
+    getAPI.mockImplementation(() => new Promise(resolve => { complete = resolve; entered() }))
+    const pending = Widget.methods.mutation.call(vm, 'verifyStorageServiceConfiguration', {})
+    await queryStarted
+    vm.instanceId = 'b'
+    complete({ queryasyncjobresultresponse: { jobstatus: 1, jobresult: { result: '{}' } } })
+    await expect(pending).rejects.toThrow('message.storage.config.scope.changed')
+    expect(vm.$emit).not.toHaveBeenCalled()
+  })
+  it('preserves known backup rows if an independent refresh fails', async () => {
+    const vm = { instanceId: 'a', generation: 0, rows: [{ id: 'known' }], can: () => true, unwrap: Widget.methods.unwrap }
+    getAPI.mockRejectedValue(new Error('timeout')); await Widget.methods.refresh.call(vm)
+    expect(vm.rows).toEqual([{ id: 'known' }]); expect(vm.readFailed).toBe(true)
+  })
+  it('does not publish an old service history on a new service', async () => {
+    let complete
+    getAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { instanceId: 'a', generation: 0, rows: [{ id: 'current' }], can: api => api === 'listStorageServiceConfigBackups', unwrap: Widget.methods.unwrap }
+    const pending = Widget.methods.refresh.call(vm)
+    vm.instanceId = 'b'; vm.generation++
+    complete({ liststorageserviceconfigbackupsresponse: { result: JSON.stringify({ artifacts: [{ id: 'old' }] }) } })
+    await pending; expect(vm.rows).toEqual([{ id: 'current' }])
+  })
+  it('closes backup confirmation before waiting for the async operation', async () => {
+    const vm = { backupDialog: true, includeRuntime: true, retentionHours: 168, refresh: jest.fn(), error: '', buildBackupRequest: Widget.methods.buildBackupRequest }
+    vm.mutation = jest.fn(async () => { expect(vm.backupDialog).toBe(false); expect(vm.busy).toBe('BACKUP') })
+    await Widget.methods.createBackup.call(vm)
+    expect(vm.mutation).toHaveBeenCalledWith('createStorageServiceConfigBackup', { includeruntime: true, retentionhours: 168 })
+    expect(vm.refresh).toHaveBeenCalled()
+  })
+  it('requires the exact service name before applying a reviewed plan', async () => {
+    const vm = { confirmation: 'other', plan: { targetName: 'service' }, planToken: 'scoped', $t: key => key, mutation: jest.fn() }
+    await Widget.methods.applyPlan.call(vm); expect(vm.mutation).not.toHaveBeenCalled()
+    expect(vm.error).toBe('message.storage.config.confirmation.required')
+  })
+  it('clears credential values when the restore dialog closes', () => {
+    const vm = { credentialValues: { rule: { password: 'synthetic' } } }
+    Widget.methods.closePlan.call(vm)
+    expect(vm.credentialValues).toEqual({}); expect(vm.planToken).toBe(''); expect(vm.confirmation).toBe('')
+  })
+  it('hashes binary data without requiring a secure-origin WebCrypto API', () => {
+    const Sha256 = SHA.sha256
+    expect(new Sha256().update(new Uint8Array([97, 98, 99])).digest('hex')).toBe('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad')
+  })
+  it('unwraps both direct and entity-wrapped API results', () => {
+    const value = { artifacts: [{ id: 'artifact' }] }
+    expect(Widget.methods.unwrap({ liststorageserviceconfigbackupsresponse: { result: JSON.stringify(value) } }, 'listStorageServiceConfigBackups')).toEqual(value)
+    expect(Widget.methods.unwrap({ storageserviceconfiguration: { result: JSON.stringify(value) } }, 'queryAsyncJobResult')).toEqual(value)
+  })
+  it('does not use a previous service download token after navigating away', async () => {
+    let complete
+    postAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+    const pending = Widget.methods.download.call(vm, { id: 'backup' })
+    vm.instanceId = 'b'
+    complete({ downloadstorageserviceconfigbackupresponse: { result: JSON.stringify({ downloadToken: 'synthetic' }) } })
+    await pending
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI.mock.calls[0][1].instanceid).toBe('a')
+  })
+  it('ignores late volume inventory after the restore target has changed', async () => {
+    let complete
+    getAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
+    const vm = { instanceId: 'a', resource: { virtualmachineid: 'vm-a' }, closePlan: Widget.methods.closePlan, preparePlan: jest.fn() }
+    const pending = Widget.methods.openPlan.call(vm, { id: 'backup' })
+    vm.instanceId = 'b'; vm.planTarget = null
+    complete({ listvolumesresponse: { volume: [{ id: 'old-volume', type: 'DATADISK', name: 'old' }] } })
+    await pending
+    expect(vm.preparePlan).not.toHaveBeenCalled()
+    expect(vm.targetVolumes).toBeUndefined()
+  })
+  it('requires a reviewed source initial volume and runtime before clone planning', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: '', cloneRuntime: '', $t: key => key, mutation: jest.fn() }
+    await Widget.methods.preparePlan.call(vm)
+    expect(vm.mutation).not.toHaveBeenCalled()
+    expect(vm.error).toBe('message.storage.config.clone.required')
+  })
+  it('passes explicit clone resource choices and asks the server to allocate planned volume identity', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
+    await Widget.methods.preparePlan.call(vm)
+    const parameters = vm.mutation.mock.calls[0][1]
+    expect(parameters.targetmode).toBe('CREATE_NEW')
+    expect(JSON.parse(parameters.mapping)).toEqual({ volumes: { 'source-volume': 'NEW' }, createNew: { name: 'new-service', size: 20, backingvolumemode: 'NEW' }, initialVolumeSourceUuid: 'source-volume', runtimeBundleUuid: 'runtime' })
+    expect(vm.planPhase).toBe('REVIEW')
+  })
+  it('maps an existing initial clone disk without passing a new-disk offering or format size', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: {}, initialVolumeSource: 'source-volume', cloneRuntime: 'runtime', clone: { name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data', diskofferingid: 'not-needed', storageid: 'not-needed', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'synthetic' }))
+    await Widget.methods.preparePlan.call(vm)
+    const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
+    expect(mappings.volumes['source-volume']).toBe('selected-data')
+    expect(mappings.createNew).toEqual({ name: 'new-service', backingvolumemode: 'EXISTING', existingvolumeid: 'selected-data' })
+  })
+  it('distinguishes unavailable runtime and explicitly skipped observation in backup rows', () => {
+    const vm = { $t: key => key }
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'UNAVAILABLE' } })).toBe('label.storage.config.runtime.UNAVAILABLE')
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'NOT_REQUESTED' } })).toBe('label.storage.config.runtime.NOT_REQUESTED')
+    expect(Widget.methods.artifactStateLabel.call(vm, { state: 'PARTIAL', metadata: { runtimeStatus: 'PARTIAL' } })).toBe('label.storage.config.state.PARTIAL')
+    expect(Widget.methods.runtimeStateLabel.call(vm, 'UNAVAILABLE_OR_PARTIAL')).toBe('label.storage.config.runtime.UNAVAILABLE_OR_PARTIAL')
+  })
+  it('checks downloaded bytes and keeps the Blob available for asynchronous browser download handling', async () => {
+    jest.useFakeTimers()
+    const originalCreate = URL.createObjectURL
+    const originalRevoke = URL.revokeObjectURL
+    URL.createObjectURL = jest.fn(() => 'blob:configuration-test')
+    URL.revokeObjectURL = jest.fn()
+    const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+      expect(document.body.contains(this)).toBe(true)
+      expect(this.download).toBe('storage-config-public.zip')
+    })
+    try {
+      const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+      postAPI.mockResolvedValueOnce({ result: JSON.stringify({ downloadToken: 'synthetic' }) })
+        .mockResolvedValueOnce({ result: JSON.stringify({ data: 'YWJj', sha256: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', filename: 'storage-config-public.zip' }) })
+      await Widget.methods.download.call(vm, { id: 'backup' })
+      expect(click).toHaveBeenCalledTimes(1)
+      expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+      jest.advanceTimersByTime(60000)
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:configuration-test')
+    } finally {
+      click.mockRestore()
+      URL.createObjectURL = originalCreate
+      URL.revokeObjectURL = originalRevoke
+      jest.useRealTimers()
+    }
+  })
+  it('rejects changed download bytes before creating a file', async () => {
+    const click = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    try {
+      const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key }
+      postAPI.mockResolvedValueOnce({ result: JSON.stringify({ downloadToken: 'synthetic' }) })
+        .mockResolvedValueOnce({ result: JSON.stringify({ data: 'YWJj', sha256: 'changed', filename: 'storage-config-public.zip' }) })
+      await Widget.methods.download.call(vm, { id: 'backup' })
+      expect(click).not.toHaveBeenCalled()
+      expect(vm.error).toBe('message.storage.config.download.integrity')
+    } finally { click.mockRestore() }
+  })
+  it('sends independent NEW FILE and RAW allocations while preserving existing DATA mappings', async () => {
+    const vm = { instanceId: 'a', planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', volumeMapping: { file: 'NEW', raw: 'NEW', retained: 'existing-data' }, newVolumeSpecs: { file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40 }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80 } }, initialVolumeSource: 'initial', cloneRuntime: 'runtime', clone: { name: 'clone', diskofferingid: 'sparse', storageid: 'pool', size: 20 }, $t: key => key, assertCloneOffering: jest.fn() }
+    vm.mutation = jest.fn(async () => ({ metadata: { plan: { blockers: [], requiredCredentials: [] } }, planToken: 'reviewed' }))
+    await Widget.methods.preparePlan.call(vm)
+    const mappings = JSON.parse(vm.mutation.mock.calls[0][1].mapping)
+    expect(mappings.volumes).toEqual({ initial: 'NEW', file: 'NEW', raw: 'NEW', retained: 'existing-data' })
+    expect(mappings.newVolumes).toEqual({ file: { diskofferingid: 'sparse', storageid: 'pool', sizeGiB: 40, dataPolicy: 'PRESERVE' }, raw: { diskofferingid: 'fat', storageid: 'pool', sizeGiB: 80, dataPolicy: 'PRESERVE' } })
+  })
+  it('removes a NEW allocation request when the operator selects existing DATA', () => {
+    const vm = { volumeMapping: { source: 'existing' }, newVolumeSpecs: { source: { diskofferingid: 'sparse' } }, planToken: 'old', confirmation: 'clone' }
+    Widget.methods.setVolumeMapping.call(vm, 'source')
+    expect(vm.newVolumeSpecs).toEqual({})
+    expect(vm.planToken).toBe('')
+    expect(vm.confirmation).toBe('')
+  })
+  it('offers only known SPARSE or FAT compute and DATA offerings for clone creation', async () => {
+    const rootId = '44444444-4444-4444-8444-444444444444'
+    const thin = '11111111-1111-4111-8111-111111111111'; const sparse = '22222222-2222-4222-8222-222222222222'; const unknown = '33333333-3333-4333-8333-333333333333'
+    const vm = { instanceId: 'a', planTarget: {}, clone: { zoneid: 'zone' }, cloneOptionToken: 0, cloneOptions: {}, options: Widget.methods.options, cloneDiscoveryScope: Widget.methods.cloneDiscoveryScope, clearCloneZoneOptions: Widget.methods.clearCloneZoneOptions, sparseCloneRootOffering: Widget.methods.sparseCloneRootOffering, $t: key => key }
+    getAPI.mockImplementation(api => Promise.resolve({
+      listNetworks: { listnetworksresponse: { network: [] } },
+      listServiceOfferings: { listserviceofferingsresponse: { serviceoffering: [{ id: thin, provisioningtype: 'thin', diskofferingid: rootId }, { id: sparse, provisioningtype: 'sparse', diskofferingid: rootId }, { id: unknown, diskofferingid: rootId }] } },
+      listStorageServiceOfferingConstraints: { liststorageserviceofferingconstraintsresponse: { storageserviceofferingconstraint: [{ id: thin, compatible: true }, { id: sparse, compatible: true }, { id: unknown, compatible: true }] } },
+      listDiskOfferings: { listdiskofferingsresponse: { diskoffering: [{ id: 'thin', provisioningtype: 'thin' }, { id: 'sparse', provisioningtype: 'sparse' }, { id: 'fat', provisioningtype: 'fat' }, { id: 'unknown' }] } },
+      listStoragePools: { liststoragepoolsresponse: { storagepool: [] } },
+      listVolumes: { listvolumesresponse: { volume: [] } }
+    }[api]))
+    await Widget.methods.loadCloneZoneOptions.call(vm)
+    expect(vm.cloneOptions.offerings.map(row => row.value)).toEqual([sparse])
+    expect(vm.cloneOptions.disks.map(row => row.value)).toEqual(['sparse', 'fat'])
+    expect(vm.cloneOptions.disks[0].label).toContain('SPARSE')
+  })
+  it('shows exact reviewed identities and retention policy from the server allocation plan', () => {
+    const allocation = { sourceUuid: 'source', plannedUuid: 'planned', usage: 'BLOCK_RAW', provisioningType: 'SPARSE', dataPolicy: 'PRESERVE' }
+    expect(Widget.computed.allocationRows.call({ plan: { volumeAllocationPlan: { allocations: [allocation] } } })).toEqual([allocation])
+    expect(Widget.computed.allocationRows.call({ plan: null })).toEqual([])
+  })
+})

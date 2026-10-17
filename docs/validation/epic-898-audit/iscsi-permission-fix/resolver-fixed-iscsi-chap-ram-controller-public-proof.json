@@ -1,0 +1,229 @@
+{
+  "kind": "PERMISSION_FIX_CHAP_RAM_CONTROLLER_EXISTING_ACLS",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "targetIqn": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732",
+  "credentialSetupViaNormalApi": true,
+  "newCredentialGuiEntry": false,
+  "secretRegularFilesOrArgv": 0,
+  "clients": {
+    "C1": {
+      "aclId": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+      "credentialOnlyRotationOfExistingAcl": true,
+      "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+      "permission": "READ_WRITE",
+      "chapEnabledRequested": true,
+      "secretLength": 16,
+      "secretAscii": true,
+      "jobId": "9072ff0a-dac5-45d3-81f4-66ed40075d49",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "aclPublic": {
+        "id": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+        "state": "Ready",
+        "principal": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+        "principaltype": "ISCSI_INITIATOR_IQN",
+        "permission": "READ_WRITE"
+      }
+    },
+    "C2": {
+      "aclId": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+      "credentialOnlyRotationOfExistingAcl": true,
+      "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+      "permission": "READ_ONLY",
+      "chapEnabledRequested": true,
+      "secretLength": 16,
+      "secretAscii": true,
+      "jobId": "3796c2c1-2f6d-4e10-b0e9-43e37ff2262b",
+      "jobStatus": 1,
+      "jobResultCode": 0,
+      "aclPublic": {
+        "id": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+        "state": "Ready",
+        "principal": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+        "principaltype": "ISCSI_INITIATOR_IQN",
+        "permission": "READ_ONLY"
+      }
+    }
+  },
+  "cases": [
+    {
+      "client": "C1",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C1",
+      "case": "WRONG",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C2",
+      "case": "NONE",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C2",
+      "case": "WRONG",
+      "result": {
+        "success": false,
+        "loginAccepted": false,
+        "authenticationRejected": true,
+        "dataWrites": 0,
+        "safeError": "LOGIN_REJECTED_OR_UNAVAILABLE"
+      }
+    },
+    {
+      "client": "C1",
+      "case": "READ",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": false,
+        "protocolSyncVerified": false,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true,
+        "writeScsi": {
+          "taskPresent": false,
+          "status": null,
+          "senseValid": false,
+          "senseKey": null,
+          "asc": null,
+          "ascq": null
+        }
+      }
+    },
+    {
+      "client": "C2",
+      "case": "READ",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": false,
+        "protocolSyncVerified": false,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true,
+        "writeScsi": {
+          "taskPresent": false,
+          "status": null,
+          "senseValid": false,
+          "senseKey": null,
+          "asc": null,
+          "ascq": null
+        }
+      }
+    },
+    {
+      "client": "C2",
+      "case": "RO_WRITE",
+      "result": {
+        "success": false,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "syncVerified": false,
+        "readPatternVerified": false,
+        "freshReconnectReadVerified": false,
+        "secretArgv": false,
+        "writeFuaRequested": true,
+        "protocolSyncVerified": false,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "",
+        "freshReadSha256": "",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": false,
+        "writeScsi": {
+          "taskPresent": true,
+          "status": 2,
+          "senseValid": true,
+          "senseKey": 7,
+          "asc": 39,
+          "ascq": 0
+        }
+      },
+      "permissionDenialProven": true,
+      "denialEvidenceRequired": {
+        "status": 2,
+        "senseKey": 7,
+        "asc": 39,
+        "ascq": 0
+      }
+    },
+    {
+      "client": "C2",
+      "case": "READ",
+      "result": {
+        "success": true,
+        "loginAccepted": true,
+        "dataWrites": 0,
+        "bytesWritten": 0,
+        "syncVerified": true,
+        "readPatternVerified": true,
+        "freshReconnectReadVerified": true,
+        "secretArgv": false,
+        "writeFuaRequested": false,
+        "protocolSyncVerified": false,
+        "windowOffsetBytes": 1048576,
+        "windowLengthBytes": 4096,
+        "readSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshReadSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "expectedPatternSha256": "40804e47bb6a66d3a0dbfe20fc9ed3f32bfabcad0680d047f741d5be7f357e6a",
+        "freshShaMatched": true,
+        "writeScsi": {
+          "taskPresent": false,
+          "status": null,
+          "senseValid": false,
+          "senseKey": null,
+          "asc": null,
+          "ascq": null
+        }
+      }
+    }
+  ],
+  "newVolumeOrFormatCalls": 0,
+  "nvmeCalls": 0,
+  "networkVpdSerialClaimed": false,
+  "serverSerialReadbackProofSha256": "390c648944ae5ae8d9c1eb92ae35f9965a94c1b37c324af572804c5f49cf83af",
+  "safeFailureStage": "NORMAL_API_MUTUAL_ROTATE_C1",
+  "safeFailureClass": "HTTPError",
+  "outcomeUnknownOrStopped": true,
+  "credentialsDiscardedAtControllerEnd": true
+}

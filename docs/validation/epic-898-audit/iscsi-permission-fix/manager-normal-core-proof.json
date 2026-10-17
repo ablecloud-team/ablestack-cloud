@@ -1,0 +1,66 @@
+{
+  "kind": "ISCSI_WHOLE_IQN_MANAGER_NORMAL_CORE_PROOF",
+  "schemaVersion": 1,
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "selectorCount": 128,
+  "actualXml": {
+    "tests": 972,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteCount": 128,
+  "exitCode": 0,
+  "buildSuccess": true,
+  "checkstylePassed": true,
+  "reportFilesFreshForThisRun": true,
+  "elapsedSeconds": 154.75,
+  "sourcePaths": 5040,
+  "sourceNulSha256": "75f89b0f043f89efe49ab3e15c73e18dc9aa1075ebe679fff124203d6726b02e",
+  "sourceBeforeAfterSame": true,
+  "immutableOutputFiles": 3898,
+  "immutableRoot": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-module-outputs",
+  "outputManifestPath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/module-output-manifest.json",
+  "outputManifestSha256": "b882bdd52e2fdc661f66ba84e2891b1dd569ed4ae71821c1490f06d5b267e7f1",
+  "managerOuterClass": {
+    "path": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/immutable-module-outputs/server/classes/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "sha256": "94b3c3a8ad818849e5e6077b28cc923fc59cc35406e33187b7426dbf9677069c"
+  },
+  "classDeltaPath": "/root/work/epic898-preparation/iscsi-readonly-lun-prep/normal-native-preparation/production-class-delta-vs-cf6.json",
+  "classDeltaSha256": "a412d9f95339956f04e37707eea987e542f1d83c45a9eaae86323c338dec1bfe",
+  "deltaClassCounts": {
+    "api": 0,
+    "server": 2,
+    "plugins/hypervisors/kvm": 0,
+    "plugins/storage/sharedfs/storagevm": 0
+  },
+  "classAddedRemovedCounts": {
+    "api": {
+      "added": 0,
+      "removed": 0
+    },
+    "server": {
+      "added": 0,
+      "removed": 0
+    },
+    "plugins/hypervisors/kvm": {
+      "added": 0,
+      "removed": 0
+    },
+    "plugins/storage/sharedfs/storagevm": {
+      "added": 0,
+      "removed": 0
+    }
+  },
+  "liveBaseline": {
+    "managementJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+    "managementPid": 1400221,
+    "managerOuterSha256": "0b307ad083d9a04849479dfa54fb6d2fd79987a8c4f83b73b82398011046b4aa",
+    "hybridNormalByteEqualityClaimed": false
+  },
+  "mavenInvocations": 1,
+  "standaloneKvmRetest": 0,
+  "uiRetest": 0,
+  "actualCalls": 0,
+  "finalUi1275Started": false
+}

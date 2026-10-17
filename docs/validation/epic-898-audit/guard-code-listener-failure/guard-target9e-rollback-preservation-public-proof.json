@@ -1,0 +1,104 @@
+{
+  "kind": "GUARD_8DE_TARGET9E_AUTOMATIC_ROLLBACK_DATA_PRESERVATION",
+  "sourcePin": "8de98e253660f406f6f0b276a6ace1aa53e9637d",
+  "operationUuid": "9e1eac30-07b8-47d5-9d23-861f6464cd32",
+  "operationState": "ROLLED_BACK",
+  "before": {
+    "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/native-signed-code-preparation/guard-8de98e-local-preparation/after-normal-guard8de-code-public-snapshot.json",
+    "sha256": "799d5b526355a69334e90bd9aff9148b8d32e753d66d7db733e78dc8c53e0595"
+  },
+  "after": {
+    "path": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/native-signed-code-preparation/guard-8de98e-local-preparation/after-target9e-normal-rollback-public-snapshot.json",
+    "sha256": "2df23b26178b85db701c8f65192d59159ef3339d52faf9689f3805c0b0aa9293"
+  },
+  "sameObservedFields": {
+    "bootId": true,
+    "vmUuid": true,
+    "cliSha256": true,
+    "current": true,
+    "pending": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true,
+    "ownSmbFile": true,
+    "ownRawBlank": true,
+    "reservedNvmeGuestSerialAbsent": true,
+    "historicalDf11SourceMetadata": true
+  },
+  "allMetadataIdenticalClaimed": false,
+  "databaseChangedFields": {
+    "PASSDB": [
+      "ctimeNs",
+      "inode",
+      "mtimeNs"
+    ],
+    "SECRETS": [
+      "ctimeNs",
+      "inode",
+      "mtimeNs"
+    ]
+  },
+  "databaseProtectionSizeLinksAndDeviceSame": true,
+  "holderPidChanged": true,
+  "holderTwoNotDeletedAndActualInstalledOwnershipVerified": true,
+  "ownedHolderPaused": false,
+  "ownedHolderProcessStates": [
+    {
+      "parentPid": 1244065,
+      "paused": false,
+      "pid": 1244067,
+      "startTicks": 8949339,
+      "state": "S",
+      "uid": 0
+    }
+  ],
+  "currentGenericSmbOwnershipTcpAndDatabaseAligned": true,
+  "logicalIdentityEvidence": "Actual installed identity guard reports alignment; live TDB bytes/SID values are not read or printed.",
+  "databaseInodeAndTimesAndHolderPidChangesSeparatedFromDataPreservation": true,
+  "signedRuntimeReadback": {
+    "archiveSha256": "cb41ade95acc852d453b750679ea54287fc5f479d3e1ff5105f2848e12d37240",
+    "currentVersion": "epic898-iscsi-guard-8de98e-20261010",
+    "entrypointsVerified": true,
+    "installedFilesVerified": true,
+    "manifestSha256": "ee849b8721f2aa5375f8f85b3231f6c77d901394e025dba985515781f59d2cc2",
+    "signedRuntimeVerified": true,
+    "success": true,
+    "updaterSha256": "161c4726fdfe53e9eba51b635862a4f9dceb000acf7a2fb165541710d1b0e131"
+  },
+  "currentGeneration": {
+    "configurationSha256": "10d361deafdb00298a9e16e6923a671839bdcf2fae3e62c2ce71b5c6af87f569",
+    "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "operationUuid": "e4f4325b-8a61-481a-86fb-1194ca7e8a33",
+    "revision": 10,
+    "verifiedAt": 1791585753.3807228
+  },
+  "pending": null,
+  "writerIdle": true,
+  "ownRawBlank": {
+    "device": "/dev/sdd",
+    "first64KiBAllZero": true,
+    "logicalBlockSize": 512,
+    "rootExcluded": true,
+    "serial": "db3de2b75fcb4cb5a0aa",
+    "sizeBytes": 21474836480,
+    "unmountedNoFilesystemNoPartitions": true,
+    "windowAllZero": true,
+    "windowLengthBytes": 4096,
+    "windowOffsetBytes": 1048576,
+    "writes": 0
+  },
+  "reservedNvmeGuestSerialAbsent": true,
+  "nativeFixedDiagnostic": {
+    "guard": "LISTENER",
+    "returnCode": null,
+    "category": "SYSTEM_EXIT"
+  },
+  "historicalSourceMetadataPreserved": true,
+  "historicalStatusImportOrExportCalls": 0,
+  "additionalSnapshotCallsInComparison": 0,
+  "additionalTargetOrRecoverySubmits": 0,
+  "chapAclOrRawIoCalls": 0,
+  "manualSignalsCleanupOrJournalWrites": 0,
+  "originalEarlierFailureCauseClaimed": false,
+  "ui1275": "UNSTARTED"
+}

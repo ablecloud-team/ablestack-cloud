@@ -1,0 +1,101 @@
+{
+  "kind": "UI_MUTUAL_CHAP_LIMITED_ARTIFACT_DEPLOY_REVIEW",
+  "schemaVersion": 1,
+  "sourceCommit": "20a3c7c7e7e4144c128ccbe2ec527d2a322e223d",
+  "source2": {
+    "ui/src/views/storage/SharedFSTab.vue": "9729f7d57a8c086b50fdccf36019e6e34f56da870e564013af316a3ddaa7f7c1",
+    "ui/tests/unit/views/storage/SharedFSTabIscsiChap.spec.js": "0cf8174e9973fe1d9c8ee8ef9d95ed878d899748af7429904e51676b4d5d552a"
+  },
+  "normalTests": 373,
+  "normalSuites": 22,
+  "normalLintNoFix": true,
+  "productionFileCount": 850,
+  "baselineUiSourcePin": "dc1453cc782eeeee294d005871768ea57c4788b4",
+  "baselineOutputManifest": "/root/work/epic898-preparation/ui-p0-read-causes-dc1453/output-manifest.json",
+  "baselineOutputManifestSha256": "8bbc70a98d7214a386659023bfdee323bc5eb7b05be122b78c0b170e26526846",
+  "baselineDeployedIndexSha256": "e75592ad9a85cc4de523bf05d4c8e830ada0e49b988236925ba4b1f69f4291e8",
+  "newIndexSha256": "3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd",
+  "selectedFiles": [
+    {
+      "path": "css/chunk-46259edb.d9cfad05.css",
+      "sha256": "45b8d57d46d65d5eb1662a1c6a814cf2144454176221ffef207a8f63792e78c0",
+      "sizeBytes": 22240,
+      "previousSamePathSha256": null
+    },
+    {
+      "path": "index.html",
+      "sha256": "3dc40c928b5f1a3d52f721c97fa33567348702e1f2a92fdec1c3e46384a9fddd",
+      "sizeBytes": 32571,
+      "previousSamePathSha256": "e75592ad9a85cc4de523bf05d4c8e830ada0e49b988236925ba4b1f69f4291e8"
+    },
+    {
+      "path": "js/app.93a2cf42.js",
+      "sha256": "a474074c7e3a1db94eb1d0fbb5d41da98787819fb1d095dad4a4672e92101bbd",
+      "sizeBytes": 1270943,
+      "previousSamePathSha256": null
+    },
+    {
+      "path": "js/app.93a2cf42.js.map",
+      "sha256": "f6bc491583aa20ba42042aa9e03b01e3dbe307a406233620becf51f9811b693d",
+      "sizeBytes": 2574391,
+      "previousSamePathSha256": null
+    },
+    {
+      "path": "js/chunk-46259edb.eb0ddf16.js",
+      "sha256": "151dfe5cafe6d6f9ada700e47ead4a3e349f959ab6b0c7abfd64ab363348c78d",
+      "sizeBytes": 730881,
+      "previousSamePathSha256": null
+    },
+    {
+      "path": "js/chunk-46259edb.eb0ddf16.js.map",
+      "sha256": "17804d7e2616ba81026d3bbae4fd51e0acc4e12e14e84d869388ef1ef16817a5",
+      "sizeBytes": 1233292,
+      "previousSamePathSha256": null
+    }
+  ],
+  "selectedFileCount": 6,
+  "changedCommonPaths": [
+    "color.less",
+    "index.html"
+  ],
+  "addedPaths": [
+    "css/chunk-46259edb.d9cfad05.css",
+    "js/app.93a2cf42.js",
+    "js/app.93a2cf42.js.map",
+    "js/chunk-46259edb.eb0ddf16.js",
+    "js/chunk-46259edb.eb0ddf16.js.map"
+  ],
+  "removedOutputPathsPreservedOnRemote": [
+    "css/chunk-7d2a7a2f.aaaaab8f.css",
+    "js/app.8fa0f943.js",
+    "js/app.8fa0f943.js.map",
+    "js/chunk-7d2a7a2f.149155ef.js",
+    "js/chunk-7d2a7a2f.149155ef.js.map"
+  ],
+  "cssScopeOnlyProof": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/compiled-css-scope-identity-proof.json",
+  "cssScopeOnlyProofSha256": "bca0be6e95de39da853bf94080fa15cd2a4907191952a382d98f42ef7f2a2115",
+  "preserveConfigSymlink": true,
+  "liveConfigSymlinkTarget": "/etc/cloudstack/management/config.json",
+  "liveConfigSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5",
+  "candidateDefaultConfigSha256": "44d080ee12cd291185d65c81a605e71e455dada1a295b46d51e7de86c877b860",
+  "candidateConfigIsNotLiveBaseline": true,
+  "preserveWebInf": true,
+  "preserveGeneratedThemeColorLess": true,
+  "keepOldHashedAssets": true,
+  "preserveRuntimePublicAdditionalAssets": true,
+  "wholeOldUiMapAssumedCurrent": false,
+  "preserveManagementJarAndFreshPid": true,
+  "knownManagementJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+  "knownManagementPid": 1400221,
+  "currentSshPostcheckProof": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/listener-default-normal-cf6baa485126/management-one-deployment-preparation/post-management-ssh-readonly.json",
+  "freshReadBeforeActualApplyRequired": true,
+  "archive": "/root/work/epic898-preparation/ui-mutual-chap-20a3c7c7/review-ui-mutual-chap-20a3c7c7.tar.gz",
+  "archiveSha256": "fd4fa1eb79c7a5ab9c2415c968d77627e912eb464f093ef586ea37d9def306eb",
+  "rootBackupRequiredMode": "0700",
+  "replaceIndexLastAtomic": true,
+  "rollbackOldIndexAndSamePathFilesOnFailure": true,
+  "actualDeployed": false,
+  "noRestart": true,
+  "actualApiGuestCalls": 0,
+  "finalUi1275Started": false
+}

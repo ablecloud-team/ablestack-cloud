@@ -1,0 +1,45 @@
+{
+  "kind": "POST_MUTUAL_HTTP_FAILURE_CURRENT_OWN_ACL_FLAGS_READONLY",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "originalFailureTimeKst": "2026-10-10T16:37:37.488495+09:00",
+  "businessWrites": 0,
+  "guestCalls": 0,
+  "rawConfigurationOrSecretsExported": false,
+  "success": true,
+  "observedAtKst": "2026-10-10T16:43:27.789528+09:00",
+  "rowCount": 2,
+  "ownRows": [
+    {
+      "client": "C1",
+      "id": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+      "state": "Ready",
+      "principal": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+      "principaltype": "ISCSI_INITIATOR_IQN",
+      "permission": "READ_WRITE",
+      "resourcetype": "BLOCK_TARGET",
+      "resourceid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+      "authFlags": {
+        "chapEnabled": true,
+        "mutualChapEnabled": false
+      },
+      "chapUsernamePresent": true,
+      "mutualChapUsernamePresent": false
+    },
+    {
+      "client": "C2",
+      "id": "c3866dde-4b7b-4ba5-a898-2fe6d6be5e70",
+      "state": "Ready",
+      "principal": "iqn.2026-10.local.epic898:cf6-chap-c2-0d8c6895",
+      "principaltype": "ISCSI_INITIATOR_IQN",
+      "permission": "READ_ONLY",
+      "resourcetype": "BLOCK_TARGET",
+      "resourceid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+      "authFlags": {
+        "chapEnabled": true,
+        "mutualChapEnabled": false
+      },
+      "chapUsernamePresent": true,
+      "mutualChapUsernamePresent": false
+    }
+  ]
+}

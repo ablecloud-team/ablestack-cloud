@@ -1,0 +1,23 @@
+{
+  "actualReadonlyMetadataCalls": 1,
+  "exitCode": 0,
+  "hostLibvirtVersionNumeric": 11010000,
+  "kind": "READONLY_QGA_VERSION_MARKER_PROVIDER",
+  "metadata": {
+    "actualWrites": 0,
+    "device": "/dev/sdd",
+    "first64KiBAllZero": true,
+    "kind": "EXACT_OWN_RAW2_ISCSI_READONLY_BLANK_BINDING",
+    "logicalBlockSize": 512,
+    "networkOrTargetIo": 0,
+    "partialOrRootReadWrites": 0,
+    "rootDiskExcluded": true,
+    "serial": "db3de2b75fcb4cb5a0aa",
+    "sizeBytes": 21474836480,
+    "unmountedNoPartitionsNoFilesystem": true,
+    "windowAllZero": true,
+    "windowLengthBytes": 4096,
+    "windowOffsetBytes": 1048576
+  },
+  "unknownAttemptRetriedOrKilled": false
+}

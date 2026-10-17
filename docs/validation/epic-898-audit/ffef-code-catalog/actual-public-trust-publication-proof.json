@@ -1,0 +1,62 @@
+{
+  "kind": "FFEF_APPROVED_PUBLIC_TRUST_AND_PUBLICATION",
+  "localPayloadProofSha256": "6a715607a13ff2ec6c8cf24b3739910a21bd74c2fc202148be32017b5e3ee961",
+  "management": {
+    "kind": "FFEF_MANAGEMENT_PUBLIC_TRUST_AND_PUBLICATION",
+    "managementJarAndUiIndexConfigPreserved": true,
+    "newKeyId": "epic898-test-iscsi-safe-ffef35c",
+    "newTrustCount": 51,
+    "oldPublicTrustEntriesPreserved": true,
+    "oldTrustCount": 50,
+    "publicDirectory": "/usr/share/cloudstack-management/webapp/epic898-runtime-iscsi-safe-ffef35c",
+    "publicFileCount": 5,
+    "publicSha256": "9d9bfdbad40bf4dc1b440780bb4904a57f8584d69848370610d58990a0c8596f",
+    "restartCalls": 0,
+    "signatureVerified": true,
+    "success": true
+  },
+  "guest": {
+    "guestExitCode": 0,
+    "guestLaunches": 1,
+    "kind": "FFEF_F1_PUBLIC_TRUST_ISOLATED_PROVIDER",
+    "observation": {
+      "cliBootGen10AndPendingNoneVerified": true,
+      "kind": "FFEF_F1_PUBLIC_RUNTIME_TRUST_ADD",
+      "newTrustCount": 13,
+      "oldTrustCount": 12,
+      "oldTrustEntriesPreserved": true,
+      "publicSha256": "9d9bfdbad40bf4dc1b440780bb4904a57f8584d69848370610d58990a0c8596f",
+      "sourceDataOrServiceActions": 0,
+      "success": true
+    }
+  },
+  "publicHttpFiveFiles": {
+    "ablestack-storage-runtime-epic898-iscsi-safe-ffef35c-20261010.tar.gz": {
+      "status": 200,
+      "bytes": 398313,
+      "sha256": "493b68b8077fb6c44f055de4be4ba02fa31237ae3d99570b0b4d9023b16e1a35"
+    },
+    "manifest.json": {
+      "status": 200,
+      "bytes": 1437,
+      "sha256": "cff12f8adc2355f30e01bf2038858a71d5377b7f27eaf01fe1aa230d11ccba98"
+    },
+    "manifest.sig": {
+      "status": 200,
+      "bytes": 64,
+      "sha256": "972203317a9aae6af2d1c21aa69b1f095972106324f5d8dc0ff2a6a612cb8bfd"
+    },
+    "epic898-test-iscsi-safe-ffef35c.pem": {
+      "status": 200,
+      "bytes": 113,
+      "sha256": "9d9bfdbad40bf4dc1b440780bb4904a57f8584d69848370610d58990a0c8596f"
+    },
+    "SHA256SUMS": {
+      "status": 200,
+      "bytes": 294,
+      "sha256": "a15c8a6e73385c33e44572479f5f2934d56d051ab91b13a7d38fd2bee449d7fa"
+    }
+  },
+  "catalogOrCodeApplyCalls": 0,
+  "privateKeyRegularFiles": 0
+}

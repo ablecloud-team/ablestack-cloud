@@ -988,6 +988,39 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    @Inject private org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao staticSharedFsDao;
+    @Inject private javax.inject.Provider<org.apache.cloudstack.storage.sharedfs.SharedFSService> storageFsLifecycleSafety;
+
+    @Override
+    public Long getStorageServiceSyncIdForVm(Long vmId) {
+        if (vmId == null) return null;
+        UserVmVO vm = _vmDao.findById(vmId);
+        if (vm == null || !UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())) return null;
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, vm);
+        return storageFsLifecycleSafety.get().getVmStorageServiceSyncId(vmId);
+    }
+
+    protected void requireStorageVmLifecycleSafety(UserVmVO vm, String operation) {
+        if (!UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())) return;
+        _accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, vm);
+        storageFsLifecycleSafety.get().requireVmLifecycleSafety(vm.getId(), operation);
+    }
+
+
+    /** Guest-reported aliases cannot replace an operator-declared SharedFS primary address. */
+    protected boolean preserveDeclaredSharedFsPrimary(long vmId, NicVO nic) {
+        UserVmVO vm=_vmDao.findById(vmId);
+        if (vm==null || !UserVmManager.SHAREDFSVM.equals(vm.getUserVmType()) || nic!=null && !nic.isDefaultNic()) return false;
+        org.apache.cloudstack.storage.sharedfs.SharedFSVO shared=staticSharedFsDao.findByVm(vmId);
+        if (shared==null || shared.getNetworkMode()!=org.apache.cloudstack.storage.sharedfs.SharedFS.NetworkMode.STATIC) return false;
+        if (nic==null || nic.getInstanceId()!=vmId || !NetUtils.isValidIp4(shared.getIpAddress())) throw new CloudRuntimeException("Declared static SharedFS primary identity is unavailable");
+        if (!shared.getIpAddress().equals(nic.getIPv4Address())) {
+            nic.setIPv4Address(shared.getIpAddress());
+            if (!_nicDao.update(nic.getId(),nic)) throw new CloudRuntimeException("Unable to preserve declared SharedFS primary NIC address");
+        }
+        return true;
+    }
+
     private class VmIpAddrFetchThread extends ManagedContextRunnable {
         long nicId;
         long vmId;
@@ -1019,6 +1052,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 logger.debug("Trying IP retrieval for Instance [ID: {}, UUID: {}, name: {}], NIC {}", vmId, vmUuid, vmName, nic);
                 Answer answer = _agentMgr.send(hostId, cmd);
                 if (answer.getResult()) {
+                    if (preserveDeclaredSharedFsPrimary(vmId,nic)) {vmIdCountMap.remove(nicId);decrementCount=false;return;}
                     String vmIp = answer.getDetails();
                     if (vmIp == null) {
                         // we got a valid response and the NIC does not have an IP assigned, as such we will update the database with null
@@ -1482,6 +1516,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             return null;
         }
 
+        requireStorageVmLifecycleSafety(vm, "REBOOT");
         if (vm.getState() == State.Running && vm.getHostId() != null) {
             collectVmDiskAndNetworkStatistics(vm, State.Running);
 
@@ -3026,6 +3061,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
     @Override
     public boolean expunge(UserVmVO vm) {
+        requireStorageVmLifecycleSafety(vm, "EXPUNGE");
         vm = _vmDao.acquireInLockTable(vm.getId());
         if (vm == null) {
             return false;
@@ -6450,6 +6486,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (vm == null) {
             throw new InvalidParameterValueException("unable to find a virtual machine with id " + vmId);
         }
+        requireStorageVmLifecycleSafety(vm, "STOP");
         checkFastCloneOperationAllowed(vmId, "stop");
 
         if (forced) {
@@ -6818,6 +6855,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw ex;
         }
 
+        requireStorageVmLifecycleSafety(vm, "DESTROY");
         if (vm.getState() == State.Destroyed || vm.getState() == State.Expunging) {
             logger.trace("Vm {} is already destroyed", vm);
             return vm;
@@ -8069,6 +8107,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (vm == null) {
             throw new InvalidParameterValueException("Unable to find the VM by id=" + vmId);
         }
+        UserVmVO lifecycleVm = _vmDao.findById(vmId);
+        if (lifecycleVm != null) requireStorageVmLifecycleSafety(lifecycleVm, "MIGRATE");
         // business logic
         if (vm.getState() != State.Running) {
             if (logger.isDebugEnabled()) {
@@ -8698,6 +8738,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             throw new InvalidParameterValueException("Unable to find the VM by ID " + vmId);
         }
 
+        UserVmVO lifecycleVm = _vmDao.findById(vmId);
+        if (lifecycleVm != null) requireStorageVmLifecycleSafety(lifecycleVm, "MIGRATE");
         // OfflineVmwareMigration: this would be it ;) if multiple paths exist: unify
         if (vm.getState() != State.Running) {
             // OfflineVmwareMigration: and not vmware
@@ -9735,6 +9777,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     }
 
     public UserVm restoreVMInternal(Account caller, UserVmVO vm, Long newTemplateId, Long rootDiskOfferingId, boolean expunge, Map<String, String> details) throws InsufficientCapacityException, ResourceUnavailableException, ResourceAllocationException {
+        requireStorageVmLifecycleSafety(vm, "RESTORE");
         checkFastCloneOperationAllowed(vm.getId(), "restore");
         return _itMgr.restoreVirtualMachine(vm.getId(), newTemplateId, rootDiskOfferingId, expunge, details);
     }

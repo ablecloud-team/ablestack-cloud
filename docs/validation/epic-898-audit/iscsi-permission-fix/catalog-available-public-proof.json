@@ -1,0 +1,45 @@
+{
+  "kind": "PERMISSION_FF1_NORMAL_UI_CATALOG_AVAILABLE",
+  "sourcePin": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+  "nativeNormalProofSha256": "15840325c46f42657cd934afebd7436c44e83deaca5dc7f7bf3e99e58a0bca8c",
+  "localPayloadProofSha256": "b68ab9b490e3fb2b032ec3b42483dd26b4dac4290a9d49516ca32e5d82a5c305",
+  "publicationProofSha256": "aa3fa1f257175dd35ad940312880ddeaf2dfc71ebd8510bb0bb2c04662c16af8",
+  "catalog": {
+    "id": "f14582e9-9912-4dfa-8489-de5cca0a203f",
+    "version": "epic898-iscsi-permission-ff1aa7-20261010",
+    "state": "AVAILABLE",
+    "runtimeabiversion": "1",
+    "desiredstateschemaversion": "1",
+    "serviceimpact": "NONE",
+    "artifacturl": "http://10.10.13.10:8080/client/epic898-runtime-iscsi-permission-ff1aa7/ablestack-storage-runtime-epic898-iscsi-permission-ff1aa7-20261010.tar.gz",
+    "artifactsize": 400676,
+    "sha256": "194e81a61ab7b1d5df27a2137522fb5e574115ede9a4a71689aa991d7926267f",
+    "manifestsha256": "5d41b3509f1f7e6738a8a7f4c3938ae5423f379daca541a46e83d8a49de14fe8",
+    "signingkeyid": "epic898-test-iscsi-permission-ff1aa7",
+    "created": "2026-10-10T15:46:30+0900"
+  },
+  "verificationJob": {
+    "id": "95a44503-58d9-42b0-8726-b0ea88490428",
+    "status": 1,
+    "resultcode": 0
+  },
+  "publicationJob": {
+    "id": "c4740df4-4ac1-426c-812b-b7640b04d696",
+    "status": 1,
+    "resultcode": 0
+  },
+  "normalUiMutations": {
+    "registered": 1,
+    "verified": 1,
+    "available": 1
+  },
+  "uiStateSequence": [
+    "REGISTERED",
+    "VERIFIED",
+    "AVAILABLE"
+  ],
+  "browserTabId": "1588257748",
+  "codeApplyCalls": 0,
+  "secretValuesIncluded": false,
+  "ui1275": "UNSTARTED"
+}
