@@ -139,10 +139,10 @@ public class StorageCanonicalRecoveryRuntimeTest {
         }
     }
 
-    private static final class RestoredManager extends StorageServiceManagerImpl implements AutoCloseable {
+    private static class RestoredManager extends StorageServiceManagerImpl implements AutoCloseable {
         final StorageServiceInstanceVO instance=new StorageServiceInstanceVO();final StorageServiceOperationVO operation=new StorageServiceOperationVO();
         final JsonObject fixture=StorageCanonicalRecoveryTest.nfsSourceFixture(),before=StorageSmbIdentityRepairRuntimeTest.localSourceBefore();
-        JsonObject live,local;boolean databaseDrift;final List<StorageServiceInstance.Protocol> applied=new ArrayList<>();
+        JsonObject live,local;boolean databaseDrift,replaceWriterOnNativeStatus;final List<StorageServiceInstance.Protocol> applied=new ArrayList<>();
         RestoredManager() {
             com.cloud.user.User user=Mockito.mock(com.cloud.user.User.class);Mockito.when(user.getId()).thenReturn(3L);
             org.apache.cloudstack.context.CallContext.register(user,Mockito.mock(com.cloud.user.Account.class));
@@ -173,7 +173,10 @@ public class StorageCanonicalRecoveryRuntimeTest {
         }
         @Override protected void requireConfigurationAdministrator() { }
         @Override protected String captureConfigurationSnapshot(long id){return "{\"schemaVersion\":2,\"instanceId\":29,\"tables\":"+(databaseDrift?"[\"foreign\"]":"[]")+"}";}
-        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){return live.deepCopy();}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){
+            if(replaceWriterOnNativeStatus)((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(this,"storageWriterOperation")).set(new StorageServiceOperationVO());
+            return live.deepCopy();
+        }
         @Override protected JsonObject localSourceGuest(StorageServiceInstanceVO instance,String action,JsonObject request){Assert.assertEquals("local-source-status",action);return local.deepCopy();}
         @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){if(command.equals("operation verify"))return fixture.getAsJsonObject("health").deepCopy();Assert.assertEquals("operation observe",command);return fixture.getAsJsonObject("inventory").deepCopy();}
         @Override protected JsonObject currentSmbDataIdentity(StorageServiceInstanceVO instance,StorageServiceOperationVO operation){return fixture.getAsJsonObject("data").deepCopy();}
@@ -219,6 +222,159 @@ public class StorageCanonicalRecoveryRuntimeTest {
                 else m.fixture.getAsJsonObject("data").getAsJsonArray("volumes").get(1).getAsJsonObject().addProperty("serial","foreign");
                 Assert.assertThrows(CloudRuntimeException.class,()->m.requireRestoredNfsSourceUnchanged(m.instance,m.operation,proof));
                 Assert.assertEquals(List.of(StorageServiceInstance.Protocol.SMB,StorageServiceInstance.Protocol.ISCSI),m.applied);
+            }
+        }
+    }
+
+    private static final class IscsiHeaderManager extends RestoredManager {
+        final List<StorageServiceProtocolVO> endpoints=new ArrayList<>();
+        StorageServiceProtocolVO selected;final NicVO primary=Mockito.mock(NicVO.class);
+        boolean listenerDrift,aliasDrift;
+        IscsiHeaderManager() {
+            StorageServiceProtocolVO explicit=new StorageServiceProtocolVO(29,StorageServiceInstance.Protocol.ISCSI,true,"10.10.13.223",3260);
+            StorageServiceProtocolVO wildcard=new StorageServiceProtocolVO(29,StorageServiceInstance.Protocol.ISCSI,true,null,3260);
+            explicit.setState(StorageServiceInstance.ResourceState.Ready);wildcard.setState(StorageServiceInstance.ResourceState.Ready);
+            endpoints.add(explicit);endpoints.add(wildcard);selected=explicit;
+            org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao dao=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceProtocolDao.class);
+            Mockito.when(dao.findByInstanceIdAndProtocol(29,StorageServiceInstance.Protocol.ISCSI)).thenAnswer(invocation->selected);
+            Mockito.when(dao.listByInstanceIdAndProtocol(29,StorageServiceInstance.Protocol.ISCSI)).thenReturn(endpoints);
+            ReflectionTestUtils.setField(this,"storageServiceProtocolDao",dao);
+            Mockito.when(primary.getId()).thenReturn(107L);Mockito.when(primary.getInstanceId()).thenReturn(78L);
+            Mockito.when(primary.getNetworkId()).thenReturn(204L);Mockito.when(primary.getUuid()).thenReturn("404aa344-bc62-4840-ac9c-e5b61aab2ec5");
+            Mockito.when(primary.isDefaultNic()).thenReturn(true);Mockito.when(primary.getIPv4Address()).thenReturn("10.10.13.223");Mockito.when(primary.getMacAddress()).thenReturn("02:01:00:cc:00:22");
+            ThreadLocal<JsonObject> source=(ThreadLocal<JsonObject>)ReflectionTestUtils.getField(this,"configurationRecoverySource");
+            JsonObject frozen=source.get();source.remove();
+            JsonObject header=buildBlockProtocolPayload(instance,StorageServiceInstance.Protocol.ISCSI);source.set(frozen);
+            JsonObject desired=frozen.getAsJsonObject("configurationDesiredState");JsonArray targets=desired.getAsJsonObject("iscsi-targets.json").getAsJsonArray("targets").deepCopy();
+            header.add("targets",targets);desired.add("iscsi-targets.json",header);
+            live.add("configurationDesiredState",desired.deepCopy());
+            JsonObject snapshot=com.google.gson.JsonParser.parseString(operation.getPreviousSnapshotJson()).getAsJsonObject();
+            snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("source").add("configurationDesiredState",desired.deepCopy());
+            snapshot.add("nativeDesiredState",desired.deepCopy());operation.setPreviousSnapshotJson(snapshot.toString());
+            JsonObject binding=new JsonObject();binding.addProperty("listenIp","10.10.13.223");binding.addProperty("primaryIp","10.10.13.223");binding.addProperty("macAddress",primary.getMacAddress());
+            JsonArray bindings=new JsonArray();bindings.add(binding);((ThreadLocal<JsonArray>)ReflectionTestUtils.getField(this,"configurationRecoveryBindings")).set(bindings);
+            selected=wildcard;
+        }
+        @Override protected NicVO resolveProtocolListenAddress(StorageServiceInstanceVO instance,String ip){return primary;}
+        @Override protected String declaredProtocolPrimary(StorageServiceInstanceVO instance,NicVO nic){return nic.getIPv4Address();}
+        @Override protected void addProtocolEndpointNetworkMetadata(JsonObject endpoint,StorageServiceInstanceVO instance,String ip){
+            if("0.0.0.0".equals(ip))return;
+            endpoint.addProperty("nicId",primary.getId());endpoint.addProperty("networkId",primary.getNetworkId());endpoint.addProperty("nicUuid",primary.getUuid());endpoint.addProperty("primaryIp",primary.getIPv4Address());
+        }
+        @Override protected JsonArray buildBlockProtocolListeners(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){
+            JsonArray result=super.buildBlockProtocolListeners(instance,protocol);if(listenerDrift)result.get(0).getAsJsonObject().addProperty("port",3261);return result;
+        }
+        @Override protected JsonArray buildBlockProtocolEndpointAliases(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){
+            JsonArray result=super.buildBlockProtocolEndpointAliases(instance,protocol);if(aliasDrift)result.get(0).getAsJsonObject().addProperty("effectiveListenIp","10.10.13.224");return result;
+        }
+        JsonObject header(){return buildBlockProtocolPayload(instance,StorageServiceInstance.Protocol.ISCSI);}
+    }
+    @Test public void exactAuthenticatedIscsiReplayPreservesOriginalPrimaryDespiteRandomWildcardSelection() {
+        try(IscsiHeaderManager m=new IscsiHeaderManager()){
+            JsonObject proof=m.restoredCheckpointNfsSourceProof(m.instance,m.operation);Assert.assertNotNull(proof);
+            JsonObject payload=m.header();Assert.assertEquals("10.10.13.223",payload.get("listenIp").getAsString());
+            JsonObject source=((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(m,"configurationRecoverySource")).get().getAsJsonObject("configurationDesiredState").getAsJsonObject("iscsi-targets.json").deepCopy();source.remove("targets");
+            Assert.assertEquals(source,payload);Assert.assertEquals(2,m.endpoints.size());Assert.assertNull(m.selected.getListenIp());
+            m.selected=m.endpoints.get(0);Assert.assertEquals(source,m.header());m.requireRestoredNfsSourceUnchanged(m.instance,m.operation,proof);
+        }
+    }
+    @Test public void ordinaryWildcardPayloadRemainsUnchangedWithoutAuthenticatedRecovery() {
+        try(IscsiHeaderManager m=new IscsiHeaderManager()){
+            ((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(m,"configurationRecoverySource")).remove();
+            JsonObject wire=com.google.gson.JsonParser.parseString(new com.google.gson.Gson().toJson(m.header())).getAsJsonObject();
+            Assert.assertFalse(wire.has("listenIp"));Assert.assertEquals("0.0.0.0",wire.getAsJsonArray("listeners").get(0).getAsJsonObject().get("listenIp").getAsString());
+        }
+    }
+    @Test public void iscsiRecoveryRejectsDisabledForeignPortListenerAndAliasSubstitution() {
+        for(String change:List.of("disabled","foreign","port","listener","alias")){
+            try(IscsiHeaderManager m=new IscsiHeaderManager()){
+                if(change.equals("disabled"))m.endpoints.get(0).setEnabled(false);
+                else if(change.equals("foreign"))m.selected.setListenIp("10.10.13.224");
+                else if(change.equals("port"))m.selected.setPort(3261);
+                else if(change.equals("listener"))m.listenerDrift=true;
+                else m.aliasDrift=true;
+                Assert.assertThrows(change,CloudRuntimeException.class,m::header);
+            }
+        }
+    }
+    @Test public void iscsiRecoveryRequiresSameWriterBootDatabasePrivateSourceAndOwnedNic() {
+        for(String change:List.of("writer","actor","action","pending","boot","database","private","nic","nonlocal","ad","rendered")){
+            try(IscsiHeaderManager m=new IscsiHeaderManager()){
+                if(change.equals("writer"))((ThreadLocal<Long>)ReflectionTestUtils.getField(m,"explicitUnchangedSourceRecovery")).set(42L);
+                else if(change.equals("actor"))m.operation.setCreatedBy(4);
+                else if(change.equals("action"))m.operation.setAction("createstorageiscsitargetresponse");
+                else if(change.equals("pending"))m.live.addProperty("pendingOperationUuid",UUID.randomUUID().toString());
+                else if(change.equals("boot"))m.live.addProperty("bootId",UUID.randomUUID().toString());
+                else if(change.equals("database"))m.databaseDrift=true;
+                else if(change.equals("nic"))Mockito.when(m.primary.getInstanceId()).thenReturn(79L);
+                else if(List.of("nonlocal","ad","rendered").contains(change)){
+                    JsonObject snapshot=com.google.gson.JsonParser.parseString(m.operation.getPreviousSnapshotJson()).getAsJsonObject();
+                    if(change.equals("nonlocal"))snapshot.remove("localCheckpointIntent");
+                    else snapshot.add(change.equals("ad")?"adServiceSource":"renderedGeneration",new JsonObject());
+                    m.operation.setPreviousSnapshotJson(snapshot.toString());
+                } else {
+                    JsonObject snapshot=com.google.gson.JsonParser.parseString(m.operation.getPreviousSnapshotJson()).getAsJsonObject();
+                    snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("authReplayed").addProperty("sourceAuthReplayed",false);m.operation.setPreviousSnapshotJson(snapshot.toString());
+                }
+                Assert.assertThrows(change,CloudRuntimeException.class,m::header);
+            }
+        }
+    }
+    @Test public void authenticatedAbsentIscsiPrimaryRemainsAbsentForBothActualSelectorOutcomes() {
+        try(IscsiHeaderManager m=new IscsiHeaderManager()){
+            JsonObject frozen=((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(m,"configurationRecoverySource")).get();
+            frozen.getAsJsonObject("configurationDesiredState").getAsJsonObject("iscsi-targets.json").remove("listenIp");
+            m.live.add("configurationDesiredState",frozen.get("configurationDesiredState").deepCopy());
+            JsonObject snapshot=com.google.gson.JsonParser.parseString(m.operation.getPreviousSnapshotJson()).getAsJsonObject();
+            snapshot.getAsJsonObject("localCheckpointIntent").getAsJsonObject("source").add("configurationDesiredState",frozen.get("configurationDesiredState").deepCopy());
+            m.operation.setPreviousSnapshotJson(snapshot.toString());
+            JsonObject proof=m.restoredCheckpointNfsSourceProof(m.instance,m.operation);Assert.assertNotNull(proof);
+            for(StorageServiceProtocolVO selected:m.endpoints){
+                m.selected=selected;JsonObject wire=com.google.gson.JsonParser.parseString(new com.google.gson.Gson().toJson(m.header())).getAsJsonObject();
+                JsonObject expected=frozen.getAsJsonObject("configurationDesiredState").getAsJsonObject("iscsi-targets.json").deepCopy();expected.remove("targets");
+                Assert.assertEquals(expected,wire);Assert.assertFalse(wire.has("listenIp"));m.requireRestoredNfsSourceUnchanged(m.instance,m.operation,proof);
+            }
+        }
+    }
+    @Test public void unqualifiedNullOrWildcardSourceHeaderIsNotRelabeledAsARecoveredPrimary() {
+        for(boolean nullValue:List.of(true,false)){
+            try(IscsiHeaderManager m=new IscsiHeaderManager()){
+                JsonObject source=((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(m,"configurationRecoverySource")).get().getAsJsonObject("configurationDesiredState").getAsJsonObject("iscsi-targets.json");
+                if(nullValue)source.add("listenIp",JsonNull.INSTANCE);else source.addProperty("listenIp","0.0.0.0");
+                Assert.assertThrows(CloudRuntimeException.class,m::header);
+            }
+        }
+    }
+    @Test public void unchangedExplicitWildcardHeaderKeepsItsExistingRepresentationWithoutAdaptation() {
+        try(IscsiHeaderManager m=new IscsiHeaderManager()){
+            JsonObject source=((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(m,"configurationRecoverySource")).get().getAsJsonObject("configurationDesiredState").getAsJsonObject("iscsi-targets.json");
+            source.addProperty("listenIp","0.0.0.0");m.selected.setListenIp("0.0.0.0");
+            JsonObject expected=source.deepCopy();expected.remove("targets");Assert.assertEquals(expected,m.header());
+        }
+    }
+    @Test public void automaticLkgAndImportRollbackPreserveTheSameVerifiedSourceHeader() {
+        for(String action:List.of("restorestorageservicelastknowngoodresponse","applystorageserviceconfigrestoreresponse")){
+            try(IscsiHeaderManager m=new IscsiHeaderManager()){
+                m.operation.setAction(action);m.operation.setState("RUNNING");m.operation.setPhase("ROLLING_BACK");m.operation.setProgress(85);
+                ((ThreadLocal<Long>)ReflectionTestUtils.getField(m,"explicitUnchangedSourceRecovery")).remove();
+                Assert.assertEquals("10.10.13.223",m.header().get("listenIp").getAsString());
+                Assert.assertNull(m.restoredCheckpointNfsSourceProof(m.instance,m.operation));
+            }
+        }
+    }
+    @Test public void automaticRollbackCannotBorrowAnotherActorPhaseOrChangingWriter() {
+        for(String change:List.of("actor","phase","progress","state","action","explicit","writer")){
+            try(IscsiHeaderManager m=new IscsiHeaderManager()){
+                m.operation.setState("RUNNING");m.operation.setPhase("ROLLING_BACK");m.operation.setProgress(85);
+                ((ThreadLocal<Long>)ReflectionTestUtils.getField(m,"explicitUnchangedSourceRecovery")).remove();
+                if(change.equals("actor"))m.operation.setCreatedBy(4);
+                else if(change.equals("phase"))m.operation.setPhase("APPLYING");
+                else if(change.equals("progress"))m.operation.setProgress(80);
+                else if(change.equals("state"))m.operation.setState("RECOVERY_REQUIRED");
+                else if(change.equals("action"))m.operation.setAction("updatestoragenfsexportresponse");
+                else if(change.equals("explicit"))((ThreadLocal<Long>)ReflectionTestUtils.getField(m,"explicitUnchangedSourceRecovery")).set(42L);
+                else m.replaceWriterOnNativeStatus=true;
+                Assert.assertThrows(change,CloudRuntimeException.class,m::header);
             }
         }
     }

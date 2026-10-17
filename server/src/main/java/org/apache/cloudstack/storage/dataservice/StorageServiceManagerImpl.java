@@ -10226,7 +10226,88 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         payload.add("listeners", buildBlockProtocolListeners(instance, protocolType));
         payload.add("endpointAliases", buildBlockProtocolEndpointAliases(instance, protocolType));
+        if (protocolType == StorageServiceInstance.Protocol.ISCSI) preserveRecoveryIscsiPrimary(instance, payload);
         return payload;
+    }
+
+    protected void preserveRecoveryIscsiPrimary(StorageServiceInstanceVO instance, JsonObject payload) {
+        JsonObject frozen = configurationRecoverySource.get();
+        if (frozen == null) return;
+        JsonObject source = getJsonObject(frozen.getAsJsonObject("configurationDesiredState"), "iscsi-targets.json");
+        if (source == null) return;
+        boolean sourceHasPrimary = source.has("listenIp");
+        JsonElement selectedPrimary = payload.get("listenIp");
+        boolean selectedHasPrimary = selectedPrimary != null && !selectedPrimary.isJsonNull();
+        if (sourceHasPrimary == selectedHasPrimary && (!sourceHasPrimary || source.get("listenIp").equals(selectedPrimary))) return;
+        String ip = sourceHasPrimary ? getJsonString(source,"listenIp") : getJsonString(payload,"listenIp");
+        if (sourceHasPrimary && (StringUtils.isBlank(ip) || isWildcardListenIp(ip)))
+            throw new CloudRuntimeException("Recovery iSCSI SOURCE primary representation is not supported");
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        requireConfigurationAdministrator();
+        boolean explicit = operation != null && java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId())
+                && "RECOVERY_REQUIRED".equals(operation.getState()) && "RECOVERING_INTERRUPTED_WRITER".equals(operation.getPhase());
+        boolean automatic = operation != null && explicitUnchangedSourceRecovery.get() == null && "RUNNING".equals(operation.getState())
+                && "ROLLING_BACK".equals(operation.getPhase()) && operation.getProgress() == 85;
+        if ((!explicit && !automatic) || operation.getInstanceId() != instance.getId()
+                || !Set.of("restorestorageservicelastknowngoodresponse", "applystorageserviceconfigrestoreresponse").contains(operation.getAction())
+                || operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || sourceHasPrimary && getJsonString(payload,"listenIp") != null || !isValidIpv4Address(ip) || isWildcardListenIp(ip))
+            throw new CloudRuntimeException("Recovery iSCSI primary has no exact original writer authority");
+        String previous = operation.getPreviousSnapshotJson(), phase = operation.getPhase(), state = operation.getState();
+        int progress = operation.getProgress();JsonObject writerScope = operationReservationScope(instance,operation);
+        JsonObject snapshot = parseJsonObject(previous), original = new JsonObject();
+        for (String key : List.of("schemaVersion","instanceId","tables")) original.add(key,snapshot.get(key).deepCopy());
+        if (!original.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId())))
+                || snapshot.has("renderedGeneration") || snapshot.has("adServiceSource") || snapshot.has("sourceRootScope")
+                || !snapshot.has("localCheckpointIntent") || !snapshot.has("nativeIdentityCapsule"))
+            throw new CloudRuntimeException("Recovery iSCSI primary differs from its original LOCAL DB SOURCE");
+        JsonObject intent = snapshot.getAsJsonObject("localCheckpointIntent"), context = intent.getAsJsonObject("context");
+        StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance,operation),context,intent.getAsJsonObject("source"));
+        JsonObject reference = snapshot.getAsJsonObject("nativeIdentityCapsule");
+        if (!operation.getUuid().equals(getJsonString(reference,"operationUuid"))
+                || !StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))
+                || !frozen.get("configurationDesiredState").equals(intent.getAsJsonObject("source").get("configurationDesiredState")))
+            throw new CloudRuntimeException("Recovery iSCSI primary changed its original LOCAL source");
+        StorageLocalSourceIdentityProof.imported(context,intent.getAsJsonObject("restored"));
+        StorageLocalSourceIdentityProof.authReplayed(context,StorageLocalSourceIdentityProof.reference(reference.getAsJsonObject("sourceLocalIdentityCheckpoint")),
+                requireLocalSourceAuthReplayDomains(intent),intent.getAsJsonObject("authReplayed"));
+        JsonObject header = source.deepCopy();header.remove("targets");
+        JsonObject candidate = payload.deepCopy();candidate.remove("listenIp");
+        if (sourceHasPrimary) candidate.add("listenIp",source.get("listenIp").deepCopy());
+        if (!header.equals(candidate) || !Boolean.TRUE.equals(getNativeBoolean(source,"enabled")))
+            throw new CloudRuntimeException("Recovery iSCSI listeners or aliases differ from their exact SOURCE");
+        int port = getJsonInt(source,"port",-1);
+        List<StorageServiceProtocolVO> rows = storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.ISCSI);
+        long matches = 0;boolean selected = sourceHasPrimary;
+        for (StorageServiceProtocolVO row : rows) {
+            if (row.getInstanceId() == instance.getId() && row.getProtocol() == StorageServiceInstance.Protocol.ISCSI
+                    && row.isEnabled() && row.getPort() != null && row.getPort() == port) {
+                if (java.util.Objects.equals(sourceHasPrimary ? ip : null,row.getListenIp())) matches++;
+                if (ip.equals(row.getListenIp())) selected = true;
+            }
+        }
+        NicVO nic = resolveProtocolListenAddress(instance,ip);
+        JsonArray bindings = configurationRecoveryBindings.get();boolean bound = false;
+        if (nic != null && nic.isDefaultNic() && java.util.Objects.equals(nic.getInstanceId(),instance.getVmId())
+                && ip.equals(declaredProtocolPrimary(instance,nic)) && StringUtils.isNotBlank(nic.getMacAddress()) && bindings != null)
+            for (JsonElement value : bindings) {
+                JsonObject binding = value.getAsJsonObject();
+                if (ip.equals(getJsonString(binding,"listenIp")) && ip.equals(getJsonString(binding,"primaryIp"))
+                        && nic.getMacAddress().equalsIgnoreCase(getJsonString(binding,"macAddress"))) bound = true;
+            }
+        if (port <= 0 || port > 65535 || matches != 1 || !selected || !bound)
+            throw new CloudRuntimeException("Recovery iSCSI primary is not its enabled endpoint on the verified owned NIC");
+        JsonObject current = nativeConfigurationGeneration(instance,null,"status");
+        requireLocalNvmeSourceGeneration(instance,operation,context,frozen,current);
+        if (!frozen.get("configurationDesiredState").equals(current.get("configurationDesiredState"))
+                || !frozen.get("configurationSha256").equals(current.get("configurationSha256"))
+                || storageWriterOperation.get() != operation || !previous.equals(operation.getPreviousSnapshotJson())
+                || !phase.equals(operation.getPhase()) || !state.equals(operation.getState()) || progress != operation.getProgress()
+                || !writerScope.equals(operationReservationScope(instance,operation))
+                || !original.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("Recovery iSCSI primary SOURCE or writer changed before replay");
+        payload.remove("listenIp");
+        if (sourceHasPrimary) payload.add("listenIp",source.get("listenIp").deepCopy());
     }
 
     protected JsonArray buildBlockProtocolListeners(final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocolType) {
