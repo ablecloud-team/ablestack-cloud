@@ -171,7 +171,7 @@ class PendingNfsAuthorizationTest(unittest.TestCase):
   helper=source.split('# BEGIN EMBEDDED PENDING NFS AUTHORIZATION\n',1)[1].split('\n# END EMBEDDED PENDING NFS AUTHORIZATION',1)[0]
   export_uuid=str(uuid.uuid4());exports=self.root/'parsed-exports';exports.mkdir(mode=0o700)
   def namespace(body):
-   ns={};exec('import hashlib,json,os,stat\nfrom pathlib import Path\n'+body+'\n'+helper,ns)
+   ns={};exec('import copy,hashlib,json,os,stat\nfrom pathlib import Path\n'+body+'\n'+helper,ns)
    ns.update(payload={**self.payload,'exports':[{'uuid':export_uuid,'state':'Disabled'}]},exports_dir=str(exports),managed_files=set(),enabled=False)
    # Execute the actual whole legacy export loop, including its real private
    # export-file creation. Disabled rows avoid mounts, DATA or network effects.
