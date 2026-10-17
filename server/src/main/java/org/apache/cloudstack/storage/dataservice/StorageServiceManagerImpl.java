@@ -6110,10 +6110,73 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     authRequest.add("nvmeDesired", frozen.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.NVME_OF)).deepCopy());
                 JsonObject replayed = localSourceGuest(instance, "replay-local-source-auth", authRequest);
                 StorageLocalSourceIdentityProof.authReplayed(context, request.getAsJsonObject("localSourceCheckpointReference"), authDomains, replayed);
-                if (authDomains.contains(new com.google.gson.JsonPrimitive("NVMEOF"))) configurationNativeNvmeReplayed.set(true);
                 intent.add("authReplayed", replayed);saveLocalCheckpointSnapshot(operation, snapshot);
+                if (authDomains.contains(new com.google.gson.JsonPrimitive("NVMEOF"))) {
+                    restoreLocalNvmeCanonicalSource(instance, operation, context, frozen);
+                    configurationNativeNvmeReplayed.set(true);
+                }
             }
         } finally {java.util.Arrays.fill(key, (byte) 0);java.util.Arrays.fill(data, (byte) 0);}
+    }
+
+    protected void restoreLocalNvmeCanonicalSource(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
+            JsonObject context, JsonObject frozen) {
+        JsonObject before = nativeConfigurationGeneration(instance, null, "status");
+        requireLocalNvmeSourceGeneration(instance, operation, context, frozen, before);
+        JsonObject source = frozen.getAsJsonObject("configurationDesiredState");
+        if (source.equals(before.get("configurationDesiredState"))) {
+            if (!frozen.get("configurationSha256").equals(before.get("configurationSha256")))
+                throw new CloudRuntimeException("LOCAL SOURCE canonical checksum changed after NVMe replay");
+            return;
+        }
+        JsonObject inventory = rootGuest(instance, "operation observe", new JsonObject(), 30);
+        StorageRecoveryObservation.requireFresh(inventory, System.currentTimeMillis() / 1000.0);
+        if (!Boolean.TRUE.equals(getNativeBoolean(inventory, "success")) || !"ok".equals(getJsonString(inventory, "status")))
+            throw new CloudRuntimeException("LOCAL SOURCE NVMe rebind observation is unavailable");
+        for (JsonObject namespace : StorageCanonicalRecovery.requireNvmeSourceRebind(source,
+                before.getAsJsonObject("configurationDesiredState"), inventory)) {
+            VolumeVO volume = requireVolume(namespace.get("volumeId").getAsLong());
+            if (volume.getInstanceId() == null || !volume.getInstanceId().equals(instance.getVmId())
+                    || volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK || volume.getState() != com.cloud.storage.Volume.State.Ready
+                    || volume.getAccountId() != instance.getAccountId() || volume.getDomainId() != instance.getDomainId()
+                    || volume.getDataCenterId() != instance.getDataCenterId()
+                    || !volume.getUuid().equals(getJsonString(namespace, "volumeUuid"))
+                    || volume.getSize() == null || volume.getSize() != namespace.get("volumeSizeBytes").getAsLong())
+                throw new CloudRuntimeException("LOCAL SOURCE NVMe rebind DATA identity changed");
+        }
+        JsonObject observed = nativeConfigurationGeneration(instance, null, "status");
+        requireLocalNvmeSourceGeneration(instance, operation, context, frozen, observed);
+        if (!before.get("configurationDesiredState").equals(observed.get("configurationDesiredState"))
+                || !before.get("configurationSha256").equals(observed.get("configurationSha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE NVMe declaration changed during fresh observation");
+        JsonObject request = operationReservationScope(instance, operation);
+        request.add("previousGeneration", frozen.get("generation").deepCopy());
+        request.add("configurationDesiredState", source.deepCopy());
+        JsonObject restored = rootGuest(instance, "operation generation restore", request, 30);
+        if (!Boolean.TRUE.equals(getNativeBoolean(restored, "canonicalRestored"))
+                || !Boolean.FALSE.equals(getNativeBoolean(restored, "generationAdvanced"))
+                || !operation.getUuid().equals(getJsonString(restored, "pendingOperationUuid"))
+                || !frozen.get("configurationSha256").equals(restored.get("configurationSha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE canonical rebind normalization was not verified");
+        JsonObject after = nativeConfigurationGeneration(instance, null, "status");
+        requireLocalNvmeSourceGeneration(instance, operation, context, frozen, after);
+        if (!source.equals(after.get("configurationDesiredState"))
+                || !frozen.get("configurationSha256").equals(after.get("configurationSha256")))
+            throw new CloudRuntimeException("LOCAL SOURCE canonical rebind normalization changed before protocol recovery");
+    }
+
+    private void requireLocalNvmeSourceGeneration(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
+            JsonObject context, JsonObject frozen, JsonObject observed) {
+        if (!Boolean.TRUE.equals(getNativeBoolean(observed, "success")) || !Boolean.TRUE.equals(getNativeBoolean(observed, "generationSupported"))
+                || !instance.getUuid().equals(getJsonString(context, "instanceUuid")) || !operation.getUuid().equals(getJsonString(context, "operationUuid"))
+                || context.get("revision").getAsLong() != operation.getRevision()
+                || !context.get("sourceGeneration").equals(frozen.get("generation"))
+                || !context.get("sourceConfigurationSha256").equals(frozen.get("configurationSha256"))
+                || !context.get("expectedBootId").equals(observed.get("bootId"))
+                || !frozen.get("generation").equals(observed.get("generation"))
+                || !operation.getUuid().equals(getJsonString(observed, "pendingOperationUuid"))
+                || !"PENDING".equals(getJsonString(observed, "generationStatus")))
+            throw new CloudRuntimeException("LOCAL SOURCE pending generation or BOOT changed during NVMe rebind normalization");
     }
 
     protected void prepareDesiredStateNativeCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {

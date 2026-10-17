@@ -15,7 +15,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import { shallowMount } from '@vue/test-utils'
+import { nextTick, reactive } from 'vue'
 import Widget from '@/views/storage/StorageServiceConfiguration'
+import { currentStorageWriter } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
 import { clearConfigurationIntents } from '@/utils/storageConfigurationJobs'
@@ -231,5 +234,71 @@ describe('Configuration backup and restore UI boundaries', () => {
     const first = '11111111-1111-4111-8111-111111111111'; const unused = '22222222-2222-4222-8222-222222222222'; const legacy = '33333333-3333-4333-8333-333333333333'
     const plan = { sourceVolumeInventory: [{ uuid: first, type: 'DATADISK' }, { uuid: unused, type: 'DATADISK', usage: 'UNUSED' }, { uuid: 'root', type: 'ROOT' }] }
     expect(Widget.computed.sourceVolumes.call({ plan, changes: [{ desired: { volumeUuid: first } }, { desired: { volumeUuid: legacy } }] })).toEqual([first, unused, legacy])
+  })
+})
+
+describe('last-known-good restore follows the shared current-writer gate', () => {
+  const instance = 'e2cdd1bf-f6d2-43ac-91be-7e09452f4b73'
+  const resource = { id: '8d2901b7-8b56-43b8-b492-df8c312ed779', name: 'issue909-config-20261017', virtualmachineid: '9444ac81-3e67-4540-a32b-f6044ec7e8b2', account: 'admin', domainid: '47178e2f-bd56-11f1-b573-002481560363' }
+  const point = { id: '7557e729-2709-4512-ba5f-25259be12567', kind: 'RESTORE_POINT', state: 'ACTIVE_LKG' }
+  const complete = { id: 'committed-16', instanceid: instance, revision: 16, state: 'COMPLETE' }
+  const store = () => ({ getters: { apis: { createStorageServiceConfigBackup: {}, planStorageServiceLastKnownGoodRestore: {} }, userInfo: { id: 'actor' }, project: null }, state: { user: { token: 'session' } } })
+  const message = 'current writer is still active'
+  beforeEach(() => { clearConfigurationIntents(); getAPI.mockReset(); postAPI.mockReset() })
+  it.each(['RUNNING', 'RECOVERY_REQUIRED'])('renders the source LKG action disabled for an external %s writer without disabling backup', async state => {
+    const operations = reactive({ rows: [complete, { id: 'external-17', instanceid: instance, revision: 17, state }] })
+    const gate = { blocked: () => !!currentStorageWriter(operations.rows, instance).blocker, message: () => message }
+    const wrapper = shallowMount({ ...Widget, methods: { ...Widget.methods, refresh: jest.fn().mockResolvedValue() } }, {
+      props: { instanceId: instance, instanceName: resource.name, resource },
+      data: () => ({ rows: [point] }),
+      global: {
+        provide: { storageMutationGate: gate },
+        mocks: { $store: store(), $t: key => key },
+        stubs: {
+          'a-space': { template: '<div><slot /></div>' },
+          'a-button': { props: ['disabled', 'loading'], template: '<button :disabled="disabled || loading"><slot /></button>' },
+          'a-modal': true, 'a-table': true
+        }
+      }
+    })
+    try {
+      const button = label => wrapper.findAll('button').find(value => value.text() === label)
+      expect(wrapper.vm.configurationLocked).toBe(false)
+      expect(wrapper.vm.storageMutationDisabled).toBe(true)
+      expect(button('label.storage.config.lkg.restore').element.disabled).toBe(true)
+      expect(button('label.storage.config.create').element.disabled).toBe(false)
+      operations.rows = [complete]
+      await nextTick()
+      expect(button('label.storage.config.lkg.restore').element.disabled).toBe(false)
+      await wrapper.setData({ rows: [] })
+      expect(button('label.storage.config.lkg.restore').element.disabled).toBe(true)
+      expect(getAPI).not.toHaveBeenCalled()
+      expect(postAPI).not.toHaveBeenCalled()
+    } finally { wrapper.unmount() }
+  })
+  it.each(['RUNNING', 'RECOVERY_REQUIRED'])('blocks a stale LKG open event before inventory or plan API for an external %s writer', async state => {
+    const operations = [complete, { id: 'external-17', instanceid: instance, revision: 17, state }]
+    const vm = { instanceId: instance, resource, closePlan: jest.fn(), preparePlan: jest.fn(), storageMutationGate: { blocked: () => !!currentStorageWriter(operations, instance).blocker, message: () => message } }
+    await Widget.methods.openPlan.call(vm, point, true)
+    expect(vm.error).toBe(message)
+    expect(vm.closePlan).not.toHaveBeenCalled()
+    expect(vm.preparePlan).not.toHaveBeenCalled()
+    expect(getAPI).not.toHaveBeenCalled()
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+  it('does not submit an LKG plan if an external writer starts while inventory is being read', async () => {
+    let finish
+    let blocked = false
+    getAPI.mockImplementation(() => new Promise(resolve => { finish = resolve }))
+    const vm = { instanceId: instance, resource, $store: store(), $t: key => key, closePlan: jest.fn(), mutation: jest.fn(), storageMutationGate: { blocked: () => blocked, message: () => message } }
+    vm.preparePlan = () => Widget.methods.preparePlan.call(vm)
+    const pending = Widget.methods.openPlan.call(vm, point, true)
+    blocked = true
+    finish({ listvolumesresponse: { volume: [] } })
+    await pending
+    expect(vm.error).toBe(message)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    expect(vm.mutation).not.toHaveBeenCalled()
+    expect(postAPI).not.toHaveBeenCalled()
   })
 })

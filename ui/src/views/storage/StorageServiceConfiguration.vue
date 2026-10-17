@@ -22,7 +22,7 @@
       <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" :disabled="configurationLocked" @click="openBackupDialog"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
       <a-upload v-if="can('uploadStorageServiceConfigBackup')" :before-upload="importFile" :show-upload-list="false" accept=".zip"><a-button :disabled="configurationLocked"><template #icon><UploadOutlined /></template>{{ $t('label.storage.config.import') }}</a-button></a-upload>
       <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="storageMutationDisabled || configurationLocked" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
-      <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || configurationLocked" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
+      <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || storageMutationDisabled || configurationLocked" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
     <a-alert v-if="busy" type="info" show-icon :message="$t('message.storage.config.running')" />
@@ -87,7 +87,7 @@
 :width="900"
 :ok-text="planPhase==='REVIEW' ? $t('label.storage.config.apply') : $t('label.storage.config.plan')"
 :confirm-loading="planning"
-:ok-button-props="{ disabled: configurationLocked || (planPhase==='REVIEW' && storageMutationDisabled) }"
+:ok-button-props="{ disabled: configurationLocked || ((lkgPlan || planPhase==='REVIEW') && storageMutationDisabled) }"
 @cancel="closePlan"
       @ok="planPhase==='REVIEW' ? applyPlan() : preparePlan()">
       <a-alert type="info" show-icon :message="$t('message.storage.config.data.excluded')" />
@@ -538,9 +538,10 @@ export default {
       try { await this.mutation('validateStorageServiceConfigImport', { artifactid: row.id }); if ((scope === configurationScope(this) && !this.disposed)) await this.refresh() } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     async openPlan (row, lkg = false) {
-      this.closePlan(); this.planTarget = row; this.lkgPlan = lkg; this.error = ''
       const instance = this.instanceId
       try {
+        if (lkg) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')
+        this.closePlan(); this.planTarget = row; this.lkgPlan = lkg; this.error = ''
         const volumes = (await getAPI('listVolumes', { virtualmachineid: this.resource.virtualmachineid }, { timeout: 15000, preserveOnFailure: true })).listvolumesresponse.volume || []
         if (instance !== this.instanceId || this.planTarget !== row) return
         this.targetVolumes = volumes.filter(volume => volume.type === 'DATADISK').map(volume => ({ value: volume.id, label: volume.name + ' · ' + volume.id }))
@@ -706,6 +707,7 @@ export default {
       const target = this.planTarget; const instance = this.instanceId
       this.planning = true; this.error = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
       try {
+        if (this.lkgPlan) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')
         const api = this.lkgPlan ? 'planStorageServiceLastKnownGoodRestore' : 'planStorageServiceConfigRestore'
         const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
         if (Object.keys(this.listenerMapping || {}).length) mappings.listenerAddresses = Object.fromEntries(Object.entries(this.listenerMapping).filter(([, value]) => typeof value === 'string' && value.length))
