@@ -46,7 +46,7 @@ public final class StorageVolumePreparationProof {
             if(operation==null||receipt==null||!flag(operation,"formatStarted")||flag(operation,"terminationPending")
                     ||number(receipt,"schemaVersion")!=2||number(receipt,"formatterExitCode")!=0||number(operation,"formatterExitCode")!=0
                     ||!positiveEpoch(receipt,"verifiedEpoch")||!Set.of("xfs","ext4").contains(text(current,"filesystem"))
-                    ||!Set.of("FILESYSTEM_VERIFIED","MOUNTING","PERSISTING_MOUNT","COMPLETE","RECOVERY_REQUIRED",
+                    ||!Set.of("VERIFYING_FILESYSTEM","FILESYSTEM_VERIFIED","MOUNTING","PERSISTING_MOUNT","COMPLETE","RECOVERY_REQUIRED",
                         "RECONCILE_REQUIRED","TIMED_OUT_PENDING_RECONCILE").contains(text(operation,"phase")))return false;
             for(String field:new String[]{"volumeUuid","filesystemUuid","filesystem"}) {
                 if(!text(current,field).equals(text(operation,field))||!text(current,field).equals(text(receipt,field)))return false;

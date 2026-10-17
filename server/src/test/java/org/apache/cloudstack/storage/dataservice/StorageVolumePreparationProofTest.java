@@ -101,6 +101,61 @@ public class StorageVolumePreparationProofTest {
             Assert.assertFalse(StorageVolumePreparationProof.completionProven(value,current()));
         }
     }
+    private static JsonObject verifyingFilesystemCurrent() {
+        JsonObject value = current();
+        value.addProperty("volumeUuid", "35457e8b-6e03-46af-88a9-0eaffce2a595");
+        value.addProperty("filesystemUuid", "8ea92265-7639-445d-8ec3-51dd160db097");
+        value.addProperty("filesystem", "ext4");value.addProperty("serial", "35457e8b6e0346af88a9");
+        value.addProperty("sizeBytes", 21474836480L);return value;
+    }
+    private static JsonObject verifyingFilesystemHistory() {
+        // Public failed-remount observation: successful mkfs receipt survived the COMPLETE -> VERIFYING_FILESYSTEM transition.
+        JsonObject value = history(), op = value.getAsJsonObject("operation"), receipt = op.getAsJsonObject("formatterSuccessReceipt");
+        JsonObject actual = verifyingFilesystemCurrent();
+        for (String field : new String[] {"volumeUuid", "filesystemUuid", "filesystem"}) {
+            op.add(field, actual.get(field).deepCopy());receipt.add(field, actual.get(field).deepCopy());
+        }
+        op.addProperty("phase", "VERIFYING_FILESYSTEM");op.add("volumeSizeBytes", actual.get("sizeBytes").deepCopy());
+        receipt.add("sizeBytes", actual.get("sizeBytes").deepCopy());receipt.add("serial", actual.get("serial").deepCopy());
+        op.addProperty("formatterPid", 28183);receipt.add("formatterPid", op.get("formatterPid").deepCopy());
+        op.addProperty("formatterStartTicks", 247132);receipt.add("formatterStartTicks", op.get("formatterStartTicks").deepCopy());
+        op.addProperty("formatterBootId", "629dc32a-e8a5-43b2-ac0b-a49a0270519d");receipt.add("formatterBootId", op.get("formatterBootId").deepCopy());
+        JsonObject owner = op.getAsJsonObject("originalFormatOwner");
+        owner.addProperty("instanceUuid", "a249c3d4-2ddd-4540-8e30-a868763816cb");
+        owner.addProperty("managerOperationUuid", "186f8fc2-334b-499a-ac35-c76b6cdcfc49");owner.addProperty("revision", 1);
+        receipt.add("originalFormatOwner", owner.deepCopy());
+        com.google.gson.JsonArray options = new com.google.gson.JsonArray();
+        options.add("-F");options.add("-E");options.add("nodiscard,lazy_itable_init=1,lazy_journal_init=1");
+        op.add("formatterOptions", options);receipt.add("formatterOptions", options.deepCopy());return value;
+    }
+    @Test public void successfulFormatReceiptSurvivesExistingFilesystemReverification() {
+        JsonObject value = verifyingFilesystemHistory();
+        StorageVolumePreparationProof.requireCompleted(value, verifyingFilesystemCurrent());
+        StorageVolumePreparationProof.project(value, verifyingFilesystemCurrent());
+        Assert.assertTrue(value.get("filesystemCompletionProven").getAsBoolean());
+        Assert.assertTrue(value.get("resumeAllowed").getAsBoolean());
+    }
+    @Test public void reverificationPhaseWithoutCompleteSuccessfulReceiptCannotAdoptAHeader() {
+        for (int mode = 0; mode < 3; mode++) {
+            JsonObject value = verifyingFilesystemHistory(), op = value.getAsJsonObject("operation");
+            if (mode == 0) op.remove("formatterSuccessReceipt");
+            if (mode == 1) op.getAsJsonObject("formatterSuccessReceipt").remove("formatterExitCode");
+            if (mode == 2) op.getAsJsonObject("formatterSuccessReceipt").addProperty("schemaVersion", 1);
+            Assert.assertThrows(CloudRuntimeException.class,
+                    () -> StorageVolumePreparationProof.requireCompleted(value, verifyingFilesystemCurrent()));
+        }
+    }
+    @Test public void reverificationStillRejectsActiveFailedAndForeignFormatterProofs() {
+        for (int mode = 0; mode < 4; mode++) {
+            JsonObject value = verifyingFilesystemHistory(), op = value.getAsJsonObject("operation");
+            if (mode == 0) value.addProperty("formatterActive", true);
+            if (mode == 1) op.addProperty("formatterExitCode", 1);
+            if (mode == 2) op.getAsJsonObject("formatterSuccessReceipt").addProperty("serial", "foreign-volume-serial");
+            if (mode == 3) op.getAsJsonObject("formatterSuccessReceipt").getAsJsonObject("originalFormatOwner").addProperty("revision", 2);
+            Assert.assertFalse("mode " + mode,
+                    StorageVolumePreparationProof.completionProven(value, verifyingFilesystemCurrent()));
+        }
+    }
     @Test public void completedDefaultReceiptOnlyAuthorizesMountOnlyResumeWithItsExactOptions() {
         JsonObject value=history(),op=value.getAsJsonObject("operation"),receipt=op.getAsJsonObject("formatterSuccessReceipt");
         op.addProperty("formatDiscardPolicy","DEFAULT");receipt.addProperty("formatDiscardPolicy","DEFAULT");
