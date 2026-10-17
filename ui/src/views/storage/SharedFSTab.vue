@@ -223,7 +223,7 @@ class="storage-service__alert"
                 :columns="nfsExportColumns"
                 :dataSource="nfsExportRows"
                 :pagination="false"
-                :scroll="{ x: 1580 }"
+                :scroll="{ x: nfsExportScrollWidth }"
                 :locale="storageTableLocale('message.storage.service.no.nfs.exports')">
                 <template #bodyCell="{ column, record }">
                   <template v-if="column.key === 'state'">
@@ -3854,8 +3854,11 @@ export default {
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 110 },
         { title: this.$t('label.storage.service.nfs.local.verification'), key: 'localProbe', width: 340 },
-        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 310, align: 'right', className: 'storage-table-actions-column' }
+        { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: this.device === 'desktop' ? 'right' : undefined, width: 310, align: 'right', className: 'storage-table-actions-column' }
       ]
+    },
+    nfsExportScrollWidth () {
+      return this.nfsExportColumns.reduce((width, column) => width + column.width, 0)
     },
     nfsAclColumns () {
       return [
