@@ -9826,5 +9826,7 @@
   "message.storage.config.job.review": "Reviewed: {create} create, {update} update, {keep} unchanged, {preserve} preserved",
   "message.storage.config.listener.static.required": "Choose STATIC and enter the target IP/CIDR, or enter a target listener IP explicitly. A DHCP primary address is not known at planning time.",
   "message.storage.config.clone.source.filesystem": "The source FILE configuration uses {filesystem}. Review the target filesystem and final plan before applying.",
-  "message.storage.config.clone.initial.raw": "A RAW block volume cannot be the initial FILE disk. Select FILE or unused DATA."
+  "message.storage.config.clone.initial.raw": "A RAW block volume cannot be the initial FILE disk. Select FILE or unused DATA.",
+  "message.storage.config.clone.resume": "Resume the partially created service with its recorded creation mapping. These fields cannot be changed.",
+  "message.storage.config.clone.resume.unavailable": "Cannot safely resume this partial clone. Reload its recorded creation plan before continuing."
 }

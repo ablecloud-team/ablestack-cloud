@@ -87,101 +87,105 @@
 :width="900"
 :ok-text="planPhase==='REVIEW' ? $t('label.storage.config.apply') : $t('label.storage.config.plan')"
 :confirm-loading="planning"
-:ok-button-props="{ disabled: configurationLocked || ((lkgPlan || planPhase==='REVIEW') && storageMutationDisabled) }"
+:ok-button-props="{ disabled: cloneResumeUnavailable || configurationLocked || ((lkgPlan || planPhase==='REVIEW') && storageMutationDisabled) }"
 @cancel="closePlan"
       @ok="planPhase==='REVIEW' ? applyPlan() : preparePlan()">
       <a-alert type="info" show-icon :message="$t('message.storage.config.data.excluded')" />
+      <a-alert v-if="error" type="error" show-icon :message="error" />
+      <a-alert v-if="cloneResume" type="info" show-icon :message="$t('message.storage.config.clone.resume')">
+        <template #description>{{ cloneResume.targetName }} · {{ cloneResume.createdTargetInstanceUuid || cloneResume.plan.targetInstanceUuid }}</template>
+      </a-alert>
       <a-form layout="vertical">
         <a-form-item v-if="!lkgPlan" :label="$t('label.storage.config.target.mode')">
-          <a-radio-group v-model:value="targetMode" :disabled="planPhase==='REVIEW'" @change="loadCloneOptions">
+          <a-radio-group v-model:value="targetMode" :disabled="mappingLocked" @change="loadCloneOptions">
             <a-radio value="RESTORE_EXISTING">{{ $t('label.storage.config.target.existing') }}</a-radio>
             <a-radio value="CREATE_NEW">{{ $t('label.storage.config.target.new') }}</a-radio>
           </a-radio-group>
         </a-form-item>
         <template v-if="targetMode==='CREATE_NEW'">
-          <a-form-item :label="$t('label.name')"><a-input v-model:value="clone.name" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.zoneid')"><a-select v-model:value="clone.zoneid" :options="cloneOptions.zones" :disabled="planPhase==='REVIEW'" @change="loadCloneZoneOptions" /></a-form-item>
+          <a-form-item :label="$t('label.name')"><a-input v-model:value="clone.name" :disabled="mappingLocked" /></a-form-item>
+          <a-form-item :label="$t('label.zoneid')"><a-select v-model:value="clone.zoneid" :options="cloneOptions.zones" :disabled="mappingLocked" @change="loadCloneZoneOptions" /></a-form-item>
           <a-form-item v-if="!cloneRequiresIdentityTemplate" :label="$t('label.storage.config.clone.template.source')">
-            <a-radio-group v-model:value="cloneTemplateSelection" :disabled="planPhase==='REVIEW'" @change="loadCloneTemplates">
+            <a-radio-group v-model:value="cloneTemplateSelection" :disabled="mappingLocked" @change="loadCloneTemplates">
               <a-radio value="DEFAULT_SYSTEM">{{ $t('label.storage.config.clone.template.default') }}</a-radio>
               <a-radio value="EXPLICIT">{{ $t('label.storage.config.clone.template.explicit') }}</a-radio>
             </a-radio-group>
           </a-form-item>
           <a-form-item v-if="cloneRequiresIdentityTemplate || cloneTemplateSelection==='EXPLICIT'" :label="$t('label.templateid')">
-            <a-select v-model:value="clone.templateid" :options="cloneOptions.templates" :loading="cloneTemplateLoading" :disabled="planPhase==='REVIEW'" show-search option-filter-prop="label" />
+            <a-select v-model:value="clone.templateid" :options="cloneOptions.templates" :loading="cloneTemplateLoading" :disabled="mappingLocked" show-search option-filter-prop="label" />
             <a-alert v-if="cloneRequiresIdentityTemplate" type="info" show-icon :message="$t('message.storage.config.clone.identity.template.required')" />
             <a-alert v-else type="info" show-icon :message="$t('message.storage.config.clone.template.explicit')" />
           </a-form-item>
           <template v-if="ordinaryClonePrivateTemplate">
-            <a-form-item :label="$t('label.storage.config.clone.template.approval.id')"><a-input v-model:value="clone.validationartifactuuid" :disabled="planPhase==='REVIEW'" autocomplete="off" /></a-form-item>
-            <a-form-item :label="$t('label.storage.config.clone.template.approval.sha')"><a-input v-model:value="clone.validationartifactsha256" :disabled="planPhase==='REVIEW'" autocomplete="off" /></a-form-item>
+            <a-form-item :label="$t('label.storage.config.clone.template.approval.id')"><a-input v-model:value="clone.validationartifactuuid" :disabled="mappingLocked" autocomplete="off" /></a-form-item>
+            <a-form-item :label="$t('label.storage.config.clone.template.approval.sha')"><a-input v-model:value="clone.validationartifactsha256" :disabled="mappingLocked" autocomplete="off" /></a-form-item>
           </template>
-          <a-form-item :label="$t('label.networkid')"><a-select v-model:value="clone.networkid" :options="cloneOptions.networks" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.networkid')"><a-select v-model:value="clone.networkid" :options="cloneOptions.networks" :disabled="mappingLocked" /></a-form-item>
           <a-form-item :label="$t('label.sharedfs.network.mode')">
-            <a-radio-group v-model:value="clone.networkmode" :disabled="planPhase==='REVIEW'" @change="editPlanMapping">
+            <a-radio-group v-model:value="clone.networkmode" :disabled="mappingLocked" @change="editPlanMapping">
               <a-radio value="DHCP">DHCP</a-radio><a-radio value="STATIC">STATIC</a-radio>
             </a-radio-group>
           </a-form-item>
           <template v-if="clone.networkmode==='STATIC'">
-            <a-form-item :label="$t('label.sharedfs.ip.cidr')" required><a-input v-model:value="clone.ipcidr" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
-            <a-form-item :label="$t('label.gateway')"><a-input v-model:value="clone.gateway" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
-            <a-form-item :label="$t('label.dns1')"><a-input v-model:value="clone.dns1" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
-            <a-form-item :label="$t('label.dns2')"><a-input v-model:value="clone.dns2" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.sharedfs.ip.cidr')" required><a-input v-model:value="clone.ipcidr" :disabled="mappingLocked" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.gateway')"><a-input v-model:value="clone.gateway" :disabled="mappingLocked" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.dns1')"><a-input v-model:value="clone.dns1" :disabled="mappingLocked" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.dns2')"><a-input v-model:value="clone.dns2" :disabled="mappingLocked" @change="editPlanMapping" /></a-form-item>
           </template>
-          <a-form-item :label="$t('label.serviceofferingid')"><a-select v-model:value="clone.serviceofferingid" :options="cloneOptions.offerings" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="clone.diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="clone.storageid" :options="cloneOptions.pools" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.serviceofferingid')"><a-select v-model:value="clone.serviceofferingid" :options="cloneOptions.offerings" :disabled="mappingLocked" /></a-form-item>
+          <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="clone.diskofferingid" :options="cloneOptions.disks" :disabled="mappingLocked" /></a-form-item>
+          <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="clone.storageid" :options="cloneOptions.pools" :disabled="mappingLocked" /></a-form-item>
           <a-form-item :label="$t('label.storage.config.clone.volume.mode')">
-            <a-radio-group v-model:value="clone.backingvolumemode" :disabled="planPhase==='REVIEW'">
+            <a-radio-group v-model:value="clone.backingvolumemode" :disabled="mappingLocked">
               <a-radio value="NEW">{{ $t('label.storage.config.clone.new.volume') }}</a-radio>
               <a-radio value="EXISTING">{{ $t('label.storage.service.existing.volume.select') }}</a-radio>
             </a-radio-group>
           </a-form-item>
-          <a-form-item v-if="clone.backingvolumemode==='NEW'" :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="clone.size" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item v-else :label="$t('label.storage.service.existing.volume.select')"><a-select v-model:value="clone.existingvolumeid" :options="cloneOptions.volumes" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.storage.config.clone.initial')"><a-select v-model:value="initialVolumeSource" :options="initialSourceVolumeOptions" :disabled="planning || planPhase==='REVIEW'" @change="selectInitialVolume" /></a-form-item>
+          <a-form-item v-if="clone.backingvolumemode==='NEW'" :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="clone.size" :min="1" :disabled="mappingLocked" /></a-form-item>
+          <a-form-item v-else :label="$t('label.storage.service.existing.volume.select')"><a-select v-model:value="clone.existingvolumeid" :options="cloneOptions.volumes" :disabled="mappingLocked" /></a-form-item>
+          <a-form-item :label="$t('label.storage.config.clone.initial')"><a-select v-model:value="initialVolumeSource" :options="initialSourceVolumeOptions" :disabled="planning || mappingLocked" @change="selectInitialVolume" /></a-form-item>
           <a-form-item :label="$t('label.filesystem')">
-            <a-select v-model:value="clone.filesystem" :disabled="planning || planPhase==='REVIEW'" @change="editPlanMapping">
+            <a-select v-model:value="clone.filesystem" :disabled="planning || mappingLocked" @change="editPlanMapping">
               <a-select-option value="XFS" label="XFS">XFS</a-select-option>
               <a-select-option value="EXT4" label="EXT4">EXT4</a-select-option>
             </a-select>
             <a-alert v-if="initialSourceFilesystemHint" type="info" show-icon :message="$t('message.storage.config.clone.source.filesystem', { filesystem: initialSourceFilesystemHint })" />
           </a-form-item>
-          <a-form-item :label="$t('label.storage.config.clone.runtime')"><a-select v-model:value="cloneRuntime" :options="cloneOptions.bundles" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.storage.config.clone.runtime')"><a-select v-model:value="cloneRuntime" :options="cloneOptions.bundles" :disabled="mappingLocked" /></a-form-item>
         </template>
         <a-form-item v-for="volume in sourceVolumes" :key="volume" :label="$t('label.storage.config.volume.mapping') + ': ' + volume">
           <a-input v-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource && clone.backingvolumemode==='NEW'" :value="$t('label.storage.config.clone.new.volume')" disabled />
           <a-select v-else-if="targetMode==='CREATE_NEW' && volume===initialVolumeSource" :value="clone.existingvolumeid" :options="cloneOptions.volumes" disabled />
           <template v-else>
-            <a-select v-model:value="volumeMapping[volume]" :options="targetMode==='CREATE_NEW' ? [{ value: 'NEW', label: $t('label.storage.config.clone.new.volume') }, ...cloneOptions.volumes] : targetVolumes" :disabled="planPhase==='REVIEW'" @change="setVolumeMapping(volume)" />
+            <a-select v-model:value="volumeMapping[volume]" :options="targetMode==='CREATE_NEW' ? [{ value: 'NEW', label: $t('label.storage.config.clone.new.volume') }, ...cloneOptions.volumes] : targetVolumes" :disabled="mappingLocked" @change="setVolumeMapping(volume)" />
             <template v-if="targetMode==='CREATE_NEW' && volumeMapping[volume]==='NEW'">
-              <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="newVolumeSpecs[volume].diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
-              <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="newVolumeSpecs[volume].storageid" :options="cloneOptions.pools" :disabled="planPhase==='REVIEW'" /></a-form-item>
-              <a-form-item :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="newVolumeSpecs[volume].sizeGiB" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
+              <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="newVolumeSpecs[volume].diskofferingid" :options="cloneOptions.disks" :disabled="mappingLocked" /></a-form-item>
+              <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="newVolumeSpecs[volume].storageid" :options="cloneOptions.pools" :disabled="mappingLocked" /></a-form-item>
+              <a-form-item :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="newVolumeSpecs[volume].sizeGiB" :min="1" :disabled="mappingLocked" /></a-form-item>
             </template>
           </template>
         </a-form-item>
       </a-form>
       <template v-if="plan">
-        <a-button v-if="planPhase==='REVIEW'" :disabled="configurationLocked" @click="editPlanMapping">{{ $t('label.storage.config.mapping.edit') }}</a-button>
+        <a-button v-if="planPhase==='REVIEW' && !cloneResume" :disabled="configurationLocked" @click="editPlanMapping">{{ $t('label.storage.config.mapping.edit') }}</a-button>
         <a-form v-if="listenerAddressRows.length" layout="vertical">
           <a-form-item v-for="row in listenerAddressRows" :key="row.sourceAddress" :label="$t('label.storage.config.listener.mapping') + ': ' + row.sourceAddress">
-            <a-radio-group :value="row.choice" :disabled="planPhase==='REVIEW'" @change="event => setListenerMapping(row.sourceAddress, event.target.value)">
+            <a-radio-group :value="row.choice" :disabled="mappingLocked" @change="event => setListenerMapping(row.sourceAddress, event.target.value)">
               <a-radio value="PRIMARY">{{ $t('label.storage.config.listener.primary') }}</a-radio><a-radio value="CUSTOM">{{ $t('label.storage.config.listener.custom') }}</a-radio>
             </a-radio-group>
-            <a-input v-if="row.choice==='CUSTOM'" :value="row.address" :disabled="planPhase==='REVIEW'" @update:value="value => setListenerAddress(row.sourceAddress, value)" />
+            <a-input v-if="row.choice==='CUSTOM'" :value="row.address" :disabled="mappingLocked" @update:value="value => setListenerAddress(row.sourceAddress, value)" />
             <div v-if="row.resolvedTarget">{{ $t('label.ipaddress') }}: {{ row.resolvedTarget }}</div>
             <div v-for="location in row.locations" :key="location.kind + ':' + location.sourceUuid + ':' + location.path">{{ location.kind }} · {{ location.sourceUuid }} · {{ location.path }}</div>
           </a-form-item>
         </a-form>
         <a-form v-if="resourceMappingRows.length" layout="vertical">
           <a-form-item v-for="row in resourceMappingRows" :key="row.key" :label="$t('label.storage.config.resource.mapping') + ': ' + row.kind + ' · ' + row.sourceUuid">
-            <a-select :value="row.selected" :options="row.options" :disabled="planPhase==='REVIEW'" @change="value => setResourceMapping(row, value)" />
+            <a-select :value="row.selected" :options="row.options" :disabled="mappingLocked" @change="value => setResourceMapping(row, value)" />
           </a-form-item>
         </a-form>
         <template v-if="(plan.forcedFileExecutePolicies || []).length">
           <a-alert type="warning" show-icon :message="$t('message.storage.config.file.execute')" />
-          <a-checkbox v-model:checked="confirmFileExecute" :disabled="planPhase==='REVIEW'">{{ $t('label.storage.config.file.execute.confirm') }}</a-checkbox>
+          <a-checkbox v-model:checked="confirmFileExecute" :disabled="mappingLocked">{{ $t('label.storage.config.file.execute.confirm') }}</a-checkbox>
         </template>
         <a-alert v-for="blocker in plan.blockers" :key="blocker" type="error" show-icon :message="configurationBlockerLabel(blocker)" />
         <a-descriptions :column="2" bordered size="small">
@@ -225,6 +229,7 @@ import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
 import { configurationIntents, configurationActor, configurationScope, ensureConfigurationActor, activeConfigurationIntent, beginConfigurationIntent, configurationCommandIsAsync, validConfigurationJobId, definitiveConfigurationRejection, trackConfigurationIntent, configurationDifference, validConfigurationStaticNetwork } from '@/utils/storageConfigurationJobs'
+import { partialConfigurationClone, configurationCloneResume, configurationCloneResumeMapping, requireConfigurationCloneResumePlan, cloneResumeUnavailable } from '@/utils/storageConfigurationResume'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import { requireAdServiceApproval } from '@/utils/storageAdIdentity'
 import { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined } from '@ant-design/icons-vue'
@@ -236,8 +241,9 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ disposed: false, rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', resourceMapping: {}, listenerMapping: {}, listenerChoices: {}, lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateSelection: 'DEFAULT_SYSTEM', cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
+  data: () => ({ disposed: false, rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, cloneResume: null, cloneResumeUnavailable: false, plan: null, planPhase: 'MAPPING', planToken: '', resourceMapping: {}, listenerMapping: {}, listenerChoices: {}, lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateSelection: 'DEFAULT_SYSTEM', cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
   computed: {
+    mappingLocked () { return this.planPhase === 'REVIEW' || !!this.cloneResume || this.cloneResumeUnavailable },
     configurationActor () { return configurationActor(this) },
     configurationIntent () { return configurationIntents[configurationScope(this)] || null },
     configurationLocked () { return !!this.busy || activeConfigurationIntent(this.configurationIntent) },
@@ -542,11 +548,27 @@ export default {
       try {
         if (lkg) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')
         this.closePlan(); this.planTarget = row; this.lkgPlan = lkg; this.error = ''
+        if (!lkg && partialConfigurationClone(row.metadata)) {
+          this.targetMode = 'CREATE_NEW'
+          try { this.cloneResume = configurationCloneResume(row.metadata) } catch (error) { this.cloneResumeUnavailable = true; throw error }
+          const resume = this.cloneResume
+          this.clone = JSON.parse(JSON.stringify(resume.requested.createNew))
+          this.plan = JSON.parse(JSON.stringify(resume.plan))
+          this.volumeMapping = { ...resume.requested.volumes }
+          this.newVolumeSpecs = JSON.parse(JSON.stringify(resume.requested.newVolumes || {}))
+          this.initialVolumeSource = resume.requested.initialVolumeSourceUuid
+          this.cloneRuntime = resume.requested.runtimeBundleUuid
+          this.listenerMapping = { ...resume.listenerAddresses }
+          this.confirmFileExecute = resume.confirmFileExecute
+          this.cloneTemplateSelection = Object.prototype.hasOwnProperty.call(this.clone, 'templateid') ? 'EXPLICIT' : 'DEFAULT_SYSTEM'
+          await this.preparePlan()
+          return
+        }
         const volumes = (await getAPI('listVolumes', { virtualmachineid: this.resource.virtualmachineid }, { timeout: 15000, preserveOnFailure: true })).listvolumesresponse.volume || []
         if (instance !== this.instanceId || this.planTarget !== row) return
         this.targetVolumes = volumes.filter(volume => volume.type === 'DATADISK').map(volume => ({ value: volume.id, label: volume.name + ' · ' + volume.id }))
         await this.preparePlan()
-      } catch (error) { this.error = error.message }
+      } catch (error) { this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message }
     },
     options (rows) { return (rows || []).map(row => ({ value: row.id, label: (row.name || row.version || row.id) + ' · ' + row.id })) },
     async loadCloneOptions () {
@@ -709,29 +731,36 @@ export default {
       try {
         if (this.lkgPlan) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')
         const api = this.lkgPlan ? 'planStorageServiceLastKnownGoodRestore' : 'planStorageServiceConfigRestore'
-        const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
-        if (Object.keys(this.listenerMapping || {}).length) mappings.listenerAddresses = Object.fromEntries(Object.entries(this.listenerMapping).filter(([, value]) => typeof value === 'string' && value.length))
-        if (this.targetMode === 'RESTORE_EXISTING') for (const [kind, values] of Object.entries(this.resourceMapping || {})) mappings[kind] = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== 'NEW'))
-        if (this.targetMode === 'CREATE_NEW') {
-          if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
-          if ((this.plan?.sourceVolumeInventory || []).some(row => row.uuid === this.initialVolumeSource && row.usage === 'BLOCK_RAW')) throw new Error(this.$t('message.storage.config.clone.initial.raw'))
-          this.assertCloneOffering()
-          if (this.cloneRequiresIdentityTemplate) this.assertCloneIdentityTemplate()
-          else if (this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate()
-          const existing = this.clone.backingvolumemode === 'EXISTING'
-          if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
-          mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
-          mappings.createNew = { ...this.clone, backingvolumemode: existing ? 'EXISTING' : 'NEW' }
-          if (mappings.createNew.networkmode === 'STATIC' && !validConfigurationStaticNetwork(mappings.createNew)) throw new Error(this.$t('message.sharedfs.static.ip.cidr.invalid'))
-          if (mappings.createNew.networkmode !== 'STATIC') for (const field of ['ipcidr', 'gateway', 'dns1', 'dns2']) delete mappings.createNew[field]
-          if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection !== 'EXPLICIT') { delete mappings.createNew.templateid; delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
-          if (!this.ordinaryClonePrivateTemplate) { delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
-          if (existing) {
-            delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
-          } else delete mappings.createNew.existingvolumeid
-          const specifications = Object.fromEntries(Object.entries(this.volumeMapping).filter(([source, target]) => source !== this.initialVolumeSource && target === 'NEW').map(([source]) => [source, { ...(this.newVolumeSpecs?.[source] || {}), dataPolicy: 'PRESERVE' }]))
-          if (Object.keys(specifications).length) mappings.newVolumes = specifications
-          mappings.initialVolumeSourceUuid = this.initialVolumeSource; mappings.runtimeBundleUuid = this.cloneRuntime
+        let mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
+        if (this.cloneResumeUnavailable) throw new Error(cloneResumeUnavailable)
+        if (this.cloneResume) {
+          if (this.targetMode !== 'CREATE_NEW' || this.lkgPlan) throw new Error(cloneResumeUnavailable)
+          this.planToken = ''
+          mappings = configurationCloneResumeMapping(this.cloneResume)
+        } else {
+          if (Object.keys(this.listenerMapping || {}).length) mappings.listenerAddresses = Object.fromEntries(Object.entries(this.listenerMapping).filter(([, value]) => typeof value === 'string' && value.length))
+          if (this.targetMode === 'RESTORE_EXISTING') for (const [kind, values] of Object.entries(this.resourceMapping || {})) mappings[kind] = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== 'NEW'))
+          if (this.targetMode === 'CREATE_NEW') {
+            if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
+            if ((this.plan?.sourceVolumeInventory || []).some(row => row.uuid === this.initialVolumeSource && row.usage === 'BLOCK_RAW')) throw new Error(this.$t('message.storage.config.clone.initial.raw'))
+            this.assertCloneOffering()
+            if (this.cloneRequiresIdentityTemplate) this.assertCloneIdentityTemplate()
+            else if (this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate()
+            const existing = this.clone.backingvolumemode === 'EXISTING'
+            if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
+            mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
+            mappings.createNew = { ...this.clone, backingvolumemode: existing ? 'EXISTING' : 'NEW' }
+            if (mappings.createNew.networkmode === 'STATIC' && !validConfigurationStaticNetwork(mappings.createNew)) throw new Error(this.$t('message.sharedfs.static.ip.cidr.invalid'))
+            if (mappings.createNew.networkmode !== 'STATIC') for (const field of ['ipcidr', 'gateway', 'dns1', 'dns2']) delete mappings.createNew[field]
+            if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection !== 'EXPLICIT') { delete mappings.createNew.templateid; delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
+            if (!this.ordinaryClonePrivateTemplate) { delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
+            if (existing) {
+              delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
+            } else delete mappings.createNew.existingvolumeid
+            const specifications = Object.fromEntries(Object.entries(this.volumeMapping).filter(([source, target]) => source !== this.initialVolumeSource && target === 'NEW').map(([source]) => [source, { ...(this.newVolumeSpecs?.[source] || {}), dataPolicy: 'PRESERVE' }]))
+            if (Object.keys(specifications).length) mappings.newVolumes = specifications
+            mappings.initialVolumeSourceUuid = this.initialVolumeSource; mappings.runtimeBundleUuid = this.cloneRuntime
+          }
         }
         const mode = this.targetMode
         const cloneScope = mode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate ? this.cloneIdentityTemplateScope() : null
@@ -739,18 +768,19 @@ export default {
         const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: mode, mapping: JSON.stringify(mappings) })
         if (target !== this.planTarget || instance !== this.instanceId) return
         if (mode !== this.targetMode || (mode === 'CREATE_NEW' && ((cloneScope !== null && cloneScope !== this.cloneIdentityTemplateScope()) || selectedTemplate !== this.clone?.templateid))) throw new Error(this.$t('message.storage.config.scope.changed'))
+        if (this.cloneResume) requireConfigurationCloneResumePlan(this.cloneResume, result.metadata)
         this.plan = result.metadata.plan; this.planToken = result.planToken || ''
         this.listenerMapping = { ...(this.plan.listenerAddressMappings || {}), ...(this.listenerMapping || {}) }
         if (this.targetMode === 'RESTORE_EXISTING') this.resourceMapping = Object.fromEntries([...new Set([...this.plan.create, ...this.plan.update, ...this.plan.keep].map(row => row.kind))].map(kind => [kind, { ...(this.plan.resourceMappings?.[kind] || {}), ...(this.resourceMapping?.[kind] || {}) }]))
         this.planPhase = 'MAPPING'
-        if (this.targetMode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate) {
+        if (this.targetMode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate && !this.cloneResume) {
           if (this.cloneTemplateScope !== this.cloneIdentityTemplateScope()) await this.loadCloneTemplates()
           this.assertCloneIdentityTemplate(this.plan)
         }
         this.planPhase = this.plan.blockers.length ? 'MAPPING' : 'REVIEW'
         this.reviewedPlan = JSON.stringify({ instance: this.instanceId, artifact: this.planTarget.id, token: this.planToken, plan: this.plan })
         this.credentialValues = Object.fromEntries(this.plan.requiredCredentials.map(row => [row.ruleUuid, {}]))
-      } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message } finally { if (target === this.planTarget && instance === this.instanceId) this.planning = false }
+      } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message } finally { if (target === this.planTarget && instance === this.instanceId) this.planning = false }
     },
     restoreReviewFingerprint () {
       return JSON.stringify({ instance: this.instanceId, artifact: this.planTarget?.id, token: this.planToken, plan: this.plan })
@@ -768,7 +798,10 @@ export default {
         if (!this.$getApiParams?.(api)?.maintenancewindow || this.restoreMaintenance !== true) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.maintenance.required'); return }
       }
       if (this.targetMode === 'CREATE_NEW') {
-        try { this.assertCloneIdentityTemplate(this.plan); if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate(this.plan) } catch (error) { this.restoreMaintenance = false; this.error = error.message; return }
+        try {
+          if (this.cloneResume) requireConfigurationCloneResumePlan(this.cloneResume, { ...this.planTarget.metadata, plan: this.plan })
+          else { this.assertCloneIdentityTemplate(this.plan); if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate(this.plan) }
+        } catch (error) { this.restoreMaintenance = false; this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message; return }
       }
       const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
       if (requiresIdentity) parameters.maintenancewindow = true
@@ -781,7 +814,7 @@ export default {
         await this.refresh()
       } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error?.message || this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
-    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.resourceMapping = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.cloneTemplateSelection = 'DEFAULT_SYSTEM'; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.cloneResume = null; this.cloneResumeUnavailable = false; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.resourceMapping = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.cloneTemplateSelection = 'DEFAULT_SYSTEM'; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>

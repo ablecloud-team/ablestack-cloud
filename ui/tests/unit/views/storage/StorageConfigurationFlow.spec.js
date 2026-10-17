@@ -246,3 +246,145 @@ describe('existing resource mappings and ordinary explicit clone templates', () 
     expect(vm.mutation).not.toHaveBeenCalled(); expect(vm.error).toBe('message.storage.config.clone.initial.raw')
   })
 })
+
+describe('partial CREATE_NEW re-entry preserves the original allocation request', () => {
+  const id = number => '00000000-0000-4000-8000-' + String(number).padStart(12, '0')
+  const copy = value => JSON.parse(JSON.stringify(value))
+  function artifact (created = true) {
+    const requestedVolumeMapping = {
+      createNew: { name: 'recorded-clone', zoneid: id(10), networkid: id(11), serviceofferingid: id(12), diskofferingid: id(13), storageid: id(14), backingvolumemode: 'NEW', size: 20, filesystem: 'EXT4', networkmode: 'STATIC', ipcidr: '10.10.13.224/16', gateway: '10.10.0.1', dns1: '8.8.8.8', dns2: '' },
+      volumes: { [id(1)]: 'NEW', [id(2)]: 'NEW', [id(3)]: 'NEW', [id(4)]: 'NEW' },
+      newVolumes: Object.fromEntries([2, 3, 4].map(value => [id(value), { diskofferingid: id(13), storageid: id(14), sizeGiB: 2, dataPolicy: 'PRESERVE' }])),
+      initialVolumeSourceUuid: id(1),
+      runtimeBundleUuid: id(40)
+    }
+    const metadata = {
+      requestedVolumeMapping,
+      cloneAllocation: { scope: { artifactUuid: id(50), plannedTargetInstanceUuid: id(79) }, sharedFS: { uuid: id(78) } },
+      plan: {
+        targetMode: 'CREATE_NEW',
+        targetName: 'recorded-clone',
+        targetInstanceUuid: id(79),
+        createNew: { ...requestedVolumeMapping.createNew, templateid: id(90) },
+        cloneTemplatePin: { selectionMode: 'DEFAULT_SYSTEM', templateUuid: id(90), templateChecksum: 'recorded-checksum', templateDetailsSha256: 'a'.repeat(64) },
+        cloneRuntimePin: { bundleUuid: id(40), cliSha256: 'b'.repeat(64) },
+        volumeAllocationPlan: { schemaVersion: 1, planSha256: 'c'.repeat(64), allocations: [1, 2, 3, 4].map(value => ({ sourceUuid: id(value), plannedUuid: id(value + 60), mode: 'NEW' })) },
+        resourceMappings: { 'protocol-endpoints': { [id(20)]: id(80) } },
+        listenerAddressMappings: { '10.10.13.223': 'PRIMARY' },
+        create: [],
+        update: [],
+        keep: [],
+        preserve: [],
+        blockers: [],
+        requiredCredentials: [{ ruleUuid: id(30), principal: 'local-user', fields: ['password'] }],
+        forcedFileExecutePolicies: [],
+        forceFileExecuteConfirmation: true
+      },
+      planToken: { hash: 'synthetic-old-capability-not-copied' },
+      adIdentityCipherReference: { ciphertext: 'synthetic-private-cipher-not-copied' }
+    }
+    if (created) metadata.createdTargetInstanceUuid = id(79)
+    return { id: id(50), kind: 'BACKUP', state: 'COMPLETE', metadata }
+  }
+  function view () {
+    const vm = { ...Widget.data(), ...context() }
+    for (const [name, method] of Object.entries(Widget.methods)) vm[name] = method.bind(vm)
+    for (const [name, getter] of Object.entries(Widget.computed)) Object.defineProperty(vm, name, { get: () => getter.call(vm), configurable: true })
+    return vm
+  }
+  function reply (row, change = () => {}) {
+    const result = { id: row.id, metadata: copy(row.metadata), planToken: 'fresh-reviewed-token' }
+    result.metadata.plan.reviewedCreatedTargetTemplateBinding = { vmUuid: id(100), rootVolumeUuid: id(101) }
+    change(result)
+    return { planstorageserviceconfigrestoreresponse: { storageserviceconfiguration: { result: JSON.stringify(result) } } }
+  }
+  beforeEach(() => { clearConfigurationIntents(); getAPI.mockReset(); postAPI.mockReset() })
+  afterEach(() => { clearConfigurationIntents() })
+
+  it.each([true, false])('opens the recorded CREATE_NEW request directly for createdTarget=%s without a default restore plan', async created => {
+    const row = artifact(created)
+    const original = copy(row)
+    postAPI.mockResolvedValue(reply(row))
+    const vm = view()
+    await vm.openPlan(row)
+    expect(getAPI).not.toHaveBeenCalled()
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI.mock.calls[0][0]).toBe('planStorageServiceConfigRestore')
+    expect(postAPI.mock.calls[0][1]).toMatchObject({ instanceid: vm.instanceId, artifactid: row.id, targetmode: 'CREATE_NEW' })
+    const mapping = JSON.parse(postAPI.mock.calls[0][1].mapping)
+    expect(mapping).toEqual({ ...row.metadata.requestedVolumeMapping, listenerAddresses: { '10.10.13.223': 'PRIMARY' }, confirmFileExecute: false })
+    expect(mapping.createNew).not.toHaveProperty('templateid')
+    expect(mapping.createNew).toHaveProperty('dns2', '')
+    expect(mapping.createNew.size).toBe(20)
+    expect(mapping.newVolumes[id(2)].sizeGiB).toBe(2)
+    expect(vm.clone).toEqual(row.metadata.requestedVolumeMapping.createNew)
+    expect(vm.cloneTemplateSelection).toBe('DEFAULT_SYSTEM')
+    expect(vm.targetMode).toBe('CREATE_NEW')
+    expect(vm.mappingLocked).toBe(true)
+    expect(vm.planPhase).toBe('REVIEW')
+    expect(vm.planToken).toBe('fresh-reviewed-token')
+    expect(vm.plan.resourceMappings).toEqual(row.metadata.plan.resourceMappings)
+    expect(vm.plan.reviewedCreatedTargetTemplateBinding).toEqual({ vmUuid: id(100), rootVolumeUuid: id(101) })
+    expect(vm.credentialValues).toEqual({ [id(30)]: {} })
+    expect(JSON.stringify(vm.cloneResume)).not.toContain('synthetic-old-capability-not-copied')
+    expect(JSON.stringify(vm.cloneResume)).not.toContain('synthetic-private-cipher-not-copied')
+    expect(row).toEqual(original)
+  })
+  it('replans the recorded scope even if a stale form event changes a displayed field', async () => {
+    const row = artifact()
+    postAPI.mockResolvedValue(reply(row))
+    const vm = view()
+    await vm.openPlan(row)
+    vm.clone.dns2 = '1.1.1.1'
+    await vm.preparePlan()
+    expect(JSON.parse(postAPI.mock.calls[1][1].mapping).createNew.dns2).toBe('')
+  })
+  it.each([
+    row => { delete row.metadata.requestedVolumeMapping },
+    row => { row.metadata.requestedVolumeMapping.createNew.templateid = id(90) },
+    row => { row.metadata.plan.targetName = 'other-target' },
+    row => { delete row.metadata.plan.volumeAllocationPlan },
+    row => { row.metadata.requestedVolumeMapping.createNew.password = 'synthetic-disallowed-secret' }
+  ])('warns and blocks malformed partial metadata without sending any automatic plan', async change => {
+    const row = artifact(false)
+    change(row)
+    const vm = view()
+    await vm.openPlan(row)
+    expect(postAPI).not.toHaveBeenCalled()
+    expect(getAPI).not.toHaveBeenCalled()
+    expect(vm.planTarget).toBe(row)
+    expect(vm.targetMode).toBe('CREATE_NEW')
+    expect(vm.cloneResumeUnavailable).toBe(true)
+    expect(vm.mappingLocked).toBe(true)
+    expect(vm.planToken).toBe('')
+    expect(vm.error).toBe('message.storage.config.clone.resume.unavailable')
+  })
+  it.each([
+    result => { result.metadata.plan.targetMode = 'RESTORE_EXISTING' },
+    result => { result.metadata.plan.volumeAllocationPlan.planSha256 = 'd'.repeat(64) },
+    result => { result.metadata.plan.listenerAddressMappings['10.10.13.223'] = '10.10.13.225' },
+    result => { result.metadata.createdTargetInstanceUuid = id(200) }
+  ])('does not accept a new review that rebinds the recorded target or endpoint/allocation scope', async change => {
+    const row = artifact()
+    postAPI.mockResolvedValue(reply(row, change))
+    const vm = view()
+    await vm.openPlan(row)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(vm.planPhase).toBe('MAPPING')
+    expect(vm.planToken).toBe('')
+    expect(vm.error).toBe('message.storage.config.clone.resume.unavailable')
+  })
+  it('keeps the normal existing-service openPlan request unchanged', async () => {
+    const row = { id: id(50), kind: 'BACKUP', state: 'COMPLETE', metadata: {} }
+    getAPI.mockResolvedValue({ listvolumesresponse: { volume: [{ id: id(1), name: 'attached', type: 'DATADISK' }] } })
+    postAPI.mockResolvedValue({ planstorageserviceconfigrestoreresponse: { storageserviceconfiguration: { result: JSON.stringify({ id: row.id, metadata: { plan: { targetMode: 'RESTORE_EXISTING', create: [], update: [], keep: [], preserve: [], blockers: [], requiredCredentials: [] } }, planToken: 'ordinary-token' }) } } })
+    const vm = view()
+    await vm.openPlan(row)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI.mock.calls[0][1].targetmode).toBe('RESTORE_EXISTING')
+    expect(JSON.parse(postAPI.mock.calls[0][1].mapping)).toEqual({ volumes: {}, confirmFileExecute: false })
+    expect(vm.cloneResume).toBeNull()
+    expect(vm.planPhase).toBe('REVIEW')
+  })
+})
