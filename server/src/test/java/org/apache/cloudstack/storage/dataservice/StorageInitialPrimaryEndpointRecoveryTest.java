@@ -27,7 +27,7 @@ import org.junit.Test;
 public class StorageInitialPrimaryEndpointRecoveryTest {
     private static JsonObject json(String value) {return JsonParser.parseString(value).getAsJsonObject();}
     private static BaseCmd enable(long instance,String ip,int port) {
-        return StorageConfigCommandBinding.bind(EnableStorageServiceProtocolCmd.class,json("{\"response\":\"json\",\"instanceid\":"+instance+",\"protocol\":\"NFS\",\"listenip\":\""+ip+"\",\"port\":"+port+",\"protocolmode\":\"V3V4_DUAL\"}"));
+        return StorageConfigCommandBinding.bind(EnableStorageServiceProtocolCmd.class,json("{\"instanceid\":"+instance+",\"protocol\":\"NFS\",\"listenip\":\""+ip+"\",\"port\":"+port+",\"protocolmode\":\"V3V4_DUAL\"}"));
     }
     @Test public void onlyOneExactOriginalAuthenticatedEnableCanAuthorizeItsPrimaryDefaultPort() {
         String fingerprint=StorageServiceRequestFingerprint.of(enable(29,"10.10.13.223",2049),"test-protected-key");
@@ -40,6 +40,37 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
         Assert.assertThrows(CloudRuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.authenticate(29,"10.10.13.223",other,cmd->StorageServiceRequestFingerprint.of(cmd,"test-protected-key")));
         Assert.assertThrows(CloudRuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.authenticate(29,"10.10.13.223",fingerprint,cmd->fingerprint));
     }
+
+    @Test public void realAsyncParameterBoundaryExcludesBaseResponseAndAuthenticatesWorkerNull() throws Exception {
+        com.cloud.user.User user=org.mockito.Mockito.mock(com.cloud.user.User.class);
+        org.apache.cloudstack.context.CallContext.register(user,org.mockito.Mockito.mock(com.cloud.user.Account.class));
+        try {
+            EnableStorageServiceProtocolCmd worker=new EnableStorageServiceProtocolCmd();
+            JsonObject http=json("{\"response\":\"json\",\"instanceid\":29,\"protocol\":\"NFS\",\"listenip\":\"10.10.13.223\",\"port\":2049,\"protocolmode\":\"V4_ONLY\"}");
+            JsonObject dispatched=new JsonObject();
+            for(java.lang.reflect.Field field:worker.getParamFields()) {
+                org.apache.cloudstack.api.Parameter parameter=field.getAnnotation(org.apache.cloudstack.api.Parameter.class);
+                if(http.has(parameter.name()))dispatched.add(parameter.name(),http.get(parameter.name()).deepCopy());
+            }
+            Assert.assertFalse(dispatched.has("response"));
+            BaseCmd command=StorageConfigCommandBinding.bind(EnableStorageServiceProtocolCmd.class,dispatched);
+            Assert.assertNull(org.springframework.test.util.ReflectionTestUtils.getField(command,"responseType"));
+            String fingerprint=StorageServiceRequestFingerprint.of(command,"test-protected-key");
+            JsonObject matched=StorageInitialPrimaryEndpointRecovery.authenticate(29,"10.10.13.223",fingerprint,candidate->StorageServiceRequestFingerprint.of(candidate,"test-protected-key"));
+            Assert.assertEquals("V4_ONLY",matched.get("protocolmode").getAsString());Assert.assertFalse(matched.has("response"));
+        } finally {org.apache.cloudstack.context.CallContext.unregister();}
+    }
+
+    @Test public void responseContaminatedFingerprintIsRejectedWithoutExpandingEighteenCandidates() {
+        BaseCmd command=enable(29,"10.10.13.223",2049);command.setResponseType("json");
+        String fingerprint=StorageServiceRequestFingerprint.of(command,"test-protected-key");
+        java.util.concurrent.atomic.AtomicInteger compared=new java.util.concurrent.atomic.AtomicInteger();
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.authenticate(29,"10.10.13.223",fingerprint,candidate->{
+            compared.incrementAndGet();return StorageServiceRequestFingerprint.of(candidate,"test-protected-key");
+        }));
+        Assert.assertEquals(18,compared.get());
+    }
+
     private static JsonObject source() {
         JsonObject source=new JsonObject();for(String path:StorageRenderedDesiredState.PATHS)source.add(path,com.google.gson.JsonNull.INSTANCE);
         source.add("desired-state/nfs-export-apply.json",json("{\"enabled\":false,\"exports\":[]}"));return source;

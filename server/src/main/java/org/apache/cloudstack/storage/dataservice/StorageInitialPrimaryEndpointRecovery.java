@@ -37,7 +37,7 @@ final class StorageInitialPrimaryEndpointRecovery {
         for(boolean explicitPort:new boolean[]{false,true})for(String mode:new String[]{null,"V4_ONLY","V3V4_DUAL"})
             for(String mapping:new String[]{null,"NAME_DOMAIN","NUMERIC"}) {
                 JsonObject parameters=new JsonObject();parameters.addProperty("instanceid",instanceId);parameters.addProperty("protocol","NFS");
-                parameters.addProperty("listenip",primary);parameters.addProperty("response","json");if(explicitPort)parameters.addProperty("port",2049);
+                parameters.addProperty("listenip",primary);if(explicitPort)parameters.addProperty("port",2049);
                 if(mode!=null)parameters.addProperty("protocolmode",mode);if(mapping!=null)parameters.addProperty("idmappingmode",mapping);
                 BaseCmd candidate=StorageConfigCommandBinding.bind(EnableStorageServiceProtocolCmd.class,parameters);
                 if(MessageDigest.isEqual(fingerprint.getBytes(StandardCharsets.UTF_8),authenticate.apply(candidate).getBytes(StandardCharsets.UTF_8))) {
