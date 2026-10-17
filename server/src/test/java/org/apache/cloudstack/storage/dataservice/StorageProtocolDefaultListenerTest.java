@@ -422,4 +422,28 @@ public class StorageProtocolDefaultListenerTest {
         Assert.assertEquals(0, f.manager.createIscsiTargetAclJson(f.first, null).size());
     }
 
+    @SuppressWarnings("unchecked")
+    @Test public void verifiedEmptyDisabledRecoveryPreservesFalseWithoutChangingOrdinaryDefaultNfs() {
+        Fixture fixture=new Fixture();Manager manager=Mockito.spy(fixture.manager);
+        Mockito.doReturn("V4_ONLY").when(manager).resolveNfsServiceProtocolMode(fixture.instance);
+        Mockito.doReturn("NAME_DOMAIN").when(manager).resolveNfsIdMappingMode(fixture.instance);
+        org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao shares=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+        Mockito.when(shares.listByInstanceIdAndProtocol(INSTANCE_ID,StorageServiceInstance.Protocol.NFS)).thenReturn(List.of());
+        ReflectionTestUtils.setField(manager,"storageFileShareDao",shares);
+        Assert.assertTrue(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());
+        ThreadLocal<JsonObject> recovery=(ThreadLocal<JsonObject>)ReflectionTestUtils.getField(manager,"configurationRecoverySource");
+        JsonObject source=JsonParser.parseString("{\"success\":true,\"frozen\":true,\"generationSupported\":true,\"generation\":{\"instanceUuid\":\"3480bb2c-99ee-42f2-91cf-715ded5dd35f\"},\"configurationDesiredState\":{\"desired-state/nfs-export-apply.json\":{\"enabled\":false,\"exports\":[]}}}").getAsJsonObject();
+        recovery.set(source);
+        Assert.assertFalse(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());
+        source.remove("frozen");Assert.assertTrue(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());source.addProperty("frozen",true);
+        source.getAsJsonObject("configurationDesiredState").getAsJsonObject("desired-state/nfs-export-apply.json").getAsJsonArray("exports").add(new JsonObject());
+        Assert.assertTrue(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());
+        source.getAsJsonObject("configurationDesiredState").getAsJsonObject("desired-state/nfs-export-apply.json").add("exports",new JsonArray());
+        fixture.add(StorageServiceInstance.Protocol.NFS,true,null,2049);
+        Assert.assertTrue(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());
+        fixture.list(StorageServiceInstance.Protocol.NFS).clear();recovery.remove();
+        Assert.assertTrue(manager.buildNfsDesiredPayload(fixture.instance,null,true).get("enabled").getAsBoolean());
+        Mockito.verify(fixture.dao,Mockito.never()).persist(Mockito.any());Mockito.verify(fixture.dao,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
+
 }

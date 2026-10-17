@@ -131,6 +131,24 @@ public final class StorageServiceConfiguration {
             StorageConfigArtifactVO locked = artifacts.lockRow(row.getId(), true);
             if (locked == null) throw new CloudRuntimeException("Configuration artifact disappeared before its metadata update");
             JsonObject current = metadata(locked);
+            if ("IMPORT".equals(row.getKind()) && "UPLOADING".equals(state)) {
+                boolean initial = "CREATING".equals(locked.getState()) && locked.getSha256() == null && locked.getSize() == 0;
+                if (!"IMPORT".equals(locked.getKind()) || !locked.getUuid().equals(row.getUuid()) || locked.getInstanceId() != row.getInstanceId()
+                        || locked.getCreatedBy() != row.getCreatedBy() || locked.getDesiredRevision() != row.getDesiredRevision()
+                        || !initial && (!"UPLOADING".equals(locked.getState()) || !java.util.Objects.equals(locked.getSha256(), row.getSha256()))
+                        || row.getSha256() == null || !row.getSha256().matches("[0-9a-f]{64}") || row.getSize() < locked.getSize()
+                        || row.getSize() > StorageConfigArchive.MAX_ARCHIVE_BYTES || initial && row.getSize() != 0) {
+                    throw new CloudRuntimeException("Configuration upload integrity scope changed");
+                }
+                JsonObject nextChunks = metadata.getAsJsonObject("chunks");
+                long nextSize = nextChunks.entrySet().stream().mapToLong(entry -> entry.getValue().getAsJsonObject().get("size").getAsLong()).sum();
+                if (nextSize != row.getSize() || !initial && (!current.get("chunkCount").equals(metadata.get("chunkCount"))
+                        || current.getAsJsonObject("chunks").entrySet().stream().anyMatch(entry -> !entry.getValue().equals(nextChunks.get(entry.getKey()))))) {
+                    throw new CloudRuntimeException("Configuration upload progress changed");
+                }
+                // Only upload integrity fields advance here; source identity and independently stored receipts remain immutable.
+                locked.setSha256(row.getSha256());locked.setSize(row.getSize());
+            }
             // Allocation receipts are independently CAS-updated. A stale phase snapshot cannot erase them.
             if (current.has("receipts")) metadata.add("receipts", current.get("receipts").deepCopy());
             if (current.has("cloneAllocation")) metadata.add("cloneAllocation", current.get("cloneAllocation").deepCopy());
@@ -185,6 +203,8 @@ public final class StorageServiceConfiguration {
     private void versionMetadata(JsonObject metadata, StorageServiceInstanceVO instance) {
         JsonObject identity = manager.configurationInstanceMetadata(instance);
         if (identity.has("productVersion")) metadata.add("productVersion", identity.get("productVersion").deepCopy());
+        for (String key : new String[] {"sourceSharedFSUuid", "sourceVMUuid", "sourceVMState"})
+            if (identity.has(key)) metadata.add(key, identity.get(key).deepCopy());
         JsonObject compatibility = new JsonObject();compatibility.addProperty("minimumManagerVersion", "4.23.0");
         compatibility.addProperty("maximumManagerVersionExclusive", "4.24.0");metadata.add("configurationCompatibility", compatibility);
     }
@@ -481,7 +501,7 @@ public final class StorageServiceConfiguration {
         } else {
             row = row(instance, request);metadata = metadata(row);
             if (!"IMPORT".equals(row.getKind()) || !Set.of("UPLOADING", "QUARANTINED").contains(row.getState())
-                    || !row.getSha256().equals(request.getSha256()) || metadata.get("chunkCount").getAsInt() != count) {
+                    || !request.getSha256().equals(row.getSha256()) || metadata.get("chunkCount").getAsInt() != count) {
                 throw new InvalidParameterValueException("Configuration upload scope or manifest changed");
             }
         }

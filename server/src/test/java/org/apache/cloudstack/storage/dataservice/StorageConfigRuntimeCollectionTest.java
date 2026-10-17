@@ -79,6 +79,7 @@ public class StorageConfigRuntimeCollectionTest {
                 if(foreignCompletionScope&&locked.getMetadataJson()!=null&&locked.getMetadataJson().contains("COLLECTING_SESSIONS"))locked.setInstanceId(99);
                 return locked;
             });
+            org.mockito.Mockito.when(artifacts.findById(11L)).thenAnswer(call -> database.get() == null ? null : copy(database.get()));
             org.mockito.Mockito.when(artifacts.findByUuid(org.mockito.ArgumentMatchers.anyString())).thenAnswer(call->{
                 StorageConfigArtifactVO stored=database.get();return stored!=null&&stored.getUuid().equals(call.getArgument(0))?copy(stored):null;
             });
@@ -101,7 +102,9 @@ public class StorageConfigRuntimeCollectionTest {
                 }
                 @Override protected String captureConfigurationSnapshot(long id) {return "{\"schemaVersion\":2,\"instanceId\":7,\"tables\":[]}";}
                 @Override protected JsonObject configurationInstanceMetadata(StorageServiceInstanceVO value) {
-                    JsonObject result=new JsonObject();result.addProperty("uuid",instance.getUuid());result.addProperty("productVersion","4.23.0");return result;
+                    JsonObject result=new JsonObject();result.addProperty("uuid",instance.getUuid());result.addProperty("productVersion","4.23.0");
+                    result.addProperty("sourceSharedFSUuid","33333333-3333-4333-8333-333333333333");
+                    result.addProperty("sourceVMUuid","44444444-4444-4444-8444-444444444444");result.addProperty("sourceVMState","Stopped");return result;
                 }
                 @Override protected java.util.Map<Long,JsonObject> configurationVolumeMetadata(String source) {return java.util.Map.of();}
                 @Override protected JsonObject configurationBackupAvailability(StorageServiceInstanceVO value) {
@@ -155,7 +158,10 @@ public class StorageConfigRuntimeCollectionTest {
 
         @Override public void close() throws Exception {
             locks.close();transactions.close();org.apache.cloudstack.context.CallContext.unregister();
-            if(database.get()!=null)store.remove(database.get().getUuid());
+            if(database.get()!=null) {
+                store.remove(database.get().getUuid());
+                for(int index=0;index<64;index++)store.remove(StorageConfigArtifactStore.chunkIdentity(database.get().getUuid(),index));
+            }
             if(activePoint!=null)store.remove(activePoint.getUuid());java.nio.file.Files.delete(directory);
         }
     }
@@ -170,7 +176,81 @@ public class StorageConfigRuntimeCollectionTest {
             Assert.assertEquals(6,stored.getDesiredRevision());Assert.assertEquals(publicRow.get("sha256").getAsString(),stored.getSha256());
             Assert.assertEquals(publicRow.get("size").getAsLong(),stored.getSize());
             Assert.assertEquals(StorageConfigArchive.sha256(fixture.store.read(stored.getUuid(),stored.getSha256())),stored.getSha256());
+            java.util.Map<String,byte[]> entries=StorageConfigArchive.validate(fixture.store.read(stored.getUuid(),stored.getSha256()));
+            JsonObject manifest=StorageConfigArchive.json(entries.get("manifest.json")).getAsJsonObject();
+            Assert.assertEquals("33333333-3333-4333-8333-333333333333",manifest.get("sourceSharedFSUuid").getAsString());
+            Assert.assertEquals("44444444-4444-4444-8444-444444444444",manifest.get("sourceVMUuid").getAsString());
+            Assert.assertEquals("Stopped",manifest.get("sourceVMState").getAsString());
             fixture.configuration.bindReadOnlyArtifact(fixture.readOnly);fixture.configuration.verifyReadOnlyArtifact(fixture.readOnly);
+        }
+    }
+
+    private byte[] importArchive(BackupFixture fixture) {
+        JsonObject identity=new JsonObject();identity.addProperty("uuid",fixture.instance.getUuid());
+        JsonObject metadata=new JsonObject(),compatibility=new JsonObject();
+        compatibility.addProperty("minimumManagerVersion","4.23.0");compatibility.addProperty("maximumManagerVersionExclusive","4.24.0");
+        metadata.add("configurationCompatibility",compatibility);
+        JsonObject snapshot=new com.google.gson.JsonParser().parse(fixture.snapshot()).getAsJsonObject();
+        for(String table:new String[] {"storage_service_protocol","storage_file_share","storage_block_target","storage_access_rule","storage_identity_domain","storage_posix_directory_policy"}) {
+            JsonObject collection=new JsonObject();collection.addProperty("table",table);collection.add("rows",new com.google.gson.JsonArray());
+            snapshot.getAsJsonArray("tables").add(collection);
+        }
+        return StorageConfigArchive.create(StorageConfigSemantic.export(snapshot.toString(),identity,java.util.Map.of()),metadata);
+    }
+    private StorageConfigRequest uploadRequest(Long artifact,String sha,byte[] bytes,int index,int count) {
+        return new StorageConfigRequest() {
+            public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return null;}
+            public String getConfigAction(){return "UPLOAD";}
+            public Long getInstanceId(){return 7L;}
+            public Long getArtifactId(){return artifact;}
+            public String getSha256(){return sha;}
+            public String getData(){return java.util.Base64.getEncoder().encodeToString(bytes);}
+            public Integer getChunkIndex(){return index;}
+            public Integer getChunkCount(){return count;}
+        };
+    }
+    private StorageConfigRequest validateRequest() {
+        return new StorageConfigRequest() {
+            public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return null;}
+            public String getConfigAction(){return "VALIDATE";}
+            public Long getInstanceId(){return 7L;}
+            public Long getArtifactId(){return 11L;}
+        };
+    }
+    private org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> quarantineEncryption() {
+        org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> encryption=org.mockito.Mockito.mockStatic(com.cloud.utils.crypt.DBEncryptionUtil.class);
+        encryption.when(()->com.cloud.utils.crypt.DBEncryptionUtil.encrypt(org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(call->"protected:"+call.getArgument(0));
+        encryption.when(()->com.cloud.utils.crypt.DBEncryptionUtil.decrypt(org.mockito.ArgumentMatchers.anyString()))
+                .thenAnswer(call->((String)call.getArgument(0)).substring("protected:".length()));
+        return encryption;
+    }
+    @Test public void singletonUploadPersistsChecksumAndSizeAcrossReloadBeforeValidation() throws Exception {
+        try(BackupFixture fixture=new BackupFixture();org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> encryption=quarantineEncryption()) {
+            byte[] archive=importArchive(fixture);String sha=StorageConfigArchive.sha256(archive);
+            fixture.configuration.execute(uploadRequest(null,sha,archive,0,1));
+            StorageConfigArtifactVO stored=fixture.database.get();
+            Assert.assertEquals("QUARANTINED",stored.getState());Assert.assertEquals(sha,stored.getSha256());Assert.assertEquals(archive.length,stored.getSize());
+            Assert.assertArrayEquals(archive,fixture.store.read(stored.getUuid(),sha));
+            fixture.configuration.execute(validateRequest());Assert.assertEquals("ARCHIVE_VALIDATED",fixture.database.get().getState());
+            Assert.assertEquals(sha,fixture.database.get().getSha256());Assert.assertEquals(archive.length,fixture.database.get().getSize());
+        }
+    }
+    @Test public void multichunkReloadAndIdenticalRetryRetainImmutableChecksumAndExactAccumulatedSize() throws Exception {
+        try(BackupFixture fixture=new BackupFixture();org.mockito.MockedStatic<com.cloud.utils.crypt.DBEncryptionUtil> encryption=quarantineEncryption()) {
+            byte[] archive=importArchive(fixture);String sha=StorageConfigArchive.sha256(archive);int split=archive.length/2;
+            byte[] first=java.util.Arrays.copyOfRange(archive,0,split),second=java.util.Arrays.copyOfRange(archive,split,archive.length);
+            fixture.configuration.execute(uploadRequest(null,sha,first,0,2));
+            Assert.assertEquals("UPLOADING",fixture.database.get().getState());Assert.assertEquals(sha,fixture.database.get().getSha256());
+            Assert.assertEquals(first.length,fixture.database.get().getSize());
+            fixture.configuration.execute(uploadRequest(11L,sha,first,0,2));Assert.assertEquals(first.length,fixture.database.get().getSize());
+            Assert.assertThrows(RuntimeException.class,()->fixture.configuration.execute(uploadRequest(11L,"b".repeat(64),second,1,2)));
+            Assert.assertEquals(sha,fixture.database.get().getSha256());Assert.assertEquals(first.length,fixture.database.get().getSize());
+            fixture.configuration.execute(uploadRequest(11L,sha,second,1,2));
+            Assert.assertEquals("QUARANTINED",fixture.database.get().getState());Assert.assertEquals(archive.length,fixture.database.get().getSize());
+            fixture.configuration.execute(uploadRequest(11L,sha,second,1,2));Assert.assertEquals(archive.length,fixture.database.get().getSize());
+            fixture.configuration.execute(validateRequest());Assert.assertEquals("ARCHIVE_VALIDATED",fixture.database.get().getState());
+            Assert.assertEquals(sha,fixture.database.get().getSha256());
         }
     }
 

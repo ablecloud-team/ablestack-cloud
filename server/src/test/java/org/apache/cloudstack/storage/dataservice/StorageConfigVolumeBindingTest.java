@@ -64,6 +64,40 @@ public class StorageConfigVolumeBindingTest {
             Mockito.when(volume.getState()).thenReturn(Volume.State.Ready);Mockito.when(volume.getAccountId()).thenReturn(2L);Mockito.when(volume.getDomainId()).thenReturn(3L);Mockito.when(volume.getDataCenterId()).thenReturn(1L);Mockito.when(volume.getInstanceId()).thenReturn(43L);return volume;
         }
     }
+    @Test public void manifestSourceLineageUsesOnlyExactOwnedSharedFsAndVmRowsAndOmitsUnknownRows() {
+        for(int mode=0;mode<10;mode++) {
+            InventoryFixture fixture=new InventoryFixture();
+            ReflectionTestUtils.setField(fixture.manager,"dataCenterDao",Mockito.mock(com.cloud.dc.dao.DataCenterDao.class));
+            ReflectionTestUtils.setField(fixture.manager,"serviceOfferingDao",Mockito.mock(com.cloud.service.dao.ServiceOfferingDao.class));
+            com.cloud.vm.dao.VMInstanceDao vms=Mockito.mock(com.cloud.vm.dao.VMInstanceDao.class);
+            ReflectionTestUtils.setField(fixture.manager,"vmInstanceDao",vms);
+            com.cloud.vm.VMInstanceVO vm=Mockito.mock(com.cloud.vm.VMInstanceVO.class);
+            Mockito.when(fixture.instance.getState()).thenReturn(StorageServiceInstance.State.Stopped);
+            Mockito.when(vm.getId()).thenReturn(43L);Mockito.when(vm.getAccountId()).thenReturn(2L);
+            Mockito.when(vm.getDomainId()).thenReturn(3L);Mockito.when(vm.getDataCenterId()).thenReturn(1L);
+            Mockito.when(vm.getUuid()).thenReturn("33333333-3333-4333-8333-333333333333");
+            Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);
+            Mockito.when(fixture.fileSystem.getUuid()).thenReturn("44444444-4444-4444-8444-444444444444");
+            Mockito.when(vms.findById(43L)).thenReturn(vm);
+            if(mode==1)Mockito.when(vms.findById(43L)).thenReturn(null);
+            if(mode==2)Mockito.when(fixture.shared.findByVm(43L)).thenReturn(null);
+            if(mode==3)Mockito.when(vm.getAccountId()).thenReturn(99L);
+            if(mode==4)Mockito.when(vm.getDomainId()).thenReturn(99L);
+            if(mode==5)Mockito.when(vm.getDataCenterId()).thenReturn(99L);
+            if(mode==6)Mockito.when(fixture.fileSystem.getAccountId()).thenReturn(99L);
+            if(mode==7)Mockito.when(fixture.fileSystem.getDomainId()).thenReturn(99L);
+            if(mode==8)Mockito.when(fixture.fileSystem.getDataCenterId()).thenReturn(99L);
+            if(mode==9)Mockito.when(fixture.fileSystem.getVmId()).thenReturn(99L);
+            if(mode>=3)Assert.assertThrows(InvalidParameterValueException.class,()->fixture.manager.configurationInstanceMetadata(fixture.instance));
+            else {
+                com.google.gson.JsonObject result=fixture.manager.configurationInstanceMetadata(fixture.instance);
+                Assert.assertEquals(mode!=1,result.has("sourceVMUuid"));Assert.assertEquals(mode!=1,result.has("sourceVMState"));
+                Assert.assertEquals(mode!=2,result.has("sourceSharedFSUuid"));
+                if(mode!=1){Assert.assertEquals(vm.getUuid(),result.get("sourceVMUuid").getAsString());Assert.assertEquals("Stopped",result.get("sourceVMState").getAsString());}
+                if(mode!=2)Assert.assertEquals(fixture.fileSystem.getUuid(),result.get("sourceSharedFSUuid").getAsString());
+            }
+        }
+    }
     @Test public void emptyServiceInventoryIncludesExactDefaultAndAttachedDataButNeverRootOrUnrelatedUnattached() {
         InventoryFixture fixture=new InventoryFixture();VolumeVO root=Mockito.mock(VolumeVO.class);Mockito.when(root.getVolumeType()).thenReturn(Volume.Type.ROOT);
         Mockito.when(fixture.volumes.findByInstanceAndType(43L,Volume.Type.DATADISK)).thenReturn(java.util.List.of(fixture.extra,fixture.initial,root));

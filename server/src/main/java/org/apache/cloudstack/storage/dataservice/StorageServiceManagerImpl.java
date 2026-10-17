@@ -331,7 +331,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Initial endpoint recovery requires its original administrator and failed writer");
         JsonObject source=frozen.getAsJsonObject("configurationDesiredState");
         JsonObject observed=nativeConfigurationGeneration(instance,null,"status"),current=observed.getAsJsonObject("configurationDesiredState");
-        if(source==null || current==null || !source.get("network-endpoints.json").isJsonNull() || current.get("network-endpoints.json").isJsonNull())return;
+        if(source==null || current==null || !source.get("network-endpoints.json").isJsonNull())return;
+        boolean endpointPresent=!current.get("network-endpoints.json").isJsonNull();
+        if(!endpointPresent && !StorageInitialPrimaryEndpointRecovery.emptyEnabledReplayDrift(frozen,observed))return;
         String primary=configurationPrimaryAddress(instance);
         StorageInitialPrimaryEndpointRecovery.requireCanonical(frozen,observed,primary);
         if(!operation.getUuid().equals(getJsonString(observed,"pendingOperationUuid")))
@@ -341,15 +343,26 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!StorageUnchangedVerifiedSourceRecovery.same(desired,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
             throw new CloudRuntimeException("Initial endpoint recovery DB SOURCE changed");
         StorageInitialPrimaryEndpointRecovery.authenticate(instance.getId(),primary,getJsonString(parseJsonObject(operation.getResultJson()),"_requestFingerprint"),StorageServiceRequestFingerprint::of);
-        JsonObject endpoint=current.getAsJsonObject("network-endpoints.json"),inspection=endpoint.deepCopy();
-        inspection.add("expectedBindings",rootNetworkBindings(instance,endpoint));
+        JsonObject endpoint=endpointPresent?current.getAsJsonObject("network-endpoints.json"):new JsonObject();
+        JsonObject sourceNetwork=getJsonObject(source,"sharedfs-network.json");
+        if(!endpointPresent) {
+            String cidr=getJsonString(sourceNetwork,"cidr");
+            if(!primary.equals(getJsonString(sourceNetwork,"ipAddress")) || !com.cloud.utils.net.NetUtils.isValidIp4Cidr(cidr))
+                throw new CloudRuntimeException("Empty NFS replay recovery has no frozen primary CIDR authority");
+            JsonObject address=new JsonObject();address.addProperty("listenIp",primary);address.addProperty("primaryIp",primary);address.addProperty("port",2049);
+            address.addProperty("prefixlen",Integer.parseInt(cidr.substring(cidr.indexOf('/')+1)));
+            JsonArray endpoints=new JsonArray();endpoints.add(address);endpoint.add("endpoints",endpoints);
+        }
+        JsonObject inspection=endpoint.deepCopy();inspection.add("expectedBindings",rootNetworkBindings(instance,endpoint));
+        JsonObject expectedBinding=inspection.getAsJsonArray("expectedBindings").get(0).getAsJsonObject();
+        if(!endpointPresent && !StringUtils.equalsIgnoreCase(getJsonString(sourceNetwork,"macAddress"),getJsonString(expectedBinding,"macAddress")))
+            throw new CloudRuntimeException("Empty NFS replay recovery default NIC differs from its frozen MAC");
         JsonObject proof=rootGuest(instance,"network endpoints inspect",inspection,15);
         if(!Boolean.TRUE.equals(getNativeBoolean(proof,"success")) || !Boolean.TRUE.equals(getNativeBoolean(proof,"bindingsValidated"))
                 || !Boolean.FALSE.equals(getNativeBoolean(proof,"sideEffects")) || !proof.has("endpoints") || proof.getAsJsonArray("endpoints").size()!=1
                 || !Boolean.TRUE.equals(getNativeBoolean(proof.getAsJsonArray("endpoints").get(0).getAsJsonObject(),"active")))
             throw new CloudRuntimeException("Initial primary endpoint has no exact fresh NIC/MAC binding");
         JsonObject actualBinding=proof.getAsJsonArray("endpoints").get(0).getAsJsonObject();
-        JsonObject expectedBinding=inspection.getAsJsonArray("expectedBindings").get(0).getAsJsonObject();
         for(String key:Set.of("listenIp","primaryIp","macAddress","prefixlen"))
             if(!StorageUnchangedVerifiedSourceRecovery.same(expectedBinding.get(key),actualBinding.get(key)))
                 throw new CloudRuntimeException("Initial primary endpoint fresh binding differs from its exact NIC");
@@ -5068,7 +5081,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         ServiceOfferingVO offering = instance.getServiceOfferingId() == null ? null : serviceOfferingDao.findById(instance.getServiceOfferingId());
         if (offering != null) metadata.addProperty("serviceOfferingUuid", offering.getUuid());
         VMInstanceVO vm = instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId());
-        if (vm != null) { metadata.addProperty("vmUuid", vm.getUuid());metadata.addProperty("vmState", vm.getState().name()); }
+        if (vm != null) {
+            if (!instance.getVmId().equals(vm.getId()) || vm.getAccountId() != instance.getAccountId()
+                    || vm.getDomainId() != instance.getDomainId() || vm.getDataCenterId() != instance.getDataCenterId())
+                throw new InvalidParameterValueException("Configuration source VM ownership differs");
+            metadata.addProperty("vmUuid", vm.getUuid());metadata.addProperty("vmState", vm.getState().name());
+            metadata.addProperty("sourceVMUuid", vm.getUuid());metadata.addProperty("sourceVMState", vm.getState().name());
+        }
+        SharedFSVO shared = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
+        if (shared != null) {
+            if (!instance.getVmId().equals(shared.getVmId()) || shared.getAccountId() != instance.getAccountId()
+                    || shared.getDomainId() != instance.getDomainId() || !Long.valueOf(instance.getDataCenterId()).equals(shared.getDataCenterId()))
+                throw new InvalidParameterValueException("Configuration source SharedFS ownership differs");
+            metadata.addProperty("sourceSharedFSUuid", shared.getUuid());
+        }
         return metadata;
     }
     protected Map<Long, JsonObject> configurationVolumeMetadata(StorageServiceInstanceVO instance, String snapshot) {
@@ -9082,6 +9108,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             exports.add(export);
         }
         payload.add("exports", exports);
+        JsonObject recovery=configurationRecoverySource.get(),canonical=getJsonObject(recovery,"configurationDesiredState");
+        JsonObject frozenNfs=getJsonObject(canonical,"desired-state/nfs-export-apply.json"),generation=getJsonObject(recovery,"generation");
+        if(nfsProtocols.isEmpty() && exports.size()==0 && Boolean.TRUE.equals(getNativeBoolean(recovery,"success"))
+                && Boolean.TRUE.equals(getNativeBoolean(recovery,"frozen")) && Boolean.TRUE.equals(getNativeBoolean(recovery,"generationSupported"))
+                && instance.getUuid().equals(getJsonString(generation,"instanceUuid")) && Boolean.FALSE.equals(getNativeBoolean(frozenNfs,"enabled"))
+                && frozenNfs.has("exports") && frozenNfs.get("exports").isJsonArray() && frozenNfs.getAsJsonArray("exports").size()==0)
+            payload.addProperty("enabled",false);
         return payload;
     }
 

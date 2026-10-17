@@ -98,6 +98,26 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
             Assert.assertThrows(RuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.requireCanonical(old,now,"10.10.13.223"));
         }
     }
+
+    @Test public void onlyEmptyEnabledReplayFlagWithAbsentEndpointCanNormalizeAgain() {
+        JsonObject frozen=frozen(),now=current(frozen);
+        now.getAsJsonObject("configurationDesiredState").add("network-endpoints.json",com.google.gson.JsonNull.INSTANCE);
+        now.getAsJsonObject("configurationDesiredState").getAsJsonObject("desired-state/nfs-export-apply.json").addProperty("enabled",true);
+        Assert.assertTrue(StorageInitialPrimaryEndpointRecovery.emptyEnabledReplayDrift(frozen,now));
+        StorageInitialPrimaryEndpointRecovery.requireCanonical(frozen,now,"10.10.13.223");
+        for(int mode=0;mode<6;mode++) {
+            JsonObject changed=now.deepCopy(),desired=changed.getAsJsonObject("configurationDesiredState");
+            JsonObject nfs=desired.getAsJsonObject("desired-state/nfs-export-apply.json");
+            if(mode==0)nfs.getAsJsonArray("exports").add(json("{\"name\":\"active-foreign\"}"));
+            if(mode==1)nfs.addProperty("protocolMode","V3V4_DUAL");
+            if(mode==2)nfs.addProperty("port",2050);
+            if(mode==3)nfs.addProperty("instanceUuid","foreign-owner");
+            if(mode==4)desired.add("sharedfs-network.json",json("{\"unknown\":true}"));
+            if(mode==5)desired.add("network-endpoints.json",json("{\"endpoints\":[{\"listenIp\":\"10.10.13.223\",\"primaryIp\":\"10.10.13.223\",\"port\":2049,\"prefixlen\":16}]}"));
+            Assert.assertThrows(RuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.requireCanonical(frozen,changed,"10.10.13.223"));
+        }
+    }
+
     private static JsonObject health() {
         return json("{\"success\":true,\"status\":\"ok\",\"generatedEpoch\":1000,\"nfsGanesha\":{\"active\":0,\"configured\":0,\"listening\":false,\"endpoints\":[]},\"listenPorts\":{\"nfs\":false},\"services\":{\"nfs\":\"inactive\"}}");
     }
@@ -121,7 +141,7 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
     }
     private static final class Manager extends StorageServiceManagerImpl implements AutoCloseable {
         final StorageServiceInstanceVO instance=new StorageServiceInstanceVO();final StorageServiceOperationVO operation=new StorageServiceOperationVO();
-        final JsonObject frozen=frozen(),observed=current(frozen);int restores,observations;boolean race;final java.util.List<String> commands=new java.util.ArrayList<>();
+        final JsonObject frozen=frozen(),observed=current(frozen);int restores,observations;boolean race,unknownNfs;final java.util.List<String> commands=new java.util.ArrayList<>();
         Manager() {
             com.cloud.user.User user=org.mockito.Mockito.mock(com.cloud.user.User.class);org.mockito.Mockito.when(user.getId()).thenReturn(3L);
             org.apache.cloudstack.context.CallContext.register(user,org.mockito.Mockito.mock(com.cloud.user.Account.class));
@@ -131,6 +151,9 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
             operation.setPreviousSnapshotJson(captureConfigurationSnapshot(29));
             JsonObject result=new JsonObject();result.addProperty("_requestFingerprint",StorageServiceRequestFingerprint.of(enable(29,"10.10.13.223",2049),"test-protected-key"));operation.setResultJson(result.toString());
             observed.addProperty("pendingOperationUuid",operation.getUuid());
+            JsonObject network=json("{\"ipAddress\":\"10.10.13.223\",\"cidr\":\"10.10.0.0/16\",\"macAddress\":\"02:00:00:00:00:78\"}");
+            frozen.getAsJsonObject("configurationDesiredState").add("sharedfs-network.json",network);
+            observed.getAsJsonObject("configurationDesiredState").add("sharedfs-network.json",network.deepCopy());
             java.lang.ThreadLocal<JsonObject> source=(java.lang.ThreadLocal<JsonObject>)org.springframework.test.util.ReflectionTestUtils.getField(this,"configurationRecoverySource");source.set(frozen);
             java.lang.ThreadLocal<Long> explicit=(java.lang.ThreadLocal<Long>)org.springframework.test.util.ReflectionTestUtils.getField(this,"explicitUnchangedSourceRecovery");explicit.set(41L);
         }
@@ -147,12 +170,13 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
         @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject payload,int timeout) {
             commands.add(command);
             if("network endpoints inspect".equals(command)) {
+                Assert.assertEquals(16,payload.getAsJsonArray("endpoints").get(0).getAsJsonObject().get("prefixlen").getAsInt());
                 JsonObject result=json("{\"success\":true,\"bindingsValidated\":true,\"sideEffects\":false}");com.google.gson.JsonArray rows=payload.getAsJsonArray("expectedBindings").deepCopy();
                 rows.get(0).getAsJsonObject().addProperty("active",true);result.add("endpoints",rows);return result;
             }
-            if("operation verify".equals(command)){JsonObject result=health();result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);return result;}
+            if("operation verify".equals(command)){JsonObject result=health();if(unknownNfs)result.getAsJsonObject("nfsGanesha").remove("active");result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);return result;}
             if("operation observe".equals(command)){JsonObject result=inventory();result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);return result;}
-            Assert.assertEquals("operation generation restore",command);restores++;Assert.assertEquals(source(),payload.get("configurationDesiredState"));
+            Assert.assertEquals("operation generation restore",command);restores++;Assert.assertEquals(frozen.get("configurationDesiredState"),payload.get("configurationDesiredState"));
             JsonObject result=new JsonObject();result.addProperty("canonicalRestored",true);result.addProperty("configurationSha256","b".repeat(64));result.addProperty("pendingOperationUuid",operation.getUuid());return result;
         }
         public void close(){org.apache.cloudstack.context.CallContext.unregister();}
@@ -167,6 +191,30 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
             try(Manager manager=new Manager()) {
                 manager.frozen.addProperty("configurationSha256","b".repeat(64));manager.race=true;
                 Assert.assertThrows(CloudRuntimeException.class,()->manager.restoreFailedInitialPrimaryEndpoint(manager.instance,manager.operation));Assert.assertEquals(0,manager.restores);
+            }
+        }
+    }
+
+    @Test public void sameOwnedEnabledReplayReentryUsesOnlyReadonlyPrimaryProofAndCanonicalRestore() {
+        try(org.mockito.MockedStatic<StorageServiceRequestFingerprint> auth=org.mockito.Mockito.mockStatic(StorageServiceRequestFingerprint.class,org.mockito.Mockito.CALLS_REAL_METHODS)) {
+            auth.when(()->StorageServiceRequestFingerprint.of(org.mockito.Mockito.any(BaseCmd.class))).thenAnswer(call->StorageServiceRequestFingerprint.of(call.getArgument(0),"test-protected-key"));
+            for(int mode=0;mode<5;mode++)try(Manager manager=new Manager()) {
+                manager.frozen.addProperty("configurationSha256","b".repeat(64));
+                manager.observed.getAsJsonObject("configurationDesiredState").add("network-endpoints.json",com.google.gson.JsonNull.INSTANCE);
+                manager.observed.getAsJsonObject("configurationDesiredState").getAsJsonObject("desired-state/nfs-export-apply.json").addProperty("enabled",true);
+                if(mode==1)manager.unknownNfs=true;
+                if(mode==2)manager.operation.setCreatedBy(4);
+                if(mode==3 || mode==4) {
+                    JsonObject network=manager.frozen.getAsJsonObject("configurationDesiredState").getAsJsonObject("sharedfs-network.json");
+                    if(mode==3)network.remove("cidr");else network.addProperty("macAddress","02:00:00:00:00:79");
+                    manager.observed.getAsJsonObject("configurationDesiredState").add("sharedfs-network.json",network.deepCopy());
+                }
+                if(mode==0) {
+                    manager.restoreFailedInitialPrimaryEndpoint(manager.instance,manager.operation);Assert.assertEquals(1,manager.restores);
+                    Assert.assertEquals(java.util.List.of("network endpoints inspect","operation verify","operation observe","operation generation restore"),manager.commands);
+                } else {
+                    Assert.assertThrows(CloudRuntimeException.class,()->manager.restoreFailedInitialPrimaryEndpoint(manager.instance,manager.operation));Assert.assertEquals(0,manager.restores);
+                }
             }
         }
     }

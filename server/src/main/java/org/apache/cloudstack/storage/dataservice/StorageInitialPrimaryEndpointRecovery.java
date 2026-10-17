@@ -47,18 +47,36 @@ final class StorageInitialPrimaryEndpointRecovery {
         need(matches==1);return matched;
     }
 
+    static boolean emptyEnabledReplayDrift(JsonObject frozen,JsonObject status) {
+        try {
+            JsonObject source=frozen.getAsJsonObject("configurationDesiredState"),current=status.getAsJsonObject("configurationDesiredState");
+            JsonObject old=source.getAsJsonObject("desired-state/nfs-export-apply.json"),now=current.getAsJsonObject("desired-state/nfs-export-apply.json");
+            if(!source.get("network-endpoints.json").isJsonNull() || !current.get("network-endpoints.json").isJsonNull()
+                    || !flag(old,"enabled",false) || !flag(now,"enabled",true)
+                    || !old.has("exports") || !old.get("exports").isJsonArray() || old.getAsJsonArray("exports").size()!=0)return false;
+            JsonObject disabled=now.deepCopy();disabled.addProperty("enabled",false);
+            return StorageUnchangedVerifiedSourceRecovery.same(old,disabled);
+        } catch(RuntimeException unknown) {return false;}
+    }
+
     static void requireCanonical(JsonObject frozen,JsonObject status,String primary) {
         JsonObject source=frozen.getAsJsonObject("configurationDesiredState"),current=status.getAsJsonObject("configurationDesiredState");
         need(source!=null && current!=null && source.keySet().equals(StorageRenderedDesiredState.PATHS) && current.keySet().equals(source.keySet()));
         need(source.get("network-endpoints.json").isJsonNull());
-        for(String path:source.keySet())if(!"network-endpoints.json".equals(path))need(StorageUnchangedVerifiedSourceRecovery.same(source.get(path),current.get(path)));
+        for(String path:source.keySet())if(!Set.of("network-endpoints.json","desired-state/nfs-export-apply.json").contains(path))
+            need(StorageUnchangedVerifiedSourceRecovery.same(source.get(path),current.get(path)));
         JsonObject nfs=source.getAsJsonObject("desired-state/nfs-export-apply.json");
         need(nfs!=null && flag(nfs,"enabled",false) && nfs.has("exports") && nfs.get("exports").isJsonArray() && nfs.getAsJsonArray("exports").size()==0);
-        JsonObject endpoint=current.getAsJsonObject("network-endpoints.json");
-        need(endpoint!=null && endpoint.keySet().equals(Set.of("endpoints")) && endpoint.get("endpoints").isJsonArray() && endpoint.getAsJsonArray("endpoints").size()==1);
-        JsonObject row=endpoint.getAsJsonArray("endpoints").get(0).getAsJsonObject();
-        need(row.keySet().equals(Set.of("listenIp","primaryIp","port","prefixlen")) && primary.equals(text(row,"listenIp")) && primary.equals(text(row,"primaryIp"))
-                && number(row,"port")==2049 && number(row,"prefixlen")>=0 && number(row,"prefixlen")<=32);
+        if(current.get("network-endpoints.json").isJsonNull()) {
+            need(emptyEnabledReplayDrift(frozen,status));
+        } else {
+            need(StorageUnchangedVerifiedSourceRecovery.same(nfs,current.get("desired-state/nfs-export-apply.json")));
+            JsonObject endpoint=current.getAsJsonObject("network-endpoints.json");
+            need(endpoint!=null && endpoint.keySet().equals(Set.of("endpoints")) && endpoint.get("endpoints").isJsonArray() && endpoint.getAsJsonArray("endpoints").size()==1);
+            JsonObject row=endpoint.getAsJsonArray("endpoints").get(0).getAsJsonObject();
+            need(row.keySet().equals(Set.of("listenIp","primaryIp","port","prefixlen")) && primary.equals(text(row,"listenIp")) && primary.equals(text(row,"primaryIp"))
+                    && number(row,"port")==2049 && number(row,"prefixlen")>=0 && number(row,"prefixlen")<=32);
+        }
         need(flag(status,"success",true) && flag(status,"generationSupported",true) && "PENDING".equals(text(status,"generationStatus"))
                 && StorageUnchangedVerifiedSourceRecovery.same(status.get("generation"),frozen.get("generation"))
                 && text(status,"configurationSha256").matches("[a-f0-9]{64}")
