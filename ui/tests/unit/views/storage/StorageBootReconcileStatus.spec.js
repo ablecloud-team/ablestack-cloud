@@ -49,8 +49,56 @@ describe('#914 actual AntD boot status and scoped readonly lifecycle', () => {
     expect(wrapper.text()).toContain('label.storage.boot.status.RECONCILING')
     expect(wrapper.text()).toContain('label.storage.boot.probe.PENDING')
     expect(wrapper.text()).toContain('1 / 10')
+    expect(wrapper.text()).toContain('message.storage.boot.probes.pending')
     expect(wrapper.text()).not.toContain('%')
     expect(getAPI).toHaveBeenCalledWith('listStorageServiceHealth', { instanceid: INSTANCE }, { timeout: 15000, preserveOnFailure: true })
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+  it.each([['DEGRADED', 'orange'], ['FAILED', 'red'], ['HELD', 'orange']])('does not describe terminal %s permission-denied details as ongoing probes', async (status, color) => {
+    const value = bootHealth()
+    value.status = status.toLowerCase()
+    Object.assign(value.bootReconcile, {
+      status,
+      phase: status === 'HELD' ? 'HELD' : 'FAILED',
+      attempt: 1,
+      runtimeReady: true,
+      detailedVerified: false,
+      elapsedSeconds: 179.505190298,
+      deadlineSeconds: 1500,
+      remainingSeconds: 1320.494809197,
+      lastFailure: {
+        protocol: 'NFS',
+        phase: 'PROBE_EXPORTS',
+        endpointIp: '0.0.0.0',
+        endpointPort: 2049,
+        exportUuid: BOOT,
+        exportName: 'issue914-nfs001',
+        protocolMode: 'NFS4',
+        code: 'PROBE_PERMISSION_DENIED',
+        timedOut: false,
+        retryable: false,
+        cleanup: { complete: true, childActive: false, mountPresent: false }
+      }
+    })
+    Object.assign(value.bootReconcile.protocols.NFS, {
+      applyState: 'APPLIED',
+      observationComplete: true,
+      probeState: 'FAILED',
+      completedProbeCount: 99,
+      totalProbeCount: 100
+    })
+    Object.assign(value.bootReconcile.protocols.SMB, { completedProbeCount: 0, totalProbeCount: 0 })
+    getAPI.mockResolvedValue(wire(value)); render(); await flushPromises()
+    expect(wrapper.get('[role="status"]').classes()).toContain('ant-tag-' + color)
+    expect(wrapper.text()).toContain('label.storage.boot.status.' + status)
+    expect(wrapper.text()).not.toContain('message.storage.boot.probes.pending')
+    expect(wrapper.text()).toContain('label.storage.boot.last.failure')
+    expect(wrapper.text()).toContain('PROBE_PERMISSION_DENIED')
+    expect(wrapper.text()).toContain('99 / 100')
+    expect(wrapper.text()).toContain('label.storage.boot.verification.EXACT_RUNTIME_READBACK')
+    expect(wrapper.text()).not.toContain('label.storage.boot.verification.MOUNT_PROBES_COMPLETE')
+    jest.advanceTimersByTime(20000); await flushPromises()
+    expect(getAPI).toHaveBeenCalledTimes(1)
     expect(postAPI).not.toHaveBeenCalled()
   })
   it('polls completion-first every five seconds and stops on terminal READY', async () => {
@@ -160,6 +208,7 @@ describe('#914 bounded lifetime and authentication', () => {
     expect(wrapper.get('[role="status"]').classes()).toContain('ant-tag-green')
     expect(wrapper.text()).toContain('label.storage.boot.last.failure')
     expect(wrapper.text()).toContain('NFS_PROBE_TIMEOUT')
+    expect(wrapper.text()).not.toContain('message.storage.boot.probes.pending')
   })
 })
 
