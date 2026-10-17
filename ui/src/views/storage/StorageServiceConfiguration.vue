@@ -388,7 +388,10 @@ export default {
       if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
       if (result.jobstatus === 1 || result.jobstatus === 2) {
         if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
-        if (result.jobstatus === 2) throw new Error(this.$t('message.storage.config.job.failed', { job: intent.jobId, code: intent.errorCode ?? '—' }))
+        if (result.jobstatus === 2) {
+          try { await this.refresh() } catch (_) { this.readFailed = true }
+          throw new Error(this.$t('message.storage.config.job.failed', { job: intent.jobId, code: intent.errorCode ?? '—' }))
+        }
         return this.unwrap(result.jobresult, api)
       }
       throw new Error(this.$t('message.storage.config.job.unknown'))
@@ -544,6 +547,7 @@ export default {
       try { await this.mutation('validateStorageServiceConfigImport', { artifactid: row.id }); if ((scope === configurationScope(this) && !this.disposed)) await this.refresh() } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     async openPlan (row, lkg = false) {
+      if (this.readFailed) { this.error = this.$t('message.storage.config.read.failed'); return }
       const instance = this.instanceId
       try {
         if (lkg) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')

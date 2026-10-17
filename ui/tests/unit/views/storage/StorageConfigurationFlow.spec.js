@@ -43,6 +43,7 @@ describe('configuration known jobs and non-secret review', () => {
     await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceConfigRestore', {})).rejects.toThrow('message.storage.config.job.blocked')
     expect(postAPI).toHaveBeenCalledTimes(1)
     expect(postAPI.mock.calls[0][2]).toEqual({ preserveOnFailure: true, backgroundJob: true })
+    expect(vm.refresh).not.toHaveBeenCalled()
   })
   it('does not promote a missing async job ID to success', async () => {
     const vm = context(); postAPI.mockResolvedValue({ result: '{}' })
@@ -386,5 +387,57 @@ describe('partial CREATE_NEW re-entry preserves the original allocation request'
     expect(JSON.parse(postAPI.mock.calls[0][1].mapping)).toEqual({ volumes: {}, confirmFileExecute: false })
     expect(vm.cloneResume).toBeNull()
     expect(vm.planPhase).toBe('REVIEW')
+  })
+
+  it('refreshes a known failed clone once and reopens the fresh partial metadata through CREATE_NEW', async () => {
+    const row = artifact()
+    const vm = view()
+    vm.rows = [{ id: row.id, kind: 'BACKUP', state: 'COMPLETE', metadata: {} }]
+    vm.can = api => api === 'listStorageServiceConfigBackups'
+    postAPI.mockResolvedValueOnce({ applystorageserviceconfigrestoreresponse: { jobid: 'failed-partial-create' } })
+    getAPI.mockImplementation(api => {
+      if (api === 'queryAsyncJobResult') return Promise.resolve({ queryasyncjobresultresponse: { jobstatus: 2, jobresultcode: 530, jobresult: { errortext: 'synthetic-private-error' } } })
+      if (api === 'listStorageServiceConfigBackups') return Promise.resolve({ liststorageserviceconfigbackupsresponse: { storageserviceconfiguration: { result: JSON.stringify({ artifacts: [row] }) } } })
+      throw new Error('unexpected discovery')
+    })
+    await expect(vm.mutation('applyStorageServiceConfigRestore', { artifactid: row.id })).rejects.toThrow('message.storage.config.job.failed')
+    expect(getAPI.mock.calls.filter(call => call[0] === 'listStorageServiceConfigBackups')).toHaveLength(1)
+    expect(vm.rows[0].metadata.createdTargetInstanceUuid).toBe(id(79))
+    expect(vm.readFailed).toBe(false)
+    postAPI.mockResolvedValueOnce(reply(row))
+    await vm.openPlan(vm.rows[0])
+    expect(postAPI).toHaveBeenCalledTimes(2)
+    expect(postAPI.mock.calls[1][0]).toBe('planStorageServiceConfigRestore')
+    expect(postAPI.mock.calls[1][1].targetmode).toBe('CREATE_NEW')
+    expect(vm.cloneResume.createdTargetInstanceUuid).toBe(id(79))
+  })
+  it('keeps the original failed-job error and blocks old rows when artifact refresh fails', async () => {
+    const row = artifact()
+    const vm = view()
+    const stale = { id: row.id, kind: 'BACKUP', state: 'COMPLETE', metadata: {} }
+    vm.rows = [stale]
+    vm.can = api => api === 'listStorageServiceConfigBackups'
+    postAPI.mockResolvedValue({ applystorageserviceconfigrestoreresponse: { jobid: 'failed-refresh-create' } })
+    getAPI.mockImplementation(api => api === 'queryAsyncJobResult'
+      ? Promise.resolve({ queryasyncjobresultresponse: { jobstatus: 2, jobresultcode: 530, jobresult: {} } })
+      : Promise.reject(new Error('history temporarily unavailable')))
+    await expect(vm.mutation('applyStorageServiceConfigRestore', { artifactid: row.id })).rejects.toThrow('message.storage.config.job.failed')
+    expect(vm.rows).toEqual([stale])
+    expect(vm.readFailed).toBe(true)
+    const reads = getAPI.mock.calls.length
+    await vm.openPlan(stale)
+    expect(getAPI).toHaveBeenCalledTimes(reads)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(vm.planTarget).toBeNull()
+    expect(vm.error).toBe('message.storage.config.read.failed')
+  })
+  it('does not replace the known job failure if the refresh method itself rejects', async () => {
+    const vm = view()
+    vm.refresh = jest.fn().mockRejectedValue(new Error('refresh rejected'))
+    postAPI.mockResolvedValue({ applystorageserviceconfigrestoreresponse: { jobid: 'failed-direct-refresh' } })
+    getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 2, jobresultcode: 530, jobresult: {} } })
+    await expect(vm.mutation('applyStorageServiceConfigRestore', {})).rejects.toThrow('message.storage.config.job.failed')
+    expect(vm.refresh).toHaveBeenCalledTimes(1)
+    expect(vm.readFailed).toBe(true)
   })
 })
