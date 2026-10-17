@@ -57,11 +57,12 @@ public class StorageConfigurationVolumePlanTest {
             JsonArray files = rows("file-shares"), kept = new JsonArray();for (JsonElement row : files) if (!id(source).equals(row.getAsJsonObject().get("volumeUuid").getAsString())) kept.add(row);
             put("file-shares", kept);JsonArray block = new JsonArray();JsonObject target = json("{\"protocol\":\"ISCSI\"}");target.addProperty("volumeUuid", id(source));block.add(target);put("block-targets", block);
         }
-        void existing(int source) {
-            mapping.getAsJsonObject("volumes").addProperty(id(source), id(950));
-            if (source == 1) {blueprint.addProperty("backingvolumemode", "EXISTING");blueprint.addProperty("existingvolumeid", id(950));}
+        void existing(int source) {existing(source, id(950));}
+        void existing(int source, String selected) {
+            mapping.getAsJsonObject("volumes").addProperty(id(source), selected);
+            if (source == 1) {blueprint.addProperty("backingvolumemode", "EXISTING");blueprint.addProperty("existingvolumeid", selected);}
             JsonObject volume = json("{\"type\":\"DATADISK\",\"state\":\"Ready\",\"reserved\":false,\"sizeBytes\":21474836480,\"accountId\":2,\"domainId\":1,\"projectId\":7}");
-            volume.addProperty("uuid", id(950));volume.addProperty("zoneUuid", id(903));volume.addProperty("poolUuid", id(911));catalog.getAsJsonObject("existingVolumes").add(id(950), volume);
+            volume.addProperty("uuid", selected);volume.addProperty("zoneUuid", id(903));volume.addProperty("poolUuid", id(911));catalog.getAsJsonObject("existingVolumes").add(selected, volume);
         }
     }
     static JsonObject allocation(JsonObject plan, int index) {return plan.getAsJsonArray("allocations").get(index).getAsJsonObject();}
@@ -167,6 +168,48 @@ public class StorageConfigurationVolumePlanTest {
             JsonObject bad=initial.deepCopy();if(key.equals("accountId")||key.equals("sizeBytes"))bad.addProperty(key,999);else bad.addProperty(key,key.equals("type")?"ROOT":key.equals("provisioningType")?"THIN":id(999));
             Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(original,target,bad));
         }
+    }
+
+    @Test public void sameRetainedInitialAndAdditionalExistingUuidsBindWithoutChangingTheirFrozenReview() {
+        Fixture f=new Fixture(2);f.existing(1,id(1));f.existing(2,id(2));
+        JsonObject reviewed=f.build(),before=reviewed.deepCopy();
+        JsonObject target=f.scope.deepCopy();target.addProperty("uuid",id(970));
+        JsonObject initial=f.scope.deepCopy();initial.addProperty("uuid",id(1));initial.addProperty("type","DATADISK");initial.addProperty("state","Ready");
+        initial.addProperty("attachedInstanceUuid",id(970));initial.addProperty("poolUuid",id(911));initial.addProperty("sizeBytes",21474836480L);initial.addProperty("provisioningType","SPARSE");
+        JsonObject execution=StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed,target,initial);
+        Assert.assertEquals(before,reviewed);StorageConfigurationVolumePlan.requireFrozen(execution);
+        Assert.assertEquals(id(1),execution.getAsJsonObject("volumeMappings").get(id(1)).getAsString());
+        Assert.assertEquals(id(2),execution.getAsJsonObject("volumeMappings").get(id(2)).getAsString());
+        Assert.assertEquals(1,execution.getAsJsonArray("allocations").size());
+        Assert.assertEquals("EXISTING",allocation(execution,0).get("mode").getAsString());
+        Assert.assertEquals(id(2),allocation(execution,0).get("plannedUuid").getAsString());
+        Assert.assertEquals(before.get("planSha256"),execution.get("parentPlanSha256"));
+        Assert.assertEquals(execution,StorageConfigurationVolumePlan.bindAdditionalExecution(execution,id(970),id(1)));
+    }
+    @Test public void retainedInitialExceptionNeverPermitsNewForeignAdditionalOrResourceTargetAliases() {
+        Fixture existing=new Fixture(2);existing.existing(1,id(1));existing.existing(2,id(2));JsonObject reviewed=existing.build();
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(new Fixture(2).build(),id(970),id(1)));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed,id(970),id(999)));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed,id(1),id(1)));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed,id(2),id(1)));
+        Fixture sourceAlias=new Fixture(2);sourceAlias.existing(1,id(2));sourceAlias.existing(2,id(950));JsonObject sourcePlan=sourceAlias.build();
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(sourcePlan,id(970),id(2)));
+        Fixture plannedAlias=new Fixture(2);plannedAlias.existing(1);JsonObject planned=plannedAlias.build();String additional=allocation(planned,1).get("plannedUuid").getAsString();
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(planned,id(970),additional));
+    }
+    @Test public void sameSourceExistingInitialStillRequiresFreshOwnerPoolSizeAttachmentAndUntamperedReview() {
+        Fixture f=new Fixture(2);f.existing(1,id(1));f.existing(2,id(2));JsonObject reviewed=f.build();
+        JsonObject target=f.scope.deepCopy();target.addProperty("uuid",id(970));JsonObject initial=f.scope.deepCopy();
+        initial.addProperty("uuid",id(1));initial.addProperty("type","DATADISK");initial.addProperty("state","Ready");initial.addProperty("attachedInstanceUuid",id(970));
+        initial.addProperty("poolUuid",id(911));initial.addProperty("sizeBytes",21474836480L);initial.addProperty("provisioningType","SPARSE");
+        for(String field:new String[]{"accountId","domainId","projectId","zoneUuid","poolUuid","sizeBytes","attachedInstanceUuid","type","state"}) {
+            JsonObject changed=initial.deepCopy();
+            if(java.util.Set.of("accountId","domainId","projectId","sizeBytes").contains(field))changed.addProperty(field,999);
+            else changed.addProperty(field,field.equals("type")?"ROOT":field.equals("state")?"Destroy":id(999));
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(reviewed,target,changed));
+        }
+        JsonObject tampered=reviewed.deepCopy();allocation(tampered,0).addProperty("initial",false);
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumePlan.bindAdditionalExecution(tampered,target,initial));
     }
 
     @Test public void logicalNvmeSubsystemWithoutVolumeIsSkippedAndNamespaceRemainsRaw(){

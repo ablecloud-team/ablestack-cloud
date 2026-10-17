@@ -173,7 +173,9 @@ public final class StorageConfigurationVolumePlan {
         for (JsonElement value : reviewed.getAsJsonArray("allocations")) {
             JsonObject allocation = value.getAsJsonObject();String source = text(allocation, "sourceUuid");
             require(!actualTargetInstanceUuid.equals(source) && !actualTargetInstanceUuid.equals(text(allocation, "plannedUuid")), "Actual target identity cannot alias a DATA binding");
-            require(!actualInitialVolumeUuid.equals(source), "Actual initial DATA cannot alias source DATA");
+            boolean sameExistingInitial = flag(allocation, "initial") && "EXISTING".equals(text(allocation, "mode"))
+                    && actualInitialVolumeUuid.equals(text(allocation, "plannedUuid"));
+            require(!actualInitialVolumeUuid.equals(source) || sameExistingInitial, "Actual initial DATA cannot alias source DATA");
             if (flag(allocation, "initial")) {
                 require(initialSource == null, "Execution plan must have exactly one initial DATA source");initialSource = source;
                 if ("EXISTING".equals(text(allocation, "mode"))) require(actualInitialVolumeUuid.equals(text(allocation, "plannedUuid")), "Existing initial DATA cannot be replaced by a foreign volume");
