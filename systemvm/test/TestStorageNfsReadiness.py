@@ -53,12 +53,13 @@ class StorageNfsReadinessTest(unittest.TestCase):
 
     def endpoint(self,index=0):
         return {"listenIp":"127.0.0."+str(index+1),"port":2049+index,"protocolMode":"V4_ONLY",
-                "pid":os.getpid(),"startTicks":"123","configurationSha256":"a"*64,"exportInventoryReady":True}
+                "pid":os.getpid(),"startTicks":"123","configurationSha256":"a"*64,"exportInventoryReady":True,
+                "processRunning":True,"listening":True,"listenerOwned":True}
 
     def export(self,index=0,dual=False):
         return {"uuid":"00000000-0000-4000-8000-"+str(index).zfill(12),"id":1000+index,
                 "name":"export"+str(index),"path":"/export/share"+str(index),"pseudo":"/share"+str(index),
-                "protocolMode":"V3V4_DUAL" if dual else "V4_ONLY"}
+                "protocolMode":"V3V4_DUAL" if dual else "V4_ONLY","clients":[{"clients":"*"}]}
 
     def run_exports(self,count=1,dual=False,endpoint=None):
         endpoint=endpoint or self.endpoint()
@@ -219,6 +220,7 @@ class StorageNfsReadinessTest(unittest.TestCase):
         adapter.owned_endpoint_manager.side_effect=[ValueError("cold"),("owned","manager")]
         readiness=NfsEndpointReadiness(time.monotonic()+1,lambda **kwargs:adapter,self.command)
         readiness.snapshot=lambda *args:({"pid":os.getpid(),"startTicks":"123","configurationSha256":"a"*64},content)
+        readiness.listener_owned=Mock(return_value=True)
         readiness.wait(endpoint,"/unused")
         self.assertTrue(endpoint["exportInventoryReady"])
         adapter.verify.assert_called_once()

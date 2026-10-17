@@ -9731,5 +9731,15 @@
   "label.storage.boot.apply.FAILED": "실패",
   "label.storage.boot.apply.APPLYING": "적용 중",
   "label.storage.boot.apply.APPLIED": "적용됨",
-  "label.storage.boot.apply": "구성 적용"
+  "label.storage.boot.apply": "구성 적용",
+  "label.storage.service.nfs.local.verification": "로컬 NFS 검증",
+  "label.storage.service.nfs.applied.clients": "적용된 클라이언트 ACL",
+  "label.storage.service.nfs.probe.VERIFIED": "로컬 마운트 검증 완료",
+  "label.storage.service.nfs.probe.SKIPPED_ACL": "로컬 마운트 probe 생략",
+  "label.storage.service.nfs.probe.SKIPPED_DYNAMIC": "동적 적용 검증 완료",
+  "label.storage.service.nfs.probe.FAILED": "로컬 검증 실패",
+  "label.storage.service.nfs.probe.UNKNOWN": "로컬 검증 미확인",
+  "message.storage.service.nfs.probe.ACL_RESTRICTED_NO_LOCAL_SOURCE": "클라이언트 ACL에 허용된 로컬 주소가 없어 마운트를 생략하고 런타임 export 목록을 검증했습니다.",
+  "message.storage.service.nfs.probe.DBUS_DYNAMIC_UPDATE_VERIFIED": "로컬 마운트 없이 DBus export 갱신과 런타임 목록을 검증했습니다.",
+  "message.storage.service.nfs.probe.external.separate": "외부 클라이언트의 마운트와 I/O는 별도로 검증해야 합니다."
 }

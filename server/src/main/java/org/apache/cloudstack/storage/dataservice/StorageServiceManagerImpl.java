@@ -589,7 +589,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     private static final Gson GSON = new Gson();
-    private static final Gson RUNTIME_RESULT_GSON = new GsonBuilder().disableHtmlEscaping().create();
+    private static final Gson RUNTIME_RESULT_GSON = new GsonBuilder().disableHtmlEscaping().serializeNulls().create();
     private static final int NFS_ANONYMOUS_UID = 65534;
     private static final int NFS_ANONYMOUS_GID = 65534;
     private static final String NFS_WRITABLE_ROOT_SQUASH_MODE = "0775";

@@ -229,6 +229,9 @@ class="storage-service__alert"
                   <template v-if="column.key === 'state'">
                     <a-tag :color="runtimeColor(record)">{{ storageCellValue(record, column) }}</a-tag>
                   </template>
+                  <template v-else-if="column.key === 'localProbe'">
+                    <storage-nfs-probe-status :health="parsedHealth" :export-uuid="record.id" :stale="monitorCacheInfo.stale" :read-failed="networkHealthReadFailed" />
+                  </template>
                   <template v-else-if="column.key === 'actions'">
                     <div class="storage-table-actions">
                       <a-space class="storage-table-actions__space">
@@ -2390,6 +2393,7 @@ import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeU
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
 import StorageBootReconcileStatus from '@/views/storage/StorageBootReconcileStatus'
+import StorageNfsProbeStatus from '@/views/storage/StorageNfsProbeStatus'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
@@ -2653,6 +2657,7 @@ export default {
     StorageVolumePreparation,
     StorageNetworkStatus,
     StorageBootReconcileStatus,
+    StorageNfsProbeStatus,
     StorageSmbIdentityRepair,
     StorageAdMutationConsent,
     PosixDirectoryPolicies,
@@ -3848,6 +3853,7 @@ export default {
         { title: this.$t('label.storage.service.capacity'), dataIndex: 'capacity', key: 'capacity', width: 150 },
         { title: this.$t('label.storage.service.backing.volume'), dataIndex: 'volumeName', key: 'volumeName', width: 210 },
         { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 110 },
+        { title: this.$t('label.storage.service.nfs.local.verification'), key: 'localProbe', width: 340 },
         { title: this.$t('label.actions'), dataIndex: 'actions', key: 'actions', fixed: 'right', width: 310, align: 'right', className: 'storage-table-actions-column' }
       ]
     },

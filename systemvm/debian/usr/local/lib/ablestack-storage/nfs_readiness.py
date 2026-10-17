@@ -20,6 +20,7 @@ import json
 import os
 from pathlib import Path
 import signal
+import re
 import stat
 import subprocess
 import tempfile
@@ -47,38 +48,40 @@ class NfsProbeRunner:
         return tuple(getattr(info, field) for field in
                      ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns"))
 
-    def protected_read(self, path):
+    def protected_read(self, path, maximum=128 * 1024):
         parent = path.parent.lstat()
         if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o077:
             raise ValueError("NFS probe checkpoint directory is not protected")
         info = path.lstat()
         if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
-                or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > 128 * 1024):
+                or stat.S_IMODE(info.st_mode) != 0o600 or info.st_size > maximum):
             raise ValueError("NFS probe checkpoint is not protected")
         fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
         try:
             opened = os.fstat(fd)
             if self.identity(info) != self.identity(opened):
                 raise ValueError("NFS probe checkpoint changed while opening")
-            data = os.read(fd, 128 * 1024 + 1)
+            data = os.read(fd, maximum + 1)
             if self.identity(opened) != self.identity(os.fstat(fd)) or self.identity(opened) != self.identity(path.lstat()):
                 raise ValueError("NFS probe checkpoint changed while reading")
             return json.loads(data)
         finally:
             os.close(fd)
 
-    def write(self, path, record):
+    def write(self, path, record, maximum=128 * 1024):
         path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
         parent = path.parent.lstat()
         if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o077:
             raise ValueError("NFS probe checkpoint directory is not protected")
         if path.exists() or path.is_symlink():
-            self.protected_read(path)
+            self.protected_read(path,maximum)
+        encoded=json.dumps(record,sort_keys=True,allow_nan=False)
+        if len(encoded.encode())>maximum:raise ValueError("NFS runtime record exceeds its bounded size")
         fd, temporary = tempfile.mkstemp(prefix=".nfs-probe-", dir=path.parent)
         try:
             os.fchmod(fd, 0o600)
             with os.fdopen(fd, "w") as handle:
-                json.dump(record, handle, sort_keys=True, allow_nan=False)
+                handle.write(encoded)
                 handle.flush()
                 os.fsync(handle.fileno())
             if self.identity(parent)[:5] != self.identity(path.parent.lstat())[:5]:
@@ -310,7 +313,7 @@ class NfsProbeRunner:
                     self.success_keys.append(key);self.completed+=1;self.last_failure=None
             if failure:
                 failure={**failure,"cleanup":cleanup}
-                info["failure"]=failure;self.last_failure=failure
+                info["failure"]=failure;result["failure"]=failure;self.last_failure=failure
             if info.get("cleanupFailure"):
                 info["cleanupFailure"]={**info["cleanupFailure"],"cleanup":cleanup}
             info["elapsedSeconds"]=round(max(0,time.monotonic()-started),3)
@@ -319,19 +322,45 @@ class NfsProbeRunner:
             if not self.notify("PROBE_EXPORTS"):
                 result.update(success=None,status="PROBE_PENDING")
 
+    @staticmethod
+    def skip_runtime_verified(endpoint):
+        return (all(endpoint.get(field) is True for field in
+                    ("processRunning","listening","exportInventoryReady","listenerOwned"))
+                and type(endpoint.get("pid")) is int and endpoint["pid"]>0
+                and bool(endpoint.get("startTicks"))
+                and type(endpoint.get("configurationSha256")) is str
+                and bool(re.fullmatch(r"[0-9a-f]{64}",endpoint["configurationSha256"])))
+
+    @staticmethod
+    def valid_clients(export):
+        tokens=[part.strip() for row in export.get("clients",[])
+                for part in str(row.get("clients") or "").split(",") if part.strip()]
+        if not tokens:raise ValueError("NFS export has no valid client policy")
+        for token in tokens:
+            if token!="*":ipaddress.ip_network(token,strict=False)
+        return tokens
+
     def run(self, runtime, endpoint_exports):
         local = []
-        try:
-            output = self.run_command(["ip", "-4", "-o", "addr", "show", "scope", "global"], 10)
-            if output.returncode:
-                raise ValueError("NFS probe local address observation failed")
-            for line in output.stdout.splitlines():
-                parts = line.split()
-                if "inet" in parts:
-                    local.append(str(ipaddress.ip_interface(parts[parts.index("inet") + 1]).ip))
-        except subprocess.TimeoutExpired:
-            self.blocked = True
-            self.failure("PROBE_DEADLINE")
+        need_addresses=any(not (endpoint.get("activationStrategy")=="DBUS_DYNAMIC_UPDATE_VERIFIED"
+                                   and not self.cache_enabled and self.skip_runtime_verified(endpoint))
+                           for endpoint in runtime)
+        if need_addresses:
+            try:
+                output = self.run_command(["ip", "-4", "-o", "addr", "show", "scope", "global"], 10)
+                if output.returncode:
+                    raise ValueError("NFS probe local address observation failed")
+                for line in output.stdout.splitlines():
+                    parts = line.split()
+                    if "inet" in parts:
+                        local.append(str(ipaddress.IPv4Interface(parts[parts.index("inet") + 1]).ip))
+                if not local:raise ValueError("NFS probe local address observation is empty")
+            except subprocess.TimeoutExpired:
+                self.blocked = True
+                self.failure("PROBE_DEADLINE")
+            except (OSError,ValueError,TypeError,KeyError,IndexError):
+                self.blocked=True
+                self.failure("LOCAL_ADDRESS_OBSERVATION_FAILED",retryable=False)
         representatives, remaining = [], []
         seen = set()
         for endpoint in runtime:
@@ -339,12 +368,36 @@ class NfsProbeRunner:
             for export in endpoint_exports.get((str(endpoint["listenIp"]), int(endpoint["port"])), []):
                 result = {"exportUuid": export.get("uuid"), "exportName": export.get("name"),
                           "protocolMode": export.get("protocolMode", "V4_ONLY"), "targetPath": export.get("path"),
-                          "pseudoPath": export.get("pseudo"), "success": True, "probes": []}
+                          "pseudoPath": export.get("pseudo"), "success": True, "probes": [],
+                          "probeSkipped":False,"skipReason":None,
+                          "clients":export.get("appliedClients",[])}
                 endpoint["probeResults"].append(result)
+                try:self.valid_clients(export)
+                except (ValueError,TypeError,KeyError):
+                    failure=self.failure("CLIENT_ACL_INVALID",endpoint,export,retryable=False)
+                    result.update(success=False,status="FAILED",failure=failure)
+                    continue
+                dynamic=(endpoint.get("activationStrategy")=="DBUS_DYNAMIC_UPDATE_VERIFIED" and not self.cache_enabled)
+                if dynamic:
+                    if not self.skip_runtime_verified(endpoint):
+                        failure=self.failure("PROBE_SKIP_RUNTIME_UNVERIFIED",endpoint,export,retryable=False)
+                        result.update(success=False,status="FAILED",failure=failure)
+                        continue
+                    result.update(status="SKIPPED_DYNAMIC",probeSkipped=True,skipReason="DBUS_DYNAMIC_UPDATE_VERIFIED")
+                    endpoint["exportsVisible"]=None
+                    continue
+                if self.blocked:
+                    result.update(success=None,status="PROBE_PENDING")
+                    continue
                 host, error = self.select_host(endpoint["listenIp"], export, local)
                 if error:
+                    if not self.skip_runtime_verified(endpoint):
+                        failure=self.failure("PROBE_SKIP_RUNTIME_UNVERIFIED",endpoint,export,retryable=False)
+                        result.update(success=False,status="FAILED",failure=failure)
+                        continue
                     self.skipped_acl+=1
-                    result.update(success=None, status="SKIPPED_ACL", error=error)
+                    result.update(success=True,status="SKIPPED_ACL",probeSkipped=True,
+                                  skipReason="ACL_RESTRICTED_NO_LOCAL_SOURCE")
                     endpoint["exportsVisible"] = None
                     continue
                 modes = ("NFSv4", "NFSv3") if export.get("protocolMode") == "V3V4_DUAL" else ("NFSv4",)
@@ -381,8 +434,13 @@ class NfsProbeRunner:
                 failures.append(endpoint)
             endpoint["completedProbeCount"] = sum(probe.get("success") is True for row in endpoint["probeResults"] for probe in row["probes"])
             endpoint["totalProbeCount"] = sum(2 if row["protocolMode"] == "V3V4_DUAL" else 1
-                                               for row in endpoint["probeResults"] if row.get("status") != "SKIPPED_ACL")
-            endpoint["lastFailure"] = next((probe["failure"] for row in endpoint["probeResults"] for probe in row["probes"] if probe.get("failure")), self.last_failure) if pending or failed else None
+                                               for row in endpoint["probeResults"] if row.get("probeSkipped") is not True)
+            endpoint["lastFailure"] = next((row["failure"] for row in endpoint["probeResults"] if row.get("failure")),
+                next((probe["failure"] for row in endpoint["probeResults"] for probe in row["probes"] if probe.get("failure")), self.last_failure)) if pending or failed else None
+            endpoint["skippedAclCount"]=sum(row.get("status")=="SKIPPED_ACL" for row in endpoint["probeResults"])
+            endpoint["skippedDynamicCount"]=sum(row.get("status")=="SKIPPED_DYNAMIC" for row in endpoint["probeResults"])
+            reasons={row["skipReason"] for row in endpoint["probeResults"] if row.get("probeSkipped") is True}
+            endpoint.update(probeSkipped=bool(reasons),probeSkipReason=next(iter(reasons)) if len(reasons)==1 else None)
         try:
             if self.cache_enabled:
                 self.write(self.cache_root/"summary.json",{
@@ -479,7 +537,7 @@ class NfsEndpointReadiness:
                 or ticks != (process / "stat").read_text().rpartition(")")[2].split()[19]):
             raise ValueError("NFS endpoint process has a foreign binding")
         return {"bootId": self.records.boot_id, "configurationSha256": hashlib.sha256(data).hexdigest(),
-                "pid": pid, "startTicks": ticks}, data.decode()
+                "pid": pid, "startTicks": ticks, "configurationTarget":str(path.resolve())}, data.decode()
 
     def listener_deadline(self, configuration, pid, rendered=False):
         identity, content = self.snapshot(configuration, pid, rendered)
@@ -520,6 +578,32 @@ class NfsEndpointReadiness:
             return None
         return actual if process.returncode==0 and json.dumps(actual,sort_keys=True)==json.dumps(saved,sort_keys=True) else None
 
+    @staticmethod
+    def listener_owned(endpoint, proc_root=None):
+        root=Path(proc_root or "/proc")
+        pid=endpoint.get("pid")
+        if type(pid) is not int or pid<=0:return False
+        owned=set()
+        for descriptor in (root/str(pid)/"fd").iterdir():
+            try:
+                target=os.readlink(descriptor)
+                matched=re.fullmatch(r"socket:\[([0-9]+)\]",target)
+                if matched:owned.add(matched[1])
+            except FileNotFoundError:continue
+        wanted=ipaddress.ip_address(endpoint["listenIp"])
+        for name in ("tcp","tcp6"):
+            for line in (root/"net"/name).read_text().splitlines()[1:]:
+                fields=line.split()
+                if len(fields)<10 or fields[3]!="0A" or fields[9] not in owned:continue
+                encoded,port=fields[1].split(":")
+                if int(port,16)!=int(endpoint["port"]):continue
+                raw=b"".join(int(encoded[index:index+8],16).to_bytes(4,"little") for index in range(0,len(encoded),8))
+                address=ipaddress.ip_address(raw)
+                if address==wanted or (address.version==6 and address.ipv4_mapped==wanted) or (
+                        address.is_unspecified and wanted.is_unspecified):
+                    return True
+        return False
+
     def wait(self, endpoint, configuration, rendered=False):
         before, content = self.snapshot(configuration, endpoint["pid"], rendered)
         # Inventory is only readiness: it does not replace the endpoint/protocol
@@ -528,18 +612,23 @@ class NfsEndpointReadiness:
         while time.monotonic() < deadline:
             try:
                 adapter = self.adapter_type(deadline=deadline)
-                _, manager = adapter.owned_endpoint_manager(endpoint["listenIp"], endpoint["port"], endpoint["pid"])
+                name, manager = adapter.owned_endpoint_manager(endpoint["listenIp"], endpoint["port"], endpoint["pid"])
                 adapter.verify(manager, adapter.configuration(content)["exports"])
+                if not self.listener_owned(endpoint):
+                    raise ValueError("NFS listener does not belong to the exact endpoint PID")
                 if endpoint["protocolMode"] == "V3V4_DUAL":
                     host = "127.0.0.1" if endpoint["listenIp"] == "0.0.0.0" else endpoint["listenIp"]
                     result = self.command(["rpcinfo", "-T", "tcp", host, "100003", "3"],
                                           max(.01, min(3, deadline - time.monotonic())))
                     if result.returncode != 0:
                         raise ValueError("NFSv3 RPC registration is not ready")
+                adapter.owned_manager(name,endpoint["pid"])
                 after, _ = self.snapshot(configuration, endpoint["pid"], rendered)
                 if before != after:
                     raise NfsReadinessError("ENDPOINT_IDENTITY_CHANGED", endpoint)
-                endpoint.update(after, exportInventoryReady=True, exportBindings=[{key: row[key] for key in ("exportId","path","pseudo")} for row in adapter.configuration(content)["exports"]])
+                endpoint.update(after, exportInventoryReady=True,listenerOwned=True,
+                                exportBindings=[{key: row[key] for key in ("exportId","path","pseudo","clients")}
+                                                for row in adapter.configuration(content)["exports"]])
                 return endpoint
             except NfsReadinessError:
                 raise
@@ -672,3 +761,86 @@ def verify_nfs_boot_payload(payload_path, record, adapter_type, command, deadlin
     if NfsProbeRunner.identity(info)!=NfsProbeRunner.identity(path.lstat()):
         raise ValueError("Saved NFS payload changed during runtime readback")
     return result
+
+
+class NfsProbeObservation:
+    """Public last-apply observations, exposed only after fresh exact runtime readback."""
+    MAXIMUM=8*1024*1024
+    MAX_ENDPOINTS=256
+
+    def __init__(self, deadline, adapter_type, root=None, config_root=None):
+        self.deadline,self.adapter_type=deadline,adapter_type
+        self.root=Path(root or "/run/ablestack-storage/nfs-probe-observations")
+        self.config_root=Path(config_root or "/etc/ganesha/ablestack-storage")
+        self.records=NfsProbeRunner({},str(self.root),deadline,None)
+
+    @staticmethod
+    def binding(endpoint):
+        return {key:endpoint.get(key) for key in
+                ("bootId","configurationSha256","configurationTarget","pid","startTicks","listenIp","port")}
+
+    def record(self, runtime):
+        if len(runtime)>self.MAX_ENDPOINTS:raise ValueError("NFS observation endpoint limit exceeded")
+        endpoints=[]
+        for endpoint in runtime:
+            if not NfsProbeRunner.skip_runtime_verified(endpoint):continue
+            results=endpoint.get("probeResults") or []
+            if len(results)>65536:raise ValueError("NFS observation export limit exceeded")
+            endpoints.append({"binding":self.binding(endpoint),"probeResults":results,
+                              "activationStrategy":endpoint.get("activationStrategy"),
+                              "probeSuccess":endpoint.get("probeSuccess") is True,
+                              "exportsVisible":endpoint.get("exportsVisible")})
+        self.records.write(self.root/"latest.json",{"schemaVersion":1,"bootId":self.records.boot_id,
+                            "endpoints":endpoints},self.MAXIMUM)
+
+    def project(self, endpoint, configuration):
+        endpoint["probeObservationVerified"]=False
+        if time.monotonic()>=self.deadline:raise TimeoutError("NFS observation shared deadline exhausted")
+        value=self.records.protected_read(self.root/"latest.json",self.MAXIMUM)
+        if (type(value) is not dict or set(value)!={"schemaVersion","bootId","endpoints"} or
+                value["schemaVersion"]!=1 or value["bootId"]!=self.records.boot_id or
+                type(value["endpoints"]) is not list or len(value["endpoints"])>self.MAX_ENDPOINTS):
+            raise ValueError("NFS observation schema or boot binding differs")
+        readiness=NfsEndpointReadiness(self.deadline,self.adapter_type,None,self.config_root)
+        before,content=readiness.snapshot(configuration,endpoint.get("pid"),True)
+        bound={**endpoint,**before}
+        matches=[row for row in value["endpoints"] if row.get("binding")==self.binding(bound)]
+        if len(matches)!=1:raise ValueError("NFS observation current/config/process binding is stale")
+        if endpoint.get("processRunning") is not True or endpoint.get("listening") is not True or not readiness.listener_owned(endpoint):
+            raise ValueError("NFS observation endpoint is not healthy")
+        adapter=self.adapter_type(deadline=self.deadline)
+        name,manager=adapter.owned_endpoint_manager(endpoint["listenIp"],endpoint["port"],endpoint["pid"])
+        expected=adapter.configuration(content)["exports"]
+        adapter.verify(manager,expected)
+        adapter.owned_manager(name,endpoint["pid"])
+        # Clients shown in the public receipt must still equal exact DisplayExport
+        # readback. A stale or forged receipt cannot invent applied client policy.
+        principals={(row["path"],row["pseudo"]):[client["client"] for client in row["clients"]] for row in expected}
+        results=matches[0].get("probeResults")
+        if type(results) is not list or len(results)>65536:raise ValueError("NFS observation exports are malformed")
+        seen=set()
+        for result in results:
+            key=(result.get("targetPath"),result.get("pseudoPath"))
+            identifier=result.get("exportUuid")
+            if type(identifier) is not str or not identifier or identifier in seen or result.get("clients")!=principals.get(key):
+                raise ValueError("NFS observation export/client binding differs")
+            seen.add(identifier)
+            skipped=result.get("probeSkipped") is True
+            reason=result.get("skipReason")
+            if skipped and (result.get("success") is not True or reason not in
+                            ("ACL_RESTRICTED_NO_LOCAL_SOURCE","DBUS_DYNAMIC_UPDATE_VERIFIED")):
+                raise ValueError("NFS observation skip is not verified")
+        if len(results)!=len(expected):raise ValueError("NFS observation export inventory differs")
+        after,_=readiness.snapshot(configuration,endpoint["pid"],True)
+        if before!=after or not readiness.listener_owned(endpoint):
+            raise ValueError("NFS observation endpoint identity changed")
+        reasons={row["skipReason"] for row in results if row.get("probeSkipped") is True}
+        endpoint.update(before,probeObservationVerified=True,exportInventoryReady=True,listenerOwned=True,
+                        probeResults=results,probeSuccess=matches[0]["probeSuccess"],
+                        activationStrategy=matches[0].get("activationStrategy"),
+                        exportsVisible=matches[0].get("exportsVisible"),
+                        probeObservationBasis="BOUND_LAST_APPLY_AND_FRESH_EXACT_RUNTIME",
+                        probeSkipped=bool(reasons),probeSkipReason=next(iter(reasons)) if len(reasons)==1 else None,
+                        skippedAclCount=sum(row.get("status")=="SKIPPED_ACL" for row in results),
+                        skippedDynamicCount=sum(row.get("status")=="SKIPPED_DYNAMIC" for row in results))
+        return endpoint

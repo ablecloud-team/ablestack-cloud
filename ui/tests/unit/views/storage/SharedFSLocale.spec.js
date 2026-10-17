@@ -19,6 +19,7 @@ import fs from 'fs'
 import path from 'path'
 import { bootStatuses, bootPhases, bootVerificationKinds } from '@/utils/storageBootReconcile'
 import { networkMismatchCodes } from '@/utils/storageNetworkReadiness'
+import { nfsProbeSkipReasons } from '@/utils/storageNfsProbe'
 
 const uiRoot = path.resolve(__dirname, '../../../..')
 const sourceFiles = [
@@ -31,7 +32,8 @@ const sourceFiles = [
   'src/views/storage/StorageOperationHistory.vue',
   'src/views/storage/StorageVolumePreparation.vue',
   'src/views/storage/StorageNetworkStatus.vue',
-  'src/views/storage/StorageBootReconcileStatus.vue'
+  'src/views/storage/StorageBootReconcileStatus.vue',
+  'src/views/storage/StorageNfsProbeStatus.vue'
 ]
 const localeFiles = {
   en: 'public/locales/en.json',
@@ -128,6 +130,19 @@ describe('#914 boot reconciliation public state locale coverage', () => {
       ...['PENDING', 'APPLYING', 'APPLIED', 'VERIFIED', 'FAILED', 'NOT_REQUIRED', 'HELD'].map(value => 'label.storage.boot.apply.' + value),
       ...['NOT_STARTED', 'PENDING', 'VERIFIED', 'FAILED', 'NOT_REQUIRED'].map(value => 'label.storage.boot.probe.' + value),
       ...Array.from(readUiFile('src/views/storage/StorageBootReconcileStatus.vue').matchAll(/['"]((?:label|message)\.storage\.boot\.[A-Za-z0-9_.]+)['"]/g), match => match[1]).filter(key => !key.endsWith('.'))
+    ]
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
+  })
+})
+
+describe('#918 NFS local probe locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines the separate mount, skip, dynamic and failure states in %s', locale => {
+    const keys = [
+      ...['VERIFIED', 'SKIPPED_ACL', 'SKIPPED_DYNAMIC', 'FAILED', 'UNKNOWN'].map(value => 'label.storage.service.nfs.probe.' + value),
+      ...nfsProbeSkipReasons.map(value => 'message.storage.service.nfs.probe.' + value),
+      'message.storage.service.nfs.probe.external.separate',
+      'label.storage.service.nfs.applied.clients',
+      'label.storage.service.nfs.local.verification'
     ]
     expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })
