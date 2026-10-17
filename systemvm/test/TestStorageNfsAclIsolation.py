@@ -22,11 +22,46 @@ LIB=ROOT/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
 from ganesha_dbus import GaneshaDbus
 from nfs_readiness import NfsProbeRunner,NfsEndpointReadiness,NfsProbeObservation
+from config_generation import redact as canonical_nfs_redact
 dbus_spec=importlib.util.spec_from_file_location("issue918_fixed_ganesha_bus",ROOT/"systemvm/test/TestStorageGaneshaDbus.py")
 dbus_fixture=importlib.util.module_from_spec(dbus_spec);dbus_spec.loader.exec_module(dbus_fixture)
 EndpointBus,multiport_configuration=dbus_fixture.EndpointBus,dbus_fixture.multiport_configuration
 spec=importlib.util.spec_from_file_location("fixed_nfs_probe_fixture",ROOT/"test/systemvm/test_storage_nfs_readiness.py")
 fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+
+
+def nfs_alias_request_loop(payload, created_directory=None):
+    """Run the real request loop and alias helper, with no host FS or service effects."""
+    from types import SimpleNamespace
+    from native_renderers import fixed_render_helpers, NFS_HELPERS
+    cli=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+    program=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",cli.read_text(),re.S)
+                 if "def start_ganesha_endpoints("in value)
+    tree=ast.parse(program)
+    functions=[node for node in tree.body if isinstance(node,ast.FunctionDef)
+               and node.name in ("ensure_export_alias","safe_uuid")]
+    request_loop=next(node for node in tree.body if isinstance(node,ast.For)
+                      and isinstance(node.target,ast.Name)and node.target.id=="export"
+                      and any(isinstance(call,ast.Call)and isinstance(call.func,ast.Name)
+                              and call.func.id=="ensure_export_alias"for call in ast.walk(node)))
+    ns=fixed_render_helpers(cli,"def write_ganesha_configs(",NFS_HELPERS)
+    path=SimpleNamespace(join=os.path.join,isdir=lambda p:True,exists=lambda p:True,
+                         samefile=lambda a,b:True)
+    fake_os=SimpleNamespace(path=path,makedirs=Mock())
+    ns.update({"copy":copy,"payload":payload,"os":fake_os,"re":re,
+               "enabled":True,"managed_files":set(),"next_alias_state":{},"quota_state":{},
+               "endpoint_exports":{},"default_listen_ip":"0.0.0.0","default_port":2049,
+               "service_protocol_mode":"V4_ONLY","is_mountpoint":lambda p:True,
+               "is_path_on_mount":lambda a,b:True,
+               "ensure_directory_below_volume":Mock(return_value=created_directory),
+               "verify_share_mount_boundary":Mock(),"apply_posix_permissions":Mock(),
+               "fstab_escape":lambda value:value,"update_fstab":Mock(),"daemon_reload":Mock(),
+               "run":Mock(side_effect=AssertionError("NFS alias model executed an OS command"))})
+    exec(compile(ast.Module(body=functions,type_ignores=[]),str(cli),"exec"),ns)
+    with tempfile.TemporaryDirectory()as folder:
+        ns["exports_dir"]=folder
+        exec(compile(ast.Module(body=[request_loop],type_ignores=[]),str(cli),"exec"),ns)
+    return ns
 
 
 class NfsAclIsolationTest(unittest.TestCase):
@@ -329,7 +364,7 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
         for index in (1,2):
             name="normal-"+str(index)
             self.source["exports"].append({"uuid":str(uuid.uuid5(uuid.NAMESPACE_OID,name)),"name":name,"path":"/export/"+name,
-                "exportPath":"/"+name,"state":"Ready","config":{"volumeMountPath":"/srv/data","backingPath":"/srv/data/"+name,
+                "exportPath":"/"+name,"state":"Ready","config":{"volumeMountPath":"/srv/ablestack-storage/volumes/model","backingPath":"/srv/ablestack-storage/volumes/model/"+name,
                 "relativeSharePath":name,"anonUid":65534,"anonGid":65534},
                 "acls":[{"principal":"192.0.2.0/24","permission":"READ_WRITE","state":"Ready"}]})
         self.g=Generation(self.root/"generation",self.root/"configuration")
@@ -385,7 +420,8 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
                   and node.target.elts[0].id=="uuid" and isinstance(node.iter,ast.Call)
                   and isinstance(node.iter.func,ast.Attribute) and isinstance(node.iter.func.value,ast.Name)
                   and node.iter.func.value.id=="alias_state")
-        ns={"GaneshaDbus":GaneshaDbus,"NfsEndpointReadiness":NfsEndpointReadiness,"NfsProbeRunner":NfsProbeRunner}
+        ns={"GaneshaDbus":GaneshaDbus,"NfsEndpointReadiness":NfsEndpointReadiness,"NfsProbeRunner":NfsProbeRunner,
+            "pending_nfs_redact":canonical_nfs_redact}
         exec(compile(inline,str(cli),"exec"),ns)
         alias=str(uuid.uuid4())
         ns.update(alias_state={alias:{}},next_alias_state={alias:{}})
@@ -400,6 +436,73 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
             self.assertEqual(self.source_scope, {key:writer.record["sourceGeneration"][key]for key in self.source_scope})
             self.assertTrue(writer.candidates(writer.publish()))
         finally:self.kind=original_kind
+
+    def test_real_alias_request_loop_keeps_source_payload_exact_and_existing_directory_unmodified(self):
+        source_payload=copy.deepcopy(self.source);source_payload["operationScope"]=self.scope
+        original=copy.deepcopy(source_payload)
+        ns=nfs_alias_request_loop(source_payload)
+        self.assertEqual(original,source_payload)
+        self.assertTrue(all("_createdBackingDirectory"not in row for row in source_payload["exports"]))
+        self.assertEqual([None,None],[call.args[2]for call in ns["apply_posix_permissions"].call_args_list])
+        ns["run"].assert_not_called()
+        self.writer.prepare(source_payload)
+        self.assertTrue(self.writer.source_intent)
+        self.assertEqual(self.writer.before,self.writer.record["targetDesiredSha256"])
+
+    def test_real_alias_request_loop_keeps_new_directory_receipt_local_for_posix_initialization(self):
+        receipt={"device":101,"inode":202}
+        source_payload=copy.deepcopy(self.source);source_payload["operationScope"]=self.scope
+        original=copy.deepcopy(source_payload)
+        ns=nfs_alias_request_loop(source_payload,receipt)
+        self.assertEqual(original,source_payload)
+        self.assertEqual([receipt,receipt],[call.args[2]for call in ns["apply_posix_permissions"].call_args_list])
+        self.assertEqual(2,ns["update_fstab"].call_count)
+        self.assertEqual(2,ns["daemon_reload"].call_count)
+        ns["run"].assert_not_called()
+
+    def test_observation_metadata_uses_exact_canonical_producer_for_source_intent_and_target_digest(self):
+        source_payload=copy.deepcopy(self.source);source_payload["operationScope"]=self.scope
+        source_payload["exports"][0]["config"]["lastInspection"]={"observedAt":"2026-10-17T17:21:31.748165Z"}
+        # The fixed producer retains the empty inspection object after removing its timestamp.
+        canonical=canonical_nfs_redact({key:value for key,value in source_payload.items()if key!="operationScope"})
+        self.atomic(self.g.config/self.kind.NFS,canonical)
+        source_artifact=self.g.root/(self.source_scope["operationUuid"]+".json")
+        source_record=json.loads(source_artifact.read_text())
+        desired={**source_record["desired"],self.kind.NFS:canonical}
+        checksum=self.writer.checksum(desired)
+        source_record.update(desired=desired,configurationSha256=checksum)
+        self.atomic(source_artifact,source_record)
+        pointer={**json.loads(self.g.current.read_text()),"configurationSha256":checksum}
+        self.atomic(self.g.current,pointer)
+        pending=json.loads(self.g.pending.read_text());pending.update(previous=pointer,beforeSha256=checksum)
+        self.atomic(self.g.pending,pending)
+        nfs_alias_request_loop(source_payload)
+        self.writer.prepare(source_payload)
+        self.assertTrue(self.writer.source_intent)
+        self.assertEqual(checksum,self.writer.record["targetDesiredSha256"])
+        self.assertIn("observedAt",source_payload["exports"][0]["config"]["lastInspection"])
+        self.assertNotIn("_createdBackingDirectory",source_payload["exports"][0])
+
+    def test_canonical_source_comparison_still_rejects_semantic_or_unknown_underscore_fields(self):
+        candidates=self.publish_target();self.apply_candidates(candidates);self.writer.verified()
+        for change in (lambda row:row["config"].update(readOnly=True),lambda row:row.update(_foreignField=True)):
+            source_payload=copy.deepcopy(self.source);source_payload["operationScope"]=self.scope
+            change(source_payload["exports"][0])
+            nfs_alias_request_loop(source_payload)
+            with self.assertRaisesRegex(ValueError,"exact SOURCE writer"):
+                self.new_writer().prepare(source_payload)
+
+    def test_source_replay_after_actual_alias_loop_recovers_owned_target_checkpoint(self):
+        original=copy.deepcopy(self.bus.endpoints)
+        candidates=self.publish_target();self.apply_candidates(candidates);self.writer.verified()
+        self.atomic(self.g.config/self.kind.NFS,{key:value for key,value in self.payload.items()if key!="operationScope"})
+        recovery_payload=copy.deepcopy(self.source);recovery_payload["operationScope"]=self.scope
+        nfs_alias_request_loop(recovery_payload)
+        recovery=self.new_writer();recovery.prepare(recovery_payload)
+        self.assertTrue(recovery.source_intent)
+        self.assertEqual(original,self.bus.endpoints)
+        self.assertEqual(self.g.status()["generation"]["operationUuid"],self.source_scope["operationUuid"])
+        self.assertEqual(recovery.record["beforeSha256"],recovery.record["targetDesiredSha256"])
 
     def test_normal_pending_api_writer_reaches_dynamic_without_rendered_optin(self):
         candidates=self.publish_target()
@@ -563,7 +666,7 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
     def test_normal_structural_addition_uses_original_strict_path_without_dynamic_mutation(self):
         target=copy.deepcopy(self.payload);new=copy.deepcopy(target["exports"][0])
         new["uuid"]=str(uuid.uuid4());new["name"]="new";new["path"]="/export/new";new["exportPath"]="/new"
-        new["config"]["backingPath"]="/srv/data/new";new["config"]["relativeSharePath"]="new";target["exports"].append(new)
+        new["config"]["backingPath"]=new["config"]["volumeMountPath"]+"/new";new["config"]["relativeSharePath"]="new";target["exports"].append(new)
         self.writer.prepare(target)
         self.assertFalse(self.writer.active);self.assertFalse(any(method=="UpdateExport"for _,method,_ in self.bus.calls))
 

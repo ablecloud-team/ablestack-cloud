@@ -138,4 +138,88 @@ public class StorageCanonicalRecoveryRuntimeTest {
             Assert.assertTrue(manager.commands.isEmpty());
         }
     }
+
+    private static final class RestoredManager extends StorageServiceManagerImpl implements AutoCloseable {
+        final StorageServiceInstanceVO instance=new StorageServiceInstanceVO();final StorageServiceOperationVO operation=new StorageServiceOperationVO();
+        final JsonObject fixture=StorageCanonicalRecoveryTest.nfsSourceFixture(),before=StorageSmbIdentityRepairRuntimeTest.localSourceBefore();
+        JsonObject live,local;boolean databaseDrift;final List<StorageServiceInstance.Protocol> applied=new ArrayList<>();
+        RestoredManager() {
+            com.cloud.user.User user=Mockito.mock(com.cloud.user.User.class);Mockito.when(user.getId()).thenReturn(3L);
+            org.apache.cloudstack.context.CallContext.register(user,Mockito.mock(com.cloud.user.Account.class));
+            ReflectionTestUtils.setField(instance,"id",29L);ReflectionTestUtils.setField(instance,"uuid",StorageSmbIdentityRepairRuntimeTest.currentContext().get("instanceUuid").getAsString());instance.setVmId(78L);
+            ReflectionTestUtils.setField(operation,"id",41L);ReflectionTestUtils.setField(operation,"uuid",StorageSmbIdentityRepairRuntimeTest.currentContext().get("operationUuid").getAsString());
+            operation.setInstanceId(29);operation.setRevision(4);operation.setCreatedBy(3);operation.setAction("restorestorageservicelastknowngoodresponse");operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERING_INTERRUPTED_WRITER");
+            JsonObject source=fixture.getAsJsonObject("source");JsonObject smb=new JsonObject();smb.addProperty("enabled",true);smb.add("shares",new JsonArray());source.add("desired-state/smb-share-apply.json",smb);
+            JsonObject nvme=new JsonObject();nvme.addProperty("enabled",true);nvme.add("subsystems",new JsonArray());source.add("nvmeof-subsystems.json",nvme);
+            before.add("configurationDesiredState",source.deepCopy());
+            JsonObject writer=operationReservationScope(instance,operation),context=StorageLocalSourceIdentityProof.context(writer,before);
+            JsonObject exported=StorageSmbIdentityRepairRuntimeTest.localSourceExport(context);
+            JsonObject reference=new JsonObject();reference.addProperty("operationUuid",operation.getUuid());reference.add("sourceLocalScope",StorageLocalSourceIdentityProof.scope(context));
+            reference.add("sourceLocalIdentityCheckpoint",exported.get("localSourceIdentityCheckpoint").deepCopy());
+            JsonObject intent=new JsonObject();intent.add("context",context);intent.add("source",before.deepCopy());intent.addProperty("sourceProtocol","MIXED");JsonArray domains=localSourceAuthReplayDomains(null);intent.add("authReplayDomains",domains);
+            JsonObject imported=exported.deepCopy();imported.addProperty("sourceIdentityRestored",true);intent.add("restored",imported);
+            JsonObject replay=new JsonObject();replay.addProperty("success",true);replay.add("scope",StorageLocalSourceIdentityProof.scope(context));replay.addProperty("sourceAuthReplayed",true);replay.addProperty("canonicalDesiredStateChanged",false);replay.addProperty("smbIdentityChanged",false);replay.add("replayedDomains",domains.deepCopy());replay.add("sourceConfigurationSha256",context.get("sourceConfigurationSha256").deepCopy());replay.addProperty("nvmeRestored",true);
+            replay.add("localSourceCheckpointReference",StorageLocalSourceIdentityProof.reference(exported.getAsJsonObject("localSourceIdentityCheckpoint")));intent.add("authReplayed",replay);
+            JsonObject snapshot=com.google.gson.JsonParser.parseString(captureConfigurationSnapshot(29)).getAsJsonObject();snapshot.add("localCheckpointIntent",intent);snapshot.add("nativeIdentityCapsule",reference);snapshot.add("nativeDesiredState",source.deepCopy());JsonObject generation=new JsonObject();generation.add("previous",before.get("generation").deepCopy());snapshot.add("nativeGeneration",generation);operation.setPreviousSnapshotJson(snapshot.toString());
+            local=new JsonObject();local.addProperty("success",true);local.addProperty("checkpointSupported",true);local.add("scope",StorageLocalSourceIdentityProof.scope(context));local.add("sourceGeneration",context.get("sourceGeneration").deepCopy());local.add("sourceConfigurationSha256",context.get("sourceConfigurationSha256").deepCopy());local.add("bootId",context.get("expectedBootId").deepCopy());local.addProperty("journalPresent",true);local.addProperty("phase","RESUMED");
+            for(String key:List.of("sourceSmbResumed","sourceRuntimeVerified","sourceIdentityRestoreSupported","currentRuntimeOwnershipVerified","currentSessionsVerifiedEmpty"))local.addProperty(key,true);
+            local.addProperty("canonicalDesiredStateChanged",false);local.addProperty("currentConfigurationSha256","a".repeat(64));local.addProperty("currentSmbConfigurationSha256","d".repeat(64));local.add("localSourceCheckpointReference",replay.get("localSourceCheckpointReference").deepCopy());
+            JsonObject frozen=before.deepCopy();frozen.addProperty("frozen",true);
+            ((ThreadLocal<JsonObject>)ReflectionTestUtils.getField(this,"configurationRecoverySource")).set(frozen);
+            ((ThreadLocal<Long>)ReflectionTestUtils.getField(this,"explicitUnchangedSourceRecovery")).set(41L);
+            ((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(this,"storageWriterOperation")).set(operation);
+            ((ThreadLocal<Boolean>)ReflectionTestUtils.getField(this,"configurationNativeNvmeReplayed")).set(true);
+            live=before.deepCopy();live.addProperty("generationStatus","PENDING");live.addProperty("pendingOperationUuid",operation.getUuid());
+        }
+        @Override protected void requireConfigurationAdministrator() { }
+        @Override protected String captureConfigurationSnapshot(long id){return "{\"schemaVersion\":2,\"instanceId\":29,\"tables\":"+(databaseDrift?"[\"foreign\"]":"[]")+"}";}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){return live.deepCopy();}
+        @Override protected JsonObject localSourceGuest(StorageServiceInstanceVO instance,String action,JsonObject request){Assert.assertEquals("local-source-status",action);return local.deepCopy();}
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String command,JsonObject request,int timeout){if(command.equals("operation verify"))return fixture.getAsJsonObject("health").deepCopy();Assert.assertEquals("operation observe",command);return fixture.getAsJsonObject("inventory").deepCopy();}
+        @Override protected JsonObject currentSmbDataIdentity(StorageServiceInstanceVO instance,StorageServiceOperationVO operation){return fixture.getAsJsonObject("data").deepCopy();}
+        @Override protected JsonObject operationResourceBindings(StorageServiceInstanceVO instance){JsonObject result=new JsonObject();result.addProperty("vmId",78);result.addProperty("rootVolumeUuid","same-root");return result;}
+        @Override protected void applyStorageServiceProtocolDesiredState(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){applied.add(protocol);}
+        public void close(){org.apache.cloudstack.context.CallContext.unregister();}
+    }
+    @Test public void explicitRestoredSourceOmitsOnlyNfsAndPreservesSmbIscsiAndExistingNvmeAuthHandling() {
+        try(RestoredManager m=new RestoredManager()){
+            JsonObject proof=m.applyRestoredSourceProtocols(m.instance,m.operation);Assert.assertNotNull(proof);
+            Assert.assertEquals(List.of(StorageServiceInstance.Protocol.SMB,StorageServiceInstance.Protocol.ISCSI),m.applied);
+            m.requireRestoredNfsSourceUnchanged(m.instance,m.operation,proof);
+        }
+    }
+    @Test public void wrongActorDifferentActionAndUnrestoredPrivateSourceNeverOmitNfsReplay() {
+        for(String change:List.of("actor","action","private")){
+            try(RestoredManager m=new RestoredManager()){
+                if(change.equals("actor"))m.operation.setCreatedBy(4);
+                else if(change.equals("action"))m.operation.setAction("createstoragenfsexportresponse");
+                else m.local.addProperty("sourceRuntimeVerified",false);
+                Assert.assertNull(m.applyRestoredSourceProtocols(m.instance,m.operation));Assert.assertTrue(m.applied.contains(StorageServiceInstance.Protocol.NFS));
+            }
+        }
+    }
+    @Test public void targetDatabaseCanonicalAclOrStaleObservationFallsBackToNormalNfsReplay() {
+        for(String change:List.of("database","canonical","acl","stale")){
+            try(RestoredManager m=new RestoredManager()){
+                if(change.equals("database"))m.databaseDrift=true;
+                else if(change.equals("canonical"))m.live.getAsJsonObject("configurationDesiredState").getAsJsonObject("desired-state/nfs-export-apply.json").addProperty("port",2050);
+                else if(change.equals("stale"))m.fixture.getAsJsonObject("health").addProperty("generatedEpoch",System.currentTimeMillis()/1000.0-60);
+                else m.fixture.getAsJsonObject("inventory").getAsJsonArray("nfsGaneshaExports").get(0).getAsJsonObject().getAsJsonArray("entries").get(0).getAsJsonObject().getAsJsonArray("clients").get(0).getAsJsonObject().addProperty("access","RO");
+                Assert.assertNull(m.applyRestoredSourceProtocols(m.instance,m.operation));Assert.assertTrue(m.applied.contains(StorageServiceInstance.Protocol.NFS));
+            }
+        }
+    }
+    @Test public void configProcessOrDataDriftAfterNfsOmissionCannotReachNativeRollback() {
+        for(String change:List.of("config","pid","data")){
+            try(RestoredManager m=new RestoredManager()){
+                JsonObject proof=m.applyRestoredSourceProtocols(m.instance,m.operation);Assert.assertNotNull(proof);
+                JsonObject endpoint=m.fixture.getAsJsonObject("health").getAsJsonObject("nfsGanesha").getAsJsonArray("endpoints").get(0).getAsJsonObject();
+                if(change.equals("config"))endpoint.addProperty("configurationSha256","b".repeat(64));
+                else if(change.equals("pid"))endpoint.addProperty("pid",999);
+                else m.fixture.getAsJsonObject("data").getAsJsonArray("volumes").get(1).getAsJsonObject().addProperty("serial","foreign");
+                Assert.assertThrows(CloudRuntimeException.class,()->m.requireRestoredNfsSourceUnchanged(m.instance,m.operation,proof));
+                Assert.assertEquals(List.of(StorageServiceInstance.Protocol.SMB,StorageServiceInstance.Protocol.ISCSI),m.applied);
+            }
+        }
+    }
 }

@@ -82,6 +82,7 @@ class StorageInlineSourcesTest(unittest.TestCase):
         actual=CLI.read_text().split("<<'PYRENDEREDGENERATION'\n",1)[1].split("\nPYRENDEREDGENERATION",1)[0]
         actual=actual[:actual.index('\ntry:\n    action = sys.argv[1]')]
         expected='\n'.join(expected).replace("from smb_source_checkpoint import SmbSourceCheckpoint\n","")
+        expected=expected.replace('from config_generation import redact as nfs_dynamic_redact', 'def nfs_dynamic_redact(value):\n    return pending_nfs_redact(value)')
         expected=expected.replace("class RenderedDriver:",local_source_reviewed_body()+"\n\nclass RenderedDriver:")
         self.assertEqual(expected,actual)
         ast.parse(actual)
@@ -119,6 +120,7 @@ class StorageInlineSourcesTest(unittest.TestCase):
         pure="\n".join(line for line in pure.splitlines()if not line.startswith(("from ad_authority import ","from semantic_identity_alias import ")))
         legacy=(LIB/"nfs_dynamic_apply.py").read_text()
         legacy="\n".join(line for line in legacy.splitlines()if not line.startswith(("from ganesha_dbus import ","from nfs_readiness import ","from native_renderers import ")))
+        legacy=legacy.replace('from config_generation import redact as nfs_dynamic_redact', 'def nfs_dynamic_redact(value):\n    return pending_nfs_redact(value)')
         actual=CLI.read_text().split("# BEGIN EMBEDDED NFS LEGACY DYNAMIC\n",1)[1].split("# END EMBEDDED NFS LEGACY DYNAMIC",1)[0]
         self.assertEqual((pure+"\n"+legacy).strip(),actual.strip());ast.parse(actual)
     def test_signed_service_and_ad_readonly_bodies_match_reviewed_modules_exactly(self):

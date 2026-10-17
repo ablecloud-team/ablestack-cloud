@@ -360,10 +360,34 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_16df_before_nfs_request_isolation(self):
+        # Test-only reversal: a production bridge must still reject these unrelated later changes.
+        current=fixture.CLI.read_bytes()
+        start=current.index(b"apply_nfs_exports() {")
+        finish=current.index(b"\nganesha_feature_capabilities() {",start)
+        block=current[start:finish]
+        changes=((b"import copy\nimport json\nfrom pathlib import Path",
+                  b"import json\nfrom pathlib import Path"),
+                 (b'for export in copy.deepcopy(payload.get("exports", [])):',
+                  b'for export in payload.get("exports", []):'))
+        for later,earlier in changes:
+            self.assertEqual(1,block.count(later))
+            block=block.replace(later,earlier,1)
+        current=current[:start]+block+current[finish:]
+        changes=((b"def nfs_dynamic_redact(value):\n    return pending_nfs_redact(value)\n",b""),
+                 (b'clean_payload=nfs_dynamic_redact({key:value for key,value in payload.items() if key!="operationScope"})',
+                  b'clean_payload={key:value for key,value in payload.items() if key!="operationScope"}'))
+        for later,earlier in changes:
+            self.assertEqual(2,current.count(later))
+            current=current.replace(later,earlier)
+        self.assertEqual("16df10b9273aefa7e2760eccd22c49acca0e84fd95d57152539e71386fa531a6",
+                         hashlib.sha256(current).hexdigest())
+        return current
+
     def historical_cbeef_before_expected_mount_guard(self):
         # Project only the exact reviewed later three spans, never authorize them in a production bridge.
         import ast,re
-        current=fixture.CLI.read_bytes()
+        current=self.historical_16df_before_nfs_request_isolation()
         block=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",current.decode(),re.S)
                    if "def format_empty_device():"in value)
         node=next(value for value in ast.parse(block).body if isinstance(value,ast.FunctionDef)
@@ -396,7 +420,7 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         self.assertEqual("475dc43cadc01191da5904e9fed15f67144d7423fdc21e9494d66d093b58ba6c",hashlib.sha256(original).hexdigest())
         return original,current
 
-    def test_later_expected_mount_guard_does_not_expand_the_closed_initial475_bridge(self):
+    def test_later_mount_and_nfs_request_guards_do_not_expand_the_closed_initial475_bridge(self):
         original,_=self.initial_475_original_cli()
         with self.assertRaises(ValueError):
             self.native.unconfigured_stop_bridge_cli(fixture.CLI.read_bytes(),original)

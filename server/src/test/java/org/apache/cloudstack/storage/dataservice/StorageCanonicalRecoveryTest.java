@@ -171,4 +171,63 @@ public class StorageCanonicalRecoveryTest {
     @Test public void acceptedLifecycleStateHasSameAppliedMeaningWithoutWeakeningAclSemantics() {StorageCanonicalRecovery.requireSameMeaning(desired("Updating"),desired("Ready"));JsonObject different=desired("Ready");different.getAsJsonObject("desired-state/smb-share-apply.json").getAsJsonArray("acls").get(0).getAsJsonObject().addProperty("permission","RO");Assert.assertThrows(CloudRuntimeException.class,()->StorageCanonicalRecovery.requireSameMeaning(desired("Updating"),different));Assert.assertThrows(CloudRuntimeException.class,()->StorageCanonicalRecovery.requireSameMeaning(desired("Ready"),desired("Disabled")));}
     @Test public void absentFilesCannotBeSilentlyReplacedByEmptyDefaults() {JsonObject empty=desired("Ready");JsonObject nfs=new JsonObject();nfs.addProperty("enabled",true);nfs.add("exports",new JsonArray());empty.add("desired-state/nfs-export-apply.json",nfs);Assert.assertThrows(CloudRuntimeException.class,()->StorageCanonicalRecovery.requireSameMeaning(desired("Ready"),empty));Assert.assertTrue(StorageCanonicalRecovery.emptyProtocolFile(StorageServiceInstance.Protocol.NFS,nfs));nfs.getAsJsonArray("exports").add(new JsonObject());Assert.assertFalse(StorageCanonicalRecovery.emptyProtocolFile(StorageServiceInstance.Protocol.NFS,nfs));}
     @Test public void networkPrimaryAndBackingPathChangesRemainSemanticDifferences() {JsonObject source=desired("Ready");JsonObject actual=source.deepCopy();JsonObject network=new JsonObject();network.addProperty("primaryIp","10.10.13.240");source.add("network-endpoints.json",network);actual.add("network-endpoints.json",network.deepCopy());actual.getAsJsonObject("network-endpoints.json").addProperty("primaryIp","10.10.13.241");Assert.assertThrows(CloudRuntimeException.class,()->StorageCanonicalRecovery.requireSameMeaning(source,actual));}
+
+    static JsonObject nfsSourceFixture() {
+        String volume="5c53f9d6-4153-4e3d-a440-7d507f4a106b",fs="9eaf5fd5-28e3-413a-95d5-2856d656d7d4",export="5ba8fd61-5e04-4243-b9c3-47b837eccc1d";
+        String root="/srv/ablestack-storage/volumes/"+volume,boot="0fce7e4a-7f46-4b33-9a6e-0137cdbcf8da";
+        JsonObject config=object("attachedVolumeUuid",volume);config.addProperty("filesystemUuid",fs);config.addProperty("volumeMountPath",root);config.addProperty("backingPath",root+"/data");
+        JsonObject inspection=new JsonObject();inspection.addProperty("sizeBytes",20L<<30);config.add("lastInspection",inspection);config.addProperty("endpointMode","LISTENER_GROUP");
+        JsonArray ports=new JsonArray();ports.add(2049);config.add("listenerGroupPorts",ports);
+        JsonObject share=object("uuid",export);share.addProperty("path","/export/source-nfs");share.addProperty("name","source-nfs");share.add("config",config);
+        JsonObject acl=object("principal","10.10.13.1/32");acl.addProperty("permission","READ_WRITE");acl.add("config",new JsonObject());share.add("acls",array(acl));
+        JsonObject nfs=new JsonObject();nfs.addProperty("enabled",true);nfs.addProperty("protocolMode","V4_ONLY");nfs.addProperty("port",2049);nfs.add("exports",array(share));
+        JsonObject source=new JsonObject();for(String path:StorageRenderedDesiredState.PATHS)source.add(path,JsonNull.INSTANCE);source.add("desired-state/nfs-export-apply.json",nfs);
+        JsonObject raw=object("volumeUuid",VOLUME);raw.addProperty("backstoreType","BLOCK");raw.addProperty("volumeSizeBytes",SIZE);
+        JsonObject iscsi=new JsonObject();iscsi.add("targets",array(raw));source.add("iscsi-targets.json",iscsi);
+        JsonObject endpoint=object("bootId",boot);endpoint.addProperty("listenIp","0.0.0.0");endpoint.addProperty("port",2049);endpoint.addProperty("pid",1845);endpoint.addProperty("startTicks","1046");
+        endpoint.addProperty("protocolMode","V4_ONLY");endpoint.addProperty("configurationSha256","a".repeat(64));endpoint.addProperty("configurationTarget","/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf");
+        for(String key:List.of("processRunning","listening","listenerOwned","exportInventoryReady","probeObservationVerified","probeSuccess"))endpoint.addProperty(key,true);
+        JsonObject probe=object("exportUuid",export);probe.addProperty("targetPath","/export/source-nfs");probe.addProperty("pseudoPath","/source-nfs");probe.addProperty("success",true);endpoint.add("probeResults",array(probe));
+        JsonObject nfsHealth=new JsonObject();nfsHealth.add("endpoints",array(endpoint));JsonObject health=object("status","ok");health.addProperty("success",true);health.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);health.add("nfsGanesha",nfsHealth);
+        JsonObject entry=object("path","/export/source-nfs");entry.addProperty("pseudo","/source-nfs");JsonArray clients=new JsonArray();clients.add(StorageRecoveryObservation.nfsClient("10.10.13.1/32",true,config,new JsonObject()));entry.add("clients",clients);
+        JsonObject listener=object("listenIp","0.0.0.0");listener.addProperty("port",2049);listener.addProperty("pid",1845);listener.addProperty("status","active");listener.addProperty("processRunning",true);listener.addProperty("listening",true);listener.add("entries",array(entry));
+        JsonObject inventory=object("status","ok");inventory.addProperty("success",true);inventory.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);inventory.add("nfsGaneshaExports",array(listener));
+        JsonObject fileData=object("volumeUuid",volume);fileData.addProperty("kind","FILE_DATA");fileData.addProperty("mappingStatus","EXACT");fileData.addProperty("matchedBy","VOLUME_SERIAL");fileData.addProperty("serial",volume.replace("-","").substring(0,20));fileData.addProperty("sizeBytes",20L<<30);fileData.addProperty("filesystemUuid",fs);fileData.addProperty("filesystem","ext4");
+        JsonObject mount=object("target","/export/source-nfs");mount.addProperty("source","/dev/sdd[/data]");mount.addProperty("uuid",fs);fileData.add("mounts",array(mount));
+        JsonObject rawData=object("volumeUuid",VOLUME);rawData.addProperty("kind","BLOCK_RAW");rawData.addProperty("mappingStatus","EXACT");rawData.addProperty("matchedBy","VOLUME_SERIAL");rawData.addProperty("serial",VOLUME.replace("-","").substring(0,20));rawData.addProperty("sizeBytes",SIZE);
+        JsonArray volumes=array(fileData);volumes.add(rawData);JsonObject data=object("bootId",boot);data.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);data.add("volumes",volumes);
+        JsonObject result=new JsonObject();result.add("source",source);result.add("health",health);result.add("inventory",inventory);result.add("data",data);return result;
+    }
+    static JsonObject nfsProof(JsonObject f) {
+        StorageCanonicalRecovery.requireSourceData(f.getAsJsonObject("source"),f.getAsJsonObject("data"));
+        return StorageCanonicalRecovery.requireNfsSourceRuntime(f.getAsJsonObject("source").getAsJsonObject("desired-state/nfs-export-apply.json"),
+                f.getAsJsonObject("health").getAsJsonObject("nfsGanesha"),f.getAsJsonObject("inventory"),f.getAsJsonObject("data"),f.getAsJsonObject("data").get("bootId").getAsString());
+    }
+    @Test public void sourceNfsBindsFreshConfigProcessExportsAclAliasAndFileRawIdentities() {
+        JsonObject proof=nfsProof(nfsSourceFixture());Assert.assertEquals(1,proof.size());Assert.assertEquals(1845,proof.getAsJsonObject("0.0.0.0:2049").get("pid").getAsInt());
+    }
+    @Test public void targetAclForeignAliasExtraExportAndUnverifiedProcessCannotSkipSourceNfs() {
+        for(String change:List.of("acl","alias","extraExport","pid","configPath","unverified","stringFlag")) {
+            JsonObject f=nfsSourceFixture(),endpoint=f.getAsJsonObject("health").getAsJsonObject("nfsGanesha").getAsJsonArray("endpoints").get(0).getAsJsonObject();
+            JsonObject listener=f.getAsJsonObject("inventory").getAsJsonArray("nfsGaneshaExports").get(0).getAsJsonObject();
+            if(change.equals("acl"))listener.getAsJsonArray("entries").get(0).getAsJsonObject().getAsJsonArray("clients").get(0).getAsJsonObject().addProperty("access","RO");
+            else if(change.equals("alias"))f.getAsJsonObject("data").getAsJsonArray("volumes").get(0).getAsJsonObject().getAsJsonArray("mounts").get(0).getAsJsonObject().addProperty("source","/dev/sdd[/foreign]");
+            else if(change.equals("extraExport"))listener.getAsJsonArray("entries").add(listener.getAsJsonArray("entries").get(0).deepCopy());
+            else if(change.equals("pid"))listener.addProperty("pid",999);
+            else if(change.equals("configPath"))endpoint.addProperty("configurationTarget","/tmp/foreign.conf");
+            else if(change.equals("unverified"))endpoint.addProperty("probeObservationVerified",false);
+            else endpoint.addProperty("listenerOwned","true");
+            Assert.assertThrows(change,RuntimeException.class,()->nfsProof(f));
+        }
+    }
+    @Test public void wrongRawSerialSizeFileFilesystemAndMissingDataCannotAuthorizeSourceNfsSkip() {
+        for(String change:List.of("serial","size","filesystem","missing")) {
+            JsonObject f=nfsSourceFixture();JsonArray volumes=f.getAsJsonObject("data").getAsJsonArray("volumes");
+            if(change.equals("serial"))volumes.get(1).getAsJsonObject().addProperty("serial","foreignserial");
+            else if(change.equals("size"))volumes.get(1).getAsJsonObject().addProperty("sizeBytes",SIZE+1);
+            else if(change.equals("filesystem"))volumes.get(0).getAsJsonObject().addProperty("filesystemUuid",UUID.randomUUID().toString());
+            else volumes.remove(1);
+            Assert.assertThrows(change,RuntimeException.class,()->nfsProof(f));
+        }
+    }
 }

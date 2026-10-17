@@ -265,6 +265,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Approved CURRENT identity recovery requires its exact explicit retry; original identity import is forbidden");
         new InterruptedStateChange(storageOperationDao, new StorageServiceDesiredSnapshot()).recover(operation,
                 latestCompleteHistory(instance.getId()), new InterruptedStateChange.Runtime() {
+            private JsonObject restoredNfsSource;
             public void idle() {
                 VMInstanceVO vm = instance.getVmId() == null ? null : vmInstanceDao.findById(instance.getVmId());
                 if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) throw new CloudRuntimeException("Interrupted writer SystemVM is unavailable");
@@ -292,15 +293,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 restoreFailedInitialPrimaryEndpoint(instance, operation);
                 reconcileRecoveryNetwork(instance, operation);
                 restoreNativePosixOperation(null, instance, true);
-                for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
-                    if (recoveryProtocolPresent(protocol) && (protocol != StorageServiceInstance.Protocol.NVME_OF || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get()))) {
-                        applyStorageServiceProtocolDesiredState(instance, protocol);
-                    }
-                }
+                restoredNfsSource = applyRestoredSourceProtocols(instance, operation);
                 restoreNativePosixOperation(null, instance, false);
             }
             public void verify() {
                 verifyRecoveredStorageWriter(instance);
+                requireRestoredNfsSourceUnchanged(instance, operation, restoredNfsSource);
                 rollbackNativeConfigurationGeneration(instance, operation);
             }
             public void verifyCurrent(StorageServiceOperationVO latest) {
@@ -319,6 +317,75 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove();adJoinRecoveryCredentials.remove(); }
             }
         }, System.currentTimeMillis());
+    }
+
+    protected JsonObject applyRestoredSourceProtocols(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        JsonObject nfsSource = restoredCheckpointNfsSourceProof(instance, operation);
+        for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
+            if (protocol == StorageServiceInstance.Protocol.NFS && nfsSource != null) continue;
+            if (recoveryProtocolPresent(protocol) && (protocol != StorageServiceInstance.Protocol.NVME_OF
+                    || !Boolean.TRUE.equals(configurationNativeNvmeReplayed.get())))
+                applyStorageServiceProtocolDesiredState(instance, protocol);
+        }
+        return nfsSource;
+    }
+
+    protected void requireRestoredNfsSourceUnchanged(StorageServiceInstanceVO instance, StorageServiceOperationVO operation, JsonObject before) {
+        if (before != null && !before.equals(restoredCheckpointNfsSourceProof(instance, operation)))
+            throw new CloudRuntimeException("Previously restored NFS SOURCE changed before native rollback");
+    }
+
+    protected JsonObject restoredCheckpointNfsSourceProof(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(), operation.getId())
+                || !Set.of("restorestorageservicelastknowngoodresponse", "applystorageserviceconfigrestoreresponse").contains(operation.getAction())
+                || operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId()) return null;
+        try {
+            requireConfigurationAdministrator();
+            if (storageWriterOperation.get() != operation || operation.getInstanceId() != instance.getId()
+                    || !"RECOVERING_INTERRUPTED_WRITER".equals(operation.getPhase())) return null;
+            JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson()), original = new JsonObject();
+            for (String key : List.of("schemaVersion", "instanceId", "tables")) original.add(key, snapshot.get(key).deepCopy());
+            if (!original.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId())))) return null;
+            JsonObject intent = snapshot.getAsJsonObject("localCheckpointIntent"), context = intent.getAsJsonObject("context");
+            JsonObject reference = snapshot.getAsJsonObject("nativeIdentityCapsule"), frozen = configurationRecoverySource.get();
+            if (snapshot.has("renderedGeneration") || snapshot.has("adServiceSource") || snapshot.has("sourceRootScope")
+                    || frozen == null || !reference.has("sourceLocalScope") || !operation.getUuid().equals(getJsonString(reference,"operationUuid"))) return null;
+            StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance, operation), context, intent.getAsJsonObject("source"));
+            JsonObject checkpoint = StorageLocalSourceIdentityProof.reference(reference.getAsJsonObject("sourceLocalIdentityCheckpoint"));
+            if (!StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))) return null;
+            StorageLocalSourceIdentityProof.imported(context, intent.getAsJsonObject("restored"));
+            StorageLocalSourceIdentityProof.authReplayed(context, checkpoint, requireLocalSourceAuthReplayDomains(intent), intent.getAsJsonObject("authReplayed"));
+            JsonObject local = localSourceGuest(instance, "local-source-status", context);
+            StorageLocalSourceIdentityProof.resumed(context, local);StorageLocalSourceIdentityProof.restoreSafe(context, checkpoint, local);
+            JsonObject status = nativeConfigurationGeneration(instance, null, "status");
+            requireLocalNvmeSourceGeneration(instance, operation, context, frozen, status);
+            JsonObject source = frozen.getAsJsonObject("configurationDesiredState");
+            if (!source.equals(status.get("configurationDesiredState")) || !frozen.get("configurationSha256").equals(status.get("configurationSha256"))) return null;
+            JsonObject health = rootGuest(instance,"operation verify",new JsonObject(),60);
+            JsonObject inventory = rootGuest(instance,"operation observe",new JsonObject(),30);
+            StorageRecoveryObservation.requireFresh(health,System.currentTimeMillis()/1000.0);
+            StorageRecoveryObservation.requireFresh(inventory,System.currentTimeMillis()/1000.0);
+            if (!Boolean.TRUE.equals(getNativeBoolean(health,"success")) || !"ok".equals(getJsonString(health,"status"))
+                    || !Boolean.TRUE.equals(getNativeBoolean(inventory,"success")) || !"ok".equals(getJsonString(inventory,"status"))) return null;
+            JsonObject data = currentSmbDataIdentity(instance,operation);
+            if (!context.get("expectedBootId").equals(data.get("bootId"))) return null;
+            StorageCanonicalRecovery.requireSourceData(source,data);
+            JsonObject nfs = StorageCanonicalRecovery.requireNfsSourceRuntime(source.getAsJsonObject("desired-state/nfs-export-apply.json"),
+                    health.getAsJsonObject("nfsGanesha"),inventory,data,getJsonString(context,"expectedBootId"));
+            JsonObject after = nativeConfigurationGeneration(instance,null,"status");
+            requireLocalNvmeSourceGeneration(instance,operation,context,frozen,after);
+            if (!source.equals(after.get("configurationDesiredState")) || !frozen.get("configurationSha256").equals(after.get("configurationSha256"))
+                    || !original.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId())))) return null;
+            JsonObject proof = new JsonObject();proof.add("scope",StorageLocalSourceIdentityProof.scope(context));
+            proof.add("sourceGeneration",frozen.get("generation").deepCopy());proof.add("bootId",context.get("expectedBootId").deepCopy());
+            proof.add("bindings",operationResourceBindings(instance));proof.add("nfs",nfs);
+            JsonObject stableData=data.deepCopy();stableData.remove("generatedEpoch");proof.add("data",stableData);
+            proof.add("checkpoint",checkpoint);proof.add("smbConfigurationSha256",local.get("currentSmbConfigurationSha256").deepCopy());
+            return proof;
+        } catch (RuntimeException unknownOrTarget) {
+            // An unproven SOURCE is never a reason to omit the ordinary protocol replay.
+            return null;
+        }
     }
 
     protected void restoreFailedInitialPrimaryEndpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {

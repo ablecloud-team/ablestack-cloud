@@ -27,6 +27,7 @@ import uuid as nfs_dynamic_uuid
 from ganesha_dbus import GaneshaDbus
 from nfs_readiness import NfsEndpointReadiness, NfsProbeRunner
 from native_renderers import render_nfs_candidate
+from config_generation import redact as nfs_dynamic_redact
 
 
 class NfsLegacyDynamicApply:
@@ -131,7 +132,7 @@ class NfsLegacyDynamicApply:
         self.protected_directory(self.root,True)
         self.path=self.root/scope["operationUuid"]
         source,source_endpoints=self.render(desired[self.NFS])
-        clean_payload={key:value for key,value in payload.items() if key!="operationScope"}
+        clean_payload=nfs_dynamic_redact({key:value for key,value in payload.items() if key!="operationScope"})
         source_intent=clean_payload==desired[self.NFS]
         self.source_intent=source_intent
         if self.path.exists() or self.path.is_symlink():

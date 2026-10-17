@@ -6075,6 +6075,7 @@ apply_nfs_exports() {
   local payload_file="$1"
 
   python3 - "$payload_file" <<'PY'
+import copy
 import json
 from pathlib import Path
 import stat
@@ -9676,6 +9677,8 @@ import stat
 import tempfile
 import time
 import uuid as nfs_dynamic_uuid
+def nfs_dynamic_redact(value):
+    return pending_nfs_redact(value)
 
 
 class NfsLegacyDynamicApply:
@@ -9780,7 +9783,7 @@ class NfsLegacyDynamicApply:
         self.protected_directory(self.root,True)
         self.path=self.root/scope["operationUuid"]
         source,source_endpoints=self.render(desired[self.NFS])
-        clean_payload={key:value for key,value in payload.items() if key!="operationScope"}
+        clean_payload=nfs_dynamic_redact({key:value for key,value in payload.items() if key!="operationScope"})
         source_intent=clean_payload==desired[self.NFS]
         self.source_intent=source_intent
         if self.path.exists() or self.path.is_symlink():
@@ -10571,7 +10574,7 @@ service_protocol_mode = str(payload.get("protocolMode") or payload.get("protocol
 if service_protocol_mode not in ("V4_ONLY", "V3V4_DUAL"):
     service_protocol_mode = "V4_ONLY"
 
-for export in payload.get("exports", []):
+for export in copy.deepcopy(payload.get("exports", [])):
     uuid = safe_uuid(export.get("uuid"))
     export_file = os.path.join(exports_dir, f"ablestack-{uuid}.exports")
     managed_files.add(export_file)
@@ -32217,6 +32220,8 @@ import stat
 import tempfile
 import time
 import uuid as nfs_dynamic_uuid
+def nfs_dynamic_redact(value):
+    return pending_nfs_redact(value)
 
 
 class NfsLegacyDynamicApply:
@@ -32321,7 +32326,7 @@ class NfsLegacyDynamicApply:
         self.protected_directory(self.root,True)
         self.path=self.root/scope["operationUuid"]
         source,source_endpoints=self.render(desired[self.NFS])
-        clean_payload={key:value for key,value in payload.items() if key!="operationScope"}
+        clean_payload=nfs_dynamic_redact({key:value for key,value in payload.items() if key!="operationScope"})
         source_intent=clean_payload==desired[self.NFS]
         self.source_intent=source_intent
         if self.path.exists() or self.path.is_symlink():

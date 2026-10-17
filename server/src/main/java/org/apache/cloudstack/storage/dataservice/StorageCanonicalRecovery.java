@@ -19,6 +19,7 @@ package org.apache.cloudstack.storage.dataservice;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -113,6 +114,113 @@ final class StorageCanonicalRecovery {
         } catch (RuntimeException invalid) {
             throw new CloudRuntimeException("LOCAL SOURCE differs beyond exact serial-verified NVMe backing-path rebinding");
         }
+    }
+
+    static void requireSourceData(JsonObject source, JsonObject data) {
+        Map<String, JsonObject> wanted = new LinkedHashMap<>();
+        for (String path : List.of("desired-state/nfs-export-apply.json","desired-state/smb-share-apply.json")) {
+            JsonElement file = source.get(path);if (file == null || file.isJsonNull()) continue;
+            String list = path.contains("nfs-") ? "exports" : "shares";
+            for (JsonElement entry : file.getAsJsonObject().getAsJsonArray(list)) {
+                JsonObject config=entry.getAsJsonObject().getAsJsonObject("config"), row=new JsonObject();
+                String uuid=text(config,"attachedVolumeUuid"), filesystem=text(config,"filesystemUuid");
+                if (!canonicalUuid(uuid) || !canonicalUuid(filesystem)) throw new IllegalArgumentException();
+                row.addProperty("kind","FILE_DATA");row.addProperty("filesystemUuid",filesystem);
+                row.addProperty("sizeBytes",positive(config.getAsJsonObject("lastInspection"),"sizeBytes"));
+                if (wanted.containsKey(uuid) && !wanted.get(uuid).equals(row)) throw new IllegalArgumentException();
+                wanted.put(uuid,row);
+            }
+        }
+        JsonElement iscsi=source.get("iscsi-targets.json"), nvme=source.get("nvmeof-subsystems.json");
+        List<JsonObject> raw = new ArrayList<>();
+        if (iscsi!=null&&!iscsi.isJsonNull()) for(JsonElement row:iscsi.getAsJsonObject().getAsJsonArray("targets"))raw.add(row.getAsJsonObject());
+        if (nvme!=null&&!nvme.isJsonNull()) for(JsonElement subsystem:nvme.getAsJsonObject().getAsJsonArray("subsystems"))
+            for(JsonElement row:subsystem.getAsJsonObject().getAsJsonArray("namespaces"))raw.add(row.getAsJsonObject());
+        for(JsonObject entry:raw) {
+            if(!"BLOCK".equals(text(entry,"backstoreType")))throw new IllegalArgumentException();
+            String uuid=text(entry,"volumeUuid");if(!canonicalUuid(uuid))throw new IllegalArgumentException();
+            JsonObject row=new JsonObject();row.addProperty("kind","BLOCK_RAW");row.addProperty("sizeBytes",positive(entry,"volumeSizeBytes"));
+            if(wanted.containsKey(uuid)&&!wanted.get(uuid).equals(row))throw new IllegalArgumentException();wanted.put(uuid,row);
+        }
+        Set<String> seen=new HashSet<>();
+        for(JsonElement value:data.getAsJsonArray("volumes")) {
+            JsonObject actual=value.getAsJsonObject();String uuid=text(actual,"volumeUuid");JsonObject expected=wanted.get(uuid);
+            String serial=text(actual,"serial").replace("-","").toLowerCase(java.util.Locale.ROOT),full=uuid.replace("-","");
+            if(expected==null||!seen.add(uuid)||!"EXACT".equals(text(actual,"mappingStatus"))||!"VOLUME_SERIAL".equals(text(actual,"matchedBy"))
+                    ||!Set.of(full,full.substring(0,20)).contains(serial)||!text(expected,"kind").equals(text(actual,"kind"))
+                    ||positive(expected,"sizeBytes")!=positive(actual,"sizeBytes")
+                    ||expected.has("filesystemUuid")&&!expected.get("filesystemUuid").equals(actual.get("filesystemUuid")))throw new IllegalArgumentException();
+        }
+        if(!seen.equals(wanted.keySet()))throw new IllegalArgumentException();
+    }
+
+    /** Binds the existing fresh protected NFS readback to exactly the frozen SOURCE exports. */
+    static JsonObject requireNfsSourceRuntime(JsonObject source, JsonObject health, JsonObject inventory, JsonObject data, String boot) {
+        if(!flag(source,"enabled")||source.getAsJsonArray("exports").size()==0)throw new IllegalArgumentException();
+        String mode=text(source,"protocolMode"),defaultIp=source.has("listenIp")&&!source.get("listenIp").isJsonNull()?text(source,"listenIp"):"0.0.0.0";
+        Map<String,List<JsonObject>> wanted=new LinkedHashMap<>();
+        for(JsonElement item:source.getAsJsonArray("exports")) {
+            JsonObject export=item.getAsJsonObject(),config=export.getAsJsonObject("config");
+            List<String> ips=new ArrayList<>();JsonElement chosen=config.get("listenIps");
+            if("SELECTED".equals(config.has("endpointMode")?text(config,"endpointMode"):"")&&chosen!=null) {
+                if(chosen.isJsonArray())for(JsonElement ip:chosen.getAsJsonArray())ips.add(ip.getAsString());
+                else for(String ip:chosen.getAsString().split(","))ips.add(ip.trim());
+            }
+            if(ips.isEmpty())ips.add(defaultIp);
+            List<Integer> ports=new ArrayList<>();JsonElement groups=config.get("listenerGroupPorts");
+            if(groups!=null&&groups.isJsonArray())for(JsonElement port:groups.getAsJsonArray())ports.add(port.getAsInt());
+            if(ports.isEmpty())ports.add(source.get("port").getAsInt());
+            if("V3V4_DUAL".equals(mode)){ips=List.of("0.0.0.0");ports=List.of(2049);}
+            else if(!"V4_ONLY".equals(mode))throw new IllegalArgumentException();
+            for(String ip:ips)for(int port:ports) {
+                if(port<1||port>65535||!ip.matches("[0-9.]+"))throw new IllegalArgumentException();
+                wanted.computeIfAbsent(ip+":"+port,key->new ArrayList<>()).add(export);
+            }
+            JsonObject volume=StorageRootDataManifest.volume(data,text(config,"attachedVolumeUuid"));
+            String relative=text(config,"backingPath").substring(text(config,"volumeMountPath").length());
+            boolean mounted=false;
+            for(JsonElement mount:volume.getAsJsonArray("mounts")) {
+                JsonObject entry=mount.getAsJsonObject();
+                if(!text(export,"path").equals(text(entry,"target")))continue;
+                String actual=text(entry,"source");
+                if(!relative.isEmpty()&&!actual.endsWith("["+relative+"]"))throw new IllegalArgumentException();
+                if(entry.has("uuid")&&!entry.get("uuid").isJsonNull()&&!config.get("filesystemUuid").equals(entry.get("uuid")))throw new IllegalArgumentException();
+                mounted=true;
+            }
+            if(!mounted)throw new IllegalArgumentException();
+        }
+        JsonArray endpoints=health.getAsJsonArray("endpoints"),actualExports=inventory.getAsJsonArray("nfsGaneshaExports");
+        if(endpoints.size()!=wanted.size()||actualExports.size()!=wanted.size())throw new IllegalArgumentException();
+        JsonObject result=new JsonObject();Set<String> seen=new HashSet<>();
+        for(JsonElement item:endpoints) {
+            JsonObject endpoint=item.getAsJsonObject();String ip=text(endpoint,"listenIp");long port=positive(endpoint,"port");String key=ip+":"+port;
+            List<JsonObject> exports=wanted.get(key);
+            if(exports==null||!seen.add(key)||!boot.equals(text(endpoint,"bootId"))||!mode.equals(text(endpoint,"protocolMode"))
+                    ||!text(endpoint,"configurationSha256").matches("[a-f0-9]{64}")||!text(endpoint,"startTicks").matches("[1-9][0-9]*")
+                    ||!("/etc/ganesha/ablestack-storage/"+ip+"_"+port+".conf").equals(text(endpoint,"configurationTarget")))throw new IllegalArgumentException();
+            for(String field:List.of("processRunning","listening","listenerOwned","exportInventoryReady","probeObservationVerified","probeSuccess"))
+                if(!flag(endpoint,field))throw new IllegalArgumentException();
+            long pid=positive(endpoint,"pid");
+            JsonObject listener=null;
+            for(JsonElement value:actualExports){JsonObject row=value.getAsJsonObject();if(ip.equals(text(row,"listenIp"))&&port==positive(row,"port")){if(listener!=null)throw new IllegalArgumentException();listener=row;}}
+            if(listener==null||positive(listener,"pid")!=pid||!flag(listener,"processRunning")||!flag(listener,"listening")
+                    ||!"active".equals(text(listener,"status"))||listener.getAsJsonArray("entries").size()!=exports.size()
+                    ||endpoint.getAsJsonArray("probeResults").size()!=exports.size())throw new IllegalArgumentException();
+            Set<String> found=new HashSet<>();
+            for(JsonObject export:exports) {
+                String uuid=text(export,"uuid"),path=text(export,"path"),pseudo="/"+text(export,"name");
+                JsonObject observed=null,probe=null;
+                for(JsonElement value:listener.getAsJsonArray("entries")){JsonObject row=value.getAsJsonObject();if(path.equals(text(row,"path"))&&pseudo.equals(text(row,"pseudo"))){if(observed!=null)throw new IllegalArgumentException();observed=row;}}
+                for(JsonElement value:endpoint.getAsJsonArray("probeResults")){JsonObject row=value.getAsJsonObject();if(uuid.equals(text(row,"exportUuid"))){if(probe!=null)throw new IllegalArgumentException();probe=row;}}
+                if(observed==null||probe==null||!found.add(uuid)||!flag(probe,"success")||!path.equals(text(probe,"targetPath"))||!pseudo.equals(text(probe,"pseudoPath")))throw new IllegalArgumentException();
+                JsonArray clients=new JsonArray();JsonObject config=export.getAsJsonObject("config");
+                for(JsonElement value:export.getAsJsonArray("acls")){JsonObject acl=value.getAsJsonObject();clients.add(StorageRecoveryObservation.nfsClient(text(acl,"principal"),"READ_WRITE".equals(text(acl,"permission")),config,acl.getAsJsonObject("config")));}
+                if(clients.size()==0)clients.add(StorageRecoveryObservation.nfsClient("*",true,config,new JsonObject()));
+                StorageRecoveryObservation.requireNfsClients(clients,observed);
+            }
+            JsonObject binding=new JsonObject();for(String field:List.of("bootId","configurationSha256","configurationTarget","pid","startTicks"))binding.add(field,endpoint.get(field).deepCopy());result.add(key,binding);
+        }
+        return result;
     }
 
     private static String text(JsonObject object, String key) {
