@@ -25,7 +25,7 @@ import sys
 import tempfile
 import unittest
 import uuid
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / "systemvm/debian/usr/local/bin/ablestack-storagectl"
@@ -69,6 +69,69 @@ class StorageExpectedFilesystemMountTest(unittest.TestCase):
         self.assertEqual(1, self.rows.call_count)
         self.assertEqual([("/dev/sdb", "UUID"), ("/dev/sdb", "TYPE")],
                          [call.args for call in self.probe.call_args_list])
+
+    def test_already_mounted_exact_initial_filesystem_is_rechecked_without_remount_or_format(self):
+        self.devices[0]["mountpoint"] = "/srv/ablestack-storage/volumes/" + self.volume
+        before = copy.deepcopy(self.request)
+        resolver = Mock(wraps=resolve_volume_device)
+        self.env["resolve_volume_device"] = resolver
+        with patch("volume_identity.glob.glob", return_value=[]):
+            self.call()
+        self.assertEqual(before, self.request)
+        self.assertEqual("/dev/sdb", resolver.call_args.kwargs["mount_source"])
+        self.assertFalse(resolver.call_args.kwargs["allow_blank_size_fallback"])
+        self.assertEqual(20 << 30, resolver.call_args.kwargs["expected_size"])
+        self.assertEqual([("/dev/sdb", "UUID"), ("/dev/sdb", "TYPE")],
+                         [call.args for call in self.probe.call_args_list])
+
+    def test_real_main_and_expected_guard_resolve_the_same_mounted_serial(self):
+        self.devices[0]["mountpoint"] = "/srv/ablestack-storage/volumes/" + self.volume
+        main = next(node for node in self.tree.body if isinstance(node, ast.Try)
+                    and node.body and isinstance(node.body[0], ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == "resolved_device"
+                            for target in node.body[0].targets))
+        call = main.body[0].value
+        self.env.update(payload=self.request, inspection={}, config={}, mounted_source="/dev/sdb",
+                        expected_size=20 << 30)
+        with patch("volume_identity.glob.glob", return_value=[]):
+            # The library deliberately excludes an already mounted disk without its exact source.
+            with self.assertRaises(VolumeIdentityError):
+                resolve_volume_device(self.devices, volume_uuid=self.volume, expected_size=20 << 30,
+                                      allow_blank_size_fallback=False)
+            resolved = eval(compile(ast.Expression(body=call), str(CLI), "eval"), self.env)
+            self.assertEqual(("VOLUME_SERIAL", "/dev/sdb"),
+                             (resolved["matchedBy"], resolved["devicePath"]))
+            self.env["require_expected_mount_filesystem"](self.request, resolved["devicePath"])
+        self.assertEqual(2, self.rows.call_count)
+
+    def test_mounted_root_disk_remains_excluded_even_with_matching_serial_uuid_and_size(self):
+        self.devices[0]["mountpoint"] = "/"
+        with patch("volume_identity.glob.glob", return_value=[]), self.assertRaises(VolumeIdentityError):
+            self.call()
+        self.probe.assert_not_called()
+
+    def test_mounted_foreign_or_missing_serial_cannot_use_mount_source_fallback(self):
+        self.devices[0]["mountpoint"] = "/srv/ablestack-storage/volumes/" + self.volume
+        for serial in ("foreign-volume", ""):
+            self.devices[0]["serial"] = serial
+            with self.subTest(serial=serial), patch("volume_identity.glob.glob", return_value=[]):
+                with self.assertRaises((ValueError, VolumeIdentityError)):
+                    self.call()
+        self.probe.assert_not_called()
+
+    def test_mounted_serial_ambiguity_is_rejected_before_blkid(self):
+        self.devices[0]["mountpoint"] = "/srv/ablestack-storage/volumes/" + self.volume
+        self.devices.append({**self.devices[0], "path": "/dev/sdc", "name": "sdc", "mountpoint": None})
+        with patch("volume_identity.glob.glob", return_value=[]), self.assertRaisesRegex(VolumeIdentityError, "Ambiguous"):
+            self.call()
+        self.probe.assert_not_called()
+
+    def test_device_changed_between_main_resolution_and_mounted_recheck_is_rejected(self):
+        self.devices[0].update(path="/dev/sdc", name="sdc",
+                               mountpoint="/srv/ablestack-storage/volumes/" + self.volume)
+        with patch("volume_identity.glob.glob", return_value=[]), self.assertRaises((ValueError, VolumeIdentityError)):
+            self.call()
+        self.probe.assert_not_called()
 
     def test_omitted_expected_uuid_keeps_legacy_path_and_does_not_probe(self):
         self.call({"volumeUuid": "historical", "filesystem": "legacy", "importMode": "MOUNT_EXISTING"})

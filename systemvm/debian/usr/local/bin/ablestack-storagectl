@@ -5201,7 +5201,7 @@ def require_expected_mount_filesystem(request, expected_device):
             or type(request.get("importMode")) is not str or request["importMode"].upper() != "MOUNT_EXISTING"):
         raise ValueError("Expected filesystem identity requires an explicit no-format existing mount")
     fresh = list(walk(lsblk()))
-    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, expected_size=size, allow_blank_size_fallback=False)
+    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, mount_source=expected_device, expected_size=size, allow_blank_size_fallback=False)
     assert_mutating_volume_identity(resolved, request, fresh, size)
     if resolved.get("devicePath") != expected_device:
         raise ValueError("Expected mount volume device changed before mount")

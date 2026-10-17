@@ -363,6 +363,14 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
     def historical_16df_before_nfs_request_isolation(self):
         # Test-only reversal: a production bridge must still reject these unrelated later changes.
         current=fixture.CLI.read_bytes()
+        # Test-only projection of the later mounted-source recheck fix. The production
+        # closed bridge must continue to reject unrelated whole-CLI changes.
+        later=b"    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, mount_source=expected_device, expected_size=size, allow_blank_size_fallback=False)"
+        earlier=b"    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, expected_size=size, allow_blank_size_fallback=False)"
+        self.assertEqual(1,current.count(later))
+        current=current.replace(later,earlier,1)
+        self.assertEqual("b8152f8c886052c35c201bc38b1723bc8013418df78ad9bf6ea347e8f606438d",
+                         hashlib.sha256(current).hexdigest())
         start=current.index(b"apply_nfs_exports() {")
         finish=current.index(b"\nganesha_feature_capabilities() {",start)
         block=current[start:finish]
