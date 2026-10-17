@@ -257,7 +257,16 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             StorageServiceGuestCommandResult probe = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                     vm.getId(), "volume operation status", payload.toString(), 5, Set.of()));
             if (!probe.isSuccess()) throw new CloudRuntimeException("Formatter journal observation is unavailable; VM and DATA lifecycle change is blocked");
-            org.apache.cloudstack.storage.dataservice.StorageFormatterLifecycleGate.requireIdle(com.google.gson.JsonParser.parseString(probe.getResultJson()).getAsJsonObject());
+            JsonObject status = com.google.gson.JsonParser.parseString(probe.getResultJson()).getAsJsonObject();
+            org.apache.cloudstack.storage.dataservice.StorageFormatterLifecycleGate.requireIdle(status);
+            if ("NOT_STARTED".equals(status.get("status").getAsString())) {
+                com.cloud.storage.VolumeDetailVO previousState = volumeDetailsDao.findDetail(volume.getId(), org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.STATE);
+                com.cloud.storage.VolumeDetailVO previousReceipt = volumeDetailsDao.findDetail(volume.getId(), org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.RECEIPT);
+                if (previousState != null || previousReceipt != null) {
+                    org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.requireVerified(volume,
+                            previousState == null ? null : previousState.getValue(), previousReceipt == null ? null : previousReceipt.getValue());
+                }
+            }
             String receipt = org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.identity(volume).toString();
             if (receipt.length() > 512) throw new CloudRuntimeException("Persistent DATA safety identity exceeds the supported metadata bound");
             volumeDetailsDao.addDetail(volume.getId(), org.apache.cloudstack.storage.dataservice.StorageVolumeLifecycleProtection.RECEIPT, receipt, false);
@@ -1455,6 +1464,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         Account caller = CallContext.current().getCallingAccount();
         accountMgr.checkAccess(caller, null, false, sharedFS);
+        if (expunge && deletionExecutionStarted(sharedFS)) {
+            prepareSharedFSDeletion(sharedFS, cmd.getDataVolumePolicy(), cmd.getConfirmDataLoss(), cmd.getExpectedPlanHash());
+            deleteSharedFSInternal(sharedFSId);
+            return true;
+        }
 
         if (sharedFS.getState().equals(State.Ready) && cmd.isForced()) {
             // Reject a stale/destructive confirmation before introducing downtime.
@@ -1513,7 +1527,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         if (sharedFS == null) throw new InvalidParameterValueException("Shared filesystem is unavailable");
         accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, false, sharedFS);
         SharedFS.DataVolumePolicy policy = deletionPolicy(requestedPolicy);
-        com.google.gson.JsonObject plan = createDeletionPlan(sharedFS, policy);
+        com.google.gson.JsonObject plan = deletionPlanForRequest(sharedFS, policy);
         org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse response = new org.apache.cloudstack.api.response.StorageServiceDeletionPlanResponse();
         response.setId(sharedFS.getUuid()); response.setPolicy(policy.name()); response.setPlanHash(plan.get("planHash").getAsString());
         response.setPlan(plan.toString()); response.setObjectName("sharedfilesystemdeletionplan");return response;
@@ -1523,13 +1537,20 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public ListResponse<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> listSharedFSDeletionAudits(String uuid) {
         Account caller=CallContext.current().getCallingAccount();
         boolean root=accountMgr.isRootAdmin(caller.getId());
+        long ownerId = caller.getId();
+        if (!root && uuid != null) {
+            SharedFSVO resource = sharedFSDao.findByUuidIncludingRemoved(uuid);
+            if (resource == null) throw new InvalidParameterValueException("Shared filesystem audit scope is unavailable");
+            accountMgr.checkAccess(caller, null, false, resource);
+            ownerId = resource.getAccountId();
+        }
         String query="SELECT id,sharedfs_uuid,phase,policy,plan_json,created FROM cloud.storage_service_deletion_audit WHERE 1=1";
         if (!root) query+=" AND account_id=?";
         if (uuid!=null) query+=" AND sharedfs_uuid=?";
         query+=" ORDER BY id DESC LIMIT 100";
         List<org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse> entries=new ArrayList<>();
         try (java.sql.PreparedStatement statement=com.cloud.utils.db.TransactionLegacy.currentTxn().prepareAutoCloseStatement(query)) {
-            int parameter=1;if (!root) statement.setLong(parameter++,caller.getId());if (uuid!=null) statement.setString(parameter,uuid);
+            int parameter=1;if (!root) statement.setLong(parameter++,ownerId);if (uuid!=null) statement.setString(parameter,uuid);
             try (java.sql.ResultSet rows=statement.executeQuery()) {
                 while (rows.next()) {
                     org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse entry=new org.apache.cloudstack.api.response.SharedFSDeletionAuditResponse();
@@ -1589,21 +1610,71 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             row.addProperty("action", policy == SharedFS.DataVolumePolicy.PRESERVE_VOLUMES ? "DETACH_AND_PRESERVE" : "DETACH_AND_DELETE");
             volumes.add(row);
         }
-        return StorageSharedFsDeletionIdentity.freeze(deletionScope(sharedFS, policy), volumes);
+        com.google.gson.JsonObject plan = StorageSharedFsDeletionIdentity.freeze(deletionScope(sharedFS, policy), volumes);
+        java.util.Map<Long, java.util.Set<String>> protocols = new java.util.HashMap<>();
+        if (sharedFS.getVmId() != null) {
+            StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(sharedFS.getVmId());
+            if (instance != null) {
+                for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB)) {
+                    for (StorageFileShareVO share : storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                        Long volumeId = share.getVolumeId() == null ? sharedFS.getVolumeId() : share.getVolumeId();
+                        if (volumeId != null) protocols.computeIfAbsent(volumeId, ignored -> new java.util.TreeSet<>()).add(protocol.name());
+                    }
+                }
+                for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.ISCSI, StorageServiceInstance.Protocol.NVME_OF)) {
+                    for (org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                        Long volumeId = target.getVolumeId() == null ? sharedFS.getVolumeId() : target.getVolumeId();
+                        if (volumeId != null) protocols.computeIfAbsent(volumeId, ignored -> new java.util.TreeSet<>()).add(protocol.name());
+                    }
+                }
+            }
+        }
+        for (com.google.gson.JsonElement entry : plan.getAsJsonArray("volumes")) {
+            JsonObject row = entry.getAsJsonObject();
+            long volumeId = row.get("id").getAsLong();
+            row.addProperty("role", Objects.equals(sharedFS.getVolumeId(), volumeId) ? "DEFAULT_DATA" : "ADDITIONAL_DATA");
+            com.google.gson.JsonArray uses = new com.google.gson.JsonArray();
+            for (String protocol : protocols.getOrDefault(volumeId, java.util.Set.of())) uses.add(protocol);
+            row.add("protocols", uses);
+        }
+        com.google.gson.JsonArray roots = new com.google.gson.JsonArray();
+        if (sharedFS.getVmId() != null) {
+            for (VolumeVO root : volumeDao.findByInstanceAndType(sharedFS.getVmId(), Volume.Type.ROOT)) {
+                JsonObject row = deletionVolumeIdentity(root);row.addProperty("action", "DELETE_WITH_VM");roots.add(row);
+            }
+        }
+        plan.add("rootVolumes", roots);plan.addProperty("vmAction", "EXPUNGE_VM");
+        return plan;
+    }
+
+    protected boolean deletionExecutionStarted(SharedFS sharedFS) {
+        return sharedFS.getState() == State.Expunging || sharedFS.getState() == State.Expunged || completedDeletionReceipt(sharedFS);
+    }
+
+    protected JsonObject deletionPlanForRequest(SharedFS sharedFS, SharedFS.DataVolumePolicy policy) {
+        if (!deletionExecutionStarted(sharedFS)) return createDeletionPlan(sharedFS, policy);
+        if (policy != sharedFS.getDataVolumePolicy()) throw new InvalidParameterValueException("Retry the original DATA policy; an in-progress removal cannot change its frozen plan");
+        storedDeletionVolumeIds(sharedFS);
+        return com.google.gson.JsonParser.parseString(sharedFS.getDeletionPlanJson()).getAsJsonObject();
     }
 
     protected void validateDeletionConfirmation(SharedFS sharedFS, SharedFS.DataVolumePolicy policy, String confirmation,
             String expectedHash, com.google.gson.JsonObject plan) {
-        if (policy==SharedFS.DataVolumePolicy.DELETE_VOLUMES && (!sharedFS.getName().equals(confirmation) || expectedHash==null || !expectedHash.equals(plan.get("planHash").getAsString()))) {
+        if (expectedHash != null && !expectedHash.equals(plan.get("planHash").getAsString())) {
+            throw new InvalidParameterValueException("The reviewed DATA identity plan changed; refresh the deletion preview");
+        }
+        if (policy==SharedFS.DataVolumePolicy.DELETE_VOLUMES && (!sharedFS.getName().equals(confirmation) || expectedHash==null)) {
             throw new InvalidParameterValueException("Deleting data volumes requires the exact service name and current preview plan hash");
         }
     }
 
     protected void prepareSharedFSDeletion(SharedFSVO sharedFS, String requestedPolicy, String confirmation, String expectedHash) {
         SharedFS.DataVolumePolicy policy=deletionPolicy(requestedPolicy);
-        com.google.gson.JsonObject plan=createDeletionPlan(sharedFS,policy);
+        com.google.gson.JsonObject plan=deletionPlanForRequest(sharedFS,policy);
         validateDeletionConfirmation(sharedFS,policy,confirmation,expectedHash,plan);
-        sharedFS.setDataVolumePolicy(policy);sharedFS.setDeletionPlanJson(plan.toString());sharedFSDao.update(sharedFS.getId(),sharedFS);
+        if (deletionExecutionStarted(sharedFS)) return;
+        sharedFS.setDataVolumePolicy(policy);sharedFS.setDeletionPlanJson(plan.toString());
+        if (!sharedFSDao.update(sharedFS.getId(),sharedFS)) throw new CloudRuntimeException("Removal identity plan could not be durably saved");
         auditSharedFSDeletion(sharedFS,"PLANNED");
     }
 
@@ -1674,12 +1745,20 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 try { auditSharedFSDeletion(sharedFS, "FAILED_RETRYABLE"); } catch (RuntimeException auditFailure) { failure.addSuppressed(auditFailure); }
                 throw failure;
             }
-            auditSharedFSDeletion(sharedFS, "COMPLETE");
             JsonObject plan = com.google.gson.JsonParser.parseString(sharedFS.getDeletionPlanJson()).getAsJsonObject();
             JsonObject receipt = new JsonObject();receipt.add("planHash", plan.get("planHash"));
             receipt.addProperty("providerCompleted", true);receipt.addProperty("completedAtMillis", System.currentTimeMillis());
+            receipt.addProperty("auditCompleted", false);
             plan.add("executionReceipt", receipt);sharedFS.setDeletionPlanJson(plan.toString());
             if (!sharedFSDao.update(sharedFS.getId(), sharedFS)) throw new CloudRuntimeException("Completed removal receipt could not be durably saved");
+        }
+        JsonObject completedPlan = com.google.gson.JsonParser.parseString(sharedFS.getDeletionPlanJson()).getAsJsonObject();
+        JsonObject completedReceipt = completedPlan.getAsJsonObject("executionReceipt");
+        com.google.gson.JsonElement audited = completedReceipt.get("auditCompleted");
+        if (audited == null || !audited.isJsonPrimitive() || !audited.getAsJsonPrimitive().isBoolean() || !audited.getAsBoolean()) {
+            auditSharedFSDeletion(sharedFS, "COMPLETE");
+            completedReceipt.addProperty("auditCompleted", true);sharedFS.setDeletionPlanJson(completedPlan.toString());
+            if (!sharedFSDao.update(sharedFS.getId(), sharedFS)) throw new CloudRuntimeException("Completed removal audit receipt could not be durably saved");
         }
         deleteStorageServiceCompatibility(sharedFS);
         if (sharedFS.getState() != State.Expunged) stateTransitTo(sharedFS, Event.OperationSucceeded);

@@ -47,22 +47,25 @@ public class SharedFSDeletionExecutionRecoveryTest {
         SharedFSProvider provider;
         String failAudit;
         int compatibilityDeletes;
+        java.util.List<String> audits = new java.util.ArrayList<>();
+        @Override protected <T> T withSharedFSWriterLock(SharedFS resource, java.util.function.Supplier<T> action) {return action.get();}
         @Override public SharedFSProvider getSharedFSProvider(String name) {return provider;}
         @Override public boolean stateTransitTo(SharedFS resource,SharedFS.Event event) {
             ReflectionTestUtils.setField(resource,"state",event==SharedFS.Event.OperationSucceeded?SharedFS.State.Expunged:SharedFS.State.Expunging);return true;
         }
-        @Override protected void auditSharedFSDeletion(SharedFS resource,String phase) {if(phase.equals(failAudit))throw new CloudRuntimeException("audit unavailable");}
+        @Override protected void auditSharedFSDeletion(SharedFS resource,String phase) {audits.add(phase);if(phase.equals(failAudit))throw new CloudRuntimeException("audit unavailable");}
         @Override protected void deleteStorageServiceCompatibility(SharedFS resource) {compatibilityDeletes++;}
     }
     private Service service;
     private SharedFSVO fs;
     private SharedFSDao filesystems;
     private SharedFSLifeCycle lifecycle;
+    private VolumeDao volumes;
     private MockedStatic<CallContext> contexts;
     @Before public void setup() {
         service=new Service();fs=new SharedFSVO("fixture","",3L,2L,4L,"provider",SharedFS.Protocol.NFS,SharedFS.FileSystemType.XFS,5L);ReflectionTestUtils.setField(fs,"id",7L);ReflectionTestUtils.setField(fs,"state",SharedFS.State.Destroyed);fs.setVolumeId(42L);
         VolumeVO data=mock(VolumeVO.class);when(data.getId()).thenReturn(42L);when(data.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");when(data.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(data.getAccountId()).thenReturn(2L);when(data.getDomainId()).thenReturn(3L);when(data.getDataCenterId()).thenReturn(4L);when(data.getPoolId()).thenReturn(9L);when(data.getSize()).thenReturn(1024L);when(data.getInstanceId()).thenReturn(null);
-        VolumeDao volumes=mock(VolumeDao.class);when(volumes.findById(42L)).thenReturn(data);when(volumes.findByIdIncludingRemoved(42L)).thenReturn(data);ReflectionTestUtils.setField(service,"volumeDao",volumes);
+        volumes=mock(VolumeDao.class);when(volumes.findById(42L)).thenReturn(data);when(volumes.findByIdIncludingRemoved(42L)).thenReturn(data);ReflectionTestUtils.setField(service,"volumeDao",volumes);
         fs.setDeletionPlanJson(service.createDeletionPlan(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES).toString());
         filesystems=mock(SharedFSDao.class);when(filesystems.findById(7L)).thenReturn(fs);when(filesystems.update(anyLong(),any())).thenReturn(true);when(filesystems.remove(7L)).thenReturn(true);ReflectionTestUtils.setField(service,"sharedFSDao",filesystems);
         ReflectionTestUtils.setField(service,"accountMgr",mock(AccountManager.class));
@@ -79,10 +82,52 @@ public class SharedFSDeletionExecutionRecoveryTest {
     @Test public void incompleteStartedAuditCannotInvokeProviderOrRemoveRow() {
         service.failAudit="STARTED";Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFSInternal(7L));verifyNoInteractions(lifecycle);verify(filesystems,never()).remove(anyLong());Assert.assertFalse(service.completedDeletionReceipt(fs));
     }
-    @Test public void completionAuditFailurePreservesRowAndDoesNotClaimCompleteReceipt() {
-        service.failAudit="COMPLETE";Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFSInternal(7L));Assert.assertFalse(service.completedDeletionReceipt(fs));verify(filesystems,never()).remove(anyLong());Assert.assertEquals(0,service.compatibilityDeletes);
+    @Test public void completionAuditFailureRetainsProviderReceiptAndPublicRetryDoesNotRepeatEffects() {
+        service.failAudit="COMPLETE";Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFSInternal(7L));
+        Assert.assertTrue(service.completedDeletionReceipt(fs));verify(filesystems,never()).remove(anyLong());Assert.assertEquals(0,service.compatibilityDeletes);
+        service.failAudit=null;
+        String hash=com.google.gson.JsonParser.parseString(fs.getDeletionPlanJson()).getAsJsonObject().get("planHash").getAsString();
+        service.deleteSharedFS(7L,"PRESERVE_VOLUMES",null,hash);
+        verify(lifecycle,times(1)).deleteSharedFS(eq(fs),any(),anySet());verify(filesystems,times(1)).remove(7L);
+        Assert.assertEquals(java.util.List.of("STARTED","COMPLETE","COMPLETE"),service.audits);
     }
     @Test public void providerFailureNeverRemovesServiceOrPromotesCompletionReceipt() {
         when(lifecycle.deleteSharedFS(eq(fs),any(),anySet())).thenReturn(false);Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFSInternal(7L));verify(filesystems,never()).remove(anyLong());Assert.assertFalse(service.completedDeletionReceipt(fs));
     }
+    @Test public void publicExpungeRetryKeepsCompletedFrozenReceiptAfterRowRemovalFailure() {
+        when(filesystems.remove(7L)).thenReturn(false,true);
+        String hash=com.google.gson.JsonParser.parseString(fs.getDeletionPlanJson()).getAsJsonObject().get("planHash").getAsString();
+        Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFS(7L,"PRESERVE_VOLUMES",null,hash));
+        String receipt=fs.getDeletionPlanJson();
+        service.deleteSharedFS(7L,"PRESERVE_VOLUMES",null,hash);
+        Assert.assertEquals(receipt,fs.getDeletionPlanJson());
+        verify(lifecycle,times(1)).deleteSharedFS(eq(fs),any(),anySet());
+        Assert.assertEquals(java.util.List.of("PLANNED","STARTED","COMPLETE"),service.audits);
+    }
+    @Test public void publicDeletePartialRetryUsesFrozenIncludingRemovedRowsAndRequiresOriginalConsent() {
+        fs.setDataVolumePolicy(SharedFS.DataVolumePolicy.DELETE_VOLUMES);
+        fs.setDeletionPlanJson(service.createDeletionPlan(fs,SharedFS.DataVolumePolicy.DELETE_VOLUMES).toString());
+        String hash=com.google.gson.JsonParser.parseString(fs.getDeletionPlanJson()).getAsJsonObject().get("planHash").getAsString();
+        ReflectionTestUtils.setField(fs,"state",SharedFS.State.Expunging);
+        when(volumes.findById(42L)).thenReturn(null);
+        String frozen=fs.getDeletionPlanJson();
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->service.prepareSharedFSDeletion(fs,"PRESERVE_VOLUMES",null,null));
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->service.prepareSharedFSDeletion(fs,"DELETE_VOLUMES","fixture","stale"));
+        service.prepareSharedFSDeletion(fs,"DELETE_VOLUMES","fixture",hash);
+        Assert.assertEquals(frozen,fs.getDeletionPlanJson());Assert.assertTrue(service.audits.isEmpty());
+        Assert.assertEquals(frozen,service.deletionPlanForRequest(fs,SharedFS.DataVolumePolicy.DELETE_VOLUMES).toString());
+        verify(filesystems,never()).update(anyLong(),any());
+    }
+    @Test public void failedInitialPlanPersistenceCannotWriteAuditOrInvokeProvider() {
+        fs.setDeletionPlanJson(null);when(filesystems.update(anyLong(),any())).thenReturn(false);
+        Assert.assertThrows(CloudRuntimeException.class,()->service.prepareSharedFSDeletion(fs,"PRESERVE_VOLUMES",null,null));
+        Assert.assertTrue(service.audits.isEmpty());verifyNoInteractions(lifecycle);verify(filesystems,never()).remove(anyLong());
+    }
+    @Test public void failedCompletionReceiptSaveCannotRemoveCompatibilityOrServiceRows() {
+        when(filesystems.update(anyLong(),any())).thenReturn(false);
+        Assert.assertThrows(CloudRuntimeException.class,()->service.deleteSharedFSInternal(7L));
+        Assert.assertEquals(java.util.List.of("STARTED"),service.audits);
+        Assert.assertEquals(0,service.compatibilityDeletes);verify(filesystems,never()).remove(anyLong());
+    }
+
 }

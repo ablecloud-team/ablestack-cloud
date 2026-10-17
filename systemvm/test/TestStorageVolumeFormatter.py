@@ -160,4 +160,98 @@ class StorageVolumeFormatterTest(unittest.TestCase):
             self.assertEqual("RECOVERY_REQUIRED",value["status"]);self.assertTrue(value["terminationPending"])
             self.assertEqual(original,value["operation"]);self.assertEqual(before,path.read_bytes());self.assertFalse(lock.exists())
 
+
+class StorageVolumeLifecycleJournalObservationTest(unittest.TestCase):
+    """Exercise the actual read-only CLI used before VM/DATA lifecycle effects."""
+    def setUp(self):
+        self.temporary=tempfile.TemporaryDirectory()
+        self.root=Path(self.temporary.name)
+        self.volume=str(uuid.uuid4())
+        self.operations=self.root/"operations"
+        self.payload=self.root/"request.json"
+        self.payload.write_text(json.dumps({"volumeUuid":self.volume}))
+        self.lock=self.root/"never-created"/"writer.lock"
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def observe(self):
+        return subprocess.run([str(CLI),"volume","operation","status",str(self.payload)],
+            env=dict(os.environ,ABLESTACK_STORAGE_VOLUME_OPERATIONS=str(self.operations),
+                     ABLESTACK_STORAGE_WRITER_LOCK_FILE=str(self.lock)),
+            capture_output=True,text=True,timeout=10)
+
+    def journal(self):
+        self.operations.mkdir(mode=0o700,exist_ok=True)
+        path=self.operations/(self.volume+".json")
+        value={"volumeUuid":self.volume,"operationId":"volume-"+self.volume,"phase":"COMPLETE",
+               "formatStarted":False,"terminationPending":False}
+        path.write_text(json.dumps(value));path.chmod(0o600)
+        return path
+
+    def rejected(self):
+        result=self.observe()
+        self.assertNotEqual(0,result.returncode,result.stdout)
+        self.assertNotIn('"status": "NOT_STARTED"',result.stdout)
+        self.assertFalse(self.lock.exists())
+
+    def test_genuine_absence_preserves_legacy_not_started_without_creating_directory(self):
+        result=self.observe()
+        self.assertEqual(0,result.returncode,result.stderr)
+        self.assertEqual("NOT_STARTED",json.loads(result.stdout)["status"])
+        self.assertFalse(self.operations.exists());self.assertFalse(self.lock.exists())
+
+    def test_genuine_missing_journal_in_protected_directory_is_read_only(self):
+        self.operations.mkdir(mode=0o700)
+        before=self.operations.stat()
+        result=self.observe()
+        self.assertEqual("NOT_STARTED",json.loads(result.stdout)["status"])
+        self.assertEqual([],list(self.operations.iterdir()))
+        self.assertEqual(before.st_mtime_ns,self.operations.stat().st_mtime_ns)
+
+    def test_dangling_journal_is_unknown_not_not_started(self):
+        self.operations.mkdir(mode=0o700)
+        path=self.operations/(self.volume+".json");path.symlink_to(self.root/"absent")
+        before=path.lstat()
+        self.rejected()
+        self.assertTrue(path.is_symlink());self.assertEqual(before.st_ino,path.lstat().st_ino)
+        self.assertFalse((self.root/"absent").exists())
+
+    def test_dangling_directory_is_unknown_not_not_started(self):
+        self.operations.symlink_to(self.root/"absent")
+        self.rejected()
+        self.assertTrue(self.operations.is_symlink());self.assertFalse((self.root/"absent").exists())
+
+    def test_directory_symlink_to_other_journals_is_rejected(self):
+        target=self.root/"foreign";target.mkdir(mode=0o700)
+        self.operations.symlink_to(target,target_is_directory=True)
+        self.rejected();self.assertEqual([],list(target.iterdir()))
+
+    def test_unprotected_directory_cannot_assert_no_formatter(self):
+        self.operations.mkdir(mode=0o777);self.operations.chmod(0o777)
+        self.rejected();self.assertEqual([],list(self.operations.iterdir()))
+
+    def test_linked_regular_journal_is_rejected_without_rewriting_either_name(self):
+        path=self.journal();other=self.root/"other.json";os.link(path,other);before=path.read_bytes()
+        self.rejected();self.assertEqual(before,path.read_bytes());self.assertEqual(before,other.read_bytes())
+
+    def test_symlink_to_valid_complete_journal_is_not_followed(self):
+        path=self.journal();target=self.root/"foreign.json";path.rename(target);path.symlink_to(target)
+        before=target.read_bytes()
+        self.rejected();self.assertEqual(before,target.read_bytes())
+
+    def test_malformed_journal_is_not_absence_and_is_preserved(self):
+        path=self.journal();path.write_bytes(b'{"phase":');before=path.read_bytes()
+        self.rejected();self.assertEqual(before,path.read_bytes())
+
+    def test_healthy_no_format_complete_journal_remains_compatible(self):
+        path=self.journal();before=path.read_bytes();metadata=path.stat()
+        result=self.observe()
+        self.assertEqual(0,result.returncode,result.stderr)
+        value=json.loads(result.stdout)
+        self.assertEqual("COMPLETE",value["status"]);self.assertFalse(value["formatterActive"])
+        self.assertTrue(value["formatterObservationComplete"]);self.assertFalse(value["terminationPending"])
+        self.assertEqual(before,path.read_bytes());self.assertEqual(metadata.st_mtime_ns,path.stat().st_mtime_ns)
+        self.assertFalse(self.lock.exists())
+
 if __name__=="__main__":unittest.main()

@@ -488,7 +488,8 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                 if (!volumeIds.contains(volume.getId())) throw new CloudRuntimeException("Backing volume inventory changed; deletion plan must be refreshed");
             }
         }
-        // Validate the entire plan before the first detach or VM removal.
+        // Pin the full reviewed DATA identity again at the provider boundary.
+        java.util.Map<Long, java.util.List<Object>> identities = new java.util.LinkedHashMap<>();
         for (Long id : volumeIds) {
             VolumeVO volume = volumeDao.findByIdIncludingRemoved(id);
             if (volume == null) throw new CloudRuntimeException("A reviewed DATA row disappeared without retained identity; VM removal is blocked");
@@ -496,28 +497,37 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                     || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged)) {
                 throw new CloudRuntimeException("A reviewed DATA volume was removed externally; preservation cannot be claimed");
             }
-            if (volume.getVolumeType() != Volume.Type.DATADISK || volume.getAccountId() != sharedFS.getAccountId()) {
-                throw new CloudRuntimeException("Deletion plan contains a non-data volume or a foreign account volume");
+            if (volume.getVolumeType() != Volume.Type.DATADISK || volume.getAccountId() != sharedFS.getAccountId()
+                    || volume.getDomainId() != sharedFS.getDomainId() || volume.getDataCenterId() != sharedFS.getDataCenterId()) {
+                throw new CloudRuntimeException("Deletion plan contains a non-data volume or a foreign owner/domain/zone volume");
             }
+            identities.put(id, retentionIdentity(volume));
             if (volume.getInstanceId() != null && !volume.getInstanceId().equals(vmId)) {
                 throw new CloudRuntimeException("A planned data volume is attached to another VM");
             }
         }
         for (Long id : volumeIds) {
-            VolumeVO volume = volumeDao.findById(id);
+            VolumeVO volume = volumeDao.findByIdIncludingRemoved(id);
+            requireRetentionIdentity(identities.get(id), volume, policy);
             if (volume != null && vmId != null && vmId.equals(volume.getInstanceId())) {
                 volumeApiService.detachVolumeViaDestroyVM(vmId, id);
                 VolumeVO observed = volumeDao.findById(id);
-                if (observed == null || observed.getInstanceId() != null) {
+                requireRetentionIdentity(identities.get(id), observed, policy);
+                if (observed.getInstanceId() != null) {
                     throw new CloudRuntimeException("Data volume detach was not verified; VM removal is blocked");
                 }
             }
+        }
+        for (Long id : volumeIds) {
+            VolumeVO observed = volumeDao.findByIdIncludingRemoved(id);
+            requireRetentionIdentity(identities.get(id), observed, policy);
+            if (observed.getInstanceId() != null) throw new CloudRuntimeException("Approved DATA is still attached; VM removal is blocked");
         }
         if (vmId != null) expungeVm(vmId);
         if (policy == SharedFS.DataVolumePolicy.DELETE_VOLUMES) {
             for (Long id : volumeIds) {
                 VolumeVO volume = volumeDao.findByIdIncludingRemoved(id);
-                if (volume == null) throw new CloudRuntimeException("Reviewed DATA identity disappeared during deletion");
+                requireRetentionIdentity(identities.get(id), volume, policy);
                 if (volume.getRemoved() != null || volume.getState() == Volume.State.Destroy || volume.getState() == Volume.State.Expunging || volume.getState() == Volume.State.Expunged) continue;
                 boolean allocated = volume.getState() == Volume.State.Allocated;
                 Volume removed = volumeApiService.destroyVolume(id, CallContext.current().getCallingAccount(), allocated, allocated, null);
@@ -528,7 +538,25 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                 }
             }
         }
+        if (policy == SharedFS.DataVolumePolicy.PRESERVE_VOLUMES) {
+            for (Long id : volumeIds) requireRetentionIdentity(identities.get(id), volumeDao.findByIdIncludingRemoved(id), policy);
+        }
         return true;
+    }
+
+    private java.util.List<Object> retentionIdentity(VolumeVO volume) {
+        return java.util.Arrays.asList(volume.getId(), volume.getUuid(), volume.getVolumeType(), volume.getAccountId(),
+                volume.getDomainId(), volume.getDataCenterId(), volume.getPoolId(), volume.getSize());
+    }
+
+    private void requireRetentionIdentity(java.util.List<Object> expected, VolumeVO observed, SharedFS.DataVolumePolicy policy) {
+        if (observed == null || !expected.equals(retentionIdentity(observed))) {
+            throw new CloudRuntimeException("Reviewed DATA identity changed during removal; VM and remaining DATA are preserved");
+        }
+        if (policy == SharedFS.DataVolumePolicy.PRESERVE_VOLUMES && (observed.getRemoved() != null
+                || observed.getState() == Volume.State.Destroy || observed.getState() == Volume.State.Expunging || observed.getState() == Volume.State.Expunged)) {
+            throw new CloudRuntimeException("A reviewed DATA volume was removed during preservation; successful retention cannot be claimed");
+        }
     }
 
     @Override

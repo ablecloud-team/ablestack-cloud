@@ -5561,7 +5561,7 @@ def read_volume_operation(path):
     except FileNotFoundError:
         return {}
     parent = path.parent.lstat()
-    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022 or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o077 or info.st_size > 256 * 1024:
+    if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022 or not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_nlink != 1 or info.st_mode & 0o077 or info.st_size > 256 * 1024:
         raise ValueError("Volume operation journal is not protected")
     directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
@@ -5581,6 +5581,8 @@ def read_volume_operation(path):
         after = os.fstat(descriptor)
         if len(content) > 256 * 1024 or tuple(getattr(after, key) for key in fields) != tuple(getattr(opened, key) for key in fields):
             raise ValueError("Volume operation journal changed while reading")
+        if tuple(getattr(path.lstat(), key) for key in fields) != tuple(getattr(opened, key) for key in fields):
+            raise ValueError("Volume operation journal path changed while reading")
         value = json.loads(content)
         if not isinstance(value, dict): raise ValueError("Volume operation journal is malformed")
         return value
@@ -5595,7 +5597,15 @@ if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", volume):
     raise SystemExit("A stable volume UUID is required")
 root = Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS", "/var/lib/ablestack-storage/volume-operations"))
 path = root / (volume + ".json")
-if not path.exists():
+# A broken link or unprotected journal directory is an unavailable observation,
+# never evidence that this DATA volume has not started a formatter.
+if root.is_symlink():
+    raise ValueError("Volume operation journal directory is not protected")
+if root.exists():
+    directory = root.lstat()
+    if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or directory.st_mode & 0o022:
+        raise ValueError("Volume operation journal directory is not protected")
+if not path.exists() and not path.is_symlink():
     print(json.dumps({"success": True, "status": "NOT_STARTED", "operationId": "volume-" + volume}))
     raise SystemExit(0)
 operation = read_volume_operation(path)

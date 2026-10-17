@@ -661,6 +661,7 @@ export default {
           disabled: disableDuringFastCloneFlattenRunning,
           tooltip: (record, store, selectedItems) => getFastCloneOperationRunningTooltip(record, store, selectedItems, 'label.action.destroy.instance'),
           show: (record) => {
+            if (record.vmtype === 'sharedfsvm') return false
             var controlVm = []
             var genieVm = []
             if (record.name !== undefined && (record.name.slice(-3) === '-dc' || record.name.slice(-6) === '-works')) {
