@@ -9542,5 +9542,15 @@
   "message.userdata.clone.source.changed": "The source body or variable declarations changed. Close this dialog and reload the source.",
   "message.userdata.clone.history.error": "Cannot confirm the source record. Check access and connectivity, then retry.",
   "message.userdata.clone.history.empty": "No change records.",
-  "message.userdata.content.preview": "This is a snapshot preview of source or edited input, separate from the currently stored library body. Copy and download use the selected representation."
+  "message.userdata.content.preview": "This is a snapshot preview of source or edited input, separate from the currently stored library body. Copy and download use the selected representation.",
+  "label.storage.service.nfs.local.verification": "Local NFS verification",
+  "label.storage.service.nfs.applied.clients": "Applied client ACL",
+  "label.storage.service.nfs.probe.VERIFIED": "Local mount verified",
+  "label.storage.service.nfs.probe.SKIPPED_ACL": "Local mount probe skipped",
+  "label.storage.service.nfs.probe.SKIPPED_DYNAMIC": "Dynamic update verified",
+  "label.storage.service.nfs.probe.FAILED": "Local verification failed",
+  "label.storage.service.nfs.probe.UNKNOWN": "Local verification unknown",
+  "message.storage.service.nfs.probe.ACL_RESTRICTED_NO_LOCAL_SOURCE": "The client ACL permits no local source address. Runtime export inventory was verified.",
+  "message.storage.service.nfs.probe.DBUS_DYNAMIC_UPDATE_VERIFIED": "DBus export update and runtime inventory were verified without a local mount.",
+  "message.storage.service.nfs.probe.external.separate": "External client mount and I/O require separate verification."
 }

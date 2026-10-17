@@ -70,7 +70,7 @@ def local_source_reviewed_body():
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
-        modules=['ad_authority','semantic_identity_alias','rendered_generation','boot_reconcile','nfs_readiness','ganesha_dbus','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
+        modules=['ad_authority','semantic_identity_alias','rendered_generation','boot_reconcile','nfs_readiness','ganesha_dbus','nfs_dynamic_apply','nvme_credentials','native_renderers','native_render_validation','native_render_runtime','rendered_network','rendered_prerequisites','rendered_credentials','posix_root_initialization','root_identity_reference','root_configuration_capsule','root_source_identity_checkpoint','root_source_recovery','samba_public_sid','service_identity_source','service_identity_cipher','template_maintenance','service_maintenance','service_identity_target','root_identity_target','root_retained_authorization','root_ad_imported_authorization','root_ad_identity_authority','pending_nfs_authorization','rendered_driver']
         expected=['import sys']
         for name in modules:
             value=(LIB/(name+'.py')).read_text()
@@ -103,6 +103,24 @@ class StorageInlineSourcesTest(unittest.TestCase):
         expected="\n".join((LIB/(name+".py")).read_text() for name in ("boot_reconcile","ganesha_dbus","nfs_readiness"))
         self.assertEqual(expected.strip(),actual.strip())
 
+    def test_signed_nfs_health_projection_is_the_complete_fixed_readonly_source(self):
+        source=CLI.read_text()
+        actual=source.split("# BEGIN EMBEDDED NFS HEALTH OBSERVATION\n",1)[1].split("# END EMBEDDED NFS HEALTH OBSERVATION",1)[0]
+        expected="\n".join((LIB/(name+".py")).read_text() for name in ("ganesha_dbus","nfs_readiness"))
+        self.assertEqual(expected.strip(),actual.strip());ast.parse(actual)
+        health=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S) if "def collect_ganesha_runtime(" in value)
+        tree=ast.parse(health)
+        collector=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=="collect_ganesha_runtime")
+        names={node.func.attr for node in ast.walk(collector) if isinstance(node,ast.Call) and isinstance(node.func,ast.Attribute)}
+        self.assertIn("project",names);self.assertNotIn("record",names)
+
+    def test_signed_normal_nfs_dynamic_adapter_embeds_only_fixed_nfs_renderer_and_reviewed_checkpoint(self):
+        pure=(LIB/"native_renderers.py").read_text().split("\ndef render_smb_candidate(",1)[0]
+        pure="\n".join(line for line in pure.splitlines()if not line.startswith(("from ad_authority import ","from semantic_identity_alias import ")))
+        legacy=(LIB/"nfs_dynamic_apply.py").read_text()
+        legacy="\n".join(line for line in legacy.splitlines()if not line.startswith(("from ganesha_dbus import ","from nfs_readiness import ","from native_renderers import ")))
+        actual=CLI.read_text().split("# BEGIN EMBEDDED NFS LEGACY DYNAMIC\n",1)[1].split("# END EMBEDDED NFS LEGACY DYNAMIC",1)[0]
+        self.assertEqual((pure+"\n"+legacy).strip(),actual.strip());ast.parse(actual)
     def test_signed_service_and_ad_readonly_bodies_match_reviewed_modules_exactly(self):
         source=CLI.read_text()
         maintenance=source.split("<<'PYMAINTENANCE'\n",1)[1].split("\nimport subprocess\nimport sys\n\ndef native_generation",1)[0]

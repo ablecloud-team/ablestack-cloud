@@ -138,7 +138,7 @@ class GaneshaDbus:
             fsal=field('Name',r'[A-Za-z0-9_]+')
             if fsal!='VFS':raise ValueError("Fixed Ganesha export FSAL is unsupported")
             clients=[]
-            for client_block in re.findall(r"CLIENT\s*\{([^{}]*)\}",block,re.S):
+            for client_block in re.findall(r"(?m)^[ \t]*CLIENT\s*\{([^{}]*)\}",block,re.S):
                 def client_field(name,default=None):
                     values=re.findall(r"(?m)^\s*"+name+r"\s*=\s*([^;]+);",client_block)
                     if len(values)>1:raise ValueError("Ganesha client policy is ambiguous")
@@ -149,7 +149,11 @@ class GaneshaDbus:
                 uid=client_field("Anonymous_uid");gid=client_field("Anonymous_gid")
                 for item in client_field("Clients","").split(","):
                     clients.append({"client":GaneshaDbus.client_identifier(item),"options":access_bits[access]|squash_bits[squash],"anonUid":int(uid) if uid is not None else None,"anonGid":int(gid) if gid is not None else None})
+            # The serializer fixes every export-level property outside CLIENT.
+            # Only client access/squash/anonymous policy is a dynamic change.
+            structure=re.sub(r"(?m)^[ \t]*CLIENT\s*\{[^{}]*\}[ \t]*\n?", "", block, flags=re.S)
             exports.append({'exportId':identifier,'path':path,'pseudo':pseudo,'fsal':fsal,'clients':clients,
+                            'structureSha256':hashlib.sha256(structure.strip().encode()).hexdigest(),
                             'mountPathPseudo':bool(re.search(r'(?i)mount_path_pseudo\s*=\s*true\s*;',content))})
         chunks.append(content[cursor:])
         # The managed DBus name is claimed at daemon startup. Updating only this
@@ -165,28 +169,80 @@ class GaneshaDbus:
         if len({row['exportId'] for row in exports})!=len(exports):raise ValueError("Fixed Ganesha export IDs duplicate")
         return {'exports':exports,'globalSha256':hashlib.sha256(global_content.strip().encode()).hexdigest()}
 
-    def transition(self,name,pid,configuration,previous_content,target_content):
+    def transition(self,name,pid,configuration,previous_content,target_content,source_configuration=None):
         before=self.configuration(previous_content);after=self.configuration(target_content)
         if before['globalSha256']!=after['globalSha256']:
             raise ValueError("NFS global/listener change requires explicit drain/recreate")
-        return self.update(name,pid,configuration,before['exports'],after['exports'])
+        source=None
+        if source_configuration is not None:
+            raw=self.source_bytes(source_configuration)
+            if raw.decode()!=previous_content:raise ValueError("Ganesha immutable SOURCE configuration differs")
+            source=(str(source_configuration),hashlib.sha256(raw).hexdigest())
+        return self.update(name,pid,configuration,before['exports'],after['exports'],source)
 
-    def update(self,name,pid,configuration,previous,target):
+    def update(self,name,pid,configuration,previous,target,source_configuration=None):
         old={int(row['exportId']):row for row in previous};wanted={int(row['exportId']):row for row in target}
         if len(old)!=len(previous) or len(wanted)!=len(target):raise ValueError("Ganesha generation duplicates an export ID")
         for identifier in old.keys() & wanted.keys():
-            if any(old[identifier].get(field)!=wanted[identifier].get(field) for field in ('path','pseudo','fsal')):
+            if any(old[identifier].get(field)!=wanted[identifier].get(field) for field in ('path','pseudo','fsal','structureSha256')):
                 raise ValueError("NFS immutable export binding change requires explicit drain/recreate")
-        # Removal is a separate maintenance/drain operation until exact open
-        # state is independently proved. Never silently tear down an export.
-        if old.keys()-wanted.keys():raise ValueError("NFS export removal requires the explicit native drain adapter")
+        # Add/remove are structural maintenance, never an ACL fast path.
+        if old.keys()!=wanted.keys():raise ValueError("NFS export set change requires the explicit native drain adapter")
         manager=self.owned_manager(name,pid);self.verify(manager,previous)
-        for identifier in sorted(wanted):
-            self.call(manager,'UpdateExport',str(configuration),'EXPORT(Export_Id='+str(identifier)+')')
-        self.verify(manager,target)
-        # Owner PID must remain identical after all operations and readback.
-        self.owned_manager(name,pid)
-        return {'success':True,'activationStrategy':'DBUS_DYNAMIC_UPDATE_VERIFIED','processPid':pid,'exportsVerified':len(wanted),'restartPerformed':False}
+        changed=[identifier for identifier in sorted(wanted) if old[identifier]!=wanted[identifier]]
+        attempted=[]
+        try:
+            for identifier in changed:
+                # An error response is ambiguous about whether mutation started.
+                # Include that exact ID in SOURCE compensation as well.
+                attempted.append(identifier)
+                self.update_one(manager,configuration,identifier)
+            self.verify(manager,target)
+            self.owned_manager(name,pid)
+        except Exception as original:
+            if source_configuration is not None and attempted:
+                try:
+                    self.owned_manager(name,pid)
+                    for identifier in reversed(attempted):
+                        if hashlib.sha256(self.source_bytes(source_configuration[0])).hexdigest()!=source_configuration[1]:
+                            raise ValueError("Ganesha immutable SOURCE fingerprint changed")
+                        self.update_one(manager,source_configuration[0],identifier)
+                    self.verify(manager,previous)
+                    self.owned_manager(name,pid)
+                except Exception as recovery:
+                    raise RuntimeError("DBUS_DYNAMIC_UPDATE_FAILED_SOURCE_ROLLBACK_UNVERIFIED") from original
+                raise RuntimeError("DBUS_DYNAMIC_UPDATE_FAILED_SOURCE_ROLLBACK_VERIFIED") from original
+            raise
+        return {'success':True,'activationStrategy':'DBUS_DYNAMIC_UPDATE_VERIFIED','processPid':pid,
+                'exportsVerified':len(wanted),'exportsUpdated':len(changed),'restartPerformed':False}
+
+    @staticmethod
+    def source_bytes(path):
+        import os,stat
+        from pathlib import Path
+        path=Path(path);before=path.lstat();parent=path.parent.lstat()
+        if (not stat.S_ISREG(before.st_mode) or before.st_uid!=os.geteuid() or before.st_mode&0o022 or
+                before.st_nlink!=1 or before.st_size>8*1024*1024 or not stat.S_ISDIR(parent.st_mode) or
+                parent.st_uid!=os.geteuid() or parent.st_mode&0o022):
+            raise ValueError("Ganesha immutable SOURCE file is not protected")
+        def identity(info):
+            return tuple(getattr(info,key) for key in ("st_dev","st_ino","st_uid","st_gid","st_mode","st_nlink","st_size","st_mtime_ns","st_ctime_ns"))
+        descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+        try:
+            if identity(before)!=identity(os.fstat(descriptor)):raise ValueError("Ganesha SOURCE changed while opening")
+            data=os.read(descriptor,8*1024*1024+1)
+            if len(data)!=before.st_size or identity(before)!=identity(os.fstat(descriptor)) or identity(before)!=identity(path.lstat()):
+                raise ValueError("Ganesha SOURCE changed while reading")
+            return data
+        finally:os.close(descriptor)
+
+    def update_one(self,manager,configuration,identifier):
+        acknowledgement=self.call(manager,'UpdateExport',str(configuration),'EXPORT(Export_Id='+str(identifier)+')')
+        if isinstance(acknowledgement,(list,tuple)) and len(acknowledgement)==1:
+            acknowledgement=acknowledgement[0]
+        if not isinstance(acknowledgement,str) or not re.fullmatch(r"1 exports? updated",acknowledgement.strip(),re.I):
+            raise ValueError("Ganesha export update did not acknowledge exactly one export")
+
 
 
 class GaneshaDbusPolicy:

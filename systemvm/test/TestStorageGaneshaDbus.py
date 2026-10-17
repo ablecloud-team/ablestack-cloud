@@ -58,7 +58,7 @@ class EndpointBus:
                         identifier=int(re.fullmatch(r'EXPORT\(Export_Id=([0-9]+)\)',args[1])[1])
                         parsed=GaneshaDbus.configuration(Path(args[0]).read_text())['exports']
                         rows[identifier]=next(row for row in parsed if row['exportId']==identifier)
-                        return 'Exports updated'
+                        return '1 exports updated'
                     raise AssertionError(method)
                 return call
         return Object()
@@ -89,7 +89,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
                     if name=='ShowExports':return ((0,0),[(number,row['pseudo'] if row['mountPathPseudo'] else row['path']) for number,row in outer.exports.items()])
                     if name=='DisplayExport':
                         row=outer.exports[args[0]];return (row['exportId'],row['path'],row['pseudo'] if row['mountPathPseudo'] else row['path'],'',row.get('clientRows',[]))
-                    if name=='UpdateExport':return 'Exports updated'
+                    if name=='UpdateExport':return '1 exports updated'
                     raise AssertionError(name)
                 return call
         class Bus:
@@ -99,7 +99,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
     def test_exact_owned_dynamic_update_rechecks_inventory_and_never_restarts_a_process(self):
         result=self.adapter.update(self.name,123,'/immutable/candidate.conf',self.previous,self.previous)
         self.assertEqual('DBUS_DYNAMIC_UPDATE_VERIFIED',result['activationStrategy']);self.assertFalse(result['restartPerformed'])
-        self.assertEqual(1,len([call for call in self.calls if call[0]=='UpdateExport']));self.assertTrue(all(0<call[2]<=5 for call in self.calls))
+        self.assertEqual(0,len([call for call in self.calls if call[0]=='UpdateExport']));self.assertTrue(all(0<call[2]<=5 for call in self.calls))
         self.assertEqual(2,len([call for call in self.calls if call[0]=='GetConnectionUnixProcessID']))
 
     def test_foreign_owner_immutable_binding_or_removal_rejects_before_export_mutation(self):
@@ -118,7 +118,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             if method=='UpdateExport':self.exports[1001]={**self.exports[1001],'path':'/unexpected'}
             return result
         self.adapter.call=call
-        with self.assertRaises(ValueError):self.adapter.update(self.name,123,'/candidate',self.previous,self.previous)
+        with self.assertRaises(ValueError):self.adapter.update(self.name,123,'/candidate',self.previous,[{**self.previous[0],'clients':[]}])
 
     def test_expired_total_budget_and_unexpected_bus_name_are_not_accepted(self):
         self.adapter.deadline=time.monotonic()-1
@@ -138,8 +138,9 @@ class StorageGaneshaDbusTest(unittest.TestCase):
 
     def test_policy_only_transition_keeps_exact_binding_and_rechecks_actual_owner(self):
         config='NFS_Core_Param { NFS_Port = 2049; }\nEXPORT {\n Export_Id = 1001;\n Path = "/export/share";\n Pseudo = "/share";\n Access_Type = RO;\n FSAL {\n Name = VFS;\n }\n}\n'
-        observed=self.adapter.transition(self.name,123,'/candidate',config,config.replace('RO','RW'))
-        self.assertEqual('DBUS_DYNAMIC_UPDATE_VERIFIED',observed['activationStrategy'])
+        with self.assertRaisesRegex(ValueError,"immutable"):
+            self.adapter.transition(self.name,123,'/candidate',config,config.replace('RO','RW'))
+        self.assertFalse(self.calls)
 
     def test_installed_nfs_rendered_path_keeps_a_known_running_endpoint_without_restart(self):
         cli=LIB.parents[5]/'systemvm/debian/usr/local/bin/ablestack-storagectl'
@@ -167,7 +168,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             readiness=NfsEndpointReadiness(time.monotonic()+30,Adapter,Mock(),config_root=directory)
             identity={"pid":123,"startTicks":"456","configurationSha256":"a"*64}
             readiness.snapshot=Mock(return_value=(identity,config))
-            readiness.reuse=Mock(return_value=None);readiness.remember=Mock();readiness.wait=Mock(wraps=readiness.wait)
+            readiness.reuse=Mock(return_value=None);readiness.remember=Mock();readiness.listener_owned=Mock(return_value=True);readiness.wait=Mock(wraps=readiness.wait)
             ns={'NfsEndpointReadiness':Mock(return_value=readiness),'nfs_control_command':Mock(),'nfs_operation_deadline':time.monotonic()+30,'ganesha_remaining':lambda maximum=10:maximum,'rendered_context':(source,{}),'rendered_from_context':(source,{}),'Path':paths,'json':json,'os':os,'time':time,
                 'subprocess':process,'GaneshaDbus':Mock(return_value=adapter),'shutil':commands,'socket':network,'ganesha_run_dir':str(run),
                 'root_maintenance_nfs_boundary':lambda:False,'stop_owned_rendered_ganesha':Mock(side_effect=AssertionError('unexpected stop')),'stop_default_ganesha_service':Mock(side_effect=AssertionError('default restart')),'stop_ganesha_endpoints':Mock(),
@@ -177,10 +178,10 @@ class StorageGaneshaDbusTest(unittest.TestCase):
             result=ns['start_ganesha_endpoints']([(key,str(conf),'10.10.13.240',2049,'V4_ONLY')])
             self.assertEqual('DBUS_DYNAMIC_UPDATE_VERIFIED',result[0]['activationStrategy']);self.assertFalse(result[0]['restartPerformed'])
             self.assertEqual(before,pidfile.stat())
-            self.assertEqual(['org.ganesha.nfsd'],[name for name,method,_ in bus.calls if method=='UpdateExport'])
+            self.assertEqual([],[name for name,method,_ in bus.calls if method=='UpdateExport'])
             self.assertEqual({'org.ganesha.nfsd',custom_name},set(bus.endpoints))
             self.assertFalse(any(name==custom_name for name,method,_ in bus.calls if method!='GetConnectionUnixProcessID'))
-            self.assertEqual(4,readiness.snapshot.call_count);readiness.wait.assert_called_once()
+            self.assertEqual(6,readiness.snapshot.call_count);readiness.wait.assert_called_once()
             self.assertEqual(['show'],[call.args[0][1] for call in process.run.call_args_list])
 
     def test_legacy_bus_fallback_requires_absent_managed_name_and_same_pid(self):
@@ -226,7 +227,7 @@ class StorageGaneshaDbusTest(unittest.TestCase):
         readiness=NfsEndpointReadiness(time.monotonic()+30,lambda **kw:GaneshaDbus(bus,**kw),Mock())
         for port,count in ((2049,100),(20490,1)):
             pid=123 if port==2049 else 456;content=contents[port]
-            readiness.snapshot=Mock(return_value=({'pid':pid,'configurationSha256':'a'*64},content))
+            readiness.snapshot=Mock(return_value=({'pid':pid,'configurationSha256':'a'*64},content));readiness.listener_owned=Mock(return_value=True)
             endpoint={'listenIp':'0.0.0.0','port':port,'pid':pid,'protocolMode':'V4_ONLY'}
             result=readiness.wait(endpoint,Path('/unused/'+str(port)+'.conf'))
             self.assertTrue(result['exportInventoryReady']);self.assertEqual(count,len(result['exportBindings']))
@@ -458,7 +459,7 @@ class StorageGaneshaPolicyTest(unittest.TestCase):
             body.append(statement)
             if any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='start_ganesha_endpoints'for n in ast.walk(statement)):break
         events=[];prepared=Mock();prepared.prepare.side_effect=lambda *a:events.append('policy')
-        ns={'GaneshaDbusPolicy':Mock(return_value=prepared),'nfs_operation_deadline':time.monotonic()+30,
+        ns={'payload':{},'GaneshaDbusPolicy':Mock(return_value=prepared),'nfs_operation_deadline':time.monotonic()+30,
             'endpoint_exports':{('0.0.0.0',2049):[]},'enabled':True,'default_port':2049,'configs':[],
             'BootCoordinator':SimpleNamespace(attach_existing=lambda:None),
             'write_ganesha_configs':lambda *a:events.append('configs')or[],

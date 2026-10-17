@@ -40,18 +40,18 @@ def probe_namespace(results):
     api.Popen.side_effect=create
     values={name:getattr(os,name) for name in dir(os)};values['pidfd_open']=Mock(return_value=100);values['close']=Mock()
     system=SimpleNamespace(**values);signals=SimpleNamespace(SIGTERM=signal.SIGTERM,SIGKILL=signal.SIGKILL,pidfd_send_signal=Mock())
-    ns={'ipaddress':ipaddress,'subprocess':api,'os':system,'signal':signals,'time':time,'tempfile':tempfile,'payload':{},'endpoint_key':lambda ip,port:str(port), 'BootCoordinator':SimpleNamespace(attach_existing=lambda:None), 'Path':Path, 'json':json, 'stat':stat, 'hashlib':hashlib, 'nfs_operation_deadline':time.monotonic()+30, 'nfs_probe_root':tempfile.gettempdir()}
+    ns={'re':re,'ipaddress':ipaddress,'subprocess':api,'os':system,'signal':signals,'time':time,'tempfile':tempfile,'payload':{},'endpoint_key':lambda ip,port:str(port), 'BootCoordinator':SimpleNamespace(attach_existing=lambda:None),'GaneshaDbus':Mock(),'NfsProbeObservation':Mock(), 'Path':Path, 'json':json, 'stat':stat, 'hashlib':hashlib, 'nfs_operation_deadline':time.monotonic()+30, 'nfs_probe_root':tempfile.gettempdir()}
     exec(compile(ast.Module(body=nodes,type_ignores=[]),str(SOURCE),'exec'),ns)
     return ns,children
 
 
 class NfsReadinessTest(unittest.TestCase):
     def endpoint_export(self):
-        return {'listenIp':'0.0.0.0','port':2049,'listening':True},{'uuid':'export','pseudo':'/export','clients':[{'clients':'*'}]}
+        return {'listenIp':'0.0.0.0','port':2049,'listening':True},{'uuid':'export','path':'/export','pseudo':'/export','clients':[{'clients':'*'}]}
     def ip_result(self):return subprocess.CompletedProcess(['ip'],0,'2: eth0 inet 10.1.1.9/24 scope global eth0','')
 
     def test_restricted_acl_skips_local_mount_without_disabling_listener(self):
-        ns,children=probe_namespace([self.ip_result()]);endpoint,export=self.endpoint_export();export['clients']=[{'clients':'10.9.0.0/24'}]
+        ns,children=probe_namespace([self.ip_result()]);endpoint,export=self.endpoint_export();endpoint.update(processRunning=True,exportInventoryReady=True,listenerOwned=True,pid=123,startTicks='456',configurationSha256='a'*64,exportBindings=[{'path':'/export','pseudo':'/export','exportId':1001,'clients':[{'client':'10.9.0.0/24'}]}]);export['clients']=[{'clients':'10.9.0.0/24'}]
         failures=ns['probe_nfs_export_visibility']([endpoint],{('0.0.0.0',2049):[export]})
         self.assertEqual([],failures);self.assertTrue(endpoint['listening']);self.assertEqual('SKIPPED_ACL',endpoint['probeResults'][0]['status']);self.assertEqual(1,ns['subprocess'].Popen.call_count)
 
