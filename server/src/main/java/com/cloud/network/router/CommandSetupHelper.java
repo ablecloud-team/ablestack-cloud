@@ -16,6 +16,9 @@
 // under the License.
 package com.cloud.network.router;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1360,6 +1363,15 @@ public class CommandSetupHelper {
 
     protected void addUserDataDetailsToCommand(VmDataCommand cmd, String userDataDetails) {
         if(userDataDetails != null && !userDataDetails.isEmpty()) {
+            if ("{}".equals(userDataDetails.strip())) {
+                return;
+            }
+            if (userDataDetails.stripLeading().startsWith("{\"")) {
+                for (Map.Entry<String, JsonElement> entry : JsonParser.parseString(userDataDetails).getAsJsonObject().entrySet()) {
+                    cmd.addVmData("metadata", entry.getKey(), entry.getValue().getAsString());
+                }
+                return;
+            }
             userDataDetails = userDataDetails.substring(1, userDataDetails.length()-1);
             String[] keyValuePairs = userDataDetails.split(",");
             for(String pair : keyValuePairs)

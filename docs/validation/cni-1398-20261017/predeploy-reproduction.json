@@ -1,0 +1,16 @@
+[
+  {
+    "case": "userdata-wrong-endpoint-before",
+    "delete_api": "deleteCniConfiguration",
+    "unexpected_success": true,
+    "annotation_removed": true,
+    "id": "a4229334-e68e-4892-9aeb-4b43155a78c3"
+  },
+  {
+    "case": "cni-wrong-endpoint-before",
+    "delete_api": "deleteUserData",
+    "unexpected_success": true,
+    "annotation_removed": true,
+    "id": "bf137d23-eb2a-4ea0-89b9-fbc8c756236a"
+  }
+]

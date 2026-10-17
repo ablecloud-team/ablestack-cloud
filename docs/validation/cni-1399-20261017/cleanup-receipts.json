@@ -1,0 +1,37 @@
+[
+  {
+    "command": "deleteNetwork",
+    "id": "4cf3a4f3-8d78-429e-9588-17e6905c6d15",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteProject",
+    "id": "4f631f79-8748-4611-babb-2215ebcda414",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "id": "d8b7be6d-4368-4d59-97fc-062ca769fcb1",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteAccount",
+    "id": "31792dd5-9dff-4507-a9e3-08d519338e90",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteDomain",
+    "id": "f273af62-b13b-45a9-9cc5-1c516f1d4664",
+    "result": {
+      "success": true
+    }
+  }
+]

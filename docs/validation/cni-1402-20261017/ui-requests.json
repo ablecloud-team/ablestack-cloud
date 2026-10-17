@@ -1,0 +1,372 @@
+[
+  {
+    "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "2",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "2",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "name": "cni1402-shared",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "domainid": "4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "domainid": "4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "account": "cni1402-a",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-absent",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "name": "cni1402-absent",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000001402",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "50",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "projectid": "-1",
+    "listall": "true",
+    "page": "2",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration",
+    "projectid": "33773a89-5faf-409c-bfab-c99e2678fdf7"
+  },
+  {
+    "listall": "true",
+    "projectid": "-1",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listUserData"
+  },
+  {
+    "listall": "true",
+    "keyword": "cni1402-normal",
+    "page": "1",
+    "pagesize": "20",
+    "projectid": "-1",
+    "command": "listUserData"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "projectid": "-1",
+    "id": "0d9eae5c-c55d-492e-9796-5c5baea38cd6",
+    "command": "listUserData"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "c325c697-4bdf-402e-a179-c880be280f32",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "name": "cni1402-shared",
+    "account": "cni1402-a",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listUserData",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "listall": "true",
+    "keyword": "cni1402-normal",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listUserData",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "c325c697-4bdf-402e-a179-c880be280f32",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000001402",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "2",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "keyword": "cni1402-",
+    "listall": "true",
+    "page": "2",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000001402",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "domainid": "4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "account": "cni1402-a",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "domainid": "4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listUserData",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "listall": "true",
+    "keyword": "cni1402-normal",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listUserData",
+    "projectid": "db35777f-c900-470f-8d43-0b90f0b84a21"
+  },
+  {
+    "projectid": "-1",
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  },
+  {
+    "listall": "true",
+    "page": "1",
+    "pagesize": "20",
+    "command": "listCniConfiguration"
+  }
+]

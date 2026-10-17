@@ -1,0 +1,18 @@
+{
+  "existing_db_before_after_equal": true,
+  "rows": 36,
+  "categories": {
+    "UD": 5,
+    "K8S": 7,
+    "ANN": 1,
+    "ACCOUNT": 16,
+    "PROJECT": 4,
+    "DOMAIN": 3
+  },
+  "sha256": "2d61f159980ac4fa490f62c74e16ce6024ac1f8bb9210c2c6caaa366c74357f7",
+  "existing_cni_api_equal": 3,
+  "existing_kubernetes_api_equal": 7,
+  "dedicated_active_residuals": 0,
+  "removed_data_including_predeploy": 14,
+  "removed_annotations_including_predeploy": 26
+}

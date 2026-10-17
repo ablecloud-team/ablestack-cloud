@@ -1,0 +1,5 @@
+pod/cni1396-worker-probe created
+pod/cni1396-worker-probe condition met
+NAME                   READY   STATUS    RESTARTS   AGE   IP                NODE                             NOMINATED NODE   READINESS GATES
+cni1396-worker-probe   1/1     Running   0          1s    192.168.167.193   cni1396-final-node-1a145fba023   <none>           <none>
+GUEST_EXIT 0

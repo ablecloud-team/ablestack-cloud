@@ -1,0 +1,36 @@
+[
+  {
+    "scope": "account",
+    "rows": [
+      {
+        "id": "dd82c7c8-7037-4aea-9fcf-e046fcc27c70",
+        "name": "cni1396-no-params",
+        "params": null,
+        "projectid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+      },
+      {
+        "id": "1edff270-5a2e-44b5-9d6a-d7c1db7f0790",
+        "name": "cni1396-apply",
+        "params": "audit_token",
+        "projectid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+      }
+    ]
+  },
+  {
+    "scope": "project",
+    "rows": [
+      {
+        "id": "9d46388d-1106-4440-b773-3d0e61267e77",
+        "name": "cni1396-project",
+        "params": null,
+        "projectid": "48dd8863-d3a6-4011-9c73-1b5d44490854",
+        "account": null,
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f"
+      }
+    ]
+  }
+]

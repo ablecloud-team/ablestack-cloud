@@ -1,0 +1,76 @@
+
+> cloudstack-ui@4.22.0 prebuild
+> ./prebuild.sh
+
+Pre-build: list all docHelp suffixes in ./public/config.json
+
+> cloudstack-ui@4.22.0 build
+> vue-cli-service build
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+-  Building for production...
+Browserslist: caniuse-lite is outdated. Please run:
+ WARNING  Compiled with 2 warnings3:18:24 AM
+
+ warning  
+
+asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  css/app.7bb57033.css (280 KiB)
+  js/app.1a47a847.js (1.29 MiB)
+  js/chunk-16271c28.0386b32a.js (298 KiB)
+  css/chunk-32ed00e8.bef23da6.css (247 KiB)
+  css/chunk-736d6570.531b2932.css (457 KiB)
+  js/chunk-752275de.f3fa6e95.js (445 KiB)
+  js/chunk-7823e320.378d232b.js (277 KiB)
+  js/chunk-a106f6f0.c8ce7bc8.js (601 KiB)
+  css/vendors.eb47fec1.css (563 KiB)
+  js/vendors.3ea5c3f6.js (5.76 MiB)
+  color.less (646 KiB)
+  locales/de_DE.json (360 KiB)
+  locales/ca.json (349 KiB)
+  locales/el_GR.json (453 KiB)
+  locales/ar.json (351 KiB)
+  locales/es.json (354 KiB)
+  locales/hi.json (356 KiB)
+  locales/fr_FR.json (353 KiB)
+  locales/hu.json (354 KiB)
+  locales/it_IT.json (352 KiB)
+  locales/ja_JP.json (453 KiB)
+  locales/nb_NO.json (350 KiB)
+  locales/pl.json (349 KiB)
+  locales/nl_NL.json (351 KiB)
+  locales/pt_BR.json (374 KiB)
+  locales/en.json (640 KiB)
+  locales/ru_RU.json (374 KiB)
+  locales/ko_KR.json (709 KiB)
+  locales/zh_CN.json (393 KiB)
+  locales/te.json (547 KiB)
+
+ warning  
+
+entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  app (7.87 MiB)
+      css/vendors.eb47fec1.css
+      js/vendors.3ea5c3f6.js
+      css/app.7bb57033.css
+      js/app.1a47a847.js
+
+
+
+  Images and other types of assets omitted.
+
+ DONE  Build complete. The dist directory is ready to be deployed.
+ INFO  Check out deployment instructions at https://cli.vuejs.org/guide/deployment.html
+      
+
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

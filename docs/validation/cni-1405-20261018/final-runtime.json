@@ -1,0 +1,21 @@
+{
+  "static_files_hash_equal": 879,
+  "jar_sha256": "3b9bc6d9e6b766938e46ecde613ea00d073a08a435fc864c89e9827f560a36eb",
+  "WEB_INF": "present",
+  "META_INF": "absent as before",
+  "config_preserved": true,
+  "markers": [
+    "blockingLoadingState",
+    "fetchSyncProgress",
+    "extractJobId",
+    "previewCniConfiguration",
+    "cni-variable-dialog"
+  ],
+  "http": {
+    "/client/": 200,
+    "/client/help/cni-configuration.ko.html": 200,
+    "/client/help/cni-configuration.en.html": 200
+  },
+  "mold": "active",
+  "pid": "1589408"
+}

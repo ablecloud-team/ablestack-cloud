@@ -1,0 +1,12 @@
+STATIC_FILES_HASH_MATCH 873
+WEB-INF=present
+JAR_PRESERVED=5ef511623cdfa29df4b5e0d519a46a0acdc0bb1b2c239902bc5c63e608671174
+CONFIG_PRESERVED=b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13
+PID_PRESERVED=1510297
+active
+blockingLoadingState=present
+fetchSyncProgress=present
+extractJobId=present
+cni.usage=present
+cniconfigurationid=present
+client_http=200

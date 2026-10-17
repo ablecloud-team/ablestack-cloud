@@ -1,0 +1,22 @@
+{
+  "responsive_matrix_views": 64,
+  "total_recorded_views": 99,
+  "functional_ui_checks": 33,
+  "api_inventory_contract_checks": 52,
+  "actual_node_uuids_match_api": true,
+  "registered_bodies": [
+    {
+      "id": "4d9a718d-87e8-42f6-9070-81175e5ef553",
+      "raw_bytes": 59,
+      "sha256": "e41473cb0d5ed822d45dce13552ac4e6ce308446a4489995f10e734d9beb331e",
+      "params": "AS_NUMBER,audit_token",
+      "pass_saved_bytes": true
+    },
+    {
+      "id": "9feec019-b172-4de7-a8bd-910f4bd3f6d8",
+      "bytes": 33,
+      "sha256": "15f841479e01efd74be3d63ddfc166f8a2ee93468e4bb5f1e7267433981ff2e4",
+      "pass_saved_bytes": true
+    }
+  ]
+}

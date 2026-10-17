@@ -134,9 +134,9 @@ test('late result from a disposed dialog neither refreshes nor closes another di
 })
 test('CNI retains its API, encoding, owner and variable contract', async () => {
   const ctx = context(); ctx.$route.name = 'cniconfiguration'; ctx.$toBase64AndURIEncoded = jest.fn().mockReturnValue('encoded-cni')
-  ctx.form.cniconfig = '{"cniVersion":"0.3.1"}'; postAPI.mockResolvedValue({})
+  ctx.form.cniconfig = '{"cniVersion":"0.3.1"}'; postAPI.mockResolvedValue({ registercniconfigurationresponse: { cniconfig: { id: 'cni-1', name: 'name' } } })
   await ctx.handleSubmit()
-  expect(postAPI).toHaveBeenCalledWith('registerCniConfiguration', { name: '  name  ', cniconfig: 'encoded-cni', params: ' USER ' }, { preserveOnFailure: true })
+  expect(postAPI).toHaveBeenCalledWith('registerCniConfiguration', { name: 'name', cniconfig: btoa(ctx.form.cniconfig), params: 'USER', ignoreproject: true }, { preserveOnFailure: true })
   expect(ctx.$emit.mock.calls).toEqual([['refresh-data'], ['close-action']])
 })
 test('API response text is rendered as an inline string with a network fallback', () => {

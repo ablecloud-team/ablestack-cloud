@@ -1,0 +1,57 @@
+DEFAULT_BOOTSTRAP_PRESERVED
+present /etc/kubernetes/kubeadm-config.yaml
+present /opt/bin/kubectl
+present /etc/systemd/system/deploy-kube-system.service
+present /opt/cni1396/selection.txt
+KUBELET_EXTERNAL_PROVIDER
+KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --cloud-provider=external
+METADATA_VARIABLE
+UI-1396-ok
+CNI_MARKER
+CNI1396 {{ audit_token }}
+NODES_READY
+node/cni1396-final-control-1a145fb6896 condition met
+node/cni1396-final-node-1a145fba023 condition met
+NAME                                STATUS   ROLES           AGE   VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION   CONTAINER-RUNTIME
+cni1396-final-control-1a145fb6896   Ready    control-plane   43s   v1.34.12   <none>        <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+cni1396-final-node-1a145fba023      Ready    <none>          34s   v1.34.12   <none>        <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+PROVIDER_IDENTITY
+cni1396-final-control-1a145fb6896		ca89277c-b4d1-4616-b367-8f2199e38327
+cni1396-final-node-1a145fba023		9ba147b5-6958-4445-8b9c-1480ece01c64
+CALICO_CONFIGURATION
+1450
+calico-3.33.0-mtu1450
+Waiting for daemon set "calico-node" rollout to finish: 0 of 2 updated pods are available...
+Waiting for daemon set "calico-node" rollout to finish: 1 of 2 updated pods are available...
+daemon set "calico-node" successfully rolled out
+Waiting for deployment "calico-kube-controllers" rollout to finish: 0 of 1 updated replicas are available...
+deployment "calico-kube-controllers" successfully rolled out
+API_READY
+ok
+BOOTSTRAP_SERVICE_RESULTS
+Result=success
+ExecMainStatus=0
+Id=cloud-final.service
+
+Result=success
+ExecMainStatus=0
+Id=deploy-kube-system.service
+MANIFEST_HASHES
+/opt/cni1396/iso-network.yaml: OK
+/opt/cni1396/custom-calico.yaml: OK
+SYSTEM_PODS
+NAME                                                        READY   STATUS    RESTARTS   AGE
+calico-kube-controllers-8ff8664b9-5txg8                     1/1     Running   0          54s
+calico-node-6rr97                                           1/1     Running   0          54s
+calico-node-kdk7d                                           1/1     Running   0          55s
+cloud-controller-manager-5c6d95d4c4-mn9t9                   1/1     Running   0          44s
+coredns-66bc5c9577-b2b92                                    1/1     Running   0          54s
+coredns-66bc5c9577-sk4h8                                    1/1     Running   0          54s
+etcd-cni1396-final-control-1a145fb6896                      1/1     Running   0          62s
+headlamp-5f476cd7d7-nshxr                                   0/1     Running   0          54s
+kube-apiserver-cni1396-final-control-1a145fb6896            1/1     Running   0          62s
+kube-controller-manager-cni1396-final-control-1a145fb6896   1/1     Running   0          60s
+kube-proxy-9dfsr                                            1/1     Running   0          54s
+kube-proxy-c8b6n                                            1/1     Running   0          55s
+kube-scheduler-cni1396-final-control-1a145fb6896            1/1     Running   0          62s
+GUEST_EXIT 0

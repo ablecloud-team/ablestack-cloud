@@ -1,0 +1,24 @@
+Filesystem           Size  Used Avail Use% Mounted on
+/dev/mapper/rl-root  383G  134G  249G  35% /
+/dev/mapper/rl-root  383G  134G  249G  35% /
+STATIC_FILES_HASH_MATCH 879
+blockingLoadingState=present-in-current-manifest
+fetchSyncProgress=present-in-current-manifest
+extractJobId=present-in-current-manifest
+cni.usage=present-in-current-manifest
+cni.content=present-in-current-manifest
+cni-delete-dialog=present-in-current-manifest
+cnireturn=present-in-current-manifest
+cni-selection-status=present-in-current-manifest
+cni-file-preview=present-in-current-manifest
+label.cni.file.apply=present-in-current-manifest
+CNI_HELP_HTTP=200-ko-en
+CNI_API_MARKER=present
+BACKUP=/root/cni-1404-ui-20261018-015317
+PID_PRESERVED=1510297
+CONFIG_PRESERVED=b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13
+JAR_PRESERVED=5ef511623cdfa29df4b5e0d519a46a0acdc0bb1b2c239902bc5c63e608671174
+WEB-INF=present
+active
+d4fc0973919d39391938ba362889a38a0219a62c4b40f49cb536e4b9f3542766  /usr/share/cloudstack-management/webapp/index.html
+client_http=200

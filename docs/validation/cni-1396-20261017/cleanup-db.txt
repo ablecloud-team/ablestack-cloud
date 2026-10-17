@@ -1,0 +1,9 @@
+test_cni_or_userdata_active	0
+test_clusters_active	0
+test_projects_active	0
+test_networks_active	0
+test_vms_active	0
+test_node_volumes_active	0
+test_cluster_maps	0
+existing_cni	3
+existing_clusters	7

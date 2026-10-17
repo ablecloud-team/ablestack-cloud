@@ -1,0 +1,9 @@
+WORKER_BOOTSTRAP
+active
+active
+KUBELET_EXTRA_ARGS=--cgroup-driver=systemd --cloud-provider=external
+Result=success
+ExecMainStatus=0
+WORKER_POD_CALICO_MTU
+6: cali673f9c053c0@if3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc noqueue state UP mode DEFAULT group default \    link/ether ee:ee:ee:ee:ee:ee brd ff:ff:ff:ff:ff:ff link-netns cni-da147a0a-714c-5fae-5580-6b7ad8392360
+GUEST_EXIT 0

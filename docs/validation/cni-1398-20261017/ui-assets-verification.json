@@ -1,0 +1,7 @@
+{
+  "matched_static_files": 870,
+  "source": "cni-1397-production-build",
+  "static_assets_unchanged": true,
+  "web_inf_present": true,
+  "config_sha256": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+}

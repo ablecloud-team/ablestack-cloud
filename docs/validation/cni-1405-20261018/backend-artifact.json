@@ -1,0 +1,35 @@
+{
+  "deployment_before_sha256": "7af015b4080a7d4c68d95b064ec2321134afa34a3d217a3240ea4a488f3a89b8",
+  "before_sha256": "5ef511623cdfa29df4b5e0d519a46a0acdc0bb1b2c239902bc5c63e608671174",
+  "after_sha256": "3b9bc6d9e6b766938e46ecde613ea00d073a08a435fc864c89e9827f560a36eb",
+  "before_entries": 204497,
+  "after_entries": 204500,
+  "unchanged_entries": 204481,
+  "existing_entries_changed": 16,
+  "added_entries": [
+    "com/cloud/kubernetes/cluster/CniConfigurationRenderer.class",
+    "org/apache/cloudstack/api/command/user/kubernetes/cluster/PreviewCniConfigurationCmd.class",
+    "org/apache/cloudstack/api/response/CniConfigurationPreviewResponse.class"
+  ],
+  "changed_entries": {
+    "com/cloud/network/router/CommandSetupHelper.class": "8cc775870003cd1947fbe26d72abf34c74da52d561881022d49c01815fbe4925",
+    "com/cloud/network/router/CommandSetupHelper$2.class": "e008ea6030e71dbf59107d4922d08702664b6ed56d499d81e3c9754c2e3b6f7b",
+    "com/cloud/network/router/CommandSetupHelper$1.class": "caf3bfbf6620ee3fba2b7a871d76f1df17abe2366c95ef5a7ee79cee31017d59",
+    "com/cloud/network/NetworkModelImpl.class": "abd592b22c15d14bdbfabbdd2424019c0db10d2d21beefbb61425327d12d6237",
+    "com/cloud/network/NetworkModelImpl$1.class": "386c3904951b6dac0ee7b8d40390c68421dc5eeef0631e72bd798f5115a62135",
+    "com/cloud/kubernetes/cluster/CniConfigurationRenderer.class": "0ab9413115d5de4d9e88ab74460d05e0c5d52d3c584d1975d8b3da2dc78e91d4",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl.class": "fb1d9054e30e8a126d894336c98b3f24e95cc1f7298b717fd05ef5056c6612f2",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$6.class": "c213746a489f7affcc54f22db971f7c7e1c8fe9541929012c2935be9c6e3cff8",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$KubernetesClusterGarbageCollector.class": "f48265a53ff9bcc0d43ec50a45f2747beda28a4cfd8c7f2ff7acfaba950f6099",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$3.class": "bebd42644cc8312ea29580df9cc2b399b9268110427c268a98c239ba7f26ddbe",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$KubernetesClusterStatusScanner.class": "12d1cf0b2441e4a1c02379c62fdb5bea9486bb14d52b365c52fab82a7ad89b81",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$1.class": "a65ce230fab3fb1482cea93445278ce2afbc94bafae422b5397e29f2bbc8658f",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$5.class": "f1b251dadba22f771810aaa1b6d7b94681113eeb567d8118902200e400d407a9",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$4.class": "e59ba863d6f4af98eca3a00bb9ef5a2f4bec6702665aa4a13c0efb44672a8287",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$2.class": "1534e1c1854993861a8f10dd86c608928435fa1a638e9a95ebc2c641dfe3a2eb",
+    "com/cloud/kubernetes/cluster/actionworkers/KubernetesClusterStartWorker.class": "576eb3813a5d0ee96b49cbe98e06ed47dd04a7de4b1a8e6311d67f6e7da872de",
+    "org/apache/cloudstack/api/command/user/kubernetes/cluster/CreateKubernetesClusterCmd.class": "eb4fddcb5b7e7084ff46d2d1b717b29b3ea0065147a495217bf774ba4b239c9c",
+    "org/apache/cloudstack/api/command/user/kubernetes/cluster/PreviewCniConfigurationCmd.class": "9cfae8c42eac4dc3b4297f87590e935d53055ac55133f00e14292adbcead3bf0",
+    "org/apache/cloudstack/api/response/CniConfigurationPreviewResponse.class": "86470bc61f02d2616adbf9e64881f48debd020438e5c754b1bd9a5422427a283"
+  }
+}

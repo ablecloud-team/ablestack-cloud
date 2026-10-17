@@ -1,0 +1,84 @@
+[
+  {
+    "name": "cni1404-text",
+    "id": "7f4a3ec6-f0e3-48ca-9ae2-e0db9829002b",
+    "bytes": 45,
+    "sha256": "b4b2f887189495de10e7890174834ce6b2c21b040dcc3709fb3f9be526eaf64d",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-unicode",
+    "id": "2134a2c9-37c1-4916-89c3-0cbc595353f2",
+    "bytes": 60,
+    "sha256": "b259452e17afa150fcfe992a2d224e392283f9f2b00d9db931890aa90816215a",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-base64",
+    "id": "276454f7-0f40-41c8-a933-082b2d6b32cb",
+    "bytes": 60,
+    "sha256": "b259452e17afa150fcfe992a2d224e392283f9f2b00d9db931890aa90816215a",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-literal",
+    "id": "f3a3b266-74c7-4a3a-8cc5-998b063e2b68",
+    "bytes": 4,
+    "sha256": "5e21d86b709b6aa2d5fff6d7cfed56ab73bf002020a6399a955c0b09791d4613",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-binary",
+    "id": "4246367c-6e79-482f-97ef-7b8641d5d9aa",
+    "bytes": 6,
+    "sha256": "797efeb663bbca7577c3673a73054dacd4d5dc852e7d84cc8ab35d79db3268ce",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-large",
+    "id": "99010c85-34bf-4536-bc8c-625e1828d3b0",
+    "bytes": 15162,
+    "sha256": "1c9d72653d102e16ec1ac6c7ec8e637a40917cf0fe5328feecfa78de6f1628de",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-unicode-project",
+    "id": "14fe90bc-4230-417c-90b4-edd4a5dc6ca4",
+    "bytes": 60,
+    "sha256": "b259452e17afa150fcfe992a2d224e392283f9f2b00d9db931890aa90816215a",
+    "kind": "cni",
+    "scope": {
+      "projectid": "dd981576-1611-4692-affb-482a39e5722a"
+    }
+  },
+  {
+    "name": "cni1404-normal",
+    "id": "f97c82fd-3a52-419e-bcd9-f56bbe6b8d41",
+    "bytes": 40,
+    "sha256": "be456dd0e25c6946e5aa93a68d7c37db6e938e153bf28e5e9a5bcfb02b258893",
+    "kind": "userdata",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-final",
+    "id": "3c5b52cd-9c92-495e-bcbb-9528bbbfd6fc",
+    "bytes": 45,
+    "sha256": "b4b2f887189495de10e7890174834ce6b2c21b040dcc3709fb3f9be526eaf64d",
+    "kind": "cni",
+    "scope": {}
+  },
+  {
+    "name": "cni1404-style",
+    "id": "1eea8995-fa4f-46b8-8624-b3f2ece75bf1",
+    "bytes": 45,
+    "sha256": "b4b2f887189495de10e7890174834ce6b2c21b040dcc3709fb3f9be526eaf64d",
+    "kind": "cni",
+    "scope": {}
+  }
+]

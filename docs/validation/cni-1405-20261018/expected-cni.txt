@@ -1,0 +1,76 @@
+#cloud-config
+merge_how:
+- name: list
+  settings:
+  - append
+- name: dict
+  settings:
+  - no_replace
+  - recurse_list
+write_files:
+- path: /opt/cni1405/prepare-custom-cni
+  permissions: '0700'
+  owner: root:root
+  content: '#!/bin/bash
+
+    set -euo pipefail
+
+    mkdir -p /opt/cni1405
+
+    cp /tmp/k8sconfigscripts/network.yaml /opt/cni1405/iso-network.yaml
+
+    sed -E ''s/^([[:space:]]*veth_mtu:).*/\1 "1450"/'' /opt/cni1405/iso-network.yaml
+    > /opt/cni1405/custom-calico.yaml
+
+    grep -q ''veth_mtu: "1450"'' /opt/cni1405/custom-calico.yaml
+
+    sha256sum /opt/cni1405/iso-network.yaml /opt/cni1405/custom-calico.yaml > /opt/cni1405/cni-profile.sha256
+
+    '
+- path: /opt/cni1405/apply-custom-cni
+  permissions: '0700'
+  owner: root:root
+  content: '#!/bin/bash
+
+    set -euo pipefail
+
+    test -f /etc/kubernetes/kubeadm-config.yaml && grep -q ''^kind: InitConfiguration''
+    /etc/kubernetes/kubeadm-config.yaml || exit 0
+
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+
+    end=$((SECONDS+480))
+
+    until /opt/bin/kubectl --request-timeout=5s get --raw=/readyz > /dev/null 2>&1;
+    do test "$SECONDS" -lt "$end"; sleep 3; done
+
+    /opt/bin/kubectl apply -f /opt/cni1405/custom-calico.yaml
+
+    /opt/bin/kubectl -n kube-system annotate configmap/calico-config cni1405.custom-cni=calico-3.33.0-mtu1450
+    --overwrite
+
+    '
+- path: /etc/systemd/system/deploy-kube-system.service.d/cni1405-custom-cni.conf
+  permissions: '0644'
+  owner: root:root
+  content: '[Service]
+
+    ExecStartPre=/opt/cni1405/prepare-custom-cni
+
+    ExecStartPost=/opt/cni1405/apply-custom-cni
+
+    '
+- path: /opt/cni1405/values.txt
+  permissions: '0644'
+  content: |
+    VALUE=한글 $1\path, eq=a 😀
+    REPEAT=한글 $1\path, eq=a 😀한글 $1\path, eq=a 😀
+    EMPTY=()
+    ESCAPED={{ VALUE }}
+    UNKNOWN={{ NOT_DECLARED }}
+    AUTO={{ AS_NUMBER }}
+- path: /opt/cni1405/lines.txt
+  permissions: '0644'
+  content: |
+    첫째 줄
+    둘째 줄 $1\path, eq=b

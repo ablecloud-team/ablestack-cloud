@@ -1,0 +1,210 @@
+[
+  {
+    "name": "CNI UUID/name/scope root00",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root00",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root01",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root01",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root02",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root02",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root03",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root03",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root04",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root04",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root05",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root05",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root06",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root06",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root07",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root07",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root08",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root08",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root09",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root09",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root10",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root10",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root11",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root11",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root12",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root12",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root13",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root13",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root14",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root14",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root15",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root15",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root16",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root16",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root17",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root17",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root18",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root18",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root19",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root19",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root20",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root20",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope root21",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes root21",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope owner",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes owner",
+    "pass": true
+  },
+  {
+    "name": "CNI UUID/name/scope project",
+    "pass": true
+  },
+  {
+    "name": "CNI stored bytes project",
+    "pass": true
+  },
+  {
+    "name": "actual project usage cluster count",
+    "pass": true
+  },
+  {
+    "name": "actual cluster Running and nodes two",
+    "pass": true
+  },
+  {
+    "name": "project owner reads its CNI",
+    "pass": true
+  },
+  {
+    "name": "nonmember cannot read project CNI",
+    "pass": true
+  }
+]

@@ -16,7 +16,7 @@
 // under the License.
 
 <template>
-  <section class="userdata-content" :aria-label="$t('label.userdata.content')" :aria-busy="pending">
+  <section class="userdata-content" :aria-label="$t(contentLabel)" :aria-busy="pending">
     <template v-if="sourceType === 'vm' && vm">
       <a-descriptions class="vm-userdata-summary" size="small" :column="1" bordered>
         <a-descriptions-item :label="$t('label.vm.displayname')">{{ vm.displayname || vm.name }} ({{ vm.id }})</a-descriptions-item>
@@ -33,11 +33,12 @@
         <a-radio-button value="raw" :disabled="content?.text === null">{{ $t('label.userdata.raw') }}</a-radio-button>
         <a-radio-button value="base64">Base64</a-radio-button>
       </a-radio-group>
-      <a-tooltip v-if="previewEncoded == null" :title="$t('label.refresh')"><a-button class="content-refresh" :aria-label="$t('label.refresh')" :loading="pending" :disabled="!canRead" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button></a-tooltip>
+      <a-tooltip v-if="previewEncoded == null" :title="$t('label.refresh')"><a-button class="content-refresh" :aria-label="$t('label.refresh')" :loading="pending" :disabled="!canRead || (isCni && !parentReadReady)" @click="fetchData"><template #icon><reload-outlined /></template>{{ $t('label.refresh') }}</a-button></a-tooltip>
     </div>
-    <a-alert v-if="['error', 'forbidden', 'missing', 'mismatch', 'invalid', 'unsupported'].includes(status)" type="error" show-icon :message="$t('message.userdata.content.' + status)" role="status">
+    <a-alert v-if="['error', 'forbidden', 'missing', 'mismatch', 'invalid', 'unsupported'].includes(status)" type="error" show-icon :message="$t(statusMessage)" role="status">
       <template #description><span v-if="content">{{ $t('message.userdata.content.stale') }}</span><a-button v-if="canRead" type="link" :loading="pending" @click="fetchData">{{ $t('label.retry') }}</a-button></template>
     </a-alert>
+    <a-alert v-if="isCni && content && !parentReadReady" type="warning" show-icon role="status" :message="$t('message.cni.content.unverified')" />
     <a-alert v-if="content?.text === null" type="warning" show-icon :message="$t('message.userdata.content.binary')" />
     <a-alert v-if="feedback" :type="feedbackError ? 'error' : 'success'" show-icon :message="$t(feedback)" role="status" />
     <a-spin :spinning="pending && !content">
@@ -49,57 +50,67 @@
 <script>
 import { getAPI } from '@/api'
 import { readVmUserData, vmUserDataSupported } from '@/utils/vmUserData'
+import { cniIdentity, cniIdentityParams } from '@/utils/cniUsage'
 import { userDataContent } from '@/utils/userDataContent'
 import { userDataDeleteLookup, userDataDeleteIdentity, userDataDeleteError } from '@/utils/userDataDeletion'
 
 export default {
   name: 'UserDataContent',
   props: { resource: { type: Object, required: true }, tab: { type: String, default: '' }, loading: Boolean, sourceType: { type: String, default: 'library' }, previewEncoded: { type: String, default: null } },
-  data () { return { version: 0, disposed: false, pending: false, status: 'loading', content: null, vm: null, comparison: 'unavailable', mode: 'raw', feedback: '', feedbackError: false } },
+  inject: { resourceActionReady: { default: () => () => true } },
+  data () { return { publishedScope: '', version: 0, disposed: false, pending: false, status: 'loading', content: null, vm: null, comparison: 'unavailable', mode: 'raw', feedback: '', feedbackError: false } },
   computed: {
-    active () { return this.tab === 'userdata.content' },
-    canRead () { return this.previewEncoded != null || (this.sourceType === 'vm' ? vmUserDataSupported(this.$store.getters.apis) : !!this.$store.getters.apis?.listUserData) },
+    isCni () { return this.sourceType === 'cni' },
+    contentLabel () { return this.isCni ? 'label.cni.content' : 'label.userdata.content' },
+    parentReadReady () { return this.previewEncoded != null || !this.isCni || (!this.loading && this.resourceActionReady()) },
+    statusMessage () { return 'message.' + (this.isCni && ['missing', 'mismatch', 'unsupported'].includes(this.status) ? 'cni' : 'userdata') + '.content.' + this.status },
+    active () { return this.previewEncoded != null || this.tab === (this.isCni ? 'cni.content' : 'userdata.content') && (!this.isCni || this.$route.path.toLowerCase() === '/cniconfiguration/' + (this.resource.id || '').toLowerCase()) },
+    canRead () { return this.previewEncoded != null || (this.isCni ? !!this.$store.getters.apis?.listCniConfiguration : this.sourceType === 'vm' ? vmUserDataSupported(this.$store.getters.apis) : !!this.$store.getters.apis?.listUserData) },
     scope () { return JSON.stringify([this.sourceType, !!this.$store.getters.apis?.listUserData, !!this.$store.getters.apis?.listVirtualMachines, this.resource.userdataid, this.resource.userdatadetails, this.resource.userdatapolicy, this.resource.state, this.resource.id, this.resource.name, this.resource.account, this.resource.domainid, this.resource.projectid, this.$route.path, this.$store.getters.project?.id, this.$store.getters.listAllProjects, this.$store.getters.userInfo?.id, this.$store.state?.user?.token, this.canRead]) },
     display () { return this.mode === 'base64' ? this.content?.encoded : this.content?.text },
-    exportable () { return this.status === 'ready' && !this.pending && this.content && !this.content.empty }
+    exportable () { return this.active && this.canRead && this.publishedScope === this.scope && this.parentReadReady && this.status === 'ready' && !this.pending && this.content && !this.content.empty }
   },
   watch: {
     previewEncoded () { this.reset(); this.fetchData() },
     scope () { this.reset(); this.fetchData() },
     active (value) { this.version++; this.pending = false; this.feedback = ''; if (value) this.fetchData() },
+    parentReadReady (value) { if (this.isCni) { this.version++; this.pending = false; this.feedback = ''; if (value) this.fetchData() } },
     loading (value) { if (!value) this.fetchData() }
   },
   created () { this.fetchData() },
   beforeUnmount () { this.disposed = true; this.reset() },
   methods: {
-    reset () { this.version++; this.pending = false; this.content = null; this.vm = null; this.comparison = 'unavailable'; this.status = 'loading'; this.mode = 'raw'; this.feedback = '' },
+    reset () { this.publishedScope = ''; this.version++; this.pending = false; this.content = null; this.vm = null; this.comparison = 'unavailable'; this.status = 'loading'; this.mode = 'raw'; this.feedback = '' },
     async fetchData () {
       if (!this.active || this.disposed || this.pending) return
       if (this.previewEncoded != null) {
-        try { this.content = userDataContent(this.previewEncoded); this.status = 'ready'; if (this.content.text === null) this.mode = 'base64' } catch (error) { this.content = null; this.status = 'invalid' }
+        try { this.content = userDataContent(this.previewEncoded); this.publishedScope = this.scope; this.status = 'ready'; if (this.content.text === null) this.mode = 'base64' } catch (error) { this.content = null; this.status = 'invalid' }
         return
       }
       if (!this.canRead) { this.reset(); this.status = 'unsupported'; return }
-      const source = Object.freeze({ ...this.resource }); const lookup = userDataDeleteLookup(source)
+      if (!this.parentReadReady) return
+      const source = Object.freeze({ ...this.resource }); const lookup = this.isCni ? cniIdentityParams(source) : userDataDeleteLookup(source)
+      const project = this.$store.getters.project?.id
+      if (this.isCni && project && project !== '-1' && project !== source.projectid) { this.reset(); this.status = 'mismatch'; return }
       if (this.sourceType !== 'vm' && !lookup) { this.reset(); this.status = 'mismatch'; return }
       const version = ++this.version; const scope = this.scope
-      const current = () => !this.disposed && this.active && version === this.version && scope === this.scope
+      const current = () => !this.disposed && this.active && this.parentReadReady && version === this.version && scope === this.scope
       this.pending = true; this.feedback = ''
       try {
         if (this.sourceType === 'vm') {
           const result = await readVmUserData(getAPI, source, this.$store.getters.apis, current)
           if (!current() || !result) return
-          this.content = result.content; this.vm = result.vm; this.comparison = result.comparison; this.status = 'ready'
+          this.content = result.content; this.publishedScope = scope; this.vm = result.vm; this.comparison = result.comparison; this.status = 'ready'
           if (this.content.text === null) this.mode = 'base64'
           return
         }
-        const json = await getAPI('listUserData', lookup, { preserveOnFailure: true, timeout: 20000 })
+        const json = await getAPI(this.isCni ? 'listCniConfiguration' : 'listUserData', lookup, { preserveOnFailure: true, timeout: 20000 })
         if (!current()) return
-        const identity = userDataDeleteIdentity(json, source)
+        const identity = this.isCni ? cniIdentity(json, source) : userDataDeleteIdentity(json, source)
         if (identity !== 'ready') throw Object.assign(new Error(identity), { contentState: identity })
         let content
-        try { content = userDataContent(json.listuserdataresponse.userdata[0].userdata) } catch (error) { throw Object.assign(error, { contentState: 'invalid' }) }
-        this.content = content; this.status = 'ready'
+        try { content = userDataContent(this.isCni ? json.listcniconfigurationresponse.cniconfig[0].userdata : json.listuserdataresponse.userdata[0].userdata) } catch (error) { throw Object.assign(error, { contentState: 'invalid' }) }
+        this.content = content; this.publishedScope = scope; this.status = 'ready'
         if (content.text === null) this.mode = 'base64'
       } catch (error) {
         if (!current()) return
@@ -114,14 +125,14 @@ export default {
       const scope = this.scope
       const version = this.version
       const notify = (error = false) => {
-        if (this.disposed || !this.active || scope !== this.scope || version !== this.version) return
+        if (this.disposed || !this.exportable || scope !== this.scope || version !== this.version) return
         this.feedbackError = error
         this.feedback = error ? 'message.userdata.content.copy.failed' : 'message.success.copy.clipboard'
       }
       if (navigator.clipboard?.writeText) {
         try { await navigator.clipboard.writeText(text); notify(); return } catch (error) { /* HTTP/older browsers use the selected-text fallback below. */ }
       }
-      if (this.disposed || !this.active || scope !== this.scope || version !== this.version) return
+      if (this.disposed || !this.exportable || scope !== this.scope || version !== this.version) return
       // Use the browser's copy event for exact text (including CRLF/BOM).
       // A textarea's value/selection would normalize line endings on HTTP sites.
       const focus = document.activeElement
@@ -151,7 +162,7 @@ export default {
         url = URL.createObjectURL(new Blob([raw ? this.content.bytes : this.content.encoded], { type: raw ? 'application/octet-stream' : 'text/plain;charset=us-ascii' }))
         const anchor = document.createElement('a')
         anchor.href = url
-        anchor.download = (this.sourceType === 'vm' ? 'vm-userdata-' : 'userdata-') + this.resource.id + (raw ? '.txt' : '.base64.txt')
+        anchor.download = (this.isCni ? 'cni-' : this.sourceType === 'vm' ? 'vm-userdata-' : 'userdata-') + this.resource.id + (raw ? '.txt' : '.base64.txt')
         anchor.click()
         this.feedbackError = false; this.feedback = 'message.userdata.content.download.started'
       } catch (error) { this.feedbackError = true; this.feedback = 'message.userdata.content.download.failed' } finally { if (url) setTimeout(() => URL.revokeObjectURL(url), 1000) }

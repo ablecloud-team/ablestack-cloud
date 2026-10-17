@@ -1,0 +1,12 @@
+[
+  {
+    "command": "deleteCniConfiguration",
+    "id": "3352f083-29ed-44d3-98c1-615f579d06fc",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "4b8a40d2-1b57-4b67-b19b-d939d586272e",
+    "success": true
+  }
+]

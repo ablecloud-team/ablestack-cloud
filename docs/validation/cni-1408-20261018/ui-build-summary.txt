@@ -1,0 +1,9 @@
+Browserslist: caniuse-lite is outdated. Please run:
+Browserslist: caniuse-lite is outdated. Please run:
+Browserslist: caniuse-lite is outdated. Please run:
+ WARNING  Compiled with 2 warnings12:10:39 AM
+entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+ DONE  Build complete. The dist directory is ready to be deployed.
+> cloudstack-ui@4.22.0 postbuild
+> ./postbuild.sh
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

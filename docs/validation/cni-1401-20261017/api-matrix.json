@@ -1,0 +1,97 @@
+[
+  {
+    "test": "text CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "large CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 18500,
+    "sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84"
+  },
+  {
+    "test": "binary CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 7,
+    "sha256": "b6aca61714dea926b920603d506c0058dd4e72f924cd2ec4f2c2d7ded43065a4"
+  },
+  {
+    "test": "empty CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 21,
+    "sha256": "f88faa539b897ed6d007c77078cb15aa59751987af6a3dbbd9c272e4edb0f6f8"
+  },
+  {
+    "test": "invalid CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 24,
+    "sha256": "6f3d16fc76e903010b02e6ec398229799945994aedad76ccc70da028e052510b"
+  },
+  {
+    "test": "owner CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "project CNI stored bytes roundtrip",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "ordinary owner reads own exact bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "project member reads exact bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "foreign account cannot read owner body",
+    "result": "PASS"
+  },
+  {
+    "test": "foreign account cannot read project body",
+    "result": "PASS"
+  },
+  {
+    "test": "dedicated legacy empty is actually served by API",
+    "result": "PASS"
+  },
+  {
+    "test": "dedicated legacy invalid is actually served by API",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary UserData BOM CRLF Korean fixture roundtrip",
+    "result": "PASS",
+    "bytes": 164
+  },
+  {
+    "test": "ordinary API does not expose text CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary API does not expose binary CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary API does not expose large CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "CNI API excludes ordinary UserData body",
+    "result": "PASS"
+  },
+  {
+    "test": "dedicated empty restored to original bytes before API cleanup",
+    "result": "PASS"
+  },
+  {
+    "test": "dedicated invalid restored to original bytes before API cleanup",
+    "result": "PASS"
+  }
+]

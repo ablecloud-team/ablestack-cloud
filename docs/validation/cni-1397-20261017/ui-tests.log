@@ -1,0 +1,11 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/compute/UserDataVersions.spec.js
+PASS tests/unit/views/compute/CniRegistration.spec.js
+PASS tests/unit/views/compute/RegisterUserData.spec.js
+
+Test Suites: 3 passed, 3 total
+Tests:       108 passed, 108 total
+Snapshots:   0 total
+Time:        13.604s

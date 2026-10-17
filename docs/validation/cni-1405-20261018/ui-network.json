@@ -1,0 +1,73 @@
+[
+  {
+    "command": "previewCniConfiguration",
+    "method": "POST",
+    "params": {
+      "command": "previewCniConfiguration",
+      "response": "json",
+      "id": "2f944205-54a9-4e89-a50b-58a15de88ff2",
+      "cniconfigdetails[0].VALUE": "한글 $1\\path, eq=a 😀",
+      "cniconfigdetails[1].EMPTY": "",
+      "cniconfigdetails[2].LINES": "첫째 줄\n    둘째 줄 $1\\path, eq=b",
+      "networkid": "769890ed-aa07-4496-a977-4b45070afe08"
+    },
+    "requestId": "40456.6965"
+  },
+  {
+    "command": "createKubernetesCluster",
+    "method": "POST",
+    "params": {
+      "command": "createKubernetesCluster",
+      "response": "json",
+      "name": "cni1405-ui-cluster",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "kubernetesversionid": "25cc0a2d-e4bf-43ca-8bb7-c0a08ca10637",
+      "serviceofferingid": "4907188a-0761-49ff-ba43-09318e94229a",
+      "size": "1",
+      "clustertype": "CloudManaged",
+      "projectid": "0f11cc46-dcb9-469e-a01b-7d7069219d11",
+      "hypervisor": "kvm",
+      "noderootdisksize": "8",
+      "networkid": "769890ed-aa07-4496-a977-4b45070afe08",
+      "cniconfigurationid": "2f944205-54a9-4e89-a50b-58a15de88ff2",
+      "cniconfigdetails[0].VALUE": "한글 $1\\path, eq=a 😀",
+      "cniconfigdetails[1].EMPTY": "",
+      "cniconfigdetails[2].LINES": "첫째 줄\n    둘째 줄 $1\\path, eq=b"
+    },
+    "requestId": "40456.6980"
+  },
+  {
+    "command": "createKubernetesCluster",
+    "method": "POST",
+    "params": {
+      "command": "createKubernetesCluster",
+      "response": "json",
+      "name": "cni1405-ui-final",
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "kubernetesversionid": "25cc0a2d-e4bf-43ca-8bb7-c0a08ca10637",
+      "serviceofferingid": "4907188a-0761-49ff-ba43-09318e94229a",
+      "size": "1",
+      "clustertype": "CloudManaged",
+      "projectid": "0f11cc46-dcb9-469e-a01b-7d7069219d11",
+      "hypervisor": "kvm",
+      "noderootdisksize": "8",
+      "networkid": "769890ed-aa07-4496-a977-4b45070afe08",
+      "cniconfigurationid": "2f944205-54a9-4e89-a50b-58a15de88ff2",
+      "cniconfigdetails[0].VALUE": "한글 $1\\path, eq=a 😀",
+      "cniconfigdetails[1].EMPTY": "",
+      "cniconfigdetails[2].LINES": "첫째 줄\n    둘째 줄 $1\\path, eq=b"
+    },
+    "requestId": "40456.7194"
+  },
+  {
+    "command": "previewCniConfiguration",
+    "method": "POST",
+    "params": {
+      "command": "previewCniConfiguration",
+      "response": "json",
+      "id": "2f944205-54a9-4e89-a50b-58a15de88ff2",
+      "projectid": "0f11cc46-dcb9-469e-a01b-7d7069219d11"
+    },
+    "requestId": "40456.7412"
+  }
+]

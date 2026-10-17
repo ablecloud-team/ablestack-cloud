@@ -1,0 +1,39 @@
+===== ui-tests.log (selected result lines; full local log retained privately) =====
+PASS tests/unit/views/compute/CniSelection.spec.js (17.427s)
+PASS tests/unit/views/compute/CreateKubernetesCluster.spec.js
+PASS tests/unit/views/compute/CniRegistration.spec.js
+PASS tests/unit/views/compute/CniVariableTools.spec.js
+PASS tests/unit/views/compute/UserDataContent.spec.js
+PASS tests/unit/views/compute/RegisterUserData.spec.js
+PASS tests/unit/views/compute/CniFileImport.spec.js
+Test Suites: 7 passed, 7 total
+Tests:       142 passed, 142 total
+Time:        31.162s
+
+===== ui-lint.log (selected result lines; full local log retained privately) =====
+ DONE  No lint errors found!
+
+===== ui-build.log (selected result lines; full local log retained privately) =====
+ DONE  Build complete. The dist directory is ready to be deployed.
+
+===== server-module-build.log (selected result lines; full local log retained privately) =====
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.925 s - in com.cloud.network.router.CommandSetupHelperTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.035 s - in com.cloud.network.NetworkModelImplTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.network.CniMetadataJsonTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.057 s - in com.cloud.network.NetworkModelTest
+[INFO] Tests run: 62, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  36.027 s
+[INFO] Finished at: 2026-10-18T03:29:11+09:00
+
+===== kubernetes-module-build.log (selected result lines; full local log retained privately) =====
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.891 s - in com.cloud.kubernetes.cluster.dao.KubernetesCniReferenceDaoTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.899 s - in com.cloud.kubernetes.cluster.CniConfigurationRendererTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.974 s - in com.cloud.kubernetes.cluster.KubernetesCniReferencesTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.101 s - in com.cloud.kubernetes.cluster.actionworkers.KubernetesCniUserDataTest
+[INFO] Tests run: 70, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.62 s - in com.cloud.kubernetes.cluster.KubernetesClusterManagerImplTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.05 s - in org.apache.cloudstack.api.command.user.kubernetes.cluster.PreviewCniConfigurationCmdTest
+[INFO] Tests run: 102, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  33.238 s
+[INFO] Finished at: 2026-10-18T03:04:11+09:00

@@ -1,0 +1,15 @@
+{
+  "passed": [
+    "CNI comments 2 visible",
+    "CNI correct delete success",
+    "CNI record and comments gone in API",
+    "UserData comments 2 visible",
+    "UserData completed 1 failed 0",
+    "UserData return to list",
+    "UserData record and comments gone in API"
+  ],
+  "known_followup": {
+    "issue": 1403,
+    "behavior": "CNI deletion succeeds but detail remains until navigating to list"
+  }
+}

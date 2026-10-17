@@ -1,0 +1,1 @@
+Production JS build unchanged. Static en/ko_KR error message added after browser qualification. Both dist locale files are copied byte-for-byte from final public/locales source before artifact generation.

@@ -155,7 +155,8 @@
             <a-button
               class="filter-button"
               size="small"
-              @click="() => { searchQuery = null }">
+              :aria-label="$t('label.advanced.search')"
+                  @click="() => { if (apiName !== 'listCniConfiguration') searchQuery = null }">
               <filter-two-tone v-if="isFiltered" />
               <filter-outlined v-else />
             </a-button>
@@ -210,6 +211,7 @@ export default {
       vmOptionPage: 1,
       vmOptionTotal: 0,
       vmOptionKeyword: '',
+      cniOptionsVersion: {},
       vmOptionVersion: 0
     }
   },
@@ -282,6 +284,7 @@ export default {
     onSelectFieldChange (fieldname) {
       const fetchAccountOptions = fieldname === 'domainid' && this.fields.some((field) => field.name === 'account')
       if (fetchAccountOptions) {
+        if (this.apiName === 'listCniConfiguration') this.form.account = undefined
         this.fetchDynamicFieldData('account')
       }
 
@@ -538,6 +541,7 @@ export default {
       }
     },
     async fetchDynamicFieldData (arrayField, searchKeyword) {
+      if (this.apiName === 'listCniConfiguration') return this.fetchCniOwnerOptions(arrayField, searchKeyword)
       const promises = []
       let typeIndex = -1
       let zoneIndex = -1
@@ -962,8 +966,28 @@ export default {
         }
       })
     },
+    async fetchCniOwnerOptions (arrayField, searchKeyword) {
+      const domainid = this.form.domainid
+      const fields = this.fields.filter(field => ['domainid', 'account'].includes(field.name) && arrayField.includes(field.name))
+      fields.forEach(field => { field.loading = true; field.opts = [] })
+      await Promise.all(fields.map(async field => {
+        const version = this.cniOptionsVersion[field.name] = (this.cniOptionsVersion[field.name] || 0) + 1
+        try {
+          const isAccount = field.name === 'account'
+          const json = await getAPI(isAccount ? 'listAccounts' : 'listDomains', { listall: true, keyword: searchKeyword, ...(isAccount ? { isrecursive: false, ...(domainid ? { domainid } : {}) } : { details: 'min' }) })
+          if (version !== this.cniOptionsVersion[field.name] || (isAccount && domainid !== this.form.domainid)) return
+          const rows = isAccount ? json?.listaccountsresponse?.account : json?.listdomainsresponse?.domain
+          field.opts = this.sortArray((rows || []).filter(row => !isAccount || !domainid || row.domainid === domainid), isAccount ? 'name' : 'path')
+        } catch (_) {
+          if (version === this.cniOptionsVersion[field.name]) this.$message.error(this.$t('error.fetching.data'))
+        } finally {
+          if (version === this.cniOptionsVersion[field.name]) field.loading = false
+        }
+      }))
+    },
     initFormFieldData () {
       const arrayField = this.initFields()
+      if (this.apiName === 'listCniConfiguration') this.fillFormFieldValues()
 
       this.fetchStaticFieldData(arrayField)
 
@@ -1808,8 +1832,9 @@ export default {
       this.$emit('change-filter', filter)
     },
     updateIsFiltered () {
+      const params = this.apiName === 'listCniConfiguration' ? this.$route.query : this.searchParams
       this.isFiltered = this.searchFilters.some(item => {
-        if (this.searchParams[item]) {
+        if (params[item]) {
           return true
         }
       })

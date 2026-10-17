@@ -1,0 +1,9 @@
+Final focused UI tests: 9 suites / 247 tests PASS (coverage=false)
+Full UI lint: PASS
+Production UI build: PASS (existing bundle-size/Browserslist notices)
+Real UI checks: 79 (includes 16 help layout checks)
+Real API checks: 35 PASS
+Corrected final application layout matrix: 24 PASS incl. native input display:none/zero bounds
+Help language/theme/layout matrix: 16 PASS
+Whole Cloud build/CI: not run
+GitHub registered PR checks before final push: 0

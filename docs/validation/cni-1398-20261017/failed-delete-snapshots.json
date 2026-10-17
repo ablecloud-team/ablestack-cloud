@@ -1,0 +1,386 @@
+[
+  {
+    "id": "2c14fe8f-192f-4a74-af29-c9ee3bfd3e3d",
+    "name": "cni1398-account-a-cni",
+    "body_owner_params": [
+      {
+        "id": "2c14fe8f-192f-4a74-af29-c9ee3bfd3e3d",
+        "name": "cni1398-account-a-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtYWNjb3VudC1hLWNuaQoke1ZBTFVFfQo=",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "cni1398-a",
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "18ffab5a-cfd8-4023-a5ac-e10039375862",
+        "annotation": "cni1398 보존 cni1398-account-a-cni false",
+        "entityid": "2c14fe8f-192f-4a74-af29-c9ee3bfd3e3d",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      },
+      {
+        "id": "3e8e992b-159f-4cb5-b471-2683262a20ac",
+        "annotation": "cni1398 보존 cni1398-account-a-cni true",
+        "entityid": "2c14fe8f-192f-4a74-af29-c9ee3bfd3e3d",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      }
+    ]
+  },
+  {
+    "id": "d6fd8fe3-03ab-4b0b-a799-72a1754c39de",
+    "name": "cni1398-account-a-userdata",
+    "body_owner_params": [
+      {
+        "id": "d6fd8fe3-03ab-4b0b-a799-72a1754c39de",
+        "name": "cni1398-account-a-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtYWNjb3VudC1hLXVzZXJkYXRhCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "cni1398-a",
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "09ccad64-b36c-4fee-8dd8-96f6a70517cc",
+        "annotation": "cni1398 보존 cni1398-account-a-userdata true",
+        "entityid": "d6fd8fe3-03ab-4b0b-a799-72a1754c39de",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "1b614e6a-e103-48de-b978-5b78048eae84",
+        "annotation": "cni1398 보존 cni1398-account-a-userdata false",
+        "entityid": "d6fd8fe3-03ab-4b0b-a799-72a1754c39de",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "f0bb6794-cf25-42c9-911e-1ff1c93523eb",
+    "name": "cni1398-account-b-cni",
+    "body_owner_params": [
+      {
+        "id": "f0bb6794-cf25-42c9-911e-1ff1c93523eb",
+        "name": "cni1398-account-b-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtYWNjb3VudC1iLWNuaQoke1ZBTFVFfQo=",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "cni1398-b",
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "0930fa7e-4c3a-49ce-a051-d50c312129c1",
+        "annotation": "cni1398 보존 cni1398-account-b-cni true",
+        "entityid": "f0bb6794-cf25-42c9-911e-1ff1c93523eb",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "b3f2a044-bcb1-45e4-9974-14352f06c2c9",
+        "annotation": "cni1398 보존 cni1398-account-b-cni false",
+        "entityid": "f0bb6794-cf25-42c9-911e-1ff1c93523eb",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "8c87a335-c615-4068-85a6-e5609a988250",
+    "name": "cni1398-account-b-userdata",
+    "body_owner_params": [
+      {
+        "id": "8c87a335-c615-4068-85a6-e5609a988250",
+        "name": "cni1398-account-b-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtYWNjb3VudC1iLXVzZXJkYXRhCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "cni1398-b",
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "155024c2-b892-4346-8087-b2e3f0555c63",
+        "annotation": "cni1398 보존 cni1398-account-b-userdata true",
+        "entityid": "8c87a335-c615-4068-85a6-e5609a988250",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "af058020-9fc8-4aaa-b9fa-38cc6b4acde9",
+        "annotation": "cni1398 보존 cni1398-account-b-userdata false",
+        "entityid": "8c87a335-c615-4068-85a6-e5609a988250",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "2d3e9d6e-dbea-4935-8756-02f6c9c20962",
+    "name": "cni1398-project-a-cni",
+    "body_owner_params": [
+      {
+        "id": "2d3e9d6e-dbea-4935-8756-02f6c9c20962",
+        "name": "cni1398-project-a-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtcHJvamVjdC1hLWNuaQoke1ZBTFVFfQo=",
+        "params": "VALUE",
+        "accountid": null,
+        "account": null,
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": "57b8e06c-6c5e-45c8-b8b8-9a84fbf618fb"
+      }
+    ],
+    "comments": [
+      {
+        "id": "68d184c8-c010-4f38-ba72-b416eeb80dcc",
+        "annotation": "cni1398 보존 cni1398-project-a-cni true",
+        "entityid": "2d3e9d6e-dbea-4935-8756-02f6c9c20962",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "f3742294-d258-4d6a-bc5a-f80cefcc2744",
+        "annotation": "cni1398 보존 cni1398-project-a-cni false",
+        "entityid": "2d3e9d6e-dbea-4935-8756-02f6c9c20962",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "b0c10853-52d6-4edc-8d41-a9a432601888",
+    "name": "cni1398-project-a-userdata",
+    "body_owner_params": [
+      {
+        "id": "b0c10853-52d6-4edc-8d41-a9a432601888",
+        "name": "cni1398-project-a-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtcHJvamVjdC1hLXVzZXJkYXRhCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": null,
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": "57b8e06c-6c5e-45c8-b8b8-9a84fbf618fb"
+      }
+    ],
+    "comments": [
+      {
+        "id": "7b5fc1a0-9d6d-4388-bdef-f50c914b948e",
+        "annotation": "cni1398 보존 cni1398-project-a-userdata true",
+        "entityid": "b0c10853-52d6-4edc-8d41-a9a432601888",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "d5e4d2d9-6b46-438c-a4d8-1dc8500f9cbc",
+        "annotation": "cni1398 보존 cni1398-project-a-userdata false",
+        "entityid": "b0c10853-52d6-4edc-8d41-a9a432601888",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "65ff4211-902e-4696-9247-0edf244567ab",
+    "name": "cni1398-project-b-cni",
+    "body_owner_params": [
+      {
+        "id": "65ff4211-902e-4696-9247-0edf244567ab",
+        "name": "cni1398-project-b-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtcHJvamVjdC1iLWNuaQoke1ZBTFVFfQo=",
+        "params": "VALUE",
+        "accountid": null,
+        "account": null,
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": "7fed3017-5072-4e2f-8c6d-6b3fd1974ec9"
+      }
+    ],
+    "comments": [
+      {
+        "id": "5c937d6a-b35d-4a31-956a-a7b4423a7479",
+        "annotation": "cni1398 보존 cni1398-project-b-cni false",
+        "entityid": "65ff4211-902e-4696-9247-0edf244567ab",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      },
+      {
+        "id": "b378d4b0-80c9-4e6f-b849-09f0499a9fa7",
+        "annotation": "cni1398 보존 cni1398-project-b-cni true",
+        "entityid": "65ff4211-902e-4696-9247-0edf244567ab",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      }
+    ]
+  },
+  {
+    "id": "25fdf0d3-daa7-4cd2-967b-b8148c18cae3",
+    "name": "cni1398-project-b-userdata",
+    "body_owner_params": [
+      {
+        "id": "25fdf0d3-daa7-4cd2-967b-b8148c18cae3",
+        "name": "cni1398-project-b-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtcHJvamVjdC1iLXVzZXJkYXRhCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": null,
+        "domainid": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+        "projectid": "7fed3017-5072-4e2f-8c6d-6b3fd1974ec9"
+      }
+    ],
+    "comments": [
+      {
+        "id": "4533498c-d6ce-449c-9668-a28d05ee32d5",
+        "annotation": "cni1398 보존 cni1398-project-b-userdata true",
+        "entityid": "25fdf0d3-daa7-4cd2-967b-b8148c18cae3",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "a7d3c0b0-9246-4b15-8f0b-ac37c8e52930",
+        "annotation": "cni1398 보존 cni1398-project-b-userdata false",
+        "entityid": "25fdf0d3-daa7-4cd2-967b-b8148c18cae3",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "275ae2f1-0305-42df-8144-2366b0a093e5",
+    "name": "cni1398-outside-domain-cni",
+    "body_owner_params": [
+      {
+        "id": "275ae2f1-0305-42df-8144-2366b0a093e5",
+        "name": "cni1398-outside-domain-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtb3V0c2lkZS1kb21haW4tY25pCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "88dcf806-c545-4a7f-befc-f42ec182aa12",
+        "annotation": "cni1398 보존 cni1398-outside-domain-cni true",
+        "entityid": "275ae2f1-0305-42df-8144-2366b0a093e5",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "a912bd74-9eb5-4edb-a89c-252a885a53a5",
+        "annotation": "cni1398 보존 cni1398-outside-domain-cni false",
+        "entityid": "275ae2f1-0305-42df-8144-2366b0a093e5",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  },
+  {
+    "id": "327334d7-0f70-4360-a870-f0bf951be890",
+    "name": "cni1398-outside-domain-userdata",
+    "body_owner_params": [
+      {
+        "id": "327334d7-0f70-4360-a870-f0bf951be890",
+        "name": "cni1398-outside-domain-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtb3V0c2lkZS1kb21haW4tdXNlcmRhdGEKJHtWQUxVRX0K",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "088ae225-04f8-4121-9100-bdf8de72fcb5",
+        "annotation": "cni1398 보존 cni1398-outside-domain-userdata false",
+        "entityid": "327334d7-0f70-4360-a870-f0bf951be890",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      },
+      {
+        "id": "54ff73a3-b563-4925-9346-ec3e3ecdcac2",
+        "annotation": "cni1398 보존 cni1398-outside-domain-userdata true",
+        "entityid": "327334d7-0f70-4360-a870-f0bf951be890",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      }
+    ]
+  },
+  {
+    "id": "66fa4185-1682-44ba-b7fd-260eb636219c",
+    "name": "cni1398-ui-cni",
+    "body_owner_params": [
+      {
+        "id": "66fa4185-1682-44ba-b7fd-260eb636219c",
+        "name": "cni1398-ui-cni",
+        "userdata": "6rKA7KadIGNuaTEzOTgtdWktY25pCiR7VkFMVUV9Cg==",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "83f9ac8d-7f39-4248-9886-823ef78e2df1",
+        "annotation": "cni1398 보존 cni1398-ui-cni false",
+        "entityid": "66fa4185-1682-44ba-b7fd-260eb636219c",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      },
+      {
+        "id": "bfe1eaee-5b80-4020-a2a3-fd61612822ee",
+        "annotation": "cni1398 보존 cni1398-ui-cni true",
+        "entityid": "66fa4185-1682-44ba-b7fd-260eb636219c",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      }
+    ]
+  },
+  {
+    "id": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+    "name": "cni1398-ui-userdata",
+    "body_owner_params": [
+      {
+        "id": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+        "name": "cni1398-ui-userdata",
+        "userdata": "6rKA7KadIGNuaTEzOTgtdWktdXNlcmRhdGEKJHtWQUxVRX0K",
+        "params": "VALUE",
+        "accountid": null,
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null
+      }
+    ],
+    "comments": [
+      {
+        "id": "2ee1d813-fb4d-466f-a1ca-1752ad2b1144",
+        "annotation": "cni1398 보존 cni1398-ui-userdata true",
+        "entityid": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+        "entitytype": "USER_DATA",
+        "adminsonly": true
+      },
+      {
+        "id": "8990e129-e540-426a-a3e7-45bf5197ae57",
+        "annotation": "cni1398 보존 cni1398-ui-userdata false",
+        "entityid": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+        "entitytype": "USER_DATA",
+        "adminsonly": false
+      }
+    ]
+  }
+]

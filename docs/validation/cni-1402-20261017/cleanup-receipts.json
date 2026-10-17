@@ -1,0 +1,177 @@
+[
+  {
+    "command": "deleteCniConfiguration",
+    "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "c325c697-4bdf-402e-a179-c880be280f32",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "01392eba-2566-477d-9bca-097428950a99",
+    "success": true
+  },
+  {
+    "command": "deleteUserData",
+    "id": "0d9eae5c-c55d-492e-9796-5c5baea38cd6",
+    "success": true
+  },
+  {
+    "command": "deleteUserData",
+    "id": "b095eac4-df58-4e0f-93aa-6280389522e3",
+    "success": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "db35777f-c900-470f-8d43-0b90f0b84a21",
+    "success": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "33773a89-5faf-409c-bfab-c99e2678fdf7",
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "497470a6-89e2-4613-9acc-1568808034df",
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "af142f0e-0b08-4e1d-92e6-bbc88ae5c93f",
+    "success": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "success": true
+  }
+]

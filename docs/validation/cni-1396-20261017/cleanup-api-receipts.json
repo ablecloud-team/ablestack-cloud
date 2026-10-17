@@ -1,0 +1,41 @@
+[
+  {
+    "command": "deleteCniConfiguration",
+    "id": "1edff270-5a2e-44b5-9d6a-d7c1db7f0790",
+    "response": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "dd82c7c8-7037-4aea-9fcf-e046fcc27c70",
+    "response": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "9d46388d-1106-4440-b773-3d0e61267e77",
+    "response": {
+      "success": true
+    }
+  },
+  {
+    "command": "deleteProject",
+    "id": "48dd8863-d3a6-4011-9c73-1b5d44490854",
+    "response": {
+      "jobid": "752b312e-41ca-4e2d-acea-da83d8557e5e"
+    },
+    "jobstatus": 1,
+    "jobresultcode": 0
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "4718aab0-d0d7-43b8-80dd-4045e06e5a46",
+    "response": {
+      "jobid": "0b0b7a34-8584-4708-a90a-6797e8e5850b"
+    },
+    "jobstatus": 1,
+    "jobresultcode": 0
+  }
+]

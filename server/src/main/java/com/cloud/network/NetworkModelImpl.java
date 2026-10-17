@@ -47,6 +47,8 @@ import org.apache.cloudstack.network.NetworkPermissionVO;
 import org.apache.cloudstack.network.dao.NetworkPermissionDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import com.cloud.api.ApiDBUtils;
 import com.cloud.configuration.Config;
@@ -3003,6 +3005,17 @@ public class NetworkModelImpl extends ManagerBase implements NetworkModel, Confi
 
     protected void addUserDataDetailsToCommand(List<String[]> vmData, String userDataDetails) {
         if(userDataDetails != null && !userDataDetails.isEmpty()) {
+            if ("{}".equals(userDataDetails.strip())) {
+                return;
+            }
+            // CNI values use JSON to preserve commas, equals signs and newlines.
+            // Existing UserData map strings retain their original parsing contract.
+            if (userDataDetails.stripLeading().startsWith("{\"")) {
+                for (Map.Entry<String, JsonElement> entry : JsonParser.parseString(userDataDetails).getAsJsonObject().entrySet()) {
+                    vmData.add(new String[]{METATDATA_DIR, entry.getKey(), com.cloud.utils.StringUtils.unicodeEscape(entry.getValue().getAsString())});
+                }
+                return;
+            }
             userDataDetails = userDataDetails.substring(1, userDataDetails.length()-1);
             String[] keyValuePairs = userDataDetails.split(",");
             for(String pair : keyValuePairs)

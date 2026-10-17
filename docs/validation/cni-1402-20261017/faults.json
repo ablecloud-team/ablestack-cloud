@@ -1,0 +1,20 @@
+[
+  {
+    "status": 503,
+    "command": "listCniConfiguration",
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "controlledBrowserResponse": true
+  },
+  {
+    "status": 503,
+    "command": "listCniConfiguration",
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "controlledBrowserResponse": true
+  },
+  {
+    "status": 403,
+    "command": "listCniConfiguration",
+    "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "controlledBrowserResponse": true
+  }
+]

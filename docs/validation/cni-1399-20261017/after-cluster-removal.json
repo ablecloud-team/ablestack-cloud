@@ -1,0 +1,5 @@
+{
+  "cluster_delete_job": "PASS",
+  "usage_count": 0,
+  "CNI_preserved_until_explicit_delete": true
+}

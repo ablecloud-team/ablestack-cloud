@@ -1,0 +1,18 @@
+[
+  {
+    "kind": "cni",
+    "id": "66fa4185-1682-44ba-b7fd-260eb636219c",
+    "name": "cni1398-ui-cni",
+    "active_record_count": 0,
+    "active_annotation_count": 0,
+    "deleted_via_ui": true
+  },
+  {
+    "kind": "userdata",
+    "id": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+    "name": "cni1398-ui-userdata",
+    "active_record_count": 0,
+    "active_annotation_count": 0,
+    "deleted_via_ui": true
+  }
+]

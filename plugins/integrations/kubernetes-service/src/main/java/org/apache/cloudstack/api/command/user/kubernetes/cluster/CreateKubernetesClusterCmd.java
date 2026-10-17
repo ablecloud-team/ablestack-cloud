@@ -71,7 +71,7 @@ import com.cloud.utils.exception.CloudRuntimeException;
         responseObject = KubernetesClusterResponse.class,
         responseView = ResponseView.Restricted,
         entityType = {KubernetesCluster.class},
-        requestHasSensitiveInfo = false,
+        requestHasSensitiveInfo = true,
         responseHasSensitiveInfo = true,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
 public class CreateKubernetesClusterCmd extends BaseAsyncCreateCmd {

@@ -1,0 +1,157 @@
+[
+  {
+    "test": "unused usage member",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "unused usage admin",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "unrelated caller cannot inspect foreign CNI",
+    "result": "PASS",
+    "status": 530,
+    "code": 530,
+    "message": "Caller does not have permission to operate with provided resource."
+  },
+  {
+    "test": "nonmember project usage denied",
+    "result": "PASS",
+    "status": 432,
+    "code": 432,
+    "message": "The API [listKubernetesClusters] does not exist or is not available for this account/user in project [4f631f79-8748-4611-babb-2215ebcda414]."
+  },
+  {
+    "test": "ordinary userdata rejected as usage filter",
+    "result": "PASS",
+    "status": 530,
+    "code": 530,
+    "message": "The requested resource is not a CNI configuration"
+  },
+  {
+    "test": "create rejects ordinary userdata",
+    "result": "PASS",
+    "status": 530,
+    "code": 530,
+    "message": "The requested resource is not a CNI configuration"
+  },
+  {
+    "test": "create rejects different project owner",
+    "result": "PASS",
+    "status": 530,
+    "code": 530,
+    "message": "CNI configuration must belong to the Kubernetes cluster owner"
+  },
+  {
+    "test": "real project cluster reference published",
+    "result": "PASS",
+    "cluster": "770b5fa2-53b1-414e-a954-cf7195d974d5",
+    "job": "da0f9937-0664-4f73-8f11-ab47d8604090"
+  },
+  {
+    "test": "filtered live usage member",
+    "result": "PASS",
+    "state": "Created",
+    "id": "770b5fa2-53b1-414e-a954-cf7195d974d5",
+    "name": "cni1399-project-cluster",
+    "projectid": "4f631f79-8748-4611-babb-2215ebcda414",
+    "count": 1
+  },
+  {
+    "test": "filtered live usage admin",
+    "result": "PASS",
+    "state": "Created",
+    "id": "770b5fa2-53b1-414e-a954-cf7195d974d5",
+    "name": "cni1399-project-cluster",
+    "projectid": "4f631f79-8748-4611-babb-2215ebcda414",
+    "count": 1
+  },
+  {
+    "test": "second page retains total count",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "active creating cluster blocks direct delete",
+    "result": "PASS",
+    "status": 431,
+    "code": 431,
+    "message": "CNI configuration cannot be removed while referenced by an active Kubernetes cluster."
+  },
+  {
+    "test": "rejected deletion preserves annotation",
+    "result": "PASS"
+  },
+  {
+    "test": "rejected deletion preserves exact CNI bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "actual project cluster Running with two nodes",
+    "result": "PASS",
+    "state": "Running",
+    "node_count": 2
+  },
+  {
+    "test": "Running cluster blocks direct delete",
+    "result": "PASS",
+    "status": 431,
+    "code": 431,
+    "message": "CNI configuration cannot be removed while referenced by an active Kubernetes cluster."
+  },
+  {
+    "test": "Stopped cluster remains in usage query",
+    "result": "PASS",
+    "count": 1,
+    "state": "Stopped"
+  },
+  {
+    "test": "Stopped cluster blocks direct delete",
+    "result": "PASS",
+    "status": 431,
+    "code": 431,
+    "message": "CNI configuration cannot be removed while referenced by an active Kubernetes cluster."
+  },
+  {
+    "test": "UI CNI deletion after normal cluster removal confirmed by API",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "project active clusters zero after normal delete and real race",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "foreign ordinary account cannot delete CNI",
+    "result": "PASS",
+    "code": 531,
+    "message": "Caller does not have permission to operate with provided resource."
+  },
+  {
+    "test": "ordinary owner unused CNI delete succeeds",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary project UserData deletion regression",
+    "result": "PASS"
+  },
+  {
+    "test": "unused CNI deletion resolves delegated plugin checker",
+    "result": "PASS"
+  },
+  {
+    "test": "removed CNI rejected by usage filter",
+    "result": "PASS"
+  },
+  {
+    "test": "removed CNI rejected by actual creation",
+    "result": "PASS"
+  },
+  {
+    "test": "real concurrent create/delete has one winner and no active dangling reference",
+    "result": "PASS"
+  }
+]

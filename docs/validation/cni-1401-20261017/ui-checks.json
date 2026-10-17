@@ -1,0 +1,267 @@
+[
+  {
+    "test": "CNI detail metadata no longer repeats the Base64 body",
+    "result": "PASS"
+  },
+  {
+    "test": "UTF-8 view preserves Korean emoji BOM CRLF trailing newline and special characters",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Actual Windows OS clipboard after raw UI Copy equals stored text",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "source": "Windows Get-Clipboard -Raw; CUA virtual clipboard is separate"
+  },
+  {
+    "test": "Actual raw download matches API stored bytes",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Base64 switch displays the exact stored encoded string",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual Windows OS clipboard of Base64 equals stored ASCII",
+    "result": "PASS",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464"
+  },
+  {
+    "test": "Actual Base64 download matches stored ASCII and decodes to original bytes",
+    "result": "PASS",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464"
+  },
+  {
+    "test": "Base64 to UTF-8 roundtrip restores exact displayed text",
+    "result": "PASS"
+  },
+  {
+    "test": "Large CNI view preserves all 18500 stored bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual large byte download",
+    "result": "PASS",
+    "bytes": 18500,
+    "sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84"
+  },
+  {
+    "test": "Actual OS clipboard large UTF-8 copy matches all 18500 bytes",
+    "result": "PASS",
+    "sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84"
+  },
+  {
+    "test": "Binary is warned and shown exactly as Base64 without replacement decoding",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual binary Base64 download",
+    "result": "PASS",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02"
+  },
+  {
+    "test": "Actual OS clipboard binary Base64 matches stored encoded bytes",
+    "result": "PASS",
+    "bytes": 12
+  },
+  {
+    "test": "Actual legacy empty API body is distinct and cannot copy or download",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual malformed legacy Base64 is rejected and exports no replacement text",
+    "result": "PASS"
+  },
+  {
+    "test": "Malformed legacy fixture restored at storage can recover through UI Retry",
+    "result": "PASS"
+  },
+  {
+    "test": "Pending body refresh immediately disables stale Copy and Download",
+    "result": "PASS"
+  },
+  {
+    "test": "HTTP503 keeps explicitly stale text and blocks exports",
+    "result": "PASS"
+  },
+  {
+    "test": "Transient read failure recovers exact body and exports via Retry",
+    "result": "PASS"
+  },
+  {
+    "test": "HTTP403/API531 permission failure clears previous body and export actions",
+    "result": "PASS"
+  },
+  {
+    "test": "Successful HTTP response with a mismatched owner never publishes body",
+    "result": "PASS"
+  },
+  {
+    "test": "Late response after leaving tab cannot publish and reentry reads correct UUID with list context",
+    "result": "PASS"
+  },
+  {
+    "test": "Real list link and content tab preserve decoded keyword page and pagesize context",
+    "result": "PASS"
+  },
+  {
+    "test": "Browser Back and Forward restore the correct CNI content tab",
+    "result": "PASS"
+  },
+  {
+    "test": "Ordinary UserData content still uses its own API and exact UTF-8 view",
+    "result": "PASS"
+  },
+  {
+    "test": "Ordinary UserData actual original download preserves BOM CRLF and trailing newline",
+    "result": "PASS",
+    "bytes": 164,
+    "sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38"
+  },
+  {
+    "test": "Ordinary UserData actual OS clipboard regression preserves exact stored bytes",
+    "result": "PASS",
+    "bytes": 164
+  },
+  {
+    "test": "Ordinary owner UI reads only its UUID-bound CNI body",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual owner byte download",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Ordinary owner actual OS clipboard copy matches stored bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "Project member UI reads the exact CNI from selected project",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual project byte download",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Project member actual OS clipboard matches original stored bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual foreign account direct detail cannot display or export owner CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "Actual nonmember project direct link never displays or exports CNI content",
+    "result": "PASS"
+  },
+  {
+    "test": "Final deployed build reload preserves exact CNI UTF-8 view",
+    "result": "PASS"
+  },
+  {
+    "test": "Final deployed Base64 download equals stored ASCII",
+    "result": "PASS",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464"
+  },
+  {
+    "test": "Final deployed actual OS Base64 clipboard equals stored ASCII",
+    "result": "PASS"
+  },
+  {
+    "test": "Final deployed original download equals all 132 stored bytes",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Final deployed actual OS UTF-8 clipboard preserves BOM and seven CRLF",
+    "result": "PASS",
+    "bytes": 132
+  },
+  {
+    "test": "Final deployed 503 stale export guard and Retry recovery pass",
+    "result": "PASS"
+  },
+  {
+    "test": "Final binary export contract is Base64 only with strict UTF-8 warning",
+    "result": "PASS"
+  },
+  {
+    "test": "Final binary Base64 actual download equals stored encoded string",
+    "result": "PASS",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02"
+  },
+  {
+    "test": "Final downloaded binary Base64 decodes to all seven original bytes",
+    "result": "PASS",
+    "decodedSha256": "b6aca61714dea926b920603d506c0058dd4e72f924cd2ec4f2c2d7ded43065a4"
+  },
+  {
+    "test": "Final binary Base64 actual OS clipboard matches stored ASCII",
+    "result": "PASS"
+  },
+  {
+    "test": "Fixed final parent Update pending and HTTP503 both block old body exports with guidance",
+    "result": "PASS"
+  },
+  {
+    "test": "Fixed final parent Update performs exactly two UUID-bound reads: detail then fresh body",
+    "result": "PASS",
+    "reads": 2
+  },
+  {
+    "test": "Parent-fixed final binary Base64 file equals exact stored ASCII",
+    "result": "PASS",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02"
+  },
+  {
+    "test": "Parent-fixed final binary copy equals actual OS clipboard",
+    "result": "PASS"
+  },
+  {
+    "test": "Parent-fixed final UTF-8 actual download equals stored bytes",
+    "result": "PASS",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "test": "Parent-fixed final UTF-8 actual OS copy preserves all 132 bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "Parent-fixed final Base64 actual file matches stored ASCII",
+    "result": "PASS",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464"
+  },
+  {
+    "test": "Parent-fixed final Base64 actual OS copy matches stored ASCII",
+    "result": "PASS"
+  },
+  {
+    "test": "Parent-fixed final ordinary UserData original file preserves exact bytes",
+    "result": "PASS",
+    "bytes": 164,
+    "sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38"
+  },
+  {
+    "test": "Parent-fixed final ordinary UserData actual OS copy regression passes",
+    "result": "PASS"
+  }
+]

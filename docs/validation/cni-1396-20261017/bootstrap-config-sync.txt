@@ -1,0 +1,4 @@
+k8s-control-node.yml jar_resource_hash=b0d88bcb24df9502c8779ddf5012e691cf236d5dc1204ef709a36b443e9c51e7 disk_matches_jar=True
+k8s-node.yml jar_resource_hash=1005f195eca5652a3590f9a3f9b28bd867c1b653f2d088b95fbf3a487dd8b348 disk_matches_jar=True
+k8s-control-node-add.yml jar_resource_hash=f038f852bd1cd959b2e65b67dc79d7bfa43160d4472fe566169ec6c4b7a8c3b6 disk_matches_jar=True
+BACKUP /root/cni-1396-cks-conf-20261017-032927

@@ -1,0 +1,7 @@
+
+
+Test Suites: 8 passed, 8 total
+Tests:       242 passed, 242 total
+Snapshots:   0 total
+Time:        20.889s
+Ran all test suites within paths "tests/unit/views/AutogenCniSearch.spec.js", "tests/unit/views/compute/UserDataContent.spec.js", "tests/unit/views/compute/CniContent.spec.js", "tests/unit/views/compute/DeleteCniConfiguration.spec.js", "tests/unit/api/request.spec.js", "tests/unit/api/cniProjectRequest.spec.js", "tests/unit/views/AutogenVmGroupQuery.spec.js", "tests/unit/views/AutogenSnapshotFilters.spec.js".

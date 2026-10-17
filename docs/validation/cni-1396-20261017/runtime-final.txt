@@ -1,0 +1,12 @@
+10.10.31.1 test_domains=0
+10.10.31.2 test_domains=0
+10.10.31.3 test_domains=0
+active
+MOLD_PID=1247065
+WEB-INF=present
+client_http=200
+20b9395accbf6c566054a18a67674df181d69e826a3fcf267461b6d80893fbc9  /usr/share/cloudstack-management/webapp/index.html
+bf53fc37aee0431dd53377526523fcfa2b650e1a32ce9524e243438bab3be7c1  /usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-ABLESTACK.Mold.jar
+test_controller_users_active	0
+test_controller_keys_active	0
+test_project_account_active	0

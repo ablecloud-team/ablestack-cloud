@@ -1,0 +1,7 @@
+NAME                                          STATUS   ROLES           AGE     VERSION    INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION   CONTAINER-RUNTIME
+cni1400-project-cluster-control-1a1495fb7fe   Ready    control-plane   5m1s    v1.34.12   10.139.9.186   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+cni1400-project-cluster-node-1a1495febaf      Ready    <none>          4m47s   v1.34.12   10.139.9.213   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+CNI1400 {{ audit_token }}
+1450
+calico-3.33.0-mtu1450
+GUEST_EXIT 0

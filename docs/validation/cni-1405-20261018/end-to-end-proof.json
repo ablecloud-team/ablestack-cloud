@@ -1,0 +1,23 @@
+{
+  "cluster_uuid": "e91cb616-5e65-48b2-87c2-899fefa96fe4",
+  "create_job": "68e39760-2699-4a44-bb5e-842292f3e18e",
+  "project_uuid": "0f11cc46-dcb9-469e-a01b-7d7069219d11",
+  "network_uuid": "769890ed-aa07-4496-a977-4b45070afe08",
+  "cni_uuid": "2f944205-54a9-4e89-a50b-58a15de88ff2",
+  "input_values": {
+    "VALUE": "한글 $1\\path, eq=a 😀",
+    "EMPTY": "",
+    "LINES": "첫째 줄\n    둘째 줄 $1\\path, eq=b"
+  },
+  "cluster_and_vm_json_values_equal": true,
+  "preview_cni_sha256": "14ee6f365089910e32e34384e35e674f41d58001297e724bb07ff4691176b190",
+  "guest_cni_sha256": "14ee6f365089910e32e34384e35e674f41d58001297e724bb07ff4691176b190",
+  "preview_guest_bytes_equal": true,
+  "guest_probe_files_equal": true,
+  "control_vm_uuid": "7a9f9699-998a-4c9b-a707-6cb154275498",
+  "worker_vm_uuid": "a63f12aa-a1db-4d75-aee1-896a66c0b94e",
+  "failed_initial_attempt_counted_as_pass": false,
+  "unallocated_AS_number_remains_pending": true,
+  "allocated_AS_resolution_covered_by_java_tests_and_numeric_API": true,
+  "full_cloud_build_or_CI_run": false
+}

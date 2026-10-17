@@ -1,0 +1,94 @@
+{
+  "cni": {
+    "count": 3,
+    "baseline_matches": true,
+    "rows": [
+      {
+        "id": "7badd14a-c696-4dac-8e77-2d4f71c68a50",
+        "name": "rt1230-offline-custom-cni-r36",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null,
+        "params": null
+      },
+      {
+        "id": "848a6387-0ddf-47d5-8469-d7b78c2def65",
+        "name": "rt1230-offline-custom-cni-r34",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null,
+        "params": null
+      },
+      {
+        "id": "24f2f989-10a7-422e-a00a-baf4ea94ba7f",
+        "name": "rt1230-offline-custom-cni-r29",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "projectid": null,
+        "params": null
+      }
+    ]
+  },
+  "clusters": {
+    "count": 7,
+    "baseline_matches": true,
+    "rows": [
+      {
+        "id": "6c48b889-1c4d-4b8b-95d1-a1891df1794a",
+        "name": "k8s-lifecycle31-v1342-gfs2-r10",
+        "state": "Running",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "d27f6728-f8aa-43fd-8b17-03b2d8648ba2",
+        "name": "k8s-lifecycle31-v1349-gfs2-r11",
+        "state": "Running",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "a95a007c-988b-4d02-bb10-1bda120a6f4d",
+        "name": "k8s-lifecycle31-v13412-gfs2-r12",
+        "state": "Running",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "8817a27f-72ba-4764-a7cf-5ae2d6272e67",
+        "name": "k8s-lifecycle31-v1359-gfs2-r13",
+        "state": "Alert",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "b26e41e5-ee93-4a91-86f1-623bf2cc87d6",
+        "name": "k8s-lifecycle31-v1365-gfs2-r14",
+        "state": "Running",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "f49eeba4-2b44-405c-ba06-04e8c2346095",
+        "name": "k8s-lifecycle31-v1371-gfs2-r15",
+        "state": "Running",
+        "account": "k1230-20261006",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      },
+      {
+        "id": "49424a5e-d6d2-49aa-a904-bc385a77fe0f",
+        "name": "k8s-ui1330-final-managed",
+        "state": "Running",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "cniconfigurationid": null
+      }
+    ]
+  }
+}

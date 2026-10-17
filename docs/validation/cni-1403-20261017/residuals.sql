@@ -1,0 +1,13 @@
+SELECT 'active_data',COUNT(*) FROM user_data WHERE name LIKE 'cni1403-%' AND removed IS NULL;
+SELECT 'active_annotations',COUNT(*) FROM annotations a JOIN user_data u ON a.entity_uuid=u.uuid WHERE u.name LIKE 'cni1403-%' AND a.removed IS NULL;
+SELECT 'active_clusters',COUNT(*) FROM kubernetes_cluster WHERE name LIKE 'cni1403-%' AND removed IS NULL;
+SELECT 'active_cni_references',COUNT(*) FROM kubernetes_cluster k JOIN user_data u ON k.cni_config_id=u.id WHERE u.name LIKE 'cni1403-%' AND k.removed IS NULL;
+SELECT 'active_cluster_vm_maps',COUNT(*) FROM kubernetes_cluster_vm_map m JOIN kubernetes_cluster k ON m.cluster_id=k.id WHERE k.name LIKE 'cni1403-%';
+SELECT 'active_vms',COUNT(*) FROM vm_instance v WHERE (v.display_name LIKE 'cni1403-%' OR v.instance_name IN ('i-152-618-VM','i-152-619-VM','r-617-VM')) AND v.removed IS NULL;
+SELECT 'active_volumes',COUNT(*) FROM volumes vol JOIN vm_instance v ON vol.instance_id=v.id WHERE (v.display_name LIKE 'cni1403-%' OR v.instance_name IN ('i-152-618-VM','i-152-619-VM','r-617-VM')) AND vol.removed IS NULL;
+SELECT 'active_networks',COUNT(*) FROM networks WHERE name LIKE 'cni1403-%' AND removed IS NULL;
+SELECT 'active_projects',COUNT(*) FROM projects WHERE name LIKE 'cni1403-%' AND removed IS NULL;
+SELECT 'active_accounts',COUNT(*) FROM account a WHERE (account_name LIKE 'cni1403-%' OR a.id IN (SELECT project_account_id FROM projects WHERE name LIKE 'cni1403-%')) AND removed IS NULL;
+SELECT 'active_domains',COUNT(*) FROM domain WHERE name LIKE 'cni1403-%' AND removed IS NULL;
+SELECT 'active_users',COUNT(*) FROM user u JOIN account a ON u.account_id=a.id JOIN domain d ON a.domain_id=d.id WHERE (u.username LIKE '%cni1403-%' OR d.uuid='879de8c2-c375-4e7d-8492-91b10f9d73cb') AND u.removed IS NULL;
+SELECT 'active_api_keypairs',COUNT(*) FROM api_keypair k JOIN user u ON k.user_id=u.id JOIN account a ON u.account_id=a.id JOIN domain d ON a.domain_id=d.id WHERE (u.username LIKE '%cni1403-%' OR d.uuid='879de8c2-c375-4e7d-8492-91b10f9d73cb') AND k.removed IS NULL;

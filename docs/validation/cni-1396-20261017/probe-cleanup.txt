@@ -1,0 +1,2 @@
+pod "cni1396-worker-probe" deleted from default namespace
+GUEST_EXIT 0

@@ -1,0 +1,446 @@
+[
+  {
+    "case": "root-wrong-type-account-a-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-account-a-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-account-b-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-account-b-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-project-a-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-project-a-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-project-b-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-project-b-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-outside-domain-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-outside-domain-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-ui-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "root-wrong-type-ui-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-own-scope-wrong-type-account-a-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-own-scope-wrong-type-account-a-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-own-scope-wrong-type-project-a-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-own-scope-wrong-type-project-a-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "d-own-scope-wrong-type-account-b-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "d-own-scope-wrong-type-account-b-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "d-own-scope-wrong-type-project-b-cni",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a UserData. Use deleteCniConfiguration for CNI configurations.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "d-own-scope-wrong-type-project-b-userdata",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "The requested resource is not a CNI configuration. Use deleteUserData for ordinary user data.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-account-b-cni-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-account-b-cni-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-account-b-userdata-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-account-b-userdata-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-project-b-cni-False",
+    "result": "PASS",
+    "errorcode": 432,
+    "message": "The API [deleteCniConfiguration] does not exist or is not available for this account/user in project [7fed3017-5072-4e2f-8c6d-6b3fd1974ec9].",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-project-uuid-acl-cni-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-project-b-cni-True",
+    "result": "PASS",
+    "errorcode": 432,
+    "message": "The API [deleteUserData] does not exist or is not available for this account/user in project [7fed3017-5072-4e2f-8c6d-6b3fd1974ec9].",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-project-uuid-acl-cni-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-project-b-userdata-False",
+    "result": "PASS",
+    "errorcode": 432,
+    "message": "The API [deleteUserData] does not exist or is not available for this account/user in project [7fed3017-5072-4e2f-8c6d-6b3fd1974ec9].",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-project-uuid-acl-userdata-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-scope-project-b-userdata-True",
+    "result": "PASS",
+    "errorcode": 432,
+    "message": "The API [deleteCniConfiguration] does not exist or is not available for this account/user in project [7fed3017-5072-4e2f-8c6d-6b3fd1974ec9].",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "a-foreign-project-uuid-acl-userdata-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "domain-admin-outside-domain-cni-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "domain-admin-outside-domain-cni-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "domain-admin-outside-domain-userdata-False",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "domain-admin-outside-domain-userdata-True",
+    "result": "PASS",
+    "errorcode": 531,
+    "message": "Caller does not have permission to operate with provided resource.",
+    "body_owner_params_comments_preserved": true
+  },
+  {
+    "case": "deleteUserData-omitted",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deleteuserdata due to missing parameter id"
+  },
+  {
+    "case": "deleteUserData-malformed",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deleteuserdata due to invalid value. Invalid parameter id value=not-a-uuid due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+  },
+  {
+    "case": "deleteUserData-nonexistent",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deleteuserdata due to invalid value. Invalid parameter id value=22c8954a-a92b-41c3-be2b-c538d58839ea due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+  },
+  {
+    "case": "deleteCniConfiguration-omitted",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deletecniconfiguration due to missing parameter id"
+  },
+  {
+    "case": "deleteCniConfiguration-malformed",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deletecniconfiguration due to invalid value. Invalid parameter id value=not-a-uuid due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+  },
+  {
+    "case": "deleteCniConfiguration-nonexistent",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command deletecniconfiguration due to invalid value. Invalid parameter id value=28dc68c9-edc2-4f9a-82be-afc85bdb9f06 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+  },
+  {
+    "case": "phase1-all-failed-deletions-preserved",
+    "result": "PASS",
+    "resources": 12,
+    "annotations": 24
+  },
+  {
+    "case": "a-normal-delete-account-a-cni",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-account-a-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-account-a-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "a-normal-delete-account-a-userdata",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-account-a-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-account-a-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "d-normal-delete-account-b-cni",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-account-b-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-account-b-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "d-normal-delete-account-b-userdata",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-account-b-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-account-b-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "a-normal-delete-project-a-cni",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-project-a-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-project-a-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "a-normal-delete-project-a-userdata",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-project-a-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-project-a-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "d-normal-delete-project-b-cni",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-project-b-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-project-b-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "d-normal-delete-project-b-userdata",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-project-b-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-project-b-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "root-normal-delete-outside-domain-cni",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-outside-domain-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-outside-domain-cni",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "root-normal-delete-outside-domain-userdata",
+    "result": "PASS",
+    "record_and_comments_removed": true
+  },
+  {
+    "case": "deleteUserData-already-deleted-outside-domain-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  },
+  {
+    "case": "deleteCniConfiguration-already-deleted-outside-domain-userdata",
+    "result": "PASS",
+    "errorcode": 431
+  }
+]

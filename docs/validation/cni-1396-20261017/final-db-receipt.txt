@@ -1,0 +1,4 @@
+77	5bdf23af-adec-4f03-984a-56ad4a559c80	cni1396-final	Running	1edff270-5a2e-44b5-9d6a-d7c1db7f0790	cni1396-apply	{audit_token=UI-1396-ok}
+1	ca89277c-b4d1-4616-b367-8f2199e38327	i-2-609-VM	cni1396-final-control-1a145fb6896	Running	10.10.31.1
+0	9ba147b5-6958-4445-8b9c-1480ece01c64	i-2-610-VM	cni1396-final-node-1a145fba023	Running	10.10.31.2
+lifecycle.provisioning.phase	Ready

@@ -1,0 +1,14 @@
+[
+  {
+    "host": "10.10.31.1",
+    "fixture_domains": []
+  },
+  {
+    "host": "10.10.31.2",
+    "fixture_domains": []
+  },
+  {
+    "host": "10.10.31.3",
+    "fixture_domains": []
+  }
+]

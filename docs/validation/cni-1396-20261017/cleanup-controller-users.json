@@ -1,0 +1,18 @@
+[
+  {
+    "id": "e40ad8a8-935d-425a-a2d2-44b8404cf9c5",
+    "response": {
+      "deleteuserresponse": {
+        "success": true
+      }
+    }
+  },
+  {
+    "id": "b61c6d59-cfc0-4933-aba8-c5e67373eaeb",
+    "response": {
+      "deleteuserresponse": {
+        "success": true
+      }
+    }
+  }
+]

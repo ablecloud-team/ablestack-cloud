@@ -1,0 +1,62 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --coverage=false --runInBand --runTestsByPath tests/unit/utils/CniFileImport.spec.js tests/unit/views/compute/CniFileImport.spec.js tests/unit/views/compute/CniRegistration.spec.js tests/unit/views/compute/RegisterUserData.spec.js tests/unit/views/compute/CniContent.spec.js tests/unit/views/compute/UserDataContent.spec.js tests/unit/views/compute/VmUserData.spec.js tests/unit/components/view/ResourceView.spec.js tests/unit/views/AutogenCniSearch.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/AutogenCniSearch.spec.js
+PASS tests/unit/components/view/ResourceView.spec.js
+  ● Console
+
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/views/compute/CniRegistration.spec.js
+PASS tests/unit/views/compute/CniContent.spec.js
+  ● Console
+
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+
+PASS tests/unit/views/compute/UserDataContent.spec.js
+PASS tests/unit/views/compute/CniFileImport.spec.js
+PASS tests/unit/views/compute/RegisterUserData.spec.js
+PASS tests/unit/utils/CniFileImport.spec.js
+PASS tests/unit/views/compute/VmUserData.spec.js
+
+Test Suites: 9 passed, 9 total
+Tests:       247 passed, 247 total
+Snapshots:   0 total
+Time:        13.008s
+Ran all test suites within paths "tests/unit/utils/CniFileImport.spec.js", "tests/unit/views/compute/CniFileImport.spec.js", "tests/unit/views/compute/CniRegistration.spec.js", "tests/unit/views/compute/RegisterUserData.spec.js", "tests/unit/views/compute/CniContent.spec.js", "tests/unit/views/compute/UserDataContent.spec.js", "tests/unit/views/compute/VmUserData.spec.js", "tests/unit/components/view/ResourceView.spec.js", "tests/unit/views/AutogenCniSearch.spec.js".

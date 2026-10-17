@@ -1,0 +1,82 @@
+[
+  {
+    "test": "unused CNI has explicit zero usage and no global VM shortcut",
+    "result": "PASS"
+  },
+  {
+    "test": "paused empty refresh retains table, timeout shows failure, and retry restores server query",
+    "result": "PASS"
+  },
+  {
+    "test": "project usage matches API cluster UUID, Running state, owner, and total one",
+    "result": "PASS"
+  },
+  {
+    "test": "expanded nodes match exact two API VM UUIDs, control/worker roles, and project links",
+    "result": "PASS"
+  },
+  {
+    "test": "same-scope paused populated refresh retains count and nodes; HTTP503 preserves stale rows with explicit failure",
+    "result": "PASS"
+  },
+  {
+    "test": "HTTP403 removes previous clusters and expanded nodes; forbidden is distinct from zero references",
+    "result": "PASS"
+  },
+  {
+    "test": "cluster link opens exact Kubernetes UUID and project detail",
+    "result": "PASS"
+  },
+  {
+    "test": "browser Back restores CNI usage tab and total",
+    "result": "PASS"
+  },
+  {
+    "test": "node link opens exact VM UUID and selected project",
+    "result": "PASS"
+  },
+  {
+    "test": "nonmatching keyword yields explicit zero without old cluster or node rows",
+    "result": "PASS"
+  },
+  {
+    "test": "clearing keyword restores the filtered cluster and URL",
+    "result": "PASS"
+  },
+  {
+    "test": "page size control stores ten and resets page one",
+    "result": "PASS"
+  },
+  {
+    "test": "out-of-range page two is corrected to page one with total preserved",
+    "result": "PASS"
+  },
+  {
+    "test": "full browser reload restores selected tab and page size ten",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary project member sees the same one cluster and exact two node UUIDs",
+    "result": "PASS"
+  },
+  {
+    "result": "PASS",
+    "evidence": "Member project normal UserData VM usage is explicitly empty; ordinary tabs and userdataid shortcut retained",
+    "test": "normal-userdata-usage-regression"
+  },
+  {
+    "result": "PASS",
+    "evidence": "Own account CNI shows zero after leaving project; previous project cluster and node UUIDs cleared",
+    "test": "member-project-to-account-scope"
+  },
+  {
+    "result": "PASS",
+    "evidence": "Project nonmember B stays on dashboard when directly opening foreign CNI usage route; no previous cluster/node identifiers rendered",
+    "test": "nonmember-deep-link-guard"
+  },
+  {
+    "result": "PASS",
+    "evidence": "After normal deleteKubernetesCluster succeeds, same active project CNI usage tab shows zero, no old node UUIDs; CNI still exists",
+    "test": "normal-cluster-delete-reflected"
+  }
+]

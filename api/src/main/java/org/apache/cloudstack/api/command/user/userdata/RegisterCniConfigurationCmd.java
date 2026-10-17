@@ -21,7 +21,6 @@ import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.Parameter;
-import org.apache.cloudstack.api.response.SuccessResponse;
 import org.apache.cloudstack.api.response.UserDataResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 @APICommand(name = "registerCniConfiguration",
         description = "Register a CNI Configuration to be used with CKS cluster",
         since = "4.21.0",
-        responseObject = SuccessResponse.class,
+        responseObject = UserDataResponse.class,
         requestHasSensitiveInfo = false,
         responseHasSensitiveInfo = false,
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
@@ -41,7 +40,9 @@ public class RegisterCniConfigurationCmd extends BaseRegisterUserDataCmd {
     //////////////// API parameters /////////////////////
     /////////////////////////////////////////////////////
 
-    @Parameter(name = ApiConstants.CNI_CONFIG, type = CommandType.STRING, description = "CNI Configuration content to be registered as User data", length = 1048576)
+    @Parameter(name = ApiConstants.CNI_CONFIG, type = CommandType.STRING, required = true,
+            description = "Base64 encoded CNI content. Nonempty text and binary content are supported. The canonical encoded size is limited by "
+                    + "vm.userdata.max.length and the HTTP limit (4 KiB for GET, 1 MiB for POST).", length = 1048576)
     private String cniConfig;
 
     /////////////////////////////////////////////////////

@@ -416,14 +416,14 @@ class="mold-form-dialog kubernetes-create-dialog">
             <tooltip-label :title="$t('label.cniconfiguration')" :tooltip="$t('label.cniconfiguration')"/>
           </template>
             <user-data-selection
-              :items="cniConfigurationData"
-              :row-count="cniConfigurationData.length"
-              :zoneId="zoneId"
-              :loading="cniConfigLoading"
-              :preFillContent="dataPreFill"
+              resource-kind="cni"
+              :scope="cniOwner"
+              :value="form.cniconfigurationid || '0'"
+              :zoneId="selectedZone.id || ''"
+              :disabled="loading"
               :showSearch="false"
-              @select-user-data-item="($event) => updateCniConfig($event)"
-              @handle-search-filter="($event) => handleSearchFilter('userData', $event)"
+              @ready="cniSelectionReady = $event"
+              @select-user-data-item="updateCniConfig"
             />
             <div v-if="cniConfigParams.length > 0">
               <a-input-group>
@@ -437,14 +437,15 @@ class="mold-form-dialog kubernetes-create-dialog">
                   <template #bodyCell="{ column, record }">
                     <template v-if="column.key === 'value'">
                       <div v-if="record.key === 'AS_NUMBER'">
-                        <a-input style="width: 100%;text-wrap: wrap;" :disabled="true" value="Value is obtained from the network or is automatically obtained at the time of cluster creation" />
+                        <a-input style="width: 100%;text-wrap: wrap;" :disabled="true" :value="$t('label.automatic')" />
                       </div>
-                      <a-input v-else v-model:value="cniConfigValues[record.key]" />
+                      <a-textarea v-else v-model:value="cniConfigValues[record.key]" :auto-size="{ minRows: 1, maxRows: 4 }" :status="cniVariableErrors && cniConfigValues[record.key] === undefined ? 'error' : undefined" />
                     </template>
                   </template>
                 </a-table>
               </a-input-group>
             </div>
+            <div v-if="selectedCni" class="detail-tab-toolbar"><CniVariableTools :resource="selectedCni" :values="cniConfigValues" :scope="cniScopeKey" :network-id="networks[form.networkid]?.id || ''" :as-number="form.asnumber" :disabled="loading || !cniSelectionReady" /></div>
         </a-form-item></div>
 <div v-show="wizardStep === 3" class="mold-form-full"><div class="mold-form-full" v-if="$store.getters.features.kubernetesclusterexperimentalfeaturesenabled">
           <a-form-item name="privateregistry" ref="privateregistry" :label="$t('label.private.registry')">
@@ -482,7 +483,7 @@ class="mold-form-dialog kubernetes-create-dialog">
         </div></div><KubernetesCreateReview v-if="wizardStep === 4" class="mold-form-full" :items="createSummary" /> <a-alert v-if="wizardStep === 3 && !form.advancedmode" class="mold-form-full" type="info" show-icon :message="$t('message.kubernetes.ui.options')" /></div><KubernetesCreateSummary :name="form.name" :items="createSummary" /></div><details class="kubernetes-summary-mobile"><summary>{{ $t('label.kubernetes.ui.summary') }}</summary><KubernetesCreateSummary :name="form.name" :items="createSummary" /></details>
       <div :span="24" class="action-button">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-          <a-button v-if="wizardStep > 0" :disabled="loading" @click="wizardStep--">{{ $t('label.previous') }}</a-button><a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t(wizardStep === 4 ? 'label.kubernetes.ui.create' : 'label.next') }}</a-button>
+          <a-button v-if="wizardStep > 0" :disabled="loading" @click="wizardStep--">{{ $t('label.previous') }}</a-button><a-button :loading="loading" :disabled="wizardStep >= 3 && cniSelectionBlocked" ref="submit" type="primary" @click="handleSubmit">{{ $t(wizardStep === 4 ? 'label.kubernetes.ui.create' : 'label.next') }}</a-button>
         </div>
       </a-form>
     </a-spin>
@@ -498,6 +499,7 @@ import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import UserDataSelection from '@views/compute/wizard/UserDataSelection'
+import CniVariableTools from './CniVariableTools'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection'
 import ExternalKubernetesCluster from '@/views/compute/ExternalKubernetesCluster'
 import KubernetesStoragePreflight from '@/views/compute/KubernetesStoragePreflight'
@@ -513,11 +515,13 @@ export default {
     TooltipLabel,
     ResourceIcon,
     UserDataSelection,
+    CniVariableTools,
     OwnershipSelection
   },
   props: {},
   data () {
     return {
+      form: {},
       clusterType: 'CloudManaged',
       wizardStep: 0,
       zones: [],
@@ -538,10 +542,11 @@ export default {
       selectedZoneHypervisors: [],
       hypervisorLoading: false,
       configLoading: false,
-      cniConfigurationData: [],
-      cniConfigLoading: false,
+      cniSelectionReady: false,
+      selectedCni: null,
       cniConfigParams: [],
       cniConfigValues: {},
+      cniVariableErrors: false,
       userDataParamCols: [
         {
           title: this.$t('label.key'),
@@ -580,6 +585,18 @@ export default {
     this.fetchData()
   },
   computed: {
+    cniOwner () {
+      return this.isAdmin() ? this.owner : { ...this.$store.getters.userInfo, projectid: this.$store.getters.project?.id }
+    },
+    cniScopeKey () {
+      const owner = this.cniOwner
+      return JSON.stringify([owner.account, owner.domainid, owner.projectid, this.selectedZone?.id, Boolean(this.form.advancedmode)])
+    },
+    cniMissingValues () { return this.cniConfigParams.filter(row => row.key !== 'AS_NUMBER' && this.cniConfigValues[row.key] === undefined).map(row => row.key) },
+    cniSelectionBlocked () {
+      return Boolean(this.form.advancedmode && this.form.cniconfigurationid &&
+        (!this.cniSelectionReady || !this.$store.getters.apis?.listCniConfiguration))
+    },
     createSummary () {
       const f = this.form
       const base = this.serviceOfferings[f.serviceofferingid]
@@ -595,7 +612,8 @@ export default {
         { label: 'label.cks.cluster.total.allocated.resources', value: cpu + ' vCPU · ' + memory.toLocaleString() + ' MB' },
         { label: 'label.noderootdisksize', value: (f.noderootdisksize || 8) + ' GiB × ' + (counts.control + counts.worker + counts.etcd) },
         { label: 'label.networkid', value: this.networks[f.networkid]?.name || this.$t('label.automatic') },
-        { label: 'label.enable.csi', value: this.$t(f.enablecsi ? 'label.enabled' : 'label.disabled') }
+        { label: 'label.enable.csi', value: this.$t(f.enablecsi ? 'label.enabled' : 'label.disabled') },
+        { label: 'label.cniconfiguration', value: f.advancedmode && this.selectedCni ? this.selectedCni.name : this.$t('label.noselect') }
       ]
     },
     storageNodeOfferings () {
@@ -604,6 +622,12 @@ export default {
         ? [['control', 'controlofferingid'], ['worker', 'workerofferingid'], ...(this.form.etcdnodes > 0 ? [['etcd', 'etcdofferingid']] : [])]
         : [['control/worker', 'serviceofferingid']]
       return roles.map(([role, field]) => ({ role, offering: this.serviceOfferings[this.form[field]] || base })).filter(item => item.offering)
+    }
+  },
+  watch: {
+    cniScopeKey () {
+      this.cniSelectionReady = false
+      this.updateCniConfig('0')
     }
   },
   methods: {
@@ -660,7 +684,6 @@ export default {
       }
       this.fetchCksTemplates()
       this.fetchCKSNetworkOfferingName()
-      this.fetchCniConfigurations()
     },
     fetchAffinityGroups () {
       this.affinityGroups = []
@@ -700,7 +723,6 @@ export default {
       return !(obj !== null && obj !== undefined && Object.keys(obj).length > 0 && obj.constructor === Object)
     },
     isUserAllowedToListCniConfig () {
-      console.log(Boolean('listCniConfiguration' in this.$store.getters.apis))
       return Boolean('listCniConfiguration' in this.$store.getters.apis)
     },
     fetchZoneData () {
@@ -958,43 +980,22 @@ export default {
         this.asNumbersZone = json.listasnumbersresponse.asnumber
       })
     },
-    fetchCniConfigurations () {
-      this.cniConfigLoading = true
-      getAPI('listCniConfiguration', {}).then(
-        response => {
-          const listResponse = response.listcniconfigurationresponse.cniconfig || []
-          if (listResponse) {
-            this.cniConfigurationData = listResponse
-          }
-        }).finally(() => {
-        this.cniConfigLoading = false
-      })
-    },
-    updateCniConfig (id) {
-      if (id === '0') {
-        this.form.cniconfigurationid = undefined
-        return
-      }
-      this.form.cniconfigurationid = id
+    updateCniConfig (id, item) {
+      this.form.cniconfigurationid = id && id !== '0' && item?.id === id ? id : undefined
+      this.selectedCni = this.form.cniconfigurationid ? item : null
       this.cniConfigParams = []
-      getAPI('listCniConfiguration', { id: id }).then(json => {
-        const resp = json?.listcniconfigurationresponse?.cniconfig || []
-        if (resp) {
-          var params = resp[0].params
-          if (params) {
-            var dataParams = params.split(',')
-          }
-          var that = this
-          dataParams.forEach(function (val, index) {
-            that.cniConfigParams.push({
-              id: index,
-              key: val
-            })
-          })
-        }
-      })
+      this.cniVariableErrors = false
+      this.cniConfigValues = Object.create(null)
+      const keys = typeof this.selectedCni?.params === 'string'
+        ? [...new Set(this.selectedCni.params.split(',').map(key => key.trim()).filter(Boolean))] : []
+      this.cniConfigParams = keys.map((key, index) => ({ id: index, key }))
+    },
+    validateCniValues () {
+      if (!this.form.advancedmode || !this.form.cniconfigurationid || !this.cniMissingValues.length) return true
+      this.cniVariableErrors = true; this.$message.error(this.$t('message.cni.variables.missing', { names: this.cniMissingValues.join(', ') })); return false
     },
     async nextWizardStep () {
+      if (this.wizardStep === 3 && (this.cniSelectionBlocked || !this.validateCniValues())) return
       const fields = [['name', 'zoneid', 'hypervisor', 'kubernetesversionid'], ['serviceofferingid', 'size', 'noderootdisksize', 'controlofferingid', 'workerofferingid', 'etcdnodes', 'etcdofferingid'], ['networkid', 'controlnodes', 'externalloadbalanceripaddress', 'asnumber'], ['cniconfigurationid']][this.wizardStep]
       try { await this.formRef.value.validateFields(fields); this.wizardStep++ } catch (error) { if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name) }
     },
@@ -1002,7 +1003,14 @@ export default {
       if (e && e.preventDefault) e.preventDefault()
       if (this.wizardStep < 4) { this.nextWizardStep(); return }
       if (this.loading) return
+      if (this.cniSelectionBlocked || !this.validateCniValues()) return
+      const selectionScope = this.cniScopeKey
+      const selectedId = this.form.cniconfigurationid
+      this.loading = true
       return this.formRef.value.validate().then(() => {
+        if (selectionScope !== this.cniScopeKey || selectedId !== this.form.cniconfigurationid || this.cniSelectionBlocked) {
+          throw new Error(this.$t('message.userdata.selection.missing'))
+        }
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         this.loading = true
@@ -1100,7 +1108,7 @@ export default {
           params.dockerregistryurl = values.dockerregistryurl
         }
 
-        if (values.cniconfigurationid) {
+        if (values.advancedmode && values.cniconfigurationid) {
           params.cniconfigurationid = values.cniconfigurationid
         }
 
@@ -1109,8 +1117,10 @@ export default {
         }
 
         var idx = 0
-        if (this.cniConfigValues) {
-          for (const [key, value] of Object.entries(this.cniConfigValues)) {
+        if (values.advancedmode && values.cniconfigurationid) {
+          for (const { key } of this.cniConfigParams) {
+            const value = this.cniConfigValues[key]
+            if (value === undefined || key === 'AS_NUMBER') continue
             params['cniconfigdetails[' + idx + '].' + `${key}`] = value
             idx++
           }
@@ -1119,7 +1129,7 @@ export default {
           params.asnumber = values.asnumber
         }
 
-        postAPI('createKubernetesCluster', params).then(json => {
+        return postAPI('createKubernetesCluster', params).then(json => {
           const jobId = json.createkubernetesclusterresponse.jobid
           this.$pollJob({
             jobId,

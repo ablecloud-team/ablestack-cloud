@@ -1,0 +1,10 @@
+{
+  "changed_entries": {
+    "org/apache/cloudstack/api/command/user/userdata/RegisterCniConfigurationCmd.class": "96cab361bd4c759d529672daff35980c20ffc20e4e2c7cc803d215ae01153e81",
+    "com/cloud/server/ManagementServerImpl.class": "e380a0b9dd19c438579b3f3eb38a9e126507438acbe9898c9e6f6ad94ca7cf00",
+    "com/cloud/server/UserDataRegistrationValidation.class": "e707485b73ba18b1927849f8007a90fce4fc0dc328be1069a9441a66127e41fa"
+  },
+  "preserved_entries": 204492,
+  "before_sha256": "bf53fc37aee0431dd53377526523fcfa2b650e1a32ce9524e243438bab3be7c1",
+  "after_sha256": "91903292734956fea9477ef640c21be842da8611cbad7cc5359ec93b94e7957d"
+}

@@ -54,7 +54,7 @@
           <a
             v-if="item.meta.docHelp"
             style="margin-right: 12px"
-            :href="$config.docBase + '/' + $route.meta.docHelp"
+            :href="documentationUrl($config.docBase, $route.meta.docHelp, $i18n.locale)"
             target="_blank">
             <QuestionCircleOutlined />
           </a>
@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import { documentationUrl } from '@/utils/cniFileImport'
 
 export default {
   name: 'Breadcrumb',
@@ -95,6 +96,7 @@ export default {
     }
   },
   methods: {
+    documentationUrl,
     getBreadcrumb () {
       this.name = this.$route.name
       this.breadList = []

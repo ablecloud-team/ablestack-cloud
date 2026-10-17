@@ -1,0 +1,82 @@
+[
+  {
+    "fixture": "text",
+    "uuid": "57a7edf4-a6ed-45b8-bb5e-4dc8e0e72547",
+    "stored_bytes": 132,
+    "stored_sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "base64_ascii_bytes": 176,
+    "bom": true,
+    "crlf": 7,
+    "trailing_crlf": true
+  },
+  {
+    "fixture": "large",
+    "uuid": "49c4c908-7a88-4546-81c9-a7be36c5c084",
+    "stored_bytes": 18500,
+    "stored_sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84",
+    "base64_ascii_bytes": 24668,
+    "bom": true,
+    "crlf": 72,
+    "trailing_crlf": true
+  },
+  {
+    "fixture": "binary",
+    "uuid": "3af67395-1d74-4ee9-8e4e-6c67f204a457",
+    "stored_bytes": 7,
+    "stored_sha256": "b6aca61714dea926b920603d506c0058dd4e72f924cd2ec4f2c2d7ded43065a4",
+    "base64_ascii_bytes": 12,
+    "bom": false,
+    "crlf": 1,
+    "trailing_crlf": true
+  },
+  {
+    "fixture": "empty",
+    "uuid": "bbd74dd7-4755-4e04-97d5-36107668e604",
+    "stored_bytes": 21,
+    "stored_sha256": "f88faa539b897ed6d007c77078cb15aa59751987af6a3dbbd9c272e4edb0f6f8",
+    "base64_ascii_bytes": 28,
+    "bom": false,
+    "crlf": 0,
+    "trailing_crlf": false
+  },
+  {
+    "fixture": "invalid",
+    "uuid": "77522cf6-ca99-43aa-b5b0-e8ec3ca81e1e",
+    "stored_bytes": 24,
+    "stored_sha256": "6f3d16fc76e903010b02e6ec398229799945994aedad76ccc70da028e052510b",
+    "base64_ascii_bytes": 32,
+    "bom": false,
+    "crlf": 0,
+    "trailing_crlf": false
+  },
+  {
+    "fixture": "owner",
+    "uuid": "3171bd96-83ed-49c5-b378-a28cf1faf8c5",
+    "stored_bytes": 132,
+    "stored_sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "base64_ascii_bytes": 176,
+    "bom": true,
+    "crlf": 7,
+    "trailing_crlf": true
+  },
+  {
+    "fixture": "project",
+    "uuid": "2acfac36-b008-4323-adc9-9360b198ba1a",
+    "stored_bytes": 132,
+    "stored_sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "base64_ascii_bytes": 176,
+    "bom": true,
+    "crlf": 7,
+    "trailing_crlf": true
+  },
+  {
+    "fixture": "normal",
+    "uuid": "386a61cb-783e-4d6c-a167-0bddbcf9db9a",
+    "stored_bytes": 164,
+    "stored_sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38",
+    "base64_ascii_bytes": 220,
+    "bom": true,
+    "crlf": 8,
+    "trailing_crlf": true
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "jobid": "8cec3db4-daae-4309-9eb1-8fdb71fdd468",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-17T03:29:58+0900",
+    "completed": "2026-10-17T03:30:30+0900"
+  },
+  {
+    "jobid": "b0028af0-955f-4e11-8e48-c958f1e59df1",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-17T03:34:59+0900",
+    "completed": "2026-10-17T03:35:32+0900"
+  }
+]

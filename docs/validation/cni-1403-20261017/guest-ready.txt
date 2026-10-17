@@ -1,0 +1,18 @@
+NAME                                          STATUS   ROLES           AGE    VERSION    INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION   CONTAINER-RUNTIME
+cni1403-project-cluster-control-1a149afdc78   Ready    control-plane   2m4s   v1.34.12   10.140.3.208   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+cni1403-project-cluster-node-1a149b00e32      Ready    <none>          113s   v1.34.12   10.140.3.10    <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-53-amd64   containerd://2.3.5
+NAME                                                                  READY   STATUS    RESTARTS   AGE    IP                NODE                                          NOMINATED NODE   READINESS GATES
+calico-kube-controllers-8ff8664b9-blcqn                               1/1     Running   0          115s   192.168.188.133   cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+calico-node-cc6nt                                                     1/1     Running   0          113s   10.140.3.10       cni1403-project-cluster-node-1a149b00e32      <none>           <none>
+calico-node-hl5kq                                                     1/1     Running   0          115s   <none>            cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+cloud-controller-manager-699468b9dc-jvgfc                             1/1     Running   0          104s   192.168.188.129   cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+coredns-66bc5c9577-4jfqp                                              1/1     Running   0          115s   192.168.188.130   cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+coredns-66bc5c9577-c7snp                                              1/1     Running   0          115s   192.168.188.131   cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+etcd-cni1403-project-cluster-control-1a149afdc78                      1/1     Running   0          2m1s   10.140.3.208      cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+headlamp-5f476cd7d7-ccx24                                             1/1     Running   0          115s   192.168.188.132   cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+kube-apiserver-cni1403-project-cluster-control-1a149afdc78            1/1     Running   0          2m3s   10.140.3.208      cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+kube-controller-manager-cni1403-project-cluster-control-1a149afdc78   1/1     Running   0          2m1s   10.140.3.208      cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+kube-proxy-kw8mt                                                      1/1     Running   0          113s   10.140.3.10       cni1403-project-cluster-node-1a149b00e32      <none>           <none>
+kube-proxy-tf8rf                                                      1/1     Running   0          115s   10.140.3.208      cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+kube-scheduler-cni1403-project-cluster-control-1a149afdc78            1/1     Running   0          2m1s   10.140.3.208      cni1403-project-cluster-control-1a149afdc78   <none>           <none>
+GUEST_EXIT 0

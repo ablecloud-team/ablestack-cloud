@@ -1,0 +1,128 @@
+{
+  "name": "registerCniConfiguration",
+  "description": "Register a CNI Configuration to be used with CKS cluster",
+  "since": "4.21.0",
+  "isasync": false,
+  "related": "",
+  "params": [
+    {
+      "name": "account",
+      "description": "an optional account for the user data. Must be used with domainId.",
+      "type": "string",
+      "length": 255,
+      "required": false
+    },
+    {
+      "name": "domainid",
+      "description": "an optional domainId for the user data. If the account parameter is used, domainId must also be used.",
+      "type": "uuid",
+      "length": 255,
+      "required": false,
+      "related": "listDomains"
+    },
+    {
+      "name": "name",
+      "description": "Name of the user data",
+      "type": "string",
+      "length": 255,
+      "required": true
+    },
+    {
+      "name": "projectid",
+      "description": "an optional project for the user data",
+      "type": "uuid",
+      "length": 255,
+      "required": false,
+      "related": ""
+    },
+    {
+      "name": "cniconfig",
+      "description": "Base64 encoded CNI content. Nonempty text and binary content are supported. The canonical encoded size is limited by vm.userdata.max.length and the HTTP limit (4 KiB for GET, 1 MiB for POST).",
+      "type": "string",
+      "length": 1048576,
+      "required": true
+    },
+    {
+      "name": "params",
+      "description": "comma separated list of variables declared in user data content",
+      "type": "string",
+      "length": 255,
+      "required": false
+    }
+  ],
+  "response": [
+    {},
+    {
+      "name": "jobstatus",
+      "description": "The current status of the latest async job acting on this object",
+      "type": "integer"
+    },
+    {
+      "name": "domainpath",
+      "description": "Path of the domain to which the User Data owner belongs",
+      "type": "string"
+    },
+    {},
+    {
+      "name": "id",
+      "description": "ID of the User Data",
+      "type": "string"
+    },
+    {
+      "name": "domainid",
+      "description": "The domain id of the User Data owner",
+      "type": "string"
+    },
+    {
+      "name": "userdata",
+      "description": "Base64 encoded User Data content",
+      "type": "string"
+    },
+    {
+      "name": "jobid",
+      "description": "The UUID of the latest async job acting on this object",
+      "type": "string"
+    },
+    {
+      "name": "accountid",
+      "description": "The owner id of the User Data",
+      "type": "string"
+    },
+    {
+      "name": "projectid",
+      "description": "The project id of the User Data",
+      "type": "string"
+    },
+    {
+      "name": "hasannotations",
+      "description": "True if the entity/resource has annotations",
+      "type": "boolean"
+    },
+    {
+      "name": "account",
+      "description": "The owner of the User Data",
+      "type": "string"
+    },
+    {
+      "name": "params",
+      "description": "List of parameters which contains the list of keys or string parameters that are needed to be passed for any variables declared in the User Data",
+      "type": "string"
+    },
+    {
+      "name": "domain",
+      "description": "The domain name of the User Data owner",
+      "type": "string"
+    },
+    {
+      "name": "project",
+      "description": "The project name of the User Data",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "description": "Name of the User Data",
+      "type": "string"
+    }
+  ],
+  "httprequesttype": "POST"
+}

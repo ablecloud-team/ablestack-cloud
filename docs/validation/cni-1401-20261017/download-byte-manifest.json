@@ -1,0 +1,83 @@
+[
+  {
+    "fixture": "binary",
+    "file": "binary-base64.download",
+    "representation": "Base64 ASCII",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02",
+    "expectedEqual": true,
+    "decodedSha256": "b6aca61714dea926b920603d506c0058dd4e72f924cd2ec4f2c2d7ded43065a4"
+  },
+  {
+    "fixture": "large",
+    "file": "large-original.download",
+    "representation": "Original bytes",
+    "bytes": 18500,
+    "sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84",
+    "expectedEqual": true,
+    "decodedSha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84"
+  },
+  {
+    "fixture": "normal",
+    "file": "normal-original.download",
+    "representation": "Original bytes",
+    "bytes": 164,
+    "sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38",
+    "expectedEqual": true,
+    "decodedSha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38"
+  },
+  {
+    "fixture": "owner",
+    "file": "owner-original.download",
+    "representation": "Original bytes",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "fixture": "project",
+    "file": "project-original.download",
+    "representation": "Original bytes",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "fixture": "text",
+    "file": "text-base64.download",
+    "representation": "Base64 ASCII",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "fixture": "text",
+    "file": "text-base64.download.txt",
+    "representation": "Base64 ASCII",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "fixture": "text",
+    "file": "text-original.download",
+    "representation": "Original bytes",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  },
+  {
+    "fixture": "text",
+    "file": "text-original.download.txt",
+    "representation": "Original bytes",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "expectedEqual": true,
+    "decodedSha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99"
+  }
+]

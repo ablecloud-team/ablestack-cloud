@@ -1,0 +1,5 @@
+INITIAL_RUN_RECOVERY_FOR_CLEANUP_ONLY
+Request actual CCM initialization via its normal uninitialized taint; do not patch provider IDs.
+node/cni1396-ui-control-1a145f39ddd modified
+node/cni1396-ui-node-1a145f3d324 modified
+GUEST_EXIT 0

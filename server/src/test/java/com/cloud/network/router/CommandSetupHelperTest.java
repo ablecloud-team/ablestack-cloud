@@ -145,6 +145,22 @@ public class CommandSetupHelperTest {
     }
 
     @Test
+    public void testJsonUserDataDetailsPreservesLiteralValues() {
+        VmDataCommand command = new VmDataCommand("testVMname");
+        commandSetupHelper.addUserDataDetailsToCommand(command,
+                "{\"VALUE\":\"한글 $1\\\\path, eq=a \\ud83d\\ude00\\nnext\",\"EMPTY\":\"\"}");
+        Assert.assertArrayEquals(new String[]{"metadata", "VALUE", "한글 $1\\path, eq=a \ud83d\ude00\nnext"}, command.getVmData().get(0));
+        Assert.assertArrayEquals(new String[]{"metadata", "EMPTY", ""}, command.getVmData().get(1));
+    }
+
+    @Test
+    public void testEmptyJsonUserDataDetails() {
+        VmDataCommand command = new VmDataCommand("testVMname");
+        commandSetupHelper.addUserDataDetailsToCommand(command, "{}");
+        Assert.assertTrue(command.getVmData().isEmpty());
+    }
+
+    @Test
     public void testNullUserDataDetails() {
         VmDataCommand vmDataCommand = new VmDataCommand("testVMname");
         String testUserDataDetails = null;

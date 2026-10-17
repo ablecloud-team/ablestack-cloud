@@ -26,7 +26,7 @@ import { getLatestKubernetesIsoParams } from '@/utils/acsrepo'
 import { isFastClonePowerOperationBlocked, getFastClonePowerBlockedLabel, getFastClonePhase } from '@/utils/fastClone'
 import { isCloneBlockedByExtraConfigDisk } from '@/utils/vmClone'
 import { vmUserDataSupported } from '@/utils/vmUserData'
-import { userDataLibraryParams } from '@/utils/userDataContent'
+import { userDataLibraryParams, cniLibraryParams } from '@/utils/userDataContent'
 import kubernetesIcon from '@/assets/icons/kubernetes.svg?inline'
 
 const activeFastCloneStatuses = ['pending', 'running']
@@ -1542,9 +1542,11 @@ export default {
     },
     {
       name: 'cniconfiguration',
+      searchFilters: ['id', 'name', 'domainid', 'account'],
+      customParamHandler: cniLibraryParams,
       title: 'label.cniconfiguration',
       icon: 'solution-outlined',
-      docHelp: 'adminguide/virtual_machines.html#user-data-and-meta-data',
+      docHelp: 'local:cni-configuration',
       permission: ['listCniConfiguration'],
       columns: () => {
         var fields = ['name', 'id']
@@ -1560,16 +1562,20 @@ export default {
         return fields
       },
       resourceType: 'UserData',
-      details: ['id', 'name', 'userdata', 'account', 'domain', 'params'],
-      related: [{
-        name: 'vm',
-        title: 'label.instances',
-        param: 'userdata'
-      }],
+      details: ['id', 'name', 'account', 'domain', 'project', 'params'],
       tabs: [
         {
           name: 'details',
           component: shallowRef(defineAsyncComponent(() => import('@/components/view/DetailsTab.vue')))
+        },
+        {
+          name: 'cni.content',
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CniContent.vue')))
+        },
+        {
+          name: 'cni.usage',
+          show: () => Boolean(store.getters.apis?.listKubernetesClusters),
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/CniUsage.vue')))
         },
         {
           name: 'comments',
@@ -1582,45 +1588,21 @@ export default {
           selfManagedDialog: true,
           icon: 'plus-outlined',
           label: 'label.register.cni.config',
-          docHelp: 'adminguide/virtual_machines.html#creating-the-ssh-keypair',
+          docHelp: 'local:cni-configuration',
           listView: true,
           popup: true,
           component: shallowRef(defineAsyncComponent(() => import('@/views/compute/RegisterUserData.vue')))
         },
         {
           api: 'deleteCniConfiguration',
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/compute/DeleteCniConfiguration.vue'))),
           icon: 'delete-outlined',
           label: 'label.remove.cni.configuration',
-          message: 'message.please.confirm.remove.cni.configuration',
+          toolbarLabel: 'label.remove.cni.configuration',
           dataView: true,
-          args: ['id', 'account', 'domainid', 'projectid'],
-          mapping: {
-            id: {
-              value: (record, params) => { return record.id }
-            },
-            projectid: {
-              value: (record, params) => { return record.projectid }
-            },
-            account: {
-              value: (record, params) => { return record.account }
-            },
-            domainid: {
-              value: (record, params) => { return record.domainid }
-            }
-          },
           groupAction: true,
-          popup: true,
-          groupMap: (selection, values, record) => {
-            return selection.map(x => {
-              const data = record.filter(y => { return y.id === x })
-              return {
-                id: x,
-                account: data[0].account,
-                domainid: data[0].domainid,
-                projectid: data[0].projectid
-              }
-            })
-          }
+          popup: true
         }
       ]
     },

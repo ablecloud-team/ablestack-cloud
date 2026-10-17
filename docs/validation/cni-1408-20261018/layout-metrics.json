@@ -1,0 +1,28 @@
+{
+  "cardPadding": "24px",
+  "code": {
+    "clientWidth": 594,
+    "overflow": "auto",
+    "scrollWidth": 2832
+  },
+  "toolbar": [
+    {
+      "height": 32,
+      "text": "클립보드에 복사",
+      "x": 787.21875,
+      "y": 234
+    },
+    {
+      "height": 32,
+      "text": "다운로드",
+      "x": 943.21875,
+      "y": 234
+    },
+    {
+      "height": 32,
+      "text": "업데이트",
+      "x": 1246.25,
+      "y": 234
+    }
+  ]
+}

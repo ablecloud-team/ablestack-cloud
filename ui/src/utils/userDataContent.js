@@ -39,3 +39,10 @@ export function userDataLibraryParams (params) {
   for (const key of ['sortkey', 'sortorder', 'tab']) delete result[key]
   return result
 }
+
+// CNI shares UserData search semantics, with list-only UI state kept out of the API.
+export function cniLibraryParams (params) {
+  const result = userDataLibraryParams(params)
+  const keys = ['id', 'name', 'keyword', 'domainid', 'account', 'projectid', 'isrecursive', 'listall', 'page', 'pagesize']
+  return Object.fromEntries(keys.filter(key => result[key] !== undefined && result[key] !== '').map(key => [key, result[key]]))
+}

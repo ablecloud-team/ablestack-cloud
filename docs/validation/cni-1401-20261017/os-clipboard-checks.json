@@ -1,0 +1,142 @@
+[
+  {
+    "fixture": "text",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "text",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "bom": true,
+    "crlf": 7
+  },
+  {
+    "fixture": "large",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 18500,
+    "sha256": "7652246c74bef14db8f7e2568b1dedf130cb582a880b4dc6c1ef59b5cef41d84",
+    "bom": true,
+    "crlf": 72
+  },
+  {
+    "fixture": "binary",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "normal",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 164,
+    "sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38",
+    "bom": true,
+    "crlf": 8
+  },
+  {
+    "fixture": "owner",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "bom": true,
+    "crlf": 7
+  },
+  {
+    "fixture": "project",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "bom": true,
+    "crlf": 7
+  },
+  {
+    "fixture": "text",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "text",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "bom": true,
+    "crlf": 7
+  },
+  {
+    "fixture": "binary",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "binary",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 12,
+    "sha256": "a0e60edec57745119d332ee6d3e9d170aad9550cdb2199273a18eadd0769bc02",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "text",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 132,
+    "sha256": "76692cfa928a842a9fba7435838e7b05b05c4f5438343eb86217b660bbaadd99",
+    "bom": true,
+    "crlf": 7
+  },
+  {
+    "fixture": "text",
+    "mode": "base64",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 176,
+    "sha256": "2bb69cbb8d66b8b33e12c5d19c9d372a4335bf8ca43161e08e48dff861b34464",
+    "bom": false,
+    "crlf": 0
+  },
+  {
+    "fixture": "normal",
+    "mode": "raw",
+    "result": "PASS",
+    "source": "Actual Windows OS Get-Clipboard -Raw",
+    "bytes": 164,
+    "sha256": "827d297ca300894b39aaee15199bbc661917ba757467f5bd831fe9179650be38",
+    "bom": true,
+    "crlf": 8
+  }
+]

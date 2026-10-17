@@ -1,0 +1,38 @@
+[
+  {
+    "test": "admin login after final deployment",
+    "result": "PASS"
+  },
+  {
+    "test": "project scoped CNI list and detail",
+    "result": "PASS"
+  },
+  {
+    "test": "UI in-use deletion returns generic 431",
+    "result": "PASS"
+  },
+  {
+    "test": "rejected delete modal remains retryable and cancellable",
+    "result": "PASS"
+  },
+  {
+    "test": "annotation visible after rejection",
+    "result": "PASS"
+  },
+  {
+    "test": "project cluster UI Running and exact two VM node relationships",
+    "result": "PASS"
+  },
+  {
+    "test": "normal cluster removal permits same CNI delete through UI",
+    "result": "PASS"
+  },
+  {
+    "test": "project CNI list zero after explicit list navigation",
+    "result": "PASS"
+  },
+  {
+    "test": "cleanup default scope shows original three CNI records",
+    "result": "PASS"
+  }
+]

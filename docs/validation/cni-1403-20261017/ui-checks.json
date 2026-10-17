@@ -1,0 +1,90 @@
+[
+  {
+    "test": "cancel preserves selected CNI and closes only confirmation",
+    "result": "PASS"
+  },
+  {
+    "test": "usage HTTP503 is explicit unknown and blocks deletion rather than claiming zero",
+    "result": "PASS"
+  },
+  {
+    "test": "usage retry restores confirmed zero and delete eligibility",
+    "result": "PASS"
+  },
+  {
+    "test": "delete HTTP403/API531 retains frozen UUID, modal, server reason and retry",
+    "result": "PASS"
+  },
+  {
+    "test": "successful retry removes detail/actions and restores exact keyword/page/pagesize list",
+    "result": "PASS"
+  },
+  {
+    "test": "already-removed UUID returns to list and preserves same-name replacement UUID",
+    "result": "PASS"
+  },
+  {
+    "test": "busy deletion disables close/duplicate controls",
+    "result": "PASS"
+  },
+  {
+    "test": "real cluster created after UI preflight causes backend rejection; original UUID, modal, server reason and current count one remain",
+    "result": "PASS"
+  },
+  {
+    "test": "confirmation usage link opens exact CNI usage tab in same project",
+    "result": "PASS"
+  },
+  {
+    "test": "in-use confirmation shows latest count one and blocked state, without delete control",
+    "result": "PASS"
+  },
+  {
+    "test": "project detail delete clears old resource and preserves project/keyword/page two/size ten",
+    "result": "PASS"
+  },
+  {
+    "test": "project batch reports one deleted and one referenced/blocked, preserving per-item original UUIDs",
+    "result": "PASS"
+  },
+  {
+    "test": "closing partial batch keeps only blocked selected UUID and current filtered page",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary project UserData retains item-level partial success and server error without CNI contract mixing",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary UserData retry completes remaining item and preserves filtered project list on close",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary owner deletes own CNI through UI and returns to empty own library",
+    "result": "PASS"
+  },
+  {
+    "test": "after normal cluster removal, project member sees current zero and can delete the formerly referenced CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "deleting last row on page two restores same project/search/page size and clamps to real last page one without ghost detail",
+    "result": "PASS"
+  },
+  {
+    "test": "final deployment shows one usage-failure explanation and blocks delete without a false zero",
+    "result": "PASS"
+  },
+  {
+    "test": "final deployment retries usage lookup and restores confirmed-zero delete eligibility",
+    "result": "PASS"
+  },
+  {
+    "test": "final partial batch retains failed row and removes completed-row usage link",
+    "result": "PASS"
+  },
+  {
+    "test": "final failed-item retry closes completed batch, removes both original UUIDs and retains list query",
+    "result": "PASS"
+  }
+]

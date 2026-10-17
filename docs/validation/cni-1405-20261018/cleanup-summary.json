@@ -1,0 +1,46 @@
+{
+  "existing_db_before_after_equal": true,
+  "rows": 36,
+  "categories": {
+    "UD": 5,
+    "K8S": 7,
+    "ANN": 1,
+    "ACCOUNT": 16,
+    "PROJECT": 4,
+    "DOMAIN": 3
+  },
+  "sha256": "2d61f159980ac4fa490f62c74e16ce6024ac1f8bb9210c2c6caaa366c74357f7",
+  "existing_cni_api_equal": 3,
+  "existing_kubernetes_stable_api_equal": 7,
+  "kubernetes_compared_fields": [
+    "id",
+    "name",
+    "state",
+    "account",
+    "domainid",
+    "projectid",
+    "cniconfigurationid",
+    "cniconfigurationname",
+    "kubernetesversionid",
+    "networkid",
+    "node UUIDs"
+  ],
+  "dedicated_active_residuals": {
+    "active_data": 0,
+    "active_annotations": 0,
+    "active_clusters": 0,
+    "active_cni_references": 0,
+    "active_cluster_vm_maps": 0,
+    "active_vms": 0,
+    "active_volumes": 0,
+    "active_networks": 0,
+    "active_projects": 0,
+    "active_accounts": 0,
+    "active_domains": 0,
+    "active_users": 0,
+    "active_api_keypairs": 0
+  },
+  "cleanup_via_normal_apis": false,
+  "successful_cluster_and_all_final_deletions_via_normal_apis": true,
+  "first_failed_fixture_cleanup_receipt_repair": "Only cluster 83 UUID 904e0891-50fe-4ed9-8e7e-98393fcef9b0; phase Nodes -> NodeProvisioningFailed and actual failed job receipt after verifying no bootstrap started, endpoint empty and sole VM Stopped. Normal delete retried. No production row changes."
+}

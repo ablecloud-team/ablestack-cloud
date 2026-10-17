@@ -1,0 +1,8 @@
+{
+  "db_rows": 12,
+  "db_before_after_equal": true,
+  "db_sha256": "7550df94bf6c296e13cacfa33f19dd0df65fdcf08b53e4e68dc7906a2f29a2c0",
+  "existing_cni": 3,
+  "existing_kubernetes": 7,
+  "dedicated_active_residuals": 0
+}

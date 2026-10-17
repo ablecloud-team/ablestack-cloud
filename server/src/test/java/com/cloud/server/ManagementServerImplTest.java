@@ -366,7 +366,11 @@ public class ManagementServerImplTest {
 
     @Test
     public void testSuccessfulDeleteUserdata() {
-        try (MockedStatic<CallContext> ignored = Mockito.mockStatic(CallContext.class)) {
+        try (MockedStatic<CallContext> ignored = Mockito.mockStatic(CallContext.class);
+                MockedStatic<com.cloud.utils.db.TransactionLegacy> transactions = Mockito.mockStatic(com.cloud.utils.db.TransactionLegacy.class)) {
+            com.cloud.utils.db.TransactionLegacy transaction = Mockito.mock(com.cloud.utils.db.TransactionLegacy.class);
+            transactions.when(() -> com.cloud.utils.db.TransactionLegacy.open(Mockito.anyString(),
+                    Mockito.eq(com.cloud.utils.db.TransactionLegacy.CLOUD_DB), Mockito.eq(false))).thenReturn(transaction);
             CallContext callContextMock = Mockito.mock(CallContext.class);
             when(CallContext.current()).thenReturn(callContextMock);
             when(callContextMock.getCallingAccount()).thenReturn(account);

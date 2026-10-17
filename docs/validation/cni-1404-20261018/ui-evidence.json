@@ -1,0 +1,2648 @@
+{
+  "checks": [
+    {
+      "name": "preview keeps original input until apply",
+      "pass": true
+    },
+    {
+      "name": "preview original text includes BOM and CRLF",
+      "pass": true
+    },
+    {
+      "name": "preview cancellation preserves draft",
+      "pass": true
+    },
+    {
+      "name": "same file reselection opens preview",
+      "pass": true
+    },
+    {
+      "name": "preview Ctrl Enter does not register or overwrite",
+      "pass": true
+    },
+    {
+      "name": "invalid file empty preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file spaces preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file invalid preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file utf16 preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file oversize preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file archive preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file malformed preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file b64bom preserves input",
+      "pass": true
+    },
+    {
+      "name": "invalid file b64oversize preserves input",
+      "pass": true
+    },
+    {
+      "name": "controlled read error preserves input and shows read error",
+      "pass": true
+    },
+    {
+      "name": "pending file read locks draft and cancel",
+      "pass": true
+    },
+    {
+      "name": "file read fault injection fully restored",
+      "pass": true
+    },
+    {
+      "name": "cni1404-text preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-text applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-text downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-base64 preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-base64 applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-base64 downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-literal preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-literal applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-literal downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-binary preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-binary applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-binary downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-large preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-large applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-large downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode-project preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode-project applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-unicode-project downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "CNI help opens correct local Korean document",
+      "pass": true
+    },
+    {
+      "name": "help ko light 1440 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko light 1024 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko light 768 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko light 390 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko dark 1440 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko dark 1024 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko dark 768 layout",
+      "pass": true
+    },
+    {
+      "name": "help ko dark 390 layout",
+      "pass": true
+    },
+    {
+      "name": "English help navigation works",
+      "pass": true
+    },
+    {
+      "name": "help en light 1440 layout",
+      "pass": true
+    },
+    {
+      "name": "help en light 1024 layout",
+      "pass": true
+    },
+    {
+      "name": "help en light 768 layout",
+      "pass": true
+    },
+    {
+      "name": "help en light 390 layout",
+      "pass": true
+    },
+    {
+      "name": "help en dark 1440 layout",
+      "pass": true
+    },
+    {
+      "name": "help en dark 1024 layout",
+      "pass": true
+    },
+    {
+      "name": "help en dark 768 layout",
+      "pass": true
+    },
+    {
+      "name": "help en dark 390 layout",
+      "pass": true
+    },
+    {
+      "name": "registration links same CNI help",
+      "pass": true
+    },
+    {
+      "name": "detail links same CNI help",
+      "pass": true
+    },
+    {
+      "name": "ordinary UserData form retains intro and no file controls",
+      "pass": true
+    },
+    {
+      "name": "ordinary UserData help remains external",
+      "pass": true
+    },
+    {
+      "name": "ordinary UserData UI registration still succeeds",
+      "pass": true
+    },
+    {
+      "name": "SSH menu documentation remains SSH-specific",
+      "pass": true
+    },
+    {
+      "name": "VM list still renders rows",
+      "pass": true
+    },
+    {
+      "name": "VM shared details and documentation remain available",
+      "pass": true
+    },
+    {
+      "name": "cni1404-final preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-final applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-final downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "cleanup UI retains only original three CNI",
+      "pass": true
+    },
+    {
+      "name": "browser file test override removed",
+      "pass": true
+    },
+    {
+      "name": "final preview CtrlEnter does not submit or apply",
+      "pass": true
+    },
+    {
+      "name": "final Escape cancels only file preview and keeps draft",
+      "pass": true
+    },
+    {
+      "name": "corrected native file input hidden with zero bounds",
+      "pass": true
+    },
+    {
+      "name": "local file preview copies exact BOM CRLF Unicode text",
+      "pass": true
+    },
+    {
+      "name": "local file preview downloads original bytes",
+      "pass": true
+    },
+    {
+      "name": "local file preview Base64 equals transfer payload",
+      "pass": true
+    },
+    {
+      "name": "cni1404-style preview before explicit apply",
+      "pass": true
+    },
+    {
+      "name": "cni1404-style applied exact Base64",
+      "pass": true
+    },
+    {
+      "name": "cni1404-style downloaded bytes exact",
+      "pass": true
+    },
+    {
+      "name": "corrected deployment cleanup retains original three CNI",
+      "pass": true
+    }
+  ],
+  "views": [
+    {
+      "name": "before-register-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "file-preview-unicode-dark-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 712,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "invalid-file-keeps-draft",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "controlled-file-read-error",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "file-read-pending",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-text-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/7f4a3ec6-f0e3-48ca-9ae2-e0db9829002b?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-unicode-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/2134a2c9-37c1-4916-89c3-0cbc595353f2?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-base64-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/276454f7-0f40-41c8-a933-082b2d6b32cb?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-literal-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/f3a3b266-74c7-4a3a-8cc5-998b063e2b68?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-binary-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/4246367c-6e79-482f-97ef-7b8641d5d9aa?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-large-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/99010c85-34bf-4536-bc8c-625e1828d3b0?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-dark-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-dark-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-dark-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-dark-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-dark-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-dark-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-dark-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-dark-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-dark-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-dark-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-dark-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 987,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-dark-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 909,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-light-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-light-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-light-1440",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-light-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-light-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-light-1024",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-light-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-light-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 915,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-light-768",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "register-light-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "preview-light-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 987,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "error-light-390",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 909,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "cni1404-unicode-project-stored-content",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration/14fe90bc-4230-417c-90b4-edd4a5dc6ca4?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-light-1440",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 1425,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-light-1024",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 1009,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-light-768",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 753,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-light-390",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 375,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-dark-1440",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 1425,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-dark-1024",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 1009,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-dark-768",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 753,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-ko-dark-390",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 375,
+      "url": "/client/help/cni-configuration.ko.html",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-light-1440",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 1425,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-light-1024",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 1009,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-light-768",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 753,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-light-390",
+      "kind": "help",
+      "background": "rgb(245, 247, 250)",
+      "examples": 2,
+      "pageWidth": 375,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-dark-1440",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 1425,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-dark-1024",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 1009,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-dark-768",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 753,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "help-en-dark-390",
+      "kind": "help",
+      "background": "rgb(20, 27, 35)",
+      "examples": 2,
+      "pageWidth": 375,
+      "url": "/client/help/cni-configuration.en.html",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "ordinary-userdata-register-regression",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 826,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/userdata",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "ssh-documentation-regression",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/ssh",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "vm-list-regression-1440",
+      "phase": "initial",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/vm",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "vm-detail-regression-1440",
+      "phase": "initial",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-light-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-light-1440",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-light-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-light-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-light-1024",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-light-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-light-768",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-light-768",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 650
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-light-768",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-light-390",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-light-390",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 320
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 934,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-light-390",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 909,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-dark-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-dark-1440",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-dark-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-dark-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-dark-1024",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-dark-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-dark-768",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-dark-768",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 650
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-dark-768",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 906,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-dark-390",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-preview-dark-390",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 320
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 872,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 934,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-error-dark-390",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 909,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-cni1404-final-stored-content",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/3c5b52cd-9c92-495e-bcbb-9528bbbfd6fc?tab=cni.content",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-cleanup-original-cni",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-deliverable",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_name",
+      "height": 870,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 815,
+          "left": 91,
+          "right": 811
+        }
+      ],
+      "pageWidth": 892,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 902,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-keyboard-preview",
+      "phase": "final",
+      "code": [
+        {
+          "height": 93,
+          "maxHeight": "450px",
+          "scrollHeight": 93,
+          "scrollWidth": 900,
+          "width": 900
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 880,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 700.5,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-deliverable",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_name",
+      "height": 870,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 815,
+          "left": 91,
+          "right": 811
+        }
+      ],
+      "pageWidth": 892,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 902,
+      "revision": "before-native-input-fix"
+    },
+    {
+      "name": "final-register-dark-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-dark-1440",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-dark-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-dark-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-dark-1024",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-dark-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-dark-768",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-dark-768",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 650
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-dark-768",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-dark-390",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 858,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-dark-390",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 320
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 858,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 934,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-dark-390",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 895,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-light-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-light-1440",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-light-1440",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-light-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-light-1024",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 890
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 152,
+          "right": 872
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-light-1024",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-light-768",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-light-768",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 650
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 24,
+          "right": 744
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 889,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-light-768",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 892,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-register-light-390",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_cniconfig",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 858,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-preview-light-390",
+      "phase": "final",
+      "code": [
+        {
+          "height": 438,
+          "maxHeight": "450px",
+          "scrollHeight": 760,
+          "scrollWidth": 3888,
+          "width": 320
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 858,
+          "left": 12,
+          "right": 378
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 934,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-error-light-390",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 895,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-local-preview-export",
+      "phase": "final",
+      "code": [
+        {
+          "height": 47,
+          "maxHeight": "450px",
+          "scrollHeight": 47,
+          "scrollWidth": 900,
+          "width": 900
+        }
+      ],
+      "focus": "",
+      "height": 1000,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 866,
+          "left": 360,
+          "right": 1080
+        },
+        {
+          "class": "ant-modal cni-file-preview mold-dialog mold-dialog-standard",
+          "footer": 677.5,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-cni1404-style-stored-content",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration/1eea8995-fa4f-46b8-8624-b3f2ece75bf1?tab=cni.content",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-cleanup-original-cni",
+      "phase": "final",
+      "code": [],
+      "focus": "",
+      "height": 1000,
+      "modals": [],
+      "pageWidth": 1430,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    },
+    {
+      "name": "final-deliverable",
+      "phase": "final",
+      "code": [],
+      "focus": "form_item_name",
+      "height": 870,
+      "modals": [
+        {
+          "class": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 801,
+          "left": 91,
+          "right": 811
+        }
+      ],
+      "pageWidth": 892,
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 902,
+      "revision": "native-input-fix",
+      "nativeInputHidden": true
+    }
+  ],
+  "created": [
+    {
+      "id": "7f4a3ec6-f0e3-48ca-9ae2-e0db9829002b",
+      "name": "cni1404-text",
+      "key": "text",
+      "mode": "text",
+      "scope": {},
+      "params": "MANUAL_VAR",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "2134a2c9-37c1-4916-89c3-0cbc595353f2",
+      "name": "cni1404-unicode",
+      "key": "unicode",
+      "mode": "text",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "276454f7-0f40-41c8-a933-082b2d6b32cb",
+      "name": "cni1404-base64",
+      "key": "base64",
+      "mode": "base64",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "f3a3b266-74c7-4a3a-8cc5-998b063e2b68",
+      "name": "cni1404-literal",
+      "key": "literal",
+      "mode": "text",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "4246367c-6e79-482f-97ef-7b8641d5d9aa",
+      "name": "cni1404-binary",
+      "key": "binary",
+      "mode": "base64",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "99010c85-34bf-4536-bc8c-625e1828d3b0",
+      "name": "cni1404-large",
+      "key": "large",
+      "mode": "text",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "14fe90bc-4230-417c-90b4-edd4a5dc6ca4",
+      "name": "cni1404-unicode-project",
+      "key": "unicode",
+      "mode": "text",
+      "scope": {
+        "projectid": "dd981576-1611-4692-affb-482a39e5722a"
+      },
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "f97c82fd-3a52-419e-bcd9-f56bbe6b8d41",
+      "name": "cni1404-normal",
+      "kind": "userdata",
+      "key": "normal",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "3c5b52cd-9c92-495e-bcbb-9528bbbfd6fc",
+      "name": "cni1404-final",
+      "key": "final",
+      "mode": "text",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    },
+    {
+      "id": "1eea8995-fa4f-46b8-8624-b3f2ece75bf1",
+      "name": "cni1404-style",
+      "key": "style",
+      "mode": "text",
+      "scope": {},
+      "params": "",
+      "deleted": true,
+      "deleted_via_normal_api": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+PASS tests/unit/views/compute/UserDataSelection.spec.js (13.498s)
+PASS tests/unit/views/AutogenCniSearch.spec.js
+PASS tests/unit/views/compute/CniSelection.spec.js (16.028s)
+PASS tests/unit/components/view/ResourceView.spec.js
+PASS tests/unit/views/compute/CniContent.spec.js
+PASS tests/unit/views/compute/DeleteCniConfiguration.spec.js
+PASS tests/unit/views/compute/CniUsage.spec.js
+PASS tests/unit/views/compute/CniRegistration.spec.js
+PASS tests/unit/views/compute/UserDataContent.spec.js
+PASS tests/unit/views/compute/RegisterUserData.spec.js
+PASS tests/unit/views/compute/VmUserData.spec.js
+PASS tests/unit/components/view/MoldDialog.spec.js
+Test Suites: 12 passed, 12 total
+Tests:       375 passed, 375 total
+Snapshots:   0 total
+Time:        52.002s

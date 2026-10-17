@@ -1,0 +1,15 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/views/compute/CniRegistration.spec.js tests/unit/views/compute/RegisterUserData.spec.js --runInBand --coverage=false
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/compute/CniRegistration.spec.js
+PASS tests/unit/views/compute/RegisterUserData.spec.js
+
+Test Suites: 2 passed, 2 total
+Tests:       68 passed, 68 total
+Snapshots:   0 total
+Time:        12.202s
+Ran all test suites within paths "tests/unit/views/compute/CniRegistration.spec.js", "tests/unit/views/compute/RegisterUserData.spec.js".

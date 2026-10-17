@@ -1,0 +1,33 @@
+{
+  "id": "5bdf23af-adec-4f03-984a-56ad4a559c80",
+  "name": "cni1396-final",
+  "state": "Running",
+  "cniconfigurationid": "1edff270-5a2e-44b5-9d6a-d7c1db7f0790",
+  "account": "admin",
+  "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+  "kubernetesversionname": "1.34.12-Mold-1280-r1-3f24d481",
+  "networkid": "4718aab0-d0d7-43b8-80dd-4045e06e5a46",
+  "nodes": [
+    {
+      "id": "ca89277c-b4d1-4616-b367-8f2199e38327",
+      "name": "cni1396-final-control-1a145fb6896",
+      "state": "Running",
+      "hostid": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+      "hostname": "ablecube31-1"
+    },
+    {
+      "id": "9ba147b5-6958-4445-8b9c-1480ece01c64",
+      "name": "cni1396-final-node-1a145fba023",
+      "state": "Running",
+      "hostid": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+      "hostname": "ablecube31-2"
+    }
+  ],
+  "createJob": {
+    "jobid": "122f4eec-973c-4dee-8fcc-c68fdba98f6f",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-17T03:31:06+0900",
+    "completed": "2026-10-17T03:33:21+0900"
+  }
+}

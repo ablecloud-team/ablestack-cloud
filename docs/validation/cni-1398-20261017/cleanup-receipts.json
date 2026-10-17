@@ -1,0 +1,92 @@
+[
+  {
+    "kind": "cni",
+    "id": "2c14fe8f-192f-4a74-af29-c9ee3bfd3e3d",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "d6fd8fe3-03ab-4b0b-a799-72a1754c39de",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "cni",
+    "id": "f0bb6794-cf25-42c9-911e-1ff1c93523eb",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "8c87a335-c615-4068-85a6-e5609a988250",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "cni",
+    "id": "2d3e9d6e-dbea-4935-8756-02f6c9c20962",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "b0c10853-52d6-4edc-8d41-a9a432601888",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "cni",
+    "id": "65ff4211-902e-4696-9247-0edf244567ab",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "25fdf0d3-daa7-4cd2-967b-b8148c18cae3",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "cni",
+    "id": "275ae2f1-0305-42df-8144-2366b0a093e5",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "327334d7-0f70-4360-a870-f0bf951be890",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "cni",
+    "id": "66fa4185-1682-44ba-b7fd-260eb636219c",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "userdata",
+    "id": "3a98bf51-cc21-4ddc-b049-c1a992693e64",
+    "action": "already-removed-by-functional-test"
+  },
+  {
+    "kind": "project",
+    "id": "57b8e06c-6c5e-45c8-b8b8-9a84fbf618fb",
+    "action": "deleted"
+  },
+  {
+    "kind": "project",
+    "id": "7fed3017-5072-4e2f-8c6d-6b3fd1974ec9",
+    "action": "deleted"
+  },
+  {
+    "kind": "account",
+    "id": "2c498daa-7aa0-4c2c-8016-4c72882df010",
+    "action": "deleted"
+  },
+  {
+    "kind": "account",
+    "id": "2cde3e72-781a-493e-a41c-76f63704808e",
+    "action": "deleted"
+  },
+  {
+    "kind": "account",
+    "id": "298870e2-b9fd-4d82-90de-23f0733be475",
+    "action": "deleted"
+  },
+  {
+    "kind": "domain",
+    "id": "834143bd-09b6-4a1f-8236-dfdfaf0b0224",
+    "action": "deleted"
+  }
+]

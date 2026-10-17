@@ -1,0 +1,137 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/views/compute/CniContent.spec.js tests/unit/views/compute/UserDataContent.spec.js tests/unit/views/compute/CniUsage.spec.js tests/unit/views/compute/VmUserData.spec.js tests/unit/views/compute/UserDataVersions.spec.js tests/unit/views/AutogenSSHKeyPairIdentity.spec.js tests/unit/components/view/ResourceView.spec.js --runInBand --coverage=false
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/compute/CniContent.spec.js (6.212s)
+  ● Console
+
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+
+PASS tests/unit/views/compute/CniUsage.spec.js
+  ● Console
+
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "ATable" has already been registered in target app.
+
+PASS tests/unit/views/compute/UserDataVersions.spec.js
+  ● Console
+
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Plugin has already been applied to target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Plugin has already been applied to target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Directive "focus" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed setting prop "rows" on <textarea>: value 0 is invalid. DOMException [IndexSizeError]: The index is not in the allowed range.
+          at HTMLTextAreaElementImpl.set rows [as rows] (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/jest-environment-jsdom-fifteen/node_modules/jsdom/lib/jsdom/living/nodes/HTMLTextAreaElement-impl.js:201:13)
+          at HTMLTextAreaElement.set rows [as rows] (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/jest-environment-jsdom-fifteen/node_modules/jsdom/lib/jsdom/living/generated/HTMLTextAreaElement.js:477:24)
+          at patchDOMProp (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:280:9)
+          at hostPatchProp (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-dom/dist/runtime-dom.cjs.js:412:9)
+          at mountElement (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5082:25)
+          at processElement (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5055:13)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4975:21)
+          at ReactiveEffect.fn (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+          at update (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5622:56)
+          at setupRenderEffect (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5636:9)
+          at mountComponent (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5418:9)
+          at processComponent (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5376:17)
+          at patch (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:4978:21)
+          at ReactiveEffect.fn (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:5515:21)
+          at ReactiveEffect.run (/home/ablecloud/work/dhslove/ablestack-cloud-ssh-1370/ui/node_modules/@vue/reactivity/dist/reactivity.cjs.js:189:25)
+        at <ResizeObserver onResize=fn<handleResize> disabled=true >
+        at <ResizableTextArea onUpdate:value=fn placeholder="label.register.user.data.details" value="77u/I2Nsb3VkLWNvbmZpZw0KIyDtlZzquIAg8J+YgA0K"  ... >
+        at <ClearableLabeledInput onUpdate:value=fn placeholder="label.register.user.data.details" value="77u/I2Nsb3VkLWNvbmZpZw0KIyDtlZzquIAg8J+YgA0K"  ... >
+        at <ATextarea ref="userdataInput" value="77u/I2Nsb3VkLWNvbmZpZw0KIyDtlZzquIAg8J+YgA0K" onUpdate:value=fn  ... >
+        at <ACol class="ant-form-item-control" >
+        at <Anonymous name="userdata" hasFeedback=false colon=undefined  ... >
+        at <ARow class="ant-form-item" key="row" >
+        at <AFormItem name="userdata" ref="userdata" >
+        at <AForm key=1 id="userdata-registration-form" onKeydown=fn  ... >
+        at <ASpin key=2 spinning=false >
+        at <Anonymous class="userdata-registration-dialog" size="md" closable=true  ... >
+        at <RegisterUserData resource= {
+        id: '11111111-1111-4111-8111-111111111111',
+        name: 'source',
+        account: 'owner',
+        domainid: '22222222-2222-4222-8222-222222222222',
+        userdata: '77u/I2Nsb3VkLWNvbmZpZw0KIyDtlZzquIAg8J+YgA0K',
+        params: 'OLD'
+      } currentAction= { cloneUserData: true } tab="userdata.versions"  ... >
+        at <VTUROOT>
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Plugin has already been applied to target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Plugin has already been applied to target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Directive "focus" has already been registered in target app.
+
+PASS tests/unit/views/compute/UserDataContent.spec.js
+PASS tests/unit/views/compute/VmUserData.spec.js
+PASS tests/unit/views/AutogenSSHKeyPairIdentity.spec.js
+PASS tests/unit/components/view/ResourceView.spec.js
+  ● Console
+
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8720
+      Download the Vue Devtools extension for a better development experience:
+      https://github.com/vuejs/vue-devtools
+    console.info ../../ablestack-cloud-ssh-1370/ui/node_modules/vue-code-highlight/node_modules/vue/dist/vue.runtime.common.dev.js:8727
+      You are running Vue in development mode.
+      Make sure to turn on production mode when deploying for production.
+      See more tips at https://vuejs.org/guide/deployment.html
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn ../../ablestack-cloud-ssh-1370/ui/node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+
+Test Suites: 7 passed, 7 total
+Tests:       261 passed, 261 total
+Snapshots:   0 total
+Time:        21.124s
+Ran all test suites within paths "tests/unit/views/compute/CniContent.spec.js", "tests/unit/views/compute/UserDataContent.spec.js", "tests/unit/views/compute/CniUsage.spec.js", "tests/unit/views/compute/VmUserData.spec.js", "tests/unit/views/compute/UserDataVersions.spec.js", "tests/unit/views/AutogenSSHKeyPairIdentity.spec.js", "tests/unit/components/view/ResourceView.spec.js".

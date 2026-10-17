@@ -24,9 +24,9 @@
     @cancel="closeAction">
     <template #title>
       {{ $t(cloneMode ? 'label.userdata.clone' : isUserData ? 'label.register.user.data' : 'label.register.cni.config') }}
-      <a v-if="currentAction.docHelp && $config?.docBase" :href="$config.docBase + '/' + currentAction.docHelp" :aria-label="$t('label.help')" target="_blank" rel="noopener noreferrer"><question-circle-outlined /></a>
+      <a v-if="currentAction.docHelp && (!isUserData || $config?.docBase)" :href="documentationUrl($config?.docBase, currentAction.docHelp, $i18n.locale)" :aria-label="$t('label.help')" target="_blank" rel="noopener noreferrer"><question-circle-outlined /></a>
     </template>
-    <div ref="content" class="userdata-registration-content" :aria-busy="busy">
+    <div ref="content" class="userdata-registration-content" :class="{ 'userdata-registration-content--cni': !isUserData }" :aria-busy="busy">
       <template v-if="cloneMode">
         <a-alert type="info" show-icon :message="$t('message.userdata.clone.intro')" />
         <p v-if="source">{{ $t('label.userdata.clone.source') }}: {{ source.name }} ({{ source.id }})<br>{{ source.project || source.account }} / {{ source.domain }}</p>
@@ -40,7 +40,7 @@
         <details v-if="!noteSaved"><summary>{{ $t('label.userdata.clone.note') }}</summary><UserDataContent :resource="createdVersion" tab="userdata.content" :preview-encoded="notePreview" /></details>
       </template>
       <a-spin v-else :spinning="busy">
-        <p v-if="!cloneMode" v-html="isUserData ? $t('message.desc.register.user.data') : $t('message.desc.register.cni.config')"></p>
+        <p v-if="!cloneMode && isUserData" v-html="$t('message.desc.register.user.data')"></p>
         <a-form
           v-if="!cloneMode || source"
           id="userdata-registration-form"
@@ -51,16 +51,16 @@
           @finish="handleSubmit"
           @finishFailed="focusValidationError"
           layout="vertical">
-          <a-form-item name="name" ref="name">
+          <a-form-item name="name" ref="name" :validate-first="!isUserData">
             <template #label>
-              <tooltip-label :title="$t('label.name')" :tooltip="apiParams.name.description"/>
+              <tooltip-label :title="$t('label.name')" :tooltip="isUserData ? apiParams.name.description : $t('message.cni.validation.name')"/>
             </template>
             <a-input
               ref="nameInput"
               @keydown.enter.prevent="handleSubmit"
               v-model:value="form.name"
               :disabled="busy || !!cloneAttempt"
-              :placeholder="apiParams.name.description"
+              :placeholder="isUserData ? apiParams.name.description : undefined"
               v-focus="true" />
           </a-form-item>
           <div v-if="isUserData">
@@ -76,15 +76,18 @@
             </a-form-item>
           </div>
           <div v-else>
-            <a-form-item name="cniconfig" ref="cniconfig">
+            <CniFileImport :disabled="loading || sourceLoading || variablesReading || !allowedApi" :max-length="maxEncodedLength" :context="cniScope" @reading="fileReading = $event" @apply="applyCniFile">
+              <CniVariableTools mode="extract" :encoded="cniDraftEncoded" :params="form.params" :scope="cniScope" :disabled="loading || sourceLoading || fileReading || !allowedApi" @reading="variablesReading = $event" @apply="keys => { form.params = keys }" />
+            </CniFileImport>
+            <a-form-item name="cniconfig" ref="cniconfig" validate-first>
               <template #label>
-                <tooltip-label :title="$t('label.cniconfiguration')" :tooltip="apiParams.cniconfig.description"/>
+                <tooltip-label :title="$t('label.cniconfiguration')" :tooltip="$t('message.cni.validation.content.help') + (limitLoaded ? ' ' + $t('message.cni.validation.limit', { max: maxEncodedLength.toLocaleString() }) : '')"/>
               </template>
               <a-textarea
                 ref="cniconfigInput"
                 v-model:value="form.cniconfig"
-                :disabled="loading"
-                :placeholder="apiParams.cniconfig.description"/>
+                :disabled="busy"
+                :auto-size="{ minRows: 6, maxRows: 12 }"/>
             </a-form-item>
           </div>
           <a-form-item name="isbase64" ref="isbase64" :label="$t('label.is.base64.encoded')">
@@ -98,7 +101,7 @@
             <template #label>
               <tooltip-label
                 :title="isUserData ? $t('label.userdataparams') : $t('label.cniconfigparams')"
-                :tooltip="isUserData ? $t('message.userdata.validation.help') : apiParams.params.description"/>
+                :tooltip="$t(isUserData ? 'message.userdata.validation.help' : 'message.cni.validation.help')"/>
             </template>
             <a-select
               ref="paramsInput"
@@ -110,10 +113,10 @@
               :filterOption="(input, option) => {
                 return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }"
-              :placeholder="apiParams.params.description">
+              :placeholder="isUserData ? apiParams.params.description : undefined">
             </a-select>
           </a-form-item>
-          <a-form-item name="domainid" ref="domainid" v-if="!cloneMode && isAdminOrDomainAdmin()">
+          <a-form-item name="domainid" ref="domainid" v-if="!cloneMode && isAdminOrDomainAdmin() && !cniProject">
             <template #label>
               <tooltip-label :title="$t('label.domainid')" :tooltip="apiParams.domainid.description"/>
             </template>
@@ -137,7 +140,7 @@
               </a-select-option>
             </a-select>
           </a-form-item>
-          <a-form-item name="account" ref="account" v-if="!cloneMode && isAdminOrDomainAdmin() && !isObjectEmpty(selectedDomain) && selectedDomain.id !== null">
+          <a-form-item name="account" ref="account" v-if="!cloneMode && isAdminOrDomainAdmin() && !cniProject && !isObjectEmpty(selectedDomain) && selectedDomain.id !== null">
             <template #label>
               <tooltip-label :title="$t('label.account')" :tooltip="apiParams.account.description"/>
             </template>
@@ -148,6 +151,7 @@
               :placeholder="apiParams.account.description"/>
           </a-form-item>
 
+          <a-form-item v-if="cniProject" :label="$t('label.project')"><span>{{ cniProject.name || cniProject.id }}</span></a-form-item>
           <!-- Native Enter submits; textarea and select keep their own Enter behavior. -->
           <template v-if="cloneMode && source">
             <a-alert v-if="difference" :type="difference.changed ? 'info' : 'warning'" show-icon role="status" :message="$t(difference.changed ? 'message.userdata.clone.changed' : 'message.userdata.clone.duplicate')" />
@@ -158,7 +162,7 @@
           <button type="submit" hidden aria-hidden="true" tabindex="-1"></button>
         </a-form>
       </a-spin>
-      <p v-if="loading" role="status">{{ $t('message.userdata.submitting') }}</p>
+      <p v-if="loading" role="status">{{ $t(isUserData ? 'message.userdata.submitting' : 'message.cni.submitting') }}</p>
       <a-alert v-if="error" class="mold-dialog-section" role="alert" type="error" show-icon :message="error" />
     </div>
     <template #footer>
@@ -172,7 +176,7 @@
         :disabled="!allowedApi || (cloneMode && !source)"
         type="primary"
         @click="handleSubmit"
-        @keydown.ctrl.enter.prevent="handleSubmit">{{ $t(createdVersion ? 'label.userdata.clone.note.retry' : cloneAttempt ? 'label.userdata.clone.reconcile' : cloneMode ? 'label.userdata.clone.create' : 'label.register.userdata.action') }}</a-button>
+        @keydown.ctrl.enter.prevent="handleSubmit">{{ $t(createdVersion ? 'label.userdata.clone.note.retry' : cloneAttempt ? 'label.userdata.clone.reconcile' : cloneMode ? 'label.userdata.clone.create' : isUserData ? 'label.register.userdata.action' : 'label.register.cni.action') }}</a-button>
     </template>
   </MoldDialog>
 </template>
@@ -183,19 +187,25 @@ import { getAPI, postAPI } from '@/api'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import MoldDialog from '@/components/view/MoldDialog'
 import { canonicalUserData, userDataName, userDataParams, isUserDataRoute } from '@/utils/userDataRegistration'
+import { canonicalCni, cniName, cniParams } from '@/utils/cniRegistration'
 import { userDataContent } from '@/utils/userDataContent'
 import { cloneApis, cloneOwner, readCloneSource, findCloneAttempt, cloneDifference, cloneRecord, saveCloneNote } from '@/utils/userDataVersions'
 import UserDataContent from './UserDataContent'
+import CniFileImport from './CniFileImport'
+import CniVariableTools from './CniVariableTools'
+import { documentationUrl } from '@/utils/cniFileImport'
 
 export default {
   name: 'registerUserData',
   props: { currentAction: { type: Object, default: () => ({}) }, resource: { type: Object, default: () => ({}) } },
   emits: ['refresh-data', 'close-action'],
   components: {
-    TooltipLabel, MoldDialog, UserDataContent
+    TooltipLabel, MoldDialog, UserDataContent, CniFileImport, CniVariableTools
   },
   data () {
     return {
+      fileReading: false,
+      variablesReading: false,
       domains: [],
       domainLoading: false,
       selectedDomain: {},
@@ -209,15 +219,22 @@ export default {
       createdVersion: null,
       noteSaved: false,
       note: '',
+      limitLoaded: false,
       maxEncodedLength: 1048576
     }
   },
   computed: {
     isUserData () { return isUserDataRoute(this.$route) },
     apiName () { return this.isUserData ? 'registerUserData' : 'registerCniConfiguration' },
+    cniProject () {
+      const project = this.$store.getters.project
+      return !this.isUserData && project?.id && project.id !== '-1' && !this.$store.getters.listAllProjects ? project : null
+    },
+    cniScope () { return JSON.stringify([this.apiName, this.$route.path, this.$store.getters.project?.id, this.$store.getters.listAllProjects, this.$store.getters.userInfo?.id, this.form?.domainid, this.form?.account, this.allowedApi]) },
     cloneMode () { return this.isUserData && !!this.currentAction?.cloneUserData },
     allowedApi () { return this.cloneMode ? cloneApis.every(api => api in this.$store.getters.apis) : this.apiName in this.$store.getters.apis },
-    busy () { return this.loading || this.sourceLoading },
+    busy () { return this.loading || this.sourceLoading || this.fileReading || this.variablesReading },
+    cniDraftEncoded () { try { return canonicalCni(this.form.cniconfig, this.form.isbase64, this.maxEncodedLength) } catch (_) { return '' } },
     blocksNavigation () { return this.busy },
     cloneScope () { return JSON.stringify([this.resource?.id, this.resource?.name, this.resource?.account, this.resource?.domainid, this.resource?.projectid, this.$route.path, this.$store.getters.project?.id, this.$store.getters.listAllProjects, this.$store.getters.userInfo?.id, this.$store.state?.user?.token, this.allowedApi]) },
     draft () { try { return userDataContent(canonicalUserData(this.form.userdata, this.form.isbase64, this.maxEncodedLength)) } catch (error) { return null } },
@@ -249,6 +266,14 @@ export default {
   mounted () { window.addEventListener('beforeunload', this.beforeUnload) },
   beforeUnmount () { this.disposed = true; window.removeEventListener('beforeunload', this.beforeUnload) },
   methods: {
+    documentationUrl,
+    applyCniFile (encoded) {
+      if (this.isUserData || this.busy || !this.allowedApi) return
+      this.form.cniconfig = canonicalCni(encoded, true, this.maxEncodedLength)
+      this.form.isbase64 = true
+      if (this.formRef.value?.clearValidate) this.formRef.value.clearValidate('cniconfig')
+      this.$nextTick(() => this.$refs.cniconfigInput?.focus())
+    },
     initForm () {
       this.formRef = ref()
       this.form = reactive({
@@ -257,24 +282,25 @@ export default {
       this.rules = reactive({
         name: [{ required: true, message: this.$t('message.error.name') }],
         userdata: [{ required: true, message: this.$t('message.error.user.data') }],
-        cniconfig: [{ required: true, message: this.$t('message.error.user.data') }]
+        cniconfig: [{ required: true, message: this.$t('message.cni.validation.empty') }]
       })
-      if (this.isUserData) {
-        const validate = fn => async () => {
-          try { fn() } catch (error) { throw new Error(this.$t(error.message)) }
-        }
-        this.rules.name.push({ validator: validate(() => userDataName(this.form.name)) })
-        this.rules.userdata.push({ validator: validate(() => canonicalUserData(this.form.userdata, this.form.isbase64, this.maxEncodedLength)) })
-        this.rules.params = [{ validator: validate(() => userDataParams(this.form.params)) }]
+      const validate = fn => async () => {
+        try { fn() } catch (error) { throw new Error(this.$t(error.message)) }
       }
+      this.rules.name.push({ validator: validate(() => this.isUserData ? userDataName(this.form.name) : cniName(this.form.name)) })
+      const field = this.isUserData ? 'userdata' : 'cniconfig'
+      this.rules[field].push({
+        validator: validate(() => this.isUserData
+          ? canonicalUserData(this.form.userdata, this.form.isbase64, this.maxEncodedLength)
+          : canonicalCni(this.form.cniconfig, this.form.isbase64, this.maxEncodedLength))
+      })
+      this.rules.params = [{ validator: validate(() => this.isUserData ? userDataParams(this.form.params) : cniParams(this.form.params)) }]
     },
     fetchData () {
-      if (this.isUserData) {
-        getAPI('listCapabilities', {}, { preserveOnFailure: true }).then(json => {
-          const max = json.listcapabilitiesresponse?.capability?.userdatamaxlength
-          if (!this.disposed && Number.isInteger(max) && max > 0) this.maxEncodedLength = Math.min(max, 1048576)
-        }).catch(() => { /* The server still enforces its current configured limit. */ })
-      }
+      getAPI('listCapabilities', {}, { preserveOnFailure: true }).then(json => {
+        const max = json.listcapabilitiesresponse?.capability?.userdatamaxlength
+        if (!this.disposed && Number.isInteger(max) && max > 0) { this.maxEncodedLength = Math.min(max, 1048576); this.limitLoaded = true }
+      }).catch(() => { /* The server still enforces its current configured limit. */ })
       if (this.cloneMode) this.loadCloneSource()
       else if (this.isAdminOrDomainAdmin()) {
         this.fetchDomainData()
@@ -344,12 +370,15 @@ export default {
       if (this.busy || this.disposed) return
       if (!this.allowedApi) { this.error = this.$t('label.forbidden'); return }
       if (this.cloneMode) return this.submitClone()
+      if (!this.isUserData && this.$store.getters.listAllProjects) { this.error = this.$t('message.cni.scope.changed'); return }
+      const scope = this.cniScope
       const position = this.formPosition()
       let invalidField
       this.loading = true
       this.error = ''
       return this.formRef.value.validate().then(() => {
         if (this.disposed || !this.allowedApi) return
+        if (!this.isUserData && scope !== this.cniScope) throw new Error('message.cni.scope.changed')
         const values = toRaw(this.form)
         const params = {
           name: values.name
@@ -369,16 +398,27 @@ export default {
           params.name = userDataName(values.name)
           params.userdata = canonicalUserData(values.userdata, values.isbase64, this.maxEncodedLength)
         } else {
-          params.cniconfig = values.isbase64 ? values.cniconfig : this.$toBase64AndURIEncoded(values.cniconfig)
+          params.name = cniName(values.name)
+          params.cniconfig = canonicalCni(values.cniconfig, values.isbase64, this.maxEncodedLength)
+          params.ignoreproject = true
+          if (this.cniProject) {
+            params.projectid = this.cniProject.id
+            delete params.account
+            delete params.domainid
+          }
         }
         if (values.params != null && values.params.length > 0) {
-          const userdataparams = apiName === 'registerUserData' ? userDataParams(values.params) : values.params.join(',')
+          const userdataparams = apiName === 'registerUserData' ? userDataParams(values.params) : cniParams(values.params)
           params.params = userdataparams
         }
 
         return postAPI(apiName, params, { preserveOnFailure: true }).then(json => {
           if (this.disposed) return
-          this.$message.success(this.$t('message.success.register.user.data') + ' ' + values.name)
+          if (!this.isUserData && scope !== this.cniScope) throw new Error(this.$t('message.cni.scope.result.changed'))
+          if (!this.isUserData && (!json?.registercniconfigurationresponse?.cniconfig?.id || json.registercniconfigurationresponse.cniconfig.name !== params.name)) {
+            throw new Error(this.$t('message.cni.response.invalid'))
+          }
+          this.$message.success(this.$t(this.isUserData ? 'message.success.register.user.data' : 'message.success.register.cni.config') + ' ' + params.name)
           this.$emit('refresh-data')
           this.$emit('close-action')
         }).catch(error => {
@@ -494,6 +534,7 @@ export default {
   .userdata-registration-content { min-width: 0; overflow-wrap: anywhere; overflow-anchor: none; }
   .userdata-registration-content :deep(.ant-form .ant-form-item) { margin-bottom: 20px; }
   .userdata-registration-content > .ant-alert + p, .userdata-registration-content > .ant-spin-nested-loading { margin-top: 16px; }
+  .userdata-registration-content--cni > :deep(.ant-spin-nested-loading) { margin-top: 0; }
   .userdata-registration-content details { margin: 12px 0; }
   .userdata-registration-content summary { cursor: pointer; }
   .userdata-registration-content :deep(.content-code) { max-height: 240px; }

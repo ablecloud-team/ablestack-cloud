@@ -1,0 +1,47 @@
+[
+  {
+    "command": "deleteCniConfiguration",
+    "id": "288d52d4-5dd8-4dbf-b41b-a3d62e2534e3",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "aa8e16bf-8eb8-492f-8c3b-5a545d5b49a6",
+    "success": true
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "498b8467-447d-4cdf-a436-91b2ac9ef89d",
+    "success": true
+  },
+  {
+    "command": "deleteUserData",
+    "id": "8c6a38dd-8205-4b8f-b746-c06428ff7b3c",
+    "success": true
+  },
+  {
+    "command": "deleteNetwork",
+    "id": "1a89b0d8-14e8-45ab-85ee-bcc9d04c07d4",
+    "success": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "c780566f-1279-4d34-b535-02f9333f2075",
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "780ed2ca-04f4-4251-9f18-ac9300a69a43",
+    "success": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "73e3c23f-de47-4cb2-ad64-e0c4a2453548",
+    "success": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "c1a40a11-2a7b-462c-a909-863383039d0a",
+    "success": true
+  }
+]

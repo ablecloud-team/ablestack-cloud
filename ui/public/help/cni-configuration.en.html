@@ -1,0 +1,30 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CNI configuration help</title><style>body{font:16px/1.65 system-ui,sans-serif;margin:0;background:#f5f7fa;color:#243244}main{max-width:900px;margin:24px auto;padding:24px;background:#fff;border:1px solid #d9e1ea;border-radius:8px}pre{overflow:auto;padding:16px;background:#f1f4f8;border-radius:6px}code{font-family:ui-monospace,monospace}a{color:#1677ff}h1{font-size:24px}h2{font-size:20px;margin-top:24px}@media(max-width:768px){main{margin:8px;padding:16px}}@media(prefers-color-scheme:dark){body{background:#141b23;color:#e5ecf4}main{background:#202832;border-color:#46515e}pre{background:#141b23}a{color:#69b1ff}}</style></head><body><main><h1>CNI configuration help</h1><nav><a href="cni-configuration.ko.html" lang="ko">한국어</a></nav>
+<h2>Import and payload</h2><p>Select a UTF-8 text file or an explicitly Base64-encoded file in registration. The preview shows the actual payload as original content or Base64. Apply to content explicitly replaces the draft; cancellation or invalid files preserve it.</p><p>Text imports preserve Korean, UTF-8 BOM, CRLF/LF and trailing newlines byte for byte. Applied content uses Base64 with the Base64 input option selected to preserve these bytes. Base64-looking text imported as text remains literal text. Base64 files must be UTF-8/ASCII text; spaces, tabs, CR and LF are normalized. A BOM in a Base64 file is rejected. UTF-16 and invalid UTF-8 are not guessed or converted.</p><p>The server limit applies to normalized Base64 length. Import and registration share validation. Empty, whitespace-only and oversized payloads are rejected. Archives, remote URL imports and script execution are not provided.</p>
+<h2>Minimal formats</h2><p>Cloud-config:</p><pre><code>#cloud-config
+write_files: []
+runcmd: []
+</code></pre><p>Supported Jinja cloud-config header:</p><pre><code>## template: jinja
+#cloud-config
+write_files: []
+runcmd: []
+</code></pre><p>These format examples do not install a network plugin. Prepare installation content for the Kubernetes version, node image and network. A standalone Kubernetes manifest is not applied automatically. Other existing cloud-init formats such as shell depend on the guest and provider path. This UI stores content and does not establish execution success.</p>
+<h2>Variables and scope</h2><p>Add parameter names explicitly and confirm each with Enter, for example <code>POD_CIDR</code>. Names start with a letter or underscore and then permit letters, digits, underscores, dots and hyphens. Duplicate and reserved metadata names are rejected. Import does not extract or substitute variables.</p><p>Select the same-scope CNI in the Kubernetes wizard and enter its declared values. For non-Jinja source, the server literally replaces declared simple <code>{{ NAME }}</code> tokens, including repeated and adjacent tokens. Values are not evaluated again. A leading backslash in <code>\{{ NAME }}</code> preserves the token as literal text and removes that escape. Undeclared tokens stay unchanged and are reported as unresolved. Missing declared values and extra values are rejected before provisioning; an explicitly empty string is a value. Authors must prepare escaping appropriate for their YAML or shell context. With a Jinja header, ordinary expressions such as <code>{{ ds.meta_data.NAME }}</code> are preserved for the guest metadata path and are not executed by the server preview. <code>AS_NUMBER</code> is automatic, with the exact special server token <code>{{ AS_NUMBER }}</code>. Use Extract variables to review and apply candidate names, and Preview substitutions in the Kubernetes wizard to inspect the server payload and missing, extra or unresolved values. An AS number not yet allocated remains pending.</p><p>CNI configurations are distinct from the VM UserData library. Account, domain and project access rules apply. Kubernetes references prevent deletion. Registering new content does not automatically change running clusters.</p></main></body></html>

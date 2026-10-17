@@ -17,6 +17,7 @@
 package com.cloud.kubernetes.cluster.dao;
 
 import java.util.List;
+import org.apache.cloudstack.userdata.CniConfigurationReferenceChecker;
 
 import org.springframework.stereotype.Component;
 
@@ -28,8 +29,9 @@ import com.cloud.utils.db.SearchCriteria;
 import com.cloud.utils.db.TransactionLegacy;
 
 @Component
-public class KubernetesClusterDaoImpl extends GenericDaoBase<KubernetesClusterVO, Long> implements KubernetesClusterDao {
+public class KubernetesClusterDaoImpl extends GenericDaoBase<KubernetesClusterVO, Long> implements KubernetesClusterDao, CniConfigurationReferenceChecker {
 
+    private final SearchBuilder<KubernetesClusterVO> CniReferenceCount;
     private final SearchBuilder<KubernetesClusterVO> CleanupAccountIdSearch;
     private final SearchBuilder<KubernetesClusterVO> NotForGCByAccountIDCount;
     private final SearchBuilder<KubernetesClusterVO> GarbageCollectedSearch;
@@ -38,6 +40,11 @@ public class KubernetesClusterDaoImpl extends GenericDaoBase<KubernetesClusterVO
     private final SearchBuilder<KubernetesClusterVO> KubernetesVersionSearch;
 
     public KubernetesClusterDaoImpl() {
+        CniReferenceCount = createSearchBuilder();
+        CniReferenceCount.and("cniId", CniReferenceCount.entity().getCniConfigId(), SearchCriteria.Op.EQ);
+        CniReferenceCount.and("removed", CniReferenceCount.entity().getRemoved(), SearchCriteria.Op.NULL);
+        CniReferenceCount.select(null, SearchCriteria.Func.COUNT, null);
+        CniReferenceCount.done();
         CleanupAccountIdSearch = createSearchBuilder();
         CleanupAccountIdSearch.and("account", CleanupAccountIdSearch.entity().getAccountId(), SearchCriteria.Op.EQ);
         CleanupAccountIdSearch.and("cluster_type", CleanupAccountIdSearch.entity().getClusterType(), SearchCriteria.Op.EQ);
@@ -68,6 +75,13 @@ public class KubernetesClusterDaoImpl extends GenericDaoBase<KubernetesClusterVO
         KubernetesVersionSearch = createSearchBuilder();
         KubernetesVersionSearch.and("kubernetesVersionId", KubernetesVersionSearch.entity().getKubernetesVersionId(), SearchCriteria.Op.EQ);
         KubernetesVersionSearch.done();
+    }
+
+    @Override
+    public boolean hasActiveCniReferences(long cniId) {
+        SearchCriteria<KubernetesClusterVO> sc = CniReferenceCount.create();
+        sc.setParameters("cniId", cniId);
+        return getCount(sc) > 0;
     }
 
     @Override

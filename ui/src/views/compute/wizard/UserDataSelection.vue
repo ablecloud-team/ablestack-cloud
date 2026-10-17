@@ -24,7 +24,7 @@
         v-model:value="filter"
         :disabled="disabled || !allowed || !ownerReady"
         :placeholder="$t('label.search')"
-        :aria-label="$t('label.user.data') + ' ' + $t('label.search')"
+        :aria-label="$t(resourceLabel) + ' ' + $t('label.search')"
         @keydown.enter.stop.prevent
         @keyup.enter.stop
         @search="handleSearch" />
@@ -32,7 +32,7 @@
     <a-alert v-if="listError || selectionError" type="error" show-icon role="alert" :message="$t(listError || selectionError)">
       <template #description><a-button size="small" :loading="loading" @click="load(requestedQuery)">{{ $t('label.refresh') }}</a-button></template>
     </a-alert>
-    <p v-if="selectedId !== noSelection" role="status">{{ $t('message.userdata.selection.selected', { name: selectedItem?.name || selectedId }) }}</p>
+    <p v-if="selectedId !== noSelection" :class="{ 'cni-selection-status': resourceKind === 'cni' }" role="status">{{ $t(resourceKind === 'cni' ? 'message.cni.selection.selected' : 'message.userdata.selection.selected', { name: selectedItem?.name || selectedId }) }}</p>
     <a-table
       :loading="loading"
       :columns="columns"
@@ -45,7 +45,7 @@
       :scroll="{ x: 480, y: 225 }"
       @change="handleTableChange">
       <template #headerCell="{ column }">
-        <template v-if="column.key === 'name'"><solution-outlined /> {{ $t('label.user.data') }}</template>
+        <template v-if="column.key === 'name'"><solution-outlined /> {{ $t(resourceLabel) }}</template>
         <template v-if="column.key === 'account'"><user-outlined /> {{ $t('label.account') }}</template>
         <template v-if="column.key === 'domain'"><block-outlined /> {{ $t('label.domain') }}</template>
       </template>
@@ -60,6 +60,7 @@ import { NO_USER_DATA, userDataOwnerParams } from '@/utils/userDataSelection'
 export default {
   name: 'UserDataSelection',
   props: {
+    resourceKind: { type: String, default: 'userdata', validator: value => ['userdata', 'cni'].includes(value) },
     scope: { type: Object, default: () => ({}) },
     value: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
@@ -92,10 +93,14 @@ export default {
     }
   },
   computed: {
-    allowed () { return Boolean(this.$store.getters.apis?.listUserData) },
+    apiCommand () { return this.resourceKind === 'cni' ? 'listCniConfiguration' : 'listUserData' },
+    responseName () { return this.resourceKind === 'cni' ? 'listcniconfigurationresponse' : 'listuserdataresponse' },
+    objectName () { return this.resourceKind === 'cni' ? 'cniconfig' : 'userdata' },
+    resourceLabel () { return this.resourceKind === 'cni' ? 'label.cniconfiguration' : 'label.user.data' },
+    allowed () { return Boolean(this.$store.getters.apis?.[this.apiCommand]) },
     owner () { return userDataOwnerParams(this.scope) },
     ownerReady () { return Boolean(this.owner.projectid || (this.owner.account && this.owner.domainid)) },
-    scopeKey () { return JSON.stringify([this.owner, this.zoneId, this.allowed]) },
+    scopeKey () { return JSON.stringify([this.owner, this.zoneId, this.apiCommand, this.allowed]) },
     selectionDisabled () { return this.disabled || this.loading || Boolean(this.listError) || !this.allowed || !this.ownerReady },
     ready () { return !this.loading && !this.listError && !this.selectionError && this.allowed && this.ownerReady },
     pagination () {
@@ -145,7 +150,8 @@ export default {
   methods: {
     async load (query) {
       const generation = ++this.generation
-      const current = () => this.active && generation === this.generation
+      const scope = this.scopeKey
+      const current = () => this.active && generation === this.generation && scope === this.scopeKey
       this.requestedQuery = { ...query }
       this.listError = ''
       this.loading = true
@@ -160,17 +166,17 @@ export default {
         let result
         // Recover deleted pages with a bounded fallback, never an unbounded retry.
         for (let attempt = 0; attempt < 3; attempt++) {
-          const json = await getAPI('listUserData', { ...owner, page: requested.page, pagesize: requested.pageSize, keyword: requested.keyword || undefined }, { preserveOnFailure: true, timeout: 15000 })
+          const json = await getAPI(this.apiCommand, { ...owner, page: requested.page, pagesize: requested.pageSize, keyword: requested.keyword || undefined }, { preserveOnFailure: true, timeout: 15000 })
           if (!current()) return
-          result = json?.listuserdataresponse
-          if (!result || result.errorcode) throw new Error('Invalid listUserData response')
+          result = json?.[this.responseName]
+          if (!result || result.errorcode || !Array.isArray(result[this.objectName] || [])) throw new Error('Invalid selection response')
           const total = Number(result.count || 0)
-          const rows = result.userdata || []
+          const rows = result[this.objectName] || []
           if (rows.length || requested.page === 1) break
           requested.page = attempt === 1 ? 1 : Math.max(1, Math.min(requested.page - 1, Math.ceil(total / requested.pageSize)))
         }
         if (!current()) return
-        this.items = result.userdata || []
+        this.items = result[this.objectName] || []
         this.total = Number(result.count || 0)
         this.query = { ...requested }
         this.requestedQuery = { ...requested }
@@ -179,9 +185,9 @@ export default {
           const id = this.selectedId
           let item = this.items.find(item => item.id === id)
           if (!item) {
-            const json = await getAPI('listUserData', { ...owner, id }, { preserveOnFailure: true, timeout: 15000 })
+            const json = await getAPI(this.apiCommand, { ...owner, id }, { preserveOnFailure: true, timeout: 15000 })
             if (!current() || this.selectedId !== id) return
-            item = json?.listuserdataresponse?.userdata?.find(item => item.id === id)
+            item = json?.[this.responseName]?.[this.objectName]?.find(item => item.id === id)
           }
           if (!item) this.selectionError = 'message.userdata.selection.missing'
           else {
@@ -221,6 +227,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.cni-selection-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .userdata-selection { min-width: 0; max-width: 100%; }
 .userdata-selection-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .userdata-selection-toolbar .ant-input-search { width: 320px; max-width: 100%; }

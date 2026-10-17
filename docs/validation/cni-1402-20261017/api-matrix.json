@@ -1,0 +1,195 @@
+[
+  {
+    "test": "exact UUID root cni1402-shared",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-01",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-02",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-03",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-04",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-05",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-06",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-07",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-08",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-09",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-10",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-11",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-12",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-13",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-14",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-15",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-16",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-17",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-18",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-19",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-20",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID root cni1402-root-21",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID a cni1402-shared",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID a cni1402-a-01",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID b cni1402-shared",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID p cni1402-shared",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID p cni1402-p-01",
+    "result": "PASS"
+  },
+  {
+    "test": "exact UUID q cni1402-shared",
+    "result": "PASS"
+  },
+  {
+    "test": "root substring",
+    "result": "PASS",
+    "count": 28
+  },
+  {
+    "test": "name exact",
+    "result": "PASS",
+    "count": 5
+  },
+  {
+    "test": "account a",
+    "result": "PASS",
+    "count": 2
+  },
+  {
+    "test": "domain",
+    "result": "PASS",
+    "count": 6
+  },
+  {
+    "test": "owner a",
+    "result": "PASS",
+    "count": 2
+  },
+  {
+    "test": "owner b",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "admin project p",
+    "result": "PASS",
+    "count": 2
+  },
+  {
+    "test": "member project p",
+    "result": "PASS",
+    "count": 2
+  },
+  {
+    "test": "admin project q",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "member project q",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "non-member cannot list project",
+    "result": "PASS"
+  },
+  {
+    "test": "absent keyword empty",
+    "result": "PASS"
+  },
+  {
+    "test": "absent name empty",
+    "result": "PASS"
+  },
+  {
+    "test": "absent UUID rejected by API",
+    "result": "PASS",
+    "http": 431
+  },
+  {
+    "test": "filtered two-page partition",
+    "result": "PASS",
+    "first": 20,
+    "second": 8
+  },
+  {
+    "test": "normal UserData isolated from CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "normal UserData isolated from CNI",
+    "result": "PASS"
+  }
+]

@@ -1,0 +1,230 @@
+[
+  {
+    "name": "adjacent repeated exact literal rendering",
+    "pass_check": true
+  },
+  {
+    "name": "adjacent repeated exact transmitted values",
+    "pass_check": true
+  },
+  {
+    "name": "escape exact literal rendering",
+    "pass_check": true
+  },
+  {
+    "name": "escape exact transmitted values",
+    "pass_check": true
+  },
+  {
+    "name": "empty exact literal rendering",
+    "pass_check": true
+  },
+  {
+    "name": "empty exact transmitted values",
+    "pass_check": true
+  },
+  {
+    "name": "no recursion exact literal rendering",
+    "pass_check": true
+  },
+  {
+    "name": "no recursion exact transmitted values",
+    "pass_check": true
+  },
+  {
+    "name": "UTF8 BOM CRLF preserved",
+    "pass_check": true
+  },
+  {
+    "name": "valid candidate extraction order",
+    "pass_check": true
+  },
+  {
+    "name": "reserved and unsupported tokens reported",
+    "pass_check": true
+  },
+  {
+    "name": "missing declared value reported",
+    "pass_check": true
+  },
+  {
+    "name": "extra value reported",
+    "pass_check": true
+  },
+  {
+    "name": "undeclared token preserved",
+    "pass_check": true
+  },
+  {
+    "name": "automatic AS numeric rendering",
+    "pass_check": true
+  },
+  {
+    "name": "unallocated AS remains pending",
+    "pass_check": true
+  },
+  {
+    "name": "Jinja is not executed",
+    "pass_check": true
+  },
+  {
+    "name": "Jinja metadata candidate extracted",
+    "pass_check": true
+  },
+  {
+    "name": "reject invalid declarations A,A",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "reject invalid declarations bad key",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "reject invalid declarations local-ipv4",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "reject invalid declarations A,",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "reject oversized serialized values",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "reject oversized rendered payload",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "owner account registered preview",
+    "pass_check": true
+  },
+  {
+    "name": "project member registered preview",
+    "pass_check": true
+  },
+  {
+    "name": "root admin registered preview",
+    "pass_check": true
+  },
+  {
+    "name": "nonmember cannot preview project CNI",
+    "pass_check": true,
+    "status": 432,
+    "code": 432
+  },
+  {
+    "name": "other account cannot preview owner CNI",
+    "pass_check": true,
+    "status": 531,
+    "code": 531
+  },
+  {
+    "name": "ordinary userdata rejected",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "ambiguous source rejected",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "stored declarations cannot be overridden",
+    "pass_check": true,
+    "status": 431,
+    "code": 431
+  },
+  {
+    "name": "foreign network automatic value cannot be read",
+    "pass_check": true,
+    "status": 531,
+    "code": 531
+  },
+  {
+    "name": "create missing values rejected before provisioning",
+    "pass_check": true,
+    "status": 530,
+    "code": 530
+  },
+  {
+    "name": "create extra values rejected before provisioning",
+    "pass_check": true,
+    "status": 530,
+    "code": 530
+  },
+  {
+    "name": "invalid requests created no clusters",
+    "pass_check": true
+  },
+  {
+    "name": "registered name normalization parity and long valid key",
+    "pass_check": true
+  },
+  {
+    "name": "project member can resolve its own network preview",
+    "pass_check": true
+  },
+  {
+    "name": "UI registered source preview uses exact project UUID",
+    "pass_check": true
+  },
+  {
+    "name": "Unicode special and multiline values preserved in preview",
+    "pass_check": true
+  },
+  {
+    "name": "source preview matches independent literal oracle",
+    "pass_check": true
+  },
+  {
+    "name": "intentional unknown and unallocated automatic tokens remain explicit",
+    "pass_check": true
+  },
+  {
+    "name": "actual clean UI creation async job succeeded",
+    "pass_check": true
+  },
+  {
+    "name": "actual cluster owner CNI and network match UI request",
+    "pass_check": true
+  },
+  {
+    "name": "two real nodes ready and have exact Cloud provider UUIDs",
+    "pass_check": true
+  },
+  {
+    "name": "actual guest CNI MIME bytes equal server preview SHA",
+    "pass_check": true
+  },
+  {
+    "name": "actual guest leaf files match independent YAML oracle bytes",
+    "pass_check": true
+  },
+  {
+    "name": "custom Calico is operational on both nodes",
+    "pass_check": true
+  },
+  {
+    "name": "bootstrap preserved alongside CNI",
+    "pass_check": true
+  },
+  {
+    "name": "cluster and VM JSON metadata preserve exact raw values",
+    "pass_check": true
+  }
+]

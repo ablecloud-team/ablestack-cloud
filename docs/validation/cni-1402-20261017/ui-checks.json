@@ -1,0 +1,1421 @@
+[
+  {
+    "test": "deployed reload restores UUID search",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e&page=1&pagesize=20"
+  },
+  {
+    "test": "basic UUID uses exact id with trimmed whitespace",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&keyword=+4c27c521-912a-47c3-a8ef-e42007fcc84e+&q=+4c27c521-912a-47c3-a8ef-e42007fcc84e+",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=+4c27c521-912a-47c3-a8ef-e42007fcc84e+&q=+4c27c521-912a-47c3-a8ef-e42007fcc84e+"
+  },
+  {
+    "test": "basic name substring page 1 matches API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      },
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 1-20 표시",
+    "query": "page=1&pagesize=20&keyword=cni1402-&q=cni1402-",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cni1402-&q=cni1402-"
+  },
+  {
+    "test": "filtered page 2 matches API without losing keyword",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "page=2&pagesize=20&keyword=cni1402-&q=cni1402-",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=2&pagesize=20&keyword=cni1402-&q=cni1402-"
+  },
+  {
+    "test": "page-local sort persists in URL without changing page membership",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "reload restores keyword/page/size/local sort",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "search from page 2 returns to page 1",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e"
+  },
+  {
+    "test": "browser Back restores previous page and search",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=2&pagesize=20&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "page size change resets page and retains all filters",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 1-25 표시",
+    "query": "page=1&pagesize=50&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&keyword=cni1402-&q=cni1402-&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "advanced exact name matches API across account owners",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 3 개 항목 중 1-3 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&name=cni1402-shared",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&name=cni1402-shared"
+  },
+  {
+    "test": "advanced UUID exact filter matches API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&id=4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&id=4c27c521-912a-47c3-a8ef-e42007fcc84e"
+  },
+  {
+    "test": "detail entry and Back retain advanced UUID/page/size/sort",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&id=4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&id=4c27c521-912a-47c3-a8ef-e42007fcc84e"
+  },
+  {
+    "test": "remove UUID filter restores default owner scope",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "24f2f989-10a7-422e-a00a-baf4ea94ba7f",
+        "name": "rt1230-offline-custom-cni-r29"
+      },
+      {
+        "id": "848a6387-0ddf-47d5-8469-d7b78c2def65",
+        "name": "rt1230-offline-custom-cni-r34"
+      },
+      {
+        "id": "7badd14a-c696-4dac-8e77-2d4f71c68a50",
+        "name": "rt1230-offline-custom-cni-r36"
+      }
+    ],
+    "pagination": "전체 28 개 항목 중 1-28 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "advanced domain matches non-project API scope",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 3 개 항목 중 1-3 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a"
+  },
+  {
+    "test": "advanced account and domain exactly match API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a"
+  },
+  {
+    "test": "reload retains account/domain filters",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a"
+  },
+  {
+    "test": "changing domain clears old account before submit",
+    "result": "PASS"
+  },
+  {
+    "test": "advanced reset clears owners and preserves page size",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "24f2f989-10a7-422e-a00a-baf4ea94ba7f",
+        "name": "rt1230-offline-custom-cni-r29"
+      },
+      {
+        "id": "848a6387-0ddf-47d5-8469-d7b78c2def65",
+        "name": "rt1230-offline-custom-cni-r34"
+      },
+      {
+        "id": "7badd14a-c696-4dac-8e77-2d4f71c68a50",
+        "name": "rt1230-offline-custom-cni-r36"
+      }
+    ],
+    "pagination": "전체 28 개 항목 중 1-28 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "nonexistent partial name yields an empty list",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&keyword=cni1402-absent&q=cni1402-absent",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&keyword=cni1402-absent&q=cni1402-absent"
+  },
+  {
+    "test": "nonexistent exact name yields an empty list",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=50&sortkey=name&sortorder=asc&name=cni1402-absent",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=50&sortkey=name&sortorder=asc&name=cni1402-absent"
+  },
+  {
+    "test": "all-projects switch includes project CNI and matches API page 1",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "01392eba-2566-477d-9bca-097428950a99",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      }
+    ],
+    "pagination": "전체 28 개 항목 중 1-20 표시",
+    "query": "keyword=cni1402-&q=cni1402-&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cni1402-&q=cni1402-&page=1&pagesize=20"
+  },
+  {
+    "test": "all-projects page 2 matches API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 28 개 항목 중 21-28 표시",
+    "query": "keyword=cni1402-&q=cni1402-&page=2&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cni1402-&q=cni1402-&page=2&pagesize=20"
+  },
+  {
+    "test": "selected project P uses shared interceptor and only P CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "UUID search retains selected project P",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "keyword=a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b&q=a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b&q=a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b&page=1&pagesize=20"
+  },
+  {
+    "test": "selected project Q excludes P and all account-owned CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "01392eba-2566-477d-9bca-097428950a99",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "ordinary UserData substring search retains all-projects behavior",
+    "result": "PASS",
+    "ids": [
+      "0d9eae5c-c55d-492e-9796-5c5baea38cd6",
+      "b095eac4-df58-4e0f-93aa-6280389522e3"
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "url": "http://10.10.31.10:8080/client/#/userdata?keyword=cni1402-normal&q=cni1402-normal&page=1&pagesize=20"
+  },
+  {
+    "test": "ordinary UserData UUID-to-id behavior is unchanged",
+    "result": "PASS",
+    "ids": [
+      "0d9eae5c-c55d-492e-9796-5c5baea38cd6"
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "url": "http://10.10.31.10:8080/client/#/userdata?page=1&pagesize=20&keyword=0d9eae5c-c55d-492e-9796-5c5baea38cd6&q=0d9eae5c-c55d-492e-9796-5c5baea38cd6"
+  },
+  {
+    "test": "ordinary member all-projects lists only own A and joined P/Q",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "01392eba-2566-477d-9bca-097428950a99",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 5 개 항목 중 1-5 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "ordinary account A default view shows only its own CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "ordinary owner UUID search matches own API ACL",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "keyword=c325c697-4bdf-402e-a179-c880be280f32&q=c325c697-4bdf-402e-a179-c880be280f32&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=c325c697-4bdf-402e-a179-c880be280f32&q=c325c697-4bdf-402e-a179-c880be280f32&page=1&pagesize=20"
+  },
+  {
+    "test": "ordinary advanced search hides unavailable domain field and account options contain only self",
+    "result": "PASS",
+    "visibleOwnerOptions": [
+      "cni1402-a"
+    ]
+  },
+  {
+    "test": "ordinary advanced exact name and self account match ACL",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&name=cni1402-shared&account=cni1402-a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&name=cni1402-shared&account=cni1402-a"
+  },
+  {
+    "test": "ordinary project member P sees only P-owned CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "ordinary project member UserData search uses the shared project interceptor",
+    "result": "PASS",
+    "ids": [
+      "b095eac4-df58-4e0f-93aa-6280389522e3"
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "url": "http://10.10.31.10:8080/client/#/userdata?keyword=cni1402-normal&q=cni1402-normal&page=1&pagesize=20"
+  },
+  {
+    "test": "ordinary account B cannot see A or P/Q CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "non-member all-projects view still contains only B-owned CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "non-member project picker exposes no P/Q project",
+    "result": "PASS"
+  },
+  {
+    "test": "non-member B UUID search resolves only its own CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&page=1&pagesize=20"
+  },
+  {
+    "test": "final deployment preserves B exact UUID search",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&page=1&pagesize=20"
+  },
+  {
+    "test": "final: foreign UUID is blocked without leaving CNI search",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=20&keyword=c325c697-4bdf-402e-a179-c880be280f32&q=c325c697-4bdf-402e-a179-c880be280f32",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=c325c697-4bdf-402e-a179-c880be280f32&q=c325c697-4bdf-402e-a179-c880be280f32"
+  },
+  {
+    "test": "final: nonexistent UUID shows a local error and keeps the CNI route",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=20&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402"
+  },
+  {
+    "test": "final localized deployment retains invalid UUID query on reload",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=20&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402"
+  },
+  {
+    "test": "final owner search recovers after nonexistent UUID 431",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3"
+  },
+  {
+    "test": "final controlled 503 shows a stale-data error and retains verified rows",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3"
+  },
+  {
+    "test": "final retry after 503 restores successful read",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3"
+  },
+  {
+    "test": "final controlled permission error clears old rows and retains search",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3"
+  },
+  {
+    "test": "final retry after controlled 403 restores authorized result",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&keyword=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3&q=cf17de7c-daf9-45e6-ba59-4fb5c208d4e3"
+  },
+  {
+    "test": "final administrator substring search page 1 matches API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "33ccd40f-c813-448d-994a-fbad8dca9576",
+        "name": "cni1402-root-21"
+      },
+      {
+        "id": "011395c0-49b6-4d80-9de4-e7ce446f04d5",
+        "name": "cni1402-root-20"
+      },
+      {
+        "id": "d05138c9-9b95-4e7a-b00a-64e1fae3411d",
+        "name": "cni1402-root-19"
+      },
+      {
+        "id": "18389bb2-9564-47bd-834c-2db1042f9461",
+        "name": "cni1402-root-18"
+      },
+      {
+        "id": "f56ff154-46ed-4893-9ec1-e1ed53e5ecb2",
+        "name": "cni1402-root-17"
+      },
+      {
+        "id": "100cc057-9293-4dff-9959-e82e8da5b80c",
+        "name": "cni1402-root-16"
+      },
+      {
+        "id": "89bf9d40-7318-4c44-95e6-e3914726b5fa",
+        "name": "cni1402-root-15"
+      },
+      {
+        "id": "abc4a381-b540-43f9-be79-5c5518ee94c2",
+        "name": "cni1402-root-14"
+      },
+      {
+        "id": "f8751e1e-1531-4c2f-bc22-e5f3a0eb93fa",
+        "name": "cni1402-root-13"
+      },
+      {
+        "id": "fbc221f5-b289-4b7b-89f8-ea1450c6f0b0",
+        "name": "cni1402-root-12"
+      },
+      {
+        "id": "b70fea53-465c-412e-92a7-801642d4fbfd",
+        "name": "cni1402-root-11"
+      },
+      {
+        "id": "b3f84a06-54ed-4b18-aec7-10d6fe0db43e",
+        "name": "cni1402-root-10"
+      },
+      {
+        "id": "99d91bc2-775a-4af0-9eee-832caddef331",
+        "name": "cni1402-root-09"
+      },
+      {
+        "id": "fb2f174f-26c2-4ab9-a500-6957dd56ab38",
+        "name": "cni1402-root-08"
+      },
+      {
+        "id": "dd311b73-53d6-40e3-afed-cdbd690ea998",
+        "name": "cni1402-root-07"
+      },
+      {
+        "id": "fefa29fd-ed64-4d32-87c7-f582fecc525e",
+        "name": "cni1402-root-06"
+      },
+      {
+        "id": "49cb933e-fa95-4a7d-82de-2ae913b2debb",
+        "name": "cni1402-root-05"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 1-20 표시",
+    "query": "keyword=cni1402-&q=cni1402-&page=1&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cni1402-&q=cni1402-&page=1&pagesize=20"
+  },
+  {
+    "test": "final administrator filtered page 2 matches API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "keyword=cni1402-&q=cni1402-&page=2&pagesize=20",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cni1402-&q=cni1402-&page=2&pagesize=20"
+  },
+  {
+    "test": "final local sort retains filtered page membership",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "8a8410bb-afe1-4d48-8b60-c48225d5c8e4",
+        "name": "cni1402-root-01"
+      },
+      {
+        "id": "d6f4e011-0b1f-4513-9f99-8fd67dd40bef",
+        "name": "cni1402-root-02"
+      },
+      {
+        "id": "9e5cee4c-9aa3-4ef6-bb3a-a164ea9fc899",
+        "name": "cni1402-root-03"
+      },
+      {
+        "id": "1786f15b-e191-4238-ab86-291fb8e35a53",
+        "name": "cni1402-root-04"
+      },
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 25 개 항목 중 21-25 표시",
+    "query": "keyword=cni1402-&q=cni1402-&page=2&pagesize=20&sortkey=name&sortorder=asc",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?keyword=cni1402-&q=cni1402-&page=2&pagesize=20&sortkey=name&sortorder=asc"
+  },
+  {
+    "test": "final administrator nonexistent UUID stays in CNI with a local error",
+    "result": "PASS",
+    "items": [],
+    "pagination": "전체 0 개 항목 중 0-0 표시",
+    "query": "page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=00000000-0000-4000-8000-000000001402&q=00000000-0000-4000-8000-000000001402"
+  },
+  {
+    "test": "final administrator exact UUID recovers from 431 and resets page",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "4c27c521-912a-47c3-a8ef-e42007fcc84e",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "query": "page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&sortkey=name&sortorder=asc&keyword=4c27c521-912a-47c3-a8ef-e42007fcc84e&q=4c27c521-912a-47c3-a8ef-e42007fcc84e"
+  },
+  {
+    "test": "final administrator advanced account/domain still match API",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "page=1&pagesize=20&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a&account=cni1402-a"
+  },
+  {
+    "test": "final all-projects domain intersection includes exactly its account and project CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "bb3451d9-f42e-427d-8ea3-97754d05060d",
+        "name": "cni1402-a-01"
+      },
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "01392eba-2566-477d-9bca-097428950a99",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "cf17de7c-daf9-45e6-ba59-4fb5c208d4e3",
+        "name": "cni1402-shared"
+      },
+      {
+        "id": "c325c697-4bdf-402e-a179-c880be280f32",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 6 개 항목 중 1-6 표시",
+    "query": "page=1&pagesize=20&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration?page=1&pagesize=20&sortkey=name&sortorder=asc&domainid=4005f122-98ef-4d46-b49d-fc70f553e90a"
+  },
+  {
+    "test": "final selected project P still uses shared project injection",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "fc37addb-d625-48da-9b9b-9be1f7902e84",
+        "name": "cni1402-p-01"
+      },
+      {
+        "id": "a0a3bb95-6a2c-4f7f-bffd-0dc673c61d2b",
+        "name": "cni1402-shared"
+      }
+    ],
+    "pagination": "전체 2 개 항목 중 1-2 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  },
+  {
+    "test": "final normal UserData selected-project search remains unchanged",
+    "result": "PASS",
+    "ids": [
+      "b095eac4-df58-4e0f-93aa-6280389522e3"
+    ],
+    "pagination": "전체 1 개 항목 중 1-1 표시",
+    "url": "http://10.10.31.10:8080/client/#/userdata?keyword=cni1402-normal&q=cni1402-normal&page=1&pagesize=20"
+  },
+  {
+    "test": "cleanup handoff shows only the three original CNI",
+    "result": "PASS",
+    "items": [
+      {
+        "id": "7badd14a-c696-4dac-8e77-2d4f71c68a50",
+        "name": "rt1230-offline-custom-cni-r36"
+      },
+      {
+        "id": "848a6387-0ddf-47d5-8469-d7b78c2def65",
+        "name": "rt1230-offline-custom-cni-r34"
+      },
+      {
+        "id": "24f2f989-10a7-422e-a00a-baf4ea94ba7f",
+        "name": "rt1230-offline-custom-cni-r29"
+      }
+    ],
+    "pagination": "전체 3 개 항목 중 1-3 표시",
+    "query": "",
+    "url": "http://10.10.31.10:8080/client/#/cniconfiguration"
+  }
+]

@@ -1,0 +1,1860 @@
+{
+  "views": [
+    {
+      "name": "populated-usage-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "populated-usage-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 397,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1024
+    },
+    {
+      "name": "populated-usage-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 439,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 768
+    },
+    {
+      "name": "populated-usage-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 296,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 390
+    },
+    {
+      "name": "delete-in-use-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 740,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        },
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "listKubernetesClusters-pending-503",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "listKubernetesClusters-error-503",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "listKubernetesClusters-pending-403",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "listKubernetesClusters-error-403",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "populated-usage-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "populated-usage-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 397,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1024
+    },
+    {
+      "name": "populated-usage-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 439,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 768
+    },
+    {
+      "name": "populated-usage-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 296,
+          "scroll": 1100
+        },
+        {
+          "client": 1067,
+          "scroll": 1067
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 390
+    },
+    {
+      "name": "wizard-cni-light-1440",
+      "focus": "form_item_cniconfigurationid",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 155,
+          "right": 1275
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        },
+        {
+          "client": 760,
+          "scroll": 760
+        }
+      ],
+      "theme": "light",
+      "url": "#/kubernetes",
+      "width": 1440
+    },
+    {
+      "name": "wizard-cni-light-1024",
+      "focus": "form_item_cniconfigurationid",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 11,
+          "right": 1003
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 910,
+          "scroll": 910
+        },
+        {
+          "client": 632,
+          "scroll": 632
+        }
+      ],
+      "theme": "light",
+      "url": "#/kubernetes",
+      "width": 1024
+    },
+    {
+      "name": "wizard-cni-light-768",
+      "focus": "form_item_cniconfigurationid",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 11,
+          "right": 747
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 654,
+          "scroll": 687
+        },
+        {
+          "client": 376,
+          "scroll": 376
+        }
+      ],
+      "theme": "light",
+      "url": "#/kubernetes",
+      "width": 768
+    },
+    {
+      "name": "wizard-cni-light-390",
+      "focus": "form_item_cniconfigurationid",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 3,
+          "right": 377
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 356,
+          "scroll": 687
+        },
+        {
+          "client": 334,
+          "scroll": 334
+        }
+      ],
+      "theme": "light",
+      "url": "#/kubernetes",
+      "width": 390
+    },
+    {
+      "name": "wizard-cni-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 155,
+          "right": 1275
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        },
+        {
+          "client": 760,
+          "scroll": 760
+        }
+      ],
+      "theme": "dark",
+      "url": "#/kubernetes",
+      "width": 1440
+    },
+    {
+      "name": "wizard-cni-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 11,
+          "right": 1003
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        },
+        {
+          "client": 632,
+          "scroll": 632
+        }
+      ],
+      "theme": "dark",
+      "url": "#/kubernetes",
+      "width": 1024
+    },
+    {
+      "name": "wizard-cni-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 11,
+          "right": 747
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 775
+        },
+        {
+          "client": 376,
+          "scroll": 376
+        }
+      ],
+      "theme": "dark",
+      "url": "#/kubernetes",
+      "width": 768
+    },
+    {
+      "name": "wizard-cni-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "left": 3,
+          "right": 377
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 775
+        },
+        {
+          "client": 334,
+          "scroll": 334
+        }
+      ],
+      "theme": "dark",
+      "url": "#/kubernetes",
+      "width": 390
+    },
+    {
+      "name": "ordinary-userdata-content-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/userdata/db4646f9-e1d1-4d92-aa83-1e119d5fad67?tab=userdata.content",
+      "width": 1440
+    },
+    {
+      "name": "ordinary-userdata-register-dark-1440",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 826,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        }
+      ],
+      "theme": "dark",
+      "url": "#/userdata",
+      "width": 1440
+    },
+    {
+      "name": "vm-dialog-reference-dark-1440",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal mold-dialog",
+          "footer": 774,
+          "left": 335,
+          "right": 1095
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 630,
+          "scroll": 700
+        }
+      ],
+      "theme": "dark",
+      "url": "#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b?tab=vmsnapshots",
+      "width": 1440
+    },
+    {
+      "name": "nonmember-project-denied",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?projectid=949cbd17-74a4-4ec7-a550-54eccb487635&tab=cni.content",
+      "width": 1440
+    },
+    {
+      "name": "list-search-empty",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration?page=1&pagesize=20&keyword=cni1408-no-such&q=cni1408-no-such",
+      "width": 1440
+    },
+    {
+      "name": "list-advanced-exact-search",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration?page=1&pagesize=20&name=cni1408-ui-created",
+      "width": 1440
+    },
+    {
+      "name": "final-register-errors-deduplicated",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 868,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-list-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-register-light-1440",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-search-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-detail-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 1440
+    },
+    {
+      "name": "final-content-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 1440
+    },
+    {
+      "name": "final-usage-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "final-comments-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1440
+    },
+    {
+      "name": "final-delete-light-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 850,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1440
+    },
+    {
+      "name": "final-list-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-register-light-1024",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-search-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-detail-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 1024
+    },
+    {
+      "name": "final-content-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 1024
+    },
+    {
+      "name": "final-usage-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 391,
+          "scroll": 1100
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 1024
+    },
+    {
+      "name": "final-comments-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1024
+    },
+    {
+      "name": "final-delete-light-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 850,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1024
+    },
+    {
+      "name": "final-list-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-register-light-768",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-search-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-detail-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 768
+    },
+    {
+      "name": "final-content-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 768
+    },
+    {
+      "name": "final-usage-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 439,
+          "scroll": 1100
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 768
+    },
+    {
+      "name": "final-comments-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 768
+    },
+    {
+      "name": "final-delete-light-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 888,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 662,
+          "scroll": 760
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 768
+    },
+    {
+      "name": "final-list-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-register-light-390",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 836,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-search-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-detail-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 390
+    },
+    {
+      "name": "final-content-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 390
+    },
+    {
+      "name": "final-usage-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 296,
+          "scroll": 1100
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 390
+    },
+    {
+      "name": "final-comments-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 390
+    },
+    {
+      "name": "final-delete-light-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 895,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 332,
+          "scroll": 760
+        }
+      ],
+      "theme": "light",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 390
+    },
+    {
+      "name": "final-list-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-register-dark-1440",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 360,
+          "right": 1080
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-search-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-detail-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 1440
+    },
+    {
+      "name": "final-content-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 1440
+    },
+    {
+      "name": "final-usage-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 599,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "final-comments-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1440
+    },
+    {
+      "name": "final-delete-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 850,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1440
+    },
+    {
+      "name": "final-list-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-register-dark-1024",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 152,
+          "right": 872
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-search-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 900,
+          "scroll": 900
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1024
+    },
+    {
+      "name": "final-detail-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 1024
+    },
+    {
+      "name": "final-content-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 1024
+    },
+    {
+      "name": "final-usage-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 391,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 1024
+    },
+    {
+      "name": "final-comments-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1014,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1024
+    },
+    {
+      "name": "final-delete-dark-1024",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 850,
+          "left": 32,
+          "right": 992
+        }
+      ],
+      "pageWidth": 1014,
+      "tables": [
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 1024
+    },
+    {
+      "name": "final-list-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-register-dark-768",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 844,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-search-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 644,
+          "scroll": 644
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 768
+    },
+    {
+      "name": "final-detail-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 768
+    },
+    {
+      "name": "final-content-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 768
+    },
+    {
+      "name": "final-usage-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 439,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 768
+    },
+    {
+      "name": "final-comments-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 758,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 768
+    },
+    {
+      "name": "final-delete-dark-768",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 888,
+          "left": 24,
+          "right": 744
+        }
+      ],
+      "pageWidth": 758,
+      "tables": [
+        {
+          "client": 662,
+          "scroll": 760
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 768
+    },
+    {
+      "name": "final-list-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-register-dark-390",
+      "focus": "form_item_name",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal userdata-registration-dialog mold-dialog mold-dialog-standard",
+          "footer": 836,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-search-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 386,
+      "tables": [
+        {
+          "client": 346,
+          "scroll": 389
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 390
+    },
+    {
+      "name": "final-detail-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642",
+      "width": 390
+    },
+    {
+      "name": "final-content-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.content",
+      "width": 390
+    },
+    {
+      "name": "final-usage-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 296,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=cni.usage",
+      "width": 390
+    },
+    {
+      "name": "final-comments-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 380,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 390
+    },
+    {
+      "name": "final-delete-dark-390",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 895,
+          "left": 12,
+          "right": 378
+        }
+      ],
+      "pageWidth": 380,
+      "tables": [
+        {
+          "client": 332,
+          "scroll": 760
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/904804ab-62dc-44e7-b227-007c11d1d642?tab=comments",
+      "width": 390
+    },
+    {
+      "name": "final-ui-registered",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "final-ui-delete-confirmation",
+      "focus": "",
+      "height": 1000,
+      "modal": [
+        {
+          "c": "ant-modal cni-delete-dialog mold-dialog mold-dialog-standard",
+          "footer": 729,
+          "left": 240,
+          "right": 1200
+        }
+      ],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 902,
+          "scroll": 902
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/9feec019-b172-4de7-a8bd-910f4bd3f6d8",
+      "width": 1440
+    },
+    {
+      "name": "final-ui-delete-completed",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1140,
+          "scroll": 1140
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    },
+    {
+      "name": "binary-content-base64",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/033a17a5-1cbf-4f94-925e-a494418fe818?tab=cni.content",
+      "width": 1440
+    },
+    {
+      "name": "final-large-body-code-focus",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [],
+      "theme": "dark",
+      "url": "#/cniconfiguration/e1648e8b-1756-46f3-90e0-b820cc431905?tab=cni.content",
+      "width": 1440
+    },
+    {
+      "name": "project-usage-after-cluster-delete",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 606,
+          "scroll": 1100
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration/747aa416-77ed-4998-9e25-c218768dbf47?tab=cni.usage",
+      "width": 1440
+    },
+    {
+      "name": "completed-cni-list-dark-1440",
+      "focus": "",
+      "height": 1000,
+      "modal": [],
+      "pageWidth": 1430,
+      "tables": [
+        {
+          "client": 1150,
+          "scroll": 1150
+        }
+      ],
+      "theme": "dark",
+      "url": "#/cniconfiguration",
+      "width": 1440
+    }
+  ],
+  "checks": [
+    {
+      "name": "registered CNI API bytes and params exact",
+      "pass": true
+    },
+    {
+      "name": "submit inputs disabled while actual POST held",
+      "pass": true
+    },
+    {
+      "name": "UI comment add and delete",
+      "pass": true
+    },
+    {
+      "name": "UTF8 copy bytes exact",
+      "pass": true
+    },
+    {
+      "name": "Base64 view and clipboard exact",
+      "pass": true
+    },
+    {
+      "name": "Base64 downloaded file exact",
+      "pass": true
+    },
+    {
+      "name": "503 preserves stale content",
+      "pass": true
+    },
+    {
+      "name": "403 clears forbidden content",
+      "pass": true
+    },
+    {
+      "name": "content retry restores export",
+      "pass": true
+    },
+    {
+      "name": "project usage actual cluster link",
+      "pass": true
+    },
+    {
+      "name": "expanded nodes two actual VM links",
+      "pass": true
+    },
+    {
+      "name": "in-use delete blocked with usage link",
+      "pass": true
+    },
+    {
+      "name": "usage 503 retains cluster row",
+      "pass": true
+    },
+    {
+      "name": "usage 403 removes cluster data",
+      "pass": true
+    },
+    {
+      "name": "CNI selector status accessible and visually clipped",
+      "pass": true
+    },
+    {
+      "name": "AS_NUMBER uses concise automatic label",
+      "pass": true
+    },
+    {
+      "name": "ordinary UserData content still available",
+      "pass": true
+    },
+    {
+      "name": "ordinary UserData register intro and placeholder retained",
+      "pass": true
+    },
+    {
+      "name": "real nonmember UI has no CNI body or owner data",
+      "pass": true
+    },
+    {
+      "name": "UUID basic search returns exact CNI",
+      "pass": true
+    },
+    {
+      "name": "normal empty search shows empty state",
+      "pass": true
+    },
+    {
+      "name": "advanced exact name search",
+      "pass": true
+    },
+    {
+      "name": "final empty CNI has one error per field and name focus",
+      "pass": true
+    },
+    {
+      "name": "modal keyboard tab keeps focus within dialog",
+      "pass": true
+    },
+    {
+      "name": "Escape closes idle register dialog",
+      "pass": true
+    },
+    {
+      "name": "final deployed register succeeded",
+      "pass": true
+    },
+    {
+      "name": "final deployed delete returns to list",
+      "pass": true
+    },
+    {
+      "name": "binary body retains Base64-only mode",
+      "pass": true
+    },
+    {
+      "name": "actual UI delete route exact",
+      "pass": true
+    },
+    {
+      "name": "code area keyboard focus and tabindex retained",
+      "pass": true
+    },
+    {
+      "name": "after actual cluster delete usage shows zero",
+      "pass": true
+    },
+    {
+      "name": "cleaned list retains original CNI only",
+      "pass": true
+    },
+    {
+      "name": "viewport original and dark theme restored",
+      "pass": true
+    }
+  ]
+}

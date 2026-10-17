@@ -33,21 +33,27 @@ final class UserDataRegistrationValidation {
         return value == null ? "" : value.replaceAll("(?U)^[\\s\\uFEFF]+|[\\s\\uFEFF]+$", "");
     }
 
-    static String name(String value) {
+    static String name(String value) { return name(value, "User data"); }
+
+    static String name(String value, String label) {
         String name = strip(value);
         if (name.isEmpty() || name.length() > 255) {
-            throw new InvalidParameterValueException("User data name must contain 1 to 255 characters after trimming whitespace.");
+            throw new InvalidParameterValueException(label + " name must contain 1 to 255 characters after trimming whitespace.");
         }
         return name;
     }
 
-    static void requireContent(String canonicalBase64) {
+    static void requireContent(String canonicalBase64) { requireContent(canonicalBase64, "User data"); }
+
+    static void requireContent(String canonicalBase64, String label) {
         if (canonicalBase64 == null || strip(new String(Base64.decodeBase64(canonicalBase64), StandardCharsets.UTF_8)).isEmpty()) {
-            throw new InvalidParameterValueException("User data content must not be empty or whitespace only.");
+            throw new InvalidParameterValueException(label + " content must not be empty or whitespace only.");
         }
     }
 
-    static String params(String value) {
+    static String params(String value) { return params(value, "User data"); }
+
+    static String params(String value, String label) {
         if (value == null || value.isEmpty()) {
             return null;
         }
@@ -55,11 +61,11 @@ final class UserDataRegistrationValidation {
         for (String part : value.split(",", -1)) {
             String key = strip(part);
             if (!key.matches("[A-Za-z_][A-Za-z0-9_.-]*") || NetworkModel.metadataFileNames.contains(key)) {
-                throw new InvalidParameterValueException("User data variables must be nonempty identifiers beginning with a letter or underscore, "
+                throw new InvalidParameterValueException(label + " variables must be nonempty identifiers beginning with a letter or underscore, "
                         + "containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names.");
             }
             if (!keys.add(key)) {
-                throw new InvalidParameterValueException("User data variables must not contain duplicate keys.");
+                throw new InvalidParameterValueException(label + " variables must not contain duplicate keys.");
             }
         }
         return String.join(",", keys);

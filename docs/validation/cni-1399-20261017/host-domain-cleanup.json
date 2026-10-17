@@ -1,0 +1,14 @@
+[
+  {
+    "host": "10.10.31.1",
+    "remaining_test_domains": []
+  },
+  {
+    "host": "10.10.31.2",
+    "remaining_test_domains": []
+  },
+  {
+    "host": "10.10.31.3",
+    "remaining_test_domains": []
+  }
+]

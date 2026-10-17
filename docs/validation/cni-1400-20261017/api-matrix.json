@@ -1,0 +1,93 @@
+[
+  {
+    "test": "admin exact CNI identity",
+    "result": "PASS"
+  },
+  {
+    "test": "admin CNI filter count/owner",
+    "result": "PASS",
+    "count": 1,
+    "state": "Running"
+  },
+  {
+    "test": "admin actual node membership",
+    "result": "PASS",
+    "ids": [
+      "6c336a79-e06c-4431-a371-e92091b59aad",
+      "e492f8c1-3104-4753-995f-090c40c586f0"
+    ]
+  },
+  {
+    "test": "admin keyword 1",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "admin keyword 0",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "admin out of range page preserves total",
+    "result": "PASS"
+  },
+  {
+    "test": "member exact CNI identity",
+    "result": "PASS"
+  },
+  {
+    "test": "member CNI filter count/owner",
+    "result": "PASS",
+    "count": 1,
+    "state": "Running"
+  },
+  {
+    "test": "member actual node membership",
+    "result": "PASS",
+    "ids": [
+      "6c336a79-e06c-4431-a371-e92091b59aad",
+      "e492f8c1-3104-4753-995f-090c40c586f0"
+    ]
+  },
+  {
+    "test": "member keyword 1",
+    "result": "PASS",
+    "count": 1
+  },
+  {
+    "test": "member keyword 0",
+    "result": "PASS",
+    "count": 0
+  },
+  {
+    "test": "member out of range page preserves total",
+    "result": "PASS"
+  },
+  {
+    "test": "unused root CNI has zero clusters",
+    "result": "PASS"
+  },
+  {
+    "test": "unused account-a CNI has zero clusters",
+    "result": "PASS"
+  },
+  {
+    "test": "foreign CNI usage denied",
+    "result": "PASS",
+    "code": 530
+  },
+  {
+    "test": "nonmember project usage denied",
+    "result": "PASS",
+    "code": 432
+  },
+  {
+    "test": "ordinary UserData cannot become CNI usage",
+    "result": "PASS",
+    "code": 530
+  },
+  {
+    "test": "ordinary UserData filter regression",
+    "result": "PASS"
+  }
+]

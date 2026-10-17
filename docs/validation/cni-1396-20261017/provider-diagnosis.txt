@@ -1,0 +1,12 @@
+KUBELET_EXTRA_ARGS
+KUBELET_EXTRA_ARGS=--cgroup-driver=systemd
+NODE_PROVIDER_IDS
+cni1396-ui-control-1a145f39ddd		0057f3fd-1420-403e-a513-767e879fd9d2
+cni1396-ui-node-1a145f3d324		7b9144a1-6083-4d9a-8e30-fffd33d104dd
+ISO_PROVIDER_LAYOUT
+provenance/provider.json 548 bytes
+provenance/provider-go-modules.txt 9575 bytes
+provider.yaml 3357 bytes
+provider-ownership-v1.json 278 bytes
+root-provider-present
+GUEST_EXIT 0

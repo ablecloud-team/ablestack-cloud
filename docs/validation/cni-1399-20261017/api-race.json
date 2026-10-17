@@ -1,0 +1,19 @@
+{
+  "create": {
+    "success": false,
+    "status": 530,
+    "code": 530,
+    "message": "Invalid CNI configuration"
+  },
+  "delete": {
+    "success": true,
+    "response": {
+      "deletecniconfigurationresponse": {
+        "success": true
+      }
+    }
+  },
+  "active_matching_clusters": 0,
+  "invariant": "PASS",
+  "winner": "delete"
+}

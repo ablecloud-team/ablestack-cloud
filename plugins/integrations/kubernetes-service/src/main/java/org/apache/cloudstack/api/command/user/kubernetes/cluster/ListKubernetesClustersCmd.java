@@ -28,6 +28,7 @@ import org.apache.cloudstack.api.ResponseObject.ResponseView;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.response.KubernetesClusterResponse;
 import org.apache.cloudstack.api.response.ListResponse;
+import org.apache.cloudstack.api.response.UserDataResponse;
 
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -51,6 +52,12 @@ public class ListKubernetesClustersCmd extends BaseListProjectAndAccountResource
             entityType = KubernetesClusterResponse.class,
             description = "The ID of the Kubernetes cluster")
     private Long id;
+
+    @Parameter(name = ApiConstants.CNI_CONFIG_ID, type = CommandType.UUID, entityType = UserDataResponse.class,
+            description = "Only nonremoved clusters referencing this CNI configuration; subject to CNI and cluster ACLs", since = "4.23.0")
+    private Long cniConfigId;
+
+    public Long getCniConfigId() { return cniConfigId; }
 
     @Parameter(name = ApiConstants.STATE, type = CommandType.STRING, description = "State of the Kubernetes cluster")
     private String state;

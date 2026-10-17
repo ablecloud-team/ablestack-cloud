@@ -1,0 +1,58 @@
+[
+  {
+    "command": "deleteCniConfiguration",
+    "id": "7f4a3ec6-f0e3-48ca-9ae2-e0db9829002b"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "2134a2c9-37c1-4916-89c3-0cbc595353f2"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "276454f7-0f40-41c8-a933-082b2d6b32cb"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "f3a3b266-74c7-4a3a-8cc5-998b063e2b68"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "4246367c-6e79-482f-97ef-7b8641d5d9aa"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "99010c85-34bf-4536-bc8c-625e1828d3b0"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "14fe90bc-4230-417c-90b4-edd4a5dc6ca4"
+  },
+  {
+    "command": "deleteUserData",
+    "id": "f97c82fd-3a52-419e-bcd9-f56bbe6b8d41"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "3c5b52cd-9c92-495e-bcbb-9528bbbfd6fc"
+  },
+  {
+    "command": "deleteProject",
+    "id": "dd981576-1611-4692-affb-482a39e5722a"
+  },
+  {
+    "command": "deleteAccount",
+    "id": "746deeb2-f2c8-43f2-a7f3-73256e91a29c"
+  },
+  {
+    "command": "deleteAccount",
+    "id": "4bc83787-da32-4e21-a152-7560f6c89302"
+  },
+  {
+    "command": "deleteDomain",
+    "id": "2ec021e3-4184-44f3-a34f-1c8b990163b0"
+  },
+  {
+    "command": "deleteCniConfiguration",
+    "id": "1eea8995-fa4f-46b8-8624-b3f2ece75bf1"
+  }
+]

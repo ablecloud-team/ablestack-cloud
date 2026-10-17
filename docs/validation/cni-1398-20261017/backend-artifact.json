@@ -1,0 +1,8 @@
+{
+  "changed_entries": {
+    "com/cloud/server/ManagementServerImpl.class": "23dd976bef8e8d1dfbec347c1c106d2db212c2d6249385c4ec0cf9adc9520071"
+  },
+  "preserved_entries": 204494,
+  "before_sha256": "91903292734956fea9477ef640c21be842da8611cbad7cc5359ec93b94e7957d",
+  "after_sha256": "e310771ca52823f41c9f21806c6691a06bba283189d1b2cbb05f5b1a37015398"
+}

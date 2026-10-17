@@ -1,0 +1,110 @@
+{
+  "cni_mime_parts": 1,
+  "cni_bytes": 1957,
+  "cni_sha256": "14ee6f365089910e32e34384e35e674f41d58001297e724bb07ff4691176b190",
+  "bootstrap_parts_sha256": [
+    "427de4aabfd42751468fe14b71c51814864d520e1db49401307da43a88f20e13"
+  ],
+  "bootstrap_files": {
+    "/etc/kubernetes/admin.conf": true,
+    "/etc/kubernetes/kubeadm-config.yaml": true
+  },
+  "cloud_init_exit": 0,
+  "cloud_init_status": "status: disabled\nboot_status_code: disabled-by-marker-file\nlast_update: Sat, 17 Oct 2026 18:22:40 +0000\ndetail:\nDataSourceCloudStack\n",
+  "nodes": [
+    {
+      "name": "cni1405-ui-final-control-1a14b19050a",
+      "provider_id": "external-cloudstack://7a9f9699-998a-4c9b-a707-6cb154275498",
+      "ready": "True",
+      "version": "v1.34.12"
+    },
+    {
+      "name": "cni1405-ui-final-node-1a14b1941d9",
+      "provider_id": "external-cloudstack://a63f12aa-a1db-4d75-aee1-896a66c0b94e",
+      "ready": "True",
+      "version": "v1.34.12"
+    }
+  ],
+  "pods": [
+    {
+      "name": "calico-kube-controllers-8ff8664b9-zphwb",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "calico-node-mp42q",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "calico-node-vl8h9",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "cloud-controller-manager-7cdb489ffc-qs7qj",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "coredns-66bc5c9577-6t4l5",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "coredns-66bc5c9577-7dfqx",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "etcd-cni1405-ui-final-control-1a14b19050a",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "headlamp-5f476cd7d7-fj25x",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "kube-apiserver-cni1405-ui-final-control-1a14b19050a",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "kube-controller-manager-cni1405-ui-final-control-1a14b19050a",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "kube-proxy-8nf74",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "kube-proxy-sdgr5",
+      "phase": "Running",
+      "ready": true
+    },
+    {
+      "name": "kube-scheduler-cni1405-ui-final-control-1a14b19050a",
+      "phase": "Running",
+      "ready": true
+    }
+  ],
+  "calico_status": {
+    "currentNumberScheduled": 2,
+    "desiredNumberScheduled": 2,
+    "numberAvailable": 2,
+    "numberMisscheduled": 0,
+    "numberReady": 2,
+    "observedGeneration": 1,
+    "updatedNumberScheduled": 2
+  },
+  "calico_mtu": "1450",
+  "calico_annotation": "calico-3.33.0-mtu1450",
+  "files": {
+    "/opt/cni1405/values.txt": "VkFMVUU97ZWc6riAICQxXHBhdGgsIGVxPWEg8J+YgApSRVBFQVQ97ZWc6riAICQxXHBhdGgsIGVxPWEg8J+YgO2VnOq4gCAkMVxwYXRoLCBlcT1hIPCfmIAKRU1QVFk9KCkKRVNDQVBFRD17eyBWQUxVRSB9fQpVTktOT1dOPXt7IE5PVF9ERUNMQVJFRCB9fQpBVVRPPXt7IEFTX05VTUJFUiB9fQo=",
+    "/opt/cni1405/lines.txt": "7LKr7Ke4IOykhArrkZjsp7gg7KSEICQxXHBhdGgsIGVxPWIK"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "before_sha256": "e310771ca52823f41c9f21806c6691a06bba283189d1b2cbb05f5b1a37015398",
+  "after_sha256": "5ef511623cdfa29df4b5e0d519a46a0acdc0bb1b2c239902bc5c63e608671174",
+  "before_entries": 204495,
+  "after_entries": 204497,
+  "unchanged_entries": 204478,
+  "existing_entries_changed": 17,
+  "added_entries": [
+    "com/cloud/user/CniConfigurationReferences.class",
+    "org/apache/cloudstack/userdata/CniConfigurationReferenceChecker.class"
+  ],
+  "changed_entries": {
+    "org/apache/cloudstack/userdata/CniConfigurationReferenceChecker.class": "35c456cce90ffe5a188f8b1ec5c5ff1c2c11847068a5cb7d3e9de6e2612be874",
+    "com/cloud/user/CniConfigurationReferences.class": "40f3cfcf331a425dcbf7e20f054895b8e370ac4bb2eb55a238d365622c1099cc",
+    "com/cloud/server/ManagementServerImpl.class": "1cd4094d570561169886b5688c859328d234b88d5aa721f611a60f7e891497f7",
+    "com/cloud/server/ManagementServerImpl$2.class": "94df69e51f72a10b4e36bdefc3ef84254d2b8594ab238c9260c8de8af4e29220",
+    "com/cloud/server/ManagementServerImpl$EventPurgeTask.class": "a21b8c4344ad987cf81628d6d5a90e5ecc1c81034d0607349b9627ecc58c7494",
+    "com/cloud/server/ManagementServerImpl$1.class": "b4292bc80bd08dc74bbc6012ca0c2ccac8ea3957ea7002cd9d8630a9622086c8",
+    "com/cloud/server/ManagementServerImpl$AlertPurgeTask.class": "9db57399b217d6544015e981851c459a5426c5db9790d5504386d0efddd0e8a7",
+    "com/cloud/server/ManagementServerImpl$LicenseCheckTask.class": "451dbec02efd8e85c8bb58330abc52762445d30d274903b0aaac747a3df2c8a9",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl.class": "284069b1a4848acf6796520d60e3d44bfb1926cba33be9bdcaa32fbb20b5dc50",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$6.class": "14864ffc65bda7a8398458ef2d22ce26c3f7e507a4dff3702737d2dc289efbac",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$KubernetesClusterGarbageCollector.class": "0f0b2d0ca1026898db7e8ca8e30dd61f0984ed204cce0f95557e5f799c091724",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$3.class": "82f9ec37f799de79e4b291cafa06653f5a14a283656dc6658ca8a2747e4c6645",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$KubernetesClusterStatusScanner.class": "944d11b219ea10267d6a804139f9c44e649ce852702d18703a5732870ceeb781",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$1.class": "e5985b5fd4a925c47b5ccc201b547ed4133ea192d2122ca28a0a50c5f8feb5f8",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$5.class": "57444a7430a56a81d78c5eab147bb4ee34873ae9b81b4f56383c4daba603a32a",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$4.class": "8ada5423fc02b901435721627344a0bb333882b5c8b312f9bffdcce77d877bd9",
+    "com/cloud/kubernetes/cluster/KubernetesClusterManagerImpl$2.class": "2de0e92057553fadd1f0270f2592e901c39f250982ff3385c7ff1074842ccf3c",
+    "com/cloud/kubernetes/cluster/dao/KubernetesClusterDaoImpl.class": "4c701c016d837a1459cff867c621e258cbd70fb87072465ad8bd93fc64be5d7f",
+    "org/apache/cloudstack/api/command/user/kubernetes/cluster/ListKubernetesClustersCmd.class": "d87007bc18427e9d41049613de93c83b538c383bef51d89b5344b3ec20382d97"
+  },
+  "deployment_before_sha256": "5e7b8077e431eb92c34328d2f583047cfe90456d6c281ba1667364a161fa88c3",
+  "preservation_verification": "All non-target compressed entry payloads and metadata compared byte-for-byte"
+}

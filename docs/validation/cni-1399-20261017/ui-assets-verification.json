@@ -1,0 +1,11 @@
+{
+  "files_verified": 870,
+  "mismatches": [],
+  "WEB_INF": true,
+  "config_sha256": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13",
+  "ftctl_markers": {
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  }
+}

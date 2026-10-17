@@ -1,0 +1,31 @@
+{
+  "message.cni.search.help": [
+    "js/app.4a7c102c.js"
+  ],
+  "cni.content": [
+    "js/chunk-3d5fd440.ae53a3f7.js",
+    "js/chunk-2d2259f9.62186846.js",
+    "js/app.4a7c102c.js"
+  ],
+  "cni.usage": [
+    "js/chunk-6689abfb.fbb4bd62.js",
+    "js/chunk-a4824596.d4f4b30a.js",
+    "js/app.4a7c102c.js"
+  ],
+  "cnireturn": [
+    "js/chunk-6689abfb.fbb4bd62.js",
+    "js/app.4a7c102c.js"
+  ],
+  "parentReadReady": [
+    "js/chunk-3d5fd440.ae53a3f7.js"
+  ],
+  "blockingLoadingState": [
+    "js/chunk-a106f6f0.c8ce7bc8.js"
+  ],
+  "fetchSyncProgress": [
+    "js/chunk-a106f6f0.c8ce7bc8.js"
+  ],
+  "extractJobId": [
+    "js/chunk-a106f6f0.c8ce7bc8.js"
+  ]
+}

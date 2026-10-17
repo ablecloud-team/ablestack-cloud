@@ -1,0 +1,10 @@
+{
+  "result": "ABORTED_NOT_PASS",
+  "cause": "Startup injection omitted CNI checker from server context; active fixture CNI deletion incorrectly succeeded",
+  "first_cni": "dedicated fixture only",
+  "creation_failure": "CNI user data missing before first node VM provision",
+  "initial_cleanup": "Normal delete blocked at ServiceDeletionRequest; zero native VM maps, no endpoint, no bootstrap marker, failed create job confirmed",
+  "recovery": "Only dedicated failed fixture lifecycle cleanup metadata was recovered; normal delete API retry succeeded. No cluster cni_config_id, operational references, cluster state or removed flag was edited",
+  "final_fix": "Resolve CNI checker through delegated plugin context at request time; fail closed when provider unavailable",
+  "final_qualification": "Fresh fixture normal lifecycle completed without DB or guest correction"
+}

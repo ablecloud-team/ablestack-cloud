@@ -1,0 +1,14 @@
+{
+  "ui_suites": 7,
+  "ui_tests": 142,
+  "kubernetes_module_tests": 102,
+  "server_module_tests": 62,
+  "java_total": 164,
+  "api_runtime_checks": 50,
+  "ui_functional_checks": 23,
+  "final_dialog_viewport_theme_combinations": 28,
+  "selected_screenshots": 33,
+  "static_files_hash_equal": 879,
+  "full_cloud_build": false,
+  "rat_checkstyle_skipped_for_targeted_maven": true
+}

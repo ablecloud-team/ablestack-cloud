@@ -1,0 +1,155 @@
+[
+  {
+    "test": "admin exact CNI identity",
+    "result": "PASS"
+  },
+  {
+    "test": "admin unused count zero",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary owner exact CNI identity",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary owner unused count zero",
+    "result": "PASS"
+  },
+  {
+    "test": "project member exact CNI identity",
+    "result": "PASS"
+  },
+  {
+    "test": "project member unused count zero",
+    "result": "PASS"
+  },
+  {
+    "test": "project search page two total and identities",
+    "result": "PASS",
+    "count": 13,
+    "ids": [
+      "3d7974d0-34f5-43ba-9cc2-b940854267b2",
+      "7e789553-1491-450b-91a3-db01bdbbc496",
+      "6d2bcb23-9d44-4025-a6b0-3017d4828b93"
+    ]
+  },
+  {
+    "test": "foreign account CNI delete rejected",
+    "result": "PASS",
+    "code": 531
+  },
+  {
+    "test": "nonmember project CNI delete rejected",
+    "result": "PASS",
+    "code": 432
+  },
+  {
+    "test": "foreign CNI usage rejected",
+    "result": "PASS",
+    "code": 530
+  },
+  {
+    "test": "nonmember project usage rejected",
+    "result": "PASS",
+    "code": 432
+  },
+  {
+    "test": "ordinary userdata cannot be CNI deleted",
+    "result": "PASS",
+    "code": 431
+  },
+  {
+    "test": "CNI cannot be ordinary userdata deleted",
+    "result": "PASS",
+    "code": 431
+  },
+  {
+    "test": "rejected wrong-type/ACL deletes preserve exact CNI bytes",
+    "result": "PASS"
+  },
+  {
+    "test": "rejected deletes preserve annotation",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary UserData preserved after CNI delete rejection",
+    "result": "PASS"
+  },
+  {
+    "test": "UI cancel preserves original CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "UI failed deletion preserves target UUID",
+    "result": "PASS"
+  },
+  {
+    "test": "UI retry removes original CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "UI original absent does not delete same-name replacement",
+    "result": "PASS",
+    "replacement": "3352f083-29ed-44d3-98c1-615f579d06fc"
+  },
+  {
+    "test": "real new cluster reference blocks paused UI delete",
+    "result": "PASS",
+    "cluster": "a1a28cab-8be9-4a65-90ce-3db013e752d0",
+    "count": 1,
+    "state": "Starting"
+  },
+  {
+    "test": "real race rejection preserves CNI body",
+    "result": "PASS"
+  },
+  {
+    "test": "real race rejection preserves annotation",
+    "result": "PASS"
+  },
+  {
+    "test": "UI detail delete removes exact project CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "UI partial batch deletes unused CNI and preserves referenced original",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary project UserData partial success preserves failed row",
+    "result": "PASS"
+  },
+  {
+    "test": "ordinary project UserData retry removes only remaining target",
+    "result": "PASS"
+  },
+  {
+    "test": "race fixture reaches Running normally with two API node UUIDs",
+    "result": "PASS",
+    "id": "a1a28cab-8be9-4a65-90ce-3db013e752d0",
+    "nodes": [
+      "5e444985-5572-406b-9050-76db12df3b52",
+      "3361d0e1-5535-4a65-b955-7722f2ada97e"
+    ]
+  },
+  {
+    "test": "ordinary owner UI delete confirmed absent by API",
+    "result": "PASS"
+  },
+  {
+    "test": "project member UI delete removed original CNI and its annotation",
+    "result": "PASS"
+  },
+  {
+    "test": "normal cluster removal leaves project usage zero and expected ten remaining unused CNI",
+    "result": "PASS"
+  },
+  {
+    "test": "final UI partial batch deletes completed UUID and preserves failed original",
+    "result": "PASS"
+  },
+  {
+    "test": "final UI retry completes only remaining original UUID",
+    "result": "PASS"
+  }
+]

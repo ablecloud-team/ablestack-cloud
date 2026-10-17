@@ -58,6 +58,9 @@ import com.cloud.exception.ResourceAllocationException;
 import com.cloud.exception.ResourceUnavailableException;
 import com.cloud.hypervisor.Hypervisor;
 import com.cloud.kubernetes.cluster.KubernetesCluster;
+import com.cloud.kubernetes.cluster.CniConfigurationRenderer;
+import com.cloud.dc.dao.ASNumberDao;
+import javax.inject.Inject;
 import com.cloud.kubernetes.cluster.KubernetesClusterDetailsVO;
 import com.cloud.kubernetes.cluster.KubernetesClusterManagerImpl;
 import com.cloud.kubernetes.cluster.KubernetesClusterService;
@@ -91,6 +94,7 @@ import static com.cloud.kubernetes.cluster.KubernetesServiceHelper.KubernetesClu
 public class KubernetesClusterStartWorker extends KubernetesClusterResourceModifierActionWorker {
 
     private KubernetesSupportedVersion kubernetesClusterVersion;
+    @Inject private ASNumberDao cniAsNumberDao;
 
     public KubernetesClusterStartWorker(final KubernetesCluster kubernetesCluster, final KubernetesClusterManagerImpl clusterManager) {
         super(kubernetesCluster, clusterManager);
@@ -257,11 +261,9 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
         if (Objects.nonNull(userDataId)) {
             logger.info("concatenating userdata");
             UserDataVO cniConfigVo = userDataDao.findById(userDataId);
-            String cniConfig = new String(Base64.decodeBase64(cniConfigVo.getUserData()));
-            if (Objects.nonNull(asNumber)) {
-                cniConfig = substituteASNumber(cniConfig, asNumber);
-            }
-            cniConfig = Base64.encodeBase64String(cniConfig.getBytes(com.cloud.utils.StringUtils.getPreferredCharset()));
+            String cniConfig = CniConfigurationRenderer.requireValues(cniConfigVo.getUserData(), cniConfigVo.getParams(),
+                    CniConfigurationRenderer.deserialize(kubernetesCluster.getCniConfigDetails()),
+                    CniConfigurationRenderer.resolveAsNumber(network, cniAsNumberDao, asNumber)).userdata;
             String mergedCloudConfig = KubernetesCniUserData.mergeCloudConfig(base64UserData, cniConfig);
             base64UserData = mergedCloudConfig != null ? mergedCloudConfig
                     : userDataManager.concatenateUserData(base64UserData, cniConfig, null);
@@ -296,13 +298,6 @@ public class KubernetesClusterStartWorker extends KubernetesClusterResourceModif
             logger.info("Created control VM: {}, {} in the Kubernetes cluster: {}", controlVm, hostName, kubernetesCluster);
         }
         return new Pair<>(controlVm, k8sControlNodeConfigAndControlIp.second());
-    }
-
-    private String substituteASNumber(String cniConfig, Long asNumber) {
-        final String asNumberKey = "{{ AS_NUMBER }}";
-        cniConfig = cniConfig.replace(asNumberKey, String.valueOf(asNumber));
-        return cniConfig;
-
     }
 
     private String getKubernetesAdditionalControlNodeConfig(final String joinIp, final boolean ejectIso) throws IOException {

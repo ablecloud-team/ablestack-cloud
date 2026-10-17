@@ -1,0 +1,44 @@
+{
+  "existing_db_before_after_equal": true,
+  "rows": 36,
+  "categories": {
+    "UD": 5,
+    "K8S": 7,
+    "ANN": 1,
+    "ACCOUNT": 16,
+    "PROJECT": 4,
+    "DOMAIN": 3
+  },
+  "sha256": "2d61f159980ac4fa490f62c74e16ce6024ac1f8bb9210c2c6caaa366c74357f7",
+  "existing_cni_api_equal": 3,
+  "existing_kubernetes_stable_api_equal": 7,
+  "kubernetes_compared_fields": [
+    "id",
+    "name",
+    "state",
+    "account",
+    "domainid",
+    "projectid",
+    "cniconfigurationid",
+    "cniconfigurationname",
+    "kubernetesversionid",
+    "networkid",
+    "node UUIDs"
+  ],
+  "dedicated_active_residuals": {
+    "active_data": 0,
+    "active_annotations": 0,
+    "active_clusters": 0,
+    "active_cni_references": 0,
+    "active_cluster_vm_maps": 0,
+    "active_vms": 0,
+    "active_volumes": 0,
+    "active_networks": 0,
+    "active_projects": 0,
+    "active_accounts": 0,
+    "active_domains": 0,
+    "active_users": 0,
+    "api_keypairs": 0
+  },
+  "cleanup_via_normal_apis": true
+}

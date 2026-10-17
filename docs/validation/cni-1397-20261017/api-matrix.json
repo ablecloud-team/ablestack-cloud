@@ -1,0 +1,356 @@
+[
+  {
+    "case": "omitted",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command registercniconfiguration due to missing parameter cniconfig"
+  },
+  {
+    "case": "empty",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid value provided for API arg: cniconfig"
+  },
+  {
+    "case": "empty-base64",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "whitespace",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "CNI configuration content must not be empty or whitespace only."
+  },
+  {
+    "case": "unicode-whitespace",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "CNI configuration content must not be empty or whitespace only."
+  },
+  {
+    "case": "bad-base64-%",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: Url decoding of CNI content failed."
+  },
+  {
+    "case": "bad-base64-%GG",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: Url decoding of CNI content failed."
+  },
+  {
+    "case": "bad-base64-A",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "bad-base64-eA=",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "bad-base64-eA===",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "bad-base64-eA==Yg==",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "bad-base64-!!!!",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is not base64 encoded."
+  },
+  {
+    "case": "blank-name",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "CNI configuration name must contain 1 to 255 characters after trimming whitespace."
+  },
+  {
+    "case": "name-256",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Unable to execute API command registercniconfiguration due to invalid value. Value greater than max allowed length 255 for param: name"
+  },
+  {
+    "case": "name-255",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "trim-name",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "utf8-text",
+    "result": "PASS",
+    "canonical_length": 24,
+    "owner": "account"
+  },
+  {
+    "case": "base64-looking-text",
+    "result": "PASS",
+    "canonical_length": 8,
+    "owner": "account"
+  },
+  {
+    "case": "unpadded",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "uri-encoded",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "linebreaks",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "urlsafe-binary",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "binary-nonutf8",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "post-limit-exact",
+    "result": "PASS",
+    "canonical_length": 32768,
+    "owner": "account"
+  },
+  {
+    "case": "post-limit-over",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content has exceeded configurable max length: 32768"
+  },
+  {
+    "case": "get-limit-exact",
+    "result": "PASS",
+    "canonical_length": 4096,
+    "owner": "account"
+  },
+  {
+    "case": "get-limit-over",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI content is too long for http GET request"
+  },
+  {
+    "case": "bad-variables-'x, x '",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must not contain duplicate keys."
+  },
+  {
+    "case": "bad-variables-' '",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "bad-variables-'x,'",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "bad-variables-'1x'",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "bad-variables-'x=y'",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "bad-variables-'a b'",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-service-offering",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-availability-zone",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-local-hostname",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-local-ipv4",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-public-hostname",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-public-ipv4",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-instance-id",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-vm-id",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-public-keys",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-cloud-identifier",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-cloud-name",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "reserved-hypervisor-host-name",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "Invalid CNI configuration: CNI configuration variables must be nonempty identifiers beginning with a letter or underscore, containing only letters, digits, underscore, dot or hyphen, and must not use virtual router metadata names."
+  },
+  {
+    "case": "same-body-first",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "same-body-different-name",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "same-normalized-name",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "A CNI configuration or user data with the same name already exists for this account."
+  },
+  {
+    "case": "userdata-registration-regression",
+    "result": "PASS"
+  },
+  {
+    "case": "userdata-duplicate-body-policy-preserved",
+    "result": "PASS"
+  },
+  {
+    "case": "shared-userdata-name-namespace",
+    "result": "PASS",
+    "errorcode": 431,
+    "message": "A CNI configuration or user data with the same name already exists for this account."
+  },
+  {
+    "case": "concurrent-name-registration",
+    "result": "PASS",
+    "accepted": 1,
+    "rejected": 1
+  },
+  {
+    "case": "api-discovery-required-and-response",
+    "result": "PASS",
+    "response_fields": [
+      "jobstatus",
+      "domainpath",
+      "id",
+      "domainid",
+      "userdata",
+      "jobid",
+      "accountid",
+      "projectid",
+      "hasannotations",
+      "account",
+      "params",
+      "domain",
+      "project",
+      "name"
+    ]
+  },
+  {
+    "case": "project-owner",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "project"
+  },
+  {
+    "case": "project-list-owner-match",
+    "result": "PASS"
+  },
+  {
+    "case": "explicit-account-owner",
+    "result": "PASS",
+    "canonical_length": 4,
+    "owner": "account"
+  },
+  {
+    "case": "explicit-other-account-owner",
+    "result": "PASS",
+    "owner": "k1230-20261006"
+  },
+  {
+    "case": "stored-variable-normalization",
+    "result": "PASS",
+    "params": "USER,user,env.name,test-key,AS_NUMBER"
+  }
+]

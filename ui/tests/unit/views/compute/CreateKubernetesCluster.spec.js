@@ -106,6 +106,7 @@ test('invalid wizard input stays on its step with the focused field', async () =
 test('single KVM zone auto-selects an index and submits the default without manual re-selection', async () => {
   getAPI.mockResolvedValue({ listhypervisorsresponse: { hypervisor: [{ name: 'KVM' }] } })
   const vm = {
+    validateCniValues: () => true,
     wizardStep: 4,
     loading: false,
     form: { hypervisor: null },
@@ -133,7 +134,7 @@ test('single KVM zone auto-selects an index and submits the default without manu
 
 test('a submission exception retains the dialog, restores loading and reports the actual error', async () => {
   const error = new Error('selection is unavailable')
-  const vm = { wizardStep: 4, loading: false, form: {}, formRef: { value: { validate: jest.fn().mockRejectedValue(error) } }, $notifyError: jest.fn() }
+  const vm = { validateCniValues: () => true, wizardStep: 4, loading: false, form: {}, formRef: { value: { validate: jest.fn().mockRejectedValue(error) } }, $notifyError: jest.fn() }
   await CreateKubernetesCluster.methods.handleSubmit.call(vm)
   expect(vm.loading).toBe(false)
   expect(vm.$notifyError).toHaveBeenCalledWith(error)

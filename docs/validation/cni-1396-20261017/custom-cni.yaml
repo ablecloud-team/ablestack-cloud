@@ -1,0 +1,78 @@
+#cloud-config
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+merge_how:
+- name: list
+  settings:
+  - append
+- name: dict
+  settings:
+  - no_replace
+  - recurse_list
+write_files:
+- path: /opt/cni1396/prepare-custom-cni
+  permissions: '0700'
+  owner: root:root
+  content: '#!/bin/bash
+
+    set -euo pipefail
+
+    mkdir -p /opt/cni1396
+
+    cp /tmp/k8sconfigscripts/network.yaml /opt/cni1396/iso-network.yaml
+
+    sed -E ''s/^([[:space:]]*veth_mtu:).*/\1 "1450"/'' /opt/cni1396/iso-network.yaml > /opt/cni1396/custom-calico.yaml
+
+    grep -q ''veth_mtu: "1450"'' /opt/cni1396/custom-calico.yaml
+
+    sha256sum /opt/cni1396/iso-network.yaml /opt/cni1396/custom-calico.yaml > /opt/cni1396/cni-profile.sha256
+
+    '
+- path: /opt/cni1396/apply-custom-cni
+  permissions: '0700'
+  owner: root:root
+  content: '#!/bin/bash
+
+    set -euo pipefail
+
+    test -f /etc/kubernetes/kubeadm-config.yaml && grep -q ''^kind: InitConfiguration'' /etc/kubernetes/kubeadm-config.yaml || exit 0
+
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+
+    end=$((SECONDS+480))
+
+    until /opt/bin/kubectl --request-timeout=5s get --raw=/readyz > /dev/null 2>&1; do test "$SECONDS" -lt "$end"; sleep 3; done
+
+    /opt/bin/kubectl apply -f /opt/cni1396/custom-calico.yaml
+
+    /opt/bin/kubectl -n kube-system annotate configmap/calico-config cni1396.custom-cni=calico-3.33.0-mtu1450 --overwrite
+
+    '
+- path: /etc/systemd/system/deploy-kube-system.service.d/cni1396-custom-cni.conf
+  permissions: '0644'
+  owner: root:root
+  content: '[Service]
+
+    ExecStartPre=/opt/cni1396/prepare-custom-cni
+
+    ExecStartPost=/opt/cni1396/apply-custom-cni
+
+    '
+- path: /opt/cni1396/selection.txt
+  permissions: "0644"
+  content: |
+    CNI1396 {{ audit_token }}

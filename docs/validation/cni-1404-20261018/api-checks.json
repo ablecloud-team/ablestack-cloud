@@ -1,0 +1,142 @@
+[
+  {
+    "name": "cni1404-text UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-text stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-text manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-base64 UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-base64 stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-base64 manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-literal UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-literal stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-literal manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-binary UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-binary stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-binary manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-large UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-large stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-large manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode-project UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode-project stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode-project manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-unicode-project project scope",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-normal UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-normal stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-normal manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-final UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-final stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-final manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "only intended CNI configurations created",
+    "pass_check": true
+  },
+  {
+    "name": "project owner reads imported bytes",
+    "pass_check": true
+  },
+  {
+    "name": "nonmember cannot read project import",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-style UUID/name",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-style stored bytes",
+    "pass_check": true
+  },
+  {
+    "name": "cni1404-style manual params retained",
+    "pass_check": true
+  },
+  {
+    "name": "only final style verification CNI remains before cleanup",
+    "pass_check": true
+  }
+]
