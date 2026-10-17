@@ -1,0 +1,30 @@
+{
+  "issue": 895,
+  "pass": true,
+  "kind": "FINAL_EVIDENCE_ONLY_TREE_WITH_UNCHANGED_QUALIFIED_PRODUCT_SOURCE",
+  "sourcePin": "3388505d84f6e1438de60ff5653261e0415ee237",
+  "priorWholeSourceQualification": "0cccbaec863c34c3c2688501fca428f0410609c2cb97612c7bf0081ab1c8dce7",
+  "normalBuildsReexecuted": false,
+  "testsAddedToCounts": 0,
+  "credentialLiteralAndPrivateKeyScan": "PASS",
+  "evidenceOriginalShaExact": 46,
+  "imagesByteExact": 4,
+  "localDocumentLinks": "PASS",
+  "candidateFiles": {
+    "docs/validation/epic-898-audit/20261017-issue895-completion-public.json": "7b8a42d32d99a35351a023a05569a0797eb1368694c52f5abf3e23c19ae37ca7",
+    "docs/validation/epic-898-audit/20261017-issue895-completion.md": "79bd6ed8d2a46703e67155af7f03e93909bf41339f35cc1643b8e29cb5a088ea",
+    "docs/validation/epic-898-audit/20261017-issue895-design.md": "e35181ae3aa7396c6a972281eec31d138ac5bdaf71d68ca2264d47b7ebf08afc",
+    "docs/validation/epic-898-audit/20261017-issue895-ui-frozen-retry.jpg": "163f055cc819669e74785a86667bfd6fb0e003d28c08c5ae6b3f647d78cb8873",
+    "docs/validation/epic-898-audit/20261017-issue895-ui-preserve.jpg": "d7a88f5244b61a643a030aab0b368d20439b970a598b38d78db7610a3eb04393",
+    "docs/validation/epic-898-audit/20261017-issue895-ui-retained-volume.jpg": "24185fc3a38dc391ee25c7e1205b55430f510776168b2599a52c422c08907f3f",
+    "docs/validation/epic-898-audit/20261017-issue895-ui-reuse.jpg": "30b4480e694d59a4ead27bd3b07cc576d4b0a1b9e01faed4b0ac863a8fcc7df1"
+  },
+  "trackedProductSourceDiff": "EMPTY",
+  "independentEvidenceReview": {
+    "evidenceOriginalShaExact": 46,
+    "explicitLargeValueProjectionDigestsExact": 29,
+    "imagesShaExact": 4,
+    "localLinks": "PASS",
+    "scopeCorrection": "Generic VM protection remains implementation/regression scope, not attributed to SharedFS removal dialog image."
+  }
+}
