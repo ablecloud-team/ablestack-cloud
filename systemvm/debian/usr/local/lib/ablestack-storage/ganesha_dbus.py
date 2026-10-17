@@ -36,7 +36,8 @@ class GaneshaDbus:
         if remaining<=0:raise TimeoutError("Ganesha DBus total deadline exceeded")
         return min(5,remaining)
 
-    def name(self,listen_ip,port):
+    @staticmethod
+    def name(listen_ip,port):
         key=hashlib.sha256((listen_ip+":"+str(port)).encode()).hexdigest()[:24]
         return "ablestack_storage_ganesha_e"+key+".org.ganesha.nfsd"
 
@@ -186,3 +187,267 @@ class GaneshaDbus:
         # Owner PID must remain identical after all operations and readback.
         self.owned_manager(name,pid)
         return {'success':True,'activationStrategy':'DBUS_DYNAMIC_UPDATE_VERIFIED','processPid':pid,'exportsVerified':len(wanted),'restartPerformed':False}
+
+
+class GaneshaDbusPolicy:
+    """Explicit activation-only policy preparation; construction never writes.
+
+    Root's prerequisite deployment may call prepare() without replacing CODE3
+    or taking FD9. It only publishes this policy and reloads the bus; starting
+    an owned daemon remains the normal activation caller's separate decision.
+    """
+    MAX_NAMES = 256
+    MAX_POLICY = 128 * 1024
+    NAME = r"ablestack_storage_ganesha_e[0-9a-f]{24}\.org\.ganesha\.nfsd"
+    HEADER = ('<!DOCTYPE busconfig PUBLIC "-//freedesktop//DTD D-Bus Bus Configuration 1.0//EN" '
+              '"http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">\n'
+              '<!-- Managed exact endpoint names; no wildcard or prefix grants. -->\n')
+
+    def __init__(self, config_root=None, policy_path=None, bus=None, deadline=None):
+        from pathlib import Path
+        self.config_root = Path(config_root or "/etc/ganesha/ablestack-storage")
+        self.policy_path = Path(policy_path or "/etc/dbus-1/system.d/ablestack-storage-ganesha-endpoints.conf")
+        self.bus = bus
+        self.deadline = deadline if deadline is not None else time.monotonic() + 10
+
+    @staticmethod
+    def signature(value):
+        return tuple(getattr(value, name) for name in
+                     ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode",
+                      "st_nlink", "st_size", "st_mtime_ns", "st_ctime_ns"))
+
+    @staticmethod
+    def directory(path):
+        import os, stat
+        info = path.lstat()
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid()
+                or info.st_mode & 0o022):
+            raise ValueError("Ganesha policy directory is not protected")
+        return info.st_dev, info.st_ino, info.st_uid, info.st_gid, info.st_mode
+
+    @classmethod
+    def read(cls, path, maximum):
+        import os, stat
+        before = path.lstat()
+        if (not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid()
+                or before.st_mode & 0o022 or before.st_nlink != 1
+                or before.st_size > maximum):
+            raise ValueError("Ganesha policy input is not protected")
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | getattr(os, "O_NOATIME", 0))
+        try:
+            if cls.signature(before) != cls.signature(os.fstat(descriptor)):
+                raise ValueError("Ganesha policy input changed while opening")
+            with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                raw = handle.read(maximum + 1)
+            if (len(raw) != before.st_size or len(raw) > maximum
+                    or cls.signature(before) != cls.signature(os.fstat(descriptor))
+                    or cls.signature(before) != cls.signature(path.lstat())):
+                raise ValueError("Ganesha policy input changed while reading")
+            return raw, cls.signature(before)
+        finally:
+            os.close(descriptor)
+
+    @classmethod
+    def render(cls, names):
+        names = set(names)
+        if len(names) > cls.MAX_NAMES or any(type(name) is not str or
+                                            not re.fullmatch(cls.NAME, name) for name in names):
+            raise ValueError("Ganesha policy names exceed the exact managed scope")
+        lines = [cls.HEADER.rstrip(), "<busconfig>", '  <policy context="default">']
+        for name in sorted(names):
+            lines.extend(('    <deny own="' + name + '"/>',
+                          '    <deny send_destination="' + name + '"/>'))
+        lines.extend(("  </policy>", '  <policy user="root">'))
+        for name in sorted(names):
+            lines.extend(('    <allow own="' + name + '"/>',
+                          '    <allow send_destination="' + name + '"/>'))
+        lines.extend(("  </policy>", "</busconfig>"))
+        raw = ("\n".join(lines) + "\n").encode()
+        if len(raw) > cls.MAX_POLICY:
+            raise ValueError("Ganesha policy exceeds its bounded size")
+        return raw
+
+    @classmethod
+    def parse(cls, raw):
+        # Only our complete canonical document is replaceable. In particular,
+        # partial rules, foreign XML, entities and additional privileges reject.
+        names = set(re.findall(rb'<allow own="([^"]+)"/>', raw))
+        try:
+            names = {name.decode("ascii") for name in names}
+        except UnicodeDecodeError:
+            raise ValueError("Ganesha policy namespace is not ASCII") from None
+        if raw != cls.render(names):
+            raise ValueError("Existing Ganesha policy is foreign")
+        return names
+
+    @staticmethod
+    def endpoint_name(endpoint):
+        if not isinstance(endpoint, (list, tuple)) or len(endpoint) != 2:
+            raise ValueError("Ganesha policy endpoint is malformed")
+        ip, port = endpoint
+        if type(ip) is not str or type(port) is not int or not 1 <= port <= 65535:
+            raise ValueError("Ganesha policy endpoint has invalid types")
+        ip = str(ipaddress.ip_address(ip))
+        return GaneshaDbus.name(ip, port)
+
+    def source_names(self):
+        import os, stat
+        from pathlib import Path
+        if not self.config_root.exists() and not self.config_root.is_symlink():
+            return set(), []
+        self.directory(self.config_root)
+        files = sorted(path for path in self.config_root.iterdir() if path.suffix == ".conf")
+        if len(files) > self.MAX_NAMES:
+            raise ValueError("Ganesha source endpoint count exceeds its bound")
+        result, observed, total = set(), [], 0
+        for path in files:
+            named = self.signature(path.lstat())
+            target = path
+            if path.is_symlink():
+                rendered = Path("/var/lib/ablestack-storage/rendered-generations")
+                link = os.readlink(path)
+                if (path.lstat().st_uid != os.geteuid() or
+                        not re.fullmatch(re.escape(str(rendered / "current/nfs/ganesha")) +
+                                         r"/[0-9a-f]{24}\.conf", link)):
+                    raise ValueError("Ganesha source configuration link is foreign")
+                target = path.resolve(strict=True)
+                if not re.fullmatch(re.escape(str(rendered / "generations")) +
+                                    r"/[0-9a-f-]{36}/nfs/ganesha/[0-9a-f]{24}\.conf", str(target)):
+                    raise ValueError("Ganesha rendered configuration escapes its store")
+                for parent in (target.parent, target.parent.parent,
+                               target.parent.parent.parent, rendered, rendered / "generations"):
+                    self.directory(parent)
+            raw, identity = self.read(target, 8 * 1024 * 1024)
+            total += len(raw)
+            if total > 16 * 1024 * 1024:
+                raise ValueError("Ganesha source configurations exceed their total bound")
+            text = raw.decode()
+            GaneshaDbus.configuration(text)
+            ports = re.findall(r"(?m)^\s*NFS_Port\s*=\s*([0-9]+)\s*;", text)
+            binds = re.findall(r"(?m)^\s*Bind_addr\s*=\s*([^;]+)\s*;", text)
+            if len(ports) != 1 or len(binds) != 1:
+                raise ValueError("Ganesha source endpoint binding is ambiguous")
+            ip = binds[0].strip()
+            ip = json.loads(ip) if ip.startswith('"') else ip
+            ip = str(ipaddress.ip_address(ip)); port = int(ports[0])
+            name = self.endpoint_name((ip, port))
+            if path.name != ip.replace(":", "_") + "_" + str(port) + ".conf":
+                raise ValueError("Ganesha source endpoint filename differs")
+            prefixes = re.findall(r'(?m)^\s*Dbus_Name_Prefix\s*=\s*"([^"]+)"\s*;', text)
+            old = "org.ablestack.storage.ganesha.e" + hashlib.sha256((ip + ":" + str(port)).encode()).hexdigest()[:24]
+            if prefixes and prefixes not in ([old], [name.removesuffix(".org.ganesha.nfsd")]):
+                raise ValueError("Ganesha source prefix differs from its endpoint")
+            if named != self.signature(path.lstat()):
+                raise ValueError("Ganesha source configuration changed")
+            result.add(name); observed.append((path, named, target, identity))
+        return result, observed
+
+    def check(self, expected):
+        import os
+        if expected is None:
+            if os.path.lexists(self.policy_path):
+                raise ValueError("Ganesha policy appeared before publication")
+        elif self.signature(self.policy_path.lstat()) != expected:
+            raise ValueError("Ganesha policy changed before publication")
+
+    def sync_directory(self):
+        import os
+        descriptor = os.open(self.policy_path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try: os.fsync(descriptor)
+        finally: os.close(descriptor)
+
+    def publish(self, raw, expected, mode=0o644):
+        import os, tempfile
+        parent = self.directory(self.policy_path.parent)
+        descriptor, temporary = tempfile.mkstemp(prefix=".ganesha-policy-", dir=self.policy_path.parent)
+        try:
+            os.fchmod(descriptor, mode)
+            with os.fdopen(descriptor, "wb") as handle:
+                handle.write(raw); handle.flush(); os.fsync(handle.fileno())
+            if self.directory(self.policy_path.parent) != parent:
+                raise ValueError("Ganesha policy parent changed")
+            self.check(expected)
+            if expected is None:
+                os.link(temporary, self.policy_path, follow_symlinks=False)
+                os.unlink(temporary)
+            else:
+                os.replace(temporary, self.policy_path)
+            self.sync_directory()
+            actual, identity = self.read(self.policy_path, self.MAX_POLICY)
+            if actual != raw: raise ValueError("Published Ganesha policy differs")
+            return identity
+        finally:
+            if os.path.lexists(temporary): os.unlink(temporary)
+
+    def reload(self, cleanup=False):
+        if self.bus is None:
+            import dbus
+            self.bus = dbus.SystemBus()
+        remaining = 2 if cleanup else min(3, self.deadline - time.monotonic())
+        if remaining <= 0: raise TimeoutError("Ganesha policy deadline exceeded")
+        method = self.bus.get_object("org.freedesktop.DBus", "/org/freedesktop/DBus").get_dbus_method(
+            "ReloadConfig", "org.freedesktop.DBus")
+        if method(timeout=remaining) is not None:
+            raise ValueError("Ganesha bus reload returned an unknown result")
+
+    @staticmethod
+    def require_root():
+        import os
+        if os.geteuid() != 0:
+            raise ValueError("Ganesha policy preparation requires root")
+
+    def prepare(self, endpoints=()):
+        import os, stat, fcntl
+        self.require_root()
+        if time.monotonic() >= self.deadline:
+            raise TimeoutError("Ganesha policy deadline exceeded")
+        targets = set()
+        for index, endpoint in enumerate(endpoints):
+            if index >= self.MAX_NAMES:
+                raise ValueError("Ganesha target endpoint count exceeds its bound")
+            targets.add(self.endpoint_name(endpoint))
+            if len(targets) > self.MAX_NAMES:
+                raise ValueError("Ganesha target endpoint count exceeds its bound")
+        self.directory(self.policy_path.parent)
+        lock = self.policy_path.with_name("." + self.policy_path.name + ".lock")
+        descriptor = os.open(lock, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        try:
+            opened = os.fstat(descriptor)
+            if (not stat.S_ISREG(opened.st_mode) or opened.st_uid != os.geteuid()
+                    or stat.S_IMODE(opened.st_mode) != 0o600 or opened.st_nlink != 1
+                    or (opened.st_dev, opened.st_ino) != (lock.lstat().st_dev, lock.lstat().st_ino)):
+                raise ValueError("Ganesha policy lock is not protected")
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            old, previous = (None, None)
+            if os.path.lexists(self.policy_path):
+                old, previous = self.read(self.policy_path, self.MAX_POLICY)
+            source, observed = self.source_names()
+            names = targets | source | (self.parse(old) if old is not None else set())
+            raw = self.render(names)
+            if not names and old is None:
+                return {"configurationChanged": False, "reloaded": False, "endpointNameCount": 0}
+            for path, named, target, identity in observed:
+                if self.signature(path.lstat()) != named or self.signature(target.lstat()) != identity:
+                    raise ValueError("Ganesha source changed before policy publication")
+            if time.monotonic() >= self.deadline:
+                raise TimeoutError("Ganesha policy deadline exceeded")
+            changed = old != raw
+            installed = self.publish(raw, previous) if changed else previous
+            try:
+                self.reload()
+            except Exception as failure:
+                try:
+                    self.check(installed)
+                    if changed:
+                        if old is None:
+                            os.unlink(self.policy_path); self.sync_directory()
+                        else:
+                            self.publish(old, installed, previous[4] & 0o777)
+                    self.reload(cleanup=True)
+                except Exception:
+                    raise RuntimeError("Ganesha policy recovery required; no NFS activation permitted") from failure
+                raise RuntimeError("Ganesha policy reload failed; no NFS activation permitted") from failure
+            return {"configurationChanged": changed, "reloaded": True, "endpointNameCount": len(names),
+                    "policySha256": hashlib.sha256(raw).hexdigest(), "policyPath": str(self.policy_path)}
+        finally:
+            os.close(descriptor)

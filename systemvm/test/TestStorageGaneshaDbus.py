@@ -331,4 +331,142 @@ class StorageGaneshaDbusTest(unittest.TestCase):
         with self.assertRaises(TimeoutError):ns['start_ganesha_endpoints'](configs)
         self.assertLessEqual(clock[0],1.1);self.assertLess(len([row for row in commands if len(row)>1 and row[1]=='restart']),100)
 
+class StorageGaneshaPolicyTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.config=self.root/'configs';self.config.mkdir(mode=0o700)
+        self.directory=self.root/'policy';self.directory.mkdir(mode=0o700);self.path=self.directory/'ablestack-storage-ganesha-endpoints.conf'
+        self.calls=[];self.bus=Mock()
+        self.bus.get_object.return_value.get_dbus_method.return_value.side_effect=lambda **kw:self.calls.append(('reload',kw)) or None
+        self.policy_type=getattr(dbus_module,'GaneshaDbusPolicy',None)
+        self.assertIsNotNone(self.policy_type,'NFS activation requires an exact endpoint policy preparer')
+        self.policy=self.policy_type(config_root=self.config,policy_path=self.path,bus=self.bus)
+        # Files remain owned by the real test uid; only the explicit root-entry
+        # precondition is isolated so private filesystem tests are portable.
+        self.root_check=unittest.mock.patch.object(self.policy,'require_root',return_value=None)
+        self.root_check.start();self.addCleanup(self.root_check.stop)
+    def name(self,port):return GaneshaDbus(bus=object()).name('0.0.0.0',port)
+    def source_config(self):
+        p=self.config/'0.0.0.0_2049.conf';p.write_text(multiport_configuration()[2049]);p.chmod(0o600);return p
+    def test_root_requirement_and_expired_deadline_refuse_before_publication(self):
+        with unittest.mock.patch('os.geteuid',return_value=1):
+            with self.assertRaises(ValueError):self.policy_type.require_root()
+        self.policy.deadline=time.monotonic()-1
+        with self.assertRaises(TimeoutError):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertFalse(self.path.exists());self.assertEqual([],self.calls)
+    def test_source_target_and_previous_policy_names_are_preserved_with_exact_root_permissions(self):
+        self.source_config();self.path.write_bytes(self.policy.render({self.name(2050)}));self.path.chmod(0o644)
+        result=self.policy.prepare([('0.0.0.0',20490)])
+        self.assertEqual(3,result['endpointNameCount']);self.assertTrue(result['configurationChanged']);self.assertEqual(1,len(self.calls))
+        import xml.etree.ElementTree as ET
+        root=ET.fromstring(self.path.read_bytes());self.assertEqual(2,len(root))
+        for kind,scope,verb in [('deny',{'context':'default'},'deny'),('allow',{'user':'root'},'allow')]:
+            p=next(p for p in root if p.attrib==scope)
+            self.assertEqual({self.name(x)for x in (2049,20490,2050)},{x.attrib['own']for x in p if 'own'in x.attrib})
+            self.assertEqual({self.name(x)for x in (2049,20490,2050)},{x.attrib['send_destination']for x in p if 'send_destination'in x.attrib})
+            self.assertTrue(all(x.tag==verb and len(x.attrib)==1 for x in p))
+        self.assertNotIn(b'own_prefix',self.path.read_bytes());self.assertNotIn(b'="*"',self.path.read_bytes())
+    def test_absent_policy_is_complete_and_durable_before_reload(self):
+        seen=[]
+        def reload(**kwargs):
+            seen.append(self.path.read_bytes())
+            self.assertEqual({self.name(2049),self.name(20490)},self.policy.parse(seen[-1]))
+        self.bus.get_object.return_value.get_dbus_method.return_value.side_effect=reload
+        r=self.policy.prepare([('0.0.0.0',2049),('0.0.0.0',20490)])
+        self.assertTrue(r['reloaded']);self.assertEqual(1,len(seen));self.assertEqual(0o644,self.path.stat().st_mode&0o777)
+    def test_foreign_policy_symlink_unprotected_mode_and_hardlink_are_refused(self):
+        import os
+        for shape in ('foreign','symlink','writeable','hardlink'):
+            with self.subTest(shape=shape):
+                target=self.root/'foreign';target.write_bytes(b'foreign-preserve')
+                if shape=='symlink':self.path.symlink_to(target)
+                elif shape=='foreign':self.path.write_bytes(b'<busconfig/>')
+                else:
+                    self.path.write_bytes(self.policy.render({self.name(2049)}))
+                    if shape=='writeable':self.path.chmod(0o666)
+                    else:os.link(self.path,self.root/'second-link')
+                before=self.path.read_bytes()
+                with self.assertRaises((ValueError,RuntimeError,OSError)):self.policy.prepare([('0.0.0.0',20490)])
+                self.assertEqual(before,self.path.read_bytes());self.assertEqual([],self.calls);self.path.unlink()
+                (self.root/'second-link').unlink(missing_ok=True)
+    def test_changed_file_before_atomic_publish_is_not_overwritten(self):
+        self.path.write_bytes(self.policy.render({self.name(2049)}));self.path.chmod(0o644)
+        import tempfile as temporary
+        original=temporary.mkstemp
+        def race(*args,**kwargs):
+            result=original(*args,**kwargs);self.path.write_bytes(b'foreign-race');return result
+        with unittest.mock.patch.object(temporary,'mkstemp',side_effect=race):
+            with self.assertRaises((ValueError,RuntimeError)):self.policy.prepare([('0.0.0.0',20490)])
+        self.assertEqual(b'foreign-race',self.path.read_bytes());self.assertEqual([],self.calls)
+    def test_absent_publish_race_is_no_clobber(self):
+        import tempfile as temporary
+        original=temporary.mkstemp
+        def race(*args,**kwargs):
+            result=original(*args,**kwargs);self.path.write_bytes(b'foreign-created');return result
+        with unittest.mock.patch.object(temporary,'mkstemp',side_effect=race):
+            with self.assertRaises((ValueError,RuntimeError,OSError)):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertEqual(b'foreign-created',self.path.read_bytes());self.assertEqual([],self.calls)
+    def test_reload_failure_restores_old_file_before_second_reload(self):
+        old=self.policy.render({self.name(2049)});self.path.write_bytes(old);self.path.chmod(0o600)
+        self.bus.get_object.return_value.get_dbus_method.return_value.side_effect=[RuntimeError('injected'),None]
+        with self.assertRaises(RuntimeError):self.policy.prepare([('0.0.0.0',20490)])
+        self.assertEqual(old,self.path.read_bytes());self.assertEqual(0o600,self.path.stat().st_mode&0o777)
+        self.assertEqual(2,self.bus.get_object.return_value.get_dbus_method.return_value.call_count)
+    def test_failed_first_reload_removes_only_its_own_new_file(self):
+        self.bus.get_object.return_value.get_dbus_method.return_value.side_effect=[RuntimeError('injected'),None]
+        with self.assertRaises(RuntimeError):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertFalse(self.path.exists());self.assertEqual(2,self.bus.get_object.return_value.get_dbus_method.return_value.call_count)
+    def test_failed_reload_does_not_delete_replacement_foreign_file(self):
+        def fail(**kwargs):self.path.write_bytes(b'foreign-after-reload');raise RuntimeError('injected')
+        self.bus.get_object.return_value.get_dbus_method.return_value.side_effect=fail
+        with self.assertRaisesRegex(RuntimeError,'recovery required'):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertEqual(b'foreign-after-reload',self.path.read_bytes());self.assertEqual(1,self.bus.get_object.return_value.get_dbus_method.return_value.call_count)
+    def test_endpoint_bound_bad_types_and_foreign_config_prefix_refuse_before_publish(self):
+        for values in ([('0.0.0.0',True)],[('0.0.0.0',0)],[('not-an-ip',2049)],
+                       [('0.0.0.0',2000+i)for i in range(self.policy.MAX_NAMES+1)]):
+            with self.subTest(values=len(values)),self.assertRaises((ValueError,RuntimeError)):self.policy.prepare(values)
+        p=self.source_config();p.write_text(p.read_text().replace('e43724257a40a01a4c054fe31','e'+'a'*24))
+        with self.assertRaises(ValueError):self.policy.prepare([('0.0.0.0',20490)])
+        self.assertFalse(self.path.exists());self.assertEqual([],self.calls)
+    def test_repeat_prepare_keeps_inode_and_policy_bytes(self):
+        self.policy.prepare([('0.0.0.0',2049)])
+        before=self.path.stat();raw=self.path.read_bytes()
+        r=self.policy.prepare([('0.0.0.0',2049)])
+        self.assertFalse(r['configurationChanged']);self.assertEqual(before,self.path.stat());self.assertEqual(raw,self.path.read_bytes())
+    def test_policy_lock_symlink_or_busy_refuses_without_reload(self):
+        import fcntl
+        lock=self.path.with_name('.'+self.path.name+'.lock');other=self.root/'other';other.write_bytes(b'preserve');lock.symlink_to(other)
+        with self.assertRaises((ValueError,RuntimeError,OSError)):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertEqual(b'preserve',other.read_bytes());lock.unlink();lock.touch(mode=0o600)
+        with lock.open('r+')as fd:
+            fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with self.assertRaises((ValueError,RuntimeError,OSError)):self.policy.prepare([('0.0.0.0',2049)])
+        self.assertFalse(self.path.exists());self.assertEqual([],self.calls)
+    def test_pure_render_and_readiness_never_prepare_global_policy(self):
+        with unittest.mock.patch.object(self.policy_type,'prepare',side_effect=AssertionError('readonly path wrote policy')):
+            contents=multiport_configuration();bus=EndpointBus()
+            for port,content in contents.items():bus.register(content,123 if port==2049 else 456)
+            a=GaneshaDbus(bus);_,manager=a.owned_endpoint_manager('0.0.0.0',2049,123)
+            self.assertTrue(a.verify(manager,a.configuration(contents[2049])['exports']))
+        self.assertFalse(self.path.exists());self.assertEqual([],self.calls)
+    def test_actual_cli_activation_prepares_policy_before_config_write_and_service_start(self):
+        cli=LIB.parents[5]/'systemvm/debian/usr/local/bin/ablestack-storagectl'
+        tree=ast.parse(next(x for x in re.findall(r"<<'PY'\n(.*?)\nPY",cli.read_text(),re.S)if'def start_ganesha_endpoints('in x))
+        attempt=next(x for x in tree.body if isinstance(x,ast.Try)and any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='start_ganesha_endpoints'for n in ast.walk(x)))
+        body=[]
+        for statement in attempt.body:
+            body.append(statement)
+            if any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id=='start_ganesha_endpoints'for n in ast.walk(statement)):break
+        events=[];prepared=Mock();prepared.prepare.side_effect=lambda *a:events.append('policy')
+        ns={'GaneshaDbusPolicy':Mock(return_value=prepared),'nfs_operation_deadline':time.monotonic()+30,
+            'endpoint_exports':{('0.0.0.0',2049):[]},'enabled':True,'default_port':2049,'configs':[],
+            'BootCoordinator':SimpleNamespace(attach_existing=lambda:None),
+            'write_ganesha_configs':lambda *a:events.append('configs')or[],
+            'start_ganesha_endpoints':lambda *a:events.append('start')or[]}
+        code=compile(ast.Module(body=body,type_ignores=[]),str(cli),'exec');exec(code,ns)
+        self.assertEqual(['policy','configs','start'],events)
+        events.clear();prepared.prepare.side_effect=RuntimeError('reload failed')
+        with self.assertRaises(RuntimeError):exec(code,ns)
+        self.assertEqual([],events)
+
 if __name__=='__main__':unittest.main()
