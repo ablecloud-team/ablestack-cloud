@@ -3573,10 +3573,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     }
                     if (!Set.of("SPARSE", "FAT").contains(getJsonString(offering, "provisioningType"))) throw new CloudRuntimeException("New clone DATA must use SPARSE or FAT");
                     if (volumeDao.findByUuid(getJsonString(allocation, "plannedUuid")) == null) {
+                        List<org.apache.cloudstack.resourcelimit.Reserver> reservations = new ArrayList<>();
+                        RuntimeException quotaFailure = null;
                         try {
                             configurationResourceLimits.checkVolumeResourceLimit(accountDao.findById(target.getAccountId()), true,
-                                    allocation.get("sizeBytes").getAsLong(), configurationDiskOfferingDao.findByUuid(getJsonString(allocation, "offeringUuid")), Collections.emptyList());
-                        } catch (com.cloud.exception.ResourceAllocationException limit) {throw new CloudRuntimeException("Clone volume exceeds standard tenant quota", limit);}
+                                    allocation.get("sizeBytes").getAsLong(), configurationDiskOfferingDao.findByUuid(getJsonString(allocation, "offeringUuid")), reservations);
+                        } catch (com.cloud.exception.ResourceAllocationException limit) {
+                            quotaFailure = new CloudRuntimeException("Clone volume exceeds standard tenant quota", limit);throw quotaFailure;
+                        } catch (RuntimeException failure) {
+                            quotaFailure = failure;throw failure;
+                        } finally {
+                            try {com.cloud.resourcelimit.ReservationHelper.closeAll(reservations);}
+                            catch (RuntimeException cleanup) {
+                                if (quotaFailure == null) throw cleanup;
+                                quotaFailure.addSuppressed(cleanup);
+                            }
+                        }
                     }
                 } else {
                     VolumeVO selected = volumeDao.findByUuid(getJsonString(allocation, "plannedUuid"));

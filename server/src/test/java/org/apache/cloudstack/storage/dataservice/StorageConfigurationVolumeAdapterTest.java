@@ -113,6 +113,63 @@ public class StorageConfigurationVolumeAdapterTest {
         }
         Mockito.verifyNoInteractions(api,details);
     }
+    private com.cloud.user.ResourceLimitService quotaValidationFixture() {
+        StorageConfigurationVolumePlanTest.Fixture fixture = new StorageConfigurationVolumePlanTest.Fixture(2);
+        fixture.scope.add("projectId", com.google.gson.JsonNull.INSTANCE);fixture.offering().addProperty("provisioningType","SPARSE");
+        allocation = StorageConfigurationVolumeAllocationTest.entry(fixture.build(), 1);
+        ReflectionTestUtils.setField(artifact,"uuid",allocation.get("artifactUuid").getAsString());artifact.setSha256(allocation.get("artifactSha256").getAsString());
+        Mockito.when(target.getUuid()).thenReturn(allocation.get("targetInstanceUuid").getAsString());Mockito.when(target.getDomainId()).thenReturn(1L);
+        DataCenterDao zones = Mockito.mock(DataCenterDao.class);DataCenterVO zone = Mockito.mock(DataCenterVO.class);
+        Mockito.when(zone.getUuid()).thenReturn(allocation.get("zoneUuid").getAsString());Mockito.when(zones.findById(3L)).thenReturn(zone);ReflectionTestUtils.setField(manager,"dataCenterDao",zones);
+        Mockito.doReturn(fixture.pool()).when(manager).configurationPoolCatalog(Mockito.anyString(),Mockito.any());
+        Mockito.doReturn(fixture.offering()).when(manager).configurationOfferingCatalog(Mockito.anyString(),Mockito.any());
+        com.cloud.user.dao.AccountDao accounts = Mockito.mock(com.cloud.user.dao.AccountDao.class);
+        com.cloud.user.AccountVO account = Mockito.mock(com.cloud.user.AccountVO.class);Mockito.when(account.getId()).thenReturn(2L);Mockito.when(accounts.findById(2L)).thenReturn(account);ReflectionTestUtils.setField(manager,"accountDao",accounts);
+        com.cloud.user.ResourceLimitService limits = Mockito.mock(com.cloud.user.ResourceLimitService.class);ReflectionTestUtils.setField(manager,"configurationResourceLimits",limits);
+        return limits;
+    }
+    @Test public void cloneQuotaValidationAcceptsMutableReservationsAndClosesBothWithoutAllocation() throws Exception {
+        com.cloud.user.ResourceLimitService limits = quotaValidationFixture();
+        org.apache.cloudstack.resourcelimit.Reserver volume = Mockito.mock(org.apache.cloudstack.resourcelimit.Reserver.class), storage = Mockito.mock(org.apache.cloudstack.resourcelimit.Reserver.class);
+        Mockito.doAnswer(call -> {
+            Assert.assertEquals(2L, ((com.cloud.user.Account)call.getArgument(0)).getId());Assert.assertEquals(Boolean.TRUE,call.getArgument(1));Assert.assertEquals(Long.valueOf(allocation.get("sizeBytes").getAsLong()),call.getArgument(2));
+            java.util.List<org.apache.cloudstack.resourcelimit.Reserver> reservations = call.getArgument(4);reservations.add(volume);reservations.add(storage);return null;
+        }).when(limits).checkVolumeResourceLimit(Mockito.any(),Mockito.eq(true),Mockito.anyLong(),Mockito.any(),Mockito.anyList());
+        manager.configurationVolumeAllocationRuntime(target,artifact).validateAllocation(allocation);
+        Mockito.verify(volume).close();Mockito.verify(storage).close();Mockito.verifyNoInteractions(api);
+        Assert.assertEquals("{}",artifact.getMetadataJson());Mockito.verify(artifacts,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
+    }
+    @Test public void cloneQuotaPartialFailureClosesItsReservationAndKeepsTheQuotaCause() throws Exception {
+        com.cloud.user.ResourceLimitService limits = quotaValidationFixture();
+        org.apache.cloudstack.resourcelimit.Reserver volume = Mockito.mock(org.apache.cloudstack.resourcelimit.Reserver.class);
+        com.cloud.exception.ResourceAllocationException quota = new com.cloud.exception.ResourceAllocationException("Synthetic quota rejection",com.cloud.configuration.Resource.ResourceType.volume);
+        Mockito.doAnswer(call -> {
+            java.util.List<org.apache.cloudstack.resourcelimit.Reserver> reservations = call.getArgument(4);reservations.add(volume);throw quota;
+        }).when(limits).checkVolumeResourceLimit(Mockito.any(),Mockito.eq(true),Mockito.anyLong(),Mockito.any(),Mockito.anyList());
+        CloudRuntimeException result = Assert.assertThrows(CloudRuntimeException.class,()->manager.configurationVolumeAllocationRuntime(target,artifact).validateAllocation(allocation));
+        Assert.assertSame(quota,result.getCause());Mockito.verify(volume).close();Mockito.verifyNoInteractions(api);Assert.assertEquals("{}",artifact.getMetadataJson());
+    }
+    @Test public void cloneQuotaCleanupFailureCannotHidePrimaryQuotaErrorOrSkipOtherReservationClose() throws Exception {
+        com.cloud.user.ResourceLimitService limits = quotaValidationFixture();
+        org.apache.cloudstack.resourcelimit.Reserver volume = Mockito.mock(org.apache.cloudstack.resourcelimit.Reserver.class), storage = Mockito.mock(org.apache.cloudstack.resourcelimit.Reserver.class);
+        com.cloud.exception.ResourceAllocationException quota = new com.cloud.exception.ResourceAllocationException("Synthetic quota rejection",com.cloud.configuration.Resource.ResourceType.volume);
+        RuntimeException cleanup = new CloudRuntimeException("Synthetic reservation close failure");Mockito.doThrow(cleanup).when(volume).close();
+        Mockito.doAnswer(call -> {
+            java.util.List<org.apache.cloudstack.resourcelimit.Reserver> reservations = call.getArgument(4);reservations.add(volume);reservations.add(storage);throw quota;
+        }).when(limits).checkVolumeResourceLimit(Mockito.any(),Mockito.eq(true),Mockito.anyLong(),Mockito.any(),Mockito.anyList());
+        CloudRuntimeException result = Assert.assertThrows(CloudRuntimeException.class,()->manager.configurationVolumeAllocationRuntime(target,artifact).validateAllocation(allocation));
+        Assert.assertSame(quota,result.getCause());Assert.assertArrayEquals(new Throwable[]{cleanup},result.getSuppressed());
+        Mockito.verify(volume).close();Mockito.verify(storage).close();Mockito.verifyNoInteractions(api);
+    }
+    @Test public void cloneQuotaValidationRejectsForeignArtifactTenantTargetOrAllocationFingerprintBeforeQuota() {
+        com.cloud.user.ResourceLimitService limits = quotaValidationFixture();
+        for(String key:java.util.List.of("artifactUuid","artifactSha256","targetInstanceUuid","accountId","domainId","zoneUuid","offeringFingerprint","poolFingerprint")) {
+            JsonObject changed=allocation.deepCopy();
+            if(key.endsWith("Id"))changed.addProperty(key,99);else changed.addProperty(key,"foreign");
+            Assert.assertThrows(RuntimeException.class,()->manager.configurationVolumeAllocationRuntime(target,artifact).validateAllocation(changed));
+        }
+        Mockito.verifyNoInteractions(limits,api);Assert.assertEquals("{}",artifact.getMetadataJson());
+    }
     @Test public void restoreFailureCannotAuthorizeUnpublishedDataDeletion() {
         StorageConfigurationVolumeAllocation.Runtime runtime=manager.configurationVolumeAllocationRuntime(target,artifact);
         Assert.assertThrows(CloudRuntimeException.class,()->runtime.cleanupSafety(allocation));Assert.assertThrows(CloudRuntimeException.class,()->runtime.deleteUnpublished(allocation));
