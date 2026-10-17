@@ -30,7 +30,10 @@ import com.cloud.utils.script.Script;
 import com.cloud.utils.script.OutputInterpreter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import org.libvirt.Domain;
+import org.libvirt.Error.ErrorNumber;
+import org.libvirt.LibvirtException;
 
 @ResourceWrapper(handles = CheckVmBackupTrackingCommand.class)
 public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<CheckVmBackupTrackingCommand, Answer, LibvirtComputingResource> {
@@ -38,7 +41,30 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
     public Answer execute(CheckVmBackupTrackingCommand cmd, LibvirtComputingResource resource) {
         Domain domain = null;
         try {
-            domain = resource.getDomain(resource.getLibvirtUtilitiesHelper().getConnection(), cmd.getVmName());
+            try {
+                domain = resource.getDomain(resource.getLibvirtUtilitiesHelper().getConnection(), cmd.getVmName());
+            } catch (LibvirtException e) {
+                if (!cmd.isStopped() || e.getError() == null || e.getError().getCode() != ErrorNumber.VIR_ERR_NO_DOMAIN) {
+                    throw e;
+                }
+                // CloudStack can undefine stopped VMs. Inspect their volumes without requiring domain XML.
+            }
+            if (domain == null) {
+                if (!cmd.isStopped() || cmd.getVolumes() == null || cmd.getVolumes().isEmpty()) {
+                    throw new IllegalStateException("Cannot inspect disks without a stopped VM and its volumes");
+                }
+                for (VolumeObjectTO volume : cmd.getVolumes()) {
+                    if (volume == null || volume.getPath() == null || volume.getPath().isEmpty()) {
+                        throw new IllegalStateException("Cannot resolve offline VM volume");
+                    }
+                    String path = resource.getLibvirtUtilitiesHelper().getPrimaryPoolFromDataTo(volume, resource.getStoragePoolMgr())
+                            .getLocalPathFor(volume.getPath());
+                    if (hasOfflineBitmaps(path)) {
+                        return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Persistent disk bitmaps remain.");
+                    }
+                }
+                return new Answer(cmd, true, null);
+            }
             if (!run("virsh", "-c", "qemu:///system", "checkpoint-list", "--domain", cmd.getVmName(), "--name").trim().isEmpty()) {
                 return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Backup checkpoints remain on the VM.");
             }
@@ -56,9 +82,7 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
                 for (LibvirtVMDef.DiskDef disk : parser.getDisks()) {
                     if (disk.getDeviceType() != LibvirtVMDef.DiskDef.DeviceType.DISK) continue;
                     String path = disk.getDiskPath();
-                    if (path == null || !path.startsWith("/")) throw new IllegalStateException("Cannot verify offline disk tracking");
-                    JsonElement info = new JsonParser().parse(run("qemu-img", "info", "--output=json", "--backing-chain", path));
-                    if (hasBitmaps(info)) return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Persistent disk bitmaps remain.");
+                    if (hasOfflineBitmaps(path)) return new Answer(cmd, false, "BACKUP_TRACKING_EXISTS: Persistent disk bitmaps remain.");
                 }
             }
             return new Answer(cmd, true, null);
@@ -82,7 +106,16 @@ public class LibvirtCheckVmBackupTrackingCommandWrapper extends CommandWrapper<C
         return false;
     }
 
-    private String run(String executable, String... args) {
+    private boolean hasOfflineBitmaps(String path) {
+        if (path == null || !path.startsWith("/")) throw new IllegalStateException("Cannot verify offline disk tracking");
+        JsonElement info = new JsonParser().parse(run("qemu-img", "info", "--output=json", "--backing-chain", path));
+        if (!info.isJsonArray() || info.getAsJsonArray().size() == 0) {
+            throw new IllegalStateException("Cannot read offline disk backing chain");
+        }
+        return hasBitmaps(info);
+    }
+
+    String run(String executable, String... args) {
         Script script = new Script(executable, 10000, logger);
         for (String arg : args) script.add(arg);
         OutputInterpreter.AllLinesParser output = new OutputInterpreter.AllLinesParser();

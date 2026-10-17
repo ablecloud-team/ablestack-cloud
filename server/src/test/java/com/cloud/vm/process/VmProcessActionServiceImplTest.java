@@ -96,6 +96,13 @@ public class VmProcessActionServiceImplTest {
     }
 
     @Test
+    public void fingerprintPreservesStoredSha256Encoding() {
+        assertEquals(
+                "ecebc45fff689156622e70ac032946ee8110d77a0dbd9b7c315031eb80c247e8",
+                VmProcessActionServiceImpl.fingerprint(1, snapshot, 3, "process.kill", null));
+    }
+
+    @Test
     public void disabledNeverReservesOrSends() {
         try (MockedStatic<CallContext> c = context()) {
             enabled = false;

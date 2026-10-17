@@ -16,15 +16,24 @@
 // under the License.
 package org.apache.cloudstack.backup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.apache.cloudstack.backup.dao.BackupDao;
 import org.apache.cloudstack.backup.dao.BackupScheduleDao;
+import org.apache.cloudstack.engine.subsystem.api.storage.VolumeDataFactory;
+import org.apache.cloudstack.engine.subsystem.api.storage.VolumeInfo;
+import org.apache.cloudstack.storage.to.VolumeObjectTO;
 import com.cloud.hypervisor.Hypervisor.HypervisorType;
+import com.cloud.storage.VolumeVO;
+import com.cloud.storage.dao.VolumeDao;
 import com.cloud.utils.component.ManagerBase;
 import com.cloud.utils.db.GlobalLock;
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.VMInstanceVO;
+import com.cloud.vm.VirtualMachine;
 import com.cloud.vm.dao.VMInstanceDao;
 import com.cloud.vm.snapshot.dao.VMSnapshotDao;
 
@@ -35,6 +44,8 @@ public class BackupSnapshotGuard extends ManagerBase {
     @Inject private BackupScheduleDao scheduleDao;
     @Inject private VMSnapshotDao snapshotDao;
     @Inject private VMInstanceDao vmDao;
+    @Inject private VolumeDao volumeDao;
+    @Inject private VolumeDataFactory volumeDataFactory;
 
     public String snapshotReason(long vmId) {
         VMInstanceVO vm = vmDao.findById(vmId);
@@ -68,15 +79,34 @@ public class BackupSnapshotGuard extends ManagerBase {
         if (vm == null || vm.getHypervisorType() != HypervisorType.KVM) return;
         Long hostId = vm.getHostId() == null ? vm.getLastHostId() : vm.getHostId();
         if (hostId == null) throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: No host available for tracking inspection.");
+        boolean stopped = vm.getState() == VirtualMachine.State.Stopped;
         try {
             com.cloud.agent.api.Answer answer = agentManager.send(hostId,
-                    new com.cloud.agent.api.CheckVmBackupTrackingCommand(vm.getInstanceName()));
+                    new com.cloud.agent.api.CheckVmBackupTrackingCommand(vm.getInstanceName(), stopped,
+                            stopped ? getVolumeTOList(vmId) : null));
             if (answer == null || !answer.getResult()) {
                 throw new CloudRuntimeException(answer == null ? "BACKUP_TRACKING_UNKNOWN: No agent response." : answer.getDetails());
             }
         } catch (com.cloud.exception.AgentUnavailableException | com.cloud.exception.OperationTimedoutException e) {
             throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: Unable to verify backup tracking.", e);
         }
+    }
+
+    private List<VolumeObjectTO> getVolumeTOList(long vmId) {
+        List<VolumeVO> volumes = volumeDao.findByInstance(vmId);
+        if (volumes == null || volumes.isEmpty()) {
+            throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: No volumes available for tracking inspection.");
+        }
+        List<VolumeObjectTO> volumeTOs = new ArrayList<>();
+        for (VolumeVO volume : volumes) {
+            VolumeInfo volumeInfo = volumeDataFactory.getVolume(volume.getId());
+            VolumeObjectTO volumeTO = volumeInfo == null ? null : (VolumeObjectTO) volumeInfo.getTO();
+            if (volumeTO == null) {
+                throw new CloudRuntimeException("BACKUP_TRACKING_UNKNOWN: Cannot inspect volume " + volume.getId());
+            }
+            volumeTOs.add(volumeTO);
+        }
+        return volumeTOs;
     }
 
     public void checkBackup(long vmId) {

@@ -18,11 +18,25 @@
 //
 
 package com.cloud.agent.api;
+
+import java.util.List;
+
+import org.apache.cloudstack.storage.to.VolumeObjectTO;
+
 /** Read-only preflight before changing the VM disk timeline. */
 public class CheckVmBackupTrackingCommand extends Command {
     private String vmName;
+    private boolean stopped;
+    private List<VolumeObjectTO> volumes;
     protected CheckVmBackupTrackingCommand() { }
     public CheckVmBackupTrackingCommand(String vmName) { this.vmName = vmName; setWait(60); }
+    public CheckVmBackupTrackingCommand(String vmName, boolean stopped, List<VolumeObjectTO> volumes) {
+        this(vmName);
+        this.stopped = stopped;
+        this.volumes = volumes;
+    }
     public String getVmName() { return vmName; }
+    public boolean isStopped() { return stopped; }
+    public List<VolumeObjectTO> getVolumes() { return volumes; }
     @Override public boolean executeInSequence() { return true; }
 }
