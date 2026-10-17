@@ -1623,6 +1623,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 }
                 for (StorageServiceInstance.Protocol protocol : List.of(StorageServiceInstance.Protocol.ISCSI, StorageServiceInstance.Protocol.NVME_OF)) {
                     for (org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) {
+                        if (protocol == StorageServiceInstance.Protocol.NVME_OF && target.getVolumeId() == null && StringUtils.isNotBlank(target.getConfigJson())) {
+                            JsonObject config = com.google.gson.JsonParser.parseString(target.getConfigJson()).getAsJsonObject();
+                            // A subsystem contains namespaces; it does not bind the default DATA volume.
+                            if (new com.google.gson.JsonPrimitive("subsystem").equals(config.get("type"))) continue;
+                        }
                         Long volumeId = target.getVolumeId() == null ? sharedFS.getVolumeId() : target.getVolumeId();
                         if (volumeId != null) protocols.computeIfAbsent(volumeId, ignored -> new java.util.TreeSet<>()).add(protocol.name());
                     }

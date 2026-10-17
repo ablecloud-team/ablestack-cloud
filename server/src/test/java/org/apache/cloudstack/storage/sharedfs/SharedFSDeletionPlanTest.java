@@ -136,4 +136,62 @@ public class SharedFSDeletionPlanTest {
         when(root.getSize()).thenReturn(200L);Assert.assertEquals(plan.get("planHash"),service.createDeletionPlan(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES).get("planHash"));
     }
 
+    @Test public void volumeLessNvmeSubsystemDoesNotBindDefaultDataButItsNamespaceBindsAdditionalData() {
+        SharedFSServiceImpl service=new SharedFSServiceImpl();SharedFSVO fs=serviceIdentity();fs.setVmId(60L);
+        VolumeDao volumes=mock(VolumeDao.class);ReflectionTestUtils.setField(service,"volumeDao",volumes);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao instances=mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao.class);
+        org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao shares=mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+        org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao targets=mock(org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao.class);
+        ReflectionTestUtils.setField(service,"storageServiceInstanceDao",instances);ReflectionTestUtils.setField(service,"storageFileShareDao",shares);ReflectionTestUtils.setField(service,"storageBlockTargetDao",targets);
+        org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO instance=mock(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO.class);
+        when(instance.getId()).thenReturn(8L);when(instances.findByVmId(60L)).thenReturn(instance);
+        VolumeVO primary=dataIdentity(42L),extra=dataIdentity(43L);when(extra.getUuid()).thenReturn("33333333-3333-4333-8333-333333333333");
+        when(volumes.findById(42L)).thenReturn(primary);when(volumes.findById(43L)).thenReturn(extra);
+        when(volumes.findByInstanceAndType(60L,Volume.Type.DATADISK)).thenReturn(java.util.List.of(primary,extra));
+        org.apache.cloudstack.storage.dataservice.StorageFileShareVO nfs=mock(org.apache.cloudstack.storage.dataservice.StorageFileShareVO.class);
+        when(nfs.getVolumeId()).thenReturn(42L);when(shares.listByInstanceIdAndProtocol(8L,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NFS)).thenReturn(java.util.List.of(nfs));
+        org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO subsystem=mock(org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO.class),namespace=mock(org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO.class);
+        when(subsystem.getVolumeId()).thenReturn(null);when(subsystem.getConfigJson()).thenReturn("{\"type\":\"subsystem\",\"allowAnyHost\":false}");
+        when(namespace.getVolumeId()).thenReturn(43L);when(namespace.getConfigJson()).thenReturn("{\"type\":\"namespace\"}");
+        when(targets.listByInstanceIdAndProtocol(8L,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NVME_OF)).thenReturn(java.util.List.of(subsystem,namespace));
+        for (SharedFS.DataVolumePolicy policy:SharedFS.DataVolumePolicy.values()) {
+            com.google.gson.JsonObject plan=service.createDeletionPlan(fs,policy);
+            Assert.assertEquals(2,plan.getAsJsonArray("volumes").size());
+            Assert.assertEquals("[\"NFS\"]",plan.getAsJsonArray("volumes").get(0).getAsJsonObject().get("protocols").toString());
+            Assert.assertEquals("[\"NVME_OF\"]",plan.getAsJsonArray("volumes").get(1).getAsJsonObject().get("protocols").toString());
+            when(targets.listByInstanceIdAndProtocol(8L,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NVME_OF)).thenReturn(java.util.List.of(namespace));
+            com.google.gson.JsonObject withoutContainer=service.createDeletionPlan(fs,policy);
+            Assert.assertEquals(plan,withoutContainer);
+            Assert.assertEquals(java.util.Set.of(42L,43L),StorageSharedFsDeletionIdentity.requireCurrent(plan,service.deletionScope(fs,policy),withoutContainer.getAsJsonArray("volumes")));
+            when(targets.listByInstanceIdAndProtocol(8L,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NVME_OF)).thenReturn(java.util.List.of(subsystem,namespace));
+        }
+    }
+
+    @Test public void legacyVolumeLessFileSharesAndBlockTargetsStillUseDefaultDataForDisplay() {
+        SharedFSServiceImpl service=new SharedFSServiceImpl();SharedFSVO fs=serviceIdentity();fs.setVmId(60L);
+        VolumeDao volumes=mock(VolumeDao.class);ReflectionTestUtils.setField(service,"volumeDao",volumes);
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao instances=mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceInstanceDao.class);
+        org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao shares=mock(org.apache.cloudstack.storage.dataservice.dao.StorageFileShareDao.class);
+        org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao targets=mock(org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao.class);
+        ReflectionTestUtils.setField(service,"storageServiceInstanceDao",instances);ReflectionTestUtils.setField(service,"storageFileShareDao",shares);ReflectionTestUtils.setField(service,"storageBlockTargetDao",targets);
+        org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO instance=mock(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO.class);
+        when(instance.getId()).thenReturn(8L);when(instances.findByVmId(60L)).thenReturn(instance);
+        VolumeVO primary=dataIdentity(42L);when(volumes.findById(42L)).thenReturn(primary);when(volumes.findByInstanceAndType(60L,Volume.Type.DATADISK)).thenReturn(java.util.List.of(primary));
+        org.apache.cloudstack.storage.dataservice.StorageFileShareVO legacyShare=mock(org.apache.cloudstack.storage.dataservice.StorageFileShareVO.class);
+        when(legacyShare.getVolumeId()).thenReturn(null);
+        for (org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol protocol:java.util.List.of(org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NFS,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.SMB)) {
+            when(shares.listByInstanceIdAndProtocol(8L,protocol)).thenReturn(java.util.List.of(legacyShare));
+        }
+        org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO legacyBlock=mock(org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO.class);
+        when(legacyBlock.getVolumeId()).thenReturn(null);when(legacyBlock.getConfigJson()).thenReturn("{}");
+        for (org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol protocol:java.util.List.of(org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.ISCSI,org.apache.cloudstack.storage.dataservice.StorageServiceInstance.Protocol.NVME_OF)) {
+            when(targets.listByInstanceIdAndProtocol(8L,protocol)).thenReturn(java.util.List.of(legacyBlock));
+        }
+        com.google.gson.JsonObject plan=service.createDeletionPlan(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES);
+        Assert.assertEquals(1,plan.getAsJsonArray("volumes").size());
+        Assert.assertEquals("[\"ISCSI\",\"NFS\",\"NVME_OF\",\"SMB\"]",plan.getAsJsonArray("volumes").get(0).getAsJsonObject().get("protocols").toString());
+        when(legacyBlock.getConfigJson()).thenReturn(null);
+        Assert.assertEquals(plan,service.createDeletionPlan(fs,SharedFS.DataVolumePolicy.PRESERVE_VOLUMES));
+    }
+
 }
