@@ -257,7 +257,8 @@ describe('last-known-good restore follows the shared current-writer gate', () =>
         stubs: {
           'a-space': { template: '<div><slot /></div>' },
           'a-button': { props: ['disabled', 'loading'], template: '<button :disabled="disabled || loading"><slot /></button>' },
-          'a-modal': true, 'a-table': true
+          'a-modal': true,
+          'a-table': true
         }
       }
     })
