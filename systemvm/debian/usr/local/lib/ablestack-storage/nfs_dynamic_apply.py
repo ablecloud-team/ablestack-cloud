@@ -23,7 +23,7 @@ import re
 import stat
 import tempfile
 import time
-import uuid
+import uuid as nfs_dynamic_uuid
 from ganesha_dbus import GaneshaDbus
 from nfs_readiness import NfsEndpointReadiness, NfsProbeRunner
 from native_renderers import render_nfs_candidate
@@ -110,7 +110,7 @@ class NfsLegacyDynamicApply:
                 or previous["configurationSha256"]!=pending["beforeSha256"]
                 or type(previous["revision"])is not int or not 0<previous["revision"]<scope["revision"]
                 or type(previous["verifiedAt"])not in(int,float) or not math.isfinite(previous["verifiedAt"])
-                or any(type(previous[key])is not str or str(uuid.UUID(previous[key]))!=previous[key] for key in("instanceUuid","operationUuid"))
+                or any(type(previous[key])is not str or str(nfs_dynamic_uuid.UUID(previous[key]))!=previous[key] for key in("instanceUuid","operationUuid"))
                 or previous["operationUuid"]==scope["operationUuid"]):raise ValueError("NFS dynamic SOURCE pointer differs")
         artifact_path=self.authorization.generation.root/(previous["operationUuid"]+".json")
         artifact=json.loads(GaneshaDbus.source_bytes(artifact_path))

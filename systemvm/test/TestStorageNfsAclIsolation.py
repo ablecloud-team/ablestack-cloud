@@ -375,6 +375,32 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
         for adapter,pid,before,after,name,source in candidates.values():
             key=next(key for key,row in self.writer.record["endpoints"].items()if row["busName"]==name)
             adapter.transition(name,pid,self.configuration/(key+".conf"),before,after,source)
+    def test_actual_inline_normal_alias_loop_cannot_shadow_dynamic_uuid_module(self):
+        cli=ROOT/"systemvm/debian/usr/local/bin/ablestack-storagectl"
+        source=cli.read_text()
+        inline=source.split("# BEGIN EMBEDDED NFS LEGACY DYNAMIC\n",1)[1].split("# END EMBEDDED NFS LEGACY DYNAMIC",1)[0]
+        program=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S)if"def start_ganesha_endpoints("in value)
+        loop=next(node for node in ast.parse(program).body if isinstance(node,ast.For)
+                  and isinstance(node.target,ast.Tuple) and isinstance(node.target.elts[0],ast.Name)
+                  and node.target.elts[0].id=="uuid" and isinstance(node.iter,ast.Call)
+                  and isinstance(node.iter.func,ast.Attribute) and isinstance(node.iter.func.value,ast.Name)
+                  and node.iter.func.value.id=="alias_state")
+        ns={"GaneshaDbus":GaneshaDbus,"NfsEndpointReadiness":NfsEndpointReadiness,"NfsProbeRunner":NfsProbeRunner}
+        exec(compile(inline,str(cli),"exec"),ns)
+        alias=str(uuid.uuid4())
+        ns.update(alias_state={alias:{}},next_alias_state={alias:{}})
+        exec(compile(ast.Module(body=[loop],type_ignores=[]),str(cli),"exec"),ns)
+        self.assertEqual(alias,ns["uuid"])
+        original_kind=self.kind
+        try:
+            self.kind=ns["NfsLegacyDynamicApply"]
+            writer=self.new_writer()
+            writer.prepare(self.payload)
+            self.assertTrue(writer.active)
+            self.assertEqual(self.source_scope, {key:writer.record["sourceGeneration"][key]for key in self.source_scope})
+            self.assertTrue(writer.candidates(writer.publish()))
+        finally:self.kind=original_kind
+
     def test_normal_pending_api_writer_reaches_dynamic_without_rendered_optin(self):
         candidates=self.publish_target()
         self.assertTrue(self.writer.active);self.assertEqual(1,len(candidates))
