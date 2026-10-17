@@ -299,6 +299,62 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
+    public void recordedExistingVolumePublishesRootOnlyReservationAndNeverInfersAnotherData() {
+        SharedFSVO fs=getMockSharedFS();fs.setVolumeId(6L);
+        when(volumeDao.findByInstanceAndType(7L,Volume.Type.DATADISK)).thenReturn(List.of());
+        java.util.concurrent.atomic.AtomicInteger calls=new java.util.concurrent.atomic.AtomicInteger();
+        sharedFSServiceImpl.recordSharedFSVmAllocation(fs,7L,true,value->{
+            Assert.assertEquals(Long.valueOf(7L),value.getVmId());Assert.assertEquals(Long.valueOf(6L),value.getVolumeId());calls.incrementAndGet();
+        });
+        Assert.assertEquals(1,calls.get());
+        VolumeVO data=mock(VolumeVO.class);when(data.getId()).thenReturn(99L);
+        when(volumeDao.findByInstanceAndType(7L,Volume.Type.DATADISK)).thenReturn(List.of(data));
+        Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.recordSharedFSVmAllocation(fs,7L,true,value->calls.incrementAndGet()));
+        Assert.assertEquals(1,calls.get());Assert.assertEquals(Long.valueOf(6L),fs.getVolumeId());
+        verifyNoInteractions(volumeApiService);
+    }
+
+    @Test
+    public void recordedExistingFilesystemSealsOnlyExplicitMatchingNoFormatObservation() {
+        SharedFSVO fs=getMockSharedFS();fs.setVmId(7L);fs.setVolumeId(6L);fs.setFsType(SharedFS.FileSystemType.XFS);
+        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);
+        when(volume.getInstanceId()).thenReturn(7L);when(volume.getId()).thenReturn(6L);when(volume.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");when(volume.getSize()).thenReturn(20L<<30);
+        String uuid="77777777-7777-4777-8777-777777777777";
+        when(guestCommandDispatcher.dispatch(any())).thenAnswer(invocation->{
+            org.apache.cloudstack.storage.dataservice.StorageServiceGuestCommand command=invocation.getArgument(0);
+            com.google.gson.JsonObject payload=com.google.gson.JsonParser.parseString(command.getPayload()).getAsJsonObject();
+            Assert.assertEquals("MOUNT_EXISTING",payload.get("importMode").getAsString());Assert.assertEquals("EXT4",payload.get("filesystem").getAsString());
+            return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"22222222-2222-4222-8222-222222222222\",\"filesystem\":\"ext4\",\"filesystemUuid\":\""+uuid+"\",\"formatInvoked\":false}");
+        });
+        try(MockedStatic<com.cloud.utils.db.Transaction> tx=mockStatic(com.cloud.utils.db.Transaction.class)) {
+            tx.when(()->com.cloud.utils.db.Transaction.execute(Mockito.<com.cloud.utils.db.TransactionCallback<Void>>any())).thenAnswer(call->{
+                com.cloud.utils.db.TransactionCallback<Void> callback=call.getArgument(0);return callback.doInTransaction(null);
+            });
+            sharedFSServiceImpl.inspectExistingInitialVolume(fs,"EXT4");
+        }
+        Assert.assertEquals(SharedFS.FileSystemType.EXT4,fs.getFsType());Assert.assertEquals("MOUNTED_EXISTING",fs.getInitialImportState());
+        verify(volumeDetailsDao).addDetail(6L,"storage.service.filesystem.uuid",uuid,false);
+        verify(volumeDetailsDao).addDetail(6L,"storage.service.filesystem.type","EXT4",false);
+        verifyNoInteractions(volumeApiService);
+    }
+
+    @Test
+    public void recordedExistingFilesystemMismatchOrUnknownFormatCannotSealIdentity() {
+        SharedFSVO fs=getMockSharedFS();fs.setVmId(7L);fs.setVolumeId(6L);fs.setFsType(SharedFS.FileSystemType.XFS);
+        VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);
+        when(volume.getInstanceId()).thenReturn(7L);when(volume.getUuid()).thenReturn("volume-uuid");
+        for(String observation:List.of(
+                "{\"success\":true,\"volumeUuid\":\"volume-uuid\",\"filesystem\":\"xfs\",\"filesystemUuid\":\"77777777-7777-4777-8777-777777777777\",\"formatInvoked\":false}",
+                "{\"success\":true,\"volumeUuid\":\"volume-uuid\",\"filesystem\":\"ext4\",\"filesystemUuid\":\"77777777-7777-4777-8777-777777777777\",\"formatInvoked\":true}",
+                "{\"success\":true,\"volumeUuid\":\"volume-uuid\",\"filesystem\":\"ext4\",\"filesystemUuid\":\"77777777-7777-4777-8777-777777777777\"}")) {
+            when(guestCommandDispatcher.dispatch(any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok",observation));
+            Assert.assertThrows(CloudRuntimeException.class,()->sharedFSServiceImpl.inspectExistingInitialVolume(fs,"EXT4"));
+        }
+        Assert.assertEquals(SharedFS.FileSystemType.XFS,fs.getFsType());Assert.assertNull(fs.getInitialImportState());
+        verifyNoInteractions(volumeDetailsDao,volumeApiService);
+    }
+
+    @Test
     public void testFailedInitialAttachmentCleanupPreservesData() {
         SharedFSVO fs=getMockSharedFS();ReflectionTestUtils.setField(fs,"id",9L);fs.setVmId(7L);fs.setVolumeId(6L);
         VolumeVO volume=mock(VolumeVO.class);when(volumeDao.findById(6L)).thenReturn(volume);when(volume.getInstanceId()).thenReturn(7L);when(volume.getId()).thenReturn(6L);when(volume.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");when(volume.getVolumeType()).thenReturn(Volume.Type.DATADISK);when(volume.getAccountId()).thenReturn(s_ownerId);when(volume.getDomainId()).thenReturn(s_domainId);when(volume.getDataCenterId()).thenReturn(s_zoneId);when(volume.getPoolId()).thenReturn(null);when(volume.getSize()).thenReturn(1024L);when(sharedFSDao.update(Mockito.anyLong(),any())).thenReturn(true);

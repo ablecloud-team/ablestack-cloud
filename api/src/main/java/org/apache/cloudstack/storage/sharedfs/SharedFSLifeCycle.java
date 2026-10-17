@@ -64,6 +64,15 @@ public interface SharedFSLifeCycle {
         throw new UnsupportedOperationException("Provider has no recorded SharedFS allocation");
     }
 
+    /** Publish ROOT/NIC and the selected DATA reservation before ROOT-only first start;
+     * publish the exact attachment afterwards. A failed recorded allocation remains recoverable.
+     */
+    default Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId,
+            Long templateId, java.util.function.LongConsumer allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider has no recorded existing-DATA allocation");
+    }
+
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);

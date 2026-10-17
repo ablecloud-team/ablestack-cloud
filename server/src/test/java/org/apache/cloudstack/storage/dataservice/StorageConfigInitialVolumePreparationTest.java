@@ -74,4 +74,46 @@ public class StorageConfigInitialVolumePreparationTest {
         Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"volume\"}"));
         Assert.assertThrows(CloudRuntimeException.class,()->manager.prepareConfigurationInitialVolume(instance,new JsonObject()));
     }
+    @Test public void existingFilesystemExpectationRequiresFreshCapabilityAndReachesOnlyMount() {
+        Manager manager=new Manager();StorageServiceGuestCommandDispatcher dispatcher=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(43L);
+        manager.volume=Mockito.mock(VolumeVO.class);Mockito.when(manager.volume.getUuid()).thenReturn("22222222-2222-4222-8222-222222222222");Mockito.when(manager.volume.getSize()).thenReturn(20L<<30);sparse(manager);
+        JsonObject blueprint=new JsonObject();blueprint.addProperty("backingvolumemode","EXISTING");blueprint.addProperty("filesystem","EXT4");blueprint.addProperty("expectedFilesystemUuid","77777777-7777-4777-8777-777777777777");
+        java.util.List<String> calls=new java.util.ArrayList<>();
+        Mockito.when(dispatcher.dispatch(Mockito.any())).thenAnswer(call->{
+            StorageServiceGuestCommand command=call.getArgument(0);calls.add(command.getOperation());
+            if("volume operation capabilities".equals(command.getOperation()))return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"expectedFilesystemUuidGuardSupported\":true}");
+            JsonObject payload=JsonParser.parseString(command.getPayload()).getAsJsonObject();
+            Assert.assertEquals("MOUNT_EXISTING",payload.get("importMode").getAsString());Assert.assertEquals("EXT4",payload.get("filesystem").getAsString());
+            Assert.assertEquals("77777777-7777-4777-8777-777777777777",payload.get("expectedFilesystemUuid").getAsString());Assert.assertFalse(payload.has("formatDiscardPolicy"));
+            return new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"22222222-2222-4222-8222-222222222222\",\"filesystemUuid\":\"77777777-7777-4777-8777-777777777777\",\"formatInvoked\":false}");
+        });
+        manager.prepareConfigurationInitialVolume(instance,blueprint);
+        Assert.assertEquals(java.util.List.of("volume operation capabilities","volume attach inspect"),calls);
+        Mockito.clearInvocations(dispatcher);
+        Mockito.doReturn(new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"expectedFilesystemUuidGuardSupported\":\"true\"}")).when(dispatcher).dispatch(Mockito.any());
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->manager.prepareConfigurationInitialVolume(instance,blueprint));
+        Mockito.verify(dispatcher).dispatch(Mockito.any());
+    }
+
+    @Test public void existingCloneNeedsSignedGuardBeforeAnyAllocationWhileAllNewRemainsCompatible() {
+        Manager manager=new Manager();
+        org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao bundles=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao.class);
+        StorageServiceRuntimeUpgradeManager upgrades=Mockito.mock(StorageServiceRuntimeUpgradeManager.class);
+        StorageServiceRuntimeBundleVO bundle=Mockito.mock(StorageServiceRuntimeBundleVO.class);
+        ReflectionTestUtils.setField(manager,"storageRuntimeBundleDao",bundles);ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",upgrades);
+        Mockito.when(bundles.findByUuid("bundle")).thenReturn(bundle);Mockito.when(bundle.getId()).thenReturn(610L);
+        JsonObject plan=JsonParser.parseString("{\"createNew\":{\"backingvolumemode\":\"NEW\"},\"volumeAllocationPlan\":{\"allocations\":[]}}").getAsJsonObject();
+        manager.preflightConfigurationExistingDataRuntime("bundle",plan);Mockito.verifyNoInteractions(bundles,upgrades);
+        plan.getAsJsonObject("volumeAllocationPlan").getAsJsonArray("allocations").add(JsonParser.parseString("{\"mode\":\"EXISTING\"}"));
+        JsonObject verification=JsonParser.parseString("{\"verified\":true,\"manifest\":{\"supportedFeatures\":[]}}").getAsJsonObject();
+        Mockito.when(upgrades.verifyAvailableBundle(610L)).thenAnswer(call->verification.deepCopy());
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->manager.preflightConfigurationExistingDataRuntime("bundle",plan));
+        verification.getAsJsonObject("manifest").getAsJsonArray("supportedFeatures").add("STORAGE_VOLUME_EXPECTED_FILESYSTEM_UUID_GUARD");
+        manager.preflightConfigurationExistingDataRuntime("bundle",plan);
+        verification.addProperty("verified",false);
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->manager.preflightConfigurationExistingDataRuntime("bundle",plan));
+    }
+
 }

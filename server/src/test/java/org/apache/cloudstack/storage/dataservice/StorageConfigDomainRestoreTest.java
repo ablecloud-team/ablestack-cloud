@@ -146,6 +146,9 @@ public class StorageConfigDomainRestoreTest {
         @Override protected void requireConfigurationAdministrator() { }
         @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance) { }
         @Override protected long rootDesiredRevision(long instanceId) {return 0;}
+        @Override protected JsonObject configurationFoundationNativeSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+            JsonObject source=new JsonObject();source.addProperty("bootId","44444444-4444-4444-8444-444444444444");return source;
+        }
         @Override protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation) {events.add("writer");}
         @Override protected void endStorageWriterHeartbeat() {events.add("end");}
         @Override protected StorageServiceOperationControlVO startOperationControl(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {return null;}
@@ -156,6 +159,7 @@ public class StorageConfigDomainRestoreTest {
     }
     @Test public void foundationPreparesOnlyReviewedNewTargetAndCannotAutomaticallyRepeatFailedPhysicalWork() {
         FoundationManager manager=new FoundationManager();StorageServiceInstanceVO target=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(target.getId()).thenReturn(11L);Mockito.when(target.getUuid()).thenReturn("11111111-1111-4111-8111-111111111111");Mockito.when(target.getCurrentRuntimeBundleId()).thenReturn(9L);StorageConfigArtifactVO artifact=new StorageConfigArtifactVO();artifact.setInstanceId(7L);artifact.setSha256("a".repeat(64));JsonObject metadata=new JsonObject();metadata.addProperty("createdTargetInstanceUuid",target.getUuid());metadata.addProperty("runtimePreparedBundleUuid","22222222-2222-4222-8222-222222222222");artifact.setMetadataJson(metadata.toString());JsonObject plan=new JsonObject();plan.addProperty("targetMode","CREATE_NEW");plan.add("runtimeBundleUuid",metadata.get("runtimePreparedBundleUuid").deepCopy());plan.add("volumeAllocationPlan",new JsonObject());plan.add("createNew",new JsonObject());
+        metadata.add("plan",plan.deepCopy());artifact.setMetadataJson(metadata.toString());
         org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao bundles=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeBundleDao.class);
         StorageServiceRuntimeBundleVO bundle=Mockito.mock(StorageServiceRuntimeBundleVO.class);
         Mockito.when(bundle.getId()).thenReturn(9L);
@@ -175,7 +179,7 @@ public class StorageConfigDomainRestoreTest {
         StorageServiceManagerImpl manager=new StorageServiceManagerImpl();JsonObject pin=new JsonObject();pin.addProperty("bundleUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");pin.addProperty("bundleSha256","a".repeat(64));pin.addProperty("manifestSha256","b".repeat(64));pin.addProperty("expectedCliSha256","c".repeat(64));JsonObject actual=new JsonObject();actual.addProperty("bundleUuid","aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");actual.addProperty("archiveSha256","a".repeat(64));actual.addProperty("manifestSha256","b".repeat(64));JsonObject verified=new JsonObject();verified.add("runtimePin",actual);verified.addProperty("actualCliSha256","c".repeat(64));verified.addProperty("transactionId","normal-transaction");for(String field:java.util.Set.of("readOnly","signedRuntimeVerified","nativeFileHashesVerified"))verified.addProperty(field,true);manager.requireCloneRuntimeReadback(verified,pin);
         for(String field:java.util.Set.of("readOnly","signedRuntimeVerified","nativeFileHashesVerified","transactionId","actualCliSha256")){JsonObject wrong=verified.deepCopy();if(field.equals("transactionId"))wrong.remove(field);else if(field.equals("actualCliSha256"))wrong.addProperty(field,"d".repeat(64));else wrong.addProperty(field,"true");Assert.assertThrows(RuntimeException.class,()->manager.requireCloneRuntimeReadback(wrong,pin));}JsonObject wrong=verified.deepCopy();wrong.getAsJsonObject("runtimePin").addProperty("manifestSha256","d".repeat(64));Assert.assertThrows(RuntimeException.class,()->manager.requireCloneRuntimeReadback(wrong,pin));
     }
-    @Test public void cloneProfileRequiresExactRealizedDataUnionAndRejectsForeignOrExistingMembers() {
+    @Test public void cloneProfileRequiresExactRealizedDataUnionAndRejectsForeignOrReusedInitialMembers() {
         StorageServiceManagerImpl manager=new StorageServiceManagerImpl();
         String target="11111111-1111-4111-8111-111111111111",initial="22222222-2222-4222-8222-222222222222",additional="33333333-3333-4333-8333-333333333333";
         JsonObject plan=new JsonObject(),allocation=new JsonObject(),scope=new JsonObject(),mappings=new JsonObject(),blueprint=new JsonObject();
@@ -200,6 +204,9 @@ public class StorageConfigDomainRestoreTest {
         volumes.add(id,disk);
         }binding.add("volumes",volumes);
         manager.requireCloneProfileDataSet(target,plan,binding,initial);
+        Assert.assertEquals("NEW_SPARSE_ALL4_VALIDATION",manager.configurationCloneProfileKind(plan));
+        row.addProperty("mode","EXISTING");allocation.remove("planSha256");allocation.addProperty("planSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(allocation)));
+        manager.requireCloneProfileDataSet(target,plan,binding,initial);Assert.assertEquals("OWNED_SPARSE_ALL4_VALIDATION",manager.configurationCloneProfileKind(plan));
         volumes.remove(additional);Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet(target,plan,binding,initial));volumes.add(additional,new JsonObject());volumes.getAsJsonObject(additional).addProperty("type","DATADISK");blueprint.addProperty("backingvolumemode","EXISTING");Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet(target,plan,binding,initial));blueprint.addProperty("backingvolumemode","NEW");Assert.assertThrows(RuntimeException.class,()->manager.requireCloneProfileDataSet("foreign-target",plan,binding,initial));
     }
 }

@@ -289,6 +289,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             public void applyPrevious() {
                 configurationRecoverySource.set(frozenRecoveryConfiguration(instance, operation));
+                restoreFailedInitialPrimaryEndpoint(instance, operation);
                 reconcileRecoveryNetwork(instance, operation);
                 restoreNativePosixOperation(null, instance, true);
                 for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
@@ -318,6 +319,53 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 } finally { endStorageWriterHeartbeat();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove();adJoinRecoveryCredentials.remove(); }
             }
         }, System.currentTimeMillis());
+    }
+
+    protected void restoreFailedInitialPrimaryEndpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject frozen=configurationRecoverySource.get();
+        if(!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId()) || frozen==null
+                || !"enablestorageserviceprotocolresponse".equals(operation.getAction()))return;
+        requireConfigurationAdministrator();
+        if(operation.getInstanceId()!=instance.getId() || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"RECOVERY_REQUIRED".equals(operation.getState()) || operation.getSnapshotJson()!=null)
+            throw new CloudRuntimeException("Initial endpoint recovery requires its original administrator and failed writer");
+        JsonObject source=frozen.getAsJsonObject("configurationDesiredState");
+        JsonObject observed=nativeConfigurationGeneration(instance,null,"status"),current=observed.getAsJsonObject("configurationDesiredState");
+        if(source==null || current==null || !source.get("network-endpoints.json").isJsonNull() || current.get("network-endpoints.json").isJsonNull())return;
+        String primary=configurationPrimaryAddress(instance);
+        StorageInitialPrimaryEndpointRecovery.requireCanonical(frozen,observed,primary);
+        if(!operation.getUuid().equals(getJsonString(observed,"pendingOperationUuid")))
+            throw new CloudRuntimeException("Initial endpoint recovery pending writer changed");
+        JsonObject previous=parseJsonObject(operation.getPreviousSnapshotJson()),desired=new JsonObject();
+        for(String key:Set.of("schemaVersion","instanceId","tables"))desired.add(key,previous.get(key).deepCopy());
+        if(!StorageUnchangedVerifiedSourceRecovery.same(desired,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("Initial endpoint recovery DB SOURCE changed");
+        StorageInitialPrimaryEndpointRecovery.authenticate(instance.getId(),primary,getJsonString(parseJsonObject(operation.getResultJson()),"_requestFingerprint"),StorageServiceRequestFingerprint::of);
+        JsonObject endpoint=current.getAsJsonObject("network-endpoints.json"),inspection=endpoint.deepCopy();
+        inspection.add("expectedBindings",rootNetworkBindings(instance,endpoint));
+        JsonObject proof=rootGuest(instance,"network endpoints inspect",inspection,15);
+        if(!Boolean.TRUE.equals(getNativeBoolean(proof,"success")) || !Boolean.TRUE.equals(getNativeBoolean(proof,"bindingsValidated"))
+                || !Boolean.FALSE.equals(getNativeBoolean(proof,"sideEffects")) || !proof.has("endpoints") || proof.getAsJsonArray("endpoints").size()!=1
+                || !Boolean.TRUE.equals(getNativeBoolean(proof.getAsJsonArray("endpoints").get(0).getAsJsonObject(),"active")))
+            throw new CloudRuntimeException("Initial primary endpoint has no exact fresh NIC/MAC binding");
+        JsonObject actualBinding=proof.getAsJsonArray("endpoints").get(0).getAsJsonObject();
+        JsonObject expectedBinding=inspection.getAsJsonArray("expectedBindings").get(0).getAsJsonObject();
+        for(String key:Set.of("listenIp","primaryIp","macAddress","prefixlen"))
+            if(!StorageUnchangedVerifiedSourceRecovery.same(expectedBinding.get(key),actualBinding.get(key)))
+                throw new CloudRuntimeException("Initial primary endpoint fresh binding differs from its exact NIC");
+        StorageInitialPrimaryEndpointRecovery.requireNfsAbsent(rootGuest(instance,"operation verify",new JsonObject(),30),
+                rootGuest(instance,"operation observe",new JsonObject(),30),System.currentTimeMillis()/1000.0);
+        JsonObject latest=nativeConfigurationGeneration(instance,null,"status");
+        for(String key:Set.of("generation","configurationSha256","bootId","runtimeRevision","pendingOperationUuid","configurationDesiredState"))
+            if(!StorageUnchangedVerifiedSourceRecovery.same(observed.get(key),latest.get(key)))throw new CloudRuntimeException("Initial endpoint recovery SOURCE changed during observation");
+        if(!StorageUnchangedVerifiedSourceRecovery.same(desired,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("Initial endpoint recovery DB SOURCE changed before normalization");
+        JsonObject request=operationReservationScope(instance,operation);request.add("previousGeneration",frozen.get("generation").deepCopy());
+        request.add("configurationDesiredState",source.deepCopy());
+        JsonObject restored=rootGuest(instance,"operation generation restore",request,30);
+        if(!Boolean.TRUE.equals(getNativeBoolean(restored,"canonicalRestored")) || !getJsonString(frozen,"configurationSha256").equals(getJsonString(restored,"configurationSha256"))
+                || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid")))
+            throw new CloudRuntimeException("Initial primary endpoint normalization did not restore exact SOURCE");
     }
 
     /** Explicitly confirms a checkpointless create's unchanged prior verified SOURCE; never replays it. */
@@ -3583,6 +3631,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject config = new JsonObject();config.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());config.addProperty("relativeSharePath", "");config.addProperty("createDirectory", false);
         JsonObject existing = configurationVolumeAllocationRuntime(target, storageConfigArtifactDao.findByUuid(getJsonString(allocation, "artifactUuid"))).loadReceipt(volume.getUuid());
         if (existing != null && getJsonString(existing, "filesystemUuid") != null) config.add("filesystemUuid", existing.get("filesystemUuid"));
+        if ("EXISTING".equals(getJsonString(allocation,"mode"))) {
+            if(existing==null||getJsonString(existing,"filesystemUuid")==null)throw new CloudRuntimeException("Existing FILE allocation has no sealed filesystem UUID");
+            requireExpectedFilesystemUuidGuard(target);payload.add("expectedFilesystemUuid",existing.get("filesystemUuid").deepCopy());
+        }
         payload.add("config", config);
         int timeout = backingVolumeFormatDeadline(volume.getSize());payload.addProperty("formatDeadlineSeconds", timeout);
         JsonObject result = rootGuest(target, "volume attach inspect", payload, "FORMAT_IF_EMPTY".equals(mode) ? timeout + 120 : 60);
@@ -3591,6 +3643,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!"VOLUME_SERIAL".equals(getJsonString(result, "matchedBy")) || !volume.getUuid().equals(getJsonString(result, "volumeUuid"))
                 || !java.util.Objects.equals(getJsonString(result, "filesystemUuid"), getJsonString(fresh, "filesystemUuid"))) throw new CloudRuntimeException("Clone preparation response disagrees with fresh exact DATA identity");
         markVolumeLifecycleVerified(volume);
+        if ("EXISTING".equals(getJsonString(allocation,"mode"))) {
+            configurationVolumeDetailsDao.addDetail(volume.getId(),"storage.service.filesystem.uuid",getJsonString(fresh,"filesystemUuid"),false);
+            configurationVolumeDetailsDao.addDetail(volume.getId(),"storage.service.filesystem.type",getJsonString(fresh,"filesystem").toUpperCase(java.util.Locale.ROOT),false);
+        }
         return fresh;
     }
 
@@ -4093,9 +4149,50 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         binding.addProperty("accountId", shared.getAccountId());binding.addProperty("domainId", shared.getDomainId());
         binding.addProperty("zoneId", shared.getDataCenterId());binding.addProperty("name", shared.getName());
         binding.addProperty("serviceOfferingId", shared.getServiceOfferingId());
-        binding.addProperty("filesystem", shared.getFsType().name());binding.addProperty("provider", shared.getFsProviderName());
+        binding.addProperty("filesystem", shared.getBackingVolumeMode() == org.apache.cloudstack.storage.sharedfs.SharedFS.BackingVolumeMode.EXISTING ? "UNOBSERVED_EXISTING" : shared.getFsType().name());binding.addProperty("provider", shared.getFsProviderName());
         binding.addProperty("backingVolumeMode", shared.getBackingVolumeMode().name());
         return binding;
+    }
+
+    private boolean configurationCloneExistingInitial(JsonObject plan) {
+        return "EXISTING".equals(getJsonString(plan.getAsJsonObject("createNew"), "backingvolumemode"));
+    }
+
+    protected JsonObject configurationCloneExistingDataBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan) {
+        if (!configurationCloneExistingInitial(plan) || shared.getBackingVolumeMode() != org.apache.cloudstack.storage.sharedfs.SharedFS.BackingVolumeMode.EXISTING
+                || !Set.of("DEFAULT_SYSTEM", "EXPLICIT_SYSTEM").contains(getJsonString(plan.getAsJsonObject("cloneTemplatePin"), "selectionMode")))
+            throw new InvalidParameterValueException("Recorded existing initial DATA requires its pinned SYSTEM template");
+        VolumeVO volume = volumeDao.findByUuid(getJsonString(plan.getAsJsonObject("createNew"), "existingvolumeid"));
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = volume == null || volume.getPoolId() == null ? null : configurationStoragePoolDao.findById(volume.getPoolId());
+        if (volume == null || shared.getVolumeId() == null || shared.getVolumeId() != volume.getId()
+                || volume.getRemoved() != null || volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK || volume.getState() != com.cloud.storage.Volume.State.Ready
+                || volume.getAccountId() != shared.getAccountId() || volume.getDomainId() != shared.getDomainId() || volume.getDataCenterId() != shared.getDataCenterId()
+                || volume.getInstanceId() != null && !volume.getInstanceId().equals(shared.getVmId())
+                || volume.getTemplateId() != null || StringUtils.isNotBlank(volume.getChainInfo()) || StringUtils.isBlank(volume.getPath())
+                || volume.getSize() == null || volume.getSize() <= 0 || volume.getProvisioningType() == null
+                || !Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE, com.cloud.storage.Storage.ProvisioningType.FAT).contains(volume.getProvisioningType())
+                || pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up || pool.getDataCenterId() != shared.getDataCenterId()
+                || pool.getPoolType() == null || !Set.of(com.cloud.storage.Storage.StoragePoolType.Filesystem, com.cloud.storage.Storage.StoragePoolType.NetworkFilesystem,
+                        com.cloud.storage.Storage.StoragePoolType.SharedMountPoint, com.cloud.storage.Storage.StoragePoolType.RBD).contains(pool.getPoolType())
+                || volume.getFormat() != com.cloud.storage.Storage.ImageFormat.QCOW2
+                    && !(volume.getFormat() == com.cloud.storage.Storage.ImageFormat.RAW && pool.getPoolType() == com.cloud.storage.Storage.StoragePoolType.RBD))
+            throw new InvalidParameterValueException("Recorded existing DATA ownership, backing or placement changed");
+        JsonObject binding = new JsonObject();binding.addProperty("id", volume.getId());binding.addProperty("uuid", volume.getUuid());
+        binding.addProperty("name", volume.getName());binding.addProperty("offeringId", volume.getDiskOfferingId());binding.addProperty("sizeBytes", volume.getSize());
+        binding.addProperty("accountId", volume.getAccountId());binding.addProperty("domainId", volume.getDomainId());binding.addProperty("zoneId", volume.getDataCenterId());
+        binding.addProperty("poolId", pool.getId());binding.addProperty("poolUuid", pool.getUuid());binding.addProperty("poolType", pool.getPoolType().name());
+        binding.addProperty("path", volume.getPath());binding.addProperty("imageFormat", volume.getFormat().name());binding.addProperty("provisioningType", volume.getProvisioningType().name());
+        binding.addProperty("formatPolicy", "EXISTING_READY_IMMUTABLE");binding.addProperty("importMode", "MOUNT_EXISTING");
+        binding.addProperty("expectedFilesystem", getJsonString(plan.getAsJsonObject("createNew"), "filesystem"));
+        binding.addProperty("filesystemObservation", "UNOBSERVED_RESERVED_DATA");return binding;
+    }
+
+    private boolean configurationCloneAttachmentAdvance(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject fresh, JsonObject previous) {
+        if (!"RESERVED".equals(getJsonString(previous, "initialDataState")) || !"ATTACHED".equals(getJsonString(fresh, "initialDataState"))) return false;
+        com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(shared.getVmId());
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) return false;
+        JsonObject before = previous.deepCopy(), after = fresh.deepCopy();before.remove("initialDataState");after.remove("initialDataState");
+        return before.equals(after);
     }
 
     protected JsonObject configurationCloneVmBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan) {
@@ -4109,14 +4206,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         com.cloud.storage.VMTemplateVO template = rootUpgradeTemplateDao.findByUuid(getJsonString(plan.getAsJsonObject("cloneTemplatePin"), "templateUuid"));
         List<VolumeVO> roots = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.ROOT);
         List<VolumeVO> data = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.DATADISK);
+        boolean existing = configurationCloneExistingInitial(plan);
+        VolumeVO selected = existing ? requireVolume(shared.getVolumeId()) : data.size() == 1 ? data.get(0) : null;
+        boolean attached = selected != null && java.util.Objects.equals(selected.getInstanceId(), shared.getVmId());
         List<NicVO> nics = nicDao.listByVmId(shared.getVmId());
         org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(plan.getAsJsonObject("createNew"));
         if (vm == null || template == null || vm.getRemoved() != null || vm.getAccountId() != shared.getAccountId()
                 || vm.getDataCenterId() != shared.getDataCenterId() || vm.getTemplateId() != template.getId()
                 || !com.cloud.vm.UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())
-                || roots.size() != 1 || data.size() != 1 || data.get(0).getId() != shared.getVolumeId()
+                || roots.size() != 1 || selected == null || selected.getId() != shared.getVolumeId()
+                || (existing ? attached ? data.size() != 1 || data.get(0).getId() != selected.getId() : !data.isEmpty() || selected.getInstanceId() != null : data.size() != 1)
                 || nics.size() != 1 || nics.get(0).getNetworkId() != cmd.getNetworkId()
-                || roots.get(0).getRemoved() != null || data.get(0).getRemoved() != null)
+                || roots.get(0).getRemoved() != null || selected.getRemoved() != null)
             throw new InvalidParameterValueException("Clone VM disk or network allocation identity changed");
         JsonObject binding = new JsonObject();
         binding.addProperty("vmId", vm.getId());binding.addProperty("vmUuid", vm.getUuid());
@@ -4125,7 +4226,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         binding.addProperty("nicUuid", nics.get(0).getUuid());
         binding.add("nic", configurationCloneNicBinding(nics.get(0), previous == null ? null : previous.getAsJsonObject("nic")));
         binding.add("root", configurationCloneDiskBinding(roots.get(0), vm, true, previous == null ? null : previous.getAsJsonObject("root"), cmd.getStorageId()));
-        binding.add("data", configurationCloneDiskBinding(data.get(0), vm, false, previous == null ? null : previous.getAsJsonObject("data"), cmd.getStorageId()));
+        binding.add("data", existing ? configurationCloneExistingDataBinding(shared, plan)
+                : configurationCloneDiskBinding(selected, vm, false, previous == null ? null : previous.getAsJsonObject("data"), cmd.getStorageId()));
+        if (existing) binding.addProperty("initialDataState", attached ? "ATTACHED" : "RESERVED");
         return binding;
     }
 
@@ -4183,9 +4286,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         for (String role : Set.of("root", "data")) {
             com.cloud.storage.Volume.Type type = "root".equals(role) ? com.cloud.storage.Volume.Type.ROOT : com.cloud.storage.Volume.Type.DATADISK;
             List<VolumeVO> volumes = volumeDao.findByInstanceAndType(vm.getId(), type);
-            if (volumes.size() != 1) throw new InvalidParameterValueException("Clone realization disk set changed");
-            JsonObject realized = configurationCloneRealizedDisk(volumes.get(0), vm, "root".equals(role), plan);
-            if (realized != null) observed.add(role, realized);
+            if ("data".equals(role) && configurationCloneExistingInitial(plan)) {
+                if ("RESERVED".equals(getJsonString(allocation.getAsJsonObject("vm"), "initialDataState"))) continue;
+                if (volumes.size() != 1 || shared.getVolumeId() == null || volumes.get(0).getId() != shared.getVolumeId()
+                        || !java.util.Objects.equals(volumes.get(0).getInstanceId(), vm.getId()))
+                    throw new InvalidParameterValueException("Existing clone DATA attachment changed before realization");
+                JsonObject realized = configurationCloneExistingDataBinding(shared, plan);realized.addProperty("instanceId", vm.getId());observed.add(role, realized);
+            } else {
+                if (volumes.size() != 1) throw new InvalidParameterValueException("Clone realization disk set changed");
+                JsonObject realized = configurationCloneRealizedDisk(volumes.get(0), vm, "root".equals(role), plan);
+                if (realized != null) observed.add(role, realized);
+            }
         }
         NicVO nic = nicDao.listByVmId(vm.getId()).get(0);
         JsonObject initial = allocation.getAsJsonObject("vm").getAsJsonObject("nic");
@@ -4197,7 +4308,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             assigned.addProperty("addressFormat", nic.getAddressFormat() == null ? null : nic.getAddressFormat().name());
             observed.add("nic", assigned);
         }
-        configurationSaveCloneRealizations(artifact, allocation, observed, true);
+        configurationSaveCloneRealizations(artifact, allocation, observed, !configurationCloneExistingInitial(plan)
+                || !"RESERVED".equals(getJsonString(allocation.getAsJsonObject("vm"), "initialDataState")));
     }
 
     private void configurationSaveCloneRealizations(StorageConfigArtifactVO artifact, JsonObject allocation, JsonObject observed, boolean fullObservation) {
@@ -4260,6 +4372,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected org.apache.cloudstack.storage.sharedfs.SharedFS requireConfigurationCloneAllocation(
             StorageConfigArtifactVO artifact, JsonObject plan, JsonObject receipt) {
         Set<String> fields = new HashSet<>(Set.of("schemaVersion", "kind", "scope", "sharedFs"));
+        boolean existing = configurationCloneExistingInitial(plan);
+        if (existing) fields.add("existingData");
         if (receipt != null && receipt.has("vm")) fields.add("vm");
         if (receipt == null || !receipt.keySet().equals(fields)
                 || !receipt.get("schemaVersion").isJsonPrimitive() || !receipt.get("schemaVersion").getAsJsonPrimitive().isNumber()
@@ -4274,18 +4388,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         org.apache.cloudstack.storage.sharedfs.SharedFS shared = configurationSharedFsService.getSharedFSByUuid(getJsonString(sharedBinding, "uuid"));
         if (shared == null || shared.getId() != id || !configurationCloneSharedFsBinding(shared).equals(sharedBinding))
             throw new InvalidParameterValueException("Recorded SharedFS identity changed");
+        if (existing && !configurationCloneExistingDataBinding(shared, plan).equals(receipt.get("existingData")))
+            throw new InvalidParameterValueException("Recorded existing DATA reservation identity changed");
         if (receipt.has("vm")) {
             JsonObject recordedVm = receipt.getAsJsonObject("vm");
             for (String field : Set.of("vmId", "templateId", "networkId", "nicId")) configurationAllocationId(recordedVm, field);
             for (String role : Set.of("root", "data")) {
                 JsonObject disk = recordedVm.getAsJsonObject(role);
-                for (String field : Set.of("id", "offeringId", "sizeBytes")) configurationAllocationId(disk, field);
+                for (String field : Set.of("id", "offeringId", "sizeBytes"))
+                    if (!(existing && "data".equals(role) && "offeringId".equals(field) && disk.get(field).isJsonNull())) configurationAllocationId(disk, field);
             }
+            JsonObject fresh = configurationCloneVmBinding(shared, plan, recordedVm);
             if (configurationAllocationId(recordedVm, "vmId") != (shared.getVmId() == null ? 0 : shared.getVmId())
-                    || !configurationCloneVmBinding(shared, plan, recordedVm).equals(recordedVm))
+                    || !fresh.equals(recordedVm) && !(existing && configurationCloneAttachmentAdvance(shared, fresh, recordedVm)))
                 throw new InvalidParameterValueException("Recorded VM ROOT or DATA identity changed");
             configurationPinCloneRealizations(artifact, plan, shared, receipt);
-        } else if (shared.getVmId() != null || shared.getVolumeId() != null) {
+        } else if (shared.getVmId() != null || !existing && shared.getVolumeId() != null) {
             throw new InvalidParameterValueException("Unpublished VM allocation requires reconciliation");
         }
         return shared;
@@ -4382,6 +4500,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             receipt.addProperty("kind", "CONFIGURATION_CLONE_ALLOCATION");
             receipt.add("scope", configurationCloneAllocationScope(artifact, plan));
             receipt.add("sharedFs", configurationCloneSharedFsBinding(allocated));
+            if (cmd.isExistingVolume()) receipt.add("existingData", configurationCloneExistingDataBinding(allocated, plan));
             configurationSaveCloneAllocation(artifact, null, receipt);
             return allocated;
         });
@@ -4393,12 +4512,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if (!configurationCloneAllocationScope(artifact, plan).equals(previous.get("scope"))
                         || !configurationCloneSharedFsBinding(allocated).equals(previous.get("sharedFs")))
                     throw new InvalidParameterValueException("Clone allocation owner or plan changed before VM publication");
+                if (cmd.isExistingVolume() && !configurationCloneExistingDataBinding(allocated, plan).equals(previous.get("existingData")))
+                    throw new InvalidParameterValueException("Reserved existing DATA changed before clone VM publication");
                 JsonObject binding = configurationCloneVmBinding(allocated, plan, previous.has("vm") ? previous.getAsJsonObject("vm") : null);
-                if (previous.has("vm")) {
+                if (previous.has("vm") && cmd.isExistingVolume() && configurationCloneAttachmentAdvance(allocated, binding, previous.getAsJsonObject("vm"))) {
+                    JsonObject replacement = previous.deepCopy();replacement.add("vm", binding);
+                    configurationSaveCloneAllocation(artifact, previous, replacement);
+                    configurationPinCloneRealizations(artifact, plan, allocated, replacement);
+                } else if (previous.has("vm")) {
                     if (!binding.equals(previous.get("vm")))
                         throw new InvalidParameterValueException("Retained VM allocation differs from its immutable receipt");
                     configurationPinCloneRealizations(artifact, plan, allocated, previous);
                 } else {
+                    if (cmd.isExistingVolume() && !"RESERVED".equals(getJsonString(binding, "initialDataState")))
+                        throw new InvalidParameterValueException("Existing clone must publish its ROOT-only reservation before first start");
                     JsonObject replacement = previous.deepCopy();replacement.add("vm", binding);
                     configurationSaveCloneAllocation(artifact, previous, replacement);
                 }
@@ -4415,10 +4542,34 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject realized = finalMetadata.has("cloneAllocationRealizations") ? finalMetadata.getAsJsonObject("cloneAllocationRealizations") : new JsonObject();
         if (!realized.has("root") || !realized.has("data"))
             throw new CloudRuntimeException("Clone Ready ROOT and DATA placement publication is incomplete");
+        if (cmd.isExistingVolume()) configurationPinCloneExistingFilesystem(artifact,plan,shared);
         org.apache.cloudstack.storage.sharedfs.SharedFSVO current = sharedFSDao.findById(shared.getId());
         StorageServiceInstanceVO instance = current == null || current.getVmId() == null ? null : storageServiceInstanceDao.findByVmId(current.getVmId());
         if (instance == null) throw new CloudRuntimeException("Recorded clone instance reconciliation did not complete");
         return instance;
+    }
+
+    protected void configurationPinCloneExistingFilesystem(StorageConfigArtifactVO artifact,JsonObject plan,org.apache.cloudstack.storage.sharedfs.SharedFS shared) {
+        VolumeVO volume=requireVolume(shared.getVolumeId());Map<String,String> details=configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+        String filesystem=details.get("storage.service.filesystem.type"),uuid=details.get("storage.service.filesystem.uuid");
+        if (!"MOUNTED_EXISTING".equals(shared.getInitialImportState()) || uuid==null || !nativeGenerationCanonicalUuid(uuid)
+                || !getJsonString(plan.getAsJsonObject("createNew"),"filesystem").equalsIgnoreCase(filesystem) || !filesystem.equals(shared.getFsType().name()))
+            throw new CloudRuntimeException("Recorded existing DATA has no exact post-MOUNT filesystem observation");
+        JsonObject observed=new JsonObject();observed.addProperty("volumeUuid",volume.getUuid());observed.addProperty("filesystem",filesystem);
+        observed.addProperty("filesystemUuid",uuid);observed.addProperty("formatInvoked",false);observed.addProperty("source","VERIFIED_MOUNT_EXISTING");
+        Transaction.execute((TransactionCallback<Void>) status -> {
+            StorageConfigArtifactVO locked=storageConfigArtifactDao.lockRow(artifact.getId(),true);JsonObject metadata=parseJsonObject(locked.getMetadataJson());
+            if (!metadata.has("cloneAllocation") || !configurationCloneAllocationScope(locked,plan).equals(metadata.getAsJsonObject("cloneAllocation").get("scope"))
+                    || !"ATTACHED".equals(getJsonString(metadata.getAsJsonObject("cloneAllocation").getAsJsonObject("vm"),"initialDataState")))
+                throw new CloudRuntimeException("Existing filesystem observation lost its exact creator scope");
+            if (metadata.has("cloneExistingFilesystem") && !observed.equals(metadata.get("cloneExistingFilesystem")))
+                throw new CloudRuntimeException("Existing DATA filesystem changed after its first verified mount");
+            if (!metadata.has("cloneExistingFilesystem")) {
+                metadata.add("cloneExistingFilesystem",observed);locked.setMetadataJson(metadata.toString());
+                if (!storageConfigArtifactDao.update(locked.getId(),locked)) throw new CloudRuntimeException("Existing filesystem observation was not persisted");
+            }
+            artifact.setMetadataJson(locked.getMetadataJson());return null;
+        });
     }
 
     protected StorageServiceInstanceVO createConfigurationNewService(JsonObject blueprint) {
@@ -4460,6 +4611,26 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected org.apache.cloudstack.api.BaseCmd configurationTargetCommand(long instanceId, org.apache.cloudstack.api.BaseCmd original) {
         return new ConfigurationTargetCommand(instanceId, original);
     }
+    protected void preflightConfigurationExistingDataRuntime(String bundleUuid,JsonObject plan) {
+        boolean existing=configurationCloneExistingInitial(plan);
+        JsonObject allocation=getJsonObject(plan,"volumeAllocationPlan");
+        if(allocation!=null&&allocation.has("allocations"))for(JsonElement value:allocation.getAsJsonArray("allocations"))
+            if("EXISTING".equals(getJsonString(value.getAsJsonObject(),"mode")))existing=true;
+        if(!existing)return;
+        StorageServiceRuntimeBundleVO bundle=storageRuntimeBundleDao.findByUuid(bundleUuid);
+        JsonObject verified=bundle==null?null:runtimeUpgradeManager.verifyAvailableBundle(bundle.getId());
+        JsonObject manifest=verified==null?null:getJsonObject(verified,"manifest");
+        if(manifest==null||!Boolean.TRUE.equals(getNativeBoolean(verified,"verified"))
+                ||!StorageRuntimeFeatureCompatibility.advertised(manifest).contains("STORAGE_VOLUME_EXPECTED_FILESYSTEM_UUID_GUARD"))
+            throw new InvalidParameterValueException("Existing DATA clone requires a signed runtime with the filesystem UUID guard before allocation");
+    }
+
+    protected void requireExpectedFilesystemUuidGuard(StorageServiceInstanceVO instance) {
+        JsonObject capability=rootGuest(instance,"volume operation capabilities",new JsonObject(),5);
+        if(!Boolean.TRUE.equals(getNativeBoolean(capability,"success"))||!Boolean.TRUE.equals(getNativeBoolean(capability,"expectedFilesystemUuidGuardSupported")))
+            throw new InvalidParameterValueException("Installed runtime cannot verify the expected filesystem UUID before mount");
+    }
+
     protected void preflightConfigurationRuntimeBundle(String bundleUuid) {
         requireConfigurationAdministrator();
         StorageServiceRuntimeBundleVO bundle = storageRuntimeBundleDao.findByUuid(bundleUuid);
@@ -4505,37 +4676,235 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceRuntimeBundleVO bundle=storageRuntimeBundleDao.findByUuid(getJsonString(plan,"runtimeBundleUuid"));if(bundle==null||!Long.valueOf(bundle.getId()).equals(target.getCurrentRuntimeBundleId()))throw new CloudRuntimeException("Clone foundation installed runtime changed");
         String key="CLONE_FOUNDATION:"+artifact.getUuid();StorageServiceOperationVO previous=storageOperationDao.findByRequest(target.getId(),key);
         if(previous!=null){if(!"COMPLETE_NO_CONFIG_CHANGE".equals(previous.getState())||!plan.get("volumeAllocationPlan").equals(parseJsonObject(previous.getPreviousSnapshotJson()).get("volumeAllocationPlan")))throw new CloudRuntimeException("Clone foundation has durable state requiring its explicit recovery");requireNoPendingVolumeFormatter(target);return;}
-        requireNoPendingVolumeFormatter(target);StorageServiceOperationVO operation=new StorageServiceOperationVO();operation.setInstanceId(target.getId());operation.setAction("CLONE_FOUNDATION_PREPARE");operation.setRequestKey(key);operation.setRevision(rootDesiredRevision(target.getId())+1);operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("FOUNDATION_PREPARING");JsonObject intent=new JsonObject();intent.addProperty("artifactUuid",artifact.getUuid());intent.addProperty("artifactSha256",artifact.getSha256());intent.addProperty("targetInstanceUuid",target.getUuid());intent.add("volumeAllocationPlan",plan.get("volumeAllocationPlan").deepCopy());operation.setPreviousSnapshotJson(intent.toString());operation=storageOperationDao.persist(operation);beginStorageWriterHeartbeat(operation);
-        try {startOperationControl(target,operation);if(operationControlEnabled(target))acquireOperationResourceReservation(target,operation);prepareConfigurationInitialVolume(target,plan.getAsJsonObject("createNew"));prepareConfigurationVolumeAllocations(target,artifact,plan.getAsJsonObject("volumeAllocationPlan"));requireNoPendingVolumeFormatter(target);operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("FOUNDATION_PREPARED");operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Clone foundation completion could not be persisted");releaseOperationResourceReservation(target,operation);}
+        requireNoPendingVolumeFormatter(target);
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();
+        operation.setInstanceId(target.getId());
+        operation.setAction("CLONE_FOUNDATION_PREPARE");
+        operation.setRequestKey(key);
+        operation.setRevision(rootDesiredRevision(target.getId())+1);
+        operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());
+        operation.setState("RUNNING");
+        operation.setPhase("FOUNDATION_PREPARING");
+        JsonObject intent=new JsonObject();
+        intent.addProperty("artifactUuid",artifact.getUuid());
+        intent.addProperty("artifactSha256",artifact.getSha256());
+        intent.addProperty("targetInstanceUuid",target.getUuid());
+        intent.add("volumeAllocationPlan",plan.get("volumeAllocationPlan").deepCopy());
+        intent.addProperty("reviewedPlanSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(parseJsonObject(artifact.getMetadataJson()).getAsJsonObject("plan"))));
+        intent.add("nativeSource",configurationFoundationNativeSource(target,operation));
+        operation.setPreviousSnapshotJson(intent.toString());
+        operation=storageOperationDao.persist(operation);
+        beginStorageWriterHeartbeat(operation);
+
+        try {startOperationControl(target,operation);if(operationControlEnabled(target))acquireOperationResourceReservation(target,operation);prepareConfigurationInitialVolume(target,configurationCloneFoundationBlueprint(target,artifact,plan));prepareConfigurationVolumeAllocations(target,artifact,plan.getAsJsonObject("volumeAllocationPlan"));requireNoPendingVolumeFormatter(target);operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("FOUNDATION_PREPARED");operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Clone foundation completion could not be persisted");releaseOperationResourceReservation(target,operation);}
         catch(RuntimeException failure){operation.setState("RECOVERY_REQUIRED");operation.setPhase("FOUNDATION_RECOVERY_REQUIRED");operation.setDiagnostic("Only reviewed new clone resources were prepared; explicit reconciliation is required");storageOperationDao.update(operation.getId(),operation);throw failure;}
         finally {endStorageWriterHeartbeat();}
     }
+    protected JsonObject configurationCloneFoundationBlueprint(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan) {
+        JsonObject blueprint=plan.getAsJsonObject("createNew").deepCopy();
+        if (configurationCloneExistingInitial(plan)) {
+            JsonObject observed=getJsonObject(parseJsonObject(artifact.getMetadataJson()),"cloneExistingFilesystem");
+            if (observed==null || !configurationInitialVolume(target).getUuid().equals(getJsonString(observed,"volumeUuid"))
+                    || !getJsonString(blueprint,"filesystem").equalsIgnoreCase(getJsonString(observed,"filesystem"))
+                    || !nativeGenerationCanonicalUuid(getJsonString(observed,"filesystemUuid")))
+                throw new CloudRuntimeException("Existing initial DATA has no pinned first-MOUNT filesystem");
+            blueprint.add("expectedFilesystemUuid",observed.get("filesystemUuid").deepCopy());
+        }
+        return blueprint;
+    }
+
+    protected JsonObject configurationFoundationNativeSource(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        JsonObject source = nativeGenerationBeginSource(target.getUuid(), operation.getUuid(), operation.getRevision(), "{}",
+                nativeConfigurationGeneration(target, null, "status"));
+        if (source == null) throw new CloudRuntimeException("Clone foundation native SOURCE is not exactly observed");
+        return source;
+    }
+
+    protected JsonObject requireConfigurationFoundationScope(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if (!"CLONE_FOUNDATION_PREPARE".equals(operation.getAction()) || operation.getInstanceId() != target.getId()
+                || operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId())
+            throw new InvalidParameterValueException("Clone foundation recovery belongs to another service or actor");
+        JsonObject intent = parseJsonObject(operation.getPreviousSnapshotJson());
+        StorageConfigArtifactVO artifact = storageConfigArtifactDao.findByUuid(getJsonString(intent, "artifactUuid"));
+        if (artifact == null || artifact.getRemoved() != null || "DELETED".equals(artifact.getState())
+                || artifact.getExpires() != null && !artifact.getExpires().after(new java.util.Date())
+                || !artifact.getSha256().equals(getJsonString(intent, "artifactSha256")))
+            throw new CloudRuntimeException("Clone foundation artifact is unavailable or changed");
+        requireInstance(artifact.getInstanceId());
+        JsonObject metadata = parseJsonObject(artifact.getMetadataJson()), plan = getJsonObject(metadata, "plan");
+        if (plan == null || !"CREATE_NEW".equals(getJsonString(plan, "targetMode"))
+                || !target.getUuid().equals(getJsonString(intent, "targetInstanceUuid"))
+                || !target.getUuid().equals(getJsonString(metadata, "createdTargetInstanceUuid"))
+                || !("CLONE_FOUNDATION:" + artifact.getUuid()).equals(operation.getRequestKey())
+                || !StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)).equals(getJsonString(intent, "reviewedPlanSha256"))
+                || !intent.has("nativeSource") || !intent.has("volumeAllocationPlan")
+                || !intent.get("volumeAllocationPlan").equals(metadata.get("volumeExecutionPlan")))
+            throw new CloudRuntimeException("Clone foundation frozen creator or plan provenance differs");
+        StorageConfigurationVolumePlan.requireFrozen(intent.getAsJsonObject("volumeAllocationPlan"));
+        requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), plan.getAsJsonObject("cloneTemplatePin"), target);
+        if (!metadata.has("createdTargetTemplateBinding") || !metadata.get("createdTargetTemplateBinding").equals(
+                configurationCloneCreatedTemplateBinding(target, plan.getAsJsonObject("cloneTemplatePin")))
+                || !intent.get("volumeAllocationPlan").equals(bindConfigurationVolumeExecution(target, artifact, plan.getAsJsonObject("volumeAllocationPlan"))))
+            throw new CloudRuntimeException("Clone foundation realized VM or DATA differs from its original creator receipt");
+        requireConfigurationResolvedPrimary(target, plan);
+        JsonObject pin = configurationCloneRuntimePin(getJsonString(plan, "runtimeBundleUuid"));
+        if (!pin.equals(plan.get("cloneRuntimePin")) || !plan.get("runtimeBundleUuid").equals(metadata.get("runtimePreparedBundleUuid")))
+            throw new CloudRuntimeException("Clone foundation signed runtime authority changed");
+        requireCloneRuntimeReadback(runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(), getJsonString(pin, "expectedCliSha256")), pin);
+        return plan;
+    }
+
+    protected void recoverConfigurationCloneFoundation(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        JsonObject plan = requireConfigurationFoundationScope(target, operation);
+        if ("COMPLETE_NO_CONFIG_CHANGE".equals(operation.getState())) return;
+        if (!"RECOVERY_REQUIRED".equals(operation.getState())
+                && !("RUNNING".equals(operation.getState()) && InterruptedStateChange.stale(operation, System.currentTimeMillis())))
+            throw new CloudRuntimeException("Clone foundation writer is still active or not recoverable");
+        JsonObject intent = parseJsonObject(operation.getPreviousSnapshotJson());
+        if (!intent.get("nativeSource").equals(configurationFoundationNativeSource(target, operation)))
+            throw new CloudRuntimeException("Clone foundation native SOURCE or BOOT changed");
+        requireConfigurationFoundationIdle(target, operation, plan);requireRollbackNativeWriterIdle(target);
+        StorageConfigArtifactVO artifact = storageConfigArtifactDao.findByUuid(getJsonString(intent, "artifactUuid"));
+        beginStorageWriterHeartbeat(operation);
+        try {
+            startOperationControl(target, operation);
+            if (operationControlEnabled(target)) acquireOperationResourceReservation(target, operation);
+            operation.setState("RUNNING");operation.setPhase("FOUNDATION_RECOVERING");operation.setHeartbeat(new java.util.Date());
+            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Clone foundation recovery intent was not persisted");
+            recoverConfigurationFoundationInitialVolume(target, operation, plan);
+            prepareConfigurationVolumeAllocations(target, artifact, intent.getAsJsonObject("volumeAllocationPlan"));
+            requireNoPendingVolumeFormatter(target);
+            if (!intent.get("nativeSource").equals(configurationFoundationNativeSource(target, operation)))
+                throw new CloudRuntimeException("Clone foundation native SOURCE changed during explicit recovery");
+            releaseOperationResourceReservation(target, operation);
+            operation.setState("COMPLETE_NO_CONFIG_CHANGE");operation.setPhase("FOUNDATION_PREPARED");operation.setProgress(100);
+            operation.setCompleted(new java.util.Date());operation.setHeartbeat(new java.util.Date());
+            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Clone foundation recovery completion was not persisted");
+        } catch (RuntimeException failure) {
+            operation.setState("RECOVERY_REQUIRED");operation.setPhase("FOUNDATION_RECOVERY_REQUIRED");
+            operation.setDiagnostic("Same clone resources remain preserved; explicit foundation recovery is incomplete");
+            operation.setHeartbeat(new java.util.Date());storageOperationDao.update(operation.getId(), operation);throw failure;
+        } finally { endStorageWriterHeartbeat(); }
+    }
+
+    protected void requireConfigurationFoundationIdle(StorageServiceInstanceVO target, StorageServiceOperationVO operation, JsonObject plan) {
+        VolumeVO initial = configurationInitialVolume(target);
+        Map<String, Boolean> files = new HashMap<>();
+        files.put(initial.getUuid(), "NEW".equals(getJsonString(plan.getAsJsonObject("createNew"), "backingvolumemode")));
+        JsonObject intent = parseJsonObject(operation.getPreviousSnapshotJson());
+        for (JsonElement value : intent.getAsJsonObject("volumeAllocationPlan").getAsJsonArray("allocations")) {
+            JsonObject allocation = value.getAsJsonObject();
+            files.put(getJsonString(allocation, "plannedUuid"), "FILE".equals(getJsonString(allocation, "usage"))
+                    && "NEW".equals(getJsonString(allocation, "mode")));
+        }
+        for (VolumeVO volume : volumeDao.findByInstanceAndType(target.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) {
+            if (!files.containsKey(volume.getUuid())) throw new CloudRuntimeException("An unplanned DATA attachment blocks clone foundation recovery");
+            JsonObject request = new JsonObject();request.addProperty("volumeUuid", volume.getUuid());
+            JsonObject status = rootGuest(target, "volume operation status", request, 5);
+            try { StorageFormatterLifecycleGate.requireIdle(status); }
+            catch (RuntimeException incomplete) {
+                // A successful formatter receipt may outlive its mount response; never accept a header or active/unknown child.
+                if (!Boolean.TRUE.equals(files.get(volume.getUuid()))) throw incomplete;
+                requireConfigurationFoundationCompletion(target, operation, volume);
+            }
+        }
+    }
+
+    protected JsonObject requireConfigurationFoundationCompletion(StorageServiceInstanceVO target, StorageServiceOperationVO operation, VolumeVO volume) {
+        JsonObject completed = completedVolumePreparationObservation(target, volume), original = completed.getAsJsonObject("history")
+                .getAsJsonObject("operation").getAsJsonObject("originalFormatOwner");
+        if (!target.getUuid().equals(getJsonString(original, "instanceUuid")) || !operation.getUuid().equals(getJsonString(original, "managerOperationUuid"))
+                || operation.getRevision() != original.get("revision").getAsLong()
+                || !parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("nativeSource").get("bootId").equals(completed.get("bootId")))
+            throw new CloudRuntimeException("Clone formatter receipt belongs to another owner or BOOT");
+        return completed;
+    }
+
+    protected void recoverConfigurationFoundationInitialVolume(StorageServiceInstanceVO target, StorageServiceOperationVO operation, JsonObject plan) {
+        VolumeVO volume = configurationInitialVolume(target);configurationVolumeId(target, volume.getUuid());
+        JsonObject blueprint = plan.getAsJsonObject("createNew").deepCopy();
+        if ("EXISTING".equals(getJsonString(blueprint, "backingvolumemode"))) {
+            StorageConfigArtifactVO artifact = storageConfigArtifactDao.findByUuid(getJsonString(
+                    parseJsonObject(operation.getPreviousSnapshotJson()), "artifactUuid"));
+            blueprint = configurationCloneFoundationBlueprint(target, artifact, plan);
+        }
+        JsonObject request = new JsonObject();request.addProperty("volumeUuid", volume.getUuid());
+        JsonObject history = rootGuest(target, "volume operation status", request, 5);
+        try { StorageFormatterLifecycleGate.requireIdle(history); }
+        catch (RuntimeException incomplete) {
+            if (!"NEW".equals(getJsonString(blueprint, "backingvolumemode"))) throw incomplete;
+            requireConfigurationFoundationCompletion(target, operation, volume);
+        }
+        if ("EXISTING".equals(getJsonString(blueprint, "backingvolumemode"))) {
+            // Existing DATA has no formatting authority in this operation.
+            Map<String, String> details = configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+            StorageVolumeLifecycleProtection.requireVerified(volume, details.get(StorageVolumeLifecycleProtection.STATE), details.get(StorageVolumeLifecycleProtection.RECEIPT));
+            JsonObject mounted = getJsonObject(history, "operation");
+            if (mounted == null || !volume.getUuid().equals(getJsonString(mounted, "volumeUuid"))
+                    || StringUtils.isBlank(getJsonString(mounted, "filesystemUuid")))
+                throw new CloudRuntimeException("Existing clone DATA has no exact original mount journal");
+            if (!java.util.Objects.equals(getJsonString(blueprint, "expectedFilesystemUuid"), getJsonString(mounted, "filesystemUuid")))
+                throw new CloudRuntimeException("Existing clone mount journal differs from its sealed filesystem UUID");
+        } else if ("NOT_STARTED".equals(getJsonString(history, "status"))) {
+            Map<String, String> details = configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+            if (details.containsKey(StorageVolumeLifecycleProtection.STATE) || details.containsKey(StorageVolumeLifecycleProtection.RECEIPT))
+                throw new CloudRuntimeException("A missing native journal cannot erase existing clone DATA format intent");
+            // Original exact SPARSE creator and frozen plan were revalidated; native FORMAT_IF_EMPTY remains the final blank-device gate.
+            prepareConfigurationInitialVolume(target, blueprint);return;
+        } else {
+            JsonObject completed = requireConfigurationFoundationCompletion(target, operation, volume);
+            blueprint.addProperty("expectedFilesystemUuid", getJsonString(completed.getAsJsonObject("currentIdentity"), "filesystemUuid"));
+            blueprint.addProperty("backingvolumemode", "EXISTING");
+        }
+        prepareConfigurationInitialVolume(target, blueprint);
+    }
+
     protected void requireCloneRuntimeReadback(JsonObject verified,JsonObject pin) {
         for(String field:Set.of("readOnly","signedRuntimeVerified","nativeFileHashesVerified"))if(!Boolean.TRUE.equals(getNativeBoolean(verified,field)))throw new CloudRuntimeException("Clone foundation runtime has no literal signed normal readback");
         JsonObject actual=getJsonObject(verified,"runtimePin");if(actual==null||!pin.get("bundleUuid").equals(actual.get("bundleUuid"))||!pin.get("bundleSha256").equals(actual.get("archiveSha256"))||!pin.get("manifestSha256").equals(actual.get("manifestSha256"))||!pin.get("expectedCliSha256").equals(verified.get("actualCliSha256"))||getJsonString(verified,"transactionId")==null||getJsonString(verified,"transactionId").isBlank())throw new CloudRuntimeException("Clone foundation runtime pin or completed transaction changed");
     }
     protected void requireCloneProfileDataSet(String targetUuid,JsonObject plan,JsonObject binding,String initialUuid) {
         JsonObject allocation=plan.getAsJsonObject("volumeAllocationPlan");StorageConfigurationVolumePlan.requireFrozen(allocation);
-        if(!targetUuid.equals(getJsonString(allocation.getAsJsonObject("scope"),"targetInstanceUuid"))||!"NEW".equals(getJsonString(plan.getAsJsonObject("createNew"),"backingvolumemode")))throw new CloudRuntimeException("Clone profile cannot adopt a foreign target or reused initial DATA");
+        String backingMode = getJsonString(plan.getAsJsonObject("createNew"), "backingvolumemode");
+        if(!targetUuid.equals(getJsonString(allocation.getAsJsonObject("scope"),"targetInstanceUuid"))
+                || !Set.of("NEW","EXISTING").contains(backingMode)
+                || "EXISTING".equals(backingMode) && (!plan.has("cloneTemplatePin")
+                    || !Set.of("DEFAULT_SYSTEM","EXPLICIT_SYSTEM").contains(getJsonString(plan.getAsJsonObject("cloneTemplatePin"),"selectionMode"))))
+            throw new CloudRuntimeException("Clone profile cannot adopt a foreign target or unpinned existing initial DATA");
         Set<String> expected=new HashSet<>();for(Map.Entry<String,JsonElement> item:allocation.getAsJsonObject("volumeMappings").entrySet())if(!expected.add(item.getValue().getAsString()))throw new CloudRuntimeException("Clone profile DATA mappings collide");
         if(!expected.contains(initialUuid))throw new CloudRuntimeException("Clone profile initial DATA differs from its realized plan");
-        for(JsonElement item:allocation.getAsJsonArray("allocations"))if(!"NEW".equals(getJsonString(item.getAsJsonObject(),"mode"))||!expected.contains(getJsonString(item.getAsJsonObject(),"plannedUuid")))throw new CloudRuntimeException("Clone profile refuses reused or unplanned additional DATA");
+        for(JsonElement item:allocation.getAsJsonArray("allocations"))if(!Set.of("NEW","EXISTING").contains(getJsonString(item.getAsJsonObject(),"mode"))||!expected.contains(getJsonString(item.getAsJsonObject(),"plannedUuid")))throw new CloudRuntimeException("Clone profile refuses unknown or unplanned additional DATA");
         Set<String> actual=new HashSet<>();for(Map.Entry<String,JsonElement> item:binding.getAsJsonObject("volumes").entrySet())if("DATADISK".equals(getJsonString(item.getValue().getAsJsonObject(),"type")))actual.add(item.getKey());if(!expected.equals(actual))throw new CloudRuntimeException("Clone profile DATA set differs from every reviewed allocation");
     }
+    protected String configurationCloneProfileKind(JsonObject plan) {
+        boolean existing = "EXISTING".equals(getJsonString(plan.getAsJsonObject("createNew"), "backingvolumemode"));
+        for (JsonElement item : plan.getAsJsonObject("volumeAllocationPlan").getAsJsonArray("allocations"))
+            if ("EXISTING".equals(getJsonString(item.getAsJsonObject(), "mode"))) existing = true;
+        return existing ? "OWNED_SPARSE_ALL4_VALIDATION" : "NEW_SPARSE_ALL4_VALIDATION";
+    }
+
     protected void authorizeConfigurationCloneProfile(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan) {
         requireConfigurationAdministrator();requireNoPendingVolumeFormatter(target);JsonObject metadata=parseJsonObject(artifact.getMetadataJson());
         if(!"CREATE_NEW".equals(getJsonString(plan,"targetMode"))||!target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))||!plan.get("volumeAllocationPlan").equals(metadata.get("volumeExecutionPlan")))throw new CloudRuntimeException("Clone profile requires the exact protected realized plan and target");
         JsonObject pin=configurationCloneRuntimePin(getJsonString(plan,"runtimeBundleUuid"));if(!plan.has("cloneRuntimePin")||!pin.equals(plan.get("cloneRuntimePin")))throw new CloudRuntimeException("Clone signed runtime pin changed after review");JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(),getJsonString(pin,"expectedCliSha256"));requireCloneRuntimeReadback(runtime,pin);
+        if (configurationCloneExistingInitial(plan)) {
+            JsonObject recorded = metadata.getAsJsonObject("cloneAllocation");
+            org.apache.cloudstack.storage.sharedfs.SharedFS shared = requireConfigurationCloneAllocation(artifact, metadata.getAsJsonObject("plan"), recorded);
+            if (!java.util.Objects.equals(shared.getVmId(), target.getVmId()) || !"ATTACHED".equals(getJsonString(recorded.getAsJsonObject("vm"), "initialDataState")))
+                throw new CloudRuntimeException("Existing initial DATA has no exact completed creator attachment receipt");
+        }
         JsonObject binding=renderedValidationBindings(target);requireCloneProfileDataSet(target.getUuid(),plan,binding,configurationInitialVolume(target).getUuid());
-        JsonObject approval=new JsonObject();approval.addProperty("schemaVersion",1);approval.addProperty("kind","NEW_SPARSE_ALL4_VALIDATION");approval.addProperty("instanceUuid",target.getUuid());approval.addProperty("instanceName",target.getName());approval.addProperty("newDisposableFixture",true);approval.addProperty("originalDataExcluded",true);approval.addProperty("expiresAtMillis",System.currentTimeMillis()+24L*60*60*1000-1);approval.add("expectedCliSha256",pin.get("expectedCliSha256").deepCopy());approval.add("sourceCommit",pin.get("sourceCommit").deepCopy());approval.add("bindings",binding.deepCopy());JsonArray excluded=new JsonArray();for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=target.getId())excluded.add(other.getUuid());approval.add("excludedInstanceUuids",excluded);
-        StorageRenderedValidationProfile.verify(approval,target.getUuid(),target.getName(),binding,System.currentTimeMillis());
+        String kind = configurationCloneProfileKind(plan);
+        JsonObject approval=new JsonObject();approval.addProperty("schemaVersion",1);approval.addProperty("kind",kind);approval.addProperty("instanceUuid",target.getUuid());approval.addProperty("instanceName",target.getName());approval.addProperty("OWNED_SPARSE_ALL4_VALIDATION".equals(kind)?"ownedDisposableFixture":"newDisposableFixture",true);approval.addProperty("originalDataExcluded",true);approval.addProperty("expiresAtMillis",System.currentTimeMillis()+24L*60*60*1000-1);approval.add("expectedCliSha256",pin.get("expectedCliSha256").deepCopy());approval.add("sourceCommit",pin.get("sourceCommit").deepCopy());approval.add("bindings",binding.deepCopy());JsonArray excluded=new JsonArray();for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=target.getId())excluded.add(other.getUuid());approval.add("excludedInstanceUuids",excluded);
+        requireRenderedValidationArtifact(target,approval);
         StorageRenderedValidationProfile.requireHandler(rootGuest(target,"operation generation render-status",new JsonObject(),15));
         String digest=StorageConfigArchive.sha256(approval.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         String id=java.util.UUID.nameUUIDFromBytes(("clone-profile:"+artifact.getUuid()+":"+target.getUuid()+":"+digest).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
         renderedValidationStore().write(id,approval.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         JsonObject policy=instanceControlPolicy(target),previous=policy.has("renderedValidationProfile")?policy.getAsJsonObject("renderedValidationProfile"):new JsonObject();
         long revision=previous.has("revision")?previous.get("revision").getAsLong():0;
-        JsonObject profile=StorageRenderedValidationProfile.next(previous,true,revision+1);
+        JsonObject profile=StorageRenderedValidationProfile.next(previous,true,revision+1);profile.addProperty("kind",kind);
         profile.add("fixtureProvenance",binding.deepCopy());
         profile.addProperty("artifactUuid",id);
         profile.addProperty("artifactSha256",digest);
@@ -4552,6 +4921,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("volumeSizeBytes", volume.getSize());payload.addProperty("filesystem", getJsonString(blueprint, "filesystem"));
         payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
         payload.addProperty("importMode", existing ? "MOUNT_EXISTING" : "FORMAT_IF_EMPTY");
+        if (blueprint.has("expectedFilesystemUuid")) {
+            requireExpectedFilesystemUuidGuard(instance);payload.add("expectedFilesystemUuid",blueprint.get("expectedFilesystemUuid").deepCopy());
+        }
         if(volume.getProvisioningType()!=null)payload.addProperty("provisioningType",volume.getProvisioningType().name());
         if (!existing) {
             requireSparseNewFilesystem(volume);
@@ -4569,6 +4941,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!existing) requireNewVolumeFormatEcho(observed);
         if (!Boolean.TRUE.equals(getJsonBoolean(observed, "success")) || !volume.getUuid().equals(getJsonString(observed, "volumeUuid"))
                 || StringUtils.isBlank(getJsonString(observed, "filesystemUuid"))) throw new CloudRuntimeException("New service initial filesystem identity was not verified");
+        String expectedFilesystem = getJsonString(blueprint, "expectedFilesystemUuid");
+        if (expectedFilesystem != null && !expectedFilesystem.equals(getJsonString(observed, "filesystemUuid")))
+            throw new CloudRuntimeException("Clone initial existing filesystem changed during recovery");
         markVolumeLifecycleVerified(volume);
     }
     protected void prepareConfigurationDirectory(StorageServiceInstanceVO instance, String volumeUuid, String relative) {
@@ -4578,6 +4953,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageFileShareVO preparation = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, "configuration-directory",
                 "/export/configuration-directory", volumeId, "XFS", null, StorageServiceInstance.ResourceState.Allocated, config.toString());
         JsonObject payload = createFileShareVolumePayload(instance, preparation, volume);
+        Map<String,String> details=configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+        if(details.containsKey("storage.service.filesystem.uuid")) {
+            requireExpectedFilesystemUuidGuard(instance);payload.addProperty("expectedFilesystemUuid",details.get("storage.service.filesystem.uuid"));
+            payload.addProperty("filesystem",details.get("storage.service.filesystem.type"));
+        }
         payload.addProperty("importMode", "MOUNT_EXISTING");
         StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "volume attach inspect", payload.toString(), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
@@ -4588,6 +4968,84 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
     protected String captureConfigurationSnapshot(long instanceId) { return new StorageServiceDesiredSnapshot().capture(instanceId); }
+    protected String configurationPrimaryAddress(StorageServiceInstanceVO instance) {
+        if (instance.getVmId() == null) throw new InvalidParameterValueException("Configuration target has no primary NIC");
+        List<NicVO> defaults = nicDao.listByVmId(instance.getVmId()).stream().filter(NicVO::isDefaultNic).collect(java.util.stream.Collectors.toList());
+        if (defaults.size() != 1) throw new InvalidParameterValueException("Configuration target requires exactly one primary NIC");
+        String address = declaredProtocolPrimary(instance, defaults.get(0));
+        if (!isValidIpv4Address(address)) throw new InvalidParameterValueException("Configuration target primary IPv4 address is unavailable");
+        return address;
+    }
+
+    protected void requireConfigurationResolvedPrimary(StorageServiceInstanceVO target, JsonObject plan) {
+        if (!plan.has("listenerAddressRequirements")) return;
+        for (JsonElement item : plan.getAsJsonArray("listenerAddressRequirements")) {
+            JsonObject requirement = item.getAsJsonObject();
+            String selected = getJsonString(requirement, "target");
+            if (selected == null) continue;
+            String resolved = getJsonString(requirement, "resolvedTarget");
+            if (!isValidIpv4Address(resolved) || "PRIMARY".equals(selected) && !resolved.equals(configurationPrimaryAddress(target)))
+                throw new InvalidParameterValueException("Reviewed primary listener address changed before apply");
+            resolveProtocolListenAddress(target, resolved);
+        }
+    }
+
+    /** Conflict observation only; actual secondary address registration remains in the normal protocol API. */
+    protected void preflightConfigurationListenerMappings(StorageServiceInstanceVO target, JsonObject plan) {
+        JsonObject mappings = getJsonObject(plan, "listenerAddressMappings");
+        if (mappings == null || mappings.size() == 0) return;
+        boolean create = "CREATE_NEW".equals(getJsonString(plan, "targetMode"));
+        JsonObject blueprint = create ? plan.getAsJsonObject("createNew") : null;
+        com.cloud.network.Network network = create ? networkDao.findByUuid(getJsonString(blueprint, "networkid")) : null;
+        for (Map.Entry<String, JsonElement> mapping : mappings.entrySet()) {
+            String selected = mapping.getValue().getAsString();
+            try {
+                if ("PRIMARY".equals(selected)) {
+                    if (create) {
+                        String cidr = getJsonString(blueprint, "ipcidr");
+                        if (!"STATIC".equals(getJsonString(blueprint, "networkmode")) || cidr == null) throw new InvalidParameterValueException("New PRIMARY listener requires a known static address");
+                        selected = cidr.split("/", -1)[0];
+                    } else selected = configurationPrimaryAddress(target);
+                }
+                if (!isValidIpv4Address(selected)) throw new InvalidParameterValueException("Mapped listener IPv4 address is invalid");
+                if (!create) resolveProtocolListenAddress(target, selected);
+                else {
+                    if (network == null || nicDao.findByIp4AddressAndNetworkId(selected, network.getId()) != null
+                            || nicSecondaryIpDao.findByIp4AddressAndNetworkId(selected, network.getId()) != null)
+                        throw new InvalidParameterValueException("Mapped listener address is already allocated or its network is unavailable");
+                    String cidr = getJsonString(blueprint, "ipcidr");
+                    if ("STATIC".equals(getJsonString(blueprint, "networkmode")) && (cidr == null || !com.cloud.utils.net.NetUtils.isIpWithInCidrRange(selected, cidr)))
+                        throw new InvalidParameterValueException("Mapped listener address is outside the reviewed static CIDR");
+                }
+            } catch (InvalidParameterValueException conflict) {
+                String code = "LISTENER_MAPPING_CONFLICT:" + mapping.getKey();
+                if (!plan.getAsJsonArray("blockers").contains(new com.google.gson.JsonPrimitive(code))) plan.getAsJsonArray("blockers").add(code);
+            }
+        }
+    }
+
+    /** Read-only route selection occurs before admitting a managed backup writer or allocating an artifact. */
+    protected JsonObject configurationBackupAvailability(StorageServiceInstanceVO instance) {
+        JsonObject result = new JsonObject();result.addProperty("sourceNativeVerified", false);
+        result.addProperty("observedAtMillis", System.currentTimeMillis());result.addProperty("reason", "VM_NOT_RUNNING");
+        if (instance.getVmId() == null) return result;
+        VMInstanceVO vm = vmInstanceDao.findById(instance.getVmId());
+        if (vm == null || vm.getState() != com.cloud.vm.VirtualMachine.State.Running) return result;
+        try {
+            JsonObject status = nativeConfigurationGeneration(instance, null, "status");
+            JsonObject generation = status.getAsJsonObject("generation");
+            JsonObject bound = StorageConfigRuntimeEvidence.generation(status, instance.getUuid(),
+                    generation.get("operationUuid").getAsString(), generation.get("revision").getAsLong());
+            if (!"IN_SYNC".equals(bound.get("generationStatus").getAsString()) || !bound.get("pendingOperationUuid").isJsonNull())
+                throw new CloudRuntimeException("Native generation is not settled for a read-only backup");
+            result.add("nativeStatus", bound);result.addProperty("sourceNativeVerified", true);result.addProperty("reason", "VERIFIED_NATIVE_SOURCE");
+        } catch (RuntimeException unavailable) {
+            result.addProperty("reason", "NATIVE_OBSERVATION_UNAVAILABLE");
+            result.addProperty("errorClass", unavailable.getClass().getSimpleName());
+        }
+        return result;
+    }
+
     protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO instance, String command) {
         if (!Set.of("health", "inventory", "sessions").contains(command)) throw new InvalidParameterValueException("Unsupported configuration collector");
         final JsonObject unavailable = new JsonObject();unavailable.addProperty("status", "UNAVAILABLE");unavailable.addProperty("success", false);
@@ -4613,6 +5071,48 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (vm != null) { metadata.addProperty("vmUuid", vm.getUuid());metadata.addProperty("vmState", vm.getState().name()); }
         return metadata;
     }
+    protected Map<Long, JsonObject> configurationVolumeMetadata(StorageServiceInstanceVO instance, String snapshot) {
+        Map<Long, JsonObject> result = new LinkedHashMap<>(configurationVolumeMetadata(snapshot));
+        for (Long id : result.keySet()) requireConfigurationVolumeMetadataScope(instance, requireVolume(id));
+        if (instance.getVmId() == null) return result;
+        SharedFSVO shared = sharedFSDao.findByVm(instance.getVmId());
+        if (shared != null) {
+            if (!instance.getVmId().equals(shared.getVmId()) || shared.getAccountId() != instance.getAccountId()
+                    || shared.getDomainId() != instance.getDomainId() || !Long.valueOf(instance.getDataCenterId()).equals(shared.getDataCenterId()))
+                throw new InvalidParameterValueException("Configuration default DATA service ownership differs");
+            if (shared.getVolumeId() != null) {
+                VolumeVO volume = requireVolume(shared.getVolumeId());requireConfigurationVolumeMetadataScope(instance, volume);
+                result.putIfAbsent(volume.getId(), configurationVolumeMetadataRow(volume));
+            }
+        }
+        for (VolumeVO volume : volumeDao.findByInstanceAndType(instance.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) {
+            if (volume.getVolumeType() == com.cloud.storage.Volume.Type.ROOT) continue;
+            requireConfigurationVolumeMetadataScope(instance, volume);
+            if (!instance.getVmId().equals(volume.getInstanceId()))
+                throw new InvalidParameterValueException("Configuration attached DATA is outside the exact service VM");
+            result.putIfAbsent(volume.getId(), configurationVolumeMetadataRow(volume));
+        }
+        return result;
+    }
+
+    private void requireConfigurationVolumeMetadataScope(StorageServiceInstanceVO instance, VolumeVO volume) {
+        if (volume.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK || volume.getAccountId() != instance.getAccountId()
+                || volume.getDomainId() != instance.getDomainId() || volume.getDataCenterId() != instance.getDataCenterId()
+                || volume.getInstanceId() != null && !volume.getInstanceId().equals(instance.getVmId()))
+            throw new InvalidParameterValueException("Configuration DATA inventory belongs to another owner, domain, zone or VM");
+    }
+
+    private JsonObject configurationVolumeMetadataRow(VolumeVO volume) {
+        JsonObject item = new JsonObject();item.addProperty("uuid", volume.getUuid());item.addProperty("name", volume.getName());
+        item.addProperty("size", volume.getSize());item.addProperty("type", volume.getVolumeType().name());item.addProperty("state", volume.getState().name());
+        if (configurationVolumeDetailsDao != null) {
+            Map<String,String> details=configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+            if (details.containsKey("storage.service.filesystem.uuid")) item.addProperty("filesystemUuid",details.get("storage.service.filesystem.uuid"));
+            if (details.containsKey("storage.service.filesystem.type")) item.addProperty("filesystem",details.get("storage.service.filesystem.type"));
+        }
+        return item;
+    }
+
     protected Map<Long, JsonObject> configurationVolumeMetadata(String snapshot) {
         Map<Long, JsonObject> result = new LinkedHashMap<>();
         for (JsonElement table : parseJsonObject(snapshot).getAsJsonArray("tables")) {
@@ -4620,9 +5120,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 JsonObject row = value.getAsJsonObject();
                 if (!row.has("volume_id") || row.get("volume_id").isJsonNull()) continue;
                 long id = row.get("volume_id").getAsLong();if (result.containsKey(id)) continue;
-                VolumeVO volume = requireVolume(id);JsonObject item = new JsonObject();
-                item.addProperty("uuid", volume.getUuid());item.addProperty("name", volume.getName());
-                item.addProperty("size", volume.getSize());item.addProperty("type", volume.getVolumeType().name());item.addProperty("state", volume.getState().name());
+                VolumeVO volume = requireVolume(id);JsonObject item = configurationVolumeMetadataRow(volume);
                 if (row.has("config_json") && !row.get("config_json").isJsonNull()) {
                     JsonObject config = parseJsonObject(row.get("config_json").getAsString());
                     String filesystem = getJsonString(config, "filesystemUuid");if (filesystem != null) item.addProperty("filesystemUuid", filesystem);
@@ -4784,9 +5282,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             try {
                 final StorageServiceOperationVO operation = storageOperationDao.findById(cmd.getOperationId());
                 if (operation == null || operation.getInstanceId() != instanceId) throw new InvalidParameterValueException("Operation scope changed");
-                if ("RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
+                if ("CLONE_FOUNDATION_PREPARE".equals(operation.getAction()) || "RUNNING".equals(operation.getState()) || ("RECOVERY_REQUIRED".equals(operation.getState())
                         && ("VOLUME_PREPARATION_RESUME".equals(operation.getAction()) || "SMB_IDENTITY_REPAIR".equals(operation.getAction()) || !operationSuperseded(operation)))) {
-                    if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
+                    if ("CLONE_FOUNDATION_PREPARE".equals(operation.getAction())) recoverConfigurationCloneFoundation(instance, operation);
+                    else if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
                     else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))recoverRenderedStorageWriter(instance,operation);

@@ -35,4 +35,30 @@ public class StorageConfigFreshObservationTest {
         org.mockito.ArgumentCaptor<StorageServiceGuestCommand> commands=org.mockito.ArgumentCaptor.forClass(StorageServiceGuestCommand.class);Mockito.verify(guest,Mockito.times(2)).dispatch(commands.capture());
         Assert.assertEquals("operation observe",commands.getAllValues().get(0).getOperation());Assert.assertEquals("operation verify",commands.getAllValues().get(1).getOperation());
     }
+
+    @Test public void stoppedOrMissingVmAvailabilityHasNoGuestSideEffect() {
+        for(boolean missing:new boolean[]{false,true}) {
+            StorageServiceManagerImpl manager=new StorageServiceManagerImpl();StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+            VMInstanceDao vms=Mockito.mock(VMInstanceDao.class);ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);ReflectionTestUtils.setField(manager,"vmInstanceDao",vms);
+            StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(48L);
+            if(!missing){VMInstanceVO vm=Mockito.mock(VMInstanceVO.class);Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);Mockito.when(vms.findById(48L)).thenReturn(vm);}
+            com.google.gson.JsonObject availability=manager.configurationBackupAvailability(instance);
+            Assert.assertFalse(availability.get("sourceNativeVerified").getAsBoolean());Assert.assertEquals("VM_NOT_RUNNING",availability.get("reason").getAsString());
+            Mockito.verifyNoInteractions(guest);
+        }
+    }
+    @Test public void unreachableRunningVmAvailabilityIsSafeReadOnlyDiagnosis() {
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl() {
+            @Override protected com.google.gson.JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action) {
+                Assert.assertNull(operation);Assert.assertEquals("status",action);throw new com.cloud.utils.exception.CloudRuntimeException("sensitive unreachable transport detail");
+            }
+        };
+        VMInstanceDao vms=Mockito.mock(VMInstanceDao.class);ReflectionTestUtils.setField(manager,"vmInstanceDao",vms);
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(48L);
+        VMInstanceVO vm=Mockito.mock(VMInstanceVO.class);Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Running);Mockito.when(vms.findById(48L)).thenReturn(vm);
+        com.google.gson.JsonObject availability=manager.configurationBackupAvailability(instance);
+        Assert.assertFalse(availability.get("sourceNativeVerified").getAsBoolean());Assert.assertEquals("NATIVE_OBSERVATION_UNAVAILABLE",availability.get("reason").getAsString());
+        Assert.assertEquals("CloudRuntimeException",availability.get("errorClass").getAsString());Assert.assertFalse(availability.toString().contains("sensitive"));
+    }
+
 }

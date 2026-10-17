@@ -182,8 +182,25 @@ public class StorageConfigurationVolumePlanTest {
     @Test public void subsystemWithUnexpectedDataBindingCannotBeSilentlyConvertedIntoRawAllocation(){
         Fixture f=new Fixture(1);JsonArray rows=new JsonArray();JsonObject row=json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}");row.addProperty("volumeUuid",id(1));rows.add(row);f.put("block-targets",rows);blocked(f);
     }
-    @Test public void logicalSubsystemDoesNotSatisfyAnUnconsumedDataInventory(){
-        Fixture f=new Fixture(1);f.put("file-shares",new JsonArray());JsonArray rows=new JsonArray();rows.add(json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}"));f.put("block-targets",rows);blocked(f);
+    @Test public void logicalSubsystemDoesNotTurnUnusedInitialDataIntoARawConsumer(){
+        Fixture f=new Fixture(1);f.put("file-shares",new JsonArray());JsonArray rows=new JsonArray();rows.add(json("{\"protocol\":\"NVME_OF\",\"config\":{\"type\":\"subsystem\"}}"));f.put("block-targets",rows);JsonObject initial=allocation(f.build(),0);
+        Assert.assertEquals("FILE",initial.get("usage").getAsString());Assert.assertEquals("XFS",initial.get("filesystem").getAsString());
+        Assert.assertEquals("UNUSED",initial.get("consumerState").getAsString());
+    }
+
+
+    @Test public void emptyServiceInitialUsesOnlyExplicitFilesystemAndUnusedAdditionalStaysRaw() {
+        Fixture fixture=new Fixture(2);fixture.put("file-shares",new JsonArray());
+        JsonObject plan=fixture.build();Assert.assertEquals("FILE",allocation(plan,0).get("usage").getAsString());
+        Assert.assertEquals("XFS",allocation(plan,0).get("filesystem").getAsString());Assert.assertEquals("UNUSED",allocation(plan,0).get("consumerState").getAsString());
+        Assert.assertEquals("BLOCK_RAW",allocation(plan,1).get("usage").getAsString());Assert.assertFalse(allocation(plan,1).has("filesystem"));
+        Assert.assertEquals("UNUSED",allocation(plan,1).get("consumerState").getAsString());
+        Assert.assertEquals("PRESERVE",allocation(plan,1).get("dataPolicy").getAsString());Assert.assertEquals("SPARSE",allocation(plan,1).get("provisioningType").getAsString());
+    }
+    @Test public void rawInitialOrInitialFilesystemConflictIsRejectedBeforeAnyAllocation() {
+        Fixture raw=new Fixture(1);raw.raw(1);blocked(raw);
+        Fixture mismatch=new Fixture(1);mismatch.blueprint.addProperty("filesystem","EXT4");blocked(mismatch);
+        Fixture missing=new Fixture(1);missing.put("file-shares",new JsonArray());missing.blueprint.remove("filesystem");blocked(missing);
     }
 
 }

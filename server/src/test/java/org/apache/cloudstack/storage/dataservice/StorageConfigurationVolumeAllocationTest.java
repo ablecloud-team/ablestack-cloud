@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.cloud.utils.exception.CloudRuntimeException;
 
 public class StorageConfigurationVolumeAllocationTest {
@@ -184,6 +185,16 @@ public class StorageConfigurationVolumeAllocationTest {
     @Test public void actualThinVolumeCannotPassAnApprovedSparseReceiptOrBeFormatted() {
         JsonObject plan = plan(1);Runtime r = new Runtime();r.failOnce="create-before";fail(plan,r);
         r.volumes.get(uuid(plan,0)).addProperty("provisioningType","thin");fail(plan,r);Assert.assertEquals(0,r.createCalls);Assert.assertEquals(0,r.formatCalls);Assert.assertEquals(0,r.deleteCalls);
+    }
+
+
+    @Test public void unusedAdditionalNewDataHasNoFilesystemOrFormatterAndIsNotRepeated() {
+        StorageConfigurationVolumePlanTest.Fixture fixture=new StorageConfigurationVolumePlanTest.Fixture(2);
+        fixture.put("file-shares",new JsonArray());JsonObject plan=fixture.build();Runtime runtime=new Runtime();
+        prepare(plan,runtime);Assert.assertEquals(2,runtime.allocCalls);Assert.assertEquals(1,runtime.formatCalls);
+        JsonObject unused=entry(plan,1);Assert.assertEquals("BLOCK_RAW",unused.get("usage").getAsString());Assert.assertFalse(unused.has("filesystem"));
+        Assert.assertFalse(runtime.receipts.get(uuid(plan,1)).get("formatStarted").getAsBoolean());
+        prepare(plan,runtime);Assert.assertEquals(2,runtime.allocCalls);Assert.assertEquals(1,runtime.formatCalls);Assert.assertEquals(0,runtime.deleteCalls);
     }
 
 }

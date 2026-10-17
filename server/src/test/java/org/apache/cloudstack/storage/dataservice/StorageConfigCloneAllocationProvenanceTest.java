@@ -82,6 +82,9 @@ public class StorageConfigCloneAllocationProvenanceTest {
     private boolean failDuringVmAllocation;
     private boolean preservePartialReady;
     private boolean failStartWithPartialRootReady;
+    private boolean existingAttached;
+    private boolean failAfterExistingAttach;
+    private int existingAttachCalls;
     private int allocations;
     private int deployments;
     private int vmAllocations;
@@ -413,6 +416,79 @@ public class StorageConfigCloneAllocationProvenanceTest {
         Assert.assertEquals(7L, receipt().getAsJsonObject("vm").get("vmId").getAsLong());
         int count = starts;
         Assert.assertThrows(RuntimeException.class, this::create);Assert.assertEquals(count, starts);
+    }
+
+
+    private void existingInitial() throws Exception {
+        plan.getAsJsonObject("createNew").addProperty("backingvolumemode","EXISTING");
+        plan.getAsJsonObject("createNew").addProperty("existingvolumeid",uuid(502));plan.getAsJsonObject("createNew").addProperty("filesystem","EXT4");
+        Mockito.when(command.isExistingVolume()).thenReturn(true);Mockito.when(command.getExistingVolumeId()).thenReturn(502L);Mockito.when(command.getStorageId()).thenReturn(null);
+        Mockito.when(shared.getBackingVolumeMode()).thenReturn(SharedFS.BackingVolumeMode.EXISTING);
+        Mockito.when(dataDisk.getName()).thenReturn("retained-data");Mockito.when(dataDisk.getDomainId()).thenReturn(1L);
+        Mockito.when(dataDisk.getState()).thenReturn(Volume.State.Ready);Mockito.when(dataDisk.getPoolId()).thenReturn(80L);
+        Mockito.when(dataDisk.getInstanceId()).thenAnswer(call->existingAttached?7L:null);
+        com.cloud.storage.dao.VolumeDao volumeDao=(com.cloud.storage.dao.VolumeDao)ReflectionTestUtils.getField(manager,"volumeDao");
+        Mockito.when(volumeDao.findById(502L)).thenReturn(dataDisk);Mockito.when(volumeDao.findByUuid(uuid(502))).thenReturn(dataDisk);
+        Mockito.when(volumeDao.findByInstanceAndType(7L,Volume.Type.DATADISK)).thenAnswer(call->existingAttached?List.of(dataDisk):List.of());
+        UserVmDao vmDao=(UserVmDao)ReflectionTestUtils.getField(manager,"rootUpgradeVmDao");UserVmVO vm=vmDao.findById(7L);
+        Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);
+        com.cloud.storage.dao.VolumeDetailsDao details=Mockito.mock(com.cloud.storage.dao.VolumeDetailsDao.class);
+        Mockito.when(details.listDetailsKeyPairs(502L)).thenReturn(Map.of("storage.service.filesystem.type","EXT4","storage.service.filesystem.uuid",uuid(777)));
+        ReflectionTestUtils.setField(manager,"configurationVolumeDetailsDao",details);
+        Mockito.doAnswer(call->{allocations++;sharedPresent=true;dataId.set(502L);events.add("ALLOC_SHARED");return shared;}).when(service).allocSharedFS(command);
+        Mockito.when(service.deploySharedFS(Mockito.eq(command),Mockito.any())).thenAnswer(call->{
+            deployments++;java.util.function.Consumer<SharedFS> recorder=call.getArgument(1);
+            if(vmId.get()==null) {
+                try(TransactionLegacy transaction=TransactionLegacy.open("ControlledProviderAllocation")) {
+                    transaction.start();vmAllocations++;vmId.set(7L);events.add("ALLOC_ROOT_ONLY");recorder.accept(shared);transaction.commit();
+                }
+            } else recorder.accept(shared);
+            if(vm.getState()==com.cloud.vm.VirtualMachine.State.Stopped) {
+                starts++;events.add("START_ROOT_ONLY");Mockito.when(vm.getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Running);
+                Mockito.when(rootDisk.getState()).thenReturn(Volume.State.Ready);Mockito.when(rootDisk.getPoolId()).thenReturn(80L);
+            }
+            if(failAfterVmCommit)throw new CloudRuntimeException("Controlled root-only start response loss");
+            if(!existingAttached) {
+                existingAttached=true;existingAttachCalls++;events.add("ATTACH_EXISTING");
+                if(failAfterExistingAttach)throw new CloudRuntimeException("Controlled attach response loss before receipt");
+                recorder.accept(shared);
+            }
+            Mockito.when(shared.getFsType()).thenReturn(SharedFS.FileSystemType.EXT4);Mockito.when(shared.getInitialImportState()).thenReturn("MOUNTED_EXISTING");
+            return shared;
+        });
+    }
+    @Test public void existingInitialPublishesReservedBeforeFirstStartAndAttachedBeforeFilesystemClaim() throws Exception {
+        existingInitial();Assert.assertSame(target,create());
+        Assert.assertEquals(1,allocations);Assert.assertEquals(1,vmAllocations);Assert.assertEquals(1,starts);Assert.assertEquals(1,existingAttachCalls);
+        Assert.assertTrue(events.indexOf("RECORD")<events.indexOf("START_ROOT_ONLY"));Assert.assertTrue(events.indexOf("START_ROOT_ONLY")<events.indexOf("ATTACH_EXISTING"));
+        Assert.assertEquals("ATTACHED",receipt().getAsJsonObject("vm").get("initialDataState").getAsString());
+        Assert.assertEquals("UNOBSERVED_EXISTING",receipt().getAsJsonObject("sharedFs").get("filesystem").getAsString());
+        Assert.assertEquals("EXT4",receipt().getAsJsonObject("existingData").get("expectedFilesystem").getAsString());
+        JsonObject observed=JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneExistingFilesystem");
+        Assert.assertEquals(uuid(777),observed.get("filesystemUuid").getAsString());Assert.assertFalse(observed.get("formatInvoked").getAsBoolean());
+        Assert.assertEquals("retained-data",dataDisk.getName());
+    }
+    @Test public void existingInitialLostRootOnlyStartResponseReusesSameVmWithoutAllocationOrAttachGuess() throws Exception {
+        existingInitial();failAfterVmCommit=true;Assert.assertThrows(RuntimeException.class,this::create);
+        Assert.assertEquals("RESERVED",receipt().getAsJsonObject("vm").get("initialDataState").getAsString());Assert.assertFalse(existingAttached);
+        Assert.assertFalse(JsonParser.parseString(metadata.get()).getAsJsonObject().has("cloneExistingFilesystem"));
+        failAfterVmCommit=false;Assert.assertSame(target,create());
+        Assert.assertEquals(1,allocations);Assert.assertEquals(1,vmAllocations);Assert.assertEquals(1,starts);Assert.assertEquals(1,existingAttachCalls);
+        Assert.assertEquals("ATTACHED",receipt().getAsJsonObject("vm").get("initialDataState").getAsString());
+    }
+    @Test public void existingInitialLostAttachResponseObservesSameRunningAttachmentWithoutRepeatingIt() throws Exception {
+        existingInitial();failAfterExistingAttach=true;Assert.assertThrows(RuntimeException.class,this::create);
+        Assert.assertEquals("RESERVED",receipt().getAsJsonObject("vm").get("initialDataState").getAsString());Assert.assertTrue(existingAttached);
+        failAfterExistingAttach=false;Assert.assertSame(target,create());
+        Assert.assertEquals(1,allocations);Assert.assertEquals(1,vmAllocations);Assert.assertEquals(1,starts);Assert.assertEquals(1,existingAttachCalls);
+    }
+    @Test public void changedReservedExistingIdentityAndStoppedUnrecordedAttachmentCannotResume() throws Exception {
+        existingInitial();failAfterVmCommit=true;Assert.assertThrows(RuntimeException.class,this::create);failAfterVmCommit=false;
+        Mockito.when(dataDisk.getPath()).thenReturn("foreign-path");int attempted=deployments;Assert.assertThrows(RuntimeException.class,this::create);Assert.assertEquals(attempted,deployments);
+        Mockito.when(dataDisk.getPath()).thenReturn("public-volume-502");existingAttached=true;
+        UserVmDao vmDao=(UserVmDao)ReflectionTestUtils.getField(manager,"rootUpgradeVmDao");Mockito.when(vmDao.findById(7L).getState()).thenReturn(com.cloud.vm.VirtualMachine.State.Stopped);
+        Assert.assertThrows(RuntimeException.class,this::create);Assert.assertEquals(attempted,deployments);
+        Assert.assertEquals(1,allocations);Assert.assertEquals(1,vmAllocations);Assert.assertEquals(0,existingAttachCalls);
     }
 
 }

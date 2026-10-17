@@ -147,12 +147,59 @@ public final class StorageConfigRestorePlan {
         }
         if (!allowed.keySet().containsAll(supplied.keySet())) throw new CloudRuntimeException("Unexpected configuration credential resource");
     }
+    private static JsonArray sourceVolumeInventory(Map<String, byte[]> archive, Map<String, JsonArray> resources) {
+        byte[] bytes = archive.get("desired/volumes.json");
+        if (bytes == null) throw new CloudRuntimeException("Configuration DATA inventory is required");
+        JsonElement value = StorageConfigArchive.json(bytes);
+        if (!value.isJsonArray() || value.getAsJsonArray().size() > 2000) throw new CloudRuntimeException("Invalid configuration DATA inventory");
+        Map<String, String> usage = new java.util.HashMap<>();Map<String, String> filesystems = new java.util.HashMap<>();
+        for (String kind : new String[] {"file-shares", "posix-directory-policies", "block-targets"}) for (JsonElement item : resources.get(kind)) {
+            JsonObject row = item.getAsJsonObject();String volume = text(row, "volumeUuid");if (volume == null) continue;
+            String next = "block-targets".equals(kind) ? "BLOCK_RAW" : "FILE";
+            String previous = usage.putIfAbsent(volume, next);if (previous != null && !previous.equals(next)) usage.put(volume, "MIXED");
+            if ("file-shares".equals(kind) && row.has("filesystem") && !row.get("filesystem").isJsonNull()) {
+                String fs = text(row, "filesystem");String prior = filesystems.putIfAbsent(volume, fs);
+                if (prior != null && !prior.equalsIgnoreCase(fs)) filesystems.put(volume, "MIXED");
+            }
+        }
+        JsonArray result = new JsonArray();Set<String> seen = new java.util.HashSet<>();
+        for (JsonElement item : value.getAsJsonArray()) {
+            if (!item.isJsonObject()) throw new CloudRuntimeException("Invalid configuration DATA inventory row");
+            JsonObject row = item.getAsJsonObject();String id = text(row, "uuid");uuid(id);
+            if (!seen.add(id)) throw new CloudRuntimeException("Duplicate configuration DATA inventory identity");
+            JsonObject safe = new JsonObject();
+            for (String field : new String[] {"uuid", "name", "size", "type", "state", "filesystemUuid"})
+                if (row.has(field)) safe.add(field, row.get(field).deepCopy());
+            safe.addProperty("usage", usage.getOrDefault(id, "UNUSED"));
+            if (filesystems.containsKey(id)) safe.addProperty("filesystemHint", filesystems.get(id));
+            result.add(safe);
+        }
+        return result;
+    }
+
     public static JsonObject build(Map<String, byte[]> archive, Map<String, byte[]> current, JsonObject mappings,
             String targetMode, String targetInstanceUuid, long currentRevision) {
+        return build(archive, current, mappings, targetMode, targetInstanceUuid, currentRevision, null);
+    }
+
+    public static JsonObject build(Map<String, byte[]> archive, Map<String, byte[]> current, JsonObject mappings,
+            String targetMode, String targetInstanceUuid, long currentRevision, String targetPrimaryAddress) {
         if (!Set.of("RESTORE_EXISTING", "CREATE_NEW").contains(targetMode)) throw new CloudRuntimeException("Unsupported configuration restore mode");
         uuid(targetInstanceUuid);
         Map<String, JsonArray> source = resources(archive);Map<String, JsonArray> target = resources(current);
         JsonArray creates = new JsonArray();JsonArray updates = new JsonArray();JsonArray keeps = new JsonArray();JsonArray preserves = new JsonArray();JsonArray blockers = new JsonArray();
+        byte[] instanceBytes = archive.get("desired/instance.json");
+        if (instanceBytes == null) throw new CloudRuntimeException("Configuration source instance identity is required");
+        JsonElement identity = StorageConfigArchive.json(instanceBytes);
+        if (!identity.isJsonObject()) throw new CloudRuntimeException("Configuration source instance identity must be an object");
+        JsonObject sourceInstance = identity.getAsJsonObject();JsonElement sourceUuid = sourceInstance.get("uuid");
+        if (sourceUuid == null || !sourceUuid.isJsonPrimitive() || !sourceUuid.getAsJsonPrimitive().isString()) {
+            throw new CloudRuntimeException("Configuration source instance UUID is required");
+        }
+        uuid(sourceUuid.getAsString());
+        boolean foreignTarget = !targetInstanceUuid.equals(sourceUuid.getAsString());
+        JsonObject listeners = StorageConfigEndpointMapping.apply(source, mappings, "CREATE_NEW".equals(targetMode) || foreignTarget,
+                blockers, "CREATE_NEW".equals(targetMode) ? StorageConfigEndpointMapping.staticPrimary(mappings) : targetPrimaryAddress);
         JsonObject usedMappings = new JsonObject();
         Set<String> mappedTargetIds = new java.util.HashSet<>();
         for (String kind : ROW_KEYS.keySet()) {
@@ -195,7 +242,7 @@ public final class StorageConfigRestorePlan {
                 }
             }
             for (Map.Entry<String, JsonObject> value : existing.entrySet()) if (!consumed.contains(value.getKey())) {
-                JsonObject preserve = new JsonObject();preserve.addProperty("kind", kind);preserve.addProperty("targetUuid", value.getKey());preserves.add(preserve);
+                JsonObject preserve = new JsonObject();preserve.addProperty("kind", kind);preserve.addProperty("targetUuid", value.getKey());preserve.add("current", value.getValue().deepCopy());preserves.add(preserve);
             }
             usedMappings.add(kind, applied);
         }
@@ -215,6 +262,9 @@ public final class StorageConfigRestorePlan {
         plan.addProperty("targetInstanceUuid", targetInstanceUuid);plan.addProperty("expectedRevision", currentRevision);
         plan.add("create", creates);plan.add("update", updates);plan.add("keep", keeps);plan.add("preserve", preserves);plan.add("delete", new JsonArray());
         plan.add("blockers", blockers);plan.add("resourceMappings", usedMappings);plan.add("volumeMappings", volumeMappings.deepCopy());
+        plan.add("sourceVolumeInventory", sourceVolumeInventory(archive, source));
+        plan.add("listenerAddressRequirements", listeners.get("listenerAddressRequirements"));
+        plan.add("listenerAddressMappings", listeners.get("listenerAddressMappings"));
         plan.addProperty("dataPolicy", "PRESERVE");plan.addProperty("automaticFormat", false);
         return plan;
     }

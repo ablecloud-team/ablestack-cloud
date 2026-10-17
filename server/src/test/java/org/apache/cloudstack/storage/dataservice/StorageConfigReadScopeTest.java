@@ -51,13 +51,14 @@ public class StorageConfigReadScopeTest {
             StorageServiceManagerImpl manager = Mockito.mock(StorageServiceManagerImpl.class);StorageConfigArtifactDao artifacts = Mockito.mock(StorageConfigArtifactDao.class);
             StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
             Mockito.when(manager.requireInstance(7L)).thenReturn(instance);
-            StorageConfigArtifactVO row = new StorageConfigArtifactVO();row.setInstanceId(7);row.setKind("BACKUP");row.setState("COMPLETE");
+            StorageConfigArtifactVO row = new StorageConfigArtifactVO();row.setInstanceId(7);row.setKind("BACKUP");row.setState("COMPLETE");row.setCreatedBy(12);
             row.setMetadataJson("{'downloadToken':{'hash':'synthetic'},'planToken':{'hash':'synthetic'},'runtimeStatus':'AVAILABLE'}".replace((char) 39, (char) 34));
             Mockito.when(artifacts.listByInstance(7)).thenReturn(List.of(row));
             StorageConfigRequest request = Mockito.mock(StorageConfigRequest.class);Mockito.when(request.getConfigAction()).thenReturn("BACKUPS");Mockito.when(request.getInstanceId()).thenReturn(7L);
             StorageServiceConfiguration service = new StorageServiceConfiguration(manager, artifacts, Mockito.mock(StorageServiceOperationDao.class), new StorageConfigArtifactStore(root));
             StorageServiceConfigArtifactResponse response = service.execute(request);
             String result = (String) ReflectionTestUtils.getField(response, "result");
+            Assert.assertEquals(12, new JsonParser().parse(result).getAsJsonObject().getAsJsonArray("artifacts").get(0).getAsJsonObject().get("createdBy").getAsLong());
             String metadata = new JsonParser().parse(result).getAsJsonObject().getAsJsonArray("artifacts").get(0).getAsJsonObject().get("metadata").toString();
             Assert.assertFalse(metadata.contains("downloadToken"));Assert.assertFalse(metadata.contains("planToken"));Assert.assertTrue(metadata.contains("AVAILABLE"));
             Mockito.verify(manager, Mockito.never()).requireConfigurationAdministrator();

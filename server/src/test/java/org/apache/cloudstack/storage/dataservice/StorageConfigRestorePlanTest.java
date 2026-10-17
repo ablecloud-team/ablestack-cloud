@@ -33,6 +33,8 @@ public class StorageConfigRestorePlanTest {
     private static final String INSTANCE = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
     private Map<String, byte[]> archive(boolean withShare, boolean extra) {
         Map<String, byte[]> entries = new LinkedHashMap<>();
+        JsonObject instance = new JsonObject();instance.addProperty("uuid", INSTANCE);
+        entries.put("desired/instance.json", instance.toString().getBytes(StandardCharsets.UTF_8));
         for (String kind : StorageConfigRestorePlan.ROW_KEYS.keySet()) entries.put("desired/" + kind + ".json", "[]".getBytes(StandardCharsets.UTF_8));
         JsonArray shares = new JsonArray();
         if (withShare) shares.add(share(SHARE));if (extra) shares.add(share(EXTRA));
@@ -52,6 +54,22 @@ public class StorageConfigRestorePlanTest {
         Assert.assertEquals(1, plan.getAsJsonArray("keep").size());Assert.assertEquals(1, plan.getAsJsonArray("preserve").size());
         Assert.assertEquals(0, plan.getAsJsonArray("delete").size());Assert.assertEquals(0, plan.getAsJsonArray("blockers").size());
         Assert.assertFalse(plan.get("automaticFormat").getAsBoolean());Assert.assertEquals(28, plan.get("expectedRevision").getAsLong());
+    }
+    @Test public void missingSourceUuidCannotClaimSameServiceForListenerMapping() {
+        Map<String, byte[]> source = archive(true, false);
+        source.put("desired/instance.json", "{}".getBytes(StandardCharsets.UTF_8));
+        Assert.assertThrows(CloudRuntimeException.class,
+                () -> StorageConfigRestorePlan.build(source, archive(true, false), mapping(), "RESTORE_EXISTING", INSTANCE, 28));
+    }
+    @Test public void preservedResourcesExposeTheirActualCurrentFields() {
+        JsonObject plan = StorageConfigRestorePlan.build(archive(true, false), archive(true, true), mapping(), "RESTORE_EXISTING", INSTANCE, 28);
+        Assert.assertEquals("project", plan.getAsJsonArray("preserve").get(0).getAsJsonObject().getAsJsonObject("current").get("name").getAsString());
+    }
+    @Test public void emptyServiceStillExposesItsUnreferencedInitialData() {
+        JsonObject plan = StorageConfigRestorePlan.build(archive(false, false), archive(false, false), mapping(), "RESTORE_EXISTING", INSTANCE, 28);
+        JsonArray inventory = plan.getAsJsonArray("sourceVolumeInventory");Assert.assertEquals(1, inventory.size());
+        Assert.assertEquals(VOLUME, inventory.get(0).getAsJsonObject().get("uuid").getAsString());
+        Assert.assertEquals("UNUSED", inventory.get(0).getAsJsonObject().get("usage").getAsString());
     }
     @Test public void missingVolumeMappingIsBlockedRatherThanGuessedFromMatchingUuid() {
         JsonObject plan = StorageConfigRestorePlan.build(archive(true, false), archive(true, false), new JsonObject(), "RESTORE_EXISTING", INSTANCE, 28);

@@ -709,8 +709,13 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected VolumeVO validateExistingInitialVolume(Long id,long ownerId,long zoneId,long excludedSharedFsId) {
+        return validateExistingInitialVolume(id, ownerId, zoneId, excludedSharedFsId, null);
+    }
+
+    private VolumeVO validateExistingInitialVolume(Long id,long ownerId,long zoneId,long excludedSharedFsId,Long retainedVmId) {
         VolumeVO volume=id==null ? null : volumeDao.findById(id);
-        if (volume==null || volume.getVolumeType()!=Volume.Type.DATADISK || volume.getState()!=Volume.State.Ready || volume.getInstanceId()!=null
+        if (volume==null || volume.getVolumeType()!=Volume.Type.DATADISK || volume.getState()!=Volume.State.Ready
+                || volume.getInstanceId()!=null && !volume.getInstanceId().equals(retainedVmId)
                 || volume.getAccountId()!=ownerId || volume.getDataCenterId()!=zoneId || volume.getPoolId()==null || volume.getSize()==null || volume.getSize()<=0) {
             throw new InvalidParameterValueException("Existing backing volume must be a Ready unattached DATADISK in the same owner and zone");
         }
@@ -758,7 +763,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 || retained.getDataCenterId() != expected.getDataCenterId()
                 || !java.util.Objects.equals(retained.getName(), expected.getName())
                 || !java.util.Objects.equals(retained.getFsProviderName(), expected.getFsProviderName())
-                || retained.getFsType() != expected.getFsType() || retained.getProtocol() != expected.getProtocol()
+                || !cmd.isExistingVolume() && retained.getFsType() != expected.getFsType() || retained.getProtocol() != expected.getProtocol()
                 || !java.util.Objects.equals(retained.getServiceOfferingId(), expected.getServiceOfferingId())
                 || retained.getBackingVolumeMode() != expected.getBackingVolumeMode()
                 || retained.getNetworkMode() != expected.getNetworkMode()
@@ -810,7 +815,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     }
 
     protected void requireRecordedFormatPools(CreateSharedFSCmd cmd) {
-        StoragePoolVO data = storagePoolDao.findById(cmd.getStorageId());
+        VolumeVO existing = cmd.isExistingVolume() ? volumeDao.findById(cmd.getExistingVolumeId()) : null;
+        StoragePoolVO data = storagePoolDao.findById(existing == null ? cmd.getStorageId() : existing.getPoolId());
         if (!recordedFormatPool(data, cmd.getZoneId()))
             throw new InvalidParameterValueException("Recorded DATA pool has no supported KVM format policy");
         com.cloud.service.ServiceOfferingVO service = serviceOfferingDao.findById(cmd.getServiceOfferingId());
@@ -849,7 +855,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         VolumeVO existing=null;
         if (cmd.isExistingVolume()) {
             if (diskOfferingId!=null || cmd.getStorageId()!=null || size!=null || minIops!=null || maxIops!=null) throw new InvalidParameterValueException("EXISTING mode derives offering, pool and size from the selected volume; new-volume fields must be omitted");
-            existing=validateExistingInitialVolume(cmd.getExistingVolumeId(),ownerId,zone.getId(),-1);
+            SharedFSVO retained = retainedSharedFsId == null ? null : sharedFSDao.findById(retainedSharedFsId);
+            existing=retained == null ? validateExistingInitialVolume(cmd.getExistingVolumeId(),ownerId,zone.getId(),-1)
+                    : validateExistingInitialVolume(cmd.getExistingVolumeId(),ownerId,zone.getId(),retainedSharedFsId,retained.getVmId());
         } else {
             if (diskOfferingId==null || cmd.getStorageId()==null) throw new InvalidParameterValueException("NEW mode requires disk offering and primary storage");
             validateDiskOffering(diskOfferingId, size, minIops, maxIops, zone);
@@ -914,8 +922,10 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Override
     public SharedFS deploySharedFS(CreateSharedFSCmd cmd, java.util.function.Consumer<SharedFS> allocatedRecorder)
             throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
-        if (allocatedRecorder == null || cmd.isExistingVolume())
-            throw new InvalidParameterValueException("Recorded CREATE_NEW requires a recorder and new DATA");
+        if (allocatedRecorder == null || cmd.getTemplateId() == null)
+            throw new InvalidParameterValueException("Recorded CREATE_NEW requires a recorder and pinned template");
+        if (cmd.isExistingVolume() && StringUtils.isBlank(cmd.getFsFormat()))
+            throw new InvalidParameterValueException("Recorded existing DATA requires its explicit expected filesystem");
         preflightSharedFS(cmd, cmd.getEntityId());
         return deploySharedFSInternal(cmd, allocatedRecorder);
     }
@@ -938,8 +948,21 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             validateSparseNewRootOffering(sharedFS.getServiceOfferingId());
             if(!cmd.isExistingVolume())validateSparseNewDataOffering(diskOfferingId);
             if (cmd.isExistingVolume()) {
-                validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId());
-                result=cmd.getTemplateId()==null?lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId()):lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId(),cmd.getTemplateId());
+                validateExistingInitialVolume(cmd.getExistingVolumeId(),sharedFS.getAccountId(),sharedFS.getDataCenterId(),sharedFS.getId(),
+                        allocatedRecorder == null ? null : sharedFS.getVmId());
+                if (allocatedRecorder != null) {
+                    if (sharedFS.getVolumeId() == null || !sharedFS.getVolumeId().equals(cmd.getExistingVolumeId()))
+                        throw new CloudRuntimeException("Recorded existing DATA reservation changed");
+                    if (sharedFS.getVmId() != null) {
+                        allocatedRecorder.accept(sharedFS);
+                        if (sharedFS.getState() == State.Error || sharedFS.getState() == State.Stopped) {
+                            if (!sharedFSDao.updateState(sharedFS.getState(),Event.StartRequested,State.Starting,sharedFS,null))
+                                throw new CloudRuntimeException("Recorded existing SharedFS resume state publication failed");
+                        }
+                    }
+                    result=lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId(),cmd.getTemplateId(),
+                            vmId -> recordSharedFSVmAllocation(sharedFS,vmId,true,allocatedRecorder));
+                } else result=cmd.getTemplateId()==null?lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId()):lifeCycle.deployWithExistingVolume(sharedFS,cmd.getNetworkId(),cmd.getExistingVolumeId(),cmd.getTemplateId());
             } else if (allocatedRecorder != null) {
                 if (cmd.getTemplateId() == null)
                     throw new InvalidParameterValueException("Recorded allocation requires the reviewed explicit template ID");
@@ -952,20 +975,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                     }
                 }
                 result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(),
-                        size, minIops, maxIops, cmd.getTemplateId(), vmId -> {
-                            List<VolumeVO> roots = volumeDao.findByInstanceAndType(vmId, Volume.Type.ROOT);
-                            List<VolumeVO> data = volumeDao.findByInstanceAndType(vmId, Volume.Type.DATADISK);
-                            if (roots.size() != 1 || data.size() != 1 || roots.get(0).getRemoved() != null || data.get(0).getRemoved() != null
-                                    || sharedFS.getVmId() != null && !java.util.Objects.equals(sharedFS.getVmId(), vmId)
-                                    || sharedFS.getVolumeId() != null && sharedFS.getVolumeId() != data.get(0).getId())
-                                throw new CloudRuntimeException("Recorded VM allocation has ambiguous disk or SharedFS binding");
-                            if (sharedFS.getVmId() == null) {
-                                sharedFS.setVmId(vmId);sharedFS.setVolumeId(data.get(0).getId());
-                                if (!sharedFSDao.update(sharedFS.getId(), sharedFS))
-                                    throw new CloudRuntimeException("Recorded VM and DATA publication failed");
-                            }
-                            allocatedRecorder.accept(sharedFS);
-                        });
+                        size, minIops, maxIops, cmd.getTemplateId(),
+                        vmId -> recordSharedFSVmAllocation(sharedFS,vmId,false,allocatedRecorder));
                 if (!java.util.Objects.equals(sharedFS.getVmId(), result.second())
                         || !java.util.Objects.equals(sharedFS.getVolumeId(), result.first()))
                     throw new CloudRuntimeException("Recorded provider changed VM or DATA identity");
@@ -976,9 +987,16 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             verifySparseAllocatedRoot(result.second());
             completeExplicitTemplateFixture(cmd,sharedFS,explicitTemplate);
             configureStaticNetwork(sharedFSDao.findById(sharedFS.getId()));
-            if (cmd.isExistingVolume()) inspectExistingInitialVolume(sharedFS);
+            if (cmd.isExistingVolume()) {
+                if (allocatedRecorder == null) inspectExistingInitialVolume(sharedFS);
+                else inspectExistingInitialVolume(sharedFS,cmd.getFsFormat());
+            }
         } catch (Exception ex) {
-            if (cmd.isExistingVolume()) cleanupFailedInitialVolume(sharedFS,lifeCycle,ex);
+            if (cmd.isExistingVolume() && allocatedRecorder == null) cleanupFailedInitialVolume(sharedFS,lifeCycle,ex);
+            else if (cmd.isExistingVolume()) {
+                SharedFSVO retained = sharedFSDao.findById(sharedFS.getId());
+                if (retained != null) {retained.setInitialImportState("RECOVERY_REQUIRED");sharedFSDao.update(retained.getId(),retained);}
+            }
             if (!cmd.isExistingVolume() || sharedFSDao.findById(sharedFS.getId())!=null) stateTransitTo(allocatedRecorder == null ? sharedFS : sharedFSDao.findById(sharedFS.getId()), Event.OperationFailed);
             throw ex;
         }
@@ -992,17 +1010,51 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         return sharedFS;
     }
 
+    protected void recordSharedFSVmAllocation(SharedFSVO sharedFS,long vmId,boolean existing,java.util.function.Consumer<SharedFS> recorder) {
+        List<VolumeVO> roots=volumeDao.findByInstanceAndType(vmId,Volume.Type.ROOT),data=volumeDao.findByInstanceAndType(vmId,Volume.Type.DATADISK);
+        if (roots.size()!=1 || roots.get(0).getRemoved()!=null || sharedFS.getVmId()!=null&&!sharedFS.getVmId().equals(vmId)
+                || (existing ? data.size()>1 || data.size()==1 && !Long.valueOf(data.get(0).getId()).equals(sharedFS.getVolumeId())
+                    : data.size()!=1 || data.get(0).getRemoved()!=null || sharedFS.getVolumeId()!=null&&sharedFS.getVolumeId()!=data.get(0).getId()))
+            throw new CloudRuntimeException("Recorded VM allocation has ambiguous ROOT or DATA binding");
+        if (sharedFS.getVmId()==null) {
+            sharedFS.setVmId(vmId);if(!existing)sharedFS.setVolumeId(data.get(0).getId());
+            if(!sharedFSDao.update(sharedFS.getId(),sharedFS))throw new CloudRuntimeException("Recorded VM and DATA publication failed");
+        }
+        recorder.accept(sharedFS);
+    }
+
     protected void inspectExistingInitialVolume(SharedFSVO sharedFS) {
+        inspectExistingInitialVolume(sharedFS,null);
+    }
+
+    protected void inspectExistingInitialVolume(SharedFSVO sharedFS,String expectedFilesystem) {
         VolumeVO volume=volumeDao.findById(sharedFS.getVolumeId());
         if (volume==null || !sharedFS.getVmId().equals(volume.getInstanceId())) throw new CloudRuntimeException("Existing volume attachment changed before inspection");
         com.google.gson.JsonObject payload=new com.google.gson.JsonObject();
         payload.addProperty("shareUuid",sharedFS.getUuid());payload.addProperty("volumeUuid",volume.getUuid());payload.addProperty("volumeName",volume.getName());payload.addProperty("volumeSizeBytes",volume.getSize());payload.addProperty("importMode","MOUNT_EXISTING");
+        if(expectedFilesystem!=null)payload.addProperty("filesystem",expectedFilesystem);
         StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(sharedFS.getVmId(),"volume attach inspect",payload.toString(),120,Set.of()));
         if (!result.isSuccess()) throw new CloudRuntimeException("Existing filesystem inspection failed; formatting was not permitted");
         com.google.gson.JsonObject observed=new com.google.gson.JsonParser().parse(result.getResultJson()).getAsJsonObject();
         if (!observed.has("success") || !observed.get("success").getAsBoolean() || !volume.getUuid().equals(observed.get("volumeUuid").getAsString())) throw new CloudRuntimeException("Existing filesystem identity was not verified");
         String filesystem=observed.get("filesystem").getAsString().toUpperCase(java.util.Locale.ROOT);
-        sharedFS.setFsType(SharedFS.FileSystemType.valueOf(filesystem));sharedFS.setInitialImportState("MOUNTED_EXISTING");sharedFSDao.update(sharedFS.getId(),sharedFS);
+        if (expectedFilesystem != null) {
+            if (!observed.get("success").isJsonPrimitive() || !observed.get("success").getAsJsonPrimitive().isBoolean()
+                    || !observed.get("success").getAsBoolean() || !filesystem.equalsIgnoreCase(expectedFilesystem) || !observed.has("filesystemUuid") || !observed.get("filesystemUuid").isJsonPrimitive()
+                    || !observed.get("filesystemUuid").getAsJsonPrimitive().isString() || observed.get("filesystemUuid").getAsString().isBlank()
+                    || !observed.has("formatInvoked") || !observed.get("formatInvoked").isJsonPrimitive()
+                    || !observed.get("formatInvoked").getAsJsonPrimitive().isBoolean() || observed.get("formatInvoked").getAsBoolean())
+                throw new CloudRuntimeException("Recorded existing filesystem differs from its reviewed no-format identity");
+            String filesystemUuid=observed.get("filesystemUuid").getAsString();
+            if (!java.util.UUID.fromString(filesystemUuid).toString().equals(filesystemUuid))
+                throw new CloudRuntimeException("Recorded existing filesystem UUID is malformed");
+            com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Void>) status -> {
+                volumeDetailsDao.addDetail(volume.getId(),"storage.service.filesystem.uuid",filesystemUuid,false);
+                volumeDetailsDao.addDetail(volume.getId(),"storage.service.filesystem.type",filesystem,false);return null;
+            });
+        }
+        sharedFS.setFsType(SharedFS.FileSystemType.valueOf(filesystem));sharedFS.setInitialImportState("MOUNTED_EXISTING");
+        if(!sharedFSDao.update(sharedFS.getId(),sharedFS))throw new CloudRuntimeException("Existing filesystem observation could not be persisted");
     }
 
     protected void cleanupFailedInitialVolume(SharedFSVO sharedFS,SharedFSLifeCycle lifeCycle,Exception failure) {

@@ -46,7 +46,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageRenderedValidationAdmissionTest {
     private static class Manager extends StorageServiceManagerImpl {
-        StorageServiceInstanceVO instance;int guestCalls;Runnable afterStatus=()->{};
+        StorageServiceInstanceVO instance;VolumeVO cloneInitial;JsonObject clonePin;int guestCalls;Runnable afterStatus=()->{};
+        @Override protected VolumeVO configurationInitialVolume(StorageServiceInstanceVO value) {return cloneInitial;}
+        @Override protected JsonObject configurationCloneRuntimePin(String bundleUuid) {return clonePin;}
         @Override protected void requireConfigurationAdministrator() { }
         @Override protected StorageServiceInstanceVO requireInstance(Long id) {return instance;}
         @Override protected void requireVolumeResumeIdle(StorageServiceInstanceVO value,StorageServiceOperationVO own) { }
@@ -197,6 +199,45 @@ public class StorageRenderedValidationAdmissionTest {
         Assert.assertEquals("NEW_SPARSE_ALL4_VALIDATION",profile().get("kind").getAsString());
         Assert.assertTrue(profile().getAsJsonObject("fixtureProvenance").getAsJsonObject("volumes").getAsJsonObject("old-data").get("newDataWithoutBacking").getAsBoolean());
         manager.requiredRenderedValidationProfile(manager.instance);Assert.assertEquals(2,manager.guestCalls);
+    }
+
+
+    private JsonObject mixedClonePlan(VolumeVO reused) {
+        manager.cloneInitial=data;Mockito.when(data.getCreated()).thenReturn(new Date());
+        Mockito.when(volumes.findByInstanceAndType(54L,Volume.Type.DATADISK)).thenReturn(List.of(data,reused));
+        java.util.ArrayList<StorageServiceInstanceVO> all=new java.util.ArrayList<>();all.add(manager.instance);
+        for(int n=0;n<8;n++){StorageServiceInstanceVO original=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(original.getId()).thenReturn(100L+n);Mockito.when(original.getUuid()).thenReturn("original-"+n);all.add(original);}Mockito.when(instances.listAll()).thenReturn(all);
+        JsonObject plan=new JsonObject(),allocation=new JsonObject(),scope=new JsonObject(),mappings=new JsonObject(),blueprint=new JsonObject();
+        scope.addProperty("targetInstanceUuid",manager.instance.getUuid());allocation.add("scope",scope);mappings.addProperty("source-initial",data.getUuid());mappings.addProperty("source-extra",reused.getUuid());allocation.add("volumeMappings",mappings);
+        JsonArray rows=new JsonArray();JsonObject extra=new JsonObject();extra.addProperty("mode","EXISTING");extra.addProperty("plannedUuid",reused.getUuid());rows.add(extra);allocation.add("allocations",rows);
+        allocation.addProperty("planSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(allocation)));
+        blueprint.addProperty("backingvolumemode","NEW");plan.add("createNew",blueprint);plan.add("volumeAllocationPlan",allocation);plan.addProperty("targetMode","CREATE_NEW");plan.addProperty("runtimeBundleUuid","bundle");
+        JsonObject pin=new JsonObject();pin.addProperty("bundleUuid","bundle");pin.addProperty("bundleSha256","c".repeat(64));pin.addProperty("manifestSha256","d".repeat(64));pin.addProperty("expectedCliSha256","a".repeat(64));pin.addProperty("sourceCommit","b".repeat(40));plan.add("cloneRuntimePin",pin);manager.clonePin=pin;
+        JsonObject actual=new JsonObject();actual.addProperty("bundleUuid","bundle");actual.addProperty("archiveSha256","c".repeat(64));actual.addProperty("manifestSha256","d".repeat(64));
+        JsonObject proof=new JsonObject();proof.add("runtimePin",actual);proof.addProperty("readOnly",true);proof.addProperty("signedRuntimeVerified",true);proof.addProperty("nativeFileHashesVerified",true);proof.addProperty("actualCliSha256","a".repeat(64));proof.addProperty("transactionId","normal-verified-runtime");
+        Mockito.when(runtime.freshSignedRuntimeValidationProof(9L,"a".repeat(64))).thenReturn(proof);return plan;
+    }
+    private StorageConfigArtifactVO cloneArtifact(JsonObject plan) {
+        StorageConfigArtifactVO artifact=new StorageConfigArtifactVO();JsonObject metadata=new JsonObject();
+        metadata.addProperty("createdTargetInstanceUuid",manager.instance.getUuid());metadata.add("volumeExecutionPlan",plan.get("volumeAllocationPlan").deepCopy());artifact.setMetadataJson(metadata.toString());return artifact;
+    }
+    @Test public void mixedNewInitialAndExistingAdditionalAuthorizeOnlyOwnedExactProfileAndReplayNoDataCommand() {
+        VolumeVO reused=disk("retained-extra",68L,Volume.Type.DATADISK);JsonObject plan=mixedClonePlan(reused);StorageConfigArtifactVO artifact=cloneArtifact(plan);
+        manager.authorizeConfigurationCloneProfile(manager.instance,artifact,plan);
+        Assert.assertEquals("OWNED_SPARSE_ALL4_VALIDATION",profile().get("kind").getAsString());Assert.assertFalse(profile().get("productionCapability").getAsBoolean());
+        JsonObject retained=profile().getAsJsonObject("fixtureProvenance").getAsJsonObject("volumes").getAsJsonObject("retained-extra");
+        Assert.assertFalse(retained.get("newDataWithoutBacking").getAsBoolean());String before=retained.toString();
+        manager.authorizeConfigurationCloneProfile(manager.instance,artifact,plan);
+        Assert.assertEquals(before,profile().getAsJsonObject("fixtureProvenance").getAsJsonObject("volumes").getAsJsonObject("retained-extra").toString());
+        Mockito.verify(volumes,Mockito.never()).update(Mockito.anyLong(),Mockito.any());Assert.assertEquals(2,profile().get("revision").getAsLong());
+    }
+    @Test public void automaticMixedProfileCannotHideForeignOrBackedDataBehindItsPortablePlan() {
+        for(boolean backed:new boolean[]{false,true}) {
+            VolumeVO reused=disk("retained-extra",68L,Volume.Type.DATADISK);JsonObject plan=mixedClonePlan(reused);
+            if(backed)Mockito.when(reused.getChainInfo()).thenReturn("unknown-backing");else Mockito.when(reused.getAccountId()).thenReturn(99L);
+            Assert.assertThrows(CloudRuntimeException.class,()->manager.authorizeConfigurationCloneProfile(manager.instance,cloneArtifact(plan),plan));
+            Mockito.verify(instances,Mockito.never()).update(Mockito.anyLong(),Mockito.any());Assert.assertEquals(0,manager.guestCalls);
+        }
     }
 
 }

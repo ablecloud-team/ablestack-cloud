@@ -37,6 +37,7 @@ public class StorageConfigTransientDirectoryTest {
     @Test public void nativeDirectoryPreparationDoesNotUpdateAnUnpersistedShareVo() {
         Manager manager=new Manager();StorageServiceGuestCommandDispatcher dispatcher=Mockito.mock(StorageServiceGuestCommandDispatcher.class);StorageFileShareDao shares=Mockito.mock(StorageFileShareDao.class);
         ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);ReflectionTestUtils.setField(manager,"storageFileShareDao",shares);
+        ReflectionTestUtils.setField(manager,"configurationVolumeDetailsDao",Mockito.mock(com.cloud.storage.dao.VolumeDetailsDao.class));
         manager.volume=Mockito.mock(VolumeVO.class);Mockito.when(manager.volume.getUuid()).thenReturn("bound-volume");
         StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(48L);
         Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"ok","{\"success\":true,\"volumeUuid\":\"bound-volume\"}"));

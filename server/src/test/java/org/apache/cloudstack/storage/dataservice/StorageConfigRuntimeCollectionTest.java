@@ -54,7 +54,8 @@ public class StorageConfigRuntimeCollectionTest {
         final StorageServiceConfiguration configuration;
         final StorageConfigRequest request;
         final StorageServiceOperationVO readOnly = new StorageServiceOperationVO();
-        boolean failUpdate;boolean failCompletion;boolean foreignCompletionScope;
+        boolean failUpdate;boolean failCompletion;boolean foreignCompletionScope;boolean runtimeUnavailable;boolean runtimeDegraded;boolean admissionUnavailable;boolean admissionChanged;int admissionCalls;boolean managedBackup;int admittedCalls;
+        StorageConfigArtifactVO activePoint;
         BackupFixture() throws Exception {
             directory=java.nio.file.Files.createTempDirectory("storage-backup-real-producer-");
             java.nio.file.Files.setPosixFilePermissions(directory,java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
@@ -89,17 +90,33 @@ public class StorageConfigRuntimeCollectionTest {
             StorageServiceOperationVO committed=new StorageServiceOperationVO();committed.setInstanceId(7);committed.setState("COMPLETE");committed.setRevision(6);
             readOnly.setInstanceId(7);readOnly.setCreatedBy(2);readOnly.setRevision(7);readOnly.setAction("CONFIGURATION_BACKUP_READ_ONLY");readOnly.setState("RECOVERY_REQUIRED");
             org.apache.cloudstack.storage.dataservice.StorageOperationHistoryFixtures.rows(operations,7L,java.util.List.of(committed,readOnly));
+            org.mockito.Mockito.when(artifacts.listByInstance(7L)).thenAnswer(call->activePoint==null?java.util.List.of():java.util.List.of(activePoint));
             StorageServiceManagerImpl manager=new StorageServiceManagerImpl() {
                 @Override protected void requireConfigurationAdministrator() { }
                 @Override protected StorageServiceInstanceVO requireInstance(Long id) {Assert.assertEquals(Long.valueOf(7),id);return instance;}
-                @Override protected boolean managedReadOnlyBackup(StorageServiceInstanceVO value,StorageConfigRequest source) {return false;}
+                @Override protected boolean managedReadOnlyBackup(StorageServiceInstanceVO value,StorageConfigRequest source) {return managedBackup;}
+                @Override protected <T> T executeReadOnlyConfigurationBackup(StorageServiceInstanceVO value,StorageConfigRequest source,
+                        Class<T> responseClass,java.util.function.Supplier<T> collect) {
+                    admittedCalls++;throw new com.cloud.utils.exception.CloudRuntimeException("known managed operation requires its own recovery");
+                }
                 @Override protected String captureConfigurationSnapshot(long id) {return "{\"schemaVersion\":2,\"instanceId\":7,\"tables\":[]}";}
                 @Override protected JsonObject configurationInstanceMetadata(StorageServiceInstanceVO value) {
                     JsonObject result=new JsonObject();result.addProperty("uuid",instance.getUuid());result.addProperty("productVersion","4.23.0");return result;
                 }
                 @Override protected java.util.Map<Long,JsonObject> configurationVolumeMetadata(String source) {return java.util.Map.of();}
+                @Override protected JsonObject configurationBackupAvailability(StorageServiceInstanceVO value) {
+                    admissionCalls++;JsonObject result=new JsonObject();result.addProperty("sourceNativeVerified",!admissionUnavailable);
+                    result.addProperty("reason",admissionUnavailable?"NATIVE_OBSERVATION_UNAVAILABLE":"VERIFIED_NATIVE_SOURCE");
+                    JsonObject status=StorageConfigRuntimeEvidenceTest.status(instance.getUuid(),"22222222-2222-4222-8222-222222222222",6);
+                    // A real native generation retains its verifiedAt between read-only status calls.
+                    status.getAsJsonObject("generation").addProperty("verifiedAt",1000);
+                    JsonObject projected=StorageConfigRuntimeEvidence.generation(status,instance.getUuid(),"22222222-2222-4222-8222-222222222222",6);
+                    if(admissionChanged&&admissionCalls>1)projected.addProperty("bootId","44444444-4444-4444-8444-444444444444");
+                    result.add("nativeStatus",projected);return result;
+                }
                 @Override protected JsonObject observeConfigurationRuntime(StorageServiceInstanceVO value,String command) {
-                    JsonObject result=new JsonObject();result.addProperty("success",true);result.addProperty("status","ok");return result;
+                    JsonObject result=new JsonObject();result.addProperty("success",!runtimeUnavailable);
+                    result.addProperty("status",runtimeUnavailable?"UNAVAILABLE":runtimeDegraded?"degraded":"ok");return result;
                 }
             };
             configuration=new StorageServiceConfiguration(manager,artifacts,operations,store);
@@ -138,7 +155,8 @@ public class StorageConfigRuntimeCollectionTest {
 
         @Override public void close() throws Exception {
             locks.close();transactions.close();org.apache.cloudstack.context.CallContext.unregister();
-            if(database.get()!=null)store.remove(database.get().getUuid());java.nio.file.Files.delete(directory);
+            if(database.get()!=null)store.remove(database.get().getUuid());
+            if(activePoint!=null)store.remove(activePoint.getUuid());java.nio.file.Files.delete(directory);
         }
     }
 
@@ -211,4 +229,93 @@ public class StorageConfigRuntimeCollectionTest {
             Assert.assertNotEquals("COMPLETE",fixture.database.get().getState());Assert.assertNull(fixture.database.get().getSha256());
         }
     }
+
+    @Test public void unavailableBackupIncludesOnlyBoundHistoricalCacheAndNeverClaimsRuntimeSuccess() throws Exception {
+        try (BackupFixture fixture=new BackupFixture()) {
+            long now=System.currentTimeMillis();String operation="22222222-2222-4222-8222-222222222222";
+            java.util.Map<String,byte[]> cached=new java.util.LinkedHashMap<>(StorageConfigSemantic.export(fixture.snapshot(),
+                    new JsonObject(),java.util.Map.of()));
+            JsonObject observation=new JsonObject();observation.addProperty("success",true);observation.addProperty("status","ok");
+            observation.addProperty("generatedEpoch",now/1000.0);observation.addProperty("password","must-be-redacted");
+            byte[] safe=StorageConfigSemantic.redact(observation).toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            cached.put("runtime/health.json",safe);cached.put("runtime/inventory.json",safe);
+            JsonObject nativeStatus=StorageConfigRuntimeEvidenceTest.status(fixture.instance.getUuid(),operation,6);
+            JsonObject evidence=StorageConfigRuntimeEvidence.create(fixture.instance.getUuid(),operation,6,fixture.snapshot(),nativeStatus,nativeStatus,cached,now);
+            JsonObject metadata=new JsonObject();metadata.addProperty("operationUuid",operation);metadata.add("runtimeEvidence",evidence);
+            byte[] archive=StorageConfigArchive.create(cached,metadata);
+            fixture.activePoint=new StorageConfigArtifactVO();fixture.activePoint.setInstanceId(7);fixture.activePoint.setKind("RESTORE_POINT");
+            fixture.activePoint.setState("ACTIVE_LKG");fixture.activePoint.setDesiredRevision(6);fixture.activePoint.setMetadataJson(metadata.toString());
+            fixture.activePoint.setSha256(StorageConfigArchive.sha256(archive));fixture.activePoint.setSize(archive.length);
+            fixture.store.write(fixture.activePoint.getUuid(),archive);fixture.runtimeUnavailable=true;
+            fixture.produce();StorageConfigArtifactVO backup=fixture.database.get();
+            Assert.assertEquals("PARTIAL",backup.getState());
+            JsonObject result=new com.google.gson.JsonParser().parse(backup.getMetadataJson()).getAsJsonObject();
+            Assert.assertEquals("STALE",result.get("runtimeStatus").getAsString());
+            java.util.Map<String,byte[]> exported=StorageConfigArchive.validate(fixture.store.read(backup.getUuid(),backup.getSha256()));
+            JsonObject health=StorageConfigArchive.json(exported.get("runtime/health.json")).getAsJsonObject();
+            Assert.assertFalse(health.get("success").getAsBoolean());Assert.assertEquals("STALE",health.get("status").getAsString());
+            Assert.assertEquals(fixture.activePoint.getUuid(),health.get("sourceArtifactUuid").getAsString());
+            Assert.assertEquals(now,health.get("observedAtMillis").getAsLong());Assert.assertEquals(6,health.get("desiredRevision").getAsLong());
+            Assert.assertFalse(health.getAsJsonObject("currentObservation").get("success").getAsBoolean());
+            Assert.assertFalse(new String(exported.get("runtime/health.json"),java.nio.charset.StandardCharsets.UTF_8).contains("must-be-redacted"));
+            Assert.assertEquals("UNAVAILABLE",StorageConfigArchive.json(exported.get("runtime/sessions.json")).getAsJsonObject().get("status").getAsString());
+            Assert.assertEquals("ACTIVE_LKG",fixture.activePoint.getState());
+        }
+    }
+
+    @Test public void legacyMissingOrCorruptCacheNeverInventsSuccessfulObservation() throws Exception {
+        for(int mode=0;mode<3;mode++)try(BackupFixture fixture=new BackupFixture()) {
+            fixture.runtimeUnavailable=true;
+            if(mode>0) {
+                fixture.activePoint=new StorageConfigArtifactVO();fixture.activePoint.setInstanceId(7);fixture.activePoint.setKind("RESTORE_POINT");
+                fixture.activePoint.setState("ACTIVE_LKG");fixture.activePoint.setDesiredRevision(6);
+                fixture.activePoint.setMetadataJson(mode==1?"{}":"{\"runtimeEvidence\":{}}");
+            }
+            fixture.produce();JsonObject result=new com.google.gson.JsonParser().parse(fixture.database.get().getMetadataJson()).getAsJsonObject();
+            Assert.assertEquals("UNAVAILABLE",result.get("runtimeStatus").getAsString());
+            Assert.assertEquals("PARTIAL",fixture.database.get().getState());
+        }
+    }
+
+    @Test public void degradedCurrentRuntimeCannotProduceCompleteBackup() throws Exception {
+        try(BackupFixture fixture=new BackupFixture()) {
+            fixture.runtimeDegraded=true;fixture.produce();
+            Assert.assertEquals("PARTIAL",fixture.database.get().getState());
+            JsonObject metadata=new com.google.gson.JsonParser().parse(fixture.database.get().getMetadataJson()).getAsJsonObject();
+            Assert.assertEquals("UNAVAILABLE",metadata.get("runtimeStatus").getAsString());
+            JsonObject health=StorageConfigArchive.json(StorageConfigArchive.validate(fixture.store.read(fixture.database.get().getUuid(),
+                    fixture.database.get().getSha256())).get("runtime/health.json")).getAsJsonObject();
+            Assert.assertFalse(health.get("success").getAsBoolean());Assert.assertEquals("degraded",health.get("status").getAsString());
+        }
+    }
+
+    @Test public void offlineBackupNeverAdmitsManagedWriterAndKeepsDesiredArchiveAvailable() throws Exception {
+        try(BackupFixture fixture=new BackupFixture()) {
+            fixture.admissionUnavailable=true;fixture.managedBackup=true;fixture.produce();
+            Assert.assertEquals("PARTIAL",fixture.database.get().getState());
+            JsonObject metadata=new com.google.gson.JsonParser().parse(fixture.database.get().getMetadataJson()).getAsJsonObject();
+            Assert.assertFalse(metadata.get("sourceNativeVerified").getAsBoolean());Assert.assertTrue(metadata.get("runtimeRevision").isJsonNull());
+            Assert.assertEquals("UNAVAILABLE",metadata.get("driftStatus").getAsString());Assert.assertEquals(1,fixture.admissionCalls);Assert.assertEquals(0,fixture.admittedCalls);
+            Assert.assertNotNull(StorageConfigArchive.validate(fixture.store.read(fixture.database.get().getUuid(),fixture.database.get().getSha256())).get("desired/instance.json"));
+        }
+    }
+    @Test public void generationChangeDuringBackupIsPartialDiagnosticAndCannotClaimCurrentRevision() throws Exception {
+        try(BackupFixture fixture=new BackupFixture()) {
+            fixture.admissionChanged=true;fixture.produce();
+            JsonObject metadata=new com.google.gson.JsonParser().parse(fixture.database.get().getMetadataJson()).getAsJsonObject();
+            Assert.assertEquals("PARTIAL",fixture.database.get().getState());Assert.assertEquals("PARTIAL",metadata.get("runtimeStatus").getAsString());
+            Assert.assertEquals("DRIFTED",metadata.get("driftStatus").getAsString());Assert.assertEquals("CONFIG_CHANGED",metadata.get("runtimeObservationErrorCode").getAsString());
+            Assert.assertFalse(metadata.get("sourceNativeVerified").getAsBoolean());Assert.assertTrue(metadata.get("runtimeRevision").isJsonNull());
+        }
+    }
+
+    @Test public void admittedManagedFailureNeverFallsBackToSecondArtifactOrAnotherWriter() throws Exception {
+        try(BackupFixture fixture=new BackupFixture()) {
+            fixture.managedBackup=true;Assert.assertThrows(RuntimeException.class,fixture::produce);
+            Assert.assertEquals(1,fixture.admittedCalls);Assert.assertEquals(1,fixture.admissionCalls);
+            Assert.assertNull(fixture.database.get());
+            org.mockito.Mockito.verify(fixture.artifacts,org.mockito.Mockito.never()).persist(org.mockito.ArgumentMatchers.any());
+        }
+    }
+
 }

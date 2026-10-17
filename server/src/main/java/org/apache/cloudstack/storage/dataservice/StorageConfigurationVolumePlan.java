@@ -88,12 +88,22 @@ public final class StorageConfigurationVolumePlan {
                 }
             }
         }
+        require(!"BLOCK_RAW".equals(usage.get(initial)), "A raw block consumer cannot be the file-backed initial SharedFS DATA");
+        String initialFilesystem = text(blueprint, "filesystem").toUpperCase(java.util.Locale.ROOT);
+        require(Set.of("XFS", "EXT4").contains(initialFilesystem), "Initial SharedFS filesystem must be explicit");
+        require(!filesystems.containsKey(initial) || initialFilesystem.equals(filesystems.get(initial)), "Initial SharedFS filesystem differs from its FILE consumers");
+        Set<String> unused = new HashSet<>();
+        for (String source : sources.keySet()) if (!usage.containsKey(source)) {
+            unused.add(source);usage.put(source, initial.equals(source) ? "FILE" : "BLOCK_RAW");
+            if (initial.equals(source)) filesystems.put(source, initialFilesystem);
+        }
         JsonObject bindings = new JsonObject();JsonArray allocations = new JsonArray();Set<String> targets = new HashSet<>();
         for (Map.Entry<String, JsonObject> item : sources.entrySet()) {
             String sourceUuid = item.getKey();JsonObject source = item.getValue();String target = text(volumes, sourceUuid);
             require(usage.containsKey(sourceUuid), "DATA has no supported clone consumer");
             JsonObject allocation = scope.deepCopy();allocation.addProperty("sourceUuid", sourceUuid);
             allocation.addProperty("sourceSizeBytes", number(source, "size"));allocation.addProperty("usage", usage.get(sourceUuid));
+            if (unused.contains(sourceUuid)) allocation.addProperty("consumerState", "UNUSED");
             allocation.addProperty("dataPolicy", "PRESERVE");allocation.addProperty("initial", initial.equals(sourceUuid));
             String filesystem = filesystems.get(sourceUuid);
             if ("FILE".equals(usage.get(sourceUuid))) {

@@ -440,6 +440,151 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     @Override
+    public Pair<Long, Long> deployWithExistingVolume(SharedFS sharedFS, Long networkId, Long volumeId,
+            Long templateId, java.util.function.LongConsumer allocatedRecorder)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        if (templateId == null || allocatedRecorder == null || volumeId == null
+                || sharedFS.getBackingVolumeMode() != SharedFS.BackingVolumeMode.EXISTING
+                || !java.util.Objects.equals(sharedFS.getVolumeId(), volumeId))
+            throw new InvalidParameterValueException("Recorded existing DATA requires its pinned template, recorder and reserved volume");
+        VMTemplateVO template = templateDao.findById(templateId);
+        if (template == null || template.getRemoved() != null
+                || template.getTemplateType() != com.cloud.storage.Storage.TemplateType.SYSTEM
+                || template.getState() != com.cloud.template.VirtualMachineTemplate.State.Active
+                || !template.isDynamicallyScalable() || template.getHypervisorType() != Hypervisor.HypervisorType.KVM)
+            throw new InvalidParameterValueException("Recorded existing DATA requires an active scalable SYSTEM KVM template");
+        Map<String, Object> original = recordedExistingData(sharedFS, volumeId, sharedFS.getVmId());
+        java.util.concurrent.atomic.AtomicReference<Map<String, Object>> originalRootNic = new java.util.concurrent.atomic.AtomicReference<>();
+        UserVm vm;
+        if (sharedFS.getVmId() == null) {
+            Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
+            vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(),
+                    sharedFS.getServiceOfferingId(), null, sharedFS.getFsType(), null, null, null,
+                    sharedFS.getNetworkMode(), sharedFS.getIpAddress(), templateId, allocatedVmId -> {
+                        requireRecordedExistingVm(sharedFS, networkId, templateId, allocatedVmId, volumeId, original);
+                        if (!volumeDao.findByInstanceAndType(allocatedVmId, Volume.Type.DATADISK).isEmpty())
+                            throw new CloudRuntimeException("Existing DATA must remain disconnected through its first ROOT allocation");
+                        originalRootNic.set(recordedExistingRootNic(allocatedVmId));
+                        allocatedRecorder.accept(allocatedVmId);
+                        requireRecordedExistingBinding(sharedFS, allocatedVmId, volumeId);
+                    });
+            // The shared allocation transaction committed before the common ROOT-only first start.
+        } else {
+            UserVmVO retained = requireRecordedExistingVm(sharedFS, networkId, templateId, sharedFS.getVmId(), volumeId, original);
+            // The caller validates RESERVED versus ATTACHED and the original immutable ROOT/NIC receipt.
+            originalRootNic.set(recordedExistingRootNic(retained.getId()));
+            allocatedRecorder.accept(retained.getId());
+            requireRecordedExistingBinding(sharedFS, retained.getId(), volumeId);
+            if (retained.getState() == com.cloud.vm.VirtualMachine.State.Stopped)
+                userVmService.startVirtualMachine(retained, null);
+            vm = retained;
+        }
+        UserVmVO running = requireRecordedExistingVm(sharedFS, networkId, templateId, vm.getId(), volumeId, original);
+        requireRecordedExistingBinding(sharedFS, running.getId(), volumeId);
+        if (!java.util.Objects.equals(originalRootNic.get(), recordedExistingRootNic(running.getId())))
+            throw new CloudRuntimeException("Recorded ROOT or NIC changed before existing DATA attachment");
+        if (running.getState() != com.cloud.vm.VirtualMachine.State.Running)
+            throw new CloudRuntimeException("Existing DATA attachment requires the confirmed ROOT-only first start");
+        VolumeVO selected = volumeDao.findById(volumeId);
+        if (selected.getInstanceId() == null) {
+            // This job may wait for VMWork. It must never run inside the allocation transaction.
+            Volume attached = volumeApiService.attachVolumeToVM(running.getId(), volumeId, null, true);
+            if (attached == null || attached.getId() != volumeId
+                    || !java.util.Objects.equals(attached.getInstanceId(), running.getId()))
+                throw new CloudRuntimeException("Recorded existing attachment is unresolved; observe the same VM and DATA");
+        }
+        requireRecordedExistingVm(sharedFS, networkId, templateId, running.getId(), volumeId, original);
+        List<VolumeVO> data = volumeDao.findByInstanceAndType(running.getId(), Volume.Type.DATADISK);
+        if (data.size() != 1 || data.get(0).getId() != volumeId
+                || !java.util.Objects.equals(data.get(0).getInstanceId(), running.getId()))
+            throw new CloudRuntimeException("Recorded existing attachment identity was not confirmed");
+        if (!java.util.Objects.equals(originalRootNic.get(), recordedExistingRootNic(running.getId())))
+            throw new CloudRuntimeException("Recorded ROOT or NIC changed during existing DATA attachment");
+        allocatedRecorder.accept(running.getId());
+        requireRecordedExistingBinding(sharedFS, running.getId(), volumeId);
+        // Preserve the existing DATA name/path and never expunge on a recorded failure.
+        return new Pair<>(volumeId, running.getId());
+    }
+
+    private Map<String, Object> recordedExistingRootNic(long vmId) {
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vmId, Volume.Type.ROOT);
+        List<com.cloud.vm.NicVO> nics = nicDao.listByVmId(vmId);
+        if (roots.size() != 1 || nics.size() != 1)
+            throw new CloudRuntimeException("Recorded ROOT or NIC set changed");
+        VolumeVO root = roots.get(0);com.cloud.vm.NicVO nic = nics.get(0);
+        Map<String, Object> identity = new java.util.LinkedHashMap<>();
+        identity.put("rootId", root.getId());identity.put("rootUuid", root.getUuid());
+        identity.put("rootSize", root.getSize());identity.put("rootOfferingId", root.getDiskOfferingId());
+        identity.put("rootTemplateId", root.getTemplateId());identity.put("rootProvisioningType", root.getProvisioningType());
+        identity.put("nicId", nic.getId());identity.put("nicUuid", nic.getUuid());
+        identity.put("networkId", nic.getNetworkId());identity.put("macAddress", nic.getMacAddress());
+        identity.put("deviceId", nic.getDeviceId());identity.put("defaultNic", nic.isDefaultNic());
+        // Ready RBD ROOT format and a Direct NIC's initially unassigned IP can change during first start.
+        // The caller owns their separate immutable allocation/realization policy.
+        return identity;
+    }
+
+    private void requireRecordedExistingBinding(SharedFS sharedFS, long vmId, long volumeId) {
+        if (!java.util.Objects.equals(sharedFS.getVmId(), vmId)
+                || !java.util.Objects.equals(sharedFS.getVolumeId(), volumeId))
+            throw new CloudRuntimeException("Recorded existing SharedFS VM or DATA reservation changed");
+    }
+
+    private UserVmVO requireRecordedExistingVm(SharedFS sharedFS, long networkId, long templateId, long vmId,
+            long volumeId, Map<String, Object> original) {
+        UserVmVO vm = userVmDao.findById(vmId);
+        if (vm == null || vm.getRemoved() != null || vm.getAccountId() != sharedFS.getAccountId()
+                || vm.getDataCenterId() != sharedFS.getDataCenterId() || vm.getTemplateId() != templateId
+                || !UserVmManager.SHAREDFSVM.equals(vm.getUserVmType()) || vm.getState() == null
+                || !java.util.Set.of(com.cloud.vm.VirtualMachine.State.Stopped, com.cloud.vm.VirtualMachine.State.Running).contains(vm.getState()))
+            throw new CloudRuntimeException("Recorded existing VM ownership template or state changed");
+        List<VolumeVO> roots = volumeDao.findByInstanceAndType(vmId, Volume.Type.ROOT);
+        List<VolumeVO> data = volumeDao.findByInstanceAndType(vmId, Volume.Type.DATADISK);
+        List<com.cloud.vm.NicVO> nics = nicDao.listByVmId(vmId);
+        if (roots.size() != 1 || data.size() > 1 || data.size() == 1 && data.get(0).getId() != volumeId
+                || nics.size() != 1 || nics.get(0).getNetworkId() != networkId || !nics.get(0).isDefaultNic())
+            throw new CloudRuntimeException("Recorded existing VM ROOT DATA or NIC set changed");
+        requireRetainedDisk(roots.get(0), vm, true, null);
+        if (!original.equals(recordedExistingData(sharedFS, volumeId, vmId)))
+            throw new CloudRuntimeException("Recorded existing DATA identity or placement changed");
+        VolumeVO selected = volumeDao.findById(volumeId);
+        if (data.isEmpty() != (selected.getInstanceId() == null))
+            throw new CloudRuntimeException("Recorded existing DATA attachment observation is inconsistent");
+        return vm;
+    }
+
+    private Map<String, Object> recordedExistingData(SharedFS sharedFS, long volumeId, Long allowedVmId) {
+        VolumeVO volume = volumeDao.findById(volumeId);
+        if (volume == null || volume.getRemoved() != null || volume.getId() != volumeId
+                || volume.getVolumeType() != Volume.Type.DATADISK || volume.getState() != Volume.State.Ready
+                || volume.getAccountId() != sharedFS.getAccountId() || volume.getDomainId() != sharedFS.getDomainId()
+                || volume.getDataCenterId() != sharedFS.getDataCenterId()
+                || volume.getInstanceId() != null && !java.util.Objects.equals(volume.getInstanceId(), allowedVmId)
+                || volume.getPoolId() == null || volume.getSize() == null || volume.getSize() <= 0
+                || org.apache.commons.lang3.StringUtils.isBlank(volume.getUuid())
+                || org.apache.commons.lang3.StringUtils.isBlank(volume.getPath()) || volume.getTemplateId() != null
+                || org.apache.commons.lang3.StringUtils.isNotBlank(volume.getChainInfo())
+                || volume.getProvisioningType() == null || !java.util.Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE,
+                        com.cloud.storage.Storage.ProvisioningType.FAT).contains(volume.getProvisioningType()))
+            throw new CloudRuntimeException("Recorded existing DATA is not the exact Ready owned unbacked SPARSE volume");
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = recordedStoragePoolDao.findById(volume.getPoolId());
+        if (pool == null || pool.getDataCenterId() != sharedFS.getDataCenterId() || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up
+                || pool.getPoolType() == null || !java.util.Set.of(com.cloud.storage.Storage.StoragePoolType.Filesystem,
+                        com.cloud.storage.Storage.StoragePoolType.NetworkFilesystem, com.cloud.storage.Storage.StoragePoolType.SharedMountPoint,
+                        com.cloud.storage.Storage.StoragePoolType.RBD).contains(pool.getPoolType())
+                || volume.getFormat() != com.cloud.storage.Storage.ImageFormat.QCOW2
+                        && !(volume.getFormat() == com.cloud.storage.Storage.ImageFormat.RAW && pool.getPoolType() == com.cloud.storage.Storage.StoragePoolType.RBD))
+            throw new CloudRuntimeException("Recorded existing DATA image or pool changed");
+        Map<String, Object> identity = new java.util.LinkedHashMap<>();
+        identity.put("id", volume.getId());identity.put("uuid", volume.getUuid());identity.put("name", volume.getName());
+        identity.put("accountId", volume.getAccountId());identity.put("domainId", volume.getDomainId());
+        identity.put("zoneId", volume.getDataCenterId());identity.put("poolId", volume.getPoolId());identity.put("path", volume.getPath());
+        identity.put("sizeBytes", volume.getSize());identity.put("offeringId", volume.getDiskOfferingId());
+        identity.put("provisioningType", volume.getProvisioningType());identity.put("imageFormat", volume.getFormat());
+        return identity;
+    }
+
+    @Override
     public void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException {
         UserVmVO vm = userVmDao.findById(sharedFS.getVmId());
         userVmService.startVirtualMachine(vm, null);

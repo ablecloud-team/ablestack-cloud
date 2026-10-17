@@ -69,15 +69,18 @@ public final class StorageServiceConfiguration {
         }
         if ("APPLY".equals(request.getConfigAction())) return apply(instance, request);
         if ("RESTORE_LKG".equals(request.getConfigAction())) return apply(instance, lastKnownGoodRequest(instance, request));
-        if ("BACKUP".equals(request.getConfigAction()) && manager.managedReadOnlyBackup(instance,request))
-            return manager.executeReadOnlyConfigurationBackup(instance,request,StorageServiceConfigArtifactResponse.class,()->backup(instance,request));
+        final JsonObject backupAdmission = "BACKUP".equals(request.getConfigAction()) && !Boolean.FALSE.equals(request.getIncludeRuntime())
+                ? manager.configurationBackupAvailability(instance) : null;
+        if ("BACKUP".equals(request.getConfigAction()) && manager.managedReadOnlyBackup(instance,request)
+                && backupAdmission != null && Boolean.TRUE.equals(backupAdmission.get("sourceNativeVerified").getAsBoolean()))
+            return manager.executeReadOnlyConfigurationBackup(instance,request,StorageServiceConfigArtifactResponse.class,()->backup(instance,request,backupAdmission));
         GlobalLock lock = GlobalLock.getInternLock("StorageServiceWriter-" + instance.getId());
         try {
             if (!lock.lock(120)) throw new CloudRuntimeException("Storage Service writer is busy");
             try {
                 cleanupExpired(instance);
                 switch (request.getConfigAction()) {
-                    case "BACKUP": return backup(instance, request);
+                    case "BACKUP": return backup(instance, request, backupAdmission);
                     case "UPLOAD": return upload(instance, request);
                     case "VALIDATE": return validate(instance, request);
                     case "DOWNLOAD": return download(instance, request);
@@ -141,7 +144,7 @@ public final class StorageServiceConfiguration {
     private JsonObject publicRow(StorageConfigArtifactVO row) {
         JsonObject result = new JsonObject();result.addProperty("id", row.getUuid());result.addProperty("kind", row.getKind());
         result.addProperty("state", row.getExpires() != null && row.getExpires().before(new Date()) && !"ACTIVE_LKG".equals(row.getState()) ? "EXPIRED" : row.getState());result.addProperty("desiredRevision", row.getDesiredRevision());result.addProperty("size", row.getSize());
-        result.addProperty("sha256", row.getSha256());result.addProperty("created", row.getCreated().getTime());
+        result.addProperty("sha256", row.getSha256());result.addProperty("created", row.getCreated().getTime());result.addProperty("createdBy", row.getCreatedBy());
         if (row.getExpires() != null) result.addProperty("expires", row.getExpires().getTime());
         JsonObject metadata = metadata(row);metadata.remove("downloadToken");metadata.remove("planToken");metadata.remove("adIdentityCipherReference");metadata.remove("adIdentitySourceUsages");
         result.add("metadata", metadata);return result;
@@ -211,6 +214,10 @@ public final class StorageServiceConfiguration {
                 manager.configurationInstanceMetadata(instance).get("productVersion").getAsString());
     }
     private StorageServiceConfigArtifactResponse backup(StorageServiceInstanceVO instance, StorageConfigRequest request) {
+        return backup(instance, request, null);
+    }
+
+    private StorageServiceConfigArtifactResponse backup(StorageServiceInstanceVO instance, StorageConfigRequest request, JsonObject admission) {
         if(Boolean.TRUE.equals(request.getIncludeAdIdentity())){
             if(!Boolean.TRUE.equals(request.getMaintenanceWindow())||!instance.getName().equals(request.getConfirmation()))throw new InvalidParameterValueException("Protected identity backup requires approved SERVICE interruption and the exact instance name");
             JsonObject source=manager.requiredAdServiceSourceIdentity(instance);
@@ -223,7 +230,7 @@ public final class StorageServiceConfiguration {
         try {
             long before = revision(instance.getId());String snapshot = manager.captureConfigurationSnapshot(instance.getId());
             JsonObject service = manager.configurationInstanceMetadata(instance);
-            Map<String, byte[]> entries = new LinkedHashMap<>(StorageConfigSemantic.export(snapshot, service, manager.configurationVolumeMetadata(snapshot)));
+            Map<String, byte[]> entries = new LinkedHashMap<>(StorageConfigSemantic.export(snapshot, service, manager.configurationVolumeMetadata(instance, snapshot)));
             JsonArray required = requiredCredentials(entries);
             if(Boolean.TRUE.equals(request.getIncludeAdIdentity())){
                 JsonObject reference=manager.retainAdSemanticSource(instance,row.getUuid()),descriptor=StorageAdSemanticSource.validateDescriptor(reference.getAsJsonObject("descriptor"));
@@ -234,14 +241,30 @@ public final class StorageServiceConfiguration {
             metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("desiredRevision", before);
             metadata.addProperty("createdAt", System.currentTimeMillis());metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
             metadata.add("requiredCredentials", required);JsonObject collectors = new JsonObject();
+            if (admission != null) {
+                metadata.addProperty("sourceNativeVerified", admission.get("sourceNativeVerified").getAsBoolean());
+                metadata.add("runtimeAdmission", admission.deepCopy());
+            }
             boolean includeRuntime = !Boolean.FALSE.equals(request.getIncludeRuntime());
             if (includeRuntime) {
                 for (String command : new String[] {"inventory", "health", "sessions"}) {
                     metadata.addProperty("phase", "COLLECTING_" + command.toUpperCase(java.util.Locale.ROOT));update(row, metadata, "CREATING");
-                    JsonObject observed = manager.observeConfigurationRuntime(instance, command);
+                    JsonObject observed;
+                    if (admission != null && !admission.get("sourceNativeVerified").getAsBoolean()) {
+                        observed = new JsonObject();observed.addProperty("success", false);observed.addProperty("status", "UNAVAILABLE");
+                        observed.addProperty("reason", admission.get("reason").getAsString());
+                    } else observed = manager.observeConfigurationRuntime(instance, command);
+                    if (!verifiedRuntimeCollector(observed)) {
+                        JsonObject diagnostic = observed.deepCopy();observed = observed.deepCopy();observed.addProperty("success", false);
+                        observed = cachedConfigurationRuntime(instance, command, observed);
+                        if ("STALE".equals(observed.has("status") ? observed.get("status").getAsString() : null))
+                            observed.add("currentObservation", diagnostic);
+                    }
                     JsonObject collector = new JsonObject();
                     collector.addProperty("success", observed.has("success") && observed.get("success").getAsBoolean());
                     collector.addProperty("status", observed.has("status") ? observed.get("status").getAsString() : "UNKNOWN");
+                    for (String field : new String[] {"source", "sourceArtifactUuid", "observedAtMillis", "desiredRevision", "cacheErrorCode"})
+                        if (observed.has(field)) collector.add(field, observed.get(field).deepCopy());
                     collectors.add(command, collector);
                     entries.put("runtime/" + command + ".json", observed.toString().getBytes(StandardCharsets.UTF_8));
                 }
@@ -250,6 +273,25 @@ public final class StorageServiceConfiguration {
                 throw new CloudRuntimeException("Configuration changed while collecting backup");
             }
             String runtimeStatus = runtimeCollectionStatus(includeRuntime, collectors);
+            metadata.add("runtimeRevision", com.google.gson.JsonNull.INSTANCE);
+            String driftStatus = "STALE".equals(runtimeStatus) ? "STALE" : "UNAVAILABLE";
+            if (includeRuntime && admission != null && admission.get("sourceNativeVerified").getAsBoolean()) {
+                JsonObject after = manager.configurationBackupAvailability(instance);
+                metadata.add("runtimeAfter", after.deepCopy());
+                if (after.get("sourceNativeVerified").getAsBoolean()
+                        && admission.get("nativeStatus").equals(after.get("nativeStatus"))) {
+                    long runtimeRevision = after.getAsJsonObject("nativeStatus").get("runtimeRevision").getAsLong();
+                    metadata.addProperty("runtimeRevision", runtimeRevision);
+                    boolean unhealthy = collectors.entrySet().stream().anyMatch(entry ->
+                            java.util.Set.of("degraded", "error").contains(entry.getValue().getAsJsonObject().get("status").getAsString().toLowerCase(java.util.Locale.ROOT)));
+                    driftStatus = "STALE".equals(runtimeStatus) ? "STALE" : "UNAVAILABLE".equals(runtimeStatus) && !unhealthy ? "UNAVAILABLE"
+                            : before == runtimeRevision && "AVAILABLE".equals(runtimeStatus) ? "IN_SYNC" : "DRIFTED";
+                } else {
+                    metadata.addProperty("runtimeObservationErrorCode", "CONFIG_CHANGED");
+                    metadata.addProperty("sourceNativeVerified", false);runtimeStatus = "PARTIAL";driftStatus = "DRIFTED";
+                }
+            }
+            metadata.addProperty("driftStatus", driftStatus);
             metadata.addProperty("runtimeStatus", runtimeStatus);metadata.add("runtimeCollectors", collectors);metadata.addProperty("phase", "COMPLETE");
             versionMetadata(metadata, instance);
             JsonObject publicManifest=metadata.deepCopy();publicManifest.remove("adIdentityCipherReference");
@@ -381,11 +423,43 @@ public final class StorageServiceConfiguration {
                 || !artifact.getSha256().equals(StorageConfigArchive.sha256(store.read(artifact.getUuid(),artifact.getSha256()))))
             throw new CloudRuntimeException("Read-only backup artifact is not its exact completed SOURCE archive");
     }
+    private JsonObject cachedConfigurationRuntime(StorageServiceInstanceVO instance, String command, JsonObject unavailable) {
+        StorageConfigArtifactVO point = artifacts.listByInstance(instance.getId()).stream()
+                .filter(value -> "RESTORE_POINT".equals(value.getKind()) && "ACTIVE_LKG".equals(value.getState()))
+                .findFirst().orElse(null);
+        if (point == null) return unavailable;
+        try {
+            JsonObject pointMetadata = metadata(point);
+            if (!pointMetadata.has("runtimeEvidence")) return unavailable;
+            Map<String, byte[]> archive = StorageConfigArchive.validate(store.read(point.getUuid(), point.getSha256()));
+            JsonObject evidence = pointMetadata.getAsJsonObject("runtimeEvidence");
+            JsonObject manifest = StorageConfigArchive.json(archive.get("manifest.json")).getAsJsonObject();
+            if (!manifest.has("runtimeEvidence") || !evidence.equals(manifest.get("runtimeEvidence")))
+                throw new CloudRuntimeException("Stored runtime evidence differs from its immutable archive");
+            StorageConfigRuntimeEvidence.requireStored(evidence, instance.getUuid(), pointMetadata.get("operationUuid").getAsString(),
+                    point.getDesiredRevision(), archive);
+            JsonObject stale = StorageConfigRuntimeEvidence.stale(command, point.getUuid(), evidence, archive);
+            return stale == null ? unavailable : stale;
+        } catch (RuntimeException invalid) {
+            JsonObject result = unavailable.deepCopy();result.addProperty("cacheErrorCode", "VERIFIED_RUNTIME_CACHE_UNAVAILABLE");return result;
+        }
+    }
+
+    private static boolean verifiedRuntimeCollector(JsonObject value) {
+        return value != null && value.has("success") && value.get("success").isJsonPrimitive()
+                && value.get("success").getAsJsonPrimitive().isBoolean() && value.get("success").getAsBoolean()
+                && value.has("status") && value.get("status").isJsonPrimitive()
+                && value.get("status").getAsJsonPrimitive().isString() && "ok".equalsIgnoreCase(value.get("status").getAsString());
+    }
+
     static String runtimeCollectionStatus(boolean requested, JsonObject collectors) {
         if (!requested) return "NOT_REQUESTED";
         long successful = collectors.entrySet().stream().filter(entry -> entry.getValue().getAsJsonObject().has("success")
+                && entry.getValue().getAsJsonObject().get("success").isJsonPrimitive()
+                && entry.getValue().getAsJsonObject().get("success").getAsJsonPrimitive().isBoolean()
                 && entry.getValue().getAsJsonObject().get("success").getAsBoolean()).count();
-        if (successful == 0) return "UNAVAILABLE";
+        if (successful == 0) return collectors.entrySet().stream().anyMatch(entry ->
+                entry.getValue().getAsJsonObject().has("status") && "STALE".equals(entry.getValue().getAsJsonObject().get("status").getAsString())) ? "STALE" : "UNAVAILABLE";
         return collectors.size() == 3 && successful == 3 ? "AVAILABLE" : "PARTIAL";
     }
 
@@ -511,7 +585,7 @@ public final class StorageServiceConfiguration {
         JsonObject mappings = request.getMapping() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getMapping()).getAsJsonObject();
         String mode = request.getTargetMode() == null ? "RESTORE_EXISTING" : request.getTargetMode();
         String snapshot = manager.captureConfigurationSnapshot(target.getId());
-        Map<String, byte[]> current = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(target), manager.configurationVolumeMetadata(snapshot));
+        Map<String, byte[]> current = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(target), manager.configurationVolumeMetadata(target, snapshot));
         long revision = revision(target.getId());String targetUuid = target.getUuid();JsonObject blueprint = null;
         JsonObject allocationPlan = null;JsonObject cloneTemplatePin = null;JsonObject recoveredTemplateReview = null;
         JsonObject metadata = metadata(row);
@@ -577,7 +651,11 @@ public final class StorageServiceConfiguration {
             }
             current.put("desired/volumes.json", volumes.toString().getBytes(StandardCharsets.UTF_8));
         }
-        JsonObject plan = StorageConfigRestorePlan.build(archive, current, mappings, mode, targetUuid, revision);
+        boolean mapsPrimary = mappings.has("listenerAddresses") && mappings.get("listenerAddresses").isJsonObject()
+                && mappings.getAsJsonObject("listenerAddresses").entrySet().stream().anyMatch(entry -> entry.getValue().isJsonPrimitive()
+                    && entry.getValue().getAsJsonPrimitive().isString() && "PRIMARY".equals(entry.getValue().getAsString()));
+        String targetPrimaryAddress = "RESTORE_EXISTING".equals(mode) && mapsPrimary ? manager.configurationPrimaryAddress(target) : null;
+        JsonObject plan = StorageConfigRestorePlan.build(archive, current, mappings, mode, targetUuid, revision, targetPrimaryAddress);
         if (blueprint != null) {
             plan.add("createNew", blueprint.deepCopy());plan.addProperty("targetName", blueprint.get("name").getAsString());
             plan.addProperty("plannedTargetIdentity", true);
@@ -587,6 +665,8 @@ public final class StorageServiceConfiguration {
             plan.add("cloneRuntimePin",manager.configurationCloneRuntimePin(mappings.get("runtimeBundleUuid").getAsString()));
             plan.add("cloneTemplatePin", cloneTemplatePin.deepCopy());
         }
+        if ("CREATE_NEW".equals(mode)) manager.preflightConfigurationExistingDataRuntime(plan.get("runtimeBundleUuid").getAsString(),plan);
+        manager.preflightConfigurationListenerMappings(target, plan);
         if(sourceAuthority!=null){
             JsonObject descriptor=sourceAuthority.getAsJsonObject("descriptor");
             if(!"CREATE_NEW".equals(mode)&&!target.getUuid().equals(descriptor.get("sourceInstanceUuid").getAsString()))throw new InvalidParameterValueException("Existing AD identity restore must target its exact original service");
@@ -675,7 +755,9 @@ public final class StorageServiceConfiguration {
             if (!plan.has("cloneTemplatePin") || "DEFAULT_SYSTEM".equals(plan.getAsJsonObject("cloneTemplatePin").get("selectionMode").getAsString()))
                 throw new InvalidParameterValueException("AD clone requires its explicitly reviewed fresh identity template");
         }
+        if(createNew)manager.preflightConfigurationExistingDataRuntime(plan.get("runtimeBundleUuid").getAsString(),plan);
         final StorageServiceInstanceVO existingTarget=createNew?null:manager.configurationInstanceByUuid(plan.get("targetInstanceUuid").getAsString());
+        if (!createNew) manager.requireConfigurationResolvedPrimary(existingTarget, plan);
         JsonObject credentials = request.getCredentials() == null ? new JsonObject() : new com.google.gson.JsonParser().parse(request.getCredentials()).getAsJsonObject();
         StorageConfigRestorePlan.requireCredentials(plan.getAsJsonArray("requiredCredentials"), credentials);
         JsonObject recoveredTemplateBinding = null;
@@ -688,6 +770,7 @@ public final class StorageServiceConfiguration {
                         metadata.getAsJsonObject("cloneAllocation"));
             } else manager.requireConfigurationCloneTemplatePin(plan.getAsJsonObject("createNew"), templatePin, created);
             if (created != null) {
+                manager.requireConfigurationResolvedPrimary(created, plan);
                 if (metadata.has("createdTargetTemplateBinding")) {
                     if (!metadata.get("createdTargetTemplateBinding").equals(manager.configurationCloneCreatedTemplateBinding(created, templatePin)))
                         throw new InvalidParameterValueException("Clone realized ROOT binding changed before capability consumption");
@@ -743,6 +826,7 @@ public final class StorageServiceConfiguration {
             JsonObject realizedTemplate = manager.configurationCloneCreatedTemplateBinding(selectedTarget, plan.getAsJsonObject("cloneTemplatePin"));
             if (!metadata.has("createdTargetTemplateBinding") || !realizedTemplate.equals(metadata.get("createdTargetTemplateBinding")))
                 throw new InvalidParameterValueException("Clone realized ROOT or template differs from its preserved target");
+            manager.requireConfigurationResolvedPrimary(selectedTarget, plan);
             if (!plan.get("runtimeBundleUuid").getAsString().equals(metadata.has("runtimePreparedBundleUuid") ? metadata.get("runtimePreparedBundleUuid").getAsString() : null)) {
                 manager.upgradeConfigurationNewServiceRuntime(selectedTarget, plan.get("runtimeBundleUuid").getAsString());
                 metadata.add("runtimePreparedBundleUuid", plan.get("runtimeBundleUuid").deepCopy());
@@ -764,6 +848,7 @@ public final class StorageServiceConfiguration {
                     || !capability.get("baselineSha256").getAsString().equals(StorageConfigArchive.sha256(current.getBytes(StandardCharsets.UTF_8))))) {
                 throw new InvalidParameterValueException("Configuration changed after planning; a new dry-run is required");
             }
+            manager.requireConfigurationResolvedPrimary(target, reviewed);
             if(sourceAuthority==null)manager.checkpointConfigurationIdentity(target);
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
             new StorageConfigDomainRestore(manager).apply(target, reviewed, credentials);
@@ -821,10 +906,11 @@ public final class StorageServiceConfiguration {
                 .findFirst().orElse(null);
         Long expectedActiveId = previous == null ? null : previous.getId();
         long expectedActiveRevision = previous == null ? 0 : previous.getDesiredRevision();
+        JsonObject runtimeBefore = manager.nativeConfigurationGeneration(instance, null, "status");
         manager.verifyReconciledStorageDesiredState(instance);
         String snapshot = manager.captureConfigurationSnapshot(instance.getId());
         if (!snapshot.equals(operation.getSnapshotJson())) throw new CloudRuntimeException("Verified configuration changed before restore-point promotion");
-        Map<String, byte[]> entries = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(instance), manager.configurationVolumeMetadata(snapshot));
+        Map<String, byte[]> entries = StorageConfigSemantic.export(snapshot, manager.configurationInstanceMetadata(instance), manager.configurationVolumeMetadata(instance, snapshot));
         JsonObject metadata = new JsonObject();metadata.addProperty("verification", "VERIFIED_SUCCESS");
         metadata.addProperty("sourceInstanceUuid", instance.getUuid());metadata.addProperty("operationUuid", operation.getUuid());
         metadata.addProperty("desiredRevision", operation.getRevision());metadata.addProperty("verifiedAt", System.currentTimeMillis());
@@ -834,6 +920,14 @@ public final class StorageServiceConfiguration {
             throw new CloudRuntimeException("Native runtime generation differs from the desired revision");
         }
         metadata.addProperty("runtimeRevision", operation.getRevision());metadata.add("nativeGeneration", nativeGeneration.get("generation").deepCopy());
+        for (String command : new String[] {"health", "inventory"}) {
+            JsonObject observed = manager.observeConfigurationRuntime(instance, command);
+            entries.put("runtime/" + command + ".json", observed.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        JsonObject evidence = StorageConfigRuntimeEvidence.create(instance.getUuid(), operation.getUuid(), operation.getRevision(),
+                snapshot, runtimeBefore, manager.nativeConfigurationGeneration(instance, null, "status"), entries, System.currentTimeMillis());
+        if (!snapshot.equals(manager.captureConfigurationSnapshot(instance.getId()))) throw new CloudRuntimeException("Desired configuration changed while collecting verified runtime");
+        metadata.add("runtimeEvidence", evidence);
         metadata.addProperty("runtimeStatus", "AVAILABLE");JsonArray required = requiredCredentials(entries);
         metadata.add("requiredCredentials", required);metadata.addProperty("credentialCoverage", required.size() == 0 ? "FULL" : "REQUIRES_REENTRY");
         versionMetadata(metadata, instance);
@@ -849,6 +943,14 @@ public final class StorageServiceConfiguration {
         final StorageConfigArtifactVO point = candidate;
         try {
             store.write(point.getUuid(), archive);
+            StorageConfigRuntimeEvidence.requireStored(evidence, instance.getUuid(), operation.getUuid(), operation.getRevision(),
+                    StorageConfigArchive.validate(store.read(point.getUuid(), point.getSha256())));
+            StorageConfigRuntimeEvidence.requireFresh(evidence, entries, System.currentTimeMillis());
+            if (!snapshot.equals(manager.captureConfigurationSnapshot(instance.getId())))
+                throw new CloudRuntimeException("Desired configuration changed before verified restore-point promotion");
+            if (!StorageConfigRuntimeEvidence.generation(manager.nativeConfigurationGeneration(instance, null, "status"),
+                    instance.getUuid(), operation.getUuid(), operation.getRevision()).equals(evidence.get("nativeGeneration")))
+                throw new CloudRuntimeException("Native generation changed before verified restore-point promotion");
             if (!artifacts.promoteVerified(instance.getId(), point.getId(), expectedActiveId, expectedActiveRevision, completeOperation)) {
                 throw new CloudRuntimeException("Active verified configuration changed before restore-point promotion");
             }
@@ -931,7 +1033,7 @@ public final class StorageServiceConfiguration {
     private JsonObject compactRow(StorageConfigArtifactVO row) {
         JsonObject result = publicRow(row);result.remove("metadata");
         JsonObject metadata = metadata(row);JsonObject summary = new JsonObject();
-        for (String key : new String[] {"phase", "runtimeStatus", "credentialCoverage", "restoreState", "errorCode", "verifiedAt", "adIdentityCoverage", "adIdentitySourceDescriptor"}) {
+        for (String key : new String[] {"phase", "runtimeStatus", "runtimeRevision", "driftStatus", "sourceNativeVerified", "runtimeObservationErrorCode", "credentialCoverage", "restoreState", "errorCode", "verifiedAt", "adIdentityCoverage", "adIdentitySourceDescriptor"}) {
             if (metadata.has(key)) summary.add(key, metadata.get(key).deepCopy());
         }
         result.add("metadata", summary);return result;
