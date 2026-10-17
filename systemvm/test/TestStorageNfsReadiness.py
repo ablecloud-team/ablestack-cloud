@@ -414,7 +414,9 @@ class StorageNfsReadinessTest(unittest.TestCase):
         begin=next(index for index,node in enumerate(nodes) if isinstance(node,ast.Assign)
                    and any(isinstance(target,ast.Name) and target.id=="runtime_endpoints" for target in node.targets))
         endpoint={"listenIp":"127.0.0.1","port":2049,"listening":True,"exportInventoryReady":True}
-        namespace={"BootCoordinator":SimpleNamespace(attach_existing=lambda:None),"NfsReadinessError":NfsReadinessError,
+        namespace={"GaneshaDbusPolicy":Mock(),"nfs_operation_deadline":time.monotonic()+30,
+            "write_ganesha_configs":Mock(return_value=[("known","/unused","127.0.0.1",2049,"V4_ONLY")]),
+            "BootCoordinator":SimpleNamespace(attach_existing=lambda:None),"NfsReadinessError":NfsReadinessError,
             "subprocess":subprocess,"json":json,"payload":{"exports":[]},"enabled":True,"configs":[("known",)],
             "quota_state":{},"endpoint_exports":{},"needs_rpcbind":False,"default_port":2049,"start_ganesha_endpoints":lambda *args:[endpoint],
             "probe_nfs_export_visibility":Mock(side_effect=TypeError("SYNTHETIC_RAW_BODY_MUST_NOT_LEAK"))}
