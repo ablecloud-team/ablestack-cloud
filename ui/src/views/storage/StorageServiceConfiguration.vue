@@ -19,13 +19,17 @@
   <section class="storage-configuration">
     <h4>{{ $t('label.storage.config.section') }}</h4>
     <a-space wrap>
-      <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" @click="openBackupDialog"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
-      <a-upload v-if="can('uploadStorageServiceConfigBackup')" :before-upload="importFile" :show-upload-list="false" accept=".zip"><a-button :disabled="!!busy"><template #icon><UploadOutlined /></template>{{ $t('label.storage.config.import') }}</a-button></a-upload>
-      <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="storageMutationDisabled || !!busy" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
-      <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || !!busy" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
+      <a-button v-if="can('createStorageServiceConfigBackup')" type="primary" :loading="!!busy" :disabled="configurationLocked" @click="openBackupDialog"><template #icon><CloudDownloadOutlined /></template>{{ $t('label.storage.config.create') }}</a-button>
+      <a-upload v-if="can('uploadStorageServiceConfigBackup')" :before-upload="importFile" :show-upload-list="false" accept=".zip"><a-button :disabled="configurationLocked"><template #icon><UploadOutlined /></template>{{ $t('label.storage.config.import') }}</a-button></a-upload>
+      <a-button v-if="can('verifyStorageServiceConfiguration')" :disabled="storageMutationDisabled || configurationLocked" @click="verifyBaseline"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.config.verify.baseline') }}</a-button>
+      <a-button v-if="can('planStorageServiceLastKnownGoodRestore')" :disabled="!activePoint || configurationLocked" @click="openPlan(activePoint, true)"><template #icon><RollbackOutlined /></template>{{ $t('label.storage.config.lkg.restore') }}</a-button>
       <a-button :loading="loading" @click="refresh"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
     <a-alert v-if="busy" type="info" show-icon :message="$t('message.storage.config.running')" />
+    <a-alert v-if="configurationIntent && (configurationIntent.jobId || ['unknown','submitting'].includes(configurationIntent.status))" :type="configurationIntent.status==='failed' ? 'error' : configurationIntent.status==='unknown' ? 'warning' : 'info'" show-icon :message="$t('label.storage.config.job.' + configurationIntent.status)">
+      <template #description><span v-if="configurationIntent.jobId">{{ configurationIntent.jobId }}</span><span v-else-if="configurationIntent.status==='unknown'">{{ $t('message.storage.config.job.no.id') }}</span><span v-if="configurationIntent.review.targetMode"> · {{ $t(configurationIntent.review.targetMode==='CREATE_NEW' ? 'label.storage.config.target.new' : 'label.storage.config.target.existing') }}</span><span v-if="configurationIntent.artifactId"> · {{ configurationIntent.artifactId }}</span><span v-if="configurationIntent.review.targetMode"> · {{ $t('message.storage.config.job.review', configurationIntent.review) }}</span></template>
+      <template #action><a-button v-if="configurationIntent.jobId && ['running','unknown'].includes(configurationIntent.status)" :loading="busy==='TRACKING'" @click="resumeConfigurationJob">{{ $t('label.storage.config.job.query') }}</a-button></template>
+    </a-alert>
     <a-alert v-if="error" type="error" show-icon :message="error" />
     <a-alert v-if="readFailed" type="warning" show-icon :message="$t('message.storage.config.read.failed')" />
     <a-table size="small" row-key="id" :columns="columns" :data-source="rows" :pagination="{ pageSize: 5 }" :scroll="{ x: 1100 }">
@@ -35,11 +39,11 @@
         <template v-else-if="column.key==='created'">{{ new Date(record.created).toLocaleString() }}</template>
         <template v-else-if="column.key==='actions'">
           <a-space wrap>
-            <a-button v-if="record.kind==='BACKUP' && ['COMPLETE','PARTIAL'].includes(record.state) && can('downloadStorageServiceConfigBackup')" size="small" :disabled="!!busy" @click="download(record)"><template #icon><DownloadOutlined /></template>{{ $t('label.download') }}</a-button>
-            <a-button v-if="record.kind==='IMPORT' && record.state==='QUARANTINED' && can('validateStorageServiceConfigImport')" size="small" :disabled="!!busy" @click="validateImport(record)">{{ $t('label.storage.config.validate') }}</a-button>
-            <a-button v-if="['COMPLETE','PARTIAL','ARCHIVE_VALIDATED','ACTIVE_LKG','SUPERSEDED'].includes(record.state) && can('planStorageServiceConfigRestore')" size="small" :disabled="!!busy" @click="openPlan(record)">{{ $t('label.storage.config.plan') }}</a-button>
+            <a-button v-if="record.kind==='BACKUP' && ['COMPLETE','PARTIAL'].includes(record.state) && can('downloadStorageServiceConfigBackup')" size="small" :disabled="configurationLocked" @click="download(record)"><template #icon><DownloadOutlined /></template>{{ $t('label.download') }}</a-button>
+            <a-button v-if="record.kind==='IMPORT' && record.state==='QUARANTINED' && can('validateStorageServiceConfigImport')" size="small" :disabled="configurationLocked" @click="validateImport(record)">{{ $t('label.storage.config.validate') }}</a-button>
+            <a-button v-if="['COMPLETE','PARTIAL','ARCHIVE_VALIDATED','ACTIVE_LKG','SUPERSEDED'].includes(record.state) && can('planStorageServiceConfigRestore')" size="small" :disabled="configurationLocked" @click="openPlan(record)">{{ $t('label.storage.config.plan') }}</a-button>
             <a-popconfirm v-if="['BACKUP','IMPORT'].includes(record.kind) && can(record.kind==='BACKUP' ? 'deleteStorageServiceConfigBackup' : 'deleteStorageServiceConfigImport')" :title="$t('message.storage.config.delete.confirm')" @confirm="deleteArtifact(record)">
-              <a-button size="small" danger :disabled="!!busy">{{ $t('label.delete') }}</a-button>
+              <a-button size="small" danger :disabled="configurationLocked">{{ $t('label.delete') }}</a-button>
             </a-popconfirm>
           </a-space>
         </template>
@@ -83,7 +87,7 @@
 :width="900"
 :ok-text="planPhase==='REVIEW' ? $t('label.storage.config.apply') : $t('label.storage.config.plan')"
 :confirm-loading="planning"
-:ok-button-props="{ disabled: planPhase==='REVIEW' && storageMutationDisabled }"
+:ok-button-props="{ disabled: configurationLocked || (planPhase==='REVIEW' && storageMutationDisabled) }"
 @cancel="closePlan"
       @ok="planPhase==='REVIEW' ? applyPlan() : preparePlan()">
       <a-alert type="info" show-icon :message="$t('message.storage.config.data.excluded')" />
@@ -97,11 +101,33 @@
         <template v-if="targetMode==='CREATE_NEW'">
           <a-form-item :label="$t('label.name')"><a-input v-model:value="clone.name" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.zoneid')"><a-select v-model:value="clone.zoneid" :options="cloneOptions.zones" :disabled="planPhase==='REVIEW'" @change="loadCloneZoneOptions" /></a-form-item>
-          <a-form-item v-if="cloneRequiresIdentityTemplate" :label="$t('label.templateid')">
-            <a-select v-model:value="clone.templateid" :options="cloneOptions.templates" :loading="cloneTemplateLoading" :disabled="planPhase==='REVIEW'" show-search option-filter-prop="label" />
-            <a-alert type="info" show-icon :message="$t('message.storage.config.clone.identity.template.required')" />
+          <a-form-item v-if="!cloneRequiresIdentityTemplate" :label="$t('label.storage.config.clone.template.source')">
+            <a-radio-group v-model:value="cloneTemplateSelection" :disabled="planPhase==='REVIEW'" @change="loadCloneTemplates">
+              <a-radio value="DEFAULT_SYSTEM">{{ $t('label.storage.config.clone.template.default') }}</a-radio>
+              <a-radio value="EXPLICIT">{{ $t('label.storage.config.clone.template.explicit') }}</a-radio>
+            </a-radio-group>
           </a-form-item>
+          <a-form-item v-if="cloneRequiresIdentityTemplate || cloneTemplateSelection==='EXPLICIT'" :label="$t('label.templateid')">
+            <a-select v-model:value="clone.templateid" :options="cloneOptions.templates" :loading="cloneTemplateLoading" :disabled="planPhase==='REVIEW'" show-search option-filter-prop="label" />
+            <a-alert v-if="cloneRequiresIdentityTemplate" type="info" show-icon :message="$t('message.storage.config.clone.identity.template.required')" />
+            <a-alert v-else type="info" show-icon :message="$t('message.storage.config.clone.template.explicit')" />
+          </a-form-item>
+          <template v-if="ordinaryClonePrivateTemplate">
+            <a-form-item :label="$t('label.storage.config.clone.template.approval.id')"><a-input v-model:value="clone.validationartifactuuid" :disabled="planPhase==='REVIEW'" autocomplete="off" /></a-form-item>
+            <a-form-item :label="$t('label.storage.config.clone.template.approval.sha')"><a-input v-model:value="clone.validationartifactsha256" :disabled="planPhase==='REVIEW'" autocomplete="off" /></a-form-item>
+          </template>
           <a-form-item :label="$t('label.networkid')"><a-select v-model:value="clone.networkid" :options="cloneOptions.networks" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.sharedfs.network.mode')">
+            <a-radio-group v-model:value="clone.networkmode" :disabled="planPhase==='REVIEW'" @change="editPlanMapping">
+              <a-radio value="DHCP">DHCP</a-radio><a-radio value="STATIC">STATIC</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <template v-if="clone.networkmode==='STATIC'">
+            <a-form-item :label="$t('label.sharedfs.ip.cidr')" required><a-input v-model:value="clone.ipcidr" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.gateway')"><a-input v-model:value="clone.gateway" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.dns1')"><a-input v-model:value="clone.dns1" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
+            <a-form-item :label="$t('label.dns2')"><a-input v-model:value="clone.dns2" :disabled="planPhase==='REVIEW'" @change="editPlanMapping" /></a-form-item>
+          </template>
           <a-form-item :label="$t('label.serviceofferingid')"><a-select v-model:value="clone.serviceofferingid" :options="cloneOptions.offerings" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.diskofferingid')"><a-select v-model:value="clone.diskofferingid" :options="cloneOptions.disks" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item :label="$t('label.storage.service.primary.storage')"><a-select v-model:value="clone.storageid" :options="cloneOptions.pools" :disabled="planPhase==='REVIEW'" /></a-form-item>
@@ -113,7 +139,14 @@
           </a-form-item>
           <a-form-item v-if="clone.backingvolumemode==='NEW'" :label="$t('label.storage.config.clone.size')"><a-input-number v-model:value="clone.size" :min="1" :disabled="planPhase==='REVIEW'" /></a-form-item>
           <a-form-item v-else :label="$t('label.storage.service.existing.volume.select')"><a-select v-model:value="clone.existingvolumeid" :options="cloneOptions.volumes" :disabled="planPhase==='REVIEW'" /></a-form-item>
-          <a-form-item :label="$t('label.storage.config.clone.initial')"><a-select v-model:value="initialVolumeSource" :options="sourceVolumes.map(value => ({value,label:value}))" :disabled="planPhase==='REVIEW'" /></a-form-item>
+          <a-form-item :label="$t('label.storage.config.clone.initial')"><a-select v-model:value="initialVolumeSource" :options="initialSourceVolumeOptions" :disabled="planning || planPhase==='REVIEW'" @change="selectInitialVolume" /></a-form-item>
+          <a-form-item :label="$t('label.filesystem')">
+            <a-select v-model:value="clone.filesystem" :disabled="planning || planPhase==='REVIEW'" @change="editPlanMapping">
+              <a-select-option value="XFS" label="XFS">XFS</a-select-option>
+              <a-select-option value="EXT4" label="EXT4">EXT4</a-select-option>
+            </a-select>
+            <a-alert v-if="initialSourceFilesystemHint" type="info" show-icon :message="$t('message.storage.config.clone.source.filesystem', { filesystem: initialSourceFilesystemHint })" />
+          </a-form-item>
           <a-form-item :label="$t('label.storage.config.clone.runtime')"><a-select v-model:value="cloneRuntime" :options="cloneOptions.bundles" :disabled="planPhase==='REVIEW'" /></a-form-item>
         </template>
         <a-form-item v-for="volume in sourceVolumes" :key="volume" :label="$t('label.storage.config.volume.mapping') + ': ' + volume">
@@ -130,11 +163,27 @@
         </a-form-item>
       </a-form>
       <template v-if="plan">
+        <a-button v-if="planPhase==='REVIEW'" :disabled="configurationLocked" @click="editPlanMapping">{{ $t('label.storage.config.mapping.edit') }}</a-button>
+        <a-form v-if="listenerAddressRows.length" layout="vertical">
+          <a-form-item v-for="row in listenerAddressRows" :key="row.sourceAddress" :label="$t('label.storage.config.listener.mapping') + ': ' + row.sourceAddress">
+            <a-radio-group :value="row.choice" :disabled="planPhase==='REVIEW'" @change="event => setListenerMapping(row.sourceAddress, event.target.value)">
+              <a-radio value="PRIMARY">{{ $t('label.storage.config.listener.primary') }}</a-radio><a-radio value="CUSTOM">{{ $t('label.storage.config.listener.custom') }}</a-radio>
+            </a-radio-group>
+            <a-input v-if="row.choice==='CUSTOM'" :value="row.address" :disabled="planPhase==='REVIEW'" @update:value="value => setListenerAddress(row.sourceAddress, value)" />
+            <div v-if="row.resolvedTarget">{{ $t('label.ipaddress') }}: {{ row.resolvedTarget }}</div>
+            <div v-for="location in row.locations" :key="location.kind + ':' + location.sourceUuid + ':' + location.path">{{ location.kind }} · {{ location.sourceUuid }} · {{ location.path }}</div>
+          </a-form-item>
+        </a-form>
+        <a-form v-if="resourceMappingRows.length" layout="vertical">
+          <a-form-item v-for="row in resourceMappingRows" :key="row.key" :label="$t('label.storage.config.resource.mapping') + ': ' + row.kind + ' · ' + row.sourceUuid">
+            <a-select :value="row.selected" :options="row.options" :disabled="planPhase==='REVIEW'" @change="value => setResourceMapping(row, value)" />
+          </a-form-item>
+        </a-form>
         <template v-if="(plan.forcedFileExecutePolicies || []).length">
           <a-alert type="warning" show-icon :message="$t('message.storage.config.file.execute')" />
           <a-checkbox v-model:checked="confirmFileExecute" :disabled="planPhase==='REVIEW'">{{ $t('label.storage.config.file.execute.confirm') }}</a-checkbox>
         </template>
-        <a-alert v-for="blocker in plan.blockers" :key="blocker" type="error" show-icon :message="blocker" />
+        <a-alert v-for="blocker in plan.blockers" :key="blocker" type="error" show-icon :message="configurationBlockerLabel(blocker)" />
         <a-descriptions :column="2" bordered size="small">
           <a-descriptions-item :label="$t('label.storage.config.create.resources')">{{ plan.create.length }}</a-descriptions-item>
           <a-descriptions-item :label="$t('label.storage.config.update.resources')">{{ plan.update.length }}</a-descriptions-item>
@@ -144,7 +193,12 @@
         <a-alert v-for="directory in (plan.directoryPreparation || [])" :key="directory.sourceUuid" type="info" show-icon :message="$t('label.storage.config.directory.prepare') + ': ' + directory.relativePath" />
         <a-alert v-if="allocationRows.length" type="info" show-icon :message="$t('message.storage.config.allocation.preserve')" />
         <a-table v-if="allocationRows.length" size="small" :columns="allocationColumns" :data-source="allocationRows" :pagination="false" :scroll="{ x: 1300 }" row-key="sourceUuid" />
-        <a-table size="small" :columns="planColumns" :data-source="changes" :pagination="{ pageSize: 5 }" :scroll="{ x: 750 }" row-key="sourceUuid" />
+        <a-table size="small" :columns="planColumns" :data-source="changes" :pagination="{ pageSize: 5 }" :scroll="{ x: 820 }" row-key="rowKey">
+          <template #expandedRowRender="{ record }">
+            <a-alert v-if="record.action==='PRESERVE'" type="info" :message="$t('message.storage.config.diff.preserve')" />
+            <a-table v-if="record.current || record.desired" size="small" :columns="differenceColumns" :data-source="configurationDifference(record.current, record.action==='PRESERVE' ? record.current : record.desired)" :pagination="false" row-key="field" />
+          </template>
+        </a-table>
         <a-form v-if="planPhase==='REVIEW'" layout="vertical">
           <template v-for="required in plan.requiredCredentials" :key="required.ruleUuid">
             <a-form-item v-for="field in required.fields" :key="required.ruleUuid+field" :label="required.principal + ' · ' + $t('label.storage.config.credential.' + field)">
@@ -170,6 +224,7 @@
 import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils/storageRecoveryGate'
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
+import { configurationIntents, configurationActor, configurationScope, ensureConfigurationActor, activeConfigurationIntent, beginConfigurationIntent, configurationCommandIsAsync, validConfigurationJobId, definitiveConfigurationRejection, trackConfigurationIntent, configurationDifference, validConfigurationStaticNetwork } from '@/utils/storageConfigurationJobs'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
 import { requireAdServiceApproval } from '@/utils/storageAdIdentity'
 import { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined } from '@ant-design/icons-vue'
@@ -181,12 +236,29 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
+  data: () => ({ disposed: false, rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, plan: null, planPhase: 'MAPPING', planToken: '', resourceMapping: {}, listenerMapping: {}, listenerChoices: {}, lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateSelection: 'DEFAULT_SYSTEM', cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
   computed: {
+    configurationActor () { return configurationActor(this) },
+    configurationIntent () { return configurationIntents[configurationScope(this)] || null },
+    configurationLocked () { return !!this.busy || activeConfigurationIntent(this.configurationIntent) },
+    differenceColumns () { return [{ title: this.$t('label.storage.config.diff.field'), dataIndex: 'field' }, { title: this.$t('label.storage.config.diff.current'), dataIndex: 'before' }, { title: this.$t('label.storage.config.diff.desired'), dataIndex: 'after' }] },
+    listenerAddressRows () { return (this.plan?.listenerAddressRequirements || []).map(row => ({ ...row, choice: this.listenerChoices[row.sourceAddress] || (this.listenerMapping[row.sourceAddress] === 'PRIMARY' ? 'PRIMARY' : this.listenerMapping[row.sourceAddress] ? 'CUSTOM' : undefined), address: this.listenerMapping[row.sourceAddress] === 'PRIMARY' ? '' : this.listenerMapping[row.sourceAddress] || '' })) },
+    resourceMappingRows () {
+      if (!this.plan || this.targetMode !== 'RESTORE_EXISTING') return []
+      const changes = [...this.plan.create, ...this.plan.update, ...this.plan.keep]
+      return changes.map(row => {
+        const targets = [...new Map([...changes.filter(item => item.kind === row.kind && item.current?.uuid).map(item => [item.current.uuid, item.current]), ...(this.plan.preserve || []).filter(item => item.kind === row.kind).map(item => [item.targetUuid, { ...(item.current || {}), ...item }])]).values()]
+        const selected = this.resourceMapping[row.kind]?.[row.sourceUuid] || this.plan.resourceMappings?.[row.kind]?.[row.sourceUuid] || 'NEW'
+        const options = targets.map(item => ({ value: item.uuid || item.targetUuid, label: (item.name || item.principal || item.uuid || item.targetUuid) + ' · ' + (item.uuid || item.targetUuid) }))
+        if (!targets.some(item => (item.uuid || item.targetUuid) === row.sourceUuid)) options.unshift({ value: 'NEW', label: this.$t('label.storage.config.resource.create') })
+        return { ...row, selected, options, key: row.kind + ':' + row.sourceUuid }
+      })
+    },
     cloneRequiresIdentityTemplate () {
       const metadata = this.planTarget?.metadata || {}
       return metadata.adIdentitySourceDescriptor !== undefined || metadata.adIdentityCoverage !== undefined || this.plan?.adIdentitySourceDescriptor !== undefined
     },
+    ordinaryClonePrivateTemplate () { return !this.cloneRequiresIdentityTemplate && this.cloneTemplateRows.some(row => row.id === this.clone.templateid && row.templatetype === 'USER') },
     cloneActiveProject () { return this.$store?.getters?.project?.id },
     identityBackupSupported () {
       const params = this.$getApiParams?.('createStorageServiceConfigBackup')
@@ -204,11 +276,23 @@ export default {
         { title: this.$t('label.actions'), key: 'actions', width: 260 }]
     },
     sourceVolumes () {
-      const volumes = new Set()
+      const volumes = new Set((this.plan?.sourceVolumeInventory || []).filter(volume => volume.type === 'DATADISK' && typeof volume.uuid === 'string' && volume.uuid).map(volume => volume.uuid))
       for (const row of this.changes) if (row.desired?.volumeUuid) volumes.add(row.desired.volumeUuid)
       return [...volumes]
     },
-    changes () { return this.plan ? [...this.plan.create, ...this.plan.update, ...this.plan.keep] : [] },
+    changes () { return this.plan ? [...this.plan.create, ...this.plan.update, ...this.plan.keep, ...(this.plan.preserve || []).map(row => ({ ...row, action: 'PRESERVE' }))].map(row => ({ ...row, rowKey: [row.kind, row.action, row.sourceUuid || '', row.targetUuid || ''].join(':') })) : [] },
+    initialSourceVolumeOptions () {
+      const inventory = this.plan?.sourceVolumeInventory || []
+      return this.sourceVolumes.map(uuid => {
+        const volume = inventory.find(row => row.uuid === uuid) || {}
+        return { value: uuid, label: [volume.name, uuid, volume.usage, volume.filesystemHint].filter(Boolean).join(' · '), usage: volume.usage }
+      }).filter(row => row.usage !== 'BLOCK_RAW').sort((left, right) => ({ FILE: 0, UNUSED: 1 }[left.usage] ?? 2) - ({ FILE: 0, UNUSED: 1 }[right.usage] ?? 2))
+    },
+    initialSourceFilesystemHint () {
+      const value = (this.plan?.sourceVolumeInventory || []).find(volume => volume.uuid === this.initialVolumeSource)
+      const filesystem = typeof value?.filesystemHint === 'string' ? value.filesystemHint.toUpperCase() : ''
+      return value?.usage === 'FILE' && ['XFS', 'EXT4'].includes(filesystem) ? filesystem : ''
+    },
     allocationRows () { return this.plan?.volumeAllocationPlan?.allocations || [] },
     allocationColumns () {
       return [
@@ -226,10 +310,12 @@ export default {
       return [
         { title: this.$t('label.type'), dataIndex: 'kind', width: 180 },
         { title: this.$t('label.actions'), dataIndex: 'action', width: 100 },
-        { title: this.$t('label.id'), dataIndex: 'sourceUuid', width: 280 }]
+        { title: this.$t('label.storage.config.source.volume'), dataIndex: 'sourceUuid', width: 280 },
+        { title: this.$t('label.storage.config.target.volume'), dataIndex: 'targetUuid', width: 260 }]
     }
   },
   watch: {
+    configurationActor (value) { ensureConfigurationActor(value); this.rows = []; this.readFailed = false; this.error = ''; this.busy = ''; this.closeBackupDialog(); this.closePlan(); this.refresh() },
     instanceId () { this.generation++; this.rows = []; this.busy = ''; this.error = ''; this.closeBackupDialog(); this.closePlan(); this.refresh() },
     instanceName () { this.closeBackupDialog() },
     includeAdIdentity (value) { if (!value) { this.backupMaintenance = false; this.backupConfirmation = '' } },
@@ -239,11 +325,13 @@ export default {
     'resource.domainid' () { this.clearCloneZoneOptions() },
     'resource.projectid' () { this.clearCloneZoneOptions() },
     cloneActiveProject () { this.clearCloneZoneOptions() },
+    'clone.validationartifactuuid' () { this.reviewedPlan = ''; this.planToken = ''; this.confirmation = '' },
+    'clone.validationartifactsha256' () { this.reviewedPlan = ''; this.planToken = ''; this.confirmation = '' },
     'clone.templateid' () { this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = '' },
     'planTarget.metadata': { deep: true, handler () { this.clearCloneZoneOptions() } }
   },
-  mounted () { this.refresh() },
-  beforeUnmount () { this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.credentialValues = {} },
+  mounted () { ensureConfigurationActor(this.configurationActor); this.refresh(); if (this.configurationIntent?.jobId && activeConfigurationIntent(this.configurationIntent)) this.resumeConfigurationJob() },
+  beforeUnmount () { this.disposed = true; this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.credentialValues = {} },
   methods: {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
@@ -260,25 +348,77 @@ export default {
         this.rows = values.flatMap(value => value.artifacts || []); this.readFailed = false
       } catch (error) { if (token === this.generation) this.readFailed = true } finally { if (token === this.generation) this.loading = false }
     },
-    async mutation (api, parameters) {
-      const instance = this.instanceId
+    async mutation (api, parameters, review = this.plan || {}) {
+      const instance = this.instanceId; const scope = configurationScope(this); const actor = configurationActor(this)
       requireStorageMutationAllowed(this, api)
-      const value = await postAPI(api, { instanceid: instance, ...parameters })
-      if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
-      const body = value[api.toLowerCase() + 'response']; const job = body?.jobid
-      if (!job) return this.unwrap(value, api)
-      for (let attempt = 0; attempt < 180; attempt++) {
-        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
-        const result = (await getAPI('queryAsyncJobResult', { jobid: job }, { preserveOnFailure: true, timeout: 15000 })).queryasyncjobresultresponse
-        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
-        if (result.jobstatus === 1 || result.jobstatus === 2) {
-          if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
-          if (result.jobstatus === 2) throw new Error(result.jobresult?.errortext || this.$t('message.storage.config.failed'))
-          return this.unwrap(result.jobresult, api)
+      const intent = beginConfigurationIntent(this, api, parameters.artifactid, review)
+      let value
+      try {
+        const pending = postAPI(api, { instanceid: instance, ...parameters }, { preserveOnFailure: true, backgroundJob: true })
+        if (parameters.credentials !== undefined) parameters.credentials = ''
+        value = await pending
+      } catch (error) {
+        if (configurationIntents[scope] === intent) intent.status = definitiveConfigurationRejection(error, api) ? 'failed' : 'unknown'
+        throw new Error(this.$t(intent.status === 'unknown' ? 'message.storage.config.job.unknown' : 'message.storage.config.failed'))
+      } finally { if (parameters.credentials !== undefined) parameters.credentials = '' }
+      const body = value?.[api.toLowerCase() + 'response'] || value
+      const job = body?.jobid
+      if (!validConfigurationJobId(job)) {
+        if (configurationCommandIsAsync(api)) {
+          intent.status = 'unknown'
+          throw new Error(this.$t('message.storage.config.job.unknown'))
         }
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        const result = this.unwrap(value, api)
+        if (!result || typeof result.id !== 'string' || !result.id || body?.errorcode) {
+          intent.status = 'unknown'
+          throw new Error(this.$t('message.storage.config.job.unknown'))
+        }
+        intent.status = 'complete'
+        if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
+        return result
       }
-      throw new Error(this.$t('message.storage.config.timeout'))
+      intent.jobId = job; intent.status = 'running'
+      const result = await trackConfigurationIntent(intent, () => configurationActor(this) === actor)
+      if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
+      if (result.jobstatus === 1 || result.jobstatus === 2) {
+        if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
+        if (result.jobstatus === 2) throw new Error(this.$t('message.storage.config.job.failed', { job: intent.jobId, code: intent.errorCode ?? '—' }))
+        return this.unwrap(result.jobresult, api)
+      }
+      throw new Error(this.$t('message.storage.config.job.unknown'))
+    },
+    async resumeConfigurationJob () {
+      const intent = this.configurationIntent; const scope = configurationScope(this); const actor = configurationActor(this)
+      if (!intent?.jobId || this.busy) return
+      this.busy = 'TRACKING'; this.error = ''
+      try {
+        const result = await trackConfigurationIntent(intent, () => configurationActor(this) === actor)
+        if ((scope !== configurationScope(this) || this.disposed)) return
+        if (result.jobstatus === 1 || result.jobstatus === 2) {
+          this.$emit('operation-updated', this.instanceId); await this.refresh()
+          if (result.jobstatus === 2) this.error = this.$t('message.storage.config.job.failed', { job: intent.jobId, code: intent.errorCode ?? '—' })
+        }
+      } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
+    },
+    editPlanMapping () {
+      this.planPhase = 'MAPPING'; this.planToken = ''; this.reviewedPlan = ''; this.confirmation = ''; this.credentialValues = {}; this.restoreMaintenance = false
+    },
+    setListenerMapping (source, choice) {
+      this.listenerChoices[source] = choice; this.listenerMapping[source] = choice === 'PRIMARY' ? 'PRIMARY' : ''
+      this.planPhase = 'MAPPING'; this.planToken = ''; this.reviewedPlan = ''; this.confirmation = ''; this.credentialValues = {}; this.restoreMaintenance = false
+    },
+    setListenerAddress (source, value) {
+      this.listenerChoices[source] = 'CUSTOM'; this.listenerMapping[source] = value.trim()
+      this.planPhase = 'MAPPING'; this.planToken = ''; this.reviewedPlan = ''; this.confirmation = ''; this.credentialValues = {}; this.restoreMaintenance = false
+    },
+    setResourceMapping (row, target) {
+      this.resourceMapping[row.kind] = { ...(this.resourceMapping[row.kind] || {}), [row.sourceUuid]: target }
+      this.planPhase = 'MAPPING'; this.planToken = ''; this.reviewedPlan = ''; this.confirmation = ''; this.credentialValues = {}; this.restoreMaintenance = false
+    },
+    configurationDifference,
+    configurationBlockerLabel (blocker) {
+      return ['PRIMARY_LISTENER_REQUIRES_STATIC_ADDRESS', 'PRIMARY_LISTENER_MIX_REQUIRES_STATIC_ADDRESS'].includes(blocker)
+        ? this.$t('message.storage.config.listener.static.required') : blocker
     },
     artifactStateLabel (record) {
       const runtime = record.metadata?.runtimeStatus
@@ -306,8 +446,9 @@ export default {
       return this.$t(valid ? 'label.storage.config.identity.preserved' : 'label.storage.config.identity.unverified')
     },
     async verifyBaseline () {
+      const scope = configurationScope(this)
       this.busy = 'VERIFY'; this.error = ''
-      try { await this.mutation('verifyStorageServiceConfiguration', {}); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
+      try { await this.mutation('verifyStorageServiceConfiguration', {}); if ((scope === configurationScope(this) && !this.disposed)) await this.refresh() } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     openBackupDialog () {
       this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = ''; this.error = ''; this.backupDialog = true
@@ -327,6 +468,7 @@ export default {
       return request
     },
     async createBackup () {
+      const scope = configurationScope(this)
       if (this.busy) return
       const instance = this.instanceId; const name = this.instanceName
       let submitted = false
@@ -336,17 +478,17 @@ export default {
         this.backupDialog = false; this.busy = 'BACKUP'; submitted = true
         await this.mutation('createStorageServiceConfigBackup', request)
         if (instance !== this.instanceId || name !== this.instanceName) throw new Error(this.$t('message.storage.config.scope.changed'))
-        await this.refresh()
-      } catch (error) { this.error = error.message } finally { this.busy = ''; if (submitted) this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = '' }
+        if ((scope === configurationScope(this) && !this.disposed)) await this.refresh()
+      } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = ''; if ((scope === configurationScope(this) && !this.disposed)) { if (submitted) this.includeAdIdentity = false; this.backupMaintenance = false; this.backupConfirmation = '' } }
     },
     async download (row) {
-      const instance = this.instanceId
+      const instance = this.instanceId; const scope = configurationScope(this)
       this.busy = 'DOWNLOAD'; this.error = ''
       try {
-        const issued = this.unwrap(await postAPI('downloadStorageServiceConfigBackup', { instanceid: instance, artifactid: row.id }), 'downloadStorageServiceConfigBackup')
-        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
-        const value = this.unwrap(await postAPI('downloadStorageServiceConfigBackup', { instanceid: instance, artifactid: row.id, downloadtoken: issued.downloadToken }), 'downloadStorageServiceConfigBackup')
-        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
+        const issued = this.unwrap(await postAPI('downloadStorageServiceConfigBackup', { instanceid: instance, artifactid: row.id }, { preserveOnFailure: true }), 'downloadStorageServiceConfigBackup')
+        if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
+        const value = this.unwrap(await postAPI('downloadStorageServiceConfigBackup', { instanceid: instance, artifactid: row.id, downloadtoken: issued.downloadToken }, { preserveOnFailure: true }), 'downloadStorageServiceConfigBackup')
+        if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
         const binary = Uint8Array.from(atob(value.data), value => value.charCodeAt(0))
         if (!value.sha256 || new Sha256().update(binary).digest('hex') !== value.sha256) throw new Error(this.$t('message.storage.config.download.integrity'))
         const href = URL.createObjectURL(new Blob([binary], { type: 'application/zip' })); const link = document.createElement('a')
@@ -357,36 +499,43 @@ export default {
           // Let asynchronous browser download handling acquire the Blob before releasing it.
           setTimeout(() => URL.revokeObjectURL(href), 60000)
         }
-      } catch (error) { this.error = error.message } finally { this.busy = '' }
+      } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     async importFile (file) {
+      if (this.configurationLocked) return false
       if (!file.size || file.size > 8 * 1024 * 1024 || !file.name.toLowerCase().endsWith('.zip')) { this.error = this.$t('message.storage.config.file.invalid'); return false }
-      const instance = this.instanceId
+      const instance = this.instanceId; const scope = configurationScope(this)
+      const intent = beginConfigurationIntent(this, 'uploadStorageServiceConfigBackup', '')
       this.busy = 'UPLOAD'; this.error = ''
       try {
         const bytes = new Uint8Array(await file.arrayBuffer())
         const sha256 = new Sha256().update(bytes).digest('hex')
         const count = Math.ceil(bytes.length / (192 * 1024)); let artifact
         for (let index = 0; index < count; index++) {
-          if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
+          if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
           const chunk = bytes.slice(index * 192 * 1024, (index + 1) * 192 * 1024); let binary = ''
           for (const byte of chunk) binary += String.fromCharCode(byte)
-          artifact = this.unwrap(await postAPI('uploadStorageServiceConfigBackup', { instanceid: instance, artifactid: artifact?.id, configurationpayload: btoa(binary), sha256, chunkindex: index, chunkcount: count }), 'uploadStorageServiceConfigBackup')
+          artifact = this.unwrap(await postAPI('uploadStorageServiceConfigBackup', { instanceid: instance, artifactid: artifact?.id, configurationpayload: btoa(binary), sha256, chunkindex: index, chunkcount: count }, { preserveOnFailure: true }), 'uploadStorageServiceConfigBackup')
         }
+        if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
+        if (!artifact?.id || artifact.state !== 'QUARANTINED') throw new Error(this.$t('message.storage.config.job.unknown'))
+        intent.artifactId = artifact.id; intent.status = 'complete'
         await this.refresh()
-      } catch (error) { this.error = error.message } finally { this.busy = '' }
+      } catch (error) { intent.status = definitiveConfigurationRejection(error, 'uploadStorageServiceConfigBackup') ? 'failed' : 'unknown'; if ((scope === configurationScope(this) && !this.disposed)) this.error = this.$t('message.storage.config.job.unknown') } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
       return false
     },
     async deleteArtifact (row) {
+      const scope = configurationScope(this)
       this.busy = 'DELETE'; this.error = ''
       try {
         await this.mutation(row.kind === 'BACKUP' ? 'deleteStorageServiceConfigBackup' : 'deleteStorageServiceConfigImport', { artifactid: row.id })
-        await this.refresh()
-      } catch (error) { this.error = error.message } finally { this.busy = '' }
+        if ((scope === configurationScope(this) && !this.disposed)) await this.refresh()
+      } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     async validateImport (row) {
+      const scope = configurationScope(this)
       this.busy = 'VALIDATE'; this.error = ''
-      try { await this.mutation('validateStorageServiceConfigImport', { artifactid: row.id }); await this.refresh() } catch (error) { this.error = error.message } finally { this.busy = '' }
+      try { await this.mutation('validateStorageServiceConfigImport', { artifactid: row.id }); if ((scope === configurationScope(this) && !this.disposed)) await this.refresh() } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error.message } finally { if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
     async openPlan (row, lkg = false) {
       this.closePlan(); this.planTarget = row; this.lkgPlan = lkg; this.error = ''
@@ -431,11 +580,12 @@ export default {
     },
     clearCloneTemplates () {
       this.cloneTemplateToken++; this.cloneTemplateScope = null; this.cloneTemplateRows = []; this.cloneTemplateLoading = false; this.cloneTemplateError = false
-      this.cloneOptions.templates = []; delete this.clone.templateid
+      this.cloneOptions.templates = []; delete this.clone.templateid; delete this.clone.validationartifactuuid; delete this.clone.validationartifactsha256
     },
     async loadCloneTemplates () {
       this.clearCloneTemplates()
-      if (!this.cloneRequiresIdentityTemplate || !this.clone.zoneid) return
+      if (!this.clone.zoneid) return
+      if (!this.cloneRequiresIdentityTemplate) return this.loadOrdinaryCloneTemplates()
       const token = ++this.cloneTemplateToken; const scope = this.cloneIdentityTemplateScope()
       this.cloneTemplateLoading = true
       const admin = ['Admin', 'DomainAdmin'].includes(this.$store?.getters?.userInfo?.roletype)
@@ -449,6 +599,39 @@ export default {
         this.cloneTemplateRows = (response.listtemplatesresponse?.template || []).filter(row => this.eligibleCloneIdentityTemplate(row))
         this.cloneOptions.templates = this.options(this.cloneTemplateRows); this.cloneTemplateScope = scope
       } catch (_) { if (token === this.cloneTemplateToken && scope === this.cloneIdentityTemplateScope()) this.cloneTemplateError = true } finally { if (token === this.cloneTemplateToken) this.cloneTemplateLoading = false }
+    },
+    eligibleOrdinaryCloneTemplate (template) {
+      if (!template || template.isready !== true || template.isdynamicallyscalable !== true || template.hypervisor !== 'KVM' || template.arch !== 'x86_64' ||
+          template.format !== 'QCOW2' || template.removed || (template.templatestate !== undefined && template.templatestate !== 'Active') || template.zoneid !== this.clone.zoneid || typeof template.checksum !== 'string' || !template.checksum.trim() ||
+          !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(template.id)) return false
+      if (template.templatetype === 'SYSTEM') return template.ispublic === true
+      return template.templatetype === 'USER' && template.ispublic === false &&
+        (this.resource.projectid ? template.projectid === this.resource.projectid : template.account === this.resource.account && template.domainid === this.resource.domainid)
+    },
+    async loadOrdinaryCloneTemplates () {
+      this.planPhase = 'MAPPING'; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = ''
+      if (this.cloneTemplateSelection !== 'EXPLICIT') return
+      const token = ++this.cloneTemplateToken; const scope = this.cloneDiscoveryScope()
+      this.cloneTemplateLoading = true
+      const owner = this.resource?.projectid ? { projectid: this.resource.projectid } : { account: this.resource?.account, domainid: this.resource?.domainid }
+      try {
+        if (!this.can('listTemplates')) throw new Error('unsupported')
+        const responses = await Promise.all([
+          getAPI('listTemplates', { zoneid: this.clone.zoneid, hypervisor: 'KVM', templatefilter: 'executable', ...owner }, { preserveOnFailure: true, timeout: 15000 }),
+          getAPI('listTemplates', { zoneid: this.clone.zoneid, hypervisor: 'KVM', templatefilter: 'all', system: true }, { preserveOnFailure: true, timeout: 15000 })])
+        if (token !== this.cloneTemplateToken || scope !== this.cloneDiscoveryScope() || this.targetMode !== 'CREATE_NEW') return
+        this.cloneTemplateRows = [...new Map(responses.flatMap(value => value.listtemplatesresponse?.template || []).filter(row => this.eligibleOrdinaryCloneTemplate(row)).map(row => [row.id, row])).values()]
+        this.cloneOptions.templates = this.options(this.cloneTemplateRows); this.cloneTemplateScope = scope
+      } catch (_) { if (token === this.cloneTemplateToken) this.cloneTemplateError = true } finally { if (token === this.cloneTemplateToken) this.cloneTemplateLoading = false }
+    },
+    assertOrdinaryCloneTemplate (reviewedPlan) {
+      if (this.cloneRequiresIdentityTemplate || this.cloneTemplateSelection !== 'EXPLICIT') return
+      const row = this.cloneTemplateRows.find(value => value.id === this.clone.templateid)
+      if (this.cloneTemplateLoading || this.cloneTemplateError || this.cloneTemplateScope !== this.cloneDiscoveryScope() || !this.eligibleOrdinaryCloneTemplate(row) ||
+          (reviewedPlan && reviewedPlan.createNew?.templateid !== row.id)) throw new Error(this.$t('message.storage.config.clone.template.required'))
+      if (row.templatetype === 'USER' && (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(this.clone.validationartifactuuid || '') ||
+          !/^[a-f0-9]{64}$/.test(this.clone.validationartifactsha256 || '') ||
+          (reviewedPlan && (reviewedPlan.createNew?.validationartifactuuid !== this.clone.validationartifactuuid || reviewedPlan.createNew?.validationartifactsha256 !== this.clone.validationartifactsha256)))) throw new Error(this.$t('message.storage.config.clone.template.approval.required'))
     },
     assertCloneIdentityTemplate (reviewedPlan) {
       if (!this.cloneRequiresIdentityTemplate) return
@@ -465,7 +648,7 @@ export default {
       this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false
       for (const key of ['networks', 'offerings', 'disks', 'pools', 'volumes']) this.cloneOptions[key] = []
       for (const key of ['networkid', 'storageid', 'diskofferingid', 'serviceofferingid', 'existingvolumeid']) this.clone[key] = undefined
-      this.volumeMapping = {}; this.newVolumeSpecs = {}; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = ''
+      this.volumeMapping = {}; this.newVolumeSpecs = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = ''
     },
     assertCloneOffering () {
       const offering = this.cloneOfferingRows.find(row => row.id === this.clone.serviceofferingid)
@@ -503,28 +686,44 @@ export default {
         this.clone.serviceofferingid = compatible[0]?.id
         if (!compatible.length) this.error = this.$t('message.storage.service.offering.no.compatible')
       } catch (error) { if (token === this.cloneOptionToken && scope === this.cloneDiscoveryScope()) { this.cloneOfferingError = true; this.error = this.$t('message.storage.service.offering.unavailable') } } finally { if (token === this.cloneOptionToken) this.cloneOfferingLoading = false }
-      if (this.cloneRequiresIdentityTemplate) await this.loadCloneTemplates()
+      if (this.cloneRequiresIdentityTemplate || this.cloneTemplateSelection === 'EXPLICIT') await this.loadCloneTemplates()
+    },
+    selectInitialVolume (uuid) {
+      this.initialVolumeSource = uuid
+      const volume = (this.plan?.sourceVolumeInventory || []).find(row => row.uuid === uuid)
+      const filesystem = typeof volume?.filesystemHint === 'string' ? volume.filesystemHint.toUpperCase() : ''
+      if (volume?.usage === 'FILE' && ['XFS', 'EXT4'].includes(filesystem)) this.clone.filesystem = filesystem
+      this.editPlanMapping()
     },
     setVolumeMapping (source) {
+      this.planPhase = 'MAPPING'
       if (this.volumeMapping[source] === 'NEW') this.newVolumeSpecs[source] = this.newVolumeSpecs[source] || { dataPolicy: 'PRESERVE' }
       else delete this.newVolumeSpecs[source]
       this.planToken = ''; this.confirmation = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
     },
     async preparePlan () {
+      if (this.planning || activeConfigurationIntent(configurationIntents[configurationScope(this)])) return
       const target = this.planTarget; const instance = this.instanceId
       this.planning = true; this.error = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
       try {
         const api = this.lkgPlan ? 'planStorageServiceLastKnownGoodRestore' : 'planStorageServiceConfigRestore'
         const mappings = { volumes: { ...this.volumeMapping }, confirmFileExecute: this.confirmFileExecute }
+        if (Object.keys(this.listenerMapping || {}).length) mappings.listenerAddresses = Object.fromEntries(Object.entries(this.listenerMapping).filter(([, value]) => typeof value === 'string' && value.length))
+        if (this.targetMode === 'RESTORE_EXISTING') for (const [kind, values] of Object.entries(this.resourceMapping || {})) mappings[kind] = Object.fromEntries(Object.entries(values).filter(([, value]) => value !== 'NEW'))
         if (this.targetMode === 'CREATE_NEW') {
           if (!this.initialVolumeSource || !this.cloneRuntime) throw new Error(this.$t('message.storage.config.clone.required'))
+          if ((this.plan?.sourceVolumeInventory || []).some(row => row.uuid === this.initialVolumeSource && row.usage === 'BLOCK_RAW')) throw new Error(this.$t('message.storage.config.clone.initial.raw'))
           this.assertCloneOffering()
           if (this.cloneRequiresIdentityTemplate) this.assertCloneIdentityTemplate()
+          else if (this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate()
           const existing = this.clone.backingvolumemode === 'EXISTING'
           if (existing && !this.clone.existingvolumeid) throw new Error(this.$t('message.storage.config.clone.required'))
           mappings.volumes[this.initialVolumeSource] = existing ? this.clone.existingvolumeid : 'NEW'
           mappings.createNew = { ...this.clone, backingvolumemode: existing ? 'EXISTING' : 'NEW' }
-          if (!this.cloneRequiresIdentityTemplate) delete mappings.createNew.templateid
+          if (mappings.createNew.networkmode === 'STATIC' && !validConfigurationStaticNetwork(mappings.createNew)) throw new Error(this.$t('message.sharedfs.static.ip.cidr.invalid'))
+          if (mappings.createNew.networkmode !== 'STATIC') for (const field of ['ipcidr', 'gateway', 'dns1', 'dns2']) delete mappings.createNew[field]
+          if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection !== 'EXPLICIT') { delete mappings.createNew.templateid; delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
+          if (!this.ordinaryClonePrivateTemplate) { delete mappings.createNew.validationartifactuuid; delete mappings.createNew.validationartifactsha256 }
           if (existing) {
             delete mappings.createNew.diskofferingid; delete mappings.createNew.size; delete mappings.createNew.storageid
           } else delete mappings.createNew.existingvolumeid
@@ -539,6 +738,8 @@ export default {
         if (target !== this.planTarget || instance !== this.instanceId) return
         if (mode !== this.targetMode || (mode === 'CREATE_NEW' && ((cloneScope !== null && cloneScope !== this.cloneIdentityTemplateScope()) || selectedTemplate !== this.clone?.templateid))) throw new Error(this.$t('message.storage.config.scope.changed'))
         this.plan = result.metadata.plan; this.planToken = result.planToken || ''
+        this.listenerMapping = { ...(this.plan.listenerAddressMappings || {}), ...(this.listenerMapping || {}) }
+        if (this.targetMode === 'RESTORE_EXISTING') this.resourceMapping = Object.fromEntries([...new Set([...this.plan.create, ...this.plan.update, ...this.plan.keep].map(row => row.kind))].map(kind => [kind, { ...(this.plan.resourceMappings?.[kind] || {}), ...(this.resourceMapping?.[kind] || {}) }]))
         this.planPhase = 'MAPPING'
         if (this.targetMode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate) {
           if (this.cloneTemplateScope !== this.cloneIdentityTemplateScope()) await this.loadCloneTemplates()
@@ -565,19 +766,20 @@ export default {
         if (!this.$getApiParams?.(api)?.maintenancewindow || this.restoreMaintenance !== true) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.maintenance.required'); return }
       }
       if (this.targetMode === 'CREATE_NEW') {
-        try { this.assertCloneIdentityTemplate(this.plan) } catch (error) { this.restoreMaintenance = false; this.error = error.message; return }
+        try { this.assertCloneIdentityTemplate(this.plan); if (!this.cloneRequiresIdentityTemplate && this.cloneTemplateSelection === 'EXPLICIT') this.assertOrdinaryCloneTemplate(this.plan) } catch (error) { this.restoreMaintenance = false; this.error = error.message; return }
       }
       const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
       if (requiresIdentity) parameters.maintenancewindow = true
-      const instance = this.instanceId
+      const scope = configurationScope(this)
+      const review = { targetMode: this.plan.targetMode || this.targetMode, create: { length: this.plan.create?.length || 0 }, update: { length: this.plan.update?.length || 0 }, keep: { length: this.plan.keep?.length || 0 }, preserve: { length: this.plan.preserve?.length || 0 } }
       this.closePlan(); this.busy = 'RESTORE'; this.error = ''
       try {
-        await this.mutation(api, parameters)
-        if (instance !== this.instanceId) throw new Error(this.$t('message.storage.config.scope.changed'))
+        await this.mutation(api, parameters, review)
+        if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
         await this.refresh()
-      } catch (_) { this.error = this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; this.busy = '' }
+      } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error?.message || this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
-    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.resourceMapping = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.cloneTemplateSelection = 'DEFAULT_SYSTEM'; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>

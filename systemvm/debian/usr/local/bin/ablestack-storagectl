@@ -5185,7 +5185,34 @@ if resume_format:
         recovery("RECOVERY_REQUIRED", "Filesystem UUID changed since volume preparation")
     phase("VERIFYING_FILESYSTEM", filesystemUuid=observed_uuid)
 
+def require_expected_mount_filesystem(request, expected_device):
+    # Absence keeps the historical existing-volume contract. Presence is never a format authority.
+    if "expectedFilesystemUuid" not in request:
+        return
+    expected_uuid = request["expectedFilesystemUuid"]
+    volume_uuid = request.get("volumeUuid")
+    for value in (expected_uuid, volume_uuid):
+        if type(value) is not str or str(uuid.UUID(value)) != value:
+            raise ValueError("Expected mount identity requires canonical filesystem and volume UUIDs")
+    expected_type = request.get("filesystem")
+    size = request.get("volumeSizeBytes")
+    if (type(expected_type) is not str or expected_type.lower() not in ("ext4", "xfs")
+            or type(size) is not int or size <= 0
+            or type(request.get("importMode")) is not str or request["importMode"].upper() != "MOUNT_EXISTING"):
+        raise ValueError("Expected filesystem identity requires an explicit no-format existing mount")
+    fresh = list(walk(lsblk()))
+    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, expected_size=size, allow_blank_size_fallback=False)
+    assert_mutating_volume_identity(resolved, request, fresh, size)
+    if resolved.get("devicePath") != expected_device:
+        raise ValueError("Expected mount volume device changed before mount")
+    actual_uuid = blkid_value(expected_device, "UUID")
+    actual_type = blkid_value(expected_device, "TYPE")
+    if actual_uuid != expected_uuid or actual_type != expected_type.lower():
+        raise ValueError("Expected filesystem UUID or type changed before mount")
+
+
 if import_mode != "INSPECT_ONLY":
+    require_expected_mount_filesystem(payload, device)
     if existing_filesystem and import_mode == "FORMAT_EMPTY" and not resume_format:
         raise SystemExit(f"Refusing to format {device}: filesystem {existing_filesystem} already exists")
     if existing_filesystem and existing_filesystem not in supported_filesystems:
@@ -41758,7 +41785,7 @@ PYRESOURCES
     ;;
   volume)
     if [[ "$subcommand" == "operation" && "$action" == "capabilities" ]]; then
-      printf '%s\n' '{"success":true,"formatDiscardPolicies":["DEFAULT","SKIP_DISCARD"],"sparseFormatRequired":true,"formatterSuccessReceiptSupported":true,"formatterSuccessReceiptSchemaVersion":2,"formatterOriginalOwnerSupported":true,"formatterIdentitySupported":true,"readonlyVolumeIdentitySupported":true}'
+      printf '%s\n' '{"success":true,"formatDiscardPolicies":["DEFAULT","SKIP_DISCARD"],"sparseFormatRequired":true,"formatterSuccessReceiptSupported":true,"formatterSuccessReceiptSchemaVersion":2,"formatterOriginalOwnerSupported":true,"formatterIdentitySupported":true,"readonlyVolumeIdentitySupported":true,"expectedFilesystemUuidGuardSupported":true}'
     elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."

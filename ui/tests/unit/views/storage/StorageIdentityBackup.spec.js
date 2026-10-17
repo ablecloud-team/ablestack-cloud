@@ -151,7 +151,7 @@ describe('Protected SMB identity backup opt-in', () => {
     getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 2, jobresult: { errortext: 'controlled job failure' } } })
     await Widget.methods.createBackup.call(vm)
     expect(vm.refresh).not.toHaveBeenCalled()
-    expect(vm.error).toBe('controlled job failure')
+    expect(vm.error).toBe('message.storage.config.job.failed')
   })
   it('uses exact public descriptor shape and server coverage to display encrypted identity preservation', () => {
     const descriptor = { schemaVersion: 1, kind: 'STORAGE_AD_SEMANTIC_SOURCE', ownerArtifactUuid: '11111111-1111-4111-8111-111111111111', sourceInstanceUuid: '22222222-2222-4222-8222-222222222222', sourceOperationUuid: '33333333-3333-4333-8333-333333333333', sourceConfigurationSha256: 'a'.repeat(64), ciphertextSha256: 'b'.repeat(64), issuerMac: 'c'.repeat(64) }

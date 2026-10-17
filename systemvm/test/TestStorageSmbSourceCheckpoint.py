@@ -360,9 +360,27 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_cbeef_before_expected_mount_guard(self):
+        # Project only the exact reviewed later three spans, never authorize them in a production bridge.
+        import ast,re
+        current=fixture.CLI.read_bytes()
+        block=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",current.decode(),re.S)
+                   if "def format_empty_device():"in value)
+        node=next(value for value in ast.parse(block).body if isinstance(value,ast.FunctionDef)
+                  and value.name=="require_expected_mount_filesystem")
+        helper=ast.get_source_segment(block,node).encode()+b"\n\n\n"
+        self.assertEqual("d4bd949fd137566f4a324ef670493d27f2e9f1b8faf99f70f5e857b8912de0b8",hashlib.sha256(helper).hexdigest())
+        spans=(helper,b"    require_expected_mount_filesystem(payload, device)\n",
+               b',"expectedFilesystemUuidGuardSupported":true')
+        for span in spans:
+            self.assertEqual(1,current.count(span));current=current.replace(span,b"",1)
+        self.assertEqual("cbeef9c50fe6cef72983943ec3c7bcea5f2bc5d69b0128a88702bbcf4a92807e",
+                         hashlib.sha256(current).hexdigest())
+        return current
+
     def initial_475_original_cli(self):
         import ast
-        current=fixture.CLI.read_bytes();original=current
+        current=self.historical_cbeef_before_expected_mount_guard();original=current
         for label in("PYIDENTITY","PYRENDEREDGENERATION"):
             begin=("<<'"+label+"'\n").encode();end=("\n"+label+"\n").encode()
             start=original.index(begin)+len(begin);finish=original.index(end,start);block=original[start:finish]
@@ -377,6 +395,11 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         self.assertEqual("475dc43cadc01191da5904e9fed15f67144d7423fdc21e9494d66d093b58ba6c",hashlib.sha256(original).hexdigest())
         return original,current
+
+    def test_later_expected_mount_guard_does_not_expand_the_closed_initial475_bridge(self):
+        original,_=self.initial_475_original_cli()
+        with self.assertRaises(ValueError):
+            self.native.unconfigured_stop_bridge_cli(fixture.CLI.read_bytes(),original)
 
     def unconfigured_bridge_fixture(self,initial=False):
         self.initial_unconfigured_source()if initial else self.verified_unconfigured_source()

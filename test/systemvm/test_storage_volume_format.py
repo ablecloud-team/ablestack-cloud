@@ -321,9 +321,10 @@ class VolumeMutationIdentityTest(unittest.TestCase):
 
     def test_format_resolver_never_enables_blank_size_fallback(self):
         calls = [node for node in ast.walk(self.tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "resolve_volume_device"]
-        self.assertEqual(1, len(calls))
-        option = next(item.value for item in calls[0].keywords if item.arg == "allow_blank_size_fallback")
-        self.assertIs(False, ast.literal_eval(option))
+        self.assertGreaterEqual(len(calls), 1)
+        for call in calls:
+            option = next(item.value for item in call.keywords if item.arg == "allow_blank_size_fallback")
+            self.assertIs(False, ast.literal_eval(option))
 
 if __name__ == "__main__":
     unittest.main()

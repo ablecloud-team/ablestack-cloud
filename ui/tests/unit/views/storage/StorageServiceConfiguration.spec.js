@@ -18,10 +18,11 @@
 import Widget from '@/views/storage/StorageServiceConfiguration'
 import { getAPI, postAPI } from '@/api'
 import SHA from 'sha.js'
+import { clearConfigurationIntents } from '@/utils/storageConfigurationJobs'
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 describe('Configuration backup and restore UI boundaries', () => {
-  beforeEach(() => { getAPI.mockReset(); postAPI.mockReset() })
+  beforeEach(() => { clearConfigurationIntents(); getAPI.mockReset(); postAPI.mockReset() })
   it.each([1, 2])('notifies the matching history after a configuration job ends with status %s', async status => {
     const vm = { instanceId: 'a', unwrap: Widget.methods.unwrap, $t: key => key, $emit: jest.fn() }
     postAPI.mockResolvedValue({ verifystorageserviceconfigurationresponse: { jobid: 'job' } })
@@ -209,5 +210,14 @@ describe('Configuration backup and restore UI boundaries', () => {
     const allocation = { sourceUuid: 'source', plannedUuid: 'planned', usage: 'BLOCK_RAW', provisioningType: 'SPARSE', dataPolicy: 'PRESERVE' }
     expect(Widget.computed.allocationRows.call({ plan: { volumeAllocationPlan: { allocations: [allocation] } } })).toEqual([allocation])
     expect(Widget.computed.allocationRows.call({ plan: null })).toEqual([])
+  })
+  it('offers default DATA from an empty service archive even when no resource references it', () => {
+    const uuid = '11111111-1111-4111-8111-111111111111'
+    expect(Widget.computed.sourceVolumes.call({ plan: { sourceVolumeInventory: [{ uuid, type: 'DATADISK', usage: 'UNUSED' }] }, changes: [] })).toEqual([uuid])
+  })
+  it('keeps unused attached DATA and referenced legacy DATA together without duplicate or ROOT choices', () => {
+    const first = '11111111-1111-4111-8111-111111111111'; const unused = '22222222-2222-4222-8222-222222222222'; const legacy = '33333333-3333-4333-8333-333333333333'
+    const plan = { sourceVolumeInventory: [{ uuid: first, type: 'DATADISK' }, { uuid: unused, type: 'DATADISK', usage: 'UNUSED' }, { uuid: 'root', type: 'ROOT' }] }
+    expect(Widget.computed.sourceVolumes.call({ plan, changes: [{ desired: { volumeUuid: first } }, { desired: { volumeUuid: legacy } }] })).toEqual([first, unused, legacy])
   })
 })
