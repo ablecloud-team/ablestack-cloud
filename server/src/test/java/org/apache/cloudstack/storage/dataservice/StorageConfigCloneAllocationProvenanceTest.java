@@ -115,6 +115,7 @@ public class StorageConfigCloneAllocationProvenanceTest {
     private StorageServiceOperationVO recoveryOperation;
     private boolean recoveryContext;
     private int recoveryInspections;
+    private String assignAddressAfterStart;
 
     private StorageConfigArtifactVO artifact() {
         StorageConfigArtifactVO result = new StorageConfigArtifactVO();
@@ -182,6 +183,7 @@ public class StorageConfigCloneAllocationProvenanceTest {
                 Mockito.when(rootDisk.getState()).thenReturn(Volume.State.Ready);Mockito.when(dataDisk.getState()).thenReturn(Volume.State.Ready);
                 Mockito.when(rootDisk.getPoolId()).thenReturn(80L);Mockito.when(dataDisk.getPoolId()).thenReturn(80L);
             }
+            if (assignAddressAfterStart != null) Mockito.when(allocationNic.getIPv4Address()).thenReturn(assignAddressAfterStart);
             return shared;
         });
         SharedFSDao sharedDao = Mockito.mock(SharedFSDao.class);Mockito.when(sharedDao.findById(100L)).thenReturn(shared);
@@ -392,6 +394,70 @@ public class StorageConfigCloneAllocationProvenanceTest {
         int before = deployments;
         Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.21");
         Assert.assertThrows(RuntimeException.class, this::create);Assert.assertEquals(before, deployments);
+    }
+    private void reviewedL2Static() {
+        plan.getAsJsonObject("createNew").addProperty("networkid", uuid(44));
+        plan.getAsJsonObject("createNew").addProperty("networkmode", "STATIC");
+        plan.getAsJsonObject("createNew").addProperty("ipcidr", "10.1.0.20/24");
+        Mockito.when(allocationNetwork.getUuid()).thenReturn(uuid(44));
+        Mockito.when(allocationNetwork.getGuestType()).thenReturn(com.cloud.network.Network.GuestType.L2);
+        Mockito.when(allocationNic.getIPv4Address()).thenReturn(null);
+    }
+    @Test public void reviewedL2StaticPinsApprovedAddressAfterPrestartNullCallbackWithoutRewritingAllocation() {
+        reviewedL2Static();assignAddressAfterStart = "10.1.0.20";Assert.assertSame(target, create());
+        JsonObject original = receipt().deepCopy();JsonObject nic = original.getAsJsonObject("vm").getAsJsonObject("nic");
+        Assert.assertTrue(nic.get("ipv4Address").isJsonNull());Assert.assertEquals("ALLOCATED_ADDRESSES_EXACT", nic.get("addressPolicy").getAsString());
+        JsonObject realized = JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneAllocationRealizations").getAsJsonObject("nic");
+        Assert.assertEquals("10.1.0.20", realized.get("ipv4Address").getAsString());
+        Assert.assertSame(shared, manager.requireConfigurationCloneAllocation(artifact(), plan, original));
+        Assert.assertEquals(original, receipt());Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, starts);
+        Assert.assertTrue(events.indexOf("RECORD") < events.indexOf("START"));
+    }
+    @Test public void legacyL2StaticExistingCreatorCanPinLaterRuntimeAssignmentWithoutRedeployOrReceiptRewrite() throws Exception {
+        existingInitial();reviewedL2Static();create();JsonObject original = receipt().deepCopy();int deployed = deployments;
+        Assert.assertFalse(JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneAllocationRealizations").has("nic"));
+        Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.20");
+        Assert.assertSame(shared, manager.requireConfigurationCloneAllocation(artifact(), plan, original));
+        Assert.assertEquals(original, receipt());Assert.assertEquals(deployed, deployments);Assert.assertEquals(1, existingAttachCalls);
+        Assert.assertEquals("10.1.0.20", JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneAllocationRealizations").getAsJsonObject("nic").get("ipv4Address").getAsString());
+    }
+    @Test public void assignedL2StaticRejectsAddressDeletionIpv6AndEveryOriginalNicIdentityDrift() {
+        reviewedL2Static();assignAddressAfterStart = "10.1.0.20";create();String original = metadata.get();
+        for (String field : List.of("IP", "REMOVED_IP", "IPV6", "MAC", "NETWORK", "GURU", "MODE", "FORMAT", "NIC_UUID", "NETWORK_TYPE")) {
+            if ("IP".equals(field)) Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.21");
+            if ("REMOVED_IP".equals(field)) Mockito.when(allocationNic.getIPv4Address()).thenReturn(null);
+            if ("IPV6".equals(field)) Mockito.when(allocationNic.getIPv6Address()).thenReturn("2001:db8::1");
+            if ("MAC".equals(field)) Mockito.when(allocationNic.getMacAddress()).thenReturn("02:00:00:00:00:98");
+            if ("NETWORK".equals(field)) Mockito.when(allocationNic.getNetworkId()).thenReturn(45L);
+            if ("GURU".equals(field)) Mockito.when(allocationNetwork.getGuruName()).thenReturn("OtherGuru");
+            if ("MODE".equals(field)) Mockito.when(allocationNic.getMode()).thenReturn(com.cloud.network.Networks.Mode.Static);
+            if ("FORMAT".equals(field)) Mockito.when(allocationNic.getAddressFormat()).thenReturn(com.cloud.network.Networks.AddressFormat.Ip6);
+            if ("NIC_UUID".equals(field)) Mockito.when(allocationNic.getUuid()).thenReturn(uuid(999));
+            if ("NETWORK_TYPE".equals(field)) Mockito.when(allocationNetwork.getGuestType()).thenReturn(com.cloud.network.Network.GuestType.Isolated);
+            Assert.assertThrows(RuntimeException.class, () -> manager.requireConfigurationCloneAllocation(artifact(), plan, receipt()));
+            Assert.assertEquals(original, metadata.get());
+            Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.20");Mockito.when(allocationNic.getIPv6Address()).thenReturn(null);
+            Mockito.when(allocationNic.getMacAddress()).thenReturn("02:00:00:00:00:99");Mockito.when(allocationNic.getNetworkId()).thenReturn(44L);
+            Mockito.when(allocationNetwork.getGuruName()).thenReturn("ExternalGuestNetworkGuru");Mockito.when(allocationNic.getMode()).thenReturn(com.cloud.network.Networks.Mode.Dhcp);
+            Mockito.when(allocationNic.getAddressFormat()).thenReturn(com.cloud.network.Networks.AddressFormat.Ip4);Mockito.when(allocationNic.getUuid()).thenReturn(uuid(99));
+            Mockito.when(allocationNetwork.getGuestType()).thenReturn(com.cloud.network.Network.GuestType.L2);
+        }
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, starts);
+    }
+    @Test public void l2StaticFirstAssignmentRejectsUnreviewedAddressAndCompetingRealizationCas() {
+        reviewedL2Static();create();JsonObject allocation = receipt().deepCopy();String original = metadata.get();
+        Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.21");
+        Assert.assertThrows(RuntimeException.class, () -> manager.requireConfigurationCloneAllocation(artifact(), plan, allocation));Assert.assertEquals(original, metadata.get());
+        Mockito.when(allocationNic.getIPv4Address()).thenReturn("10.1.0.20");
+        Mockito.when(artifacts.lockRow(900L, true)).thenAnswer(call -> {
+            JsonObject race = JsonParser.parseString(metadata.get()).getAsJsonObject();JsonObject foreign = new JsonObject();
+            foreign.addProperty("nicId", 99);foreign.addProperty("nicUuid", uuid(99));foreign.addProperty("ipv4Address", "10.1.0.21");
+            foreign.add("ipv6Address", com.google.gson.JsonNull.INSTANCE);foreign.addProperty("addressFormat", "Ip4");
+            race.getAsJsonObject("cloneAllocationRealizations").add("nic", foreign);StorageConfigArtifactVO locked = artifact();locked.setMetadataJson(race.toString());return locked;
+        });
+        Assert.assertThrows(RuntimeException.class, () -> manager.requireConfigurationCloneAllocation(artifact(), plan, allocation));
+        Assert.assertEquals(original, metadata.get());
+        Assert.assertEquals(allocation, receipt());Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, starts);
     }
     @Test public void firstReadyRootPoolIsPinnedIndependentlyAndLaterAllowedPoolDriftRejects() {
         failAfterVmCommit = true;Assert.assertThrows(RuntimeException.class, this::create);failAfterVmCommit = false;

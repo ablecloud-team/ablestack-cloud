@@ -4346,7 +4346,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         binding.addProperty("templateId", template.getId());binding.addProperty("templateUuid", template.getUuid());
         binding.addProperty("networkId", nics.get(0).getNetworkId());binding.addProperty("nicId", nics.get(0).getId());
         binding.addProperty("nicUuid", nics.get(0).getUuid());
-        binding.add("nic", configurationCloneNicBinding(nics.get(0), previous == null ? null : previous.getAsJsonObject("nic")));
+        binding.add("nic", configurationCloneNicBinding(nics.get(0), previous == null ? null : previous.getAsJsonObject("nic"), plan));
         binding.add("root", configurationCloneDiskBinding(roots.get(0), vm, true, previous == null ? null : previous.getAsJsonObject("root"), cmd.getStorageId()));
         binding.add("data", existing ? configurationCloneExistingDataBinding(shared, plan)
                 : configurationCloneDiskBinding(selected, vm, false, previous == null ? null : previous.getAsJsonObject("data"), cmd.getStorageId()));
@@ -4355,6 +4355,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     private JsonObject configurationCloneNicBinding(NicVO nic, JsonObject previous) {
+        return configurationCloneNicBinding(nic, previous, null);
+    }
+
+    private JsonObject configurationCloneNicBinding(NicVO nic, JsonObject previous, JsonObject plan) {
         NetworkVO network = networkDao.findById(nic.getNetworkId());
         if (network == null) throw new InvalidParameterValueException("Clone NIC network is unavailable");
         JsonObject binding = new JsonObject();
@@ -4375,7 +4379,31 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     binding.add(field, previous.get(field).deepCopy());
             }
         }
+        String approvedStatic = configurationCloneReviewedStaticAddress(nic, previous, plan);
+        if (approvedStatic != null && nic.getIPv4Address() != null) {
+            if (!approvedStatic.equals(nic.getIPv4Address()))
+                throw new InvalidParameterValueException("Clone L2 STATIC address differs from its original reviewed address");
+            // Keep the pre-start immutable allocation; publish the assigned address separately.
+            binding.add("ipv4Address", previous.get("ipv4Address").deepCopy());
+        }
         return binding;
+    }
+
+    private String configurationCloneReviewedStaticAddress(NicVO nic, JsonObject previous, JsonObject plan) {
+        if (plan == null || previous == null || !"ALLOCATED_ADDRESSES_EXACT".equals(getJsonString(previous, "addressPolicy"))
+                || !previous.has("ipv4Address") || !previous.get("ipv4Address").isJsonNull()
+                || !previous.has("ipv6Address") || !previous.get("ipv6Address").isJsonNull()
+                || !"Dhcp".equals(getJsonString(previous, "mode")) || !"Ip4".equals(getJsonString(previous, "addressFormat"))
+                || !Boolean.TRUE.equals(getJsonBoolean(previous, "defaultNic")) || getJsonInt(previous, "deviceId", -1) != 0)
+            return null;
+        JsonObject blueprint = plan.getAsJsonObject("createNew");NetworkVO network = networkDao.findById(nic.getNetworkId());
+        String cidr = getJsonString(blueprint, "ipcidr");
+        if (!"STATIC".equals(getJsonString(blueprint, "networkmode")) || network == null
+                || network.getGuestType() != com.cloud.network.Network.GuestType.L2
+                || !"ExternalGuestNetworkGuru".equals(network.getGuruName())
+                || !java.util.Objects.equals(network.getUuid(), getJsonString(blueprint, "networkid"))
+                || cidr == null || !com.cloud.utils.net.NetUtils.isValidIp4Cidr(cidr)) return null;
+        return cidr.substring(0, cidr.indexOf('/'));
     }
 
     private JsonObject configurationCloneRealizedDisk(VolumeVO disk, com.cloud.vm.UserVmVO vm, boolean root, JsonObject plan) {
@@ -4434,8 +4462,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
         NicVO nic = nicDao.listByVmId(vm.getId()).get(0);
         JsonObject initial = allocation.getAsJsonObject("vm").getAsJsonObject("nic");
+        String approvedStatic = configurationCloneReviewedStaticAddress(nic, initial, plan);
+        if (approvedStatic != null && nic.getIPv4Address() != null
+                && (!approvedStatic.equals(nic.getIPv4Address()) || nic.getIPv6Address() != null
+                    || nic.getId() != configurationAllocationId(allocation.getAsJsonObject("vm"), "nicId")
+                    || !nic.getUuid().equals(getJsonString(allocation.getAsJsonObject("vm"), "nicUuid"))
+                    || nic.getNetworkId() != configurationAllocationId(allocation.getAsJsonObject("vm"), "networkId")
+                    || !initial.equals(configurationCloneNicBinding(nic, initial, plan))))
+            throw new InvalidParameterValueException("Clone L2 STATIC first assignment lost its exact original NIC binding");
         if ("DIRECT_NULL_TO_ASSIGNED_ONCE".equals(getJsonString(initial, "addressPolicy"))
-                && (nic.getIPv4Address() != null || nic.getIPv6Address() != null)) {
+                && (nic.getIPv4Address() != null || nic.getIPv6Address() != null)
+                || approvedStatic != null && nic.getIPv4Address() != null) {
             JsonObject assigned = new JsonObject();
             assigned.addProperty("nicId", nic.getId());assigned.addProperty("nicUuid", nic.getUuid());
             assigned.addProperty("ipv4Address", nic.getIPv4Address());assigned.addProperty("ipv6Address", nic.getIPv6Address());
