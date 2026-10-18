@@ -34,11 +34,32 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageApprovedMaintenanceRetryTest {
     private static class Manager extends StorageServiceManagerImpl {
-        StorageServiceInstanceVO instance;boolean routeProtected;int protectedEntries;
-        @Override public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(StorageConfigRequest request){if(!routeProtected)throw new AssertionError("Unexpected protected route");Assert.assertEquals(Boolean.TRUE,request.getMaintenanceWindow());protectedEntries++;return new org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse();}
+        StorageServiceInstanceVO instance;boolean routeProtected,routeGeneric;int protectedEntries,genericEntries,holdCalls;String holdVariant="ACTUAL";
+        @Override public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(StorageConfigRequest request){if(routeGeneric){genericEntries++;return new org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse();}if(!routeProtected)throw new AssertionError("Unexpected protected route");Assert.assertEquals(Boolean.TRUE,request.getMaintenanceWindow());protectedEntries++;return new org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse();}
         @Override protected void requireConfigurationAdministrator(){ }
         @Override protected StorageServiceInstanceVO requireInstance(Long id){return instance;}
-        @Override protected JsonObject requiredRenderedValidationProfile(StorageServiceInstanceVO instance){if(routeProtected)return new JsonObject();throw new AssertionError("Completed retry must not reauthorize an expired execution profile");}
+        @Override protected JsonObject requiredRenderedValidationProfile(StorageServiceInstanceVO instance){if(routeProtected||routeGeneric)return new JsonObject();throw new AssertionError("Completed retry must not reauthorize an expired execution profile");}
+        // Only the external lifecycle/DAO boundaries are isolated in these reply-contract units.
+        @Override protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own){Assert.assertTrue(routeGeneric);}
+        @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance){Assert.assertTrue(routeGeneric);}
+        @Override protected long rootDesiredRevision(long id){Assert.assertTrue(routeGeneric);return 2;}
+        @Override protected String captureConfigurationSnapshot(long id){Assert.assertTrue(routeGeneric);return "{}";}
+        @Override protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation){Assert.assertTrue(routeGeneric);}
+        @Override protected void endStorageWriterHeartbeat(){Assert.assertTrue(routeGeneric);}
+        @Override protected StorageServiceOperationControlVO startOperationControl(StorageServiceInstanceVO instance,StorageServiceOperationVO operation){Assert.assertTrue(routeGeneric);return null;}
+        @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action){
+            Assert.assertTrue(routeGeneric);JsonObject observed=new JsonObject();observed.add("configurationDesiredState",new JsonObject());return observed;
+        }
+        @Override protected void prepareRenderedBatch(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject before){Assert.assertTrue(routeGeneric);}
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance,String action,JsonObject request,int timeout){
+            Assert.assertTrue(routeGeneric);Assert.assertEquals("operation maintenance service-enter",action);holdCalls++;
+            JsonObject reply=new JsonObject();reply.addProperty("maintenanceKind","SERVICE");reply.addProperty("bootHeld",true);reply.add("scope",request.deepCopy());
+            if(holdVariant.equals("LEGACY_ONLY")){reply.remove("maintenanceKind");reply.addProperty("kind","SERVICE");}
+            if(holdVariant.equals("FOREIGN_KIND")){reply.addProperty("maintenanceKind","ROOT");reply.addProperty("kind","SERVICE");}
+            if(holdVariant.equals("FOREIGN_SCOPE"))reply.getAsJsonObject("scope").addProperty("operationUuid","00000000-0000-4000-8000-000000000999");
+            if(holdVariant.equals("NOT_HELD"))reply.addProperty("bootHeld",false);
+            return reply;
+        }
     }
     private Manager manager;private StorageServiceOperationDao operations;private StorageConfigArtifactDao artifacts;private StorageServiceOperationVO completed;private ApplyStorageServiceApprovedMaintenanceCmd command;
     @Before public void setup(){
@@ -52,5 +73,32 @@ public class StorageApprovedMaintenanceRetryTest {
     @Test public void authenticatedAdMaintenanceUsesOneProtectedWriterBeforeGenericBeginOrStop() {
         manager.routeProtected=true;Mockito.when(operations.findByRequest(7L,"SERVICE_MAINTENANCE:retry")).thenReturn(null);Mockito.when(command.getArtifactId()).thenReturn(8L);StorageConfigArtifactVO artifact=Mockito.mock(StorageConfigArtifactVO.class);Mockito.when(artifact.getInstanceId()).thenReturn(7L);Mockito.when(artifact.getMetadataJson()).thenReturn("{\"plan\":{\"targetInstanceUuid\":\"instance\",\"targetMode\":\"RESTORE_EXISTING\",\"adIdentitySourceDescriptor\":{}}}");Mockito.when(artifacts.findById(8L)).thenReturn(artifact);
         replay();Assert.assertEquals(1,manager.protectedEntries);Mockito.verify(operations,Mockito.never()).persist(Mockito.any());
+    }
+    @Test public void nativeServiceHoldUsesMaintenanceKindWithoutInventingTheLegacyKindAlias() {
+        prepareGenericEntry();
+        try(org.mockito.MockedConstruction<StorageServiceConfiguration> validation=Mockito.mockConstruction(StorageServiceConfiguration.class)) {
+            replay();Assert.assertEquals(1,manager.holdCalls);Assert.assertEquals(1,manager.genericEntries);
+            Mockito.verify(validation.constructed().get(0)).validateApprovedMaintenancePlan(manager.instance,command);
+        }
+    }
+    @Test public void legacyAliasForeignScopeKindAndUnheldResponsesRejectBeforeConfiguration() {
+        prepareGenericEntry();
+        try(org.mockito.MockedConstruction<StorageServiceConfiguration> validation=Mockito.mockConstruction(StorageServiceConfiguration.class)) {
+            for(String variant:java.util.List.of("LEGACY_ONLY","FOREIGN_KIND","FOREIGN_SCOPE","NOT_HELD")) {
+                manager.holdVariant=variant;manager.holdCalls=0;
+                com.cloud.utils.exception.CloudRuntimeException rejected=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,this::replay);
+                Assert.assertEquals("Service acceptors were not held under the exact approved operation",rejected.getMessage());
+                Assert.assertEquals(1,manager.holdCalls);Assert.assertEquals(0,manager.genericEntries);
+            }
+        }
+    }
+    private void prepareGenericEntry() {
+        manager.routeGeneric=true;String target="11111111-1111-4111-8111-111111111111";Mockito.when(manager.instance.getUuid()).thenReturn(target);
+        Mockito.when(operations.findByRequest(7L,"SERVICE_MAINTENANCE:retry")).thenReturn(null);Mockito.when(command.getArtifactId()).thenReturn(8L);
+        StorageConfigArtifactVO artifact=Mockito.mock(StorageConfigArtifactVO.class);Mockito.when(artifact.getInstanceId()).thenReturn(7L);
+        Mockito.when(artifact.getMetadataJson()).thenReturn("{\"plan\":{\"targetInstanceUuid\":\""+target+"\",\"targetMode\":\"RESTORE_EXISTING\"}}");
+        Mockito.when(artifacts.findById(8L)).thenReturn(artifact);
+        Mockito.when(operations.persist(Mockito.any())).thenAnswer(call->{StorageServiceOperationVO row=call.getArgument(0);ReflectionTestUtils.setField(row,"id",9L);return row;});
+        Mockito.when(operations.update(Mockito.eq(9L),Mockito.any())).thenReturn(true);
     }
 }
