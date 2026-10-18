@@ -51,16 +51,58 @@ describe('configuration known jobs and non-secret review', () => {
     expect(configurationIntents[configurationScope(vm)].status).toBe('unknown')
     expect(getAPI).not.toHaveBeenCalled()
   })
+  it('keeps an approved request without a job ACK unknown even when a runtime row claims completion', async () => {
+    const vm = context()
+    postAPI.mockResolvedValue({ applystorageserviceapprovedmaintenanceresponse: { storageserviceruntime: { id: vm.instanceId, success: true, status: 'COMPLETE', resultjson: JSON.stringify({ id: 'artifact', result: '{}' }) } } })
+    await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceApprovedMaintenance', {})).rejects.toThrow('message.storage.config.job.unknown')
+    expect(configurationIntents[configurationScope(vm)].status).toBe('unknown')
+    await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceApprovedMaintenance', {})).rejects.toThrow('message.storage.config.job.blocked')
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(getAPI).not.toHaveBeenCalled()
+  })
+
+  it('tracks approved maintenance by its known job and unwraps the actual nested runtime artifact result', async () => {
+    const vm = context(); const artifact = { id: 'artifact-a', state: 'ARCHIVE_VALIDATED', metadata: { restoreState: 'COMPLETE' } }
+    const request = { artifactid: artifact.id, credentials: '{"password":"synthetic-approved-secret"}', maintenancewindow: true }
+    postAPI.mockResolvedValue({ applystorageserviceapprovedmaintenanceresponse: { jobid: 'approved-known-job' } })
+    getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 1, jobresultcode: 0, jobresult: { storageserviceruntime: { id: vm.instanceId, success: true, status: 'COMPLETE', resultjson: JSON.stringify({ id: artifact.id, result: JSON.stringify(artifact) }) } } } })
+    await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceApprovedMaintenance', request)).resolves.toEqual(artifact)
+    expect(getAPI.mock.calls.every(call => call[1].jobid === 'approved-known-job')).toBe(true)
+    expect(postAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI.mock.calls[0][1].instanceid).toBe('instance-a')
+    expect(request.credentials).toBe('')
+    expect(JSON.stringify(configurationIntents)).not.toContain('synthetic-approved-secret')
+    expect(vm.$emit).toHaveBeenCalledWith('operation-updated', vm.instanceId)
+  })
+
+  it('rejects approved runtime failure and another-instance completion without a fallback POST', async () => {
+    for (const runtime of [{ id: 'instance-a', success: false, status: 'FAILED' }, { id: 'other-instance', success: true, status: 'COMPLETE' }]) {
+      clearConfigurationIntents(); postAPI.mockClear()
+      const vm = context()
+      postAPI.mockResolvedValue({ applystorageserviceapprovedmaintenanceresponse: { jobid: 'approved-invalid-result' } })
+      getAPI.mockResolvedValue({ queryasyncjobresultresponse: { jobstatus: 1, jobresultcode: 0, jobresult: { storageserviceruntime: { ...runtime, resultjson: JSON.stringify({ id: 'artifact', result: '{}' }) } } } })
+      await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceApprovedMaintenance', {})).rejects.toThrow('message.storage.config.failed')
+      expect(postAPI).toHaveBeenCalledTimes(1)
+    }
+  })
+
+  it('blocks approved maintenance at the same current-writer gate before any POST', async () => {
+    const vm = { ...context(), storageMutationGate: { blocked: () => true, message: () => 'current-writer-blocked' } }
+    await expect(Widget.methods.mutation.call(vm, 'applyStorageServiceApprovedMaintenance', {})).rejects.toThrow('current-writer-blocked')
+    expect(postAPI).not.toHaveBeenCalled()
+    expect(getAPI).not.toHaveBeenCalled()
+  })
+
   it('accepts a synchronous validated artifact without inventing a job', async () => {
     const vm = context(); postAPI.mockResolvedValue({ validatestorageserviceconfigimportresponse: { result: '{"id":"import-a","state":"ARCHIVE_VALIDATED"}' } })
     await expect(Widget.methods.mutation.call(vm, 'validateStorageServiceConfigImport', { artifactid: 'import-a' })).resolves.toEqual({ id: 'import-a', state: 'ARCHIVE_VALIDATED' })
     expect(getAPI).not.toHaveBeenCalled()
   })
-  it('retains a known job across interruption and re-entry, querying the same ID without another POST', async () => {
+  it.each(['applyStorageServiceConfigRestore', 'applyStorageServiceApprovedMaintenance'])('retains the same %s job across interruption and re-entry without another POST', async api => {
     const vm = context()
-    postAPI.mockResolvedValue({ applystorageserviceconfigrestoreresponse: { jobid: 'accepted-job' } })
+    postAPI.mockResolvedValue({ [api.toLowerCase() + 'response']: { jobid: 'accepted-job' } })
     getAPI.mockImplementation(() => new Promise(() => {}))
-    const pending = Widget.methods.mutation.call(vm, 'applyStorageServiceConfigRestore', {}).catch(error => error)
+    const pending = Widget.methods.mutation.call(vm, api, {}).catch(error => error)
     await flush(); jest.advanceTimersByTime(180000); await flush(); await pending
     const intent = configurationIntents[configurationScope(vm)]
     expect(intent).toMatchObject({ jobId: 'accepted-job', status: 'unknown' })
@@ -118,6 +160,39 @@ describe('configuration known jobs and non-secret review', () => {
   })
 })
 describe('existing resource mappings and ordinary explicit clone templates', () => {
+  it.each(['ko_KR', 'en'])('explains a protocol mapping blocker with existing %s labels and its source UUID', language => {
+    const labels = require('@public/locales/' + language + '.json')
+    const source = '11111111-1111-4111-8111-111111111111'
+    const message = Widget.methods.configurationBlockerLabel.call({ $t: key => labels[key] }, 'PROTOCOL_MAPPING_REQUIRED:' + source)
+    for (const key of ['label.protocol', 'label.storage.config.resource.mapping', 'label.required', 'message.error.select']) expect(message).toContain(labels[key])
+    expect(message).toContain(source)
+    expect(message).not.toContain('PROTOCOL_MAPPING_REQUIRED')
+    expect(message).not.toContain('undefined')
+  })
+
+  it('keeps a colliding protocol plan in mapping until its preserved endpoint is explicitly selected and replanned', async () => {
+    const source = '11111111-1111-4111-8111-111111111111'; const target = '22222222-2222-4222-8222-222222222222'
+    const row = { kind: 'protocols', sourceUuid: source, desired: { uuid: source, protocol: 'NFS', enabled: true } }
+    const blocked = { targetName: 'service', create: [row], update: [], keep: [], preserve: [{ kind: 'protocols', targetUuid: target, current: { uuid: target, protocol: 'NFS' } }], blockers: ['PROTOCOL_MAPPING_REQUIRED:' + source], requiredCredentials: [] }
+    const reviewed = { ...blocked, create: [], update: [{ ...row, targetUuid: target, current: { uuid: target, protocol: 'NFS' } }], preserve: [], blockers: [], resourceMappings: { protocols: { [source]: target } } }
+    const vm = { instanceId: 'protocol-mapping-instance', planTarget: { id: 'artifact' }, targetMode: 'RESTORE_EXISTING', volumeMapping: {}, resourceMapping: {}, $t: key => key, mutation: jest.fn() }
+    vm.mutation.mockResolvedValueOnce({ metadata: { plan: blocked } }).mockResolvedValueOnce({ planToken: 'explicit-mapping-reviewed-token', metadata: { plan: reviewed } })
+    await Widget.methods.preparePlan.call(vm)
+    expect(vm.planPhase).toBe('MAPPING')
+    expect(vm.planToken).toBe('')
+    const options = Widget.computed.resourceMappingRows.call(vm)
+    expect(options[0].options).toContainEqual({ value: target, label: 'NFS · ' + target })
+    Widget.methods.setResourceMapping.call(vm, options[0], target)
+    expect(vm.planToken).toBe('')
+    expect(vm.reviewedPlan).toBe('')
+    await Widget.methods.preparePlan.call(vm)
+    expect(vm.mutation).toHaveBeenCalledTimes(2)
+    expect(vm.mutation.mock.calls.every(call => call[0] === 'planStorageServiceConfigRestore')).toBe(true)
+    expect(JSON.parse(vm.mutation.mock.calls[1][1].mapping).protocols).toEqual({ [source]: target })
+    expect(vm.planPhase).toBe('REVIEW')
+    expect(vm.planToken).toBe('explicit-mapping-reviewed-token')
+  })
+
   it('offers only same-kind existing targets and invalidates the reviewed token/credentials when changed', () => {
     const vm = {
       targetMode: 'RESTORE_EXISTING',

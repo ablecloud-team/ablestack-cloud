@@ -38,7 +38,7 @@ export function currentStorageWriter (rows, instanceId) {
 const forwardStorageCommands = new Set([
   'createStoragePosixDirectoryPolicy', 'updateStoragePosixDirectoryPolicy', 'deleteStoragePosixDirectoryPolicy', 'applyStoragePosixDirectoryPolicy',
   'createStorageSmbNetworkAcl', 'updateStorageSmbNetworkAcl', 'deleteStorageSmbNetworkAcl',
-  'verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood',
+  'verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'applyStorageServiceApprovedMaintenance', 'restoreStorageServiceLastKnownGood',
   'upgradeStorageServiceRuntime', 'upgradeStorageServiceSystemVmTemplate', 'configureStorageServiceControlPolicy'
 ])
 

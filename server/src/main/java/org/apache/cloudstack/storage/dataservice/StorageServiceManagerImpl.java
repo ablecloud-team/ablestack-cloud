@@ -5787,13 +5787,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceOperationVO writer=storageWriterOperation.get();
         ConfigurationBatch batch=configurationBatch.get();
         StorageServiceOperationVO stored=writer==null?null:storageOperationDao.findById(writer.getId());
+        boolean approvedService=writer!=null && "SERVICE_MAINTENANCE".equals(writer.getAction()) && serviceMaintenanceOperation.get()==writer;
         if (batch==null || batch.instanceId!=instance.getId() || writer==null || stored==null
                 || writer.getInstanceId()!=instance.getId() || stored.getInstanceId()!=instance.getId()
                 || !writer.getUuid().equals(stored.getUuid()) || writer.getRevision()!=stored.getRevision()
                 || writer.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
                 || writer.getCreatedBy()!=stored.getCreatedBy() || !"RUNNING".equals(writer.getState()) || !"RUNNING".equals(stored.getState())
                 || !"APPLYING".equals(writer.getPhase()) || !"APPLYING".equals(stored.getPhase())
-                || !Set.of("applystorageserviceconfigrestoreresponse","restorestorageservicelastknowngoodresponse").contains(writer.getAction())
+                || !Set.of("applystorageserviceconfigrestoreresponse","restorestorageservicelastknowngoodresponse").contains(writer.getAction()) && !approvedService
                 || !writer.getAction().equals(stored.getAction()) || !StorageConfigDomainRestore.legacyProtocolEndpoint(desired,true)
                 || peers==null || peers.size()==0 || peers.size()>512)
             throw new InvalidParameterValueException("Legacy default protocol restore has no exact active reviewed writer");
@@ -5886,6 +5887,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     /** Conflict observation only; actual secondary address registration remains in the normal protocol API. */
     protected void preflightConfigurationListenerMappings(StorageServiceInstanceVO target, JsonObject plan) {
+        // Adopting an existing endpoint requires an explicit reviewed resource mapping.
+        // Reject CREATE/PRESERVE aliases before any domain API can change the preserved row.
+        if ("RESTORE_EXISTING".equals(getJsonString(plan,"targetMode"))) for (JsonElement value:plan.getAsJsonArray("create")) {
+            JsonObject change=value.getAsJsonObject();if (!"protocols".equals(getJsonString(change,"kind"))) continue;
+            String tuple=StorageConfigRestorePlan.protocolTuple(change.getAsJsonObject("desired"));
+            for (JsonElement kept:plan.getAsJsonArray("preserve")) {
+                JsonObject preserve=kept.getAsJsonObject();if (!"protocols".equals(getJsonString(preserve,"kind"))) continue;
+                if (tuple.equals(StorageConfigRestorePlan.protocolTuple(preserve.getAsJsonObject("current")))) {
+                    com.google.gson.JsonPrimitive code=new com.google.gson.JsonPrimitive("PROTOCOL_MAPPING_REQUIRED:"+getJsonString(change,"sourceUuid"));
+                    if (!plan.getAsJsonArray("blockers").contains(code)) plan.getAsJsonArray("blockers").add(code);
+                }
+            }
+        }
         JsonObject mappings = getJsonObject(plan, "listenerAddressMappings");
         if (mappings == null || mappings.size() == 0) return;
         boolean create = "CREATE_NEW".equals(getJsonString(plan, "targetMode"));
@@ -6539,13 +6553,37 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd request=(org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd)cmd;
         requireAdLifecycleApproval(instance,request.getAdMaintenanceWindow(),request.getAdConfirmation());
     }
+    protected void beginApprovedServiceConfigurationMutation(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        StorageServiceOperationVO stored=operation==null?null:storageOperationDao.findById(operation.getId());
+        if (operation==null || stored==null || serviceMaintenanceOperation.get()!=operation || storageWriterOperation.get()!=operation
+                || operation.getId()<=0 || stored.getId()!=operation.getId() || operation.getInstanceId()!=instance.getId()
+                || stored.getInstanceId()!=instance.getId() || !operation.getUuid().equals(stored.getUuid())
+                || operation.getRevision()!=stored.getRevision() || operation.getCreatedBy()!=stored.getCreatedBy()
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"SERVICE_MAINTENANCE".equals(operation.getAction()) || !operation.getAction().equals(stored.getAction())
+                || !"RUNNING".equals(operation.getState()) || !operation.getState().equals(stored.getState())
+                || !Set.of("HELD","APPLYING").contains(operation.getPhase()) || !operation.getPhase().equals(stored.getPhase())
+                || operation.getRequestKey()==null || !operation.getRequestKey().startsWith("SERVICE_MAINTENANCE:")
+                || !operation.getRequestKey().equals(stored.getRequestKey())
+                || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),stored.getPreviousSnapshotJson()))
+            throw new CloudRuntimeException("Approved service configuration mutation lost its exact held writer scope");
+        enterStorageMutationBoundary(operation);
+        // Control-disabled instances still need the same durable mutation phase before domain APIs run.
+        if (!"APPLYING".equals(operation.getPhase())) {
+            operation.setPhase("APPLYING");operation.setHeartbeat(new java.util.Date());
+            if (!storageOperationDao.update(operation.getId(),operation))
+                throw new CloudRuntimeException("Approved service configuration mutation phase was not persisted");
+        }
+    }
+
     protected <T> T executeDesiredChange(org.apache.cloudstack.api.BaseCmd cmd, Class<T> responseClass, java.util.function.Supplier<T> change) {
         final long instanceId = getStorageServiceSyncId(cmd);
         final StorageServiceInstanceVO instance = requireInstance(instanceId);
         JsonObject controlPolicy=instanceControlPolicy(instance);JsonObject renderedPolicy=controlPolicy.has("renderedValidationProfile")?controlPolicy.getAsJsonObject("renderedValidationProfile"):null;
         if(renderedPolicy!=null&&Boolean.TRUE.equals(getJsonBoolean(renderedPolicy,"baselineImported"))&&!Boolean.TRUE.equals(getJsonBoolean(renderedPolicy,"enabled")))throw new CloudRuntimeException("Imported rendered fixture requires its authorized recovery profile; legacy writers are blocked");
         if(serviceMaintenanceOperation.get()!=null && configurationBatch.get()==null) {
-            StorageServiceOperationVO approved=serviceMaintenanceOperation.get();if(approved.getInstanceId()!=instanceId)throw new CloudRuntimeException("Maintenance plan targets a foreign instance");enterStorageMutationBoundary(approved);T response=change.get();stageAndActivateRendered(instance,approved);approved.setSnapshotJson(captureConfigurationSnapshot(instanceId));storageOperationDao.update(approved.getId(),approved);RenderedBatch rendered=renderedBatch.get();renderedCoordinator(instance,rendered).commit(rendered.receipt,renderedActivationRequest(instance,rendered));return response;
+            StorageServiceOperationVO approved=serviceMaintenanceOperation.get();beginApprovedServiceConfigurationMutation(instance,approved);T response=change.get();stageAndActivateRendered(instance,approved);approved.setSnapshotJson(captureConfigurationSnapshot(instanceId));storageOperationDao.update(approved.getId(),approved);RenderedBatch rendered=renderedBatch.get();renderedCoordinator(instance,rendered).commit(rendered.receipt,renderedActivationRequest(instance,rendered));return response;
         }
         final ConfigurationBatch batch = configurationBatch.get();
         if (batch != null) {

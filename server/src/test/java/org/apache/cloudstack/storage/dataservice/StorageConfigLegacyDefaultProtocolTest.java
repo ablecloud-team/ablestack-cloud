@@ -48,7 +48,7 @@ public class StorageConfigLegacyDefaultProtocolTest {
     }
     final Manager manager=new Manager();
     StorageServiceInstanceVO instance;StorageServiceOperationVO writer;
-    StorageServiceProtocolDao protocols;
+    StorageServiceProtocolDao protocols;StorageServiceOperationDao operations;
     <T>T copy(T value,Class<T> type){return gson.fromJson(gson.toJson(value),type);}
     static void set(Object value,String field,Object content){ReflectionTestUtils.setField(value,field,content);}
     JsonObject source(boolean wildcard){
@@ -65,7 +65,7 @@ public class StorageConfigLegacyDefaultProtocolTest {
         AccountManager accounts=Mockito.mock(AccountManager.class);Mockito.when(accounts.isRootAdmin(2L)).thenReturn(true);set(manager,"storageAccountManager",accounts);
         instance=new StorageServiceInstanceVO();set(instance,"id",7L);set(instance,"uuid",INSTANCE);set(instance,"accountId",2L);set(instance,"domainId",1L);instance.setVmId(42L);
         writer=new StorageServiceOperationVO();set(writer,"id",9L);writer.setInstanceId(7);writer.setCreatedBy(2);writer.setAction("applystorageserviceconfigrestoreresponse");writer.setState("RUNNING");writer.setPhase("APPLYING");writer.setRevision(2);
-        StorageServiceOperationDao operations=Mockito.mock(StorageServiceOperationDao.class);Mockito.when(operations.findById(9L)).thenAnswer(c->copy(writer,StorageServiceOperationVO.class));set(manager,"storageOperationDao",operations);
+        operations=Mockito.mock(StorageServiceOperationDao.class);Mockito.when(operations.findById(9L)).thenAnswer(c->copy(writer,StorageServiceOperationVO.class));set(manager,"storageOperationDao",operations);
         ((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"storageWriterOperation")).set(writer);manager.beginConfigurationBatch(7L);
         StorageServiceProtocolVO peer=new StorageServiceProtocolVO(7,StorageServiceInstance.Protocol.ISCSI,true,"192.0.2.10",3260);set(peer,"id",10L);set(peer,"uuid",PEER);peer.setState(StorageServiceInstance.ResourceState.Ready);rows.put(10L,peer);
         protocols=Mockito.mock(StorageServiceProtocolDao.class);Mockito.when(protocols.listByInstanceIdAndProtocol(7L,StorageServiceInstance.Protocol.ISCSI)).thenAnswer(c->rows.values().stream().map(v->copy(v,StorageServiceProtocolVO.class)).collect(java.util.stream.Collectors.toList()));
@@ -74,13 +74,35 @@ public class StorageConfigLegacyDefaultProtocolTest {
         Mockito.when(protocols.persist(Mockito.any())).thenAnswer(c->{StorageServiceProtocolVO value=copy(c.getArgument(0),StorageServiceProtocolVO.class);set(value,"id",11L);rows.put(11L,value);return copy(value,StorageServiceProtocolVO.class);});set(manager,"storageServiceProtocolDao",protocols);
         NicDao nics=Mockito.mock(NicDao.class);NicVO nic=Mockito.mock(NicVO.class);Mockito.when(nic.getId()).thenReturn(1L);Mockito.when(nic.getIPv4Address()).thenReturn("192.0.2.10");Mockito.when(nic.isDefaultNic()).thenReturn(true);Mockito.when(nics.listByVmId(42L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
     }
-    @After public void close(){manager.abortConfigurationBatch();((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"storageWriterOperation")).remove();org.apache.cloudstack.context.CallContext.unregister();}
+    @After public void close(){((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).remove();manager.abortConfigurationBatch();((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"storageWriterOperation")).remove();org.apache.cloudstack.context.CallContext.unregister();}
     @Test public void legacyDefaultUsesTheNormalTargetInitializerWithoutChangingTheSpecificPeer(){
         JsonObject before=gson.toJsonTree(rows.get(10L)).getAsJsonObject();restore(source(true));restore(source(true));
         Assert.assertEquals(2,rows.size());Assert.assertEquals(before,gson.toJsonTree(rows.get(10L)));Assert.assertNull(rows.get(11L).getListenIp());Assert.assertTrue(rows.get(11L).isEnabled());
         Assert.assertEquals(1,manager.buildBlockProtocolListeners(instance,StorageServiceInstance.Protocol.ISCSI).size());
         Assert.assertTrue(manager.buildBlockProtocolEndpointAliases(instance,StorageServiceInstance.Protocol.ISCSI).get(0).getAsJsonObject().get("coveredByWildcard").getAsBoolean());
         Mockito.verify(protocols,Mockito.times(1)).persist(Mockito.any());
+    }
+    private void serviceWriter(String phase) {
+        writer.setAction("SERVICE_MAINTENANCE");writer.setPhase(phase);writer.setRequestKey("SERVICE_MAINTENANCE:reviewed");writer.setPreviousSnapshotJson("{}");
+        ((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).set(writer);
+        set(manager,"storageOperationControlDao",Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationControlDao.class));
+        Mockito.when(operations.update(Mockito.eq(9L),Mockito.any())).thenReturn(true);
+    }
+    @Test public void approvedServiceWriterPersistsApplyingWithoutControlAndPreservesDefaultIdentity() {
+        serviceWriter("HELD");manager.beginApprovedServiceConfigurationMutation(instance,writer);
+        Assert.assertEquals("APPLYING",writer.getPhase());Mockito.verify(operations).update(9L,writer);
+        restore(source(true));String original=rows.get(11L).getUuid();restore(source(true));
+        Assert.assertEquals(original,rows.get(11L).getUuid());Assert.assertEquals(2,rows.size());Mockito.verify(protocols,Mockito.times(1)).persist(Mockito.any());
+    }
+    @Test public void serviceDefaultCannotBorrowAnotherThreadLocalOrAnUnheldWriterPhase() {
+        serviceWriter("HELD");
+        ((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).set(copy(writer,StorageServiceOperationVO.class));
+        Assert.assertThrows(RuntimeException.class,()->manager.beginApprovedServiceConfigurationMutation(instance,writer));
+        ((ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).set(writer);
+        writer.setPhase("VERIFYING");Assert.assertThrows(RuntimeException.class,()->manager.beginApprovedServiceConfigurationMutation(instance,writer));
+        writer.setPhase("APPLYING");((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).remove();
+        Assert.assertThrows(RuntimeException.class,()->restore(source(true)));Assert.assertEquals(1,rows.size());Mockito.verify(protocols,Mockito.never()).persist(Mockito.any());
+        Mockito.verify(operations,Mockito.never()).update(Mockito.anyLong(),Mockito.any());
     }
     @Test public void sourceErrorDiagnosticDoesNotBecomeALiveTargetReadinessRequirement(){
         JsonObject desired=source(true);desired.addProperty("state","Error");JsonObject peer=source(false);peer.addProperty("state","Updating");

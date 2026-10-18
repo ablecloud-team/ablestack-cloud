@@ -49,7 +49,7 @@ public class ApplyStorageServiceApprovedMaintenanceCmd extends BaseStorageServic
     public String getPlanToken(){return planToken;}
     public String getCredentials(){return credentials;}
     public org.apache.cloudstack.api.BaseCmd getBaseCmd(){return this;}
-    public String getConfigAction(){return "APPLY_RESTORE";}
+    public String getConfigAction(){return "APPLY";}
     public long getEntityOwnerId(){return org.apache.cloudstack.context.CallContext.current().getCallingAccountId();}
     public String getEventType(){return "STORAGE.SERVICE.MAINTENANCE";}
     public String getEventDescription(){return "Applying a reviewed service configuration with explicit downtime approval";}

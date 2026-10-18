@@ -39,6 +39,31 @@ public class StorageConfigRestoreWholeFlowTest {
         requireCompletedRestore();
     }
 
+    @Test public void approvedExistingRestoreRollsBackTheSameDefaultThenCompletesThroughTheRealController()throws Exception {
+        fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        String creator=fixture.artifactRows.get(900L).getMetadataJson(),disks=new com.google.gson.Gson().toJson(fixture.volumeRows);
+        JsonObject source=fixture.generation("operation generation status",null),identity=fixture.localPublicFingerprint(),lkg=fixture.initialLkgIdentity();
+        fixture.rejectStageOnce=true;
+        var failedCommand=fixture.existingApprovedCommand("approved-existing-first");Assert.assertEquals("APPLY",failedCommand.getConfigAction());
+        var stageFailure=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.applyStorageServiceApprovedMaintenance(failedCommand));
+        if(fixture.rejectStageOnce)throw new AssertionError("The actual render-stage fault was not reached",stageFailure);
+        Assert.assertEquals("Fixture transport rejected stage before activation",stageFailure.getMessage());
+        StorageServiceOperationVO failed=fixture.operationRows.values().stream().filter(v->"SERVICE_MAINTENANCE".equals(v.getAction())).findFirst().orElseThrow();
+        Assert.assertEquals("RECOVERY_REQUIRED",failed.getState());
+        JsonObject recovery=new JsonObject();recovery.addProperty("operationid",failed.getId());
+        var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,recovery);
+        fixture.manager.reconcileStorageServiceOperation(reconcile);
+        Assert.assertEquals("ROLLED_BACK",fixture.operationRows.get(failed.getId()).getState());
+        Assert.assertEquals(source.get("generation"),fixture.generation("operation generation status",null).get("generation"));
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));Assert.assertEquals(identity,fixture.localPublicFingerprint());
+        Assert.assertEquals(lkg,fixture.initialLkgIdentity());Assert.assertEquals(disks,new com.google.gson.Gson().toJson(fixture.volumeRows));fixture.assertEmptySourceRuntime();
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("approved-existing-after-rollback"));
+        assertCompletedRestore(disks,901L);Assert.assertEquals(creator,fixture.artifactRows.get(900L).getMetadataJson());
+        Assert.assertTrue(fixture.operationRows.values().stream().anyMatch(v->"SERVICE_MAINTENANCE".equals(v.getAction())&&"COMPLETE".equals(v.getState())));
+        Assert.assertEquals(3,fixture.nativeActions().stream().filter("begin"::equals).count());
+    }
+
     @Test public void reversedArchivedProtocolsPreserveSpecificAndLegacyDefaultEndpoints()throws Exception {
         JsonArray changes=fixture.plan.getAsJsonArray("create");java.util.List<JsonElement> protocols=new java.util.ArrayList<>();
         for(JsonElement item:changes)if("protocols".equals(item.getAsJsonObject().get("kind").getAsString()))protocols.add(item.deepCopy());
@@ -198,7 +223,8 @@ public class StorageConfigRestoreWholeFlowTest {
         assertCompletedRestore(disks);
     }
 
-    private void assertCompletedRestore(String disks)throws Exception {
+    private void assertCompletedRestore(String disks)throws Exception {assertCompletedRestore(disks,900L);}
+    private void assertCompletedRestore(String disks,long artifactId)throws Exception {
         JsonObject nativeState=fixture.generation("operation generation status",null);
         Assert.assertEquals("IN_SYNC",nativeState.get("generationStatus").getAsString());
         Assert.assertTrue(nativeState.get("pendingOperationUuid").isJsonNull());
@@ -226,7 +252,7 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(rendered.getAsJsonObject("current").get("manifestSha256"),rendered.getAsJsonObject("activation").get("targetSha256"));
         JsonObject heldScope=scope.deepCopy();heldScope.add("maintenanceUuid",scope.get("operationUuid"));
         Assert.assertFalse(fixture.generation("operation maintenance service-status",heldScope).get("bootHeld").getAsBoolean());
-        Assert.assertEquals("COMPLETE",fixture.obj(fixture.artifactRows.get(900L).getMetadataJson()).get("restoreState").getAsString());
+        Assert.assertEquals("COMPLETE",fixture.obj(fixture.artifactRows.get(artifactId).getMetadataJson()).get("restoreState").getAsString());
         Assert.assertEquals(16,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
         Assert.assertEquals(6,fixture.database.rows.get("storage_service_protocol").size());
         JsonObject originalDefault=fixture.obj(fixture.initialDatabaseSnapshot).getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();
@@ -409,7 +435,7 @@ public class StorageConfigRestoreWholeFlowTest {
             JsonObject requested=obj(body);Assert.assertEquals("NAME_DOMAIN",requested.get("idMappingMode").getAsString());
             return fresh(obj("{\"idMappingMode\":\"NAME_DOMAIN\"}"));
         }
-        if(command.equals("identity capsule capabilities")||command.equals("identity capsule export-local-source")||command.equals("smb identity local-source-status")||command.equals("operation generation render-status"))return generation(command,body==null||body.isBlank()?new JsonObject():obj(body));
+        if(command.equals("identity capsule capabilities")||command.equals("identity capsule export-local-source")||command.equals("identity capsule export")||command.equals("smb identity local-source-status")||command.equals("operation generation render-status"))return generation(command,body==null||body.isBlank()?new JsonObject():obj(body));
         return super.guest(command,body);
     }
     org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd reviewedCommand()throws Exception{
@@ -432,6 +458,43 @@ public class StorageConfigRestoreWholeFlowTest {
         var actual=(org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd)
                 StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd.class,parameters);
         return actual;
+    }
+
+    org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd existingApprovedCommand(String key)throws Exception {
+        String imported=id(1901);
+        if(!artifactRows.containsKey(901L)){
+            StorageConfigArtifactVO row=copy(artifactRows.get(900L),StorageConfigArtifactVO.class);set(row,"id",901L);set(row,"uuid",imported);
+            row.setInstanceId(80);row.setState("ARCHIVE_VALIDATED");row.setMetadataJson("{}");artifactRows.put(901L,row);store.write(imported,store.read(ARTIFACT,archiveSha));
+            Mockito.when(artifacts.lockRow(901L,true)).thenAnswer(c->copy(artifactRows.get(901L),StorageConfigArtifactVO.class));
+            Mockito.when(artifacts.update(Mockito.eq(901L),Mockito.any())).thenAnswer(c->{artifactRows.put(901L,copy(c.getArgument(1),StorageConfigArtifactVO.class));return true;});
+        }
+        JsonObject mapping=new JsonObject(),volumes=new JsonObject(),listeners=new JsonObject();
+        for(var item:sourceToTarget.entrySet())volumes.addProperty(item.getKey(),item.getValue());mapping.add("volumes",volumes);
+        listeners.addProperty("10.10.13.223","PRIMARY");mapping.add("listenerAddresses",listeners);
+        JsonObject currentProtocols=manager.configurationProtocolIntentSnapshot(instanceRows.get(80L)),protocols=new JsonObject();
+        Assert.assertEquals(1,currentProtocols.size());String defaultUuid=currentProtocols.keySet().iterator().next();
+        JsonObject constructor=currentProtocols.getAsJsonObject(defaultUuid);Assert.assertEquals("NFS",constructor.get("protocol").getAsString());
+        Assert.assertEquals("0.0.0.0",constructor.get("listenIp").getAsString());Assert.assertEquals(2049,constructor.get("port").getAsInt());
+        for(JsonElement entry:StorageConfigRestorePlan.resources(StorageConfigArchive.validate(store.read(ARTIFACT,archiveSha))).get("protocols")) {
+            JsonObject source=entry.getAsJsonObject();
+            if("NFS".equals(source.get("protocol").getAsString())&&(!source.has("listen_ip")||source.get("listen_ip").isJsonNull())&&source.get("port").getAsInt()==2049)
+                protocols.addProperty(source.get("uuid").getAsString(),defaultUuid);
+        }
+        Assert.assertEquals(1,protocols.size());mapping.add("protocols",protocols);
+        JsonObject parameters=new JsonObject();parameters.addProperty("instanceid",80);parameters.addProperty("artifactid",901);parameters.addProperty("targetmode","RESTORE_EXISTING");parameters.addProperty("mapping",mapping.toString());
+        var review=(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceConfigRestoreCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceConfigRestoreCmd.class,parameters);
+        JsonObject result=obj(new com.google.gson.Gson().toJson(manager.storageServiceConfiguration(review)));String token=obj(result.get("result").getAsString()).get("planToken").getAsString();
+        JsonObject reviewed=obj(artifactRows.get(901L).getMetadataJson()).getAsJsonObject("plan"),credentials=new JsonObject();
+        Assert.assertEquals("RESTORE_EXISTING",reviewed.get("targetMode").getAsString());Assert.assertEquals(0,reviewed.getAsJsonArray("blockers").size());
+        Assert.assertEquals(protocols,reviewed.getAsJsonObject("resourceMappings").get("protocols"));
+        for(JsonElement entry:reviewed.getAsJsonArray("preserve"))Assert.assertNotEquals("protocols",entry.getAsJsonObject().get("kind").getAsString());
+        for(JsonElement item:reviewed.getAsJsonArray("requiredCredentials")){
+            JsonObject rule=item.getAsJsonObject(),values=new JsonObject();for(JsonElement field:rule.getAsJsonArray("fields"))values.addProperty(field.getAsString(),"fixture-secret");credentials.add(rule.get("ruleUuid").getAsString(),values);
+        }
+        JsonObject apply=new JsonObject();apply.addProperty("instanceid",80);apply.addProperty("artifactid",901);apply.addProperty("plantoken",token);
+        apply.addProperty("confirmation",instanceRows.get(80L).getName());apply.addProperty("maintenancewindow",true);apply.addProperty("credentials",credentials.toString());apply.addProperty("idempotencykey",key);
+        apply.addProperty("expectedrevision",reviewed.get("expectedRevision").getAsLong());
+        return (org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd.class,apply);
     }
 
     org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd freshReviewCommand()throws Exception {

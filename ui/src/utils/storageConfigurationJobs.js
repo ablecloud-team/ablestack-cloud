@@ -23,7 +23,7 @@ import { validSharedFsGateway } from '@/utils/storageNetworkReadiness'
 
 // Accepted operations survive dialog/component closure in memory, never in browser storage.
 export const configurationIntents = reactive({})
-const asyncCommands = new Set(['createStorageServiceConfigBackup', 'verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood', 'deleteStorageServiceConfigBackup', 'deleteStorageServiceConfigImport'])
+const asyncCommands = new Set(['createStorageServiceConfigBackup', 'verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'applyStorageServiceApprovedMaintenance', 'restoreStorageServiceLastKnownGood', 'deleteStorageServiceConfigBackup', 'deleteStorageServiceConfigImport'])
 let actor = null
 let sequence = 0
 export const configurationActor = removalActor

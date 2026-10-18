@@ -209,6 +209,7 @@
               <a-input-password v-model:value="credentialValues[required.ruleUuid][field]" autocomplete="off" />
             </a-form-item>
           </template>
+          <a-checkbox v-if="!lkgPlan && targetMode==='RESTORE_EXISTING' && plan.adIdentityRestoreRequiresMaintenance !== true && can('applyStorageServiceApprovedMaintenance')" v-model:checked="restoreMaintenance">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox>
           <template v-if="plan.adIdentityRestoreRequiresMaintenance === true">
             <a-alert type="warning" show-icon :message="$t('message.storage.service.ad.maintenance.help')" />
             <a-checkbox v-model:checked="restoreMaintenance">{{ $t('message.storage.template.maintenance.confirm') }}</a-checkbox>
@@ -255,7 +256,7 @@ export default {
       return changes.map(row => {
         const targets = [...new Map([...changes.filter(item => item.kind === row.kind && item.current?.uuid).map(item => [item.current.uuid, item.current]), ...(this.plan.preserve || []).filter(item => item.kind === row.kind).map(item => [item.targetUuid, { ...(item.current || {}), ...item }])]).values()]
         const selected = this.resourceMapping[row.kind]?.[row.sourceUuid] || this.plan.resourceMappings?.[row.kind]?.[row.sourceUuid] || 'NEW'
-        const options = targets.map(item => ({ value: item.uuid || item.targetUuid, label: (item.name || item.principal || item.uuid || item.targetUuid) + ' · ' + (item.uuid || item.targetUuid) }))
+        const options = targets.map(item => ({ value: item.uuid || item.targetUuid, label: (item.name || item.principal || item.protocol || item.uuid || item.targetUuid) + ' · ' + (item.uuid || item.targetUuid) }))
         if (!targets.some(item => (item.uuid || item.targetUuid) === row.sourceUuid)) options.unshift({ value: 'NEW', label: this.$t('label.storage.config.resource.create') })
         return { ...row, selected, options, key: row.kind + ':' + row.sourceUuid }
       })
@@ -342,7 +343,12 @@ export default {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
       const body = value[api.toLowerCase() + 'response'] || value
-      const result = body.storageserviceconfigartifact || body.storageserviceconfiguration || body
+      let result = body.storageserviceconfigartifact || body.storageserviceconfiguration || body
+      if (body.storageserviceruntime) {
+        const runtime = body.storageserviceruntime
+        if (runtime.id !== this.instanceId || runtime.success !== true || runtime.status !== 'COMPLETE' || typeof runtime.resultjson !== 'string') throw new Error(this.$t('message.storage.config.failed'))
+        result = JSON.parse(runtime.resultjson)
+      }
       return typeof result.result === 'string' ? JSON.parse(result.result) : result.result || result
     },
     async refresh () {
@@ -387,7 +393,7 @@ export default {
       const result = await trackConfigurationIntent(intent, () => configurationActor(this) === actor)
       if ((scope !== configurationScope(this) || this.disposed)) throw new Error(this.$t('message.storage.config.scope.changed'))
       if (result.jobstatus === 1 || result.jobstatus === 2) {
-        if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
+        if (['verifyStorageServiceConfiguration', 'applyStorageServiceConfigRestore', 'applyStorageServiceApprovedMaintenance', 'restoreStorageServiceLastKnownGood'].includes(api)) this.$emit('operation-updated', instance)
         if (result.jobstatus === 2) {
           try { await this.refresh() } catch (_) { this.readFailed = true }
           throw new Error(this.$t('message.storage.config.job.failed', { job: intent.jobId, code: intent.errorCode ?? '—' }))
@@ -426,6 +432,8 @@ export default {
     },
     configurationDifference,
     configurationBlockerLabel (blocker) {
+      const protocol = typeof blocker === 'string' && /^PROTOCOL_MAPPING_REQUIRED:([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i.exec(blocker)
+      if (protocol) return this.$t('label.protocol') + ' · ' + this.$t('label.storage.config.resource.mapping') + ' (' + this.$t('label.required') + '): ' + protocol[1] + '. ' + this.$t('message.error.select')
       return ['PRIMARY_LISTENER_REQUIRES_STATIC_ADDRESS', 'PRIMARY_LISTENER_MIX_REQUIRES_STATIC_ADDRESS'].includes(blocker)
         ? this.$t('message.storage.config.listener.static.required') : blocker
     },
@@ -793,8 +801,10 @@ export default {
       const requiresIdentity = this.plan?.adIdentityRestoreRequiresMaintenance === true
       if (!this.plan || this.confirmation !== this.plan.targetName || typeof this.planToken !== 'string' || !this.planToken) { this.error = this.$t('message.storage.config.confirmation.required'); return }
       if (!this.reviewedPlan || this.reviewedPlan !== this.restoreReviewFingerprint()) { this.restoreMaintenance = false; this.error = this.$t('message.storage.config.scope.changed'); return }
-      const api = this.lkgPlan ? 'restoreStorageServiceLastKnownGood' : 'applyStorageServiceConfigRestore'
+      const approvedMaintenance = !this.lkgPlan && this.targetMode === 'RESTORE_EXISTING' && !requiresIdentity && this.restoreMaintenance === true
+      const api = this.lkgPlan ? 'restoreStorageServiceLastKnownGood' : approvedMaintenance ? 'applyStorageServiceApprovedMaintenance' : 'applyStorageServiceConfigRestore'
       if (!this.can(api)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.setup.api.missing.with.name', { api }); return }
+      if (approvedMaintenance && !this.$getApiParams?.(api)?.maintenancewindow) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.setup.api.missing.with.name', { api }); return }
       if ((this.plan.adIdentityRestoreRequiresMaintenance !== undefined && typeof this.plan.adIdentityRestoreRequiresMaintenance !== 'boolean') ||
         (this.plan.adIdentitySourceDescriptor !== undefined && !requiresIdentity)) { this.restoreMaintenance = false; this.error = this.$t('message.storage.service.ad.receipt.unverified'); return }
       if (requiresIdentity) {
@@ -808,7 +818,7 @@ export default {
         } catch (error) { this.restoreMaintenance = false; this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message; return }
       }
       const parameters = { artifactid: this.planTarget.id, plantoken: this.planToken, confirmation: this.confirmation, credentials: JSON.stringify(this.credentialValues) }
-      if (requiresIdentity) parameters.maintenancewindow = true
+      if (requiresIdentity || approvedMaintenance) parameters.maintenancewindow = true
       const scope = configurationScope(this)
       const review = { targetMode: this.plan.targetMode || this.targetMode, create: { length: this.plan.create?.length || 0 }, update: { length: this.plan.update?.length || 0 }, keep: { length: this.plan.keep?.length || 0 }, preserve: { length: this.plan.preserve?.length || 0 } }
       this.closePlan(); this.busy = 'RESTORE'; this.error = ''

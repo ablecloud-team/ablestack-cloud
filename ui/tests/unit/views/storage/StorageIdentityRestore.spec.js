@@ -136,3 +136,63 @@ describe('AD identity restore reviewed source and maintenance', () => {
     expect(vm.planToken).toBe('')
   })
 })
+
+describe('ordinary existing restore explicit downtime approval', () => {
+  const approved = 'applyStorageServiceApprovedMaintenance'
+  const ordinary = () => ({ ...context(false), targetMode: 'RESTORE_EXISTING' })
+
+  it('keeps the ordinary API when downtime is not selected', async () => {
+    const vm = ordinary(); await apply(vm)
+    expect(vm.mutation).toHaveBeenCalledTimes(1)
+    expect(vm.mutation.mock.calls[0][0]).toBe('applyStorageServiceConfigRestore')
+    expect(vm.mutation.mock.calls[0][1].maintenancewindow).toBeUndefined()
+  })
+
+  it('captures the selected API and literal approval before closing and clearing the review', async () => {
+    const vm = ordinary(); vm.restoreMaintenance = true
+    vm.mutation.mockImplementation(async (api, request) => {
+      expect(api).toBe(approved)
+      expect(vm.restoreMaintenance).toBe(false)
+      expect(vm.plan).toBe(null)
+      expect(request).toMatchObject({ artifactid: 'backup-a', plantoken: 'review-token', confirmation: 'target-service', maintenancewindow: true })
+      expect(JSON.parse(request.credentials)).toEqual({ rule: { password: 'synthetic-input' } })
+      expect(request.sourceauth).toBeUndefined()
+    })
+    await apply(vm)
+    expect(vm.mutation).toHaveBeenCalledTimes(1)
+    expect(vm.mutation.mock.calls[0][1].credentials).toBe('')
+  })
+
+  it('rejects lost permission or unavailable maintenance parameters without ordinary fallback', async () => {
+    for (const missing of ['permission', 'schema']) {
+      const vm = ordinary(); vm.restoreMaintenance = true
+      if (missing === 'permission') vm.can = api => api !== approved
+      else vm.$getApiParams = () => ({})
+      await apply(vm)
+      expect(vm.mutation).not.toHaveBeenCalled()
+      expect(vm.error).toBe('message.storage.service.setup.api.missing.with.name')
+      expect(vm.restoreMaintenance).toBe(false)
+    }
+  })
+
+  it('requires the exact reviewed token before approved maintenance and clears stale approval', async () => {
+    const vm = ordinary(); vm.restoreMaintenance = true; vm.planToken = 'different-token'
+    await apply(vm)
+    expect(vm.mutation).not.toHaveBeenCalled()
+    expect(vm.restoreMaintenance).toBe(false)
+    expect(vm.error).toBe('message.storage.config.scope.changed')
+  })
+
+  it('keeps ordinary LKG and CREATE_NEW on their existing APIs', async () => {
+    const lkg = ordinary(); lkg.restoreMaintenance = true; lkg.lkgPlan = true
+    await apply(lkg)
+    expect(lkg.mutation.mock.calls[0][0]).toBe('restoreStorageServiceLastKnownGood')
+    expect(lkg.mutation.mock.calls[0][1].maintenancewindow).toBeUndefined()
+    const clone = ordinary(); clone.restoreMaintenance = true; clone.targetMode = 'CREATE_NEW'
+    clone.assertCloneIdentityTemplate = jest.fn()
+    await apply(clone)
+    expect(clone.mutation.mock.calls[0][0]).toBe('applyStorageServiceConfigRestore')
+    expect(clone.mutation.mock.calls[0][1].maintenancewindow).toBeUndefined()
+    expect(clone.assertCloneIdentityTemplate).toHaveBeenCalledTimes(1)
+  })
+})

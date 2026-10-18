@@ -938,6 +938,14 @@ class RenderedGuestFixture:
             action=command[2]
             if action.startswith("render-"):return self.driver.execute(action,payload)
             return self.generation.execute(action,payload)
+        if command==("identity","capsule","export"):
+            require(type(payload)is dict and set(payload)=={"instanceUuid","operationUuid","revision","publicKey","names","nvmeHosts"}
+                    and not kwargs,"EXACT_INTERNAL_GENERIC_EXPORT_REQUEST_REQUIRED")
+            scope=self.generation.request({key:payload[key]for key in("instanceUuid","operationUuid","revision")})
+            require(all(scope[key]==payload[key]for key in scope),"INTERNAL_GENERIC_EXPORT_SCOPE_NOT_CANONICAL")
+            self.generation.scoped(scope)
+            with self.local_os_boundary():
+                return self.export_generic_identity({key:value for key,value in payload.items()if key!="revision"})
         if command==("smb","identity","local-source-status"):
             with self.local_os_boundary():return self.local.status(payload)
         if command in (("identity","capsule","import-local-source"),("identity","capsule","replay-local-source-auth")):
@@ -1028,8 +1036,25 @@ class RenderedGuestFixture:
             self.effects.append({"kind":"OS_SYSTEMD_RELOAD_FIXTURE_ONLY","guardFiles":8})
             return types.SimpleNamespace(returncode=0,stdout="",stderr="")
         raise ValueError("RENDERED_OS_SUBPROCESS_NOT_IMPLEMENTED")
+    def export_generic_identity(self,request):
+        # The existing CLI generic export branch, restricted to this exact
+        # non-AD, no-managed-principals SOURCE request. No LOCAL/SERVICE receipt
+        # is invented and no machine SID/SAM is initialized for collection.
+        require(type(request)is dict and set(request)=={"instanceUuid","operationUuid","publicKey","names","nvmeHosts"}
+                and request["names"]==[]and request["nvmeHosts"]==[],"EXACT_EMPTY_GENERIC_EXPORT_REQUEST_REQUIRED")
+        scope=str(request.get("instanceUuid")or"")+":"+str(request.get("operationUuid")or"")
+        require(re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}",scope),"Identity capsule request scope is invalid")
+        domain_path=self.mapped_path("/etc/ablestack-storage/smb-domain.json")
+        domain=json.loads(domain_path.read_text())if domain_path.exists()else{}
+        require(str(domain.get("joinState")or domain.get("state")or"").upper()!="JOINED",
+                "Joined AD RAW export requires typed SERVICE or ROOT AFTERSTOP source authority")
+        payload=self.capsule_module.collect(request["names"],request["nvmeHosts"])
+        self.capsule_module.validate_payload(payload)
+        capsule=self.capsule_module.encrypt(payload,request["publicKey"],scope)
+        return {"success":True,"capsule":capsule,"rootIdentityReference":None,"serviceIdentityCheckpoint":None}
+
     def execute(self, action, request=None):
-        require(action in ("render-status","render-import","render-stage","export-local-source","local-source-status",
+        require(action in ("render-status","render-import","render-stage","export-identity","export-local-source","local-source-status",
                                     "service-enter","service-status","service-release","render-activate","render-finalize","render-rollback","render-maintenance-resume-source","render-maintenance-verify","observe","inventory","verify","health","writer-idle"),
                 "RENDERED_ACTION_NOT_IMPLEMENTED")
         previous=dict(os.environ)
@@ -1055,6 +1080,8 @@ class RenderedGuestFixture:
                 if action in ("service-enter","service-release"):
                     with self.actual_writer_lock():
                         return self.service.enter(request) if action=="service-enter" else self.service.release(request)
+                if action=="export-identity":
+                    with self.local_os_boundary():return self.export_generic_identity(request)
                 if action in ("export-local-source","local-source-status"):
                     with self.local_os_boundary():
                         if action=="local-source-status":return self.local.status(request)

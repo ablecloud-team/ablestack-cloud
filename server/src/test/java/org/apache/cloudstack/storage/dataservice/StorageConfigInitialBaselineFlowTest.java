@@ -424,6 +424,7 @@ public class StorageConfigInitialBaselineFlowTest {
             String sourceId=sourceToTarget.entrySet().stream().filter(e->e.getValue().equals(v.getUuid())).findFirst().get().getKey();
             JsonObject a=obj("{\"sourceUuid\":\""+v.getUuid()+"\",\"plannedUuid\":\""+v.getUuid()+"\",\"mode\":\"EXISTING\",\"initial\":"+v.getUuid().equals(initialUuid)+",\"poolUuid\":\""+POOL+"\",\"sizeBytes\":"+v.getSize()+",\"usage\":\"FILE\"}");
             a.addProperty("sourceUuid",sourceId);a.addProperty("mode",existingInitial||!v.getUuid().equals(initialUuid)?"EXISTING":"NEW");a.addProperty("provisioningType","SPARSE");
+            if(v.getUuid().equals(initialUuid))plan.addProperty("initialVolumeSourceUuid",sourceId);
             a.addProperty("usage",v.getSize()==(20L<<30)||sourceId.equals(SOURCE_DATA[1])?"FILE":"BLOCK_RAW");
             if("FILE".equals(a.get("usage").getAsString()))a.addProperty("filesystem","EXT4");
             for(String field:scope.keySet())a.add(field,scope.get(field).deepCopy());aa.add(a);mapping.addProperty(sourceId,v.getUuid());

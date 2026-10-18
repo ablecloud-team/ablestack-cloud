@@ -45,6 +45,7 @@ public class StorageConfigListenerPreflightTest {
     }
     private static JsonObject plan(boolean create,String address) {
         JsonObject plan=new JsonObject();plan.addProperty("targetMode",create?"CREATE_NEW":"RESTORE_EXISTING");
+        plan.add("create",new JsonArray());plan.add("preserve",new JsonArray());
         JsonObject mappings=new JsonObject();mappings.addProperty("10.10.13.223",address);plan.add("listenerAddressMappings",mappings);plan.add("blockers",new JsonArray());
         if(create){JsonObject blueprint=new JsonObject();blueprint.addProperty("networkid","network");blueprint.addProperty("networkmode","STATIC");blueprint.addProperty("ipcidr","10.10.13.224/24");plan.add("createNew",blueprint);}
         return plan;
@@ -86,6 +87,35 @@ public class StorageConfigListenerPreflightTest {
         Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.225");Mockito.clearInvocations(nics);
         Assert.assertThrows(InvalidParameterValueException.class,()->manager.requireConfigurationResolvedPrimary(target,plan));
         Mockito.verify(nics,Mockito.times(1)).listByVmId(48L);Mockito.verifyNoMoreInteractions(nics);
+    }
+
+    @Test public void existingProtocolTupleRequiresReviewedMappingBeforeAnyListenerOrDomainEffect() {
+        java.util.Map<String,byte[]> source=new java.util.LinkedHashMap<>(),target=new java.util.LinkedHashMap<>();
+        for(String kind:StorageConfigRestorePlan.ROW_KEYS.keySet()) {
+            source.put("desired/"+kind+".json","[]".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            target.put("desired/"+kind+".json","[]".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+        source.put("desired/volumes.json","[]".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String sourceId="11111111-1111-4111-8111-111111111111",targetId="22222222-2222-4222-8222-222222222222";
+        source.put("desired/instance.json",("{\"uuid\":\""+sourceId+"\"}").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String original="{\"uuid\":\""+sourceId+"\",\"protocol\":\"NFS\",\"enabled\":true,\"listen_ip\":null,\"port\":2049,\"config\":{}}";
+        String existing=original.replace(sourceId,targetId).replace("null","\"0.0.0.0\"");
+        source.put("desired/protocols.json",("["+original+"]").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        target.put("desired/protocols.json",("["+existing+"]").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl();JsonObject mappings=new JsonObject();
+        JsonObject collision=StorageConfigRestorePlan.build(source,target,mappings,"RESTORE_EXISTING",targetId,1);
+        manager.preflightConfigurationListenerMappings(null,collision);manager.preflightConfigurationListenerMappings(null,collision);
+        Assert.assertEquals(1,collision.getAsJsonArray("blockers").size());
+        Assert.assertEquals("PROTOCOL_MAPPING_REQUIRED:"+sourceId,collision.getAsJsonArray("blockers").get(0).getAsString());
+        JsonObject protocols=new JsonObject();protocols.addProperty(sourceId,targetId);mappings.add("protocols",protocols);
+        JsonObject mapped=StorageConfigRestorePlan.build(source,target,mappings,"RESTORE_EXISTING",targetId,1);
+        manager.preflightConfigurationListenerMappings(null,mapped);Assert.assertEquals(0,mapped.getAsJsonArray("blockers").size());
+        Assert.assertEquals(targetId,mapped.getAsJsonObject("resourceMappings").getAsJsonObject("protocols").get(sourceId).getAsString());
+        Assert.assertEquals(0,mapped.getAsJsonArray("preserve").size());
+        target.put("desired/protocols.json",("["+existing.replace("2049","2050")+"]").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        JsonObject separate=StorageConfigRestorePlan.build(source,target,new JsonObject(),"RESTORE_EXISTING",targetId,1);
+        manager.preflightConfigurationListenerMappings(null,separate);Assert.assertEquals(0,separate.getAsJsonArray("blockers").size());
+        Assert.assertEquals(1,separate.getAsJsonArray("create").size());Assert.assertEquals(1,separate.getAsJsonArray("preserve").size());
     }
 
 }
