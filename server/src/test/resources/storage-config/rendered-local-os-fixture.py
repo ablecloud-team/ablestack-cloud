@@ -15,6 +15,7 @@
 
 """LOCAL Gate C adapter: real rendered producer; explicit OS boundary only."""
 from pathlib import Path
+import ast
 import configparser
 import contextlib
 import fcntl
@@ -100,6 +101,14 @@ class RenderedGuestFixture:
         self.raw_regular_file=self.capsule_module.regular_file
         self.local.reader=self.local_reader
         self.local.unit_authority.reader=self.local_reader
+        self.volume_formatter_module=importlib.import_module("volume_formatter")
+        status_block=self.cli.read_text().split("volume_operation_status() {",1)[1].split("<<'PYVOLUME'\n",1)[1].split("\nPYVOLUME",1)[0]
+        definitions=[n for n in ast.parse(status_block).body if isinstance(n,ast.FunctionDef)
+                     and n.name in("read_volume_operation","project_volume_operation")]
+        require(len(definitions)==2,"EXACT_NATIVE_VOLUME_STATUS_FUNCTIONS_REQUIRED")
+        self.volume_status_namespace={"os":os,"stat":stat,"json":json}
+        exec(compile(ast.Module(body=definitions,type_ignores=[]),"actual_native_volume_status_readonly","exec"),self.volume_status_namespace)
+        self.initialize_formatter_journals()
     def mapped_path(self, value="."):
         value=os.fsdecode(value)
         if value in("/etc/passwd","/etc/group","/etc/shadow","/etc/gshadow"):
@@ -464,6 +473,51 @@ class RenderedGuestFixture:
             return "".join("LISTEN 0 50 "+row["listenIp"]+":"+str(row["port"])+" 0.0.0.0:* users:((\"fixture\",pid="+str(row["pid"])+",fd=50))\n"
                 for _,_,row in owners)
         raise ValueError("SERVICE_OS_COMMAND_NOT_IMPLEMENTED")
+    def initialize_formatter_journals(self):
+        # The controller starts after durable foundation. Model its completed
+        # FILE mount observation and persistent per-volume mutex, not past mkfs.
+        spec_path=self.case/"witness-os-fixture.json"
+        if not spec_path.exists()and not spec_path.is_symlink():return
+        spec=json.loads(spec_path.read_text())
+        require(type(spec)is dict and type(spec.get("dataVolumes"))is list
+                and isinstance(spec.get("bootId"),str),"DURABLE_FOUNDATION_WITNESS_SCHEMA_REQUIRED")
+        root=self.case/"volume-operations";self.path_guard.path(root);root.mkdir(mode=0o700,exist_ok=True)
+        for index,row in enumerate(spec["dataVolumes"]):
+            if row["filesystem"]is None:continue
+            volume=str(__import__("uuid").UUID(row["volumeUuid"]))
+            filesystem=str(row["filesystem"]).lower();mounts=row["mounts"]
+            require(filesystem in("ext4","xfs")and row["filesystemUuid"]and len(mounts)==1
+                    and mounts[0]["target"]=="/srv/ablestack-storage/volumes/"+volume
+                    and mounts[0]["uuid"]==row["filesystemUuid"],"DURABLE_FOUNDATION_FILE_MOUNT_FACTS_REQUIRED")
+            journal=root/(volume+".json")
+            expected={"volumeUuid":volume,"phase":"COMPLETE","formatStarted":False,"terminationPending":False,
+                      "devicePath":"/dev/sd"+chr(ord("b")+index),"mountPath":mounts[0]["target"],
+                      "filesystem":filesystem,"filesystemUuid":row["filesystemUuid"],"sizeBytes":row["sizeBytes"],
+                      "preparationAction":"MOUNT_EXISTING","operationId":"volume-"+volume}
+            if not journal.exists():
+                with journal.open("x")as f:json.dump(expected,f)
+                journal.chmod(0o600)
+            lock=root/(volume+".lock")
+            if not lock.exists():
+                fd=os.open(lock,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o644)
+                try:os.fchmod(fd,0o644)
+                finally:os.close(fd)
+    def formatter_status(self,request):
+        require(type(request)is dict and set(request)=={"volumeUuid"},"EXACT_FORMATTER_STATUS_SCOPE_REQUIRED")
+        volume=str(__import__("uuid").UUID(request["volumeUuid"]))
+        self.path_guard.path(self.case/"volume-operations"/(volume+".json"))
+        operation=self.volume_status_namespace["read_volume_operation"](self.case/"volume-operations"/(volume+".json"))
+        require(operation.get("volumeUuid")==volume,"FORMATTER_STATUS_VOLUME_CHANGED")
+        spec=json.loads((self.case/"witness-os-fixture.json").read_text())
+        row=next((r for r in spec["dataVolumes"]if r["volumeUuid"]==volume),None)
+        require(row is not None and operation["filesystemUuid"]==row["filesystemUuid"]
+                and operation["sizeBytes"]==row["sizeBytes"]and any(m["target"]==operation["mountPath"]
+                and m["uuid"]==operation["filesystemUuid"]for m in row["mounts"]),"FORMATTER_STATUS_OS_BINDING_CHANGED")
+        formatter=self.volume_formatter_module.volume_observe_formatter(operation,boot_id=spec["bootId"])
+        result=self.volume_status_namespace["project_volume_operation"](operation,formatter,time.time())
+        self.effects.append({"kind":"ACTUAL_VOLUME_STATUS_PROJECTION_WITH_OS_JOURNAL",
+                             "volumeUuid":volume,"status":result["status"],"persistentMutexPresent":True})
+        return result
     def root_data(self,request):
         spec=json.loads((self.case/"witness-os-fixture.json").read_text())
         require(spec["bootId"]==self.generation.status()["bootId"],"ROOT_DATA_OS_BOOT_CHANGED")
@@ -946,6 +1000,7 @@ class RenderedGuestFixture:
             self.generation.scoped(scope)
             with self.local_os_boundary():
                 return self.export_generic_identity({key:value for key,value in payload.items()if key!="revision"})
+        if command==("volume","operation","status"):return self.formatter_status(payload)
         if command==("smb","identity","local-source-status"):
             with self.local_os_boundary():return self.local.status(payload)
         if command in (("identity","capsule","import-local-source"),("identity","capsule","replay-local-source-auth")):

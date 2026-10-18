@@ -496,6 +496,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !operation.getRequestKey().equals(fresh.getRequestKey()) || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),fresh.getPreviousSnapshotJson())
                 || !java.util.Objects.equals(operation.getResultJson(),fresh.getResultJson()) || storageOperationControlDao.findByOperation(operation.getId())!=null)
             throw new CloudRuntimeException("Checkpointless SERVICE recovery lacks its exact pre-checkpoint original writer");
+        return initialServiceSourceProof(instance,operation,previous,null);
+    }
+
+    /** SOURCE facts shared by two separately admitted initial-service recovery boundaries. */
+    private JsonObject initialServiceSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject previous,JsonObject pendingSource) {
+        JsonObject result=parseJsonObject(operation.getResultJson());
         requireNoOperationCancellation(operation);requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
         StorageServiceOperationVO source=null;
         for (StorageServiceOperationVO row:latestCompleteHistory(instance.getId())) {
@@ -517,9 +523,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (root==null || root.getSize()!=authority.get("rootSizeBytes").getAsLong())
             throw new CloudRuntimeException("Checkpointless SERVICE ROOT size changed");
         JsonObject profile=requiredRenderedValidationProfile(instance),status=nativeConfigurationGeneration(instance,null,"status");
-        JsonObject nativeProof=StorageConfigRuntimeEvidence.generation(status,instance.getUuid(),source.getUuid(),source.getRevision());
+        JsonObject sourceStatus=pendingSource==null?status:pendingSource;
+        JsonObject nativeProof=StorageConfigRuntimeEvidence.generation(sourceStatus,instance.getUuid(),source.getUuid(),source.getRevision());
         JsonObject generation=status.getAsJsonObject("generation"),initial=authority.getAsJsonObject("foundationSource");
-        if (!"IN_SYNC".equals(getJsonString(status,"generationStatus")) || !status.get("pendingOperationUuid").isJsonNull()
+        if (pendingSource!=null && (!"IN_SYNC".equals(getJsonString(pendingSource,"generationStatus"))
+                || !pendingSource.get("pendingOperationUuid").isJsonNull() || !generation.equals(pendingSource.get("generation"))
+                || !status.get("bootId").equals(pendingSource.get("bootId")) || !status.get("configurationDesiredState").equals(pendingSource.get("configurationDesiredState"))))
+            throw new CloudRuntimeException("Initial NoHeld pending writer differs from its exact recorded verified SOURCE");
+        if (!Boolean.TRUE.equals(getNativeBoolean(status,"success")) || !Boolean.TRUE.equals(getNativeBoolean(status,"generationSupported"))
+                || getJsonLong(status,"runtimeRevision")!=source.getRevision()
+                || !(pendingSource==null ? "IN_SYNC".equals(getJsonString(status,"generationStatus")) && status.get("pendingOperationUuid").isJsonNull()
+                    : "PENDING".equals(getJsonString(status,"generationStatus")) && operation.getUuid().equals(getJsonString(status,"pendingOperationUuid")))
                 || !status.get("bootId").equals(sourceResult.get("_targetNativeBootId"))
                 || !status.get("configurationSha256").equals(sourceResult.get("_targetConfigurationSha256"))
                 || !status.get("configurationSha256").equals(initial.get("configurationSha256"))
@@ -529,8 +543,14 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!Boolean.TRUE.equals(getNativeBoolean(frozen,"success")) || !Boolean.TRUE.equals(getNativeBoolean(frozen,"frozen"))
                 || !generation.equals(frozen.get("generation")) || !status.get("configurationDesiredState").equals(frozen.get("configurationDesiredState")))
             throw new CloudRuntimeException("Checkpointless SERVICE frozen SOURCE changed");
-        JsonObject request=configurationCloneBaselineRequest(authority,source.getUuid(),source.getRevision(),generation,false);
-        requireConfigurationCloneBaselineWitness(instance,authority,request);
+        if (pendingSource==null) {
+            JsonObject request=configurationCloneBaselineRequest(authority,source.getUuid(),source.getRevision(),generation,false);
+            requireConfigurationCloneBaselineWitness(instance,authority,request);
+        } else {
+            JsonObject inspected=inspectRootData(instance,sharedFSDao.findByVm(instance.getVmId()),operation.getUuid(),operation.getUuid());
+            if (!authority.get("data").equals(StorageConfigInitialBaseline.stableData(inspected)))
+                throw new CloudRuntimeException("Initial NoHeld pending SOURCE ROOT or DATA identity changed");
+        }
         JsonObject rendered=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
         JsonObject current=getJsonObject(rendered,"current"),activation=getJsonObject(rendered,"activation"),sourceScope=operationReservationScope(instance,source);
         if (!Boolean.TRUE.equals(getNativeBoolean(rendered,"success")) || current==null || activation==null
@@ -561,8 +581,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !Boolean.FALSE.equals(getNativeBoolean(lease,"expired")) || !lease.has("scope") || !lease.get("scope").isJsonNull()
                 || !lease.has("requirements") || !lease.get("requirements").isJsonNull() || !lease.has("leaseBootId") || !lease.get("leaseBootId").isJsonNull()
                 || !status.get("bootId").equals(lease.get("bootId"))) throw new CloudRuntimeException("Checkpointless SERVICE logical reservation is not absent");
-        if (!nativeProof.equals(StorageConfigRuntimeEvidence.generation(nativeConfigurationGeneration(instance,null,"status"),instance.getUuid(),source.getUuid(),source.getRevision())))
-            throw new CloudRuntimeException("Checkpointless SERVICE native SOURCE changed during observation");
+        JsonObject finalStatus=nativeConfigurationGeneration(instance,null,"status");
+        if (pendingSource==null) {
+            if (!nativeProof.equals(StorageConfigRuntimeEvidence.generation(finalStatus,instance.getUuid(),source.getUuid(),source.getRevision())))
+                throw new CloudRuntimeException("Initial SERVICE native SOURCE changed during observation");
+        } else {
+            if (!Boolean.TRUE.equals(getNativeBoolean(finalStatus,"success")) || !Boolean.TRUE.equals(getNativeBoolean(finalStatus,"generationSupported")))
+                throw new CloudRuntimeException("Initial NoHeld pending SOURCE observation is unavailable");
+            for (String field:List.of("generation","configurationSha256","configurationDesiredState","bootId","runtimeRevision","generationStatus","pendingOperationUuid"))
+                if (!java.util.Objects.equals(status.get(field),finalStatus.get(field)))
+                    throw new CloudRuntimeException("Initial NoHeld pending SOURCE changed during observation");
+        }
         JsonObject proof=new JsonObject();proof.addProperty("kind","CHECKPOINTLESS_INITIAL_SERVICE_SOURCE");
         proof.addProperty("instanceUuid",instance.getUuid());proof.addProperty("operationUuid",operation.getUuid());proof.addProperty("revision",operation.getRevision());
         proof.addProperty("createdBy",operation.getCreatedBy());proof.addProperty("sourceOperationUuid",source.getUuid());proof.add("nativeSource",nativeProof);
@@ -928,6 +957,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     // Set only by the explicit API under its instance writer lock, never by background recovery.
     private final ThreadLocal<Long> explicitVerifiedNfsAclRecovery = new ThreadLocal<>();
     private final ThreadLocal<Long> explicitUnchangedSourceRecovery = new ThreadLocal<>();
+    private final ThreadLocal<Long> explicitInitialUnheldServiceRecovery = new ThreadLocal<>();
     private final ThreadLocal<Boolean> configurationNativeNvmeReplayed = new ThreadLocal<>();
     private final ThreadLocal<JsonObject> configurationRecoverySource = new ThreadLocal<>();
     private final ThreadLocal<JsonArray> configurationRecoveryBindings = new ThreadLocal<>();
@@ -2731,9 +2761,148 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         RenderedBatch restored=restoreRenderedBatch(original);renderedBatch.set(restored);return restored;
     }
 
+    /** An inactive SERVICE journal is never recovery authority and is not modified by this initial SOURCE abort. */
+    protected boolean recoverInitialUnheldServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        if (!"SERVICE_MAINTENANCE".equals(operation.getAction()) || snapshot.has("approvedServiceMaintenanceHeld")) return false;
+        JsonObject actual=nativeConfigurationGeneration(instance,null,"status"),committed=getJsonObject(actual,"generation");
+        if (committed!=null && nativeGenerationScopeMatches(committed,instance.getUuid(),operation.getUuid(),operation.getRevision()))
+            return false; // A committed TARGET retains its original forward-finalization authority.
+        String pending=getJsonString(actual,"pendingOperationUuid");
+        boolean abortIntent=parseJsonObject(operation.getResultJson()).has("_initialUnheldServiceSourceRecovery");
+        if (pending!=null && !operation.getUuid().equals(pending)) throw new CloudRuntimeException("Foreign native pending writer blocks initial NoHeld admission");
+        if (pending==null && !abortIntent) return false; // Preserve historical released-held terminal retries.
+        JsonObject maintenance=rootGuest(instance,"operation maintenance service-status",serviceMaintenanceScope(instance,operation),15);
+        if (Boolean.TRUE.equals(getNativeBoolean(maintenance,"bootHeld"))) {
+            if (!serviceMaintenanceScope(instance,operation).equals(maintenance.get("scope")))
+                throw new CloudRuntimeException("Foreign maintenance blocks initial NoHeld SERVICE recovery");
+            return false; // An actually held operation keeps its original protected SERVICE recovery.
+        }
+        if (!Boolean.FALSE.equals(getNativeBoolean(maintenance,"bootHeld")) || !Boolean.TRUE.equals(getNativeBoolean(maintenance,"success"))
+                || !java.util.Objects.equals(explicitInitialUnheldServiceRecovery.get(),operation.getId()))
+            throw new CloudRuntimeException("Initial NoHeld SERVICE recovery requires explicit original administrator and fresh no-hold state");
+        requireConfigurationAdministrator();beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=initialUnheldServiceSourceProof(instance,operation),result=parseJsonObject(operation.getResultJson());
+            String key="_initialUnheldServiceSourceRecovery";
+            if (result.has(key) && !proof.equals(result.get(key))) throw new CloudRuntimeException("Initial NoHeld SERVICE recovery intent changed");
+            if (!result.has(key)) {
+                result.add(key,proof.deepCopy());operation.setResultJson(result.toString());
+                if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Initial NoHeld SERVICE intent could not be persisted");
+            }
+            if (!proof.equals(initialUnheldServiceSourceProof(instance,operation))) throw new CloudRuntimeException("Initial NoHeld SERVICE SOURCE changed before native abort");
+            JsonObject before=nativeConfigurationGeneration(instance,null,"status");
+            if (operation.getUuid().equals(getJsonString(before,"pendingOperationUuid"))) nativeConfigurationGeneration(instance,operation,"rollback");
+            else if (getJsonString(before,"pendingOperationUuid")!=null) throw new CloudRuntimeException("Foreign native pending writer blocks initial NoHeld abort");
+            // Repeating the complete proof performs two real COMMITTED_BASELINE witnesses after own rollback.
+            if (!proof.equals(initialUnheldServiceSourceProof(instance,operation)) || !proof.equals(initialUnheldServiceSourceProof(instance,operation)))
+                throw new CloudRuntimeException("Initial NoHeld SERVICE SOURCE changed after native abort");
+            String diagnostic=StringUtils.defaultString(operation.getDiagnostic())+" | Explicit original administrator aborted its unactivated no-hold initial writer; original SOURCE verified without protocol replay";
+            if (diagnostic.length()>2048) throw new CloudRuntimeException("Original NoHeld SERVICE failure exceeds the diagnostic bound");
+            operation.setDiagnostic(diagnostic);completeOperationFinalization(operation,"ROLLED_BACK");return true;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    protected JsonObject initialUnheldServiceSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),result=parseJsonObject(operation.getResultJson());
+        String intent="_initialUnheldServiceSourceRecovery";
+        Set<String> resultKeys=new HashSet<>(Set.of("_requestFingerprint"));if(result.has(intent))resultKeys.add(intent);
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        JsonObject saved=getJsonObject(snapshot,"renderedGeneration"),checkpoint=getJsonObject(snapshot,"nativeGeneration");
+        if (storageWriterOperation.get()!=operation || !java.util.Objects.equals(explicitInitialUnheldServiceRecovery.get(),operation.getId())
+                || operation.getId()<=0 || operation.getInstanceId()!=instance.getId() || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"SERVICE_MAINTENANCE".equals(operation.getAction()) || !"RECOVERY_REQUIRED".equals(operation.getState()) || !"RECOVERY_REQUIRED".equals(operation.getPhase())
+                || operation.getRevision()!=2 || operation.getProgress()!=0 || operation.getSnapshotJson()!=null
+                || operation.getRequestKey()==null || !operation.getRequestKey().startsWith("SERVICE_MAINTENANCE:")
+                || !snapshot.keySet().equals(Set.of("schemaVersion","instanceId","tables","renderedGeneration","nativeGeneration","nativeDesiredState"))
+                || !result.keySet().equals(resultKeys) || StringUtils.isBlank(getJsonString(result,"_requestFingerprint")) || getJsonString(result,"_requestFingerprint").length()>256
+                || saved==null || checkpoint==null || !"PREPARED".equals(getJsonString(saved,"phase"))
+                || !Boolean.TRUE.equals(getNativeBoolean(checkpoint,"success")) || !Boolean.TRUE.equals(getNativeBoolean(checkpoint,"generationSupported"))
+                || !"PREPARED".equals(getJsonString(checkpoint,"phase")) || !checkpoint.keySet().equals(Set.of("success","generationSupported","phase","previous"))
+                || fresh==null || fresh.getId()!=operation.getId() || !fresh.getUuid().equals(operation.getUuid()) || fresh.getInstanceId()!=operation.getInstanceId()
+                || fresh.getCreatedBy()!=operation.getCreatedBy() || fresh.getRevision()!=operation.getRevision() || fresh.getProgress()!=0 || fresh.getSnapshotJson()!=null
+                || !operation.getState().equals(fresh.getState()) || !operation.getPhase().equals(fresh.getPhase()) || !operation.getAction().equals(fresh.getAction())
+                || !operation.getRequestKey().equals(fresh.getRequestKey()) || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),fresh.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(operation.getResultJson(),fresh.getResultJson()) || storageOperationControlDao.findByOperation(operation.getId())!=null)
+            throw new CloudRuntimeException("Initial NoHeld SERVICE recovery lost its exact unactivated prepared writer");
+        Set<String> savedKeys=new HashSet<>(Set.of("keyId","keySha256","source","previousManifest","phase"));if(saved.has("receipt"))savedKeys.add("receipt");
+        JsonObject source=getJsonObject(saved,"source"),manifest=getJsonObject(saved,"previousManifest");
+        String keyId=java.util.UUID.nameUUIDFromBytes(("rendered-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if (!saved.keySet().equals(savedKeys) || source==null || manifest==null
+                || getJsonObject(source,"generation")==null || getJsonObject(source,"configurationDesiredState")==null
+                || manifest.get("manifestSha256")==null || !keyId.equals(getJsonString(saved,"keyId"))
+                || !StringUtils.defaultString(getJsonString(saved,"keySha256")).matches("[a-f0-9]{64}")
+                || !source.get("generation").equals(checkpoint.get("previous")) || !source.get("configurationDesiredState").equals(snapshot.get("nativeDesiredState")))
+            throw new CloudRuntimeException("Initial NoHeld SERVICE encrypted key or immutable SOURCE checkpoint changed");
+        if (saved.has("receipt")) {
+            JsonObject receipt=saved.getAsJsonObject("receipt");
+            if (!receipt.keySet().equals(Set.of("phase","scope","previousGeneration","previousRenderedSha256"))
+                    || !"PREPARED".equals(getJsonString(receipt,"phase")) || !operationReservationScope(instance,operation).equals(receipt.get("scope"))
+                    || !source.get("generation").equals(receipt.get("previousGeneration")) || !manifest.get("manifestSha256").equals(receipt.get("previousRenderedSha256")))
+                throw new CloudRuntimeException("Initial NoHeld SERVICE has a staged or changed rendered receipt");
+        }
+        renderedKeyStore().read(keyId,getJsonString(saved,"keySha256")); // Hash-check only; no unwrap/import or key replacement.
+        JsonObject database=new JsonObject();for(String field:List.of("schemaVersion","instanceId","tables"))database.add(field,snapshot.get(field).deepCopy());
+        JsonObject nativeStatus=nativeConfigurationGeneration(instance,null,"status");String pending=getJsonString(nativeStatus,"pendingOperationUuid");
+        if (pending==null && !result.has(intent) || pending!=null && !operation.getUuid().equals(pending))
+            throw new CloudRuntimeException("Initial NoHeld SERVICE has no original own pending scope or durable abort intent");
+        JsonObject proof=initialServiceSourceProof(instance,operation,database,pending==null?null:source);
+        JsonObject current=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        if (!manifest.equals(current.get("current"))) throw new CloudRuntimeException("Initial NoHeld rendered SOURCE pointer changed");
+        proof.addProperty("kind","INITIAL_UNHELD_RENDERED_SERVICE_SOURCE");
+        proof.addProperty("preparedSnapshotSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(snapshot)));return proof;
+    }
+
+    /** Finishes only an already rolled-back initial SOURCE after its exact prior SERVICE release. */
+    private boolean recoverReleasedInitialServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),saved=getJsonObject(snapshot,"renderedGeneration");
+        JsonObject receipt=saved==null?null:getJsonObject(saved,"receipt"),source=saved==null?null:getJsonObject(saved,"source");
+        JsonObject sourceGeneration=source==null?null:getJsonObject(source,"generation");
+        if (!"SERVICE_MAINTENANCE".equals(operation.getAction()) || operation.getProgress()!=100 || receipt==null
+                || !"ROLLED_BACK".equals(getJsonString(receipt,"phase")) || !"SOURCE_UNCHANGED".equals(getJsonString(receipt,"recoveryKind"))
+                || sourceGeneration==null || !Long.valueOf(1).equals(getJsonLong(sourceGeneration,"revision"))) return false;
+        requireConfigurationAdministrator();
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        if (!java.util.Objects.equals(explicitInitialUnheldServiceRecovery.get(),operation.getId())
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || operation.getInstanceId()!=instance.getId() || operation.getRevision()!=2 || operation.getSnapshotJson()!=null
+                || !"RECOVERY_REQUIRED".equals(operation.getState()) || !"RECOVERY_REQUIRED".equals(operation.getPhase())
+                || fresh==null || fresh.getId()!=operation.getId() || !fresh.getUuid().equals(operation.getUuid())
+                || fresh.getInstanceId()!=operation.getInstanceId() || fresh.getCreatedBy()!=operation.getCreatedBy() || fresh.getRevision()!=operation.getRevision()
+                || fresh.getProgress()!=100 || !operation.getState().equals(fresh.getState()) || !operation.getPhase().equals(fresh.getPhase())
+                || !operation.getAction().equals(fresh.getAction()) || !java.util.Objects.equals(operation.getRequestKey(),fresh.getRequestKey())
+                || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),fresh.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(operation.getResultJson(),fresh.getResultJson()) || fresh.getSnapshotJson()!=null)
+            throw new CloudRuntimeException("Released initial SERVICE completion requires its exact original explicit writer");
+        JsonObject manifest=getJsonObject(saved,"previousManifest"),scope=operationReservationScope(instance,operation);
+        if (!"ROLLED_BACK".equals(getJsonString(saved,"phase")) || manifest==null || !scope.equals(receipt.get("scope"))
+                || !sourceGeneration.equals(receipt.get("previousGeneration")) || !manifest.get("manifestSha256").equals(receipt.get("previousRenderedSha256")))
+            throw new CloudRuntimeException("Released initial SERVICE rollback receipt changed");
+        JsonObject database=new JsonObject();for(String field:List.of("schemaVersion","instanceId","tables"))database.add(field,snapshot.get(field).deepCopy());
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=initialServiceSourceProof(instance,operation,database,null);
+            if (!proof.get("nativeSource").equals(StorageConfigRuntimeEvidence.generation(source,instance.getUuid(),getJsonString(sourceGeneration,"operationUuid"),1))
+                    || !getJsonString(proof,"renderedManifestSha256").equals(getJsonString(manifest,"manifestSha256")))
+                throw new CloudRuntimeException("Released initial SERVICE SOURCE no longer matches its protected rollback");
+            JsonObject request=serviceMaintenanceScope(instance,operation);request.add("verifiedGeneration",sourceGeneration.deepCopy());
+            JsonObject released=rootGuest(instance,"operation maintenance service-release",request,60);
+            if (!Boolean.TRUE.equals(getNativeBoolean(released,"success")) || !Boolean.TRUE.equals(getNativeBoolean(released,"released"))
+                    || !Boolean.FALSE.equals(getNativeBoolean(released,"bootHeld")) || !"SERVICE".equals(getJsonString(released,"maintenanceKind"))
+                    || !serviceMaintenanceScope(instance,operation).equals(released.get("scope")))
+                throw new CloudRuntimeException("Released initial SERVICE lacks its exact prior protected release receipt");
+            if (!proof.equals(initialServiceSourceProof(instance,operation,database,null)))
+                throw new CloudRuntimeException("Released initial SERVICE SOURCE changed before final completion");
+            completeOperationFinalization(operation,"ROLLED_BACK");return true;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         if(Boolean.TRUE.equals(getNativeBoolean(parseJsonObject(operation.getResultJson()),"_leaseCleanupSource"))
                 && recoverOperationFinalization(instance,operation))return;
+        if (recoverInitialUnheldServiceSource(instance,operation)) return;
+        if (recoverReleasedInitialServiceSource(instance,operation)) return;
         JsonObject bootstrap=parseJsonObject(operation.getPreviousSnapshotJson());if(bootstrap.has("adSamBootstrapAttempted")&&!bootstrap.has("adSamBootstrapReceipt"))throw new CloudRuntimeException("Unresolved local SAM initialization requires its owned reconciliation before generic native rollback");
         RenderedBatch batch=restoreRenderedBatch(operation);if(batch.retainedRootAuthorization!=null||batch.importedRootAuthorization!=null)throw new CloudRuntimeException("Authenticated ROOT recovery requires its physical ROOT compensation transaction");requiredRenderedValidationProfile(instance);
         operation.setState("RUNNING");operation.setCompleted(null);if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered recovery writer could not be persisted");beginStorageWriterHeartbeat(operation);renderedBatch.set(batch);
@@ -2826,7 +2995,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     StorageServiceOperationControlVO control=startOperationControl(instance,operation);
                     if(control!=null){JsonObject policy=parseJsonObject(control.getPolicyJson());JsonObject requirements=policy.getAsJsonObject("requirements");requirements.addProperty("requireSessionDrain",false);policy.addProperty("drainRequired",false);policy.addProperty("drainSupported",false);policy.addProperty("downtimeBoundary","APPROVED_SERVICE_MAINTENANCE");control.setPolicyJson(policy.toString());storageOperationControlDao.update(control.getId(),control);acquireOperationResourceReservation(instance,operation);}
                     JsonObject before=nativeConfigurationGeneration(instance,null,"status");prepareRenderedBatch(instance,operation,before);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject nativeCheckpoint=nativeConfigurationGeneration(instance,operation,"begin");snapshot.add("nativeGeneration",nativeCheckpoint);snapshot.add("nativeDesiredState",before.get("configurationDesiredState"));operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(),operation);
-                    JsonObject held=rootGuest(instance,"operation maintenance service-enter",serviceMaintenanceScope(instance,operation),60);if(!"SERVICE".equals(getJsonString(held,"maintenanceKind")) || !Boolean.TRUE.equals(getJsonBoolean(held,"bootHeld")) || !serviceMaintenanceScope(instance,operation).equals(held.get("scope")))throw new CloudRuntimeException("Service acceptors were not held under the exact approved operation");operation.setPhase("HELD");storageOperationDao.update(operation.getId(),operation);
+                    JsonObject held=rootGuest(instance,"operation maintenance service-enter",serviceMaintenanceScope(instance,operation),60);if(!"SERVICE".equals(getJsonString(held,"maintenanceKind")) || !Boolean.TRUE.equals(getJsonBoolean(held,"bootHeld")) || !serviceMaintenanceScope(instance,operation).equals(held.get("scope")))throw new CloudRuntimeException("Service acceptors were not held under the exact approved operation");JsonObject enteredSnapshot=parseJsonObject(operation.getPreviousSnapshotJson());enteredSnapshot.add("approvedServiceMaintenanceHeld",held.deepCopy());operation.setPreviousSnapshotJson(enteredSnapshot.toString());operation.setPhase("HELD");if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Approved SERVICE held receipt could not be persisted");
                     org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse restored=storageServiceConfiguration(cmd);JsonObject result=parseJsonObject(operation.getResultJson());result.add("_response",new com.google.gson.Gson().toJsonTree(restored));operation.setResultJson(result.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Reviewed maintenance response could not be persisted");return createRuntimeResponse(instance,"approved service maintenance",true,"COMPLETE","Reviewed all-protocol configuration applied during approved downtime",new com.google.gson.Gson().toJson(restored));
                 } catch(RuntimeException failed) {operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");operation.setDiagnostic("Approved service maintenance requires its scoped recovery");storageOperationDao.update(operation.getId(),operation);throw failed;}
                 finally {renderedBatch.remove();serviceMaintenanceOperation.remove();endStorageWriterHeartbeat();}
@@ -6341,7 +6510,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     else if (operation.getAction().startsWith("ROOT_TEMPLATE_")) recoverInterruptedTemplateUpgrade(instance, operation);
                     else if("VOLUME_PREPARATION_RESUME".equals(operation.getAction()))recoverVolumePreparation(instance,operation);
                     else if("SMB_IDENTITY_REPAIR".equals(operation.getAction()))recoverSmbIdentityRepair(instance,operation);
-                    else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration"))recoverRenderedStorageWriter(instance,operation);
+                    else if(parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration")) {
+                        Long previousExplicit=explicitInitialUnheldServiceRecovery.get();explicitInitialUnheldServiceRecovery.set(operation.getId());
+                        try {recoverRenderedStorageWriter(instance,operation);}
+                        finally {if(previousExplicit==null)explicitInitialUnheldServiceRecovery.remove();else explicitInitialUnheldServiceRecovery.set(previousExplicit);}
+                    }
                     else {
                         Long previousExplicit=explicitVerifiedNfsAclRecovery.get(), previousSource=explicitUnchangedSourceRecovery.get();
                         explicitVerifiedNfsAclRecovery.set(operation.getId());explicitUnchangedSourceRecovery.set(operation.getId());

@@ -53,7 +53,31 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals("RECOVERY_REQUIRED",failed.getState());
         JsonObject recovery=new JsonObject();recovery.addProperty("operationid",failed.getId());
         var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,recovery);
+        // Historical deployed writers did not yet store the later Java held-reply marker.
+        JsonObject historical=fixture.obj(failed.getPreviousSnapshotJson());historical.remove("approvedServiceMaintenanceHeld");failed.setPreviousSnapshotJson(historical.toString());
+        fixture.loseHistoricalHeldTerminalOnce=true;
+        var terminal=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        if(fixture.loseHistoricalHeldTerminalOnce || !"Rendered rollback terminal could not be persisted".equals(terminal.getMessage()))throw terminal;
+        StorageServiceOperationVO released=fixture.operationRows.get(failed.getId());Assert.assertEquals("RECOVERY_REQUIRED",released.getState());Assert.assertEquals(100,released.getProgress());
+        Assert.assertFalse(fixture.obj(released.getPreviousSnapshotJson()).has("approvedServiceMaintenanceHeld"));
+        JsonObject scope=new JsonObject();scope.addProperty("instanceUuid",fixture.TARGET);scope.addProperty("operationUuid",failed.getUuid());scope.addProperty("revision",failed.getRevision());scope.addProperty("maintenanceUuid",failed.getUuid());
+        Assert.assertFalse(fixture.generation("operation maintenance service-status",scope).get("bootHeld").getAsBoolean());
+        Assert.assertTrue(fixture.generation("operation generation status",null).get("pendingOperationUuid").isJsonNull());
+        Assert.assertFalse(fixture.manager.recoverInitialUnheldServiceSource(fixture.instanceRows.get(80L),released));
+        String restoredDatabase=fixture.database.snapshot(80L);java.util.List<String> beforeFinish=fixture.nativeActions();
+        ((StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").values().iterator().next()).setPort(2050);
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));fixture.database.restore(80L,restoredDatabase);
+        java.nio.file.Path releasePath=fixture.nativeCase.resolve("maintenance/template-maintenance-release.json");String priorRelease=Files.readString(releasePath);
+        JsonObject foreign=fixture.obj(priorRelease);foreign.getAsJsonObject("scope").addProperty("operationUuid",fixture.id(999));Files.writeString(releasePath,foreign.toString());
+        try {var missing=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));Assert.assertEquals("ROOT runtime step failed: operation maintenance service-release",missing.getMessage());}
+        finally {Files.writeString(releasePath,priorRelease);}
+        fixture.loseReleasedInitialFinalizationOnce=true;
+        var finalSave=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        if(fixture.loseReleasedInitialFinalizationOnce || !"Resource-finalized operation completion could not be persisted".equals(finalSave.getMessage()))throw finalSave;
         fixture.manager.reconcileStorageServiceOperation(reconcile);
+        Assert.assertEquals(priorRelease,Files.readString(releasePath));
+        for(String action:java.util.List.of("begin","rollback","render-maintenance-resume-source","render-stage","render-activate"))
+            Assert.assertEquals(action,beforeFinish.stream().filter(action::equals).count(),fixture.nativeActions().stream().filter(action::equals).count());
         Assert.assertEquals("ROLLED_BACK",fixture.operationRows.get(failed.getId()).getState());
         Assert.assertEquals(source.get("generation"),fixture.generation("operation generation status",null).get("generation"));
         Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));Assert.assertEquals(identity,fixture.localPublicFingerprint());
@@ -123,6 +147,66 @@ public class StorageConfigRestoreWholeFlowTest {
         java.util.List<String> actions=fixture.nativeActions();Assert.assertEquals(1,actions.stream().filter("begin"::equals).count());
         for(String action:java.util.List.of("service-enter","service-release","render-stage","render-activate","restore","rollback"))Assert.assertFalse(action,actions.contains(action));
         fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("approved-after-checkpointless-source-recovery"));
+        assertCompletedRestore(volumes,901L);Assert.assertEquals(creator,fixture.artifactRows.get(900L).getMetadataJson());
+    }
+
+    @Test public void unheldPreparedServiceAbortsOnlyItsOwnPendingAndSafelyRetriesUnknownAndFinalSave()throws Exception {
+        fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        JsonObject original=fixture.generation("operation generation status",null),lkg=fixture.initialLkgIdentity();
+        String volumes=new com.google.gson.Gson().toJson(fixture.volumeRows),creator=fixture.artifactRows.get(900L).getMetadataJson();
+        fixture.rejectServiceEnterBeforeHoldOnce=true;var command=fixture.existingApprovedCommand("approved-enter-fence-rejected");
+        var failure=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.applyStorageServiceApprovedMaintenance(command));
+        if(fixture.rejectServiceEnterBeforeHoldOnce)throw failure;
+        Assert.assertEquals("Fixture rejected formatter lock fence before SERVICE hold",failure.getMessage());
+        StorageServiceOperationVO failed=fixture.operationRows.values().stream().filter(v->"SERVICE_MAINTENANCE".equals(v.getAction())).findFirst().orElseThrow();
+        Assert.assertEquals("RECOVERY_REQUIRED",failed.getState());Assert.assertEquals(0,failed.getProgress());String diagnostic=failed.getDiagnostic();
+        JsonObject snapshot=fixture.obj(failed.getPreviousSnapshotJson()),rendered=snapshot.getAsJsonObject("renderedGeneration");
+        Assert.assertEquals("PREPARED",rendered.get("phase").getAsString());Assert.assertFalse(snapshot.has("approvedServiceMaintenanceHeld"));
+        Assert.assertEquals(failed.getUuid(),fixture.generation("operation generation status",null).get("pendingOperationUuid").getAsString());
+        Assert.assertEquals(2,fixture.nativeActions().stream().filter("begin"::equals).count());Assert.assertFalse(fixture.nativeActions().contains("service-enter"));
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.recoverRenderedStorageWriter(fixture.instanceRows.get(80L),failed));
+        Assert.assertEquals(0,fixture.nativeActions().stream().filter("rollback"::equals).count());
+        JsonObject args=new JsonObject();args.addProperty("operationid",failed.getId());
+        var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,args);
+        for(String fault:java.util.List.of("actor","progress","nativeSource","manifest","stage","database","rawBinding")) {
+            StorageServiceOperationVO saved=fixture.copy(fixture.operationRows.get(failed.getId()),StorageServiceOperationVO.class);
+            String database=fixture.database.snapshot(80L),path=fixture.volumeRows.get(503L).getPath();
+            JsonObject changed=fixture.obj(saved.getPreviousSnapshotJson());
+            if(fault.equals("actor"))fixture.operationRows.get(failed.getId()).setCreatedBy(3);
+            if(fault.equals("progress"))fixture.operationRows.get(failed.getId()).setProgress(1);
+            if(fault.equals("nativeSource"))changed.getAsJsonObject("nativeGeneration").getAsJsonObject("previous").addProperty("revision",9);
+            if(fault.equals("manifest"))changed.getAsJsonObject("renderedGeneration").getAsJsonObject("previousManifest").addProperty("manifestSha256","0".repeat(64));
+            if(fault.equals("stage")){JsonObject receipt=new JsonObject();receipt.addProperty("phase","PREPARED");receipt.add("staged",new JsonObject());changed.getAsJsonObject("renderedGeneration").add("receipt",receipt);}
+            if(java.util.Set.of("nativeSource","manifest","stage").contains(fault))fixture.operationRows.get(failed.getId()).setPreviousSnapshotJson(changed.toString());
+            if(fault.equals("database"))((StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").values().iterator().next()).setPort(2050);
+            if(fault.equals("rawBinding"))org.springframework.test.util.ReflectionTestUtils.setField(fixture.volumeRows.get(503L),"path","foreign-raw-backing");
+            Assert.assertThrows(fault,RuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+            Assert.assertEquals(0,fixture.nativeActions().stream().filter("rollback"::equals).count());
+            fixture.operationRows.put(failed.getId(),saved);fixture.database.restore(80L,database);org.springframework.test.util.ReflectionTestUtils.setField(fixture.volumeRows.get(503L),"path",path);
+        }
+        fixture.driftNoHeldAfterIntentOnce=true;
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        Assert.assertFalse(fixture.driftNoHeldAfterIntentOnce);Assert.assertEquals(0,fixture.nativeActions().stream().filter("rollback"::equals).count());
+        fixture.database.restore(80L,fixture.initialDatabaseSnapshot);
+        fixture.loseNoHeldRollbackResponseOnce=true;
+        var unknown=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        if(fixture.loseNoHeldRollbackResponseOnce)throw unknown;
+        Assert.assertEquals(1,fixture.nativeActions().stream().filter("rollback"::equals).count());
+        Assert.assertTrue(fixture.generation("operation generation status",null).get("pendingOperationUuid").isJsonNull());
+        Assert.assertEquals("RECOVERY_REQUIRED",fixture.operationRows.get(failed.getId()).getState());
+        Assert.assertTrue(fixture.obj(fixture.operationRows.get(failed.getId()).getResultJson()).has("_initialUnheldServiceSourceRecovery"));
+        fixture.loseNoHeldFinalizationOnce=true;
+        var saveFailure=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        if(!"Resource-finalized operation completion could not be persisted".equals(saveFailure.getMessage()))throw saveFailure;
+        fixture.manager.reconcileStorageServiceOperation(reconcile);
+        StorageServiceOperationVO recovered=fixture.operationRows.get(failed.getId());Assert.assertEquals("ROLLED_BACK",recovered.getState());Assert.assertEquals(100,recovered.getProgress());Assert.assertTrue(recovered.getDiagnostic().startsWith(diagnostic));
+        Assert.assertEquals(original.get("generation"),fixture.generation("operation generation status",null).get("generation"));
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));Assert.assertEquals(volumes,new com.google.gson.Gson().toJson(fixture.volumeRows));Assert.assertEquals(lkg,fixture.initialLkgIdentity());fixture.assertEmptySourceRuntime();
+        java.util.List<String> actions=fixture.nativeActions();Assert.assertEquals(1,actions.stream().filter("rollback"::equals).count());Assert.assertEquals(2,actions.stream().filter("begin"::equals).count());
+        for(String action:java.util.List.of("service-enter","service-release","render-maintenance-resume-source","render-stage","render-activate","restore"))Assert.assertFalse(action,actions.contains(action));
+        int beforeDuplicate=actions.size();Assert.assertThrows(RuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));Assert.assertEquals(beforeDuplicate,fixture.nativeActions().size());
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("approved-after-own-nohold-abort"));
         assertCompletedRestore(volumes,901L);Assert.assertEquals(creator,fixture.artifactRows.get(900L).getMetadataJson());
     }
 
@@ -358,6 +442,7 @@ public class StorageConfigRestoreWholeFlowTest {
     boolean loseFirstStageReceiptOnce;
     boolean loseCompletionOnce;
     boolean loseCheckpointlessFinalizationOnce;
+    boolean rejectServiceEnterBeforeHoldOnce,loseNoHeldRollbackResponseOnce,loseNoHeldFinalizationOnce,driftNoHeldAfterIntentOnce,loseHistoricalHeldTerminalOnce,loseReleasedInitialFinalizationOnce;
     JsonObject recordedMapping;
     String transientCredentials;
     JsonObject sourceLocalFingerprint,sourceLkgIdentity;
@@ -374,6 +459,13 @@ public class StorageConfigRestoreWholeFlowTest {
         Mockito.doAnswer(call->{
             StorageServiceOperationVO value=call.getArgument(1);JsonObject prior=obj(value.getPreviousSnapshotJson()==null?"{}":value.getPreviousSnapshotJson());
             JsonObject rendered=prior.has("renderedGeneration")?prior.getAsJsonObject("renderedGeneration"):new JsonObject();
+            if(loseReleasedInitialFinalizationOnce && "ROLLED_BACK".equals(value.getState()) && "ROLLED_BACK".equals(value.getPhase())) {loseReleasedInitialFinalizationOnce=false;return false;}
+            if(loseHistoricalHeldTerminalOnce && "ROLLED_BACK".equals(value.getState()) && "INTERRUPTED_RENDERED_WRITER_ROLLED_BACK".equals(value.getPhase())) {loseHistoricalHeldTerminalOnce=false;return false;}
+            if(loseNoHeldFinalizationOnce && "ROLLED_BACK".equals(value.getState()) && obj(value.getResultJson()).has("_initialUnheldServiceSourceRecovery")) {loseNoHeldFinalizationOnce=false;return false;}
+            if(driftNoHeldAfterIntentOnce && obj(value.getResultJson()).has("_initialUnheldServiceSourceRecovery")) {
+                driftNoHeldAfterIntentOnce=false;operationRows.put(call.getArgument(0),copy(value,StorageServiceOperationVO.class));
+                ((StorageServiceProtocolVO)database.rows.get("storage_service_protocol").values().iterator().next()).setPort(2050);return true;
+            }
             if(loseCheckpointlessFinalizationOnce && "ROLLED_BACK".equals(value.getState())
                     && obj(value.getResultJson()).has("_checkpointlessServiceSourceRecovery")) {loseCheckpointlessFinalizationOnce=false;return false;}
             if(loseFirstStageReceiptOnce && rendered.has("receipt") && "STAGING".equals(rendered.getAsJsonObject("receipt").get("phase").getAsString())) {
@@ -467,6 +559,13 @@ public class StorageConfigRestoreWholeFlowTest {
         }
     }
     @Override JsonObject guest(String command,String body)throws Exception{
+        if(command.equals("operation maintenance service-enter")&&rejectServiceEnterBeforeHoldOnce){
+            rejectServiceEnterBeforeHoldOnce=false;throw new com.cloud.utils.exception.CloudRuntimeException("Fixture rejected formatter lock fence before SERVICE hold");
+        }
+        if(command.equals("operation generation rollback")&&loseNoHeldRollbackResponseOnce){
+            generation(command,obj(body));loseNoHeldRollbackResponseOnce=false;
+            throw new com.cloud.utils.exception.CloudRuntimeException("Fixture lost response after exact own native rollback");
+        }
         if(command.equals("operation generation render-activate") && rejectAfterActivateOnce) {
             JsonObject applied=generation(command,obj(body));Assert.assertEquals("VERIFIED",applied.getAsJsonObject("activation").get("phase").getAsString());
             rejectAfterActivateOnce=false;throw new com.cloud.utils.exception.CloudRuntimeException("Fixture transport response lost after verified activation");

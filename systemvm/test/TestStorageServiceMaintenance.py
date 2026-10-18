@@ -17,7 +17,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import copy,json,os,sys,tempfile,unittest,uuid
+import ast,copy,fcntl,json,os,stat,sys,tempfile,types,unittest,uuid
+from unittest.mock import patch
 from pathlib import Path
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
@@ -49,6 +50,139 @@ class StorageServiceMaintenanceTest(unittest.TestCase):
     def resetenv(self):
         if self.old is None:os.environ.pop("ABLESTACK_STORAGE_VOLUME_OPERATIONS",None)
         else:os.environ["ABLESTACK_STORAGE_VOLUME_OPERATIONS"]=self.old
+    def completed_formatter_files(self):
+        directory=Path(os.environ["ABLESTACK_STORAGE_VOLUME_OPERATIONS"]);directory.mkdir(mode=0o700)
+        records={};locks=[]
+        for _ in range(2):
+            volume=str(uuid.uuid4());path=directory/(volume+".json")
+            record={"volumeUuid":volume,"phase":"COMPLETE","formatStarted":False,"terminationPending":False}
+            path.write_text(json.dumps(record));path.chmod(0o600);records[volume]=record
+            lock=directory/(volume+".lock");lock.write_bytes(b"");lock.chmod(0o644);locks.append(lock)
+        original=self.service.command
+        def command(args,payload=None):
+            if args==("volume","operation","status"):
+                return {"success":True,"status":records[payload["volumeUuid"]]["phase"],"formatterActive":False,
+                        "formatterObservationComplete":True,"terminationPending":False}
+            return original(args,payload)
+        self.service.command=command
+        return directory,locks
+    def test_completed_formatter_mutexes_are_preserved_and_released(self):
+        directory,locks=self.completed_formatter_files()
+        before={p.name:(p.stat().st_ino,p.stat().st_mode,p.read_bytes())for p in directory.iterdir()}
+        self.service.enter(self.scope)
+        self.assertTrue(self.maintenance.status()["bootHeld"])
+        self.assertEqual(before,{p.name:(p.stat().st_ino,p.stat().st_mode,p.read_bytes())for p in directory.iterdir()})
+        for path in locks:
+            descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+            try:fcntl.flock(descriptor,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            finally:os.close(descriptor)
+    def test_owner_private_mutex_mode_is_also_supported(self):
+        directory,locks=self.completed_formatter_files()
+        for lock in locks:lock.chmod(0o600)
+        self.assertEqual(self.scope,self.service.fence(self.scope))
+    def test_held_formatter_mutex_blocks_before_marker_without_deleting_it(self):
+        directory,locks=self.completed_formatter_files();fd=os.open(locks[0],os.O_RDWR)
+        try:
+            fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with self.assertRaisesRegex(ValueError,"Active formatter lock"):self.service.enter(self.scope)
+            self.assertFalse(self.maintenance.marker.exists());self.assertFalse(self.calls);self.assertTrue(locks[0].exists())
+        finally:os.close(fd)
+    def test_unknown_formatter_entry_and_orphan_mutex_fail_closed(self):
+        directory,locks=self.completed_formatter_files()
+        unknown=directory/"unknown.tmp";unknown.write_bytes(b"")
+        with self.assertRaisesRegex(ValueError,"Unknown formatter journal entry"):self.service.fence(self.scope)
+        unknown.unlink();locks[0].with_suffix(".json").unlink()
+        with self.assertRaisesRegex(ValueError,"lacks its exact journal"):self.service.fence(self.scope)
+        self.assertTrue(locks[0].exists());self.assertFalse(self.maintenance.marker.exists())
+    def test_noncanonical_mutex_uuid_is_not_an_alias(self):
+        directory,locks=self.completed_formatter_files();bad=directory/"NOT-A-UUID.lock";bad.write_bytes(b"")
+        with self.assertRaises(ValueError):self.service.fence(self.scope)
+        self.assertTrue(bad.exists())
+    def test_mutex_symlink_hardlink_and_writable_modes_are_rejected(self):
+        directory,locks=self.completed_formatter_files();path=locks[0];saved=path.read_bytes()
+        path.unlink();path.symlink_to(locks[1])
+        with self.assertRaisesRegex(ValueError,"entry is unprotected"):self.service.fence(self.scope)
+        path.unlink();path.write_bytes(saved);path.chmod(0o644)
+        alias=Path(self.temp.name)/"hardlink-alias";os.link(path,alias)
+        with self.assertRaisesRegex(ValueError,"entry is unprotected"):self.service.fence(self.scope)
+        alias.unlink()
+        for mode in(0o666,0o744,0o4644):
+            with self.subTest(mode=mode):
+                path.chmod(mode)
+                with self.assertRaisesRegex(ValueError,"entry is unprotected"):self.service.fence(self.scope)
+        self.assertFalse(self.maintenance.marker.exists())
+    def test_mutex_foreign_owner_is_rejected_without_real_chown(self):
+        directory,locks=self.completed_formatter_files();original=Path.lstat
+        def owner(path):
+            info=original(path)
+            if path==locks[0]:
+                row={k:getattr(info,k)for k in dir(info)if k.startswith("st_")};row["st_uid"]+=1
+                return types.SimpleNamespace(**row)
+            return info
+        with patch.object(Path,"lstat",owner):
+            with self.assertRaisesRegex(ValueError,"entry is unprotected"):self.service.fence(self.scope)
+        self.assertFalse(self.maintenance.marker.exists())
+    def test_unknown_active_or_termination_pending_formatter_status_is_rejected(self):
+        directory,locks=self.completed_formatter_files();original=self.service.command
+        for change in({"formatterActive":True},{"formatterActive":None},{"formatterObservationComplete":False},
+                       {"terminationPending":True},{"status":"RECONCILE_REQUIRED"},{"success":False}):
+            def command(args,payload=None):
+                value=original(args,payload)
+                return {**value,**change}if args==("volume","operation","status")else value
+            self.service.command=command
+            with self.subTest(change=change):
+                with self.assertRaisesRegex(ValueError,"Unresolved formatter"):self.service.fence(self.scope)
+        self.assertFalse(self.maintenance.marker.exists());self.assertTrue(all(p.exists()for p in locks))
+    def test_mutex_inode_replacement_during_status_observation_is_rejected(self):
+        directory,locks=self.completed_formatter_files();original=self.service.command
+        def command(args,payload=None):
+            value=original(args,payload)
+            if args==("volume","operation","status")and locks[0].exists():
+                locks[0].unlink();locks[0].write_bytes(b"");locks[0].chmod(0o644)
+            return value
+        self.service.command=command
+        with self.assertRaisesRegex(ValueError,"identity changed during observation"):self.service.fence(self.scope)
+        self.assertFalse(self.maintenance.marker.exists())
+    def test_whole_os_model_has_persistent_mutexes_and_real_status_projection(self):
+        import volume_formatter
+        repository=Path(__file__).resolve().parents[2]
+        fixture=repository/"server/src/test/resources/storage-config/rendered-local-os-fixture.py"
+        tree=ast.parse(fixture.read_text());cls=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=="RenderedGuestFixture")
+        selected=[n for n in cls.body if isinstance(n,ast.FunctionDef)and n.name in("initialize_formatter_journals","formatter_status")]
+        dummy=ast.ClassDef(name="MountedOsModel",bases=[],keywords=[],body=selected,decorator_list=[])
+        namespace={"Path":Path,"json":json,"os":os,"time":__import__("time"),"require":lambda v,c:None if v else (_ for _ in()).throw(ValueError(c))}
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[dummy],type_ignores=[])),"actual_whole_os_journal_model","exec"),namespace)
+        model=namespace["MountedOsModel"]();model.case=Path(self.temp.name);model.effects=[]
+        model.path_guard=types.SimpleNamespace(path=lambda p:self.assertTrue(p.resolve().is_relative_to(model.case.resolve())))
+        model.initialize_formatter_journals()
+        self.assertFalse((model.case/"volume-operations").exists())
+        witness=model.case/"witness-os-fixture.json";witness.write_text("{}")
+        with self.assertRaises(ValueError):model.initialize_formatter_journals()
+        self.assertFalse((model.case/"volume-operations").exists())
+        volume=str(uuid.uuid4());fs=str(uuid.uuid4());boot=str(uuid.uuid4())
+        facts={"bootId":boot,"dataVolumes":[{"volumeUuid":volume,"sizeBytes":20<<30,"filesystem":"ext4",
+                "filesystemUuid":fs,"mounts":[{"target":"/srv/ablestack-storage/volumes/"+volume,"uuid":fs}]}]}
+        (model.case/"witness-os-fixture.json").write_text(json.dumps(facts))
+        model.initialize_formatter_journals()
+        cli=(repository/"systemvm/debian/usr/local/bin/ablestack-storagectl").read_text()
+        block=cli.split("volume_operation_status() {",1)[1].split("<<'PYVOLUME'\n",1)[1].split("\nPYVOLUME",1)[0]
+        functions=[n for n in ast.parse(block).body if isinstance(n,ast.FunctionDef)and n.name in("read_volume_operation","project_volume_operation")]
+        model.volume_status_namespace={"json":json,"os":os,"stat":stat};exec(compile(ast.Module(body=functions,type_ignores=[]),"real_volume_status","exec"),model.volume_status_namespace)
+        model.volume_formatter_module=volume_formatter
+        observed=model.formatter_status({"volumeUuid":volume})
+        self.assertEqual("COMPLETE",observed["status"]);self.assertFalse(observed["formatterActive"])
+        self.assertTrue(observed["formatterObservationComplete"])
+        self.assertEqual({volume+".json",volume+".lock"},{p.name for p in(model.case/"volume-operations").iterdir()})
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(model.case/"volume-operations")}):
+            self.service.command=lambda args,payload=None:model.formatter_status(payload)
+            self.assertEqual(self.scope,self.service.fence(self.scope))
+        self.assertTrue((model.case/"volume-operations"/(volume+".lock")).exists())
+        journal=model.case/"volume-operations"/(volume+".json");original=journal.read_bytes()
+        changed=copy.deepcopy(facts);newuuid=str(uuid.uuid4())
+        changed["dataVolumes"][0]["filesystemUuid"]=newuuid;changed["dataVolumes"][0]["mounts"][0]["uuid"]=newuuid
+        witness.write_text(json.dumps(changed));model.initialize_formatter_journals()
+        self.assertEqual(original,journal.read_bytes())
+        with self.assertRaisesRegex(ValueError,"OS_BINDING_CHANGED"):model.formatter_status({"volumeUuid":volume})
     def test_typed_durable_hold_survives_restart_and_same_scope_replay(self):
         result=self.service.enter(self.scope)
         self.assertEqual("HELD",result["phase"]);self.assertEqual("SERVICE",result["maintenanceKind"])

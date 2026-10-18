@@ -472,7 +472,25 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_code7_before_formatter_mutexes(self,current):
+        # This reconstructs the real old Code7 fixture, never Code8 runtime authority.
+        import ast
+        source=(Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage/service_maintenance.py").read_text()
+        cls=next(n for n in ast.parse(source).body if isinstance(n,ast.ClassDef)and n.name=="ServiceMaintenance")
+        method=next(n for n in cls.body if isinstance(n,ast.FunctionDef)and n.name=="fence")
+        new="".join(source.splitlines(keepends=True)[method.lineno-1:method.end_lineno]).encode()
+        self.assertEqual('4d29d8d2e6cb8383e4d50d45b584b10398ee990a16630cafc072fad91238e412',hashlib.sha256(new).hexdigest())
+        old=b'    def fence(self,request):\n        desired=scope(request,"SERVICE");actual=self.maintenance.generation()\n        current=actual.get("generation") or {}\n        if current.get("instanceUuid")!=desired["instanceUuid"] or type(current.get("revision")) is not int or current["revision"]>desired["revision"]:\n            raise ValueError("SERVICE native generation scope is foreign or stale")\n        pending=actual.get("pendingOperationUuid")\n        if pending not in (None,desired["operationUuid"]):raise ValueError("Foreign generation blocks SERVICE maintenance")\n        directory=Path(os.environ.get("ABLESTACK_STORAGE_VOLUME_OPERATIONS","/var/lib/ablestack-storage/volume-operations"))\n        if directory.exists() or directory.is_symlink():\n            info=directory.lstat()\n            if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Formatter journals are unprotected")\n            for path in sorted(directory.iterdir()):\n                if path.suffix!=".json":raise ValueError("Unknown formatter journal entry")\n                volume=str(uuid.UUID(path.stem));observed=self.command(("volume","operation","status"),{"volumeUuid":volume})\n                if (observed.get("formatterActive") is True or observed.get("terminationPending") is True\n                        or observed.get("status") not in ("COMPLETE","MOUNT_EXISTING","NOT_STARTED")):\n                    raise ValueError("Unresolved formatter blocks SERVICE maintenance")\n        return desired\n'
+        self.assertEqual(2,current.count(new));current=current.replace(new,old)
+        new=b'"""Approved downtime boundary with durable typed scopes and owned acceptors."""\nimport fcntl\nimport json\n';old=b'"""Approved downtime boundary with durable typed scopes and owned acceptors."""\nimport json\n'
+        self.assertEqual(2,current.count(new));current=current.replace(new,old)
+        self.assertEqual("2784d70a1ea724922758b08b238022b2969f9c3f08a4a2df1a13ed48919144d0",hashlib.sha256(current).hexdigest())
+        return current
+    def test_formatter_mutex_projection_reconstructs_genuine_code7(self):
+        self.historical_code7_before_formatter_mutexes(fixture.CLI.read_bytes())
+
     def historical_d524_before_disabled_smb_parser(self,current):
+        current=self.historical_code7_before_formatter_mutexes(current)
         # Test-only reconstruction of real Code6 bytes, never Code7 runtime authority.
         new=b"'   smb ports = '+' '.join(str(port) for port in (ports or [445]))"
         old=b"'   smb ports = '+' '.join(str(port) for port in ports)"

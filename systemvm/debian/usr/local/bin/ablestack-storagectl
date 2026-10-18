@@ -26002,6 +26002,7 @@ class Maintenance:
         self.sync()
         return {"success": True, "released": True, "bootHeld": False, "scope": desired,"maintenanceKind":kind}
 """Approved downtime boundary with durable typed scopes and owned acceptors."""
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -26079,12 +26080,41 @@ class ServiceMaintenance:
         if directory.exists() or directory.is_symlink():
             info=directory.lstat()
             if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Formatter journals are unprotected")
+            entries={};journals={};locks={};descriptors=[]
+            fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_nlink","st_size","st_mtime_ns","st_ctime_ns")
+            def fingerprint(value):return tuple(getattr(value,key)for key in fields)
             for path in sorted(directory.iterdir()):
-                if path.suffix!=".json":raise ValueError("Unknown formatter journal entry")
-                volume=str(uuid.UUID(path.stem));observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
-                if (observed.get("formatterActive") is True or observed.get("terminationPending") is True
-                        or observed.get("status") not in ("COMPLETE","MOUNT_EXISTING","NOT_STARTED")):
-                    raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+                if path.suffix not in(".json",".lock"):raise ValueError("Unknown formatter journal entry")
+                volume=str(uuid.UUID(path.stem))
+                if volume!=path.stem:raise ValueError("Formatter entry UUID is not canonical")
+                observed=path.lstat();mode=stat.S_IMODE(observed.st_mode)
+                if (not stat.S_ISREG(observed.st_mode) or observed.st_uid!=os.geteuid()
+                        or observed.st_nlink!=1 or mode&0o7111 or mode&0o022 or mode&0o600!=0o600):
+                    raise ValueError("Formatter journal entry is unprotected")
+                if path.suffix==".json"and mode&0o077:raise ValueError("Formatter journal is not private")
+                entries[path]=fingerprint(observed)
+                (journals if path.suffix==".json"else locks)[volume]=path
+            if set(locks)-set(journals):raise ValueError("Formatter lock lacks its exact journal")
+            try:
+                for volume,path in sorted(locks.items()):
+                    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+                    descriptors.append((descriptor,path))
+                    if fingerprint(os.fstat(descriptor))!=entries[path]or fingerprint(path.lstat())!=entries[path]:
+                        raise ValueError("Formatter lock identity changed")
+                    try:fcntl.flock(descriptor,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    except BlockingIOError as active:raise ValueError("Active formatter lock blocks SERVICE maintenance")from active
+                for volume,path in sorted(journals.items()):
+                    observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
+                    if (observed.get("success")is not True or observed.get("formatterActive")is not False
+                            or observed.get("terminationPending")is not False or observed.get("formatterObservationComplete")is not True
+                            or observed.get("status")not in("COMPLETE","MOUNT_EXISTING")):
+                        raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+                    if fingerprint(path.lstat())!=entries[path]:raise ValueError("Formatter journal changed during observation")
+                for descriptor,path in descriptors:
+                    if fingerprint(os.fstat(descriptor))!=entries[path]or fingerprint(path.lstat())!=entries[path]:
+                        raise ValueError("Formatter lock identity changed during observation")
+            finally:
+                for descriptor,path in descriptors:os.close(descriptor)
         return desired
 
     def prove_unit(self,unit,require_active=True):
@@ -36363,6 +36393,7 @@ class Maintenance:
 # under the License.
 
 """Approved downtime boundary with durable typed scopes and owned acceptors."""
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -36440,12 +36471,41 @@ class ServiceMaintenance:
         if directory.exists() or directory.is_symlink():
             info=directory.lstat()
             if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:raise ValueError("Formatter journals are unprotected")
+            entries={};journals={};locks={};descriptors=[]
+            fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_nlink","st_size","st_mtime_ns","st_ctime_ns")
+            def fingerprint(value):return tuple(getattr(value,key)for key in fields)
             for path in sorted(directory.iterdir()):
-                if path.suffix!=".json":raise ValueError("Unknown formatter journal entry")
-                volume=str(uuid.UUID(path.stem));observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
-                if (observed.get("formatterActive") is True or observed.get("terminationPending") is True
-                        or observed.get("status") not in ("COMPLETE","MOUNT_EXISTING","NOT_STARTED")):
-                    raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+                if path.suffix not in(".json",".lock"):raise ValueError("Unknown formatter journal entry")
+                volume=str(uuid.UUID(path.stem))
+                if volume!=path.stem:raise ValueError("Formatter entry UUID is not canonical")
+                observed=path.lstat();mode=stat.S_IMODE(observed.st_mode)
+                if (not stat.S_ISREG(observed.st_mode) or observed.st_uid!=os.geteuid()
+                        or observed.st_nlink!=1 or mode&0o7111 or mode&0o022 or mode&0o600!=0o600):
+                    raise ValueError("Formatter journal entry is unprotected")
+                if path.suffix==".json"and mode&0o077:raise ValueError("Formatter journal is not private")
+                entries[path]=fingerprint(observed)
+                (journals if path.suffix==".json"else locks)[volume]=path
+            if set(locks)-set(journals):raise ValueError("Formatter lock lacks its exact journal")
+            try:
+                for volume,path in sorted(locks.items()):
+                    descriptor=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+                    descriptors.append((descriptor,path))
+                    if fingerprint(os.fstat(descriptor))!=entries[path]or fingerprint(path.lstat())!=entries[path]:
+                        raise ValueError("Formatter lock identity changed")
+                    try:fcntl.flock(descriptor,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    except BlockingIOError as active:raise ValueError("Active formatter lock blocks SERVICE maintenance")from active
+                for volume,path in sorted(journals.items()):
+                    observed=self.command(("volume","operation","status"),{"volumeUuid":volume})
+                    if (observed.get("success")is not True or observed.get("formatterActive")is not False
+                            or observed.get("terminationPending")is not False or observed.get("formatterObservationComplete")is not True
+                            or observed.get("status")not in("COMPLETE","MOUNT_EXISTING")):
+                        raise ValueError("Unresolved formatter blocks SERVICE maintenance")
+                    if fingerprint(path.lstat())!=entries[path]:raise ValueError("Formatter journal changed during observation")
+                for descriptor,path in descriptors:
+                    if fingerprint(os.fstat(descriptor))!=entries[path]or fingerprint(path.lstat())!=entries[path]:
+                        raise ValueError("Formatter lock identity changed during observation")
+            finally:
+                for descriptor,path in descriptors:os.close(descriptor)
         return desired
 
     def prove_unit(self,unit,require_active=True):

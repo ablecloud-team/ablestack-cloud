@@ -98,6 +98,11 @@ public class StorageApprovedMaintenanceRetryTest {
         Assert.assertEquals("Configuration artifact directory is unavailable",Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,this::replay).getMessage());
         Mockito.verify(operations,Mockito.never()).persist(Mockito.any());Assert.assertEquals(0,manager.holdCalls);Assert.assertEquals(0,manager.genericEntries);
     }
+    @Test public void knownHeldRecoveryDoesNotEnterTheSeparateInitialNoHeldAdministratorOrGuestGate() {
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();operation.setAction("SERVICE_MAINTENANCE");
+        operation.setPreviousSnapshotJson("{\"approvedServiceMaintenanceHeld\":{\"maintenanceKind\":\"SERVICE\",\"bootHeld\":true}}");
+        Assert.assertFalse(manager.recoverInitialUnheldServiceSource(manager.instance,operation));
+    }
     private void prepareGenericEntry() {
         manager.routeGeneric=true;String target="11111111-1111-4111-8111-111111111111";Mockito.when(manager.instance.getUuid()).thenReturn(target);
         Mockito.when(operations.findByRequest(7L,"SERVICE_MAINTENANCE:retry")).thenReturn(null);Mockito.when(command.getArtifactId()).thenReturn(8L);
