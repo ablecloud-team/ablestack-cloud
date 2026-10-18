@@ -251,6 +251,7 @@ public class StorageConfigCloneTemplatePinTest {
         Mockito.when(volumes.findByInstanceAndType(VM_ID, Volume.Type.ROOT)).thenReturn(List.of(root));
         ReflectionTestUtils.setField(manager, "volumeDao", volumes);
         artifacts = Mockito.mock(StorageConfigArtifactDao.class);
+        ReflectionTestUtils.setField(manager, "storageConfigArtifactDao", artifacts);
         operations = Mockito.mock(StorageServiceOperationDao.class);
         directory = Files.createTempDirectory("clone-template-pin-");
         store = new StorageConfigArtifactStore(directory);
