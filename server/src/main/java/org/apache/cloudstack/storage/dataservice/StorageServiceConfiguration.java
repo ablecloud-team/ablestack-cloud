@@ -158,6 +158,11 @@ public final class StorageServiceConfiguration {
                     throw new CloudRuntimeException("Clone restore operation reference cannot be changed by a stale metadata update");
                 metadata.add("cloneRestoreOperation",current.get("cloneRestoreOperation").deepCopy());
             }
+            if (current.has("cloneExistingFilesystem")) {
+                if (metadata.has("cloneExistingFilesystem") && !metadata.get("cloneExistingFilesystem").equals(current.get("cloneExistingFilesystem")))
+                    throw new CloudRuntimeException("First-MOUNT filesystem observation cannot be changed by a stale phase snapshot");
+                metadata.add("cloneExistingFilesystem", current.get("cloneExistingFilesystem").deepCopy());
+            }
             if (current.has("cloneInitialBaseline")) {
                 if (metadata.has("cloneInitialBaseline") && !metadata.get("cloneInitialBaseline").equals(current.get("cloneInitialBaseline")))
                     throw new CloudRuntimeException("Initial baseline receipt cannot be changed by a stale phase snapshot");

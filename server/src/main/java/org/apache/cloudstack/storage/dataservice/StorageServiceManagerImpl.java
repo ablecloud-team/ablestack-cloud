@@ -4966,10 +4966,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void recoverConfigurationFoundationInitialVolume(StorageServiceInstanceVO target, StorageServiceOperationVO operation, JsonObject plan) {
         VolumeVO volume = configurationInitialVolume(target);configurationVolumeId(target, volume.getUuid());
         JsonObject blueprint = plan.getAsJsonObject("createNew").deepCopy();
+        StorageConfigArtifactVO artifact = null;boolean missingMountPin = false;
         if ("EXISTING".equals(getJsonString(blueprint, "backingvolumemode"))) {
-            StorageConfigArtifactVO artifact = storageConfigArtifactDao.findByUuid(getJsonString(
+            artifact = storageConfigArtifactDao.findByUuid(getJsonString(
                     parseJsonObject(operation.getPreviousSnapshotJson()), "artifactUuid"));
-            blueprint = configurationCloneFoundationBlueprint(target, artifact, plan);
+            missingMountPin = artifact != null && !parseJsonObject(artifact.getMetadataJson()).has("cloneExistingFilesystem");
+            if (!missingMountPin) blueprint = configurationCloneFoundationBlueprint(target, artifact, plan);
         }
         JsonObject request = new JsonObject();request.addProperty("volumeUuid", volume.getUuid());
         JsonObject history = rootGuest(target, "volume operation status", request, 5);
@@ -4979,6 +4981,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             requireConfigurationFoundationCompletion(target, operation, volume);
         }
         if ("EXISTING".equals(getJsonString(blueprint, "backingvolumemode"))) {
+            if (missingMountPin) {
+                recoverConfigurationCloneMissingFilesystemPin(target, operation, artifact, plan, history);
+                blueprint = configurationCloneFoundationBlueprint(target, artifact, plan);
+            }
             // Existing DATA has no formatting authority in this operation.
             Map<String, String> details = configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
             StorageVolumeLifecycleProtection.requireVerified(volume, details.get(StorageVolumeLifecycleProtection.STATE), details.get(StorageVolumeLifecycleProtection.RECEIPT));
@@ -5000,6 +5006,79 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             blueprint.addProperty("backingvolumemode", "EXISTING");
         }
         prepareConfigurationInitialVolume(target, blueprint);
+    }
+
+    protected void recoverConfigurationCloneMissingFilesystemPin(StorageServiceInstanceVO target, StorageServiceOperationVO operation,
+            StorageConfigArtifactVO artifact, JsonObject plan, JsonObject history) {
+        requireConfigurationAdministrator();
+        JsonObject metadata = parseJsonObject(artifact.getMetadataJson()), intent = parseJsonObject(operation.getPreviousSnapshotJson());
+        JsonObject originalPlan = getJsonObject(metadata, "plan"), creator = getJsonObject(metadata, "cloneAllocation");
+        if (metadata.has("cloneExistingFilesystem") || !"IMPORT".equals(artifact.getKind()) || originalPlan == null || !originalPlan.equals(plan)
+                || !configurationCloneExistingInitial(plan) || !"CLONE_FOUNDATION_PREPARE".equals(operation.getAction())
+                || operation.getInstanceId() != target.getId() || operation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"RUNNING".equals(operation.getState()) || !"FOUNDATION_RECOVERING".equals(operation.getPhase())
+                || !("CLONE_FOUNDATION:" + artifact.getUuid()).equals(operation.getRequestKey())
+                || !artifact.getUuid().equals(getJsonString(intent, "artifactUuid")) || !artifact.getSha256().equals(getJsonString(intent, "artifactSha256"))
+                || !target.getUuid().equals(getJsonString(metadata, "createdTargetInstanceUuid"))
+                || !target.getUuid().equals(getJsonString(intent, "targetInstanceUuid")) || creator == null
+                || !StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)).equals(getJsonString(intent, "reviewedPlanSha256"))
+                || getJsonObject(intent, "nativeSource") == null || getJsonString(intent.getAsJsonObject("nativeSource"), "bootId") == null
+                || !intent.get("nativeSource").equals(configurationFoundationNativeSource(target, operation)))
+            throw new CloudRuntimeException("Lost first-MOUNT pin recovery lacks its original explicit foundation scope");
+        org.apache.cloudstack.storage.sharedfs.SharedFS shared = requireConfigurationCloneAllocation(artifact, originalPlan, creator);
+        VolumeVO volume = configurationInitialVolume(target);
+        if (!java.util.Objects.equals(shared.getVmId(), target.getVmId()) || !"MOUNTED_EXISTING".equals(shared.getInitialImportState())
+                || !"ATTACHED".equals(getJsonString(creator.getAsJsonObject("vm"), "initialDataState"))
+                || !volume.getUuid().equals(getJsonString(plan, "initialVolumeSourceUuid"))
+                || !volume.getUuid().equals(getJsonString(plan.getAsJsonObject("createNew"), "existingvolumeid")))
+            throw new CloudRuntimeException("Lost first-MOUNT pin recovery requires the same original retained initial DATA");
+        JsonObject source = null;JsonElement inventory = plan.get("sourceVolumeInventory");
+        if (inventory != null && inventory.isJsonArray()) for (JsonElement item : inventory.getAsJsonArray()) {
+            if (!item.isJsonObject() || !volume.getUuid().equals(getJsonString(item.getAsJsonObject(), "uuid"))) continue;
+            if (source != null) throw new CloudRuntimeException("Original first-MOUNT DATA inventory is ambiguous");
+            source = item.getAsJsonObject();
+        }
+        String filesystem = getJsonString(plan.getAsJsonObject("createNew"), "filesystem");
+        String expected = source == null ? null : getJsonString(source, "filesystemUuid");
+        Map<String, String> details = configurationVolumeDetailsDao.listDetailsKeyPairs(volume.getId());
+        StorageVolumeLifecycleProtection.requireVerified(volume, details.get(StorageVolumeLifecycleProtection.STATE), details.get(StorageVolumeLifecycleProtection.RECEIPT));
+        if (source == null || !"DATADISK".equals(getJsonString(source, "type")) || !"FILE".equals(getJsonString(source, "usage"))
+                || !nativeGenerationCanonicalUuid(expected) || !filesystem.equalsIgnoreCase(getJsonString(source, "filesystemHint"))
+                || !filesystem.equalsIgnoreCase(details.get("storage.service.filesystem.type"))
+                || !expected.equals(details.get("storage.service.filesystem.uuid")) || volume.getSize() < source.get("size").getAsLong())
+            throw new CloudRuntimeException("Lost first-MOUNT pin differs from its original archived filesystem and verified DATA details");
+        StorageFormatterLifecycleGate.requireIdle(history);JsonObject mounted = getJsonObject(history, "operation");
+        String boot = getJsonString(intent.getAsJsonObject("nativeSource"), "bootId"), mount = "/srv/ablestack-storage/volumes/" + volume.getUuid();
+        if (!Boolean.TRUE.equals(getNativeBoolean(history, "success")) || !"COMPLETE".equals(getJsonString(history, "status"))
+                || !Boolean.FALSE.equals(getNativeBoolean(history, "stale")) || !boot.equals(getJsonString(history, "bootId"))
+                || mounted == null || !"COMPLETE".equals(getJsonString(mounted, "phase"))
+                || !volume.getUuid().equals(getJsonString(mounted, "volumeUuid")) || !filesystem.equalsIgnoreCase(getJsonString(mounted, "filesystem"))
+                || !expected.equals(getJsonString(mounted, "filesystemUuid")) || !mount.equals(getJsonString(mounted, "mountPath"))
+                || !mounted.has("createdDirectoryReceipts") || !mounted.get("createdDirectoryReceipts").isJsonArray()
+                || mounted.getAsJsonArray("createdDirectoryReceipts").size() != 0)
+            throw new CloudRuntimeException("Lost first-MOUNT pin has no complete same-BOOT original mount journal");
+        JsonArray volumes = new JsonArray();JsonObject selected = new JsonObject();selected.addProperty("volumeUuid", volume.getUuid());
+        selected.addProperty("sizeBytes", volume.getSize());selected.addProperty("kind", "FILE_DATA");volumes.add(selected);
+        JsonObject request = operationReservationScope(target, operation);request.addProperty("templateUpgradeUuid", operation.getUuid());request.add("volumes", volumes);
+        JsonObject inspected = rootGuest(target, "operation root-data inspect", request, 30);
+        if (!Boolean.TRUE.equals(getNativeBoolean(inspected, "success")))
+            throw new CloudRuntimeException("Lost first-MOUNT pin current DATA identity inspection did not succeed");
+        JsonObject observed = StorageRootDataManifest.freeze(volumes, inspected, Collections.emptyMap(), System.currentTimeMillis());
+        JsonObject current = observed.getAsJsonArray("volumes").get(0).getAsJsonObject();
+        boolean exactMount = false;
+        for (JsonElement item : current.getAsJsonArray("mounts")) {
+            JsonObject row = item.getAsJsonObject();
+            if (mount.equals(getJsonString(row, "target")) && expected.equals(getJsonString(row, "uuid"))
+                    && filesystem.equalsIgnoreCase(getJsonString(row, "fstype"))
+                    && getJsonString(current, "observedDevicePath").equals(getJsonString(row, "source"))) exactMount = true;
+        }
+        String serial = getJsonString(current, "serial"), normalized = volume.getUuid().replace("-", "");
+        if (serial == null || !(serial.equals(normalized) || serial.equals(normalized.substring(0, 20)))
+                || !boot.equals(getJsonString(observed, "bootId")) || !expected.equals(getJsonString(current, "filesystemUuid"))
+                || !filesystem.equalsIgnoreCase(getJsonString(current, "filesystem")) || !exactMount
+                || !getJsonString(current, "observedDevicePath").equals(getJsonString(mounted, "devicePath")))
+            throw new CloudRuntimeException("Lost first-MOUNT pin current serial, filesystem or mount binding changed");
+        configurationPinCloneExistingFilesystem(artifact, plan, shared);
     }
 
     protected void requireCloneRuntimeReadback(JsonObject verified,JsonObject pin) {

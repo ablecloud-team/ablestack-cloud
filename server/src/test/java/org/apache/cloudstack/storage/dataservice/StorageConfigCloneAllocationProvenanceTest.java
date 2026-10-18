@@ -62,6 +62,15 @@ public class StorageConfigCloneAllocationProvenanceTest {
             if (denyNewPermit) throw new InvalidParameterValueException("Controlled new-allocation permit rejected");
         }
         @Override protected StorageServiceInstanceVO requireInstance(Long id) { return source; }
+        @Override protected JsonObject configurationFoundationNativeSource(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+            return recoverySource == null ? super.configurationFoundationNativeSource(instance, operation) : recoverySource.deepCopy();
+        }
+        @Override protected JsonObject rootGuest(StorageServiceInstanceVO instance, String operation, JsonObject request, int timeout) {
+            if (recoveryData != null && "operation root-data inspect".equals(operation)) {
+                recoveryInspections++;JsonObject result = recoveryData.deepCopy();result.addProperty("generatedEpoch", System.currentTimeMillis() / 1000.0);return result;
+            }
+            throw new AssertionError("Unexpected recovery guest effect: " + operation);
+        }
     }
     private Manager manager;
     private CreateSharedFSCmd command;
@@ -102,6 +111,10 @@ public class StorageConfigCloneAllocationProvenanceTest {
     private org.apache.cloudstack.storage.datastore.db.StoragePoolVO formatPool;
     private NicVO allocationNic;
     private com.cloud.network.dao.NetworkVO allocationNetwork;
+    private JsonObject recoverySource, recoveryData, recoveryHistory;
+    private StorageServiceOperationVO recoveryOperation;
+    private boolean recoveryContext;
+    private int recoveryInspections;
 
     private StorageConfigArtifactVO artifact() {
         StorageConfigArtifactVO result = new StorageConfigArtifactVO();
@@ -246,6 +259,7 @@ public class StorageConfigCloneAllocationProvenanceTest {
         return disk;
     }
     @After public void close() {
+        if (recoveryContext) org.apache.cloudstack.context.CallContext.unregister();
         if (connectionScope != null) { ReflectionTestUtils.setField(connectionScope, "_conn", null);connectionScope.close(); }
     }
     private StorageServiceInstanceVO create() { return manager.createConfigurationNewService(plan.getAsJsonObject("createNew"), plan, artifact()); }
@@ -456,6 +470,143 @@ public class StorageConfigCloneAllocationProvenanceTest {
             Mockito.when(shared.getFsType()).thenReturn(SharedFS.FileSystemType.EXT4);Mockito.when(shared.getInitialImportState()).thenReturn("MOUNTED_EXISTING");
             return shared;
         });
+    }
+    private void updateExistingClonePhase(StorageConfigArtifactVO row, JsonObject phase) throws Exception {
+        StorageServiceConfiguration configuration = new StorageServiceConfiguration(manager, artifacts,
+                Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class), Mockito.mock(StorageConfigArtifactStore.class));
+        java.lang.reflect.Method update = StorageServiceConfiguration.class.getDeclaredMethod("update", StorageConfigArtifactVO.class, JsonObject.class, String.class);
+        update.setAccessible(true);update.invoke(configuration, row, phase, "ARCHIVE_VALIDATED");
+    }
+    private void bindFoundationInitialLookup() {
+        Mockito.when(target.getVmId()).thenReturn(7L);
+        SharedFSDao sharedDao = (SharedFSDao) ReflectionTestUtils.getField(manager, "sharedFSDao");
+        Mockito.when(sharedDao.findByVm(7L)).thenReturn(shared);
+    }
+    @Test public void firstExistingMountPinSurvivesStaleCreatedAndPreparedPhaseMetadata() throws Exception {
+        existingInitial();StorageConfigArtifactVO staleRow = artifact();
+        JsonObject stalePhase = JsonParser.parseString(staleRow.getMetadataJson()).getAsJsonObject();
+        Assert.assertSame(target, create());bindFoundationInitialLookup();
+        JsonObject original = JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneExistingFilesystem").deepCopy();
+        Assert.assertEquals(uuid(777), original.get("filesystemUuid").getAsString());
+        Assert.assertFalse(original.get("formatInvoked").getAsBoolean());
+        for (String state : List.of("TARGET_CREATED", "TARGET_PREPARED")) {
+            JsonObject next = stalePhase.deepCopy();next.addProperty("restoreState", state);
+            updateExistingClonePhase(staleRow, next);
+            Assert.assertEquals(original, JsonParser.parseString(metadata.get()).getAsJsonObject().get("cloneExistingFilesystem"));
+            JsonObject foundation = manager.configurationCloneFoundationBlueprint(target, artifact(), plan);
+            Assert.assertEquals(uuid(777), foundation.get("expectedFilesystemUuid").getAsString());
+            Assert.assertEquals("EXISTING", foundation.get("backingvolumemode").getAsString());
+        }
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, existingAttachCalls);
+    }
+    @Test public void stalePhaseCannotReplaceTheDurableFirstMountVolumeFilesystemOrNoFormatProof() throws Exception {
+        existingInitial();create();String durable = metadata.get();
+        JsonObject original = JsonParser.parseString(durable).getAsJsonObject().getAsJsonObject("cloneExistingFilesystem");
+        long records = events.stream().filter("RECORD"::equals).count();
+        for (String field : List.of("volumeUuid", "filesystem", "filesystemUuid", "formatInvoked", "source")) {
+            JsonObject replacement = original.deepCopy();
+            if ("formatInvoked".equals(field)) replacement.addProperty(field, true);
+            else replacement.addProperty(field, "filesystem".equals(field) ? "XFS" : "source".equals(field) ? "UNVERIFIED" : uuid(999));
+            JsonObject phase = new JsonObject();phase.add("cloneExistingFilesystem", replacement);
+            java.lang.reflect.InvocationTargetException rejected = Assert.assertThrows(java.lang.reflect.InvocationTargetException.class,
+                    () -> updateExistingClonePhase(artifact(), phase));
+            Assert.assertTrue(rejected.getCause() instanceof CloudRuntimeException);
+            Assert.assertEquals(durable, metadata.get());Assert.assertEquals(records, events.stream().filter("RECORD"::equals).count());
+        }
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, existingAttachCalls);
+    }
+    @Test public void absentFirstMountPinCannotBeInventedFromCurrentVolumeDetailsOrTheArchive() throws Exception {
+        existingInitial();create();bindFoundationInitialLookup();
+        JsonObject lost = JsonParser.parseString(metadata.get()).getAsJsonObject();lost.remove("cloneExistingFilesystem");metadata.set(lost.toString());
+        CloudRuntimeException rejected = Assert.assertThrows(CloudRuntimeException.class,
+                () -> manager.configurationCloneFoundationBlueprint(target, artifact(), plan));
+        Assert.assertEquals("Existing initial DATA has no pinned first-MOUNT filesystem", rejected.getMessage());
+        Assert.assertFalse(JsonParser.parseString(metadata.get()).getAsJsonObject().has("cloneExistingFilesystem"));
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, existingAttachCalls);
+    }
+    private StorageConfigArtifactVO lostFirstMountRecovery() throws Exception {
+        existingInitial();bindFoundationInitialLookup();
+        Mockito.when(target.getId()).thenReturn(20L);
+        com.cloud.user.User user = Mockito.mock(com.cloud.user.User.class);Mockito.when(user.getId()).thenReturn(11L);
+        org.apache.cloudstack.context.CallContext.register(user, Mockito.mock(com.cloud.user.Account.class));recoveryContext = true;
+        com.google.gson.JsonArray inventory = new com.google.gson.JsonArray();JsonObject original = new JsonObject();
+        original.addProperty("uuid", uuid(502));original.addProperty("type", "DATADISK");original.addProperty("usage", "FILE");
+        original.addProperty("size", 20L << 30);original.addProperty("filesystemHint", "ext4");original.addProperty("filesystemUuid", uuid(777));inventory.add(original);
+        plan.add("sourceVolumeInventory", inventory);plan.addProperty("initialVolumeSourceUuid", uuid(502));
+        create();JsonObject current = JsonParser.parseString(metadata.get()).getAsJsonObject();current.remove("cloneExistingFilesystem");
+        current.add("plan", plan.deepCopy());current.addProperty("createdTargetInstanceUuid", target.getUuid());metadata.set(current.toString());
+        Map<String, String> details = Map.of("storage.service.filesystem.type", "EXT4", "storage.service.filesystem.uuid", uuid(777),
+                StorageVolumeLifecycleProtection.STATE, "VERIFIED", StorageVolumeLifecycleProtection.RECEIPT, StorageVolumeLifecycleProtection.identity(dataDisk).toString());
+        com.cloud.storage.dao.VolumeDetailsDao dao = (com.cloud.storage.dao.VolumeDetailsDao) ReflectionTestUtils.getField(manager, "configurationVolumeDetailsDao");
+        Mockito.when(dao.listDetailsKeyPairs(502L)).thenReturn(details);
+        recoverySource = new JsonObject();recoverySource.addProperty("bootId", uuid(888));
+        recoveryOperation = new StorageServiceOperationVO();recoveryOperation.setInstanceId(20);recoveryOperation.setCreatedBy(11);
+        recoveryOperation.setAction("CLONE_FOUNDATION_PREPARE");recoveryOperation.setRequestKey("CLONE_FOUNDATION:" + uuid(900));
+        recoveryOperation.setRevision(1);recoveryOperation.setState("RUNNING");recoveryOperation.setPhase("FOUNDATION_RECOVERING");
+        JsonObject intent = new JsonObject();intent.addProperty("artifactUuid", uuid(900));intent.addProperty("artifactSha256", "a".repeat(64));
+        intent.addProperty("targetInstanceUuid", target.getUuid());intent.add("nativeSource", recoverySource.deepCopy());
+        intent.addProperty("reviewedPlanSha256", StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)));
+        recoveryOperation.setPreviousSnapshotJson(intent.toString());
+        recoveryHistory = new JsonObject();recoveryHistory.addProperty("success", true);recoveryHistory.addProperty("status", "COMPLETE");
+        recoveryHistory.addProperty("stale", false);recoveryHistory.addProperty("bootId", uuid(888));
+        recoveryHistory.addProperty("formatterActive", false);recoveryHistory.addProperty("formatterObservationComplete", true);recoveryHistory.addProperty("terminationPending", false);
+        JsonObject journal = new JsonObject();journal.addProperty("phase", "COMPLETE");journal.addProperty("operationId", "volume-" + uuid(502));
+        journal.addProperty("volumeUuid", uuid(502));journal.addProperty("filesystem", "ext4");journal.addProperty("filesystemUuid", uuid(777));
+        journal.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + uuid(502));journal.addProperty("devicePath", "/dev/sdb");
+        journal.add("createdDirectoryReceipts", new com.google.gson.JsonArray());recoveryHistory.add("operation", journal);
+        recoveryData = new JsonObject();recoveryData.addProperty("success", true);recoveryData.addProperty("bootId", uuid(888));
+        JsonObject observed = new JsonObject();observed.addProperty("volumeUuid", uuid(502));observed.addProperty("sizeBytes", 20L << 30);
+        observed.addProperty("kind", "FILE_DATA");observed.addProperty("mappingStatus", "EXACT");observed.addProperty("matchedBy", "VOLUME_SERIAL");
+        observed.addProperty("serial", uuid(502).replace("-", "").substring(0, 20));observed.addProperty("observedDevicePath", "/dev/sdb");
+        observed.addProperty("filesystem", "ext4");observed.addProperty("filesystemUuid", uuid(777));
+        JsonObject mount = new JsonObject();mount.addProperty("target", "/srv/ablestack-storage/volumes/" + uuid(502));
+        mount.addProperty("source", "/dev/sdb");mount.addProperty("fstype", "ext4");mount.addProperty("uuid", uuid(777));
+        com.google.gson.JsonArray mounts = new com.google.gson.JsonArray();mounts.add(mount);observed.add("mounts", mounts);
+        com.google.gson.JsonArray observations = new com.google.gson.JsonArray();observations.add(observed);recoveryData.add("volumes", observations);
+        StorageConfigArtifactVO row = artifact();row.setKind("IMPORT");return row;
+    }
+    @Test public void explicitSameCreatorRecoveryCanResealOnlyTheLostOriginalMountPin() throws Exception {
+        StorageConfigArtifactVO row = lostFirstMountRecovery();
+        manager.recoverConfigurationCloneMissingFilesystemPin(target, recoveryOperation, row, plan, recoveryHistory);
+        JsonObject restored = JsonParser.parseString(metadata.get()).getAsJsonObject().getAsJsonObject("cloneExistingFilesystem");
+        Assert.assertEquals(uuid(777), restored.get("filesystemUuid").getAsString());Assert.assertFalse(restored.get("formatInvoked").getAsBoolean());
+        Assert.assertEquals("VERIFIED_MOUNT_EXISTING", restored.get("source").getAsString());Assert.assertEquals(1, recoveryInspections);
+        Assert.assertEquals(uuid(777), manager.configurationCloneFoundationBlueprint(target, artifact(), plan).get("expectedFilesystemUuid").getAsString());
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, existingAttachCalls);
+        Assert.assertThrows(CloudRuntimeException.class, () -> manager.recoverConfigurationCloneMissingFilesystemPin(target, recoveryOperation, row, plan, recoveryHistory));
+    }
+    @Test public void lostMountPinRecoveryRejectsBootUuidOwnerAndPathDriftWithoutPublication() throws Exception {
+        StorageConfigArtifactVO row = lostFirstMountRecovery();String original = metadata.get();
+        JsonObject goodHistory = recoveryHistory.deepCopy(),goodData = recoveryData.deepCopy();
+        for (String changed : List.of("BOOT", "FILESYSTEM", "VOLUME", "JOURNAL_PATH", "DEVICE_PATH", "SERIAL", "OWNER", "BACKING_PATH")) {
+            recoveryHistory = goodHistory.deepCopy();recoveryData = goodData.deepCopy();
+            if ("BOOT".equals(changed)) recoveryHistory.addProperty("bootId", uuid(999));
+            if ("FILESYSTEM".equals(changed)) recoveryHistory.getAsJsonObject("operation").addProperty("filesystemUuid", uuid(999));
+            if ("VOLUME".equals(changed)) recoveryHistory.getAsJsonObject("operation").addProperty("volumeUuid", uuid(999));
+            if ("JOURNAL_PATH".equals(changed)) recoveryHistory.getAsJsonObject("operation").addProperty("mountPath", "/foreign");
+            if ("DEVICE_PATH".equals(changed)) recoveryData.getAsJsonArray("volumes").get(0).getAsJsonObject().addProperty("observedDevicePath", "/dev/sdz");
+            if ("SERIAL".equals(changed)) recoveryData.getAsJsonArray("volumes").get(0).getAsJsonObject().addProperty("serial", "ffffffffffffffffffff");
+            if ("OWNER".equals(changed)) Mockito.when(dataDisk.getAccountId()).thenReturn(99L);
+            if ("BACKING_PATH".equals(changed)) Mockito.when(dataDisk.getPath()).thenReturn("foreign-backing");
+            Assert.assertThrows(RuntimeException.class, () -> manager.recoverConfigurationCloneMissingFilesystemPin(target, recoveryOperation, row, plan, recoveryHistory));
+            Assert.assertEquals(original, metadata.get());
+            Mockito.when(dataDisk.getAccountId()).thenReturn(2L);Mockito.when(dataDisk.getPath()).thenReturn("public-volume-502");
+        }
+        Assert.assertEquals(1, allocations);Assert.assertEquals(1, vmAllocations);Assert.assertEquals(1, existingAttachCalls);
+    }
+    @Test public void lostMountPinRecoveryCannotUseMissingArchiveProofOrAnIncompleteMount() throws Exception {
+        StorageConfigArtifactVO row = lostFirstMountRecovery();String original = metadata.get();
+        plan.getAsJsonArray("sourceVolumeInventory").get(0).getAsJsonObject().remove("filesystemUuid");
+        JsonObject missing = JsonParser.parseString(metadata.get()).getAsJsonObject();missing.add("plan", plan.deepCopy());metadata.set(missing.toString());row.setMetadataJson(metadata.get());
+        JsonObject intent = JsonParser.parseString(recoveryOperation.getPreviousSnapshotJson()).getAsJsonObject();
+        intent.addProperty("reviewedPlanSha256", StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)));recoveryOperation.setPreviousSnapshotJson(intent.toString());
+        Assert.assertThrows(RuntimeException.class, () -> manager.recoverConfigurationCloneMissingFilesystemPin(target, recoveryOperation, row, plan, recoveryHistory));
+        Assert.assertEquals(missing.toString(), metadata.get());
+        plan.getAsJsonArray("sourceVolumeInventory").get(0).getAsJsonObject().addProperty("filesystemUuid", uuid(777));
+        metadata.set(original);row.setMetadataJson(original);intent.addProperty("reviewedPlanSha256", StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)));recoveryOperation.setPreviousSnapshotJson(intent.toString());
+        recoveryHistory.addProperty("formatterActive", true);
+        Assert.assertThrows(RuntimeException.class, () -> manager.recoverConfigurationCloneMissingFilesystemPin(target, recoveryOperation, row, plan, recoveryHistory));
+        Assert.assertEquals(original, metadata.get());Assert.assertEquals(0, recoveryInspections);
     }
     @Test public void existingInitialPublishesReservedBeforeFirstStartAndAttachedBeforeFilesystemClaim() throws Exception {
         existingInitial();Assert.assertSame(target,create());
