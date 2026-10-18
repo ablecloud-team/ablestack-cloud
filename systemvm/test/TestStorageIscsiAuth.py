@@ -13,7 +13,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from pathlib import Path
-import os,sys,tempfile,unittest
+import os,sys,tempfile,types,unittest
 from unittest.mock import patch
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
@@ -154,10 +154,19 @@ class StorageIscsiAuthTest(unittest.TestCase):
         self.assertEqual([],self.written);self.assertEqual("winner",(self.auth/"password").read_text())
 
     def test_opened_untrusted_owner_is_rejected_before_any_attribute_write(self):
-        password=self.auth/"password";os.chown(password,65534,password.stat().st_gid)
-        try:
+        password=self.auth/"password";actual=password.stat();identity=(actual.st_dev,actual.st_ino)
+        real_fstat=os.fstat;observed=[]
+        def foreign_fstat(descriptor):
+            info=real_fstat(descriptor)
+            if (info.st_dev,info.st_ino)==identity:
+                observed.append(descriptor)
+                fields={name:getattr(info,name)for name in dir(info)if name.startswith("st_")}
+                fields["st_uid"]=os.geteuid()+1
+                return types.SimpleNamespace(**fields)
+            return info
+        with patch("iscsi_auth.os.fstat",side_effect=foreign_fstat):
             with self.assertRaisesRegex(ValueError,"attribute is foreign"):self.writer.apply(self.target,self.principal,self.config,self.secrets)
-            self.assertEqual([],self.written)
-        finally:os.chown(password,os.geteuid(),password.stat().st_gid)
+        self.assertTrue(observed);self.assertEqual([],self.written)
+        self.assertEqual(actual.st_uid,password.stat().st_uid)
 
 if __name__=="__main__":unittest.main()

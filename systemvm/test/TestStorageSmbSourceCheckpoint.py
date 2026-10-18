@@ -1,4 +1,4 @@
-import base64,contextlib,copy,fcntl,hashlib,json,os,sys,unittest,uuid
+import base64,contextlib,copy,fcntl,hashlib,json,os,stat,sys,unittest,uuid
 from pathlib import Path
 from unittest.mock import patch
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
@@ -28,6 +28,9 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
     def setUp(self):
         fixture.StorageSmbCurrentRetentionTest.setUp(self)
         self.add_long_distinct_namespace()
+        config=self.root/"local-source-smb.conf";config.write_bytes(b"PUBLIC FIXTURE CONFIG");config.chmod(0o644)
+        original_read=self.read
+        self.read=lambda path,*args:capsule.regular_file(config,*args)if str(path)=="/etc/samba/smb.conf"else original_read(path)
         self.native=module.SmbSourceCheckpoint(handler=self.handler,command=self.local_command,root=self.root/"local-source")
         self.native.boot=lambda:self.boot;self.native.reader=self.read
         self.native.unit_authority.units=self.units
@@ -95,11 +98,23 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         config=self.root/"unconfigured-smb.conf";config.write_bytes(b"PUBLIC FIXTURE CONFIG");config.chmod(0o644)
         boot=self.root/"boot-id";boot.write_text(self.boot)
         original_path=Path
+        vendor_root=self.root/"vendor-package";vendor_root.mkdir(mode=0o700)
+        vendor_paths={}
+        for name in("/usr","/usr/share","/usr/share/samba"):
+            actual=vendor_root/name.lstrip("/");actual.mkdir(mode=0o755);vendor_paths[name]=actual
+        vendor=vendor_paths["/usr/share/samba"]/"smb.conf";vendor.write_bytes(config.read_bytes());vendor.chmod(0o644)
+        vendor_paths["/usr/share/samba/smb.conf"]=vendor
+        self.vendor_config=vendor;self.vendor_paths=vendor_paths
         def path(value):
-            return config if str(value)=="/etc/samba/smb.conf" else boot if str(value)=="/proc/sys/kernel/random/boot_id" else original_path(value)
+            name=str(value)
+            return config if name=="/etc/samba/smb.conf"else boot if name=="/proc/sys/kernel/random/boot_id"else vendor_paths.get(name,original_path(value))
+        source_paths=patch.object(module,"Path",side_effect=path)
+        source_paths.start();self.addCleanup(source_paths.stop)
+        source_config=patch.object(module,"LOCAL_SOURCE_SMB_CONFIG",config)
+        source_config.start();self.addCleanup(source_config.stop)
         mapping=patch.object(fixture.smb_identity,"Path",side_effect=path)
         mapping.start();self.addCleanup(mapping.stop)
-        self.native.reader=lambda value,*args:capsule.regular_file(config if str(value)=="/etc/samba/smb.conf"else value,*args)
+        self.native.reader=lambda value,*args:capsule.regular_file(config if str(value)=="/etc/samba/smb.conf"else vendor_paths.get(str(value),value),*args)
         self.native.observe=module.SmbSourceCheckpoint.observe.__get__(self.native)
         self.native.stopped_observation=module.SmbSourceCheckpoint.stopped_observation.__get__(self.native)
         self.native.collector=lambda names,hosts,**kwargs:{**self.empty_payload(),"posixPolicies":{}}
@@ -126,6 +141,103 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             "sourceConfigurationSha256":self.gen.digest(),"expectedBootId":self.boot}
         self.export_request={**self.request,"publicKey":self.public(self.newkey),"names":[],"nvmeHosts":[],"authReplayDomains":[]}
         return config
+
+    def test_empty_vendor_source_capture_seals_exact_metadata_without_raw_configuration(self):
+        config=self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        record=self.native.read(self.native.path(self.request,"cipher"));info=config.stat()
+        self.assertEqual({"sha256":hashlib.sha256(config.read_bytes()).hexdigest(),"sizeBytes":info.st_size,
+            "uid":info.st_uid,"gid":info.st_gid,"mode":0o644},record["sourceConfigurationFileMetadata"])
+        decoded=self.native.decode(self.imported_request(captured),record)
+        self.assertNotIn("/etc/samba/smb.conf",decoded["files"])
+        self.assertNotIn("sourceConfigurationFileData",record)
+        self.assertFalse(self.starts);self.assertFalse(self.signals)
+
+    def test_empty_vendor_source_rejects_unreconstructible_configuration_before_forward(self):
+        config=self.initial_unconfigured_source();original=config.read_bytes()
+        for failure in("bytes","mode","parent-mode","hardlink","symlink","missing"):
+            with self.subTest(failure=failure):
+                vendor=self.vendor_config
+                vendor.unlink(missing_ok=True);vendor.write_bytes(original);vendor.chmod(0o644)
+                self.vendor_paths["/usr/share/samba"].chmod(0o755)
+                alias=vendor.with_name("alias");alias.unlink(missing_ok=True)
+                if failure=="bytes":vendor.write_bytes(original+b" changed")
+                elif failure=="mode":vendor.chmod(0o600)
+                elif failure=="parent-mode":vendor.parent.chmod(0o777)
+                elif failure=="hardlink":os.link(vendor,alias)
+                elif failure=="symlink":vendor.rename(alias);vendor.symlink_to(alias)
+                elif failure=="missing":vendor.unlink()
+                try:
+                    with self.assertRaises((ValueError,FileNotFoundError)):self.native.export(self.export_request)
+                    self.assertFalse(self.native.path(self.request,"cipher").exists())
+                    self.assertEqual(original,config.read_bytes());self.assertFalse(self.starts);self.assertFalse(self.signals)
+                finally:
+                    vendor.unlink(missing_ok=True);alias.unlink(missing_ok=True);vendor.write_bytes(original)
+                    vendor.chmod(0o644);vendor.parent.chmod(0o755)
+
+    def test_empty_vendor_source_special_mode_is_rejected_before_forward(self):
+        config=self.initial_unconfigured_source();config.chmod(0o4755)
+        self.vendor_config.chmod(0o4755)
+        with self.assertRaisesRegex(ValueError,"protected exact regular file"):self.native.export(self.export_request)
+        self.assertFalse(self.native.path(self.request,"cipher").exists())
+        self.assertFalse(self.starts);self.assertFalse(self.signals)
+
+    def test_empty_vendor_source_changed_config_restores_original_metadata_and_reverifies(self):
+        config=self.initial_unconfigured_source();source=config.read_bytes()
+        captured=self.native.export(self.export_request)
+        config.write_bytes(b"PUBLIC TARGET CONFIG");config.chmod(0o600)
+        restored=self.native.import_source(self.imported_request(captured))
+        self.assertTrue(restored["sourceIdentityRestored"]);self.assertTrue(restored["sourceRuntimeVerified"])
+        self.assertEqual(source,config.read_bytes());self.assertEqual(0o644,stat.S_IMODE(config.stat().st_mode))
+        self.assertEqual("VERIFIED",self.native.read(self.native.path(self.request,"journal"))["sourceConfigurationRestoreStage"])
+        self.assertTrue(all(not path.exists()for path in self.private.values()))
+
+    def test_empty_vendor_source_same_bytes_wrong_mode_restores_original_metadata(self):
+        config=self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        source=config.read_bytes();config.chmod(0o600)
+        restored=self.native.import_source(self.imported_request(captured))
+        self.assertTrue(restored["sourceRuntimeVerified"])
+        self.assertEqual(source,config.read_bytes());self.assertEqual(0o644,stat.S_IMODE(config.stat().st_mode))
+        self.assertEqual("VERIFIED",self.native.read(self.native.path(self.request,"journal"))["sourceConfigurationRestoreStage"])
+
+    def test_empty_vendor_source_inverse_mismatch_never_publishes_or_starts(self):
+        config=self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        target=b"PUBLIC TARGET CONFIG";config.write_bytes(target);config.chmod(0o600)
+        self.vendor_config.write_bytes(b"PUBLIC DIFFERENT PACKAGE CONFIG")
+        with self.assertRaisesRegex(ValueError,"original fingerprint"):self.native.import_source(self.imported_request(captured))
+        self.assertEqual(target,config.read_bytes());self.assertEqual(0o600,stat.S_IMODE(config.stat().st_mode))
+        self.assertFalse(self.starts);self.assertFalse(self.active_units)
+        self.assertEqual("RECOVERY_REQUIRED",self.native.read(self.native.path(self.request,"journal"))["phase"])
+
+    def test_empty_vendor_source_legacy_missing_metadata_only_blocks_changed_configuration(self):
+        config=self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        record=self.native.read(self.native.path(self.request,"cipher"));record.pop("sourceConfigurationFileMetadata")
+        # Test-only legacy record schema in this owned fixture; no immutable producer guard changes.
+        self.native.write(self.request,"cipher",record,immutable=False)
+        request={**self.imported_request(captured),"localSourceCheckpointReference":self.native.reference(record)}
+        self.assertTrue(self.native.import_source(request)["sourceRuntimeVerified"])
+
+    def test_empty_vendor_source_legacy_missing_metadata_blocks_changed_configuration(self):
+        config=self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        record=self.native.read(self.native.path(self.request,"cipher"));record.pop("sourceConfigurationFileMetadata")
+        # Test-only legacy record schema in this owned fixture; no immutable producer guard changes.
+        self.native.write(self.request,"cipher",record,immutable=False)
+        request={**self.imported_request(captured),"localSourceCheckpointReference":self.native.reference(record)}
+        config.write_bytes(b"PUBLIC TARGET CONFIG")
+        with self.assertRaisesRegex(ValueError,"original protected vendor authority"):self.native.import_source(request)
+        self.assertEqual(b"PUBLIC TARGET CONFIG",config.read_bytes())
+
+    def test_empty_vendor_source_malformed_metadata_and_foreign_source_never_select_vendor(self):
+        self.initial_unconfigured_source();captured=self.native.export(self.export_request)
+        record=self.native.read(self.native.path(self.request,"cipher"));journal=self.native.read(self.native.path(self.request,"journal"))
+        for field,value in(("uid",False),("sizeBytes",True),("sha256","0"*64)):
+            changed=copy.deepcopy(record);changed["sourceConfigurationFileMetadata"][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):self.native.vendor_source_smb_candidate(changed,journal)
+        changed=copy.deepcopy(record);changed["privateFingerprints"]={"/foreign":"0"*64}
+        with self.assertRaises(ValueError):self.native.vendor_source_smb_candidate(changed,journal)
+        changed=copy.deepcopy(record);changed["sourceDesiredState"]["desired-state/smb-share-apply.json"]={}
+        with self.assertRaises(ValueError):self.native.vendor_source_smb_candidate(changed,journal)
+        request=self.imported_request(captured)
+        with self.assertRaises(ValueError):self.native.import_source({**request,"expectedBootId":str(uuid.uuid4())})
 
     def test_initial_empty_source_missing_smbstatus_open_files_exports_imports_and_preserves_absence(self):
         config=self.initial_unconfigured_source()
@@ -360,9 +472,96 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_c25b_before_vendor_source(self,current):
+        # Exact test-only inverse; production compatibility remains unchanged.
+        import ast
+        pins={'export': 'bd35e8cc30b71a3400cd4ecbe802efc53062df467eb938c77397fadaf50f56fa', 'restore_source_smb_configuration': 'e3dd3f656cecbcb681caba9ea434e25e16e732a237921bbab76ea57d70188887', 'smb_configuration_file_fingerprint': '3e81ac56bb18dbaedbbd84a031eee632dc21ada14c382b670972703220821c98', 'vendor_source_smb_candidate': 'c89e0b85c5aaabfd9776ddfaa2772f2107b90ae6cd2492a142f2df83f4f52936'}
+        originals={'export': '    def export(self,value):\n        self._failure_stage="EXPORT_SOURCE_AUTHORITY"\n        scope=self.request(value,"export-local-source");source=self.state(value)\n        from cryptography.hazmat.primitives import serialization\n        from cryptography.hazmat.primitives.asymmetric import rsa\n        key=serialization.load_pem_public_key(value["publicKey"].encode())\n        if not isinstance(key,rsa.RSAPublicKey)or key.key_size<2048:raise ValueError("LOCAL source wrapping key is unsupported")\n        names=value["names"];hosts=value["nvmeHosts"]\n        if (not isinstance(names,list)or len(names)>1024 or len(set(names))!=len(names)\n                or any(not isinstance(n,str)or n in {"root","nobody","daemon","cloud","debian"}\n                       or not re.fullmatch("[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}",n)for n in names)\n                or not isinstance(hosts,list)or len(hosts)>1024 or any(not isinstance(h,str)for h in hosts)):\n            raise ValueError("LOCAL source collection identifiers are invalid")\n        for host in hosts:validate_host_nqn(host)\n        journal=self.read(self.path(scope,"journal"));record=self.read(self.path(scope,"cipher"))\n        if journal is None:\n            journal={"schemaVersion":1,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],\n                "names":names,"nvmeHosts":hosts,"authReplayDomains":value["authReplayDomains"],\n                "sourceDesiredState":source["configurationDesiredState"],"prior":self.observe(value),"phase":"INTENT_DURABLE",\n                "cliSha256":hashlib.sha256(self.cli.read_bytes()).hexdigest()}\n            self.write(scope,"journal",journal)\n        self.frozen(value,journal)\n        if any(journal[key]!=value[key]for key in ("publicKey","names","nvmeHosts","authReplayDomains")):\n            raise ValueError("LOCAL source retry key/collection changed")\n        try:\n            self._failure_stage="EXPORT_RECORD_VALIDATE"\n            if record is not None:\n                self.validate_record(value,record)\n                if record["publicKey"]!=value["publicKey"]:raise ValueError("LOCAL source cached wrapping key changed")\n                if journal["phase"]=="RESUMED":\n                    self._failure_stage="EXPORT_CACHE_OBSERVE"\n                    actual=self.observe(value,require_empty=False)\n                    if ({row["unit"]for row in actual["units"]}!={row["unit"]for row in journal["prior"]["units"]}\n                            or actual["configurationSha256"]!=record["sourceConfigurationFileSha256"]\n                            or actual["databases"]!=journal.get("importedStoppedDatabases",record["stoppedDatabases"])\n                            or not all(row.get("tcpReady")for row in actual["ownedEndpoints"])):\n                        raise ValueError("LOCAL source resumed cache ownership changed")\n                    return self.result(record,journal)\n                self.resume(value,journal,record);return self.result(record,journal)\n            self._failure_stage="EXPORT_STOP"\n            if journal["phase"]not in("STOPPED","EXPORTED"):\n                if journal["phase"]in("QUIESCING","RECOVERY_REQUIRED"):\n                    self._failure_stage="EXPORT_RETRY_STOP_OBSERVE"\n                    try:stopped=self.stopped_observation()\n                    except ValueError:stopped=None\n                    if stopped is not None:\n                        if (stopped["databases"]!=journal["prior"]["databases"]\n                                or stopped["configurationSha256"]!=journal["prior"]["configurationSha256"]):\n                            raise ValueError("LOCAL interrupted stop source changed")\n                        journal["phase"]="STOPPED";journal["stopped"]=stopped;self.write(scope,"journal",journal)\n                    else:self.stop(value,journal)\n                else:self.stop(value,journal)\n            self._failure_stage="EXPORT_STOPPED_OBSERVE"\n            stopped=self.stopped_observation()\n            self._failure_stage="EXPORT_POSIX_COLLECT"\n            records=self.posix_collector(journal["sourceDesiredState"]["posix-directory-policies.json"],value["instanceUuid"])\n            self._failure_stage="EXPORT_IDENTITY_COLLECT"\n            payload=self.collector(names,hosts,posix_policies=records)\n            self._failure_stage="EXPORT_IDENTITY_VALIDATE"\n            payload["sourceConfigurationSha256"]=value["sourceConfigurationSha256"];self.validator(payload)\n            if payload.get("adIdentity")is not None:raise ValueError("LOCAL opaque capture cannot include AD")\n            wrapper={"schemaVersion":1,"kind":LOCAL_SOURCE_KIND,"scope":scope,"sourceGeneration":value["sourceGeneration"],\n                "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":value["expectedBootId"],"identity":payload}\n            self._failure_stage="EXPORT_ENCRYPT"\n            capsule=self.encryptor(wrapper,value["publicKey"],scope["instanceUuid"]+":"+scope["operationUuid"])\n            self._failure_stage="EXPORT_STOPPED_RECHECK"\n            if self.stopped_observation()!=stopped:raise ValueError("LOCAL source changed during opaque collection")\n            record={"schemaVersion":1,"kind":LOCAL_SOURCE_KIND,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],\n                "capsule":capsule,"stoppedDatabases":stopped["databases"],"sourceConfigurationFileSha256":stopped["configurationSha256"],\n                "authReplayDomains":value["authReplayDomains"],\n                "sourceDesiredState":journal["sourceDesiredState"],\n                "privateFingerprints":{path:row["sha256"]for path,row in payload["files"].items()if row.get("absent")is not True}}\n            self._failure_stage="EXPORT_CHECKPOINT_PUBLISH"\n            self.match_private(record);self.write(scope,"cipher",record,immutable=True)\n            journal["phase"]="EXPORTED";self.write(scope,"journal",journal)\n            self.resume(value,journal,record);return self.result(record,journal)\n        except Exception as error:\n            self.record_failure(scope,journal,error);raise\n', 'restore_source_smb_configuration': '    def restore_source_smb_configuration(self,value,journal,record):\n        # The opaque capsule deliberately excludes generated smb.conf. A legacy\n        # writer must restore that exact SOURCE output before exposing its SAM.\n        path=LOCAL_SOURCE_SMB_CONFIG\n        current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]\n        if hashlib.sha256(current).hexdigest()==expected:return\n        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}\n        source=self.state(value,recovery=True);self.frozen(value,journal);self.validate_record(value,record)\n        if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True\n                or journal.get("phase")not in("STOPPED","RESUMING","RECOVERY_REQUIRED")\n                or not isinstance(journal.get("importedStoppedDatabases"),dict)\n                or not isinstance(journal.get("importedFingerprints"),dict)\n                or source.get("configurationDesiredState")!=record["sourceDesiredState"]\n                or journal["sourceDesiredState"]!=record["sourceDesiredState"]):\n            raise ValueError("LOCAL SOURCE SMB configuration restore authority differs")\n        stopped=self.stopped_observation()\n        if stopped["databases"]!=journal["importedStoppedDatabases"]:\n            raise ValueError("LOCAL SOURCE SMB imported stopped metadata changed")\n        self.match_private({"privateFingerprints":journal["importedFingerprints"]})\n        parent=path.parent.lstat();named=path.lstat()\n        if (not stat.S_ISDIR(parent.st_mode)or parent.st_uid!=os.geteuid()or parent.st_mode&0o022\n                or not stat.S_ISREG(named.st_mode)or named.st_uid!=os.geteuid()or named.st_mode&0o022\n                or named.st_nlink!=1 or (named.st_dev,named.st_ino)!=(info.st_dev,info.st_ino)):\n            raise ValueError("LOCAL SOURCE SMB configuration path is not protected")\n        journal["sourceConfigurationRestoreStage"]="RENDER";self.write(scope,"journal",journal)\n        candidate=self.signed_source_smb_candidate(record["sourceDesiredState"]["desired-state/smb-share-apply.json"],journal)\n        journal["sourceConfigurationRestoreStage"]="CANDIDATE_HASH";self.write(scope,"journal",journal)\n        if hashlib.sha256(candidate).hexdigest()!=expected:\n            raise ValueError("LOCAL SOURCE SMB rendered configuration differs from its original hash")\n        directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)\n        temporary=None;descriptor=None\n        try:\n            opened=os.fstat(directory)\n            if (opened.st_dev,opened.st_ino)!=(parent.st_dev,parent.st_ino):\n                raise ValueError("LOCAL SOURCE SMB configuration directory changed")\n            descriptor,temporary=tempfile.mkstemp(prefix=".local-source-smb-",dir=path.parent)\n            os.fchmod(descriptor,stat.S_IMODE(info.st_mode));os.fchown(descriptor,info.st_uid,info.st_gid)\n            with os.fdopen(descriptor,"wb",closefd=False)as handle:\n                handle.write(candidate);handle.flush();os.fsync(descriptor)\n            journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)\n            try:self.handler.run(["testparm","-s",temporary])\n            except Exception:raise ValueError("LOCAL SOURCE SMB rendered configuration validation failed")from None\n            self.state(value,recovery=True)\n            if self.stopped_observation()!=stopped:\n                raise ValueError("LOCAL SOURCE SMB stopped ownership changed before configuration restore")\n            self.match_private({"privateFingerprints":journal["importedFingerprints"]})\n            latest=path.lstat();parent_now=path.parent.lstat()\n            fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")\n            if (any(getattr(latest,key)!=getattr(info,key)for key in fields)\n                    or (parent_now.st_dev,parent_now.st_ino)!=(parent.st_dev,parent.st_ino)):\n                raise ValueError("LOCAL SOURCE SMB configuration changed before publication")\n            journal["sourceConfigurationRestoreStage"]="PUBLISH";self.write(scope,"journal",journal)\n            os.replace(temporary,path);temporary=None;os.fsync(directory)\n            if hashlib.sha256(self.reader(str(path))[0]).hexdigest()!=expected:\n                raise ValueError("LOCAL SOURCE SMB configuration restore did not verify")\n            journal["sourceConfigurationRestoreStage"]="VERIFIED";self.write(scope,"journal",journal)\n        finally:\n            if descriptor is not None:os.close(descriptor)\n            if temporary is not None and os.path.exists(temporary):os.unlink(temporary)\n            os.close(directory)\n'}
+        edits=[]
+        for label in("PYIDENTITY","PYRENDEREDGENERATION"):
+            begin=("<<'"+label+"'\n").encode();start=current.index(begin)+len(begin)
+            finish=current.index(("\n"+label+"\n").encode(),start);block=current[start:finish]
+            cls=[n for n in ast.parse(block.decode()).body if isinstance(n,ast.ClassDef)and n.name=="SmbSourceCheckpoint"]
+            self.assertEqual(1,len(cls));lines=block.splitlines(keepends=True)
+            methods={n.name:b"".join(lines[n.lineno-1:n.end_lineno])for n in cls[0].body if isinstance(n,ast.FunctionDef)}
+            for name,pin in pins.items():
+                raw=methods[name];self.assertEqual(pin,hashlib.sha256(raw).hexdigest())
+                if name in originals:
+                    self.assertEqual(1,block.count(raw));block=block.replace(raw,originals[name].encode(),1)
+                else:
+                    self.assertEqual(1,block.count(raw+b"\n"));block=block.replace(raw+b"\n",b"",1)
+            edits.append((start,finish,block))
+        for start,finish,block in reversed(edits):current=current[:start]+block+current[finish:]
+        self.assertEqual("c25b32ea7496dba3a8148ee1b47bf59b2ff921c204f7fe8797705ba080d7ba4f",hashlib.sha256(current).hexdigest())
+        return current
+
     def historical_16df_before_nfs_request_isolation(self):
         # Test-only reversal: a production bridge must still reject these unrelated later changes.
-        current=fixture.CLI.read_bytes()
+        current=self.historical_c25b_before_vendor_source(fixture.CLI.read_bytes())
+        # Test-only exact reversal of completed-target private ownership.
+        # Unknown method, capsule or Driver deltas still fail the hard whole CLI pin.
+        import ast
+        private_pins={'rendered_target_private_context': '0d7121830e9cb25e5d45ddadb4d027eeef6e4657188e722567508cb61bb6004e', 'rendered_target_private_snapshot': 'b24a1ed2a7973d24cc89b3c28ac5d3f4c86ca21e08c8368657a87e99fe66494e', 'rendered_target_private_receipt': '565e3fb40438808ca6a7b8f6a9865060001856ded02558c19cbd86280cb9c33b', 'capture_rendered_target_private': 'f8997585715944ec76422f1c19d28ab21ee403a0d3d7ab4cee75a75e0f7d3b1e', 'prepare_rendered_target_private_restore': '9ce860fb83ce0830b2708486ed9d1eb5f976726fe52312adcce4c34296c7e3f6', 'rendered_target_private_restore_safe': 'd584cb160e85f3f977f2967d31c98da796ef94afce4310c9fda7a3fe72e2babc', 'import_source': 'fbcd9011e4b6bb99b9c764a8e95bf88e8ce0cc3824a0c17ad992812a33b6c398'}
+        private_old_import='    def import_source(self,value):\n        self._failure_stage="IMPORT_SOURCE_AUTHORITY"\n        scope=self.request(value,"import-local-source");self.state(value,recovery=True)\n        journal=self.frozen(value,self.read(self.path(scope,"journal"))or {})\n        record=self.read(self.path(scope,"cipher"))\n        if not record:raise ValueError("LOCAL original checkpoint is absent")\n        payload=self.decode(value,record)\n        if journal.get(\'cliSha256\')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():\n            self.unconfigured_stop_bridge(value,journal,payload)\n        for path in IDENTITY_DATABASES.values():\n            if payload["files"].get(path)=={"absent":True}and os.path.lexists(path):\n                raise ValueError("LOCAL refuses to erase an unproven new SAM/database")\n        try:\n            if journal.get("imported")is True and journal["phase"]=="RESUMED":\n                self._failure_stage="IMPORT_CACHE_OBSERVE"\n                actual=self.observe(value,require_empty=False)\n                if (actual["configurationSha256"]!=record["sourceConfigurationFileSha256"]\n                        or actual["databases"]!=journal.get("importedStoppedDatabases")\n                        or {row["unit"]for row in actual["units"]}!={row["unit"]for row in journal["prior"]["units"]}):\n                    raise ValueError("LOCAL imported resume changed")\n                return self.result(record,journal,imported=True)\n            if journal.get("imported")is not True:\n                self._failure_stage="IMPORT_STOP"\n                if journal["phase"]!="STOPPED":self.stop(value,journal,rollback=True)\n                self._failure_stage="IMPORT_STOPPED_OBSERVE"\n                self.stopped_observation()\n                file_payload=dict(payload);file_payload.pop("posixPolicies",None);file_payload.pop("sourceConfigurationSha256",None)\n                self._failure_stage="IMPORT_IDENTITY_RESTORE"\n                self.importer(file_payload)\n                selected=select_restore_domains(file_payload,["SMB"])\n                restored={"privateFingerprints":{path:row["sha256"]for path,row in selected["files"].items()if row.get("absent")is not True}}\n                self._failure_stage="IMPORT_PRIVATE_VERIFY"\n                self.match_private(restored)\n                journal["imported"]=True;journal["phase"]="STOPPED"\n                journal["importedStoppedDatabases"]=self.stopped_observation()["databases"]\n                journal["importedFingerprints"]=restored["privateFingerprints"]\n                journal["importedCheckpointSha256"]=service_cipher_digest(record)\n                self._failure_stage="IMPORT_CHECKPOINT_PUBLISH"\n                self.write(scope,"journal",journal)\n            if not isinstance(journal.get("importedStoppedDatabases"),dict)or not isinstance(journal.get("importedFingerprints"),dict):\n                raise ValueError("LOCAL restored descriptor authority is absent")\n            resume_record={**record,"stoppedDatabases":journal["importedStoppedDatabases"],"privateFingerprints":journal["importedFingerprints"]}\n            self._failure_stage="IMPORT_CONFIG_RESTORE"\n            self.restore_source_smb_configuration(value,journal,record)\n            self.resume(value,journal,resume_record);return self.result(record,journal,imported=True)\n        except Exception as error:\n            self.record_failure(scope,journal,error);raise\n\n'
+        edits=[]
+        for label in ("PYIDENTITY","PYRENDEREDGENERATION"):
+            begin=("<<'"+label+"'\n").encode();start=current.index(begin)+len(begin)
+            finish=current.index(("\n"+label+"\n").encode(),start);block=current[start:finish]
+            classes=[n for n in ast.parse(block.decode()).body if isinstance(n,ast.ClassDef)and n.name=="SmbSourceCheckpoint"]
+            self.assertEqual(1,len(classes));lines=block.splitlines(keepends=True)
+            methods={n.name:n for n in classes[0].body if isinstance(n,ast.FunctionDef)}
+            for name,checksum in private_pins.items():
+                node=methods[name];raw=b"".join(lines[node.lineno-1:node.end_lineno])
+                self.assertEqual(checksum,hashlib.sha256(raw).hexdigest());whole=raw+b"\n"
+                self.assertEqual(1,block.count(whole))
+                block=block.replace(whole,private_old_import.encode()if name=="import_source"else b"",1)
+            edits.append((start,finish,block))
+        for start,finish,block in reversed(edits):current=current[:start]+block+current[finish:]
+        private_driver_spans={'persistBefore': '            self.persist_desired(previous)\n', 'persistAfter': '            if "SMB" in domains:\n                SmbSourceCheckpoint(self.runtime.cli).prepare_rendered_target_private_restore(request)\n            self.persist_desired(previous)\n', 'replayBefore': '            return self.runtime.replay(path, domain, rollback)\n', 'replayAfter': '            result=self.runtime.replay(path, domain, rollback)\n            if not rollback and domain=="SMB"and request.get("localSourceCheckpointReference")is not None:\n                SmbSourceCheckpoint(self.runtime.cli).capture_rendered_target_private(request)\n            return result\n'}
+        for after,before in ((private_driver_spans["persistAfter"],private_driver_spans["persistBefore"]),
+                             (private_driver_spans["replayAfter"],private_driver_spans["replayBefore"])):
+            self.assertEqual(1,current.count(after.encode()));current=current.replace(after.encode(),before.encode(),1)
+        self.assertEqual("4eb04e5f32ce083de0fbfe538b5a265045d3fae5be3ecd7caf77e8bbfb22893b",hashlib.sha256(current).hexdigest())
+        # Reverse only the exact reviewed LOCAL/SERVICE composition; the
+        # production historical bridge still rejects every unrelated CLI byte.
+        import ast
+        service_pins={'same_service_writer': '48a7399d91cbca0833a47183e47fcbbfe7da48274800c730615693c1a1d008b4', 'state': 'e206bbd8f1eb8496a7ca3842adcd2a7d981a3beabc87518b7339f8f21562f42a'}
+        original_state='    def state(self,value,source_only=True,terminal=False,recovery=False):\n        scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}\n        pending=self.read(self.handler.generations/"pending.json");current=self.read(self.handler.generations/"current.json")or {}\n        expected_phases=("PREPARED","VERIFIED")if recovery else("PREPARED",)\n        if pending is None and terminal:\n            completed=self.read(self.handler.generations/(scope["operationUuid"]+".json"))\n            journal=self.read(self.path(scope,"journal"))\n            if (not completed or completed.get("phase")!="ROLLED_BACK"or not journal or journal.get("phase")!="RESUMED"\n                    or completed.get("previous")!=value["sourceGeneration"]):\n                raise ValueError("LOCAL terminal observation lacks its rolled-back original writer")\n            pending=completed;expected_phases=("ROLLED_BACK",)\n        if not isinstance(pending,dict):raise ValueError("LOCAL source original pending writer is absent")\n        if (pending.get("phase")not in expected_phases or any(pending.get(k)!=scope[k]for k in ("instanceUuid","operationUuid","revision"))\n                or pending.get("previous")!=value["sourceGeneration"]or current!=value["sourceGeneration"]\n                or pending.get("beforeSha256")!=value["sourceConfigurationSha256"]or self.boot()!=value["expectedBootId"]):\n            raise ValueError("LOCAL source PREPARED authority changed")\n        if current:\n            if (current.get("instanceUuid")!=scope["instanceUuid"]or current.get("revision")!=scope["revision"]-1\n                    or current.get("configurationSha256")!=value["sourceConfigurationSha256"]):\n                raise ValueError("LOCAL source current generation is foreign")\n            frozen=self.command(("operation","generation","frozen","/dev/stdin"),{k:current[k]for k in ("instanceUuid","operationUuid","revision")})\n            if frozen.get("generation")!=current or frozen.get("configurationSha256")!=value["sourceConfigurationSha256"]:\n                raise ValueError("LOCAL source verified artifact changed")\n        elif scope["revision"]!=1:raise ValueError("LOCAL initial source has a later revision")\n        status=self.command(("operation","generation","status"))\n        maintenance=self.command(("operation","maintenance","status"));rendered=self.command(("operation","generation","render-status"))\n        activation=rendered.get("activation")or {};pin=value.get("renderedManifestSha256")\n        held_local=(isinstance(pin,str)and re.fullmatch("[0-9a-f]{64}",pin)and activation.get("scope")=={k:scope[k]for k in("instanceUuid","operationUuid","revision")}\n            and activation.get("phase")=="ROLLING_BACK"and activation.get("targetSha256")==pin\n            and (rendered.get("current")or {}).get("manifestSha256")==activation.get("previousSha256"))\n        if (status.get("generation")not in (current,None)or status.get("bootId")!=value["expectedBootId"]\n                or maintenance.get("bootHeld")is not False or not(rendered.get("bootHeld")is False or held_local)):\n            raise ValueError("LOCAL source cannot borrow ROOT/SERVICE/rendered hold")\n        if source_only and status.get("configurationSha256")!=value["sourceConfigurationSha256"]:\n            raise ValueError("LOCAL source canonical seven changed")\n        active=rendered.get("current")\n        if active is not None and(not current or active.get("scope")!={k:current[k]for k in ("instanceUuid","operationUuid","revision")}\n                or active.get("configurationSha256")!=value["sourceConfigurationSha256"]):\n            raise ValueError("LOCAL source rendered baseline is foreign")\n        domain=self.read(self.handler.configuration/"smb-domain.json")\n        if domain and(domain.get("joined")is True or domain.get("identityProvider")=="AD"or domain.get("state")=="JOINED"):\n            raise ValueError("LOCAL source cannot capture joined AD")\n        if any(os.path.lexists(n)for n in ("/etc/ablestack-storage/ad-machine.conf","/etc/krb5.keytab")):\n            raise ValueError("LOCAL source contains protected AD artifacts")\n        return status\n\n'
+        edits=[]
+        for label in ("PYIDENTITY","PYRENDEREDGENERATION"):
+            start=current.index(("<<'"+label+"'\n").encode())+len(("<<'"+label+"'\n").encode())
+            finish=current.index(("\n"+label+"\n").encode(),start);block=current[start:finish]
+            tree=ast.parse(block.decode());classes=[n for n in tree.body if isinstance(n,ast.ClassDef)and n.name=="SmbSourceCheckpoint"]
+            self.assertEqual(1,len(classes));lines=block.splitlines(keepends=True)
+            methods={n.name:n for n in classes[0].body if isinstance(n,ast.FunctionDef)}
+            for name in ("same_service_writer","state"):
+                node=methods[name];raw=b"".join(lines[node.lineno-1:node.end_lineno])
+                self.assertEqual(service_pins[name],hashlib.sha256(raw).hexdigest())
+                whole=raw+b"\n";self.assertEqual(1,block.count(whole))
+                block=block.replace(whole,b""if name=="same_service_writer"else original_state.encode(),1)
+            edits.append((start,finish,block))
+        for start,finish,block in reversed(edits):current=current[:start]+block+current[finish:]
+        # Reverse only the reviewed fresh-stage parent creation, never grant
+        # production LOCAL compatibility to this unrelated whole-CLI change.
+        private_parents = b'            parents = set()\n            for name in normalized:\n                parent = (temporary / name).parent\n                while parent != temporary:\n                    parents.add(parent)\n                    parent = parent.parent\n            for parent in sorted(parents, key=lambda path: (len(path.parts), str(path))):\n                rendered_directory(parent, True)\n'
+        self.assertEqual(1,current.count(private_parents))
+        current=current.replace(private_parents,b"",1)
+        # Exact test-only reversal of Code6's new read-only witness. Production
+        # LOCAL compatibility must still reject this unrelated whole-CLI delta.
+        spans=(
+            (b"# BEGIN EMBEDDED CLONE_INITIAL_WITNESS_V1\n",b"# END EMBEDDED CLONE_INITIAL_WITNESS_V1\n\n",
+             "eb5cfff8ebdc55c6d157182a29629fc9f6e0710554622b373acc372fa996a20d"),
+            (b"# BEGIN CLONE_INITIAL_WITNESS_V1_DISPATCH\n",b"# END CLONE_INITIAL_WITNESS_V1_DISPATCH\n",
+             "f1cfe90e4082dcaf0a8b0658bdc50853982c836b3622000f150ab5483b1f12f2"))
+        for begin,end,checksum in spans:
+            self.assertEqual(1,current.count(begin));self.assertEqual(1,current.count(end))
+            start=current.index(begin);finish=current.index(end,start)+len(end)
+            self.assertEqual(checksum,hashlib.sha256(current[start:finish]).hexdigest())
+            current=current[:start]+current[finish:]
+        for marker in(b"operation:generation:clone-initial-inspect|",b',"cloneInitialBaselineV1Supported":true'):
+            self.assertEqual(1,current.count(marker));current=current.replace(marker,b"",1)
+        self.assertEqual("8816bb08197640e41f60b52af60b339fc3be47b34ddbd760d3c7e82336aeb26a",
+                         hashlib.sha256(current).hexdigest())
         # Test-only projection of the later mounted-source recheck fix. The production
         # closed bridge must continue to reject unrelated whole-CLI changes.
         later=b"    resolved = resolve_volume_device(fresh, volume_uuid=volume_uuid, mount_source=expected_device, expected_size=size, allow_blank_size_fallback=False)"
@@ -1082,10 +1281,20 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             state_file=prior/'state.json';state_file.chmod(0o666)
             with self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
             state_file.chmod(0o600)
-            os.chown(state_file,1,1)
-            try:
+            # Model only this owned file's foreign UID/GID; Cap0 never chowns a real inode.
+            import types
+            real_stat=os.stat;owner_before=(state_file.stat().st_uid,state_file.stat().st_gid);foreign_reads=[]
+            def foreign_owner(path,*args,**kwargs):
+                info=real_stat(path,*args,**kwargs)
+                if isinstance(path,(str,bytes,os.PathLike))and os.fsdecode(path)==str(state_file):
+                    values={name:getattr(info,name)for name in dir(info)if name.startswith("st_")}
+                    values.update(st_uid=os.geteuid()+1,st_gid=os.getegid()+1);foreign_reads.append(str(path))
+                    return types.SimpleNamespace(**values)
+                return info
+            with patch.object(os,"stat",side_effect=foreign_owner):
                 with self.assertRaises(ValueError):observer.installed_release_authority(release,manifest)
-            finally:os.chown(state_file,0,0)
+            self.assertTrue(foreign_reads)
+            self.assertEqual(owner_before,(state_file.stat().st_uid,state_file.stat().st_gid))
             self.assertEqual(before,{str(path):path.read_bytes()for path in runtime.rglob('*')if path.is_file()})
             self.assertFalse(self.signals);self.assertFalse(self.starts)
         finally:os.close(safe)
@@ -1245,9 +1454,8 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         self.assertFalse(self.signals);self.assertFalse(self.starts)
 
     def test_first_empty_identity_source_remains_absent_without_sam_initialization(self):
-        self.active_units.clear();self.active=False
-        for path in self.private.values():path.unlink()
-        self.handler.database_identity=lambda:{label:{"path":path,"present":False}for label,path in module.IDENTITY_DATABASES.items()}
+        # Same empty identity state with actual SOURCE and fixed vendor file metadata.
+        self.verified_unconfigured_source()
         self.native.collector=lambda *args,**kwargs:{**self.empty_payload(),"posixPolicies":{}}
         self.gen.current.unlink()
         self.request["sourceGeneration"]={};self.request["revision"]=1
@@ -1257,7 +1465,6 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
         self.native.observe=module.SmbSourceCheckpoint.observe.__get__(self.native)
         self.native.stopped_observation=lambda:{"databases":self.handler.database_identity(),"units":[],"ownedEndpoints":[],
             "sessionsVerifiedEmpty":True,"configurationSha256":hashlib.sha256(b"PUBLIC FIXTURE CONFIG").hexdigest()}
-        self.native.reader=lambda path,*args:(b"PUBLIC FIXTURE CONFIG",self.lock_path.stat())if path=="/etc/samba/smb.conf"else capsule.regular_file(path)
         result=self.native.export(self.export_request)
         self.assertEqual(0,result["priorActiveUnitCount"]);self.assertFalse(self.starts);self.assertFalse(self.signals)
         self.assertTrue(all(not path.exists()for path in self.private.values()))
@@ -1312,6 +1519,230 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,"after pidfd pin"):self.native.export(self.export_request)
         self.assertFalse(self.signals);self.assertFalse(self.starts)
         self.assertEqual("RECOVERY_REQUIRED",self.native.read(self.native.path(self.request,"journal"))["phase"])
+
+
+    def same_writer_service(self,empty=False):
+        from rendered_generation import RenderedGeneration,DOMAINS,rendered_json
+        from service_maintenance import ServiceMaintenance
+        from template_maintenance import Maintenance
+        if empty:self.verified_unconfigured_source()
+        result=self.native.export(self.export_request)
+        store=RenderedGeneration(self.root/"service-rendered")
+        source_scope={key:self.current[key]for key in("instanceUuid","operationUuid","revision")}
+        files={"nfs/manifest.json":'{"endpoints":[]}',"smb/smb.conf":"[global]\nsecurity = user\n",
+            "smb/manifest.json":'{"endpoints":[]}',"block/iscsi-plan.json":'{"targets":[]}',
+            "block/nvmeof-plan.json":'{"targets":[]}',"desired-state.json":json.dumps(self.desired),
+            "network-bindings.json":'{"bindings":[]}',"posix-plan.json":"null",
+            "file-volumes.json":'{"schemaVersion":1,"volumes":[]}',"prerequisites.json":'{"directories":{}}'}
+        source=store.stage({**source_scope,"expectedCurrentRenderedSha256":None},files,
+            lambda path,manifest:{domain:True for domain in DOMAINS})
+        store.publish_pointer(store.generations/source_scope["operationUuid"])
+        rendered_json(store.journal,{"scope":source_scope,"phase":"COMPLETE","targetSha256":source["manifestSha256"],
+            "previousSha256":None,"changedDomains":[],"baselineImported":True})
+        environment=patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(self.root/"service-maintenance"),
+            "ABLESTACK_STORAGE_RENDERED_GENERATIONS":str(store.root),
+            "ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(self.root/"no-volume-writers")})
+        environment.start();self.addCleanup(environment.stop)
+        keeper=Maintenance(generation=lambda:self.native.command(("operation","generation","status")))
+        plain=self.native.command
+        def command(args,payload=None):
+            if args==("operation","generation","render-status"):return store.status()
+            if args==("operation","maintenance","status"):return keeper.status()
+            return plain(args,payload)
+        self.native.command=command
+        service=ServiceMaintenance(keeper,self.native.cli,command=command,units=lambda:[],
+            run=lambda args,**kwargs:"")
+        scope={**self.scope,"maintenanceUuid":self.scope["operationUuid"]}
+        self.assertEqual("HELD",service.enter(scope)["phase"])
+        self.assertEqual(self.current,keeper.read(service.journal)["sourceGeneration"])
+        return result,store,service,scope,files
+
+    def test_same_service_readonly_local_status_preserves_checkpoint_and_blocks_capture(self):
+        result,store,service,scope,files=self.same_writer_service(empty=True)
+        paths=(self.native.path(self.request,"journal"),self.native.path(self.request,"cipher"),service.journal,service.maintenance.marker)
+        before={str(path):path.read_bytes()for path in paths}
+        self.assertTrue(self.native.status(self.request)["sourceRuntimeVerified"])
+        with self.assertRaisesRegex(ValueError,"hold"):self.native.export(self.export_request)
+        self.assertEqual(before,{str(path):path.read_bytes()for path in paths})
+
+    def test_same_service_postactivate_status_cannot_authorize_forward_import(self):
+        from rendered_generation import DOMAINS
+        result,store,service,scope,files=self.same_writer_service()
+        files={**files,"smb/smb.conf":"[global]\nsecurity = user\n# owned target\n"}
+        target=store.stage({**self.scope,"expectedCurrentRenderedSha256":store.status()["current"]["manifestSha256"]},
+            files,lambda path,manifest:{domain:True for domain in DOMAINS})
+        store.activate(self.scope,lambda *args:None,lambda path:{domain:True for domain in DOMAINS})
+        paths=(self.native.path(self.request,"journal"),self.native.path(self.request,"cipher"),service.journal)
+        before={str(path):path.read_bytes()for path in paths}
+        self.assertTrue(self.native.status(self.request)["sourceIdentityRestoreSupported"])
+        request={**self.imported_request(result),"renderedManifestSha256":target["manifestSha256"]}
+        effects=(len(self.signals),len(self.starts))
+        with self.assertRaisesRegex(ValueError,"inverse pointer"):self.native.import_source(request)
+        self.assertEqual(effects,(len(self.signals),len(self.starts)))
+        self.assertEqual(before,{str(path):path.read_bytes()for path in paths})
+
+    def test_same_service_inverse_uses_original_capsule_and_real_rollback_pointer(self):
+        from rendered_generation import DOMAINS
+        result,store,service,scope,files=self.same_writer_service()
+        files={**files,"smb/smb.conf":"[global]\nsecurity = user\n# owned target\n"}
+        target=store.stage({**self.scope,"expectedCurrentRenderedSha256":store.status()["current"]["manifestSha256"]},
+            files,lambda path,manifest:{domain:True for domain in DOMAINS})
+        store.activate(self.scope,lambda *args:None,lambda path:{domain:True for domain in DOMAINS})
+        request={**self.imported_request(result),"renderedManifestSha256":target["manifestSha256"]}
+        results=[]
+        def inverse(path,domain,rollback):
+            if domain=="SMB":results.append(self.native.import_source(request))
+        store.rollback(self.scope,inverse,lambda path:{domain:True for domain in DOMAINS})
+        self.assertEqual(1,len(results));self.assertTrue(results[0]["sourceIdentityRestored"])
+        self.assertTrue(service.status(scope)["bootHeld"])
+        self.assertTrue(self.native.status(self.request)["sourceRuntimeVerified"])
+        self.assertEqual("ROLLED_BACK",store.status()["activation"]["phase"])
+
+    def test_same_service_foreign_source_scope_or_unprotected_journal_is_rejected(self):
+        result,store,service,scope,files=self.same_writer_service()
+        original=service.maintenance.read(service.journal)
+        for key,bad in (("sourceGeneration",{**self.current,"revision":0}),
+                ("sourceRendered",{**original["sourceRendered"],"manifestSha256":"f"*64}),
+                ("scope",{**scope,"operationUuid":str(uuid.uuid4())})):
+            value=copy.deepcopy(original);value[key]=bad;service.maintenance.write(service.journal,value)
+            with self.subTest(key=key),self.assertRaises(ValueError):self.native.status(self.request)
+        service.maintenance.write(service.journal,original)
+        service.journal.chmod(0o644)
+        with self.assertRaisesRegex(ValueError,"protected"):self.native.status(self.request)
+
+    def test_same_service_root_or_foreign_hold_is_never_local_authority(self):
+        result,store,service,scope,files=self.same_writer_service()
+        keeper=service.maintenance
+        for marker in ({"kind":"SERVICE","scope":{**scope,"maintenanceUuid":str(uuid.uuid4())},"bootHeld":True},
+                {"kind":"ROOT","scope":{**self.scope,"templateUpgradeUuid":str(uuid.uuid4())},"bootHeld":True}):
+            keeper.write(keeper.marker,marker)
+            with self.subTest(kind=marker["kind"]),self.assertRaises(ValueError):self.native.status(self.request)
+
+
+    def rendered_private_target(self):
+        from rendered_generation import DOMAINS
+        result,store,service,service_scope,files=self.same_writer_service(empty=True)
+        user="issue909user";principal=str(uuid.uuid4());share=str(uuid.uuid4())
+        listener={"listenIp":"192.0.2.75","port":445}
+        unit="ablestack-storage-smb@"+hashlib.sha256(b"192.0.2.75:445").hexdigest()[:24]+".service"
+        target_desired=copy.deepcopy(self.desired)
+        target_desired["desired-state/smb-share-apply.json"]={"instanceUuid":self.scope["instanceUuid"],"enabled":True,
+            "listeners":[listener],"shares":[{"uuid":share,"config":{"posixOwnershipMode":"AUTHENTICATED_USER"},
+                "acls":[{"uuid":principal,"principal":user,"config":{"localAccount":True}}]}]}
+        files={**files,"desired-state.json":json.dumps(target_desired),"smb/smb.conf":"[global]\nsecurity = user\n# TARGET\n",
+            "smb/manifest.json":json.dumps({"listeners":[listener],"shares":[]})}
+        target=store.stage({**self.scope,"expectedCurrentRenderedSha256":store.status()["current"]["manifestSha256"]},
+            files,lambda path,manifest:{domain:True for domain in DOMAINS})
+        request={**self.scope,"renderedManifestSha256":target["manifestSha256"],"checkpointPrivateKey":self.pem(self.newkey),
+            "localSourceCheckpointReference":result["localSourceCheckpointReference"]}
+        mapped={name:self.root/("private-target-"+str(index))for index,name in enumerate((
+            "/etc/passwd","/etc/group","/etc/shadow","/etc/gshadow","/etc/ablestack-storage/smb-managed-identities.json",
+            "/etc/ablestack-storage/smb-local-account-provenance.json","/etc/ablestack-storage/smb-semantic-identity-aliases.json",
+            *module.IDENTITY_DATABASES.values()))}
+        for label,name in module.IDENTITY_DATABASES.items():mapped[name]=self.private[label]
+        config=self.root/"private-target-smb.conf";mapped["/etc/samba/smb.conf"]=config
+        raw={"/etc/passwd":user+":x:10000:10000::/nonexistent:/usr/sbin/nologin\n","/etc/group":user+":x:10000:\n",
+            "/etc/shadow":user+":!:0:0:99999:7:::\n","/etc/gshadow":user+":!::\n",
+            "/etc/ablestack-storage/smb-managed-identities.json":"{}",
+            "/etc/ablestack-storage/smb-local-account-provenance.json":json.dumps({"schemaVersion":1,"accounts":{
+                "/etc/passwd":[user+":x:10000:10000::/nonexistent:/usr/sbin/nologin"],"/etc/group":[user+":x:10000:"]}})}
+        original_exists=os.path.lexists
+        guard=patch.object(module.os.path,"lexists",side_effect=lambda path:
+            original_exists(mapped[str(path)])if str(path)in mapped else original_exists(path))
+        guard.start();self.addCleanup(guard.stop)
+        self.native.reader=lambda path,*args:capsule.regular_file(mapped[str(path)]if str(path)in mapped else path,*args)
+        self.handler.run=lambda args: user+":10000:Fixture\n"if args==["pdbedit","-L"]else"SID for domain FIXTURE is: S-1-5-21-11-22-33\n"
+        self.active_units=set()
+        def databases():
+            values={}
+            for label,path in module.IDENTITY_DATABASES.items():
+                actual=mapped[path]
+                values[label]={"path":path,"present":False}if not actual.exists()else{
+                    "path":path,"present":True,"device":actual.stat().st_dev,"inode":actual.stat().st_ino,"uid":0,"gid":0,"mode":"0600"}
+            return values
+        self.handler.database_identity=databases
+        def observation(value,**kwargs):
+            return {"databases":databases(),"units":[{"unit":unit,"pid":1234}]if self.active_units else[],
+                "ownedEndpoints":[{**listener,"tcpReady":True,"pid":1234}]if self.active_units else[],
+                "sessionsVerifiedEmpty":True,"configurationSha256":hashlib.sha256(config.read_bytes()).hexdigest()}
+        self.native.observe=observation
+        def stopped():
+            if self.active_units:raise ValueError("fixture SMB still active")
+            return observation({})
+        self.native.stopped_observation=stopped
+        owner={"unit":unit,"pid":1234,"startTicks":"1234","configuration":"/etc/samba/smb.conf"}
+        service.units=lambda:[owner]if self.active_units else[]
+        self.stop_calls=[]
+        def run(args,**kwargs):
+            if args[:2]==["systemctl","stop"]:
+                self.stop_calls.append(args[2]);self.active_units.clear()
+            return ""
+        service.run=run
+        plain=self.native.command
+        self.native.command=lambda args,payload=None:service.quiesce(payload)if args==("operation","quiesce")else plain(args,payload)
+        def replay(path,domain,rollback):
+            if domain!="SMB":return
+            self.gen.replace_desired(target_desired);config.write_text(files["smb/smb.conf"]);config.chmod(0o600)
+            for name,text in raw.items():mapped[name].write_text(text);mapped[name].chmod(0o600)
+            for name in module.IDENTITY_DATABASES.values():mapped[name].write_bytes(b"SYNTHETIC TARGET SAM");mapped[name].chmod(0o600)
+            self.active_units.add(unit);self.native.capture_rendered_target_private(request)
+        store.activate(self.scope,replay,lambda path:{domain:True for domain in DOMAINS})
+        return result,store,service,request,mapped,config
+
+    def test_rendered_private_receipt_owns_only_completed_target_and_actual_stop(self):
+        result,store,service,request,mapped,config=self.rendered_private_target()
+        before=self.native.read(self.native.path(self.request,"cipher"))
+        original=self.native.read(self.native.path(self.request,"journal"))["prior"]
+        class StopObserved(Exception):pass
+        def inverse(path,domain,rollback):
+            if domain=="SMB":
+                self.assertTrue(self.native.prepare_rendered_target_private_restore(request)["targetPrivateStopped"])
+                self.assertFalse(self.active_units)
+                self.assertTrue(all(path.exists()for path in self.private.values()))
+                raise StopObserved()
+        with self.assertRaises(StopObserved):store.rollback(self.scope,inverse,lambda path:{})
+        self.assertEqual(before,self.native.read(self.native.path(self.request,"cipher")))
+        self.assertEqual(original,self.native.read(self.native.path(self.request,"journal"))["prior"])
+        self.assertTrue(service.status()["bootHeld"])
+        self.assertEqual(1,len(self.stop_calls))
+
+    def test_rendered_private_receipt_file_tamper_or_foreign_principal_never_stops(self):
+        result,store,service,request,mapped,config=self.rendered_private_target()
+        path=self.native.path(self.request,"rendered-target-private");saved=path.read_bytes()
+        record=json.loads(saved);record["bootId"]=str(uuid.uuid4());path.write_text(json.dumps(record))
+        def inverse(*args):self.native.prepare_rendered_target_private_restore(request)
+        with self.assertRaises(ValueError):store.rollback(self.scope,inverse,lambda path:{})
+        path.write_bytes(saved)
+        self.private["PASSDB"].write_bytes(b"CHANGED OR FOREIGN SAM")
+        with self.assertRaises(ValueError):store.rollback(self.scope,inverse,lambda path:{})
+        self.assertFalse(self.stop_calls);self.assertTrue(self.active_units)
+        self.assertTrue(service.status()["bootHeld"])
+
+    def test_rendered_private_unknown_stop_keeps_target_sam_and_source_checkpoint(self):
+        result,store,service,request,mapped,config=self.rendered_private_target()
+        original=self.native.read(self.native.path(self.request,"cipher"))
+        def unknown(args,**kwargs):
+            if args[:2]==["systemctl","stop"]:raise TimeoutError("fixture unknown service stop")
+            return ""
+        service.run=unknown
+        with self.assertRaises(TimeoutError):
+            store.rollback(self.scope,lambda *args:self.native.prepare_rendered_target_private_restore(request),lambda path:{})
+        self.assertTrue(all(path.exists()for path in self.private.values()))
+        self.assertIsNone(self.native.read(self.native.path(self.request,"rendered-target-private-stop")))
+        self.assertEqual(original,self.native.read(self.native.path(self.request,"cipher")))
+        self.assertTrue(service.status()["bootHeld"])
+
+    def test_rendered_private_missing_receipt_or_foreign_capsule_never_stops(self):
+        result,store,service,request,mapped,config=self.rendered_private_target()
+        path=self.native.path(self.request,"rendered-target-private");saved=path.read_bytes();path.unlink()
+        with self.assertRaises(ValueError):
+            store.rollback(self.scope,lambda *args:self.native.prepare_rendered_target_private_restore(request),lambda path:{})
+        path.write_bytes(saved);path.chmod(0o600)
+        foreign={**request,"checkpointPrivateKey":self.pem(fixture.rsa.generate_private_key(public_exponent=65537,key_size=2048))}
+        with self.assertRaises(ValueError):
+            store.rollback(self.scope,lambda *args:self.native.prepare_rendered_target_private_restore(foreign),lambda path:{})
+        self.assertFalse(self.stop_calls);self.assertTrue(all(path.exists()for path in self.private.values()))
+        self.assertTrue(service.status()["bootHeld"])
 
     def test_owned_rendered_rollback_requires_exact_pin_and_source_pointer(self):
         result=self.native.export(self.export_request)

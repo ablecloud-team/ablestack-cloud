@@ -84,6 +84,53 @@ class StorageRenderedIdentityInverseTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"ROOT uses opaque"):self.driver.restore_identity(request)
         self.assertEqual([],self.calls)
 
+    def empty_local_record(self):
+        local=str(uuid.uuid4());source={"instanceUuid":self.scope["instanceUuid"],
+            "operationUuid":str(uuid.uuid4()),"revision":2,"configurationSha256":"a"*64,"verifiedAt":1}
+        common={**self.scope,"localCheckpointUuid":local,"expectedBootId":str(uuid.uuid4()),
+            "sourceGeneration":source,"sourceConfigurationSha256":"a"*64}
+        ref={"localCheckpointUuid":local,"sha256":"b"*64}
+        request={**self.scope,"localSourceCheckpointReference":ref}
+        record={"scope":{**self.scope,"localCheckpointUuid":local},"common":common,
+            "sourceDesiredState":{"desired-state/smb-share-apply.json":None},"privateFingerprints":{},
+            "stoppedDatabases":{"passdb":{"present":False},"secrets":{"present":False}},
+            "sourceConfigurationFileSha256":"c"*64}
+        observed={"success":True,"scope":record["scope"],"bootId":common["expectedBootId"],"phase":"RESUMED",
+            "sourceGeneration":source,"sourceConfigurationSha256":"a"*64,"currentConfigurationSha256":"a"*64,
+            "currentSmbConfigurationSha256":"c"*64,"localSourceCheckpointReference":ref,
+            "sourceSmbResumed":True,"sourceRuntimeVerified":True,
+            "currentRuntimeOwnershipVerified":True,"currentSessionsVerifiedEmpty":True}
+        self.driver.store.scope=lambda request:{key:request[key]for key in self.scope}
+        return request,record,observed
+
+    def test_empty_local_smb_skip_requires_a_fresh_exact_original_source_observation(self):
+        import copy
+        request,record,observed=self.empty_local_record()
+        calls=[]
+        def command(args,payload=None):
+            calls.append((args,payload));return observed
+        self.driver.runtime.command=command
+        self.assertTrue(self.driver.verified_empty_local_smb_restore(request,record))
+        self.assertEqual([(("smb","identity","local-source-status"),record["common"])],calls)
+        for field,value in (("success",False),("phase","EXPORTED"),("sourceSmbResumed",False),
+                ("sourceRuntimeVerified",False),("currentRuntimeOwnershipVerified",False),
+                ("currentSessionsVerifiedEmpty",False),("bootId",str(uuid.uuid4())),
+                ("currentConfigurationSha256","d"*64),("currentSmbConfigurationSha256","d"*64),
+                ("localSourceCheckpointReference",{"localCheckpointUuid":str(uuid.uuid4()),"sha256":"b"*64}),
+                ("scope",{**record["scope"],"operationUuid":str(uuid.uuid4())}),
+                ("sourceGeneration",{**record["common"]["sourceGeneration"],"revision":1})):
+            with self.subTest(field=field):
+                self.driver.runtime.command=lambda *args,**kwargs:{**observed,field:value}
+                with self.assertRaises(ValueError):self.driver.verified_empty_local_smb_restore(request,record)
+        self.driver.runtime.command=command
+        for key,value in (("privateFingerprints",{"/private":"d"*64}),
+                ("stoppedDatabases",{"passdb":{"present":True}})):
+            with self.subTest(source=key),self.assertRaises(ValueError):
+                self.driver.verified_empty_local_smb_restore(request,{**record,key:value})
+        nonempty=copy.deepcopy(record);nonempty["sourceDesiredState"]["desired-state/smb-share-apply.json"]={"shares":[]}
+        self.driver.runtime.command=lambda *args,**kwargs:(_ for _ in ()).throw(AssertionError("nonempty SOURCE skipped"))
+        self.assertFalse(self.driver.verified_empty_local_smb_restore(request,nonempty))
+
     def test_wrong_private_key_refuses_before_any_identity_import(self):
         wrong=rsa.generate_private_key(public_exponent=65537,key_size=2048).private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.PKCS8,serialization.NoEncryption()).decode()
         with self.assertRaises(ValueError):self.driver.restore_identity({**self.request,"checkpointPrivateKey":wrong})

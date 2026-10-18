@@ -197,4 +197,27 @@ public class StorageConfigurationVolumeAllocationTest {
         prepare(plan,runtime);Assert.assertEquals(2,runtime.allocCalls);Assert.assertEquals(1,runtime.formatCalls);Assert.assertEquals(0,runtime.deleteCalls);
     }
 
+    @Test public void completedFoundationRevalidationObservesAllAdditionalDataWithoutRepeatingEffects() {
+        StorageConfigurationVolumePlanTest.Fixture f=new StorageConfigurationVolumePlanTest.Fixture(4);f.raw(3);f.existing(4);
+        JsonObject plan=f.build();Runtime r=new Runtime();r.seedExisting(entry(plan,3));prepare(plan,r);
+        for(JsonObject value:r.observations.values())value.addProperty("formatterActive",false);
+        String receipts=r.receipts.toString();int allocations=r.allocCalls,formats=r.formatCalls,mounts=r.mountCalls,attached=r.attachCalls;
+        StorageConfigurationVolumeAllocation.requirePrepared(plan,r);StorageConfigurationVolumeAllocation.requirePrepared(plan,r);
+        Assert.assertEquals(receipts,r.receipts.toString());Assert.assertEquals(allocations,r.allocCalls);
+        Assert.assertEquals(formats,r.formatCalls);Assert.assertEquals(mounts,r.mountCalls);Assert.assertEquals(attached,r.attachCalls);
+    }
+    @Test public void completedFoundationRejectsMissingReceiptForeignAttachmentAndChangedFilesystemOrUnknownFormatter() {
+        for(int mode=0;mode<5;mode++){
+            JsonObject plan=plan(1);Runtime r=new Runtime();prepare(plan,r);
+            r.observations.get(uuid(plan,0)).addProperty("formatterActive",false);
+            if(mode==0)r.receipts.clear();
+            if(mode==1)r.volumes.get(uuid(plan,0)).addProperty("attachedInstanceUuid",StorageConfigurationVolumePlanTest.id(999));
+            if(mode==2)r.observations.get(uuid(plan,0)).addProperty("filesystemUuid","foreign");
+            if(mode==3)r.observations.get(uuid(plan,0)).remove("formatterActive");
+            if(mode==4)r.receipts.get(uuid(plan,0)).getAsJsonObject("provenance").addProperty("baselineRevision",99);
+            Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigurationVolumeAllocation.requirePrepared(plan,r));
+            Assert.assertEquals(1,r.allocCalls);Assert.assertEquals(1,r.formatCalls);Assert.assertEquals(0,r.deleteCalls);
+        }
+    }
+
 }

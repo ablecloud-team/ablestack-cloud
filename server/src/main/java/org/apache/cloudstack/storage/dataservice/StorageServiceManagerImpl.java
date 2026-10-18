@@ -842,6 +842,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         ConfigurationBatch(long instanceId) { this.instanceId = instanceId; }
     }
     private final ThreadLocal<ConfigurationBatch> configurationBatch = new ThreadLocal<>();
+    private final ThreadLocal<JsonObject> configurationCloneInitialBaseline = new ThreadLocal<>();
+    private final ThreadLocal<JsonObject> configurationCloneRestoreMaintenance = new ThreadLocal<>();
     protected void beginConfigurationBatch(long instanceId) {
         if (configurationBatch.get() != null) throw new CloudRuntimeException("A configuration batch is already active");
         requireConfigurationAdministrator();configurationBatch.set(new ConfigurationBatch(instanceId));
@@ -2467,7 +2469,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if(!result.isSuccess())throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt");JsonObject response=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
                 if("rollback".equals(action))observeAdServiceRollbackIdentity(instance,batch.operation);return response;
             }
-            public void save(JsonObject receipt) {JsonObject snapshot=parseJsonObject(batch.operation.getPreviousSnapshotJson()),saved=snapshot.getAsJsonObject("renderedGeneration");saved.add("receipt",receipt.deepCopy());saved.addProperty("phase",receipt.get("phase").getAsString());batch.operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered public phase receipt could not be persisted");}
+            public void save(JsonObject receipt) {
+                String previous=batch.operation.getPreviousSnapshotJson();JsonObject snapshot=parseJsonObject(previous),saved=snapshot.getAsJsonObject("renderedGeneration");
+                saved.add("receipt",receipt.deepCopy());saved.addProperty("phase",receipt.get("phase").getAsString());batch.operation.setPreviousSnapshotJson(snapshot.toString());
+                try {if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered public phase receipt could not be persisted");}
+                catch(RuntimeException failure){batch.operation.setPreviousSnapshotJson(previous);throw failure;}
+                batch.receipt=receipt.deepCopy();
+            }
             public void requireAvailable(){requireNoOperationCancellation(batch.operation);}
             public void requireCommittedAvailable(){requireCommittedOperationResources(instance,batch.operation);}
             public void verifyAllProtocols(){verifyReconciledStorageDesiredState(instance);}
@@ -2483,8 +2491,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 }
                 if(source!=null&&Boolean.TRUE.equals(getNativeBoolean(source,"publicAdPreStopCaptured")))observeAdServiceRollbackIdentity(instance,batch.operation);
                 JsonObject status=nativeGenerationStatus();if(getJsonString(status,"pendingOperationUuid")==null&&receipt.get("previousGeneration").equals(status.get("generation"))&&"IN_SYNC".equals(getJsonString(status,"generationStatus")))return;nativeConfigurationGeneration(instance,batch.operation,"rollback");}
-            public void resumeUnchangedMaintenance(){if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))rootGuest(instance,"operation generation render-maintenance-resume-source",serviceMaintenanceScope(instance,batch.operation),120);}
-            public void releaseMaintenance(){if(parseJsonObject(batch.operation.getResultJson()).has("_targetResourceBindings"))finalizeOperationResourceReservation(instance,batch.operation);else releaseOperationResourceReservation(instance,batch.operation);if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))releaseServiceMaintenance(instance,batch.operation);}
+            public void resumeUnchangedMaintenance(){if(hasConfigurationCloneMaintenance(instance,batch.operation))resumeConfigurationCloneMaintenance(instance,batch.operation);else if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))rootGuest(instance,"operation generation render-maintenance-resume-source",serviceMaintenanceScope(instance,batch.operation),120);}
+            public void releaseMaintenance(){if(parseJsonObject(batch.operation.getResultJson()).has("_targetResourceBindings"))finalizeOperationResourceReservation(instance,batch.operation);else releaseOperationResourceReservation(instance,batch.operation);if(hasConfigurationCloneMaintenance(instance,batch.operation))releaseConfigurationCloneMaintenance(instance,batch.operation);else if("SERVICE_MAINTENANCE".equals(batch.operation.getAction())||parseJsonObject(batch.operation.getPreviousSnapshotJson()).has("adServiceMaintenanceScope"))releaseServiceMaintenance(instance,batch.operation);}
             public void promote(){new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).promoteVerified(instance,batch.operation,()->{batch.operation.setState("COMPLETE");batch.operation.setPhase("COMPLETE");batch.operation.setProgress(100);batch.operation.setCompleted(new java.util.Date());if(!storageOperationDao.update(batch.operation.getId(),batch.operation))throw new CloudRuntimeException("Rendered operation LKG could not be committed");});}
         };
     }
@@ -2585,6 +2593,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     }
 
+    private RenderedBatch currentRenderedBatchForRecovery() {
+        RenderedBatch batch=renderedBatch.get();if(batch==null || batch.receipt!=null)return batch;
+        StorageServiceOperationVO original=batch.operation,fresh=storageOperationDao.findById(original.getId());
+        if(fresh==null || fresh.getId()!=original.getId() || !fresh.getUuid().equals(original.getUuid())
+                || fresh.getInstanceId()!=original.getInstanceId() || fresh.getRevision()!=original.getRevision()
+                || fresh.getCreatedBy()!=original.getCreatedBy() || !java.util.Objects.equals(fresh.getAction(),original.getAction())
+                || !java.util.Objects.equals(fresh.getRequestKey(),original.getRequestKey()))
+            throw new CloudRuntimeException("Rendered recovery lost its original durable writer");
+        // Never use the speculative setPreviousSnapshotJson from a failed phase save.
+        original.setPreviousSnapshotJson(fresh.getPreviousSnapshotJson());
+        RenderedBatch restored=restoreRenderedBatch(original);renderedBatch.set(restored);return restored;
+    }
+
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         if(Boolean.TRUE.equals(getNativeBoolean(parseJsonObject(operation.getResultJson()),"_leaseCleanupSource"))
                 && recoverOperationFinalization(instance,operation))return;
@@ -2604,7 +2625,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 coordinator.rollback(batch.receipt,batch.receipt.has("staged")?renderedRollbackRequest(instance,batch):operationReservationScope(instance,operation));
                 boolean sourceWitness=parseJsonObject(operation.getResultJson()).has("_leaseSourceNativeGeneration");
                 if(!sourceWitness)releaseOperationResourceReservation(instance,operation);
-                if("SERVICE_MAINTENANCE".equals(operation.getAction()))releaseServiceMaintenance(instance,operation);
+                if(hasConfigurationCloneMaintenance(instance,operation))releaseConfigurationCloneMaintenance(instance,operation);
+                else if("SERVICE_MAINTENANCE".equals(operation.getAction()))releaseServiceMaintenance(instance,operation);
                 operation.setState("ROLLED_BACK");operation.setPhase("INTERRUPTED_RENDERED_WRITER_ROLLED_BACK");operation.setProgress(100);operation.setCompleted(new java.util.Date());
                 if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered rollback terminal could not be persisted");
                 if(sourceWitness)finalizeRestoredSourceResources(instance,operation);
@@ -4292,6 +4314,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     private JsonObject configurationCloneVmBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan, JsonObject previous) {
+        return configurationCloneVmBinding(shared, plan, previous, null);
+    }
+
+    private JsonObject configurationCloneVmBinding(org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject plan, JsonObject previous, Set<String> foundationData) {
         if (shared.getVmId() == null || shared.getVolumeId() == null)
             throw new InvalidParameterValueException("Clone VM allocation binding is unavailable");
         com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(shared.getVmId());
@@ -4299,15 +4325,19 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         List<VolumeVO> roots = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.ROOT);
         List<VolumeVO> data = volumeDao.findByInstanceAndType(shared.getVmId(), com.cloud.storage.Volume.Type.DATADISK);
         boolean existing = configurationCloneExistingInitial(plan);
-        VolumeVO selected = existing ? requireVolume(shared.getVolumeId()) : data.size() == 1 ? data.get(0) : null;
+        VolumeVO selected = existing || foundationData != null ? requireVolume(shared.getVolumeId()) : data.size() == 1 ? data.get(0) : null;
         boolean attached = selected != null && java.util.Objects.equals(selected.getInstanceId(), shared.getVmId());
+        Set<String> observedData = new HashSet<>();for (VolumeVO volume : data) observedData.add(volume.getUuid());
+        boolean exactFoundation = foundationData != null && foundationData.equals(observedData)
+                && data.size() == foundationData.size() && selected != null && foundationData.contains(selected.getUuid());
         List<NicVO> nics = nicDao.listByVmId(shared.getVmId());
         org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd cmd = configurationCreateCommand(plan.getAsJsonObject("createNew"));
         if (vm == null || template == null || vm.getRemoved() != null || vm.getAccountId() != shared.getAccountId()
                 || vm.getDataCenterId() != shared.getDataCenterId() || vm.getTemplateId() != template.getId()
                 || !com.cloud.vm.UserVmManager.SHAREDFSVM.equals(vm.getUserVmType())
                 || roots.size() != 1 || selected == null || selected.getId() != shared.getVolumeId()
-                || (existing ? attached ? data.size() != 1 || data.get(0).getId() != selected.getId() : !data.isEmpty() || selected.getInstanceId() != null : data.size() != 1)
+                || (existing ? attached ? foundationData == null ? data.size() != 1 || data.get(0).getId() != selected.getId() : !exactFoundation
+                    : !data.isEmpty() || selected.getInstanceId() != null : foundationData == null ? data.size() != 1 : !exactFoundation)
                 || nics.size() != 1 || nics.get(0).getNetworkId() != cmd.getNetworkId()
                 || roots.get(0).getRemoved() != null || selected.getRemoved() != null)
             throw new InvalidParameterValueException("Clone VM disk or network allocation identity changed");
@@ -4373,6 +4403,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     private void configurationPinCloneRealizations(StorageConfigArtifactVO artifact, JsonObject plan,
             org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject allocation) {
+        configurationPinCloneRealizations(artifact, plan, shared, allocation, null);
+    }
+
+    private void configurationPinCloneRealizations(StorageConfigArtifactVO artifact, JsonObject plan,
+            org.apache.cloudstack.storage.sharedfs.SharedFS shared, JsonObject allocation, Set<String> foundationData) {
         com.cloud.vm.UserVmVO vm = rootUpgradeVmDao.findById(shared.getVmId());
         JsonObject observed = new JsonObject();
         for (String role : Set.of("root", "data")) {
@@ -4380,11 +4415,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             List<VolumeVO> volumes = volumeDao.findByInstanceAndType(vm.getId(), type);
             if ("data".equals(role) && configurationCloneExistingInitial(plan)) {
                 if ("RESERVED".equals(getJsonString(allocation.getAsJsonObject("vm"), "initialDataState"))) continue;
-                if (volumes.size() != 1 || shared.getVolumeId() == null || volumes.get(0).getId() != shared.getVolumeId()
-                        || !java.util.Objects.equals(volumes.get(0).getInstanceId(), vm.getId()))
+                Set<String> actualData = volumes.stream().map(VolumeVO::getUuid).collect(java.util.stream.Collectors.toSet());
+                VolumeVO selected = shared.getVolumeId() == null ? null : volumeDao.findById(shared.getVolumeId());
+                if ((foundationData == null ? volumes.size() != 1 : !foundationData.equals(actualData) || volumes.size() != foundationData.size())
+                        || selected == null || !actualData.contains(selected.getUuid()) || !java.util.Objects.equals(selected.getInstanceId(), vm.getId()))
                     throw new InvalidParameterValueException("Existing clone DATA attachment changed before realization");
                 JsonObject realized = configurationCloneExistingDataBinding(shared, plan);realized.addProperty("instanceId", vm.getId());observed.add(role, realized);
             } else {
+                if ("data".equals(role) && foundationData != null) {
+                    Set<String> ids = new HashSet<>();for (VolumeVO volume : volumes) ids.add(volume.getUuid());
+                    if (!foundationData.equals(ids) || ids.size() != volumes.size()) throw new InvalidParameterValueException("Foundation DATA realization set changed");
+                    VolumeVO initial = requireVolume(shared.getVolumeId());volumes = List.of(initial);
+                }
                 if (volumes.size() != 1) throw new InvalidParameterValueException("Clone realization disk set changed");
                 JsonObject realized = configurationCloneRealizedDisk(volumes.get(0), vm, "root".equals(role), plan);
                 if (realized != null) observed.add(role, realized);
@@ -4463,6 +4505,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     protected org.apache.cloudstack.storage.sharedfs.SharedFS requireConfigurationCloneAllocation(
             StorageConfigArtifactVO artifact, JsonObject plan, JsonObject receipt) {
+        return requireConfigurationCloneAllocation(artifact, plan, receipt, null);
+    }
+
+    private org.apache.cloudstack.storage.sharedfs.SharedFS requireConfigurationCloneAllocation(
+            StorageConfigArtifactVO artifact, JsonObject plan, JsonObject receipt, Set<String> foundationData) {
         Set<String> fields = new HashSet<>(Set.of("schemaVersion", "kind", "scope", "sharedFs"));
         boolean existing = configurationCloneExistingInitial(plan);
         if (existing) fields.add("existingData");
@@ -4490,11 +4537,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 for (String field : Set.of("id", "offeringId", "sizeBytes"))
                     if (!(existing && "data".equals(role) && "offeringId".equals(field) && disk.get(field).isJsonNull())) configurationAllocationId(disk, field);
             }
-            JsonObject fresh = configurationCloneVmBinding(shared, plan, recordedVm);
+            JsonObject fresh = configurationCloneVmBinding(shared, plan, recordedVm, foundationData);
             if (configurationAllocationId(recordedVm, "vmId") != (shared.getVmId() == null ? 0 : shared.getVmId())
                     || !fresh.equals(recordedVm) && !(existing && configurationCloneAttachmentAdvance(shared, fresh, recordedVm)))
                 throw new InvalidParameterValueException("Recorded VM ROOT or DATA identity changed");
-            configurationPinCloneRealizations(artifact, plan, shared, receipt);
+            configurationPinCloneRealizations(artifact, plan, shared, receipt, foundationData);
         } else if (shared.getVmId() != null || !existing && shared.getVolumeId() != null) {
             throw new InvalidParameterValueException("Unpublished VM allocation requires reconciliation");
         }
@@ -4731,6 +4778,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (verified == null || !Boolean.TRUE.equals(getJsonBoolean(verified, "verified"))) {
             throw new InvalidParameterValueException("New-service runtime bundle has not passed signature verification");
         }
+        if (!verified.has("manifest") || !StorageRuntimeFeatureCompatibility.advertised(verified.getAsJsonObject("manifest"))
+                .contains(StorageConfigInitialBaseline.FEATURE))
+            throw new InvalidParameterValueException("New-service restore requires a signed runtime with the clone initial baseline V1 contract before allocation");
     }
     protected void upgradeConfigurationNewServiceRuntime(StorageServiceInstanceVO instance, String bundleUuid) {
         requireConfigurationAdministrator();
@@ -4976,13 +5026,493 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return existing ? "OWNED_SPARSE_ALL4_VALIDATION" : "NEW_SPARSE_ALL4_VALIDATION";
     }
 
+    /** Internal normal verifier; no public API, DATA allocation or alternate runtime authority. */
+    public static final class ConfigurationInitialBaselineCommand extends org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd {
+        @org.apache.cloudstack.api.Parameter(name="instanceid", type=org.apache.cloudstack.api.BaseCmd.CommandType.LONG)
+        private final Long instanceId;
+        @org.apache.cloudstack.api.Parameter(name="cloneartifact", type=org.apache.cloudstack.api.BaseCmd.CommandType.STRING)
+        private final String artifactUuid;
+        @org.apache.cloudstack.api.Parameter(name="creatorhash", type=org.apache.cloudstack.api.BaseCmd.CommandType.STRING)
+        private final String authorityHash;
+        ConfigurationInitialBaselineCommand(long id, String artifact, String hash) {instanceId=id;artifactUuid=artifact;authorityHash=hash;}
+        public Long getInstanceId() {return instanceId;}
+        public String getIdempotencyKey() {return "clone-initial-baseline:" + artifactUuid;}
+        public String getCommandName() {return "verifyStorageServiceConfiguration";}
+        public String getEventType() {return "STORAGE.CONFIG.VERIFY";}
+        public String getEventDescription() {return "Verify the exact newly created service initial configuration";}
+        public long getEntityOwnerId() {return org.apache.cloudstack.context.CallContext.current().getCallingAccountId();}
+        public void execute() {throw new UnsupportedOperationException("Internal initial baseline is not an independent API");}
+    }
+
+    private static final class ConfigurationInitialBaselineVerification implements java.util.function.Supplier<org.apache.cloudstack.api.response.StorageServiceRuntimeResponse> {
+        private final StorageServiceManagerImpl manager;private final StorageServiceInstanceVO target;
+        ConfigurationInitialBaselineVerification(StorageServiceManagerImpl value,StorageServiceInstanceVO instance) {manager=value;target=instance;}
+        public org.apache.cloudstack.api.response.StorageServiceRuntimeResponse get() {
+            manager.verifyReconciledStorageDesiredState(target);
+            return manager.createRuntimeResponse(target,"initial configuration baseline",true,"OBSERVED_INITIAL_SOURCE","Fresh observation pending verified native commit","{}");
+        }
+    }
+
+    private static final class ConfigurationInitialBaselinePublication implements TransactionCallback<Void> {
+        private final StorageServiceManagerImpl manager;private final StorageConfigArtifactVO artifact;private final JsonObject receipt;
+        ConfigurationInitialBaselinePublication(StorageServiceManagerImpl value,StorageConfigArtifactVO row,JsonObject result) {manager=value;artifact=row;receipt=result.deepCopy();}
+        public Void doInTransaction(com.cloud.utils.db.TransactionStatus status) {
+            StorageConfigArtifactVO locked=manager.storageConfigArtifactDao.lockRow(artifact.getId(),true);
+            if (locked==null || !artifact.getUuid().equals(locked.getUuid()) || !artifact.getSha256().equals(locked.getSha256()))
+                throw new CloudRuntimeException("Initial baseline artifact changed before publication");
+            JsonObject current=manager.parseJsonObject(locked.getMetadataJson()), authority=receipt.getAsJsonObject("authority");
+            if (!authority.get("targetUuid").equals(current.get("createdTargetInstanceUuid")) || !authority.get("creator").equals(current.get("cloneAllocation"))
+                    || !authority.get("execution").equals(current.get("volumeExecutionPlan"))
+                    || current.has("cloneInitialBaseline")&&!receipt.equals(current.get("cloneInitialBaseline")))
+                throw new CloudRuntimeException("Initial baseline receipt cannot adopt another creator or be replaced");
+            current.add("cloneInitialBaseline",receipt);locked.setMetadataJson(current.toString());
+            if (!manager.storageConfigArtifactDao.update(locked.getId(),locked)) throw new CloudRuntimeException("Initial baseline receipt could not be persisted");
+            artifact.setMetadataJson(locked.getMetadataJson());return null;
+        }
+    }
+
+    protected JsonObject configurationCloneBaselineAuthority(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact, JsonObject plan) {
+        requireConfigurationAdministrator();
+        if (target.getId() == artifact.getInstanceId() || !"CREATE_NEW".equals(getJsonString(plan,"targetMode")))
+            throw new CloudRuntimeException("Initial baseline cannot adopt an existing source service");
+        StorageServiceOperationVO foundation=storageOperationDao.findByRequest(target.getId(),"CLONE_FOUNDATION:"+artifact.getUuid());
+        if (foundation==null || !"COMPLETE_NO_CONFIG_CHANGE".equals(foundation.getState()) || !"FOUNDATION_PREPARED".equals(foundation.getPhase()))
+            throw new CloudRuntimeException("Initial baseline requires its completed foundation");
+        requireConfigurationFoundationScope(target,foundation);
+        StorageConfigArtifactVO fresh=storageConfigArtifactDao.findById(artifact.getId());JsonObject metadata=parseJsonObject(fresh.getMetadataJson());
+        Set<String> data=requireConfigurationCloneFoundationData(target,fresh,plan);
+        if (metadata.get("cloneAllocation")==null) throw new CloudRuntimeException("Initial baseline has no durable VM creator receipt");
+        requireConfigurationCloneAllocation(fresh,metadata.getAsJsonObject("plan"),metadata.getAsJsonObject("cloneAllocation"),data);
+        JsonObject pin=configurationCloneRuntimePin(getJsonString(plan,"runtimeBundleUuid"));
+        if (!pin.equals(plan.get("cloneRuntimePin")) || !plan.get("runtimeBundleUuid").equals(metadata.get("runtimePreparedBundleUuid")))
+            throw new CloudRuntimeException("Initial baseline runtime authority changed");
+        requireCloneRuntimeReadback(runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(),getJsonString(pin,"expectedCliSha256")),pin);
+        JsonObject capability=rootGuest(target,"volume operation capabilities",new JsonObject(),5);
+        if (!Boolean.TRUE.equals(getNativeBoolean(capability,"success")) || !Boolean.TRUE.equals(getNativeBoolean(capability,"cloneInitialBaselineV1Supported")))
+            throw new CloudRuntimeException("Installed runtime cannot verify a global-empty initial clone source");
+        JsonObject database=parseJsonObject(captureConfigurationSnapshot(target.getId()));
+        Set<String> tables=new HashSet<>();
+        for (JsonElement value:database.getAsJsonArray("tables")) {
+            JsonObject table=value.getAsJsonObject();
+            if (!tables.add(getJsonString(table,"table")) || table.getAsJsonArray("rows").size()!=0) throw new CloudRuntimeException("Initial baseline has configured or unknown DB resources");
+        }
+        if (!tables.equals(Set.of("storage_service_protocol","storage_file_share","storage_block_target","storage_identity_domain","storage_access_rule","storage_posix_directory_policy")))
+            throw new CloudRuntimeException("Initial baseline DB scope is incomplete");
+        JsonObject bindings=operationResourceBindings(target);
+        VolumeVO root=volumeDao.findById(bindings.get("rootVolumeId").getAsLong());
+        JsonObject manifest=inspectRootData(target,sharedFSDao.findByVm(target.getVmId()),foundation.getUuid(),foundation.getUuid());
+        JsonObject source = parseJsonObject(foundation.getPreviousSnapshotJson()).getAsJsonObject("nativeSource");
+        if (source == null || !source.get("bootId").equals(manifest.get("bootId"))) throw new CloudRuntimeException("Initial baseline BOOT changed from its completed foundation");
+        JsonObject authority=new JsonObject();authority.addProperty("artifactUuid",fresh.getUuid());authority.addProperty("artifactSha256",fresh.getSha256());
+        authority.addProperty("targetId",target.getId());authority.addProperty("targetUuid",target.getUuid());
+        authority.addProperty("createdBy",org.apache.cloudstack.context.CallContext.current().getCallingUserId());
+        authority.addProperty("foundationUuid",foundation.getUuid());authority.addProperty("foundationRevision",foundation.getRevision());
+        authority.add("foundationSource",parseJsonObject(foundation.getPreviousSnapshotJson()).get("nativeSource").deepCopy());
+        authority.add("creator",metadata.get("cloneAllocation").deepCopy());authority.add("templateBinding",metadata.get("createdTargetTemplateBinding").deepCopy());
+        authority.add("execution",metadata.get("volumeExecutionPlan").deepCopy());authority.add("runtimePin",pin.deepCopy());
+        authority.add("bindings",bindings);authority.addProperty("rootSizeBytes",root.getSize());
+        authority.add("data",StorageConfigInitialBaseline.stableData(manifest));authority.add("database",database);
+        return authority;
+    }
+
+    protected void verifyConfigurationCloneBaselineSource(StorageServiceInstanceVO target, StorageServiceOperationVO operation, boolean pending) {
+        JsonObject context=configurationCloneInitialBaseline.get();
+        if (context==null || operation==null || operation.getInstanceId()!=target.getId() || storageWriterOperation.get()!=operation
+                || !"verifyStorageServiceConfiguration".equals(operation.getAction())
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || renderedValidationEnabled(target))
+            throw new CloudRuntimeException("Initial source verification has no exact ordinary no-identity-change verifier scope");
+        StorageConfigArtifactVO artifact=storageConfigArtifactDao.findByUuid(getJsonString(context,"artifactUuid"));
+        JsonObject plan=parseJsonObject(artifact.getMetadataJson()).getAsJsonObject("plan").deepCopy();
+        plan.add("volumeAllocationPlan",context.get("execution").deepCopy());
+        plan.addProperty("targetInstanceUuid",target.getUuid());
+        if (!context.equals(configurationCloneBaselineAuthority(target,artifact,plan))) throw new CloudRuntimeException("Initial baseline creator, DATA, BOOT or DB changed");
+        JsonObject request=configurationCloneBaselineRequest(context,operation.getUuid(),operation.getRevision(),new JsonObject(),pending);
+        requireConfigurationCloneBaselineWitness(target,context,request);
+    }
+
+    private JsonObject requireConfigurationCloneBaselineWitness(StorageServiceInstanceVO target, JsonObject authority, JsonObject request) {
+        JsonObject observed = rootGuest(target,"operation generation clone-initial-inspect",request,60);
+        StorageConfigInitialBaseline.requireWitness(observed,request,authority.getAsJsonObject("data"),System.currentTimeMillis());
+        if (!authority.getAsJsonObject("foundationSource").get("configurationDesiredState").equals(observed.get("configurationDesiredState")))
+            throw new CloudRuntimeException("Initial baseline canonical seven files changed");
+        return observed;
+    }
+
+    private JsonObject configurationCloneBaselineRequest(JsonObject authority, String operation, long revision, JsonObject generation, boolean pending) {
+        JsonObject initial=authority.getAsJsonObject("foundationSource"),bindings=authority.getAsJsonObject("bindings");
+        StorageConfigInitialBaseline.requireEmptyCanonical(initial.getAsJsonObject("configurationDesiredState"));
+        JsonObject request=new JsonObject();request.add("instanceUuid",authority.get("targetUuid").deepCopy());request.addProperty("operationUuid",operation);request.addProperty("revision",revision);
+        request.add("expectedBootId",authority.getAsJsonObject("data").get("bootId").deepCopy());request.add("expectedConfigurationSha256",initial.get("configurationSha256").deepCopy());
+        request.add("expectedCurrentGeneration",generation.deepCopy());request.add("expectedPendingOperationUuid",pending?new com.google.gson.JsonPrimitive(operation):com.google.gson.JsonNull.INSTANCE);
+        request.add("expectedVmUuid",bindings.get("vmUuid").deepCopy());request.add("rootVolumeUuid",bindings.get("rootVolumeUuid").deepCopy());request.add("rootSizeBytes",authority.get("rootSizeBytes").deepCopy());
+        return request;
+    }
+
+    protected StorageServiceInstanceVO prepareConfigurationCloneInitialBaseline(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact, JsonObject plan) {
+        JsonObject authority=configurationCloneBaselineAuthority(target,artifact,plan);
+        JsonObject metadata=parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        String key="verifyStorageServiceConfiguration:clone-initial-baseline:"+artifact.getUuid();
+        StorageServiceOperationVO known=storageOperationDao.findByRequest(target.getId(),key);
+        if (known==null) {
+            if (metadata.has("cloneInitialBaseline")) throw new CloudRuntimeException("Initial baseline receipt lost its original completed verifier operation");
+            if (renderedValidationEnabled(target)) throw new CloudRuntimeException("Enabled initial clone profile without a baseline receipt requires explicit recovery");
+            JsonObject request=configurationCloneBaselineRequest(authority,getJsonString(authority,"foundationUuid"),authority.get("foundationRevision").getAsLong(),new JsonObject(),false);
+            requireConfigurationCloneBaselineWitness(target,authority,request);
+            if (configurationCloneInitialBaseline.get()!=null) throw new CloudRuntimeException("Another initial baseline is already active");
+            configurationCloneInitialBaseline.set(authority.deepCopy());
+            try {
+                ConfigurationInitialBaselineCommand command=new ConfigurationInitialBaselineCommand(target.getId(),artifact.getUuid(),StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(authority)));
+                executeDesiredChange(command, org.apache.cloudstack.api.response.StorageServiceRuntimeResponse.class,
+                        new ConfigurationInitialBaselineVerification(this,target));
+            } finally {configurationCloneInitialBaseline.remove();}
+            known=storageOperationDao.findByRequest(target.getId(),key);
+        }
+        if (known==null || !"COMPLETE".equals(known.getState()) || known.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !authority.equals(parseJsonObject(known.getResultJson()).get("_cloneInitialBaselineAuthority"))
+                || !parseJsonObject(known.getSnapshotJson()).equals(authority.get("database")))
+            throw new CloudRuntimeException("Initial baseline requires its same completed immutable verifier receipt");
+        JsonObject nativeState=nativeConfigurationGeneration(target,null,"status"),generation=nativeState.getAsJsonObject("generation");
+        if (known.getUuid().equals(getJsonString(nativeState,"pendingOperationUuid")) && "PENDING".equals(getJsonString(nativeState,"generationStatus"))
+                && nativeGenerationScopeMatches(generation,target.getUuid(),known.getUuid(),known.getRevision())
+                && generation.get("configurationSha256").equals(authority.getAsJsonObject("foundationSource").get("configurationSha256"))) {
+            beginStorageWriterHeartbeat(known);
+            try {nativeConfigurationGeneration(target,known,"finish");}
+            finally {endStorageWriterHeartbeat();}
+            nativeState=nativeConfigurationGeneration(target,null,"status");generation=nativeState.getAsJsonObject("generation");
+        }
+        if (!"IN_SYNC".equals(getJsonString(nativeState,"generationStatus")) || getJsonString(nativeState,"pendingOperationUuid")!=null
+                || !nativeGenerationScopeMatches(generation,target.getUuid(),known.getUuid(),known.getRevision()))
+            throw new CloudRuntimeException("Initial baseline native commit is incomplete or belongs to another operation");
+        JsonObject request=configurationCloneBaselineRequest(authority,known.getUuid(),known.getRevision(),generation,false);
+        JsonObject observed=requireConfigurationCloneBaselineWitness(target,authority,request);
+        JsonObject receipt=new JsonObject();receipt.add("authority",authority.deepCopy());receipt.add("generation",generation.deepCopy());receipt.add("bootId",observed.get("bootId"));receipt.addProperty("baselineOperationUuid",known.getUuid());
+        final JsonObject completed=receipt;
+        Transaction.execute(new ConfigurationInitialBaselinePublication(this,artifact,completed));
+        StorageServiceInstanceVO fresh=configurationInstanceByUuid(target.getUuid());
+        if (fresh.getId()!=target.getId() || !java.util.Objects.equals(fresh.getVmId(),target.getVmId())
+                || fresh.getAccountId()!=target.getAccountId() || fresh.getDomainId()!=target.getDomainId() || fresh.getDataCenterId()!=target.getDataCenterId())
+            throw new CloudRuntimeException("Initial baseline fresh target identity changed");
+        return fresh;
+    }
+
+    protected <T> T executeConfigurationCloneRestore(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact,
+            JsonObject plan, org.apache.cloudstack.api.BaseCmd command, Class<T> responseClass, java.util.function.Supplier<T> change) {
+        if (configurationCloneRestoreMaintenance.get()!=null) throw new CloudRuntimeException("Clone restore maintenance cannot nest");
+        JsonObject authority=configurationCloneBaselineAuthority(target,artifact,plan);
+        JsonObject metadata=parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        JsonObject receipt=getJsonObject(metadata,"cloneInitialBaseline");
+        if (receipt==null || !authority.equals(receipt.get("authority")))
+            throw new CloudRuntimeException("Clone restore lacks its exact completed empty-source baseline receipt");
+        JsonObject generation=receipt.getAsJsonObject("generation");
+        JsonObject request=configurationCloneBaselineRequest(authority,getJsonString(receipt,"baselineOperationUuid"),
+                generation.get("revision").getAsLong(),generation,false);
+        requireConfigurationCloneBaselineWitness(target,authority,request);
+        JsonObject context=new JsonObject();context.add("baseline",receipt.deepCopy());
+        context.addProperty("planSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)));
+        configurationCloneRestoreMaintenance.set(context);
+        try {return executeDesiredChange(configurationTargetCommand(target.getId(),command),responseClass,change);}
+        finally {configurationCloneRestoreMaintenance.remove();}
+    }
+
+    private JsonObject configurationCloneRestoreReviewedPlan(JsonObject plan, JsonObject metadata) {
+        JsonObject reviewed=plan.deepCopy();
+        reviewed.add("targetInstanceUuid",metadata.get("createdTargetInstanceUuid").deepCopy());
+        reviewed.addProperty("expectedRevision",0);
+        reviewed.add("volumeAllocationPlan",metadata.get("volumeExecutionPlan").deepCopy());
+        reviewed.add("volumeMappings",metadata.getAsJsonObject("volumeExecutionPlan").get("volumeMappings").deepCopy());
+        return reviewed;
+    }
+
+    protected JsonObject recordConfigurationCloneRestoreOperation(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact, JsonObject plan) {
+        StorageServiceOperationVO operation=storageWriterOperation.get();
+        if (operation==null || operation.getInstanceId()!=target.getId() || !"RUNNING".equals(operation.getState())
+                || !"APPLYING".equals(operation.getPhase()) || !hasConfigurationCloneMaintenance(target,operation))
+            throw new CloudRuntimeException("Clone restore publication has no exact active creator writer");
+        JsonObject metadata=parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        JsonObject reference=operationReservationScope(target,operation);reference.addProperty("createdBy",operation.getCreatedBy());
+        reference.addProperty("artifactUuid",artifact.getUuid());reference.addProperty("artifactSha256",artifact.getSha256());
+        reference.addProperty("planSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(configurationCloneRestoreReviewedPlan(plan,metadata))));
+        reference.addProperty("baselineSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(metadata.get("cloneInitialBaseline"))));
+        return Transaction.execute(new ConfigurationCloneRestorePublication(this,artifact,reference));
+    }
+
+    private static final class ConfigurationCloneRestorePublication implements TransactionCallback<JsonObject> {
+        private final StorageServiceManagerImpl manager;private final StorageConfigArtifactVO artifact;private final JsonObject reference;
+        ConfigurationCloneRestorePublication(StorageServiceManagerImpl value,StorageConfigArtifactVO row,JsonObject scope) {manager=value;artifact=row;reference=scope.deepCopy();}
+        public JsonObject doInTransaction(com.cloud.utils.db.TransactionStatus status) {
+            StorageConfigArtifactVO locked=manager.storageConfigArtifactDao.lockRow(artifact.getId(),true);
+            if (locked==null || !artifact.getUuid().equals(locked.getUuid()) || !artifact.getSha256().equals(locked.getSha256()))
+                throw new CloudRuntimeException("Clone restore artifact changed before operation publication");
+            JsonObject metadata=manager.parseJsonObject(locked.getMetadataJson()),previous=manager.getJsonObject(metadata,"cloneRestoreOperation");
+            manager.requireCloneRestoreReference(reference);
+            if (!"CONSUMED".equals(manager.getJsonString(metadata,"planState")))
+                throw new CloudRuntimeException("Clone operation publication requires its consumed explicit reviewed capability");
+            if (previous!=null) manager.requireCloneRestoreReference(previous);
+            if (previous!=null && !previous.equals(reference)) {
+                StorageServiceOperationVO original=manager.storageOperationDao.findByUuid(manager.getJsonString(previous,"operationUuid"));
+                StorageServiceInstanceVO target=manager.storageServiceInstanceDao.findByUuid(manager.getJsonString(reference,"instanceUuid"));
+                if (original==null || target==null || original.getInstanceId()!=target.getId()
+                        || original.getCreatedBy()!=reference.get("createdBy").getAsLong()
+                        || !Set.of("ROLLED_BACK","BLOCKED","CANCELLED").contains(original.getState())
+                        || !manager.cloneRestoreReferenceScope(previous).equals(manager.operationReservationScope(target,original))
+                        || !reference.get("artifactUuid").equals(previous.get("artifactUuid"))
+                        || !reference.get("artifactSha256").equals(previous.get("artifactSha256"))
+                        || !reference.get("planSha256").equals(previous.get("planSha256"))
+                        || !reference.get("baselineSha256").equals(previous.get("baselineSha256")))
+                    throw new CloudRuntimeException("Completed or unresolved clone restore operation cannot be replaced");
+            }
+            metadata.add("cloneRestoreOperation",reference.deepCopy());locked.setMetadataJson(metadata.toString());
+            if (!manager.storageConfigArtifactDao.update(locked.getId(),locked)) throw new CloudRuntimeException("Clone restore operation could not be recorded before effects");
+            return reference.deepCopy();
+        }
+    }
+
+    protected boolean completeConfigurationCloneRestorePublication(StorageConfigArtifactVO artifact, JsonObject plan, Runnable complete) {
+        JsonObject metadata=parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        JsonObject reference=getJsonObject(metadata,"cloneRestoreOperation");
+        if (reference==null) {
+            if (metadata.has("cloneRestoreOperation")) throw new CloudRuntimeException("Clone restore operation reference is malformed");
+            return false;
+        }
+        requireCloneRestoreReference(reference);
+        StorageServiceInstanceVO target=configurationInstanceByUuid(getJsonString(metadata,"createdTargetInstanceUuid"));
+        StorageServiceOperationVO operation=storageOperationDao.findByUuid(getJsonString(reference,"operationUuid"));
+        requireConfigurationAdministrator();
+        if (operation==null || operation.getInstanceId()!=target.getId() || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(operation.getAction())
+                || !operationReservationScope(target,operation).equals(cloneRestoreReferenceScope(reference))
+                || reference.get("createdBy").getAsLong()!=operation.getCreatedBy()
+                || !artifact.getUuid().equals(getJsonString(reference,"artifactUuid")) || !artifact.getSha256().equals(getJsonString(reference,"artifactSha256"))
+                || !StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(configurationCloneRestoreReviewedPlan(plan,metadata))).equals(getJsonString(reference,"planSha256"))
+                || !StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(metadata.get("cloneInitialBaseline"))).equals(getJsonString(reference,"baselineSha256")))
+            throw new CloudRuntimeException("Clone restore completion cannot adopt another operation, actor, archive or reviewed plan");
+        if (!"COMPLETE".equals(operation.getState())) {
+            if (Set.of("ROLLED_BACK","BLOCKED","CANCELLED").contains(operation.getState())) return false;
+            throw new CloudRuntimeException("Clone restore original operation requires its normal reconciliation before retry");
+        }
+        com.cloud.utils.db.GlobalLock lock=com.cloud.utils.db.GlobalLock.getInternLock("StorageServiceWriter-"+target.getId());
+        try {
+            if (!lock.lock(120)) throw new CloudRuntimeException("Clone restore completion writer is active");
+            try {
+                org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.Admission admission=storageOperationDao.readAdmission(target.getId());
+                if (admission==null || admission.blocked() || admission.getCommittedRevision()!=operation.getRevision())
+                    throw new CloudRuntimeException("Clone restore completion no longer owns the current committed revision");
+                JsonObject reviewed=configurationCloneRestoreReviewedPlan(plan,metadata);
+                requireConfigurationCloneCreatedBinding(target,artifact,reviewed,metadata);
+                if (!hasConfigurationCloneMaintenance(target,operation)) throw new CloudRuntimeException("Clone completion lost its original held source receipt");
+                JsonObject nativeState=nativeConfigurationGeneration(target,null,"status"),generation=nativeState.getAsJsonObject("generation");
+                if (!"IN_SYNC".equals(getJsonString(nativeState,"generationStatus")) || getJsonString(nativeState,"pendingOperationUuid")!=null)
+                    throw new CloudRuntimeException("Clone publication requires its already finished native target; normal operation recovery is required");
+                StorageOperationReconciliation.requireCompletedTarget(target.getUuid(),operation,captureConfigurationSnapshot(target.getId()),
+                        operationResourceBindings(target),nativeState);
+                JsonObject rendered=rootGuest(target,"operation generation render-status",new JsonObject(),15);
+                JsonObject recorded=getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"renderedGeneration");
+                JsonObject saved=recorded==null?null:getJsonObject(recorded,"receipt"),finalized=saved==null?null:getJsonObject(saved,"finalized");
+                if (saved==null || finalized==null || !"COMPLETE".equals(getJsonString(saved,"phase")) || !finalized.get("current").equals(rendered.get("current"))
+                        || !finalized.get("activation").equals(rendered.get("activation")) || !Boolean.FALSE.equals(getNativeBoolean(rendered,"bootHeld"))
+                        || !operationReservationScope(target,operation).equals(rendered.getAsJsonObject("current").get("scope"))
+                        || !generation.get("configurationSha256").equals(rendered.getAsJsonObject("current").get("configurationSha256"))
+                        || !"COMPLETE".equals(getJsonString(rendered.getAsJsonObject("activation"),"phase")))
+                    throw new CloudRuntimeException("Clone restore completion immutable rendered target changed");
+                JsonObject service=rootGuest(target,"operation maintenance service-status",serviceMaintenanceScope(target,operation),15);
+                if (!Boolean.TRUE.equals(getNativeBoolean(service,"success")) || !Boolean.FALSE.equals(getNativeBoolean(service,"bootHeld")))
+                    throw new CloudRuntimeException("Clone restore completion still has an unresolved service hold");
+                StorageConfigArtifactVO point=null;
+                for (StorageConfigArtifactVO value:storageConfigArtifactDao.listByInstance(target.getId())) {
+                    if (!"RESTORE_POINT".equals(value.getKind()) || !"ACTIVE_LKG".equals(value.getState())) continue;
+                    if (point!=null) throw new CloudRuntimeException("Clone restore completion has ambiguous active verified points");
+                    point=value;
+                }
+                if (point==null || !Long.valueOf(operation.getId()).equals(point.getSourceOperationId()) || point.getDesiredRevision()!=operation.getRevision())
+                    throw new CloudRuntimeException("Clone restore completion lost its original active verified point");
+                JsonObject pointMetadata=parseJsonObject(point.getMetadataJson());
+                if (!generation.equals(pointMetadata.get("nativeGeneration")))
+                    throw new CloudRuntimeException("Clone restore completion LKG generation changed");
+                StorageConfigRuntimeEvidence.requireStored(pointMetadata.getAsJsonObject("runtimeEvidence"),target.getUuid(),operation.getUuid(),operation.getRevision(),
+                        StorageConfigArchive.validate(new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.config.path","/var/lib/cloudstack-management/storage-config-artifacts"))).read(point.getUuid(),point.getSha256())));
+                verifyReconciledStorageDesiredState(target);
+                JsonObject after=nativeConfigurationGeneration(target,null,"status");
+                StorageOperationReconciliation.requireCompletedTarget(target.getUuid(),operation,captureConfigurationSnapshot(target.getId()),
+                        operationResourceBindings(target),after);
+                for (String field:List.of("generation","configurationSha256","bootId","pendingOperationUuid","generationStatus"))
+                    if (!java.util.Objects.equals(nativeState.get(field),after.get(field)))
+                        throw new CloudRuntimeException("Clone restore target changed during completion qualification");
+                complete.run();return true;
+            } finally {lock.unlock();}
+        } finally {lock.releaseRef();}
+    }
+
+    private void requireCloneRestoreReference(JsonObject value) {
+        if (!value.keySet().equals(Set.of("instanceUuid","operationUuid","revision","createdBy","artifactUuid","artifactSha256","planSha256","baselineSha256")))
+            throw new CloudRuntimeException("Clone restore operation reference has an unknown schema");
+        for (String name:List.of("instanceUuid","operationUuid","artifactUuid")) {
+            String id=getJsonString(value,name);
+            if (id==null || !id.matches("[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}"))
+                throw new CloudRuntimeException("Clone restore operation UUID is invalid");
+        }
+        for (String name:List.of("artifactSha256","planSha256","baselineSha256")) {
+            String hash=getJsonString(value,name);
+            if (hash==null || !hash.matches("[0-9a-f]{64}")) throw new CloudRuntimeException("Clone restore operation digest is invalid");
+        }
+        for (String name:List.of("revision","createdBy")) {
+            JsonElement number=value.get(name);
+            if (!number.isJsonPrimitive() || !number.getAsJsonPrimitive().isNumber())
+                throw new CloudRuntimeException("Clone restore operation numeric scope is invalid");
+            try {if(number.getAsBigDecimal().longValueExact()<=0)throw new ArithmeticException();}
+            catch(ArithmeticException invalid){throw new CloudRuntimeException("Clone restore operation numeric scope is invalid");}
+        }
+    }
+
+    private JsonObject cloneRestoreReferenceScope(JsonObject reference) {
+        JsonObject scope=new JsonObject();for(String name:List.of("instanceUuid","operationUuid","revision"))scope.add(name,reference.get(name).deepCopy());return scope;
+    }
+
+    private void requireConfigurationCloneCreatedBinding(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan,JsonObject metadata) {
+        Set<String> data=requireConfigurationCloneFoundationData(target,artifact,plan);
+        requireConfigurationCloneAllocation(artifact,metadata.getAsJsonObject("plan"),metadata.getAsJsonObject("cloneAllocation"),data);
+        if (!configurationCloneCreatedTemplateBinding(target,plan.getAsJsonObject("cloneTemplatePin")).equals(metadata.get("createdTargetTemplateBinding")))
+            throw new CloudRuntimeException("Clone restore completion ROOT template binding changed");
+        JsonObject pin=configurationCloneRuntimePin(getJsonString(plan,"runtimeBundleUuid"));
+        if (!pin.equals(plan.get("cloneRuntimePin")) || !plan.get("runtimeBundleUuid").equals(metadata.get("runtimePreparedBundleUuid")))
+            throw new CloudRuntimeException("Clone restore completion runtime pin changed");
+        requireCloneRuntimeReadback(runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(),getJsonString(pin,"expectedCliSha256")),pin);
+        requireConfigurationResolvedPrimary(target,plan);
+    }
+
+    /** Only this creator's first restore may hold its already-verified empty source. */
+    protected void enterConfigurationCloneMaintenance(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        JsonObject active=configurationCloneRestoreMaintenance.get();if (active==null) return;
+        requireConfigurationAdministrator();
+        if (storageWriterOperation.get()!=operation || operation.getInstanceId()!=target.getId()
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"RUNNING".equals(operation.getState()) || !"PREPARED".equals(operation.getPhase())
+                || !"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(operation.getAction())
+                || hasJoinedStorageAdDomain(target) || renderedBatch.get()==null)
+            throw new CloudRuntimeException("Clone SERVICE entry has no exact initial restore writer");
+        JsonObject baseline=active.getAsJsonObject("baseline"),authority=baseline.getAsJsonObject("authority");
+        StorageConfigArtifactVO artifact=storageConfigArtifactDao.findByUuid(getJsonString(authority,"artifactUuid"));
+        JsonObject metadata=artifact==null?new JsonObject():parseJsonObject(artifact.getMetadataJson());
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),intent=getJsonObject(snapshot,"localCheckpointIntent");
+        if (artifact==null || !authority.get("artifactSha256").getAsString().equals(artifact.getSha256())
+                || !baseline.equals(metadata.get("cloneInitialBaseline"))
+                || !target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))
+                || !authority.get("creator").equals(metadata.get("cloneAllocation"))
+                || !authority.get("execution").equals(metadata.get("volumeExecutionPlan"))
+                || !authority.getAsJsonObject("database").get("tables").equals(snapshot.get("tables"))
+                || !authority.get("bindings").equals(operationResourceBindings(target))
+                || intent==null || !baseline.get("generation").equals(intent.getAsJsonObject("source").get("generation"))
+                || !baseline.get("bootId").equals(intent.getAsJsonObject("source").get("bootId"))
+                || !authority.getAsJsonObject("foundationSource").get("configurationDesiredState").equals(intent.getAsJsonObject("source").get("configurationDesiredState")))
+            throw new CloudRuntimeException("Clone SERVICE entry changed its creator, empty DB, baseline or LOCAL source");
+        if (!snapshot.has("nativeIdentityCapsule")) throw new CloudRuntimeException("Clone SERVICE entry has no durable LOCAL source checkpoint");
+        requireLocalSourceResumedBeforeAbort(target,operation);
+        JsonObject nativeState=nativeConfigurationGeneration(target,null,"status");
+        if (!baseline.get("generation").equals(nativeState.get("generation"))
+                || !baseline.get("bootId").equals(nativeState.get("bootId"))
+                || !operation.getUuid().equals(getJsonString(nativeState,"pendingOperationUuid"))
+                || !"PENDING".equals(getJsonString(nativeState,"generationStatus"))
+                || !authority.getAsJsonObject("foundationSource").get("configurationDesiredState").equals(nativeState.get("configurationDesiredState")))
+            throw new CloudRuntimeException("Clone SERVICE source changed before its held boundary");
+        JsonObject scope=serviceMaintenanceScope(target,operation),saved=active.deepCopy();saved.add("scope",scope);
+        saved.addProperty("enterAttempted",true);snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        JsonObject previous=getJsonObject(snapshot,"cloneServiceMaintenance");
+        if (previous!=null && (!previous.get("baseline").equals(saved.get("baseline")) || !previous.get("scope").equals(scope)
+                || !previous.get("planSha256").equals(saved.get("planSha256"))))
+            throw new CloudRuntimeException("Clone SERVICE entry intent cannot change its original authority");
+        snapshot.add("cloneServiceMaintenance",saved);saveLocalCheckpointSnapshot(operation,snapshot);
+        JsonObject held=rootGuest(target,"operation maintenance service-enter",scope,60);
+        if (!Boolean.TRUE.equals(getNativeBoolean(held,"success")) || !Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))
+                || !"SERVICE".equals(getJsonString(held,"maintenanceKind")) || !"HELD".equals(getJsonString(held,"phase"))
+                || !scope.equals(held.get("scope")) || !baseline.get("generation").equals(held.get("sourceGeneration")))
+            throw new CloudRuntimeException("Clone SERVICE source was not held under its exact normal receipt");
+        saved.add("held",held.deepCopy());snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        snapshot.add("cloneServiceMaintenance",saved);saveLocalCheckpointSnapshot(operation,snapshot);
+        JsonObject after=nativeConfigurationGeneration(target,null,"status");
+        if (!baseline.get("generation").equals(after.get("generation")) || !baseline.get("bootId").equals(after.get("bootId"))
+                || !operation.getUuid().equals(getJsonString(after,"pendingOperationUuid"))
+                || !"PENDING".equals(getJsonString(after,"generationStatus"))
+                || !authority.getAsJsonObject("foundationSource").get("configurationDesiredState").equals(after.get("configurationDesiredState")))
+            throw new CloudRuntimeException("Clone SERVICE source changed while entering its held boundary");
+    }
+
+    private boolean hasConfigurationCloneMaintenance(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        JsonObject saved=getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"cloneServiceMaintenance");
+        if (saved==null) return false;
+        requireConfigurationAdministrator();JsonObject baseline=saved.getAsJsonObject("baseline"),authority=baseline.getAsJsonObject("authority");
+        StorageConfigArtifactVO artifact=storageConfigArtifactDao.findByUuid(getJsonString(authority,"artifactUuid"));
+        JsonObject metadata=artifact==null?new JsonObject():parseJsonObject(artifact.getMetadataJson());
+        if (operation.getInstanceId()!=target.getId() || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(operation.getAction())
+                || !Boolean.TRUE.equals(getNativeBoolean(saved,"enterAttempted"))
+                || !serviceMaintenanceScope(target,operation).equals(saved.get("scope"))
+                || artifact==null || !authority.get("artifactSha256").getAsString().equals(artifact.getSha256())
+                || !target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))
+                || !baseline.equals(metadata.get("cloneInitialBaseline"))
+                || !authority.get("creator").equals(metadata.get("cloneAllocation"))
+                || !authority.get("execution").equals(metadata.get("volumeExecutionPlan"))
+                || !authority.get("bindings").equals(operationResourceBindings(target)))
+            throw new CloudRuntimeException("Clone SERVICE recovery cannot borrow another creator or maintenance scope");
+        return true;
+    }
+
+    private void resumeConfigurationCloneMaintenance(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        if (!hasConfigurationCloneMaintenance(target,operation)) return;
+        JsonObject scope=serviceMaintenanceScope(target,operation),status=rootGuest(target,"operation maintenance service-status",scope,15);
+        if (!Boolean.TRUE.equals(getNativeBoolean(status,"success"))) throw new CloudRuntimeException("Clone SERVICE status is unavailable");
+        if (Boolean.FALSE.equals(getNativeBoolean(status,"bootHeld"))) return;
+        if (!Boolean.TRUE.equals(getNativeBoolean(status,"bootHeld")) || !"SERVICE".equals(getJsonString(status,"maintenanceKind")) || !scope.equals(status.get("scope")))
+            throw new CloudRuntimeException("Clone SERVICE recovery encountered a foreign or unknown hold");
+        rootGuest(target,"operation generation render-maintenance-resume-source",scope,120);
+    }
+
+    private void releaseConfigurationCloneMaintenance(StorageServiceInstanceVO target, StorageServiceOperationVO operation) {
+        if (!hasConfigurationCloneMaintenance(target,operation)) return;
+        JsonObject scope=serviceMaintenanceScope(target,operation),status=rootGuest(target,"operation maintenance service-status",scope,15);
+        JsonObject saved=parseJsonObject(operation.getPreviousSnapshotJson()).getAsJsonObject("cloneServiceMaintenance");
+        if (!Boolean.TRUE.equals(getNativeBoolean(status,"success"))) throw new CloudRuntimeException("Clone SERVICE release status is unavailable");
+        if (Boolean.FALSE.equals(getNativeBoolean(status,"bootHeld")) && !saved.has("held")) return;
+        // Native SERVICE release requires the same normal resource lease to be released first.
+        releaseOperationResourceReservation(target,operation);
+        releaseServiceMaintenance(target,operation);
+    }
+
+    protected Set<String> requireConfigurationCloneFoundationData(StorageServiceInstanceVO target, StorageConfigArtifactVO artifact, JsonObject plan) {
+        JsonObject metadata = parseJsonObject(storageConfigArtifactDao.findById(artifact.getId()).getMetadataJson());
+        JsonObject execution = getJsonObject(metadata, "volumeExecutionPlan");
+        StorageServiceOperationVO foundation = storageOperationDao.findByRequest(target.getId(), "CLONE_FOUNDATION:" + artifact.getUuid());
+        if (foundation == null || foundation.getInstanceId() != target.getId() || !("CLONE_FOUNDATION:" + artifact.getUuid()).equals(foundation.getRequestKey())
+                || !"COMPLETE_NO_CONFIG_CHANGE".equals(foundation.getState()) || !"FOUNDATION_PREPARED".equals(foundation.getPhase())
+                || foundation.getCreatedBy() != org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || execution == null || !execution.equals(plan.get("volumeAllocationPlan"))
+                || !execution.equals(parseJsonObject(foundation.getPreviousSnapshotJson()).get("volumeAllocationPlan")))
+            throw new CloudRuntimeException("Post-foundation DATA requires its exact completed creator operation and frozen execution");
+        StorageConfigurationVolumePlan.requireFrozen(execution);
+        Set<String> expected = new HashSet<>();
+        for (Map.Entry<String, JsonElement> value : execution.getAsJsonObject("volumeMappings").entrySet())
+            if (!expected.add(value.getValue().getAsString())) throw new CloudRuntimeException("Foundation DATA aliases another reviewed backing");
+        Set<String> actual = new HashSet<>();
+        for (VolumeVO volume : volumeDao.findByInstanceAndType(target.getVmId(), com.cloud.storage.Volume.Type.DATADISK)) {
+            if (!actual.add(volume.getUuid()) || !java.util.Objects.equals(volume.getInstanceId(), target.getVmId())
+                    || volume.getRemoved() != null || volume.getState() != com.cloud.storage.Volume.State.Ready
+                    || volume.getAccountId() != target.getAccountId() || volume.getDomainId() != target.getDomainId()
+                    || volume.getDataCenterId() != target.getDataCenterId() || volume.getTemplateId() != null || StringUtils.isNotBlank(volume.getChainInfo())
+                    || volume.getProvisioningType() == null || !Set.of(com.cloud.storage.Storage.ProvisioningType.SPARSE, com.cloud.storage.Storage.ProvisioningType.FAT).contains(volume.getProvisioningType()))
+                throw new CloudRuntimeException("Post-foundation DATA ownership, attachment or backing changed");
+        }
+        if (!expected.equals(actual)) throw new CloudRuntimeException("Post-foundation DATA set differs from its exact frozen initial and additional members");
+        StorageConfigurationVolumeAllocation.requirePrepared(execution, configurationVolumeAllocationRuntime(target, artifact));
+        return expected;
+    }
+
     protected void authorizeConfigurationCloneProfile(StorageServiceInstanceVO target,StorageConfigArtifactVO artifact,JsonObject plan) {
         requireConfigurationAdministrator();requireNoPendingVolumeFormatter(target);JsonObject metadata=parseJsonObject(artifact.getMetadataJson());
         if(!"CREATE_NEW".equals(getJsonString(plan,"targetMode"))||!target.getUuid().equals(getJsonString(metadata,"createdTargetInstanceUuid"))||!plan.get("volumeAllocationPlan").equals(metadata.get("volumeExecutionPlan")))throw new CloudRuntimeException("Clone profile requires the exact protected realized plan and target");
         JsonObject pin=configurationCloneRuntimePin(getJsonString(plan,"runtimeBundleUuid"));if(!plan.has("cloneRuntimePin")||!pin.equals(plan.get("cloneRuntimePin")))throw new CloudRuntimeException("Clone signed runtime pin changed after review");JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(target.getId(),getJsonString(pin,"expectedCliSha256"));requireCloneRuntimeReadback(runtime,pin);
         if (configurationCloneExistingInitial(plan)) {
             JsonObject recorded = metadata.getAsJsonObject("cloneAllocation");
-            org.apache.cloudstack.storage.sharedfs.SharedFS shared = requireConfigurationCloneAllocation(artifact, metadata.getAsJsonObject("plan"), recorded);
+            Set<String> foundationData = requireConfigurationCloneFoundationData(target, artifact, plan);
+            org.apache.cloudstack.storage.sharedfs.SharedFS shared = requireConfigurationCloneAllocation(artifact, metadata.getAsJsonObject("plan"), recorded, foundationData);
             if (!java.util.Objects.equals(shared.getVmId(), target.getVmId()) || !"ATTACHED".equals(getJsonString(recorded.getAsJsonObject("vm"), "initialDataState")))
                 throw new CloudRuntimeException("Existing initial DATA has no exact completed creator attachment receipt");
         }
@@ -5038,6 +5568,132 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Clone initial existing filesystem changed during recovery");
         markVolumeLifecycleVerified(volume);
     }
+    protected JsonObject configurationProtocolIntentSnapshot(StorageServiceInstanceVO instance) {
+        JsonObject result=new JsonObject();Set<Long> ids=new HashSet<>();
+        for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceId(instance.getId())) {
+            if (row.getInstanceId()!=instance.getId() || !ids.add(row.getId()) || result.has(row.getUuid()))
+                throw new CloudRuntimeException("Configuration protocol snapshot has an unknown or duplicate endpoint");
+            result.add(row.getUuid(),configurationProtocolIntent(row));
+        }
+        return result;
+    }
+
+    private JsonObject configurationProtocolIntent(StorageServiceProtocolVO row) {
+        JsonObject source=new JsonObject();source.addProperty("protocol",row.getProtocol().name());source.addProperty("enabled",row.isEnabled());
+        source.addProperty("listen_ip",row.getListenIp());source.addProperty("port",row.getPort());
+        JsonObject config=StringUtils.isBlank(row.getConfigJson())?new JsonObject():com.google.gson.JsonParser.parseString(row.getConfigJson()).getAsJsonObject();
+        source.add("config",config);JsonObject value=configurationProtocolIntent(source);value.addProperty("id",row.getId());return value;
+    }
+
+    private JsonObject configurationProtocolIntent(JsonObject source) {
+        StorageServiceInstance.Protocol type=StorageServiceInstance.Protocol.valueOf(getJsonString(source,"protocol"));
+        int port=getJsonInt(source,"port",defaultProtocolPort(type));String address=normalizeListenIp(getJsonString(source,"listen_ip"));
+        JsonObject config=source.has("config")?source.getAsJsonObject("config").deepCopy():new JsonObject();
+        if (type==StorageServiceInstance.Protocol.NFS) {
+            config=parseJsonObject(buildProtocolConfigJson(type,config.toString(),getJsonString(config,"protocolMode"),port,getJsonString(source,"listen_ip")));
+            config.addProperty("idMappingMode",normalizeNfsIdMappingMode(getJsonString(config,"idMappingMode")));
+            if (config.has("listenerGroups")) {
+                java.util.SortedSet<Integer> groups=new java.util.TreeSet<>();
+                for (JsonElement value:config.getAsJsonArray("listenerGroups")) groups.add(value.getAsJsonObject().get("port").getAsInt());
+                JsonArray values=new JsonArray();for (Integer value:groups) values.add(value);config.add("listenerGroups",values);
+            }
+            if (config.has("serviceIps")) {
+                java.util.SortedSet<String> addresses=new java.util.TreeSet<>();
+                for (JsonElement value:config.getAsJsonArray("serviceIps")) addresses.add(value.getAsString());
+                JsonArray values=new JsonArray();for (String value:addresses) values.add(value);config.add("serviceIps",values);
+            }
+        }
+        JsonObject result=new JsonObject();result.addProperty("protocol",type.name());result.addProperty("listenIp",address);
+        result.addProperty("port",port);result.addProperty("enabled",StorageConfigRestorePlan.protocolEnabled(source));result.add("settings",config);return result;
+    }
+
+    protected void requireConfigurationProtocolIntent(StorageServiceInstanceVO instance, JsonObject plan, Map<String,Long> mapped, JsonObject before) {
+        JsonObject actual=configurationProtocolIntentSnapshot(instance);Set<Long> expected=new HashSet<>();
+        for (String action:List.of("keep","update","create")) for (JsonElement value:plan.getAsJsonArray(action)) {
+            JsonObject change=value.getAsJsonObject();if (!"protocols".equals(getJsonString(change,"kind"))) continue;
+            JsonObject desired=change.getAsJsonObject("desired");Long id=mapped.get(getJsonString(change,"sourceUuid"));
+            if (id==null || !expected.add(id)) throw new CloudRuntimeException("Approved protocol rows do not map to distinct actual endpoints");
+            JsonObject found=null;for (Map.Entry<String,JsonElement> row:actual.entrySet())
+                if (row.getValue().getAsJsonObject().get("id").getAsLong()==id) found=row.getValue().getAsJsonObject();
+            JsonObject intent=configurationProtocolIntent(desired);intent.addProperty("id",id);
+            if (found==null || !intent.equals(found)) throw new CloudRuntimeException("Actual protocol endpoint differs from its approved address, port, enabled state or settings");
+        }
+        for (JsonElement value:plan.getAsJsonArray("preserve")) {
+            JsonObject change=value.getAsJsonObject();if (!"protocols".equals(getJsonString(change,"kind"))) continue;
+            String uuid=getJsonString(change,"targetUuid");JsonObject original=getJsonObject(before,uuid),current=getJsonObject(actual,uuid);
+            if (original==null || !original.equals(current) || !expected.add(original.get("id").getAsLong()))
+                throw new CloudRuntimeException("Preserved protocol endpoint identity or effective settings changed");
+        }
+        if (expected.size()!=actual.size()) throw new CloudRuntimeException("Configuration application introduced an unreviewed protocol endpoint");
+    }
+
+    private boolean configurationLegacyEmptyProtocolConfig(String value) {
+        if (StringUtils.isBlank(value)) return true;
+        try {
+            JsonElement parsed=com.google.gson.JsonParser.parseString(value);
+            return parsed.isJsonObject() && parsed.getAsJsonObject().size()==0;
+        } catch (RuntimeException invalid) {return false;}
+    }
+
+    /** Restore only the legacy default row that normal block target creation already materializes. */
+    protected StorageServiceProtocolResponse restoreConfigurationLegacyDefaultProtocol(StorageServiceInstanceVO instance, JsonObject desired, JsonArray peers) {
+        requireConfigurationAdministrator();
+        StorageServiceOperationVO writer=storageWriterOperation.get();
+        ConfigurationBatch batch=configurationBatch.get();
+        StorageServiceOperationVO stored=writer==null?null:storageOperationDao.findById(writer.getId());
+        if (batch==null || batch.instanceId!=instance.getId() || writer==null || stored==null
+                || writer.getInstanceId()!=instance.getId() || stored.getInstanceId()!=instance.getId()
+                || !writer.getUuid().equals(stored.getUuid()) || writer.getRevision()!=stored.getRevision()
+                || writer.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || writer.getCreatedBy()!=stored.getCreatedBy() || !"RUNNING".equals(writer.getState()) || !"RUNNING".equals(stored.getState())
+                || !"APPLYING".equals(writer.getPhase()) || !"APPLYING".equals(stored.getPhase())
+                || !Set.of("applystorageserviceconfigrestoreresponse","restorestorageservicelastknowngoodresponse").contains(writer.getAction())
+                || !writer.getAction().equals(stored.getAction()) || !StorageConfigDomainRestore.legacyProtocolEndpoint(desired,true)
+                || peers==null || peers.size()==0 || peers.size()>512)
+            throw new InvalidParameterValueException("Legacy default protocol restore has no exact active reviewed writer");
+        StorageServiceInstance.Protocol type=StorageServiceInstance.Protocol.valueOf(getJsonString(desired,"protocol"));
+        int port=defaultProtocolPort(type);Set<Long> expected=new HashSet<>();
+        for (JsonElement item:peers) {
+            JsonObject evidence=item.getAsJsonObject(),source=evidence.getAsJsonObject("source");
+            if (!evidence.keySet().equals(Set.of("source","id")) || !StorageConfigDomainRestore.legacyProtocolEndpoint(source,false)
+                    || !desired.get("protocol").equals(source.get("protocol")) || !desired.get("port").equals(source.get("port"))
+                    || !evidence.get("id").isJsonPrimitive() || !evidence.get("id").getAsJsonPrimitive().isNumber())
+                throw new InvalidParameterValueException("Legacy default protocol peer differs from its reviewed endpoint");
+            long id=evidence.get("id").getAsBigDecimal().longValueExact();StorageServiceProtocolVO peer=storageServiceProtocolDao.findById(id);
+            if (!expected.add(id) || peer==null || peer.getInstanceId()!=instance.getId() || peer.getProtocol()!=type || !peer.isEnabled()
+                    || peer.getState()!=StorageServiceInstance.ResourceState.Ready || !getJsonString(source,"listen_ip").equals(peer.getListenIp())
+                    || !Integer.valueOf(port).equals(peer.getPort()) || !configurationLegacyEmptyProtocolConfig(peer.getConfigJson()))
+                throw new InvalidParameterValueException("Legacy default protocol peer ownership or listener changed");
+            resolveProtocolListenAddress(instance,peer.getListenIp());
+        }
+        Map<Long,String> preserved=new HashMap<>();Set<Long> actual=new HashSet<>();Long previousDefault=null;
+        for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),type)) {
+            if (row.getInstanceId()!=instance.getId() || row.getProtocol()!=type) throw new InvalidParameterValueException("Foreign endpoint cannot be adopted by a legacy default");
+            if ((row.getPort()==null?port:row.getPort())==port && isWildcardListenIp(normalizeListenIp(row.getListenIp()))) {
+                if (previousDefault!=null || row.getListenIp()!=null || !row.isEnabled() || row.getState()!=StorageServiceInstance.ResourceState.Ready
+                        || !configurationLegacyEmptyProtocolConfig(row.getConfigJson())) throw new InvalidParameterValueException("Existing wildcard endpoint is not the strict legacy default");
+                previousDefault=row.getId();continue;
+            }
+            preserved.put(row.getId(),GSON.toJson(row));
+            if (row.isEnabled() && (row.getPort()==null?defaultProtocolPort(type):row.getPort())==port) actual.add(row.getId());
+        }
+        if (!actual.equals(expected)) throw new InvalidParameterValueException("Legacy default restore found an unreviewed specific endpoint");
+        ensureProtocol(instance,type);
+        StorageServiceProtocolVO result=null;Set<Long> seen=new HashSet<>();
+        for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),type)) {
+            if (row.getListenIp()==null && Integer.valueOf(port).equals(row.getPort())) {
+                if (result!=null || row.getInstanceId()!=instance.getId() || row.getProtocol()!=type || !row.isEnabled()
+                        || row.getState()!=StorageServiceInstance.ResourceState.Ready || !configurationLegacyEmptyProtocolConfig(row.getConfigJson())
+                        || previousDefault!=null && previousDefault!=row.getId())
+                    throw new CloudRuntimeException("Normal target default endpoint did not retain its exact restore tuple");
+                result=row;
+            } else if (!seen.add(row.getId()) || !java.util.Objects.equals(preserved.get(row.getId()),GSON.toJson(row)))
+                throw new CloudRuntimeException("Legacy default preparation changed another protocol endpoint");
+        }
+        if (result==null || !seen.equals(preserved.keySet())) throw new CloudRuntimeException("Legacy default preparation lost its exact endpoint set");
+        return createProtocolResponse(result);
+    }
+
     protected void prepareConfigurationDirectory(StorageServiceInstanceVO instance, String volumeUuid, String relative) {
         Long volumeId = configurationVolumeId(instance, volumeUuid);VolumeVO volume = requireVolume(volumeId);
         JsonObject config = new JsonObject();config.addProperty("relativeSharePath", PosixDirectoryPolicy.relativePath(relative));
@@ -5827,18 +6483,32 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void prepareNativeCheckpoint(StorageServiceOperationVO operation) {
+                        if (configurationCloneInitialBaseline.get() != null) {
+                            verifyConfigurationCloneBaselineSource(instance, operation, false);
+                            JsonObject result = parseJsonObject(operation.getResultJson());
+                            result.add("_cloneInitialBaselineAuthority", configurationCloneInitialBaseline.get().deepCopy());
+                            operation.setResultJson(result.toString());
+                            if (!storageOperationDao.update(operation.getId(), operation)) throw new CloudRuntimeException("Initial baseline authority was not durably recorded");
+                            prepareDesiredStateNativeCheckpoint(instance, operation);return;
+                        }
                         if(adLifecycle){prepareAdServiceCheckpoint(instance,operation);return;}
                         prepareLocalDesiredStateNativeCheckpoint(instance, operation, protocol);
                     }
                     public void stageAndActivate(StorageServiceOperationVO operation){stageAndActivateRendered(instance,operation);}
                     public void verifyNativeGeneration(StorageServiceOperationVO operation) {
+                        if (configurationCloneInitialBaseline.get() != null) verifyConfigurationCloneBaselineSource(instance, operation, true);
                         verifyAndCommitNativeConfiguration(instance,operation);
                     }
                     public void rollbackNativeGeneration(StorageServiceOperationVO operation) {
-                        if(renderedBatch.get()!=null)return;
+                        if(renderedBatch.get()!=null){releaseConfigurationCloneMaintenance(instance,operation);return;}
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
                     public void abortNativeCheckpoint(StorageServiceOperationVO operation) {
+                        if(renderedBatch.get()!=null && hasConfigurationCloneMaintenance(instance,operation)) {
+                            RenderedBatch active=currentRenderedBatchForRecovery();
+                            renderedCoordinator(instance,active).rollback(active.receipt,active.receipt.has("staged")?renderedRollbackRequest(instance,active):operationReservationScope(instance,operation));
+                            releaseConfigurationCloneMaintenance(instance,operation);return;
+                        }
                         requireLocalSourceResumedBeforeAbort(instance, operation);
                         rollbackNativeConfigurationGeneration(instance, operation);
                     }
@@ -5854,6 +6524,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         else finalizeOperationResourceReservation(instance,operation);
                     }
                     public void verify() {
+                        if (configurationCloneInitialBaseline.get() != null) verifyConfigurationCloneBaselineSource(instance, storageWriterOperation.get(), true);
                         if (instance.getVmId() != null) {
                             StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
                                     instance.getVmId(), "operation verify", "", 60, Collections.emptySet()));
@@ -5865,6 +6536,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         }
                     }
                     public void ensureRollbackSafe() {
+                        currentRenderedBatchForRecovery();
                         StorageServiceOperationVO active=storageWriterOperation.get();
                         requireNativeTargetNotCommitted(instance,active);
                         if(renderedBatch.get()!=null&&renderedCoordinator(instance,renderedBatch.get()).recoveryDecision(renderedBatch.get().receipt)==StorageRenderedRecoveryState.Decision.COMMITTED)throw new CloudRuntimeException("Committed AD target requires forward finalization");
@@ -5976,6 +6648,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject begun = nativeConfigurationGeneration(instance, operation, "begin");
         snapshot = parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("nativeGeneration", begun);saveLocalCheckpointSnapshot(operation, snapshot);
         checkpointLocalSourceIdentity(instance, operation);
+        enterConfigurationCloneMaintenance(instance, operation);
     }
 
     private String localSourceKeyId(StorageServiceOperationVO operation) {
@@ -9148,10 +9821,61 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             else if(protocol==StorageServiceInstance.Protocol.SMB)desired=buildSmbDesiredPayload(instance,smbPasswords);
             else if(protocol==StorageServiceInstance.Protocol.ISCSI)desired=buildIscsiDesiredPayload(instance,iscsiSecrets);
             else desired=buildNvmeOfDesiredPayload(instance,nvmeSecrets,nvmeHostStates);
+            if(protocol==StorageServiceInstance.Protocol.ISCSI || protocol==StorageServiceInstance.Protocol.NVME_OF)
+                normalizeRenderedBlockListenerPorts(protocol,desired);
             if(!declared)desired.addProperty("enabled",false);
             protocols.put(protocol,desired);
         }
         return StorageRenderedDesiredState.candidate(frozenSource,protocols);
+    }
+
+    protected void normalizeRenderedBlockListenerPorts(StorageServiceInstance.Protocol protocol, JsonObject payload) {
+        Set<Integer> available=new HashSet<>();
+        for (JsonElement value:payload.getAsJsonArray("listeners")) {
+            JsonObject listener=value.getAsJsonObject();
+            if (!listener.has("port") || !listener.get("port").isJsonPrimitive() || !listener.get("port").getAsJsonPrimitive().isNumber())
+                throw new CloudRuntimeException("Rendered block listener has no exact integer port");
+            long port=listener.get("port").getAsBigDecimal().longValueExact();
+            if (port<1 || port>65535) throw new CloudRuntimeException("Rendered block listener port is invalid");
+            available.add((int)port);
+        }
+        if (protocol==StorageServiceInstance.Protocol.ISCSI) {
+            for (JsonElement value:payload.getAsJsonArray("targets")) normalizeRenderedBlockListenerPorts(value.getAsJsonObject(),available);
+        } else if (protocol==StorageServiceInstance.Protocol.NVME_OF) {
+            for (JsonElement value:payload.getAsJsonArray("subsystems"))
+                for (JsonElement row:value.getAsJsonObject().getAsJsonArray("namespaces")) normalizeRenderedBlockListenerPorts(row.getAsJsonObject(),available);
+        } else throw new CloudRuntimeException("Rendered block listener normalization requires a block protocol");
+    }
+
+    private void normalizeRenderedBlockListenerPorts(JsonObject target, Set<Integer> available) {
+        JsonObject config=getJsonObject(target,"config");JsonElement selected=target.get("listenerPorts");
+        JsonArray declared=null;
+        if (config!=null && config.has("listenerGroupPorts")) {
+            if (!config.get("listenerGroupPorts").isJsonArray()) throw new CloudRuntimeException("Rendered block group must be an integer array");
+            declared=config.getAsJsonArray("listenerGroupPorts");requireRenderedBlockPortArray(declared,available);
+        }
+        if (selected==null || selected.isJsonNull()) {
+            if (declared==null || declared.size()==0) return;
+            selected=declared;
+        }
+        JsonArray ports;
+        if (selected.isJsonPrimitive() && selected.getAsJsonPrimitive().isString()) ports=parseIscsiListenerPorts(selected.getAsString());
+        else if (selected.isJsonArray()) ports=selected.getAsJsonArray().deepCopy();
+        else throw new CloudRuntimeException("Rendered block listener group has an unsupported representation");
+        requireRenderedBlockPortArray(ports,available);
+        if (ports.size()==0 || declared!=null && !declared.equals(ports)) throw new CloudRuntimeException("Rendered block listener group differs from its validated config");
+        target.add("listenerPorts",ports);
+    }
+
+    private void requireRenderedBlockPortArray(JsonArray ports, Set<Integer> available) {
+        Set<Integer> seen=new HashSet<>();
+        for (JsonElement value:ports) {
+            if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber() || !value.getAsString().matches("[0-9]+"))
+                throw new CloudRuntimeException("Rendered block group needs literal integer ports");
+            long port=value.getAsBigDecimal().longValueExact();
+            if (port<1 || port>65535 || !seen.add((int)port) || !available.contains((int)port))
+                throw new CloudRuntimeException("Rendered block group references a duplicate or unavailable listener");
+        }
     }
 
     protected JsonObject buildNfsDesiredPayload(final StorageServiceInstanceVO instance, final String removeListenIp, final boolean includeAllocatedResources) {

@@ -148,4 +148,39 @@ public class StorageConfigRestorePlanTest {
         Assert.assertEquals("0775",plan.getAsJsonArray("forcedFileExecutePolicies").get(0).getAsJsonObject().get("forceCreateMode").getAsString());
     }
 
+    private Map<String,byte[]> protocolArchive(Boolean enabled) {
+        Map<String,byte[]> result=archive(false,false);JsonObject protocol=new JsonObject();
+        protocol.addProperty("uuid",EXTRA);protocol.addProperty("protocol","ISCSI");protocol.addProperty("enabled",enabled);
+        protocol.add("listen_ip",com.google.gson.JsonNull.INSTANCE);protocol.addProperty("port",3260);protocol.addProperty("state","Ready");protocol.add("config",new JsonObject());
+        JsonArray protocols=new JsonArray();protocols.add(protocol);result.put("desired/protocols.json",protocols.toString().getBytes(StandardCharsets.UTF_8));return result;
+    }
+    @Test public void disabledProtocolCreateOrUpdateIsBlockedButAnUnchangedDisabledRowIsKept() {
+        JsonObject create=StorageConfigRestorePlan.build(protocolArchive(false),archive(false,false),mapping(),"CREATE_NEW",INSTANCE,0);
+        Assert.assertTrue(create.getAsJsonArray("blockers").toString().contains("DISABLED_PROTOCOL_RESTORE_UNSUPPORTED"));
+        JsonObject update=StorageConfigRestorePlan.build(protocolArchive(false),protocolArchive(true),mapping(),"RESTORE_EXISTING",INSTANCE,0);
+        Assert.assertTrue(update.getAsJsonArray("blockers").toString().contains("DISABLED_PROTOCOL_RESTORE_UNSUPPORTED"));
+        JsonObject keep=StorageConfigRestorePlan.build(protocolArchive(false),protocolArchive(false),mapping(),"RESTORE_EXISTING",INSTANCE,0);
+        Assert.assertEquals(1,keep.getAsJsonArray("keep").size());Assert.assertEquals(0,keep.getAsJsonArray("blockers").size());
+        StorageServiceManagerImpl manager=org.mockito.Mockito.mock(StorageServiceManagerImpl.class);
+        StorageConfigDomainRestore restore=new StorageConfigDomainRestore(manager);
+        restore.validatePlanBindings(create);
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->restore.validateBindings(create));
+        org.mockito.Mockito.verifyNoInteractions(manager);
+    }
+    @Test public void stringEnabledCannotBeCoercedIntoAnEnabledProtocolDuringPlanning() {
+        Map<String,byte[]> source=protocolArchive(false);JsonArray rows=StorageConfigArchive.json(source.get("desired/protocols.json")).getAsJsonArray();
+        rows.get(0).getAsJsonObject().addProperty("enabled","false");source.put("desired/protocols.json",rows.toString().getBytes(StandardCharsets.UTF_8));
+        Assert.assertThrows(CloudRuntimeException.class,()->StorageConfigRestorePlan.resources(source));
+    }
+    @Test public void endpointTupleChangesCannotBecomeAnImplicitProtocolUpdate() {
+        Map<String,byte[]> source=protocolArchive(true),current=protocolArchive(true);
+        JsonArray values=StorageConfigArchive.json(source.get("desired/protocols.json")).getAsJsonArray();
+        values.get(0).getAsJsonObject().addProperty("listen_ip","192.0.2.10");
+        source.put("desired/protocols.json",values.toString().getBytes(StandardCharsets.UTF_8));
+        JsonObject plan=StorageConfigRestorePlan.build(source,current,mapping(),"RESTORE_EXISTING",INSTANCE,0);
+        Assert.assertTrue(plan.getAsJsonArray("blockers").toString().contains("PROTOCOL_ENDPOINT_UPDATE_UNSUPPORTED"));
+        StorageConfigDomainRestore restore=new StorageConfigDomainRestore(org.mockito.Mockito.mock(StorageServiceManagerImpl.class));
+        restore.validatePlanBindings(plan);
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,()->restore.validateBindings(plan));
+    }
 }

@@ -40,4 +40,26 @@ public class StorageConfigPreparedRuntimeTest {
         manager.upgradeConfigurationNewServiceRuntime(instance,"selected-runtime");
         Assert.assertTrue(manager.protectedProbe);Mockito.verifyNoInteractions(upgrades);
     }
+    @Test public void clonePreflightRequiresSignedInitialBaselineContractBeforeResourceAllocation() {
+        Manager manager = new Manager();
+        StorageServiceRuntimeBundleDao bundles = Mockito.mock(StorageServiceRuntimeBundleDao.class);
+        StorageServiceRuntimeUpgradeManager upgrades = Mockito.mock(StorageServiceRuntimeUpgradeManager.class);
+        ReflectionTestUtils.setField(manager,"storageRuntimeBundleDao",bundles);
+        ReflectionTestUtils.setField(manager,"runtimeUpgradeManager",upgrades);
+        StorageServiceRuntimeBundleVO bundle = Mockito.mock(StorageServiceRuntimeBundleVO.class);
+        Mockito.when(bundle.getId()).thenReturn(19L);
+        Mockito.when(bundles.findByUuid("selected-runtime")).thenReturn(bundle);
+        com.google.gson.JsonObject verified = new com.google.gson.JsonObject(), manifest = new com.google.gson.JsonObject();
+        verified.addProperty("verified",true);verified.add("manifest",manifest);
+        com.google.gson.JsonArray features = new com.google.gson.JsonArray();
+        features.add("STORAGE_VOLUME_EXPECTED_FILESYSTEM_UUID_GUARD");manifest.add("supportedFeatures",features);
+        Mockito.when(upgrades.verifyAvailableBundle(19L)).thenAnswer(call -> verified.deepCopy());
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,
+                () -> manager.preflightConfigurationRuntimeBundle("selected-runtime"));
+        features.add(StorageConfigInitialBaseline.FEATURE);
+        manager.preflightConfigurationRuntimeBundle("selected-runtime");
+        verified.addProperty("verified",false);
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,
+                () -> manager.preflightConfigurationRuntimeBundle("selected-runtime"));
+    }
 }

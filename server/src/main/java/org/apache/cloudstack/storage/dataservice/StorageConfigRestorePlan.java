@@ -43,6 +43,25 @@ public final class StorageConfigRestorePlan {
             if (value == null || !java.util.UUID.fromString(value).toString().equalsIgnoreCase(value)) throw new IllegalArgumentException();
         } catch (IllegalArgumentException invalid) { throw new CloudRuntimeException("Configuration resource UUID is invalid"); }
     }
+    static String protocolTuple(JsonObject row) {
+        String protocol=text(row,"protocol"),address=text(row,"listen_ip");
+        int fallback="NFS".equals(protocol)?2049:"SMB".equals(protocol)?445:"ISCSI".equals(protocol)?3260:"NVME_OF".equals(protocol)?4420:0;
+        if (fallback==0) throw new CloudRuntimeException("Unknown protocol endpoint type");
+        long port=fallback;JsonElement value=row.get("port");
+        if (value!=null && !value.isJsonNull()) {
+            if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) throw new CloudRuntimeException("Protocol endpoint port must be an integer");
+            port=value.getAsBigDecimal().longValueExact();
+        }
+        if (port<1 || port>65535) throw new CloudRuntimeException("Protocol endpoint port is invalid");
+        return protocol+"|"+(address==null||address.isBlank()?"0.0.0.0":address.trim())+"|"+port;
+    }
+    static boolean protocolEnabled(JsonObject row) {
+        if (!row.has("enabled")) return true;
+        JsonElement value=row.get("enabled");
+        if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isBoolean())
+            throw new CloudRuntimeException("Configuration protocol enabled must be a literal boolean");
+        return value.getAsBoolean();
+    }
     public static Map<String, JsonArray> resources(Map<String, byte[]> archive) {
         Map<String, JsonArray> result = new LinkedHashMap<>();
         Set<String> identities = new java.util.HashSet<>();
@@ -56,6 +75,7 @@ public final class StorageConfigRestorePlan {
                 if (!entry.isJsonObject()) throw new CloudRuntimeException("Configuration resource is not an object");
                 JsonObject row = entry.getAsJsonObject();String id = text(row, "uuid");uuid(id);
                 if (!identities.add(id) || !kind.getValue().containsAll(row.keySet())) throw new CloudRuntimeException("Duplicate identity or unknown configuration resource field");
+                if ("protocols".equals(kind.getKey())) protocolEnabled(row);
                 if (row.has("config") && !row.get("config").isJsonObject()) throw new CloudRuntimeException("Invalid structured resource configuration");
                 if (row.has("volumeUuid")) uuid(text(row, "volumeUuid"));
                 if (row.has("resourceUuid")) uuid(text(row, "resourceUuid"));
@@ -240,6 +260,11 @@ public final class StorageConfigRestorePlan {
                     if (desired.equals(actual)) { change.addProperty("action", "KEEP");keeps.add(change); }
                     else { change.addProperty("action", "UPDATE");updates.add(change); }
                 }
+                if ("protocols".equals(kind) && "UPDATE".equals(text(change,"action"))
+                        && !protocolTuple(row).equals(protocolTuple(change.getAsJsonObject("current"))))
+                    blockers.add("PROTOCOL_ENDPOINT_UPDATE_UNSUPPORTED:" + id);
+                if ("protocols".equals(kind) && !protocolEnabled(row) && !"KEEP".equals(text(change,"action")))
+                    blockers.add("DISABLED_PROTOCOL_RESTORE_UNSUPPORTED:" + id);
             }
             for (Map.Entry<String, JsonObject> value : existing.entrySet()) if (!consumed.contains(value.getKey())) {
                 JsonObject preserve = new JsonObject();preserve.addProperty("kind", kind);preserve.addProperty("targetUuid", value.getKey());preserve.add("current", value.getValue().deepCopy());preserves.add(preserve);

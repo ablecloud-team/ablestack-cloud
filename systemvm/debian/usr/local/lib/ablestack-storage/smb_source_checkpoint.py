@@ -19,7 +19,7 @@ from pathlib import Path
 from smb_identity import SmbIdentity,IDENTITY_DATABASES
 from smb_current_retention import SmbCurrentRetention
 from pending_nfs_authorization import PendingNfsAuthorization,PendingNfsGeneration
-from identity_capsule import collect,encrypt,decrypt,validate_payload,regular_file,restore,select_restore_domains,restore_protected
+from identity_capsule import collect,encrypt,decrypt,validate_payload,regular_file,restore,select_restore_domains,restore_protected,ACCOUNT_FILES,owned_account_records
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest
 from posix_receipt_transfer import PosixReceiptTransfer
 LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
@@ -304,6 +304,65 @@ class SmbSourceCheckpoint:
             finally:os.close(directory)
         finally:
             if os.path.exists(tmp):os.unlink(tmp)
+    def same_service_writer(self,value,maintenance,rendered,observation=False):
+        # SERVICE owns availability; the existing opaque LOCAL record continues
+        # to own identity. Neither may replace the other's protected SOURCE.
+        from template_maintenance import Maintenance
+        from service_maintenance import ServiceMaintenance
+        from rendered_generation import RenderedGeneration
+        scope={key:value[key]for key in("instanceUuid","operationUuid","revision")}
+        expected={**scope,"maintenanceUuid":scope["operationUuid"]}
+        if (maintenance.get("maintenanceKind")!="SERVICE"or maintenance.get("bootHeld")is not True
+                or maintenance.get("scope")!=expected or not value["sourceGeneration"]):return False
+        read_only=observation and set(value)==LOCAL_SOURCE_COMMON
+        if not read_only and not re.fullmatch("[0-9a-f]{64}",str(value.get("renderedManifestSha256"))):return False
+        keeper=Maintenance()
+        service=ServiceMaintenance(keeper,self.cli,command=self.command)
+        actual=service.status(expected);checkpoint=self.read(service.journal)
+        if (actual.get("maintenanceKind")!="SERVICE"or actual.get("bootHeld")is not True
+                or actual.get("scope")!=expected or actual.get("phase")not in("HELD","RECOVERY_REQUIRED")
+                or not checkpoint or checkpoint.get("scope")!=expected or checkpoint.get("phase")!=actual["phase"]
+                or checkpoint.get("sourceGeneration")!=value["sourceGeneration"]):
+            raise ValueError("LOCAL same-writer SERVICE source journal changed")
+        source=checkpoint.get("sourceRendered");source_scope={key:value["sourceGeneration"][key]for key in scope}
+        if (not isinstance(source,dict)or source.get("scope")!=source_scope
+                or source.get("configurationSha256")!=value["sourceConfigurationSha256"]
+                or not re.fullmatch("[0-9a-f]{64}",str(source.get("manifestSha256")))):
+            raise ValueError("LOCAL same-writer SERVICE rendered source changed")
+        store=RenderedGeneration(Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS",
+            self.handler.generations.parent/"rendered-generations")))
+        observed=store.status()
+        if (store.inspect(store.generations/source_scope["operationUuid"])!=source
+                or any(rendered.get(key)!=item for key,item in observed.items())):
+            raise ValueError("LOCAL same-writer SERVICE immutable source or actual pointer changed")
+        local_scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+        journal=self.read(self.path(local_scope,"journal"));record=self.read(self.path(local_scope,"cipher"))
+        if (not journal or not record or journal.get("scope")!=local_scope or record.get("scope")!=local_scope
+                or journal.get("common")!=self.common(value)or record.get("common")!=self.common(value)
+                or journal.get("sourceDesiredState")!=record.get("sourceDesiredState")):
+            raise ValueError("LOCAL same-writer SERVICE lacks its original opaque checkpoint")
+        self.validate_record(value,record)
+        activation=rendered.get("activation")or {};current=rendered.get("current")
+        if read_only:
+            if current==source and activation==checkpoint.get("sourceActivation")and rendered.get("bootHeld")is False:return True
+        target=store.inspect(store.generations/scope["operationUuid"])
+        owned=(activation.get("scope")==scope and activation.get("previousOperationUuid")==source_scope["operationUuid"]
+            and activation.get("previousSha256")==source["manifestSha256"]and target is not None
+            and target.get("scope")==scope and target.get("previousRenderedSha256")==source["manifestSha256"]
+            and activation.get("targetSha256")==target["manifestSha256"])
+        if not owned:raise ValueError("LOCAL same-writer SERVICE activation is not linked to its original source")
+        if read_only:
+            return (activation.get("phase")in("ACTIVATING","VERIFIED","RECOVERY_REQUIRED","ROLLING_BACK","ROLLED_BACK")
+                and current in(source,target))
+        if (activation.get("phase")!="ROLLING_BACK"or current!=source
+                or value.get("renderedManifestSha256")!=target["manifestSha256"]):
+            raise ValueError("LOCAL same-writer SERVICE import lacks its owned inverse pointer")
+        action="import-local-source"if value.get("restoreDomains")==["SMB"]else"replay-local-source-auth"
+        self.request(value,action)
+        if value.get("localSourceCheckpointReference")!=self.reference(record):
+            raise ValueError("LOCAL same-writer SERVICE import changed its original checkpoint reference")
+        return True
+
     def state(self,value,source_only=True,terminal=False,recovery=False):
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
         pending=self.read(self.handler.generations/"pending.json");current=self.read(self.handler.generations/"current.json")or {}
@@ -334,13 +393,15 @@ class SmbSourceCheckpoint:
         held_local=(isinstance(pin,str)and re.fullmatch("[0-9a-f]{64}",pin)and activation.get("scope")=={k:scope[k]for k in("instanceUuid","operationUuid","revision")}
             and activation.get("phase")=="ROLLING_BACK"and activation.get("targetSha256")==pin
             and (rendered.get("current")or {}).get("manifestSha256")==activation.get("previousSha256"))
+        service_held=(maintenance.get("bootHeld")is True and self.same_service_writer(value,maintenance,rendered,observation=terminal))
         if (status.get("generation")not in (current,None)or status.get("bootId")!=value["expectedBootId"]
-                or maintenance.get("bootHeld")is not False or not(rendered.get("bootHeld")is False or held_local)):
+                or not(maintenance.get("bootHeld")is False or service_held)
+                or not(rendered.get("bootHeld")is False or held_local or service_held)):
             raise ValueError("LOCAL source cannot borrow ROOT/SERVICE/rendered hold")
         if source_only and status.get("configurationSha256")!=value["sourceConfigurationSha256"]:
             raise ValueError("LOCAL source canonical seven changed")
         active=rendered.get("current")
-        if active is not None and(not current or active.get("scope")!={k:current[k]for k in ("instanceUuid","operationUuid","revision")}
+        if active is not None and not service_held and(not current or active.get("scope")!={k:current[k]for k in ("instanceUuid","operationUuid","revision")}
                 or active.get("configurationSha256")!=value["sourceConfigurationSha256"]):
             raise ValueError("LOCAL source rendered baseline is foreign")
         domain=self.read(self.handler.configuration/"smb-domain.json")
@@ -1100,6 +1161,10 @@ class SmbSourceCheckpoint:
                 else:self.stop(value,journal)
             self._failure_stage="EXPORT_STOPPED_OBSERVE"
             stopped=self.stopped_observation()
+            source_raw,source_info=self.reader(str(LOCAL_SOURCE_SMB_CONFIG))
+            source_file=self.smb_configuration_file_fingerprint(source_raw,source_info)
+            if source_file["sha256"]!=stopped["configurationSha256"]:
+                raise ValueError("LOCAL SOURCE SMB configuration changed before capture")
             self._failure_stage="EXPORT_POSIX_COLLECT"
             records=self.posix_collector(journal["sourceDesiredState"]["posix-directory-policies.json"],value["instanceUuid"])
             self._failure_stage="EXPORT_IDENTITY_COLLECT"
@@ -1112,13 +1177,19 @@ class SmbSourceCheckpoint:
             self._failure_stage="EXPORT_ENCRYPT"
             capsule=self.encryptor(wrapper,value["publicKey"],scope["instanceUuid"]+":"+scope["operationUuid"])
             self._failure_stage="EXPORT_STOPPED_RECHECK"
-            if self.stopped_observation()!=stopped:raise ValueError("LOCAL source changed during opaque collection")
+            if (self.stopped_observation()!=stopped
+                    or self.smb_configuration_file_fingerprint(*self.reader(str(LOCAL_SOURCE_SMB_CONFIG)))!=source_file):
+                raise ValueError("LOCAL source changed during opaque collection")
             record={"schemaVersion":1,"kind":LOCAL_SOURCE_KIND,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],
                 "capsule":capsule,"stoppedDatabases":stopped["databases"],"sourceConfigurationFileSha256":stopped["configurationSha256"],
+                "sourceConfigurationFileMetadata":source_file,
                 "authReplayDomains":value["authReplayDomains"],
                 "sourceDesiredState":journal["sourceDesiredState"],
                 "privateFingerprints":{path:row["sha256"]for path,row in payload["files"].items()if row.get("absent")is not True}}
             self._failure_stage="EXPORT_CHECKPOINT_PUBLISH"
+            if (record["sourceDesiredState"]["desired-state/smb-share-apply.json"]is None
+                    and record["privateFingerprints"]=={}):
+                self.vendor_source_smb_candidate(record,journal)
             self.match_private(record);self.write(scope,"cipher",record,immutable=True)
             journal["phase"]="EXPORTED";self.write(scope,"journal",journal)
             self.resume(value,journal,record);return self.result(record,journal)
@@ -1140,6 +1211,40 @@ class SmbSourceCheckpoint:
                 or wrapper["sourceGeneration"]!=value["sourceGeneration"]or wrapper["sourceConfigurationSha256"]!=value["sourceConfigurationSha256"]
                 or wrapper["bootId"]!=value["expectedBootId"]):raise ValueError("LOCAL authenticated wrapper is foreign")
         self.validator(wrapper["identity"]);return wrapper["identity"]
+
+    def smb_configuration_file_fingerprint(self,raw,info):
+        if (not isinstance(raw,bytes)or not stat.S_ISREG(info.st_mode)or info.st_uid!=0
+                or info.st_nlink!=1 or info.st_mode&0o7022 or info.st_size!=len(raw)
+                or len(raw)>8*1024*1024):
+            raise ValueError("LOCAL SOURCE SMB configuration is not a protected exact regular file")
+        return {"sha256":hashlib.sha256(raw).hexdigest(),"sizeBytes":len(raw),
+            "uid":info.st_uid,"gid":info.st_gid,"mode":stat.S_IMODE(info.st_mode)}
+
+    def vendor_source_smb_candidate(self,record,journal):
+        metadata=record.get("sourceConfigurationFileMetadata")
+        if (not isinstance(metadata,dict)or set(metadata)!={"sha256","sizeBytes","uid","gid","mode"}
+                or any(type(metadata[key])is not int for key in("sizeBytes","uid","gid","mode"))
+                or metadata["sha256"]!=record["sourceConfigurationFileSha256"]
+                or record["sourceDesiredState"]["desired-state/smb-share-apply.json"]is not None
+                or record.get("privateFingerprints")!={}or journal["prior"]["units"]or journal["prior"]["ownedEndpoints"]
+                or set(record["stoppedDatabases"])!=set(IDENTITY_DATABASES)
+                or any(row!={"path":IDENTITY_DATABASES[name],"present":False}
+                    for name,row in record["stoppedDatabases"].items())):
+            raise ValueError("LOCAL empty SOURCE SMB lacks its original protected vendor authority")
+        # This fixed package path is never supplied by an archive or request.
+        parents=[Path(name)for name in("/usr","/usr/share","/usr/share/samba")]
+        before=[path.lstat()for path in parents]
+        if any(not stat.S_ISDIR(info.st_mode)or info.st_uid!=0 or info.st_mode&0o022 for info in before):
+            raise ValueError("LOCAL SOURCE SMB vendor parents are not protected")
+        path=Path("/usr/share/samba/smb.conf")
+        raw,info=self.reader("/usr/share/samba/smb.conf")
+        named=path.lstat();fields=("st_dev","st_ino","st_uid","st_gid","st_mode","st_size","st_mtime_ns","st_ctime_ns")
+        if (any(getattr(named,key)!=getattr(info,key)for key in fields)
+                or any(any(getattr(path.lstat(),key)!=getattr(prior,key)for key in fields)
+                    for path,prior in zip(parents,before))
+                or self.smb_configuration_file_fingerprint(raw,info)!=metadata):
+            raise ValueError("LOCAL SOURCE SMB vendor configuration differs from its original fingerprint")
+        return raw
 
     def signed_source_smb_candidate(self,payload,journal):
         """Reuse only the fixed pure SMB renderer from the installed signed ENTRY."""
@@ -1191,7 +1296,16 @@ class SmbSourceCheckpoint:
         # writer must restore that exact SOURCE output before exposing its SAM.
         path=LOCAL_SOURCE_SMB_CONFIG
         current,info=self.reader(str(path));expected=record["sourceConfigurationFileSha256"]
-        if hashlib.sha256(current).hexdigest()==expected:return
+        metadata=record.get("sourceConfigurationFileMetadata")
+        if metadata is not None and (not isinstance(metadata,dict)
+                or set(metadata)!={"sha256","sizeBytes","uid","gid","mode"}
+                or any(type(metadata[key])is not int for key in("sizeBytes","uid","gid","mode"))
+                or metadata["sha256"]!=expected or metadata["uid"]!=0 or metadata["gid"]<0
+                or not 0<=metadata["sizeBytes"]<=8*1024*1024 or not 0<=metadata["mode"]<=0o777
+                or metadata["mode"]&0o022):
+            raise ValueError("LOCAL SOURCE SMB original configuration metadata is malformed")
+        if (hashlib.sha256(current).hexdigest()==expected
+                and (metadata is None or self.smb_configuration_file_fingerprint(current,info)==metadata)):return
         scope={key:value[key]for key in LOCAL_SOURCE_SCOPE}
         source=self.state(value,recovery=True);self.frozen(value,journal);self.validate_record(value,record)
         if (self.reference(record)!=value["localSourceCheckpointReference"]or journal.get("imported")is not True
@@ -1211,7 +1325,9 @@ class SmbSourceCheckpoint:
                 or named.st_nlink!=1 or (named.st_dev,named.st_ino)!=(info.st_dev,info.st_ino)):
             raise ValueError("LOCAL SOURCE SMB configuration path is not protected")
         journal["sourceConfigurationRestoreStage"]="RENDER";self.write(scope,"journal",journal)
-        candidate=self.signed_source_smb_candidate(record["sourceDesiredState"]["desired-state/smb-share-apply.json"],journal)
+        source_smb=record["sourceDesiredState"]["desired-state/smb-share-apply.json"]
+        candidate=(self.vendor_source_smb_candidate(record,journal)if source_smb is None
+            else self.signed_source_smb_candidate(source_smb,journal))
         journal["sourceConfigurationRestoreStage"]="CANDIDATE_HASH";self.write(scope,"journal",journal)
         if hashlib.sha256(candidate).hexdigest()!=expected:
             raise ValueError("LOCAL SOURCE SMB rendered configuration differs from its original hash")
@@ -1222,7 +1338,8 @@ class SmbSourceCheckpoint:
             if (opened.st_dev,opened.st_ino)!=(parent.st_dev,parent.st_ino):
                 raise ValueError("LOCAL SOURCE SMB configuration directory changed")
             descriptor,temporary=tempfile.mkstemp(prefix=".local-source-smb-",dir=path.parent)
-            os.fchmod(descriptor,stat.S_IMODE(info.st_mode));os.fchown(descriptor,info.st_uid,info.st_gid)
+            original=metadata or {"mode":stat.S_IMODE(info.st_mode),"uid":info.st_uid,"gid":info.st_gid}
+            os.fchmod(descriptor,original["mode"]);os.fchown(descriptor,original["uid"],original["gid"])
             with os.fdopen(descriptor,"wb",closefd=False)as handle:
                 handle.write(candidate);handle.flush();os.fsync(descriptor)
             journal["sourceConfigurationRestoreStage"]="TESTPARM";self.write(scope,"journal",journal)
@@ -1239,13 +1356,208 @@ class SmbSourceCheckpoint:
                 raise ValueError("LOCAL SOURCE SMB configuration changed before publication")
             journal["sourceConfigurationRestoreStage"]="PUBLISH";self.write(scope,"journal",journal)
             os.replace(temporary,path);temporary=None;os.fsync(directory)
-            if hashlib.sha256(self.reader(str(path))[0]).hexdigest()!=expected:
+            restored,restored_info=self.reader(str(path))
+            if (hashlib.sha256(restored).hexdigest()!=expected
+                    or metadata is not None and self.smb_configuration_file_fingerprint(restored,restored_info)!=metadata):
                 raise ValueError("LOCAL SOURCE SMB configuration restore did not verify")
             journal["sourceConfigurationRestoreStage"]="VERIFIED";self.write(scope,"journal",journal)
         finally:
             if descriptor is not None:os.close(descriptor)
             if temporary is not None and os.path.exists(temporary):os.unlink(temporary)
             os.close(directory)
+
+    def rendered_target_private_context(self,request,inverse=False):
+        from rendered_generation import RenderedGeneration
+        if os.environ.get("ABLESTACK_STORAGE_WRITER_LOCK_FD")!="9":raise ValueError("LOCAL rendered private target requires its owned FD9")
+        self.lock()
+        scope={key:request[key]for key in("instanceUuid","operationUuid","revision")}
+        ref=request.get("localSourceCheckpointReference")
+        if not isinstance(ref,dict)or set(ref)!={"localCheckpointUuid","sha256"}:
+            raise ValueError("LOCAL rendered private target lacks its original source reference")
+        local_scope={**scope,"localCheckpointUuid":ref["localCheckpointUuid"]}
+        record=self.read(self.path(local_scope,"cipher"));journal=self.read(self.path(local_scope,"journal"))
+        if not record or not journal:raise ValueError("LOCAL rendered private target original source is absent")
+        common=record["common"];self.request(common,"local-source-status")
+        if any(common.get(key)!=item for key,item in local_scope.items())or self.reference(record)!=ref:
+            raise ValueError("LOCAL rendered private target source scope changed")
+        self.frozen(common,journal);self.validate_record(common,record)
+        value={**common,"capsule":record["capsule"],"credentialPrivateKey":request["checkpointPrivateKey"],
+            "localSourceCheckpointReference":ref,"deferNvmeReplay":True,"restoreDomains":["SMB"],
+            "renderedManifestSha256":request["renderedManifestSha256"]}
+        payload=self.decode(value,record)
+        absent=(record.get("privateFingerprints")=={} and record["sourceDesiredState"]["desired-state/smb-share-apply.json"]is None
+            and not journal["prior"]["units"]and not journal["prior"]["ownedEndpoints"]
+            and set(record["stoppedDatabases"])==set(IDENTITY_DATABASES)
+            and all(row=={"path":IDENTITY_DATABASES[name],"present":False}for name,row in record["stoppedDatabases"].items()))
+        if not absent:return None
+        self.state(common,source_only=False,terminal=True,recovery=True)
+        store=RenderedGeneration(Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS",
+            self.handler.generations.parent/"rendered-generations")))
+        activation=store.scoped_activation(scope);target=store.inspect(store.generations/scope["operationUuid"])
+        source=store.inspect(store.generations/activation["previousOperationUuid"])
+        if (activation["phase"]!=("ROLLING_BACK"if inverse else"ACTIVATING")
+                or request["renderedManifestSha256"]!=target["manifestSha256"]
+                or store.status()["current"]!=(source if inverse else target)
+                or source["configurationSha256"]!=common["sourceConfigurationSha256"]
+                or activation["previousSha256"]!=source["manifestSha256"]
+                or target["previousRenderedSha256"]!=source["manifestSha256"]):
+            raise ValueError("LOCAL rendered private target immutable source/target activation changed")
+        desired=json.loads(__import__("rendered_generation").rendered_read(store.generations/scope["operationUuid"]/"desired-state.json"))
+        smb=desired["desired-state/smb-share-apply.json"]
+        if (not isinstance(smb,dict)or smb.get("instanceUuid")!=scope["instanceUuid"]
+                or any((share.get("config")or{}).get("posixOwnershipMode","AUTHENTICATED_USER")!="AUTHENTICATED_USER"for share in smb.get("shares",[]))):
+            return None
+        principals=set()
+        for share in smb.get("shares",[]):
+            if share.get("state","Ready")in("Disabled","Destroyed","Error"):continue
+            for acl in share.get("acls",[]):
+                if acl.get("state","Ready")in("Disabled","Destroyed","Error"):continue
+                if (acl.get("config")or{}).get("localAccount")is True:
+                    name=acl.get("principal")
+                    if not isinstance(name,str)or not re.fullmatch("[A-Za-z0-9_.-]{1,64}",name)or name in("root","nobody"):
+                        raise ValueError("LOCAL rendered private target principal is not closed")
+                    principals.add(name)
+        if not principals:return None
+        return scope,value,record,journal,source,target,sorted(principals)
+
+    def rendered_target_private_snapshot(self,principals):
+        import base64
+        paths=set(IDENTITY_DATABASES.values())|{
+            "/etc/ablestack-storage/smb-managed-identities.json",
+            "/etc/ablestack-storage/smb-local-account-provenance.json",
+            "/etc/ablestack-storage/smb-semantic-identity-aliases.json"}
+        fingerprints={};contents={}
+        for name in sorted(paths|set(ACCOUNT_FILES)):
+            if not os.path.lexists(name):
+                fingerprints[name]={"present":False};continue
+            raw,info=self.reader(name)
+            if name in paths and info.st_mode&0o077:raise ValueError("LOCAL rendered private target file is not private")
+            fingerprints[name]={"present":True,"device":info.st_dev,"inode":info.st_ino,"uid":info.st_uid,"gid":info.st_gid,
+                "mode":format(stat.S_IMODE(info.st_mode),"04o"),"size":info.st_size,
+                "mtimeNs":info.st_mtime_ns,"ctimeNs":info.st_ctime_ns,"sha256":hashlib.sha256(raw).hexdigest()}
+            contents[name]=raw
+        for name in("/var/lib/samba/private/passdb.tdb","/var/lib/samba/private/secrets.tdb"):
+            if name not in contents:raise ValueError("LOCAL rendered private target has no completed SAM")
+        public={name:{"data":base64.b64encode(raw).decode()}for name,raw in contents.items()
+            if name in("/etc/ablestack-storage/smb-managed-identities.json","/etc/ablestack-storage/smb-local-account-provenance.json",
+                "/etc/ablestack-storage/smb-semantic-identity-aliases.json")}
+        owned=owned_account_records(public)
+        if set(owned["/etc/passwd"])!=set(principals)or not set(owned["/etc/group"])<=set(principals):
+            raise ValueError("LOCAL rendered private target contains unapproved account provenance")
+        rows={}
+        for name in ACCOUNT_FILES:
+            if name not in contents:raise ValueError("LOCAL rendered private target account file is absent")
+            observed={line.split(":",1)[0]:line for line in contents[name].decode().splitlines()}
+            wanted=owned[name]if name in("/etc/passwd","/etc/group")else{
+                key:observed[key]for key in(owned["/etc/passwd"]if name=="/etc/shadow"else owned["/etc/group"])if key in observed}
+            if any(observed.get(key)!=row for key,row in wanted.items())or not set(wanted)<=set(principals):
+                raise ValueError("LOCAL rendered private target account rows changed")
+            rows[name]={key:hashlib.sha256(row.encode()).hexdigest()for key,row in wanted.items()}
+        users={}
+        for name,line in owned["/etc/passwd"].items():
+            fields=line.split(":");uid=int(fields[2]);gid=int(fields[3])
+            if uid<1000 or gid<1000 or uid==65534 or gid==65534 or fields[6]not in("/usr/sbin/nologin","/sbin/nologin"):
+                raise ValueError("LOCAL rendered private target account is protected or interactive")
+            users[name]={"uid":uid,"gid":gid}
+        pdb={}
+        for line in self.handler.run(["pdbedit","-L"]).splitlines():
+            fields=line.split(":",2)
+            if len(fields)!=3 or fields[0]in pdb:raise ValueError("LOCAL rendered private target SAM users are malformed")
+            pdb[fields[0]]=int(fields[1])
+        if pdb!={name:row["uid"]for name,row in users.items()}:
+            raise ValueError("LOCAL rendered private target SAM contains foreign users")
+        sid=self.handler.run(["net","getlocalsid"]).strip()
+        match=re.fullmatch(r"SID for domain [A-Za-z0-9_.-]+ is: (S-1-5-21-[0-9]+-[0-9]+-[0-9]+)",sid)
+        if not match:raise ValueError("LOCAL rendered private target machine SID is unavailable")
+        return {"files":fingerprints,"accountRows":rows,"principals":users,"machineSid":match[1]}
+
+    def rendered_target_private_receipt(self,context,units):
+        scope,value,record,journal,source,target,principals=context
+        return {"schemaVersion":1,"kind":"LOCAL_RENDERED_TARGET_PRIVATE","scope":{key:value[key]for key in LOCAL_SOURCE_SCOPE},
+            "sourceReference":self.reference(record),"sourceGeneration":value["sourceGeneration"],
+            "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":value["expectedBootId"],
+            "cliSha256":journal["cliSha256"],"sourceManifestSha256":source["manifestSha256"],
+            "targetManifestSha256":target["manifestSha256"],"targetSmbConfigurationSha256":target["files"]["smb/smb.conf"],
+            "private":self.rendered_target_private_snapshot(principals),"targetUnits":units}
+
+    def capture_rendered_target_private(self,request):
+        context=self.rendered_target_private_context(request)
+        if context is None:return {"success":True,"targetPrivateCheckpointCaptured":False}
+        scope,value,record,journal,source,target,principals=context
+        actual=self.command(("operation","generation","status"))
+        if actual["configurationDesiredState"]["desired-state/smb-share-apply.json"]!=json.loads(
+                __import__("rendered_generation").rendered_read(
+                    Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS",self.handler.generations.parent/"rendered-generations"))/
+                    "generations"/scope["operationUuid"]/"desired-state.json"))["desired-state/smb-share-apply.json"]:
+            raise ValueError("LOCAL rendered private target canonical SMB differs from its completed replay")
+        raw,_=self.reader("/etc/samba/smb.conf")
+        if hashlib.sha256(raw).hexdigest()!=target["files"]["smb/smb.conf"]:
+            raise ValueError("LOCAL rendered private target SMB configuration differs")
+        view=self.observe(value,allow_missing=True)
+        wanted=json.loads(__import__("rendered_generation").rendered_read(
+            Path(os.environ.get("ABLESTACK_STORAGE_RENDERED_GENERATIONS",self.handler.generations.parent/"rendered-generations"))/
+            "generations"/scope["operationUuid"]/"smb/manifest.json"))["listeners"]
+        if ({(row["listenIp"],row["port"])for row in view["ownedEndpoints"]}!={(row["listenIp"],row["port"])for row in wanted}
+                or not view["units"]or any(row.get("tcpReady")is not True for row in view["ownedEndpoints"])):
+            raise ValueError("LOCAL rendered private target SMB replay is not live and exactly owned")
+        units=sorted({row["unit"]for row in view["units"]})
+        receipt=self.rendered_target_private_receipt(context,units)
+        self.write(value,"rendered-target-private",receipt,immutable=True)
+        return {"success":True,"targetPrivateCheckpointCaptured":True}
+
+    def prepare_rendered_target_private_restore(self,request):
+        context=self.rendered_target_private_context(request,inverse=True)
+        if context is None:return {"success":True,"targetPrivateStopped":False}
+        scope,value,record,journal,source,target,principals=context
+        receipt=self.read(self.path(value,"rendered-target-private"))
+        if not receipt:raise ValueError("LOCAL rendered private target completed replay receipt is absent")
+        expected=self.rendered_target_private_receipt(context,receipt.get("targetUnits"))
+        if (receipt!=expected or not isinstance(receipt.get("targetUnits"),list)
+                or len(set(receipt["targetUnits"]))!=len(receipt["targetUnits"])
+                or any(not re.fullmatch(r"ablestack-storage-smb@[0-9a-f]{24}\.service",unit)for unit in receipt["targetUnits"])):
+            raise ValueError("LOCAL rendered private target has no exact completed replay receipt")
+        before=self.observe(value,allow_missing=True)
+        if not {row["unit"]for row in before["units"]}<=set(receipt["targetUnits"]):
+            raise ValueError("LOCAL rendered private target acquired a foreign acceptor")
+        service={**scope,"maintenanceUuid":scope["operationUuid"]}
+        stopped=self.command(("operation","quiesce"),{**service,"domains":["SMB"]})
+        if (stopped.get("success")is not True or stopped.get("quiesced")is not True or stopped.get("scope")!=service
+                or stopped.get("maintenanceKind")!="SERVICE"or stopped.get("bootHeld")is not True
+                or stopped.get("domainsQuiesced")!=["SMB"]):
+            raise ValueError("LOCAL rendered private target stop is unknown")
+        view=self.stopped_observation()
+        if (view["configurationSha256"]!=receipt["targetSmbConfigurationSha256"]
+                or self.rendered_target_private_snapshot(principals)!=receipt["private"]):
+            raise ValueError("LOCAL rendered private target changed across its owned stop")
+        proof={"schemaVersion":1,"kind":"LOCAL_RENDERED_TARGET_PRIVATE_STOPPED","scope":receipt["scope"],
+            "targetReceiptSha256":service_cipher_digest(receipt),"sourceReference":self.reference(record),
+            "bootId":value["expectedBootId"],"stoppedUnits":stopped["stoppedUnits"],"stopped":view}
+        self.write(value,"rendered-target-private-stop",proof,immutable=True)
+        return {"success":True,"targetPrivateStopped":True}
+
+    def rendered_target_private_restore_safe(self,value,record,payload):
+        scope={key:value[key]for key in("instanceUuid","operationUuid","revision")}
+        request={**scope,"localSourceCheckpointReference":value["localSourceCheckpointReference"],
+            "checkpointPrivateKey":value["credentialPrivateKey"],"renderedManifestSha256":value["renderedManifestSha256"]}
+        context=self.rendered_target_private_context(request,inverse=True)
+        if context is None:raise ValueError("LOCAL rendered private inverse source was not originally absent")
+        receipt=self.read(self.path(value,"rendered-target-private"))
+        stopped=self.read(self.path(value,"rendered-target-private-stop"))
+        if (not receipt or not stopped or stopped.get("schemaVersion")!=1
+                or stopped.get("kind")!="LOCAL_RENDERED_TARGET_PRIVATE_STOPPED"
+                or stopped.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}
+                or stopped.get("targetReceiptSha256")!=service_cipher_digest(receipt)
+                or stopped.get("sourceReference")!=self.reference(record)or stopped.get("bootId")!=value["expectedBootId"]
+                or receipt!=self.rendered_target_private_receipt(context,receipt.get("targetUnits"))
+                or record.get("privateFingerprints")!={}
+                or any(payload["files"].get(path)!={"absent":True}for path,meta in receipt.get("private",{}).get("files",{}).items()
+                    if meta.get("present")is True and path not in("/etc/passwd","/etc/group","/etc/shadow","/etc/gshadow"))):
+            raise ValueError("LOCAL rendered private inverse lacks its exact stopped target proof")
+        self.state(value,recovery=True)
+        view=self.stopped_observation()
+        if view!=stopped["stopped"]:
+            raise ValueError("LOCAL rendered private inverse stopped FD or configuration changed")
+        return stopped
 
     def import_source(self,value):
         self._failure_stage="IMPORT_SOURCE_AUTHORITY"
@@ -1256,9 +1568,13 @@ class SmbSourceCheckpoint:
         payload=self.decode(value,record)
         if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():
             self.unconfigured_stop_bridge(value,journal,payload)
+        target_stop=None
         for path in IDENTITY_DATABASES.values():
             if payload["files"].get(path)=={"absent":True}and os.path.lexists(path):
-                raise ValueError("LOCAL refuses to erase an unproven new SAM/database")
+                if self.read(self.path(scope,"rendered-target-private-stop"))is None:
+                    raise ValueError("LOCAL refuses to erase an unproven new SAM/database")
+                target_stop=self.rendered_target_private_restore_safe(value,record,payload)
+                break
         try:
             if journal.get("imported")is True and journal["phase"]=="RESUMED":
                 self._failure_stage="IMPORT_CACHE_OBSERVE"
@@ -1270,7 +1586,10 @@ class SmbSourceCheckpoint:
                 return self.result(record,journal,imported=True)
             if journal.get("imported")is not True:
                 self._failure_stage="IMPORT_STOP"
-                if journal["phase"]!="STOPPED":self.stop(value,journal,rollback=True)
+                if target_stop is not None:
+                    journal["targetPrivateStopReference"]=service_cipher_digest(target_stop)
+                    journal["phase"]="STOPPED";self.write(scope,"journal",journal)
+                elif journal["phase"]!="STOPPED":self.stop(value,journal,rollback=True)
                 self._failure_stage="IMPORT_STOPPED_OBSERVE"
                 self.stopped_observation()
                 file_payload=dict(payload);file_payload.pop("posixPolicies",None);file_payload.pop("sourceConfigurationSha256",None)

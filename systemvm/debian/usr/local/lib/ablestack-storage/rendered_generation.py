@@ -214,6 +214,14 @@ class RenderedGeneration:
         temporary = Path(tempfile.mkdtemp(prefix=".stage-", dir=self.root))
         try:
             temporary.chmod(0o700)
+            parents = set()
+            for name in normalized:
+                parent = (temporary / name).parent
+                while parent != temporary:
+                    parents.add(parent)
+                    parent = parent.parent
+            for parent in sorted(parents, key=lambda path: (len(path.parts), str(path))):
+                rendered_directory(parent, True)
             for name, value in normalized.items(): rendered_write(temporary / name, value)
             # The fixed native validator must validate all four protocols. It
             # runs before any public pointer or runtime side effect changes.

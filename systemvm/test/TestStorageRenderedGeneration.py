@@ -15,10 +15,13 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
+import types
 import unittest
+from unittest.mock import patch
 import uuid
 
 SOURCE=Path(__file__).resolve().parents[2]/'systemvm/debian/usr/local/lib/ablestack-storage/rendered_generation.py'
@@ -63,6 +66,71 @@ class StorageRenderedGenerationTest(unittest.TestCase):
 
     def next_scope(self):
         return {**self.scope,'operationUuid':str(uuid.uuid4()),'revision':2,'expectedCurrentRenderedSha256':self.manifest['manifestSha256']}
+
+    def dynamic_first_files(self):
+        files = {
+            "nfs/ganesha/" + "a" * 24 + ".conf": "# public test configuration\n",
+            "nfs/exports/" + self.instance + ".exports": "# public test export\n",
+            "smb/listeners/" + "b" * 24 + ".json": "{}"}
+        files.update(self.rendered_files("new"))
+        return files
+
+    def test_dynamic_paths_before_manifests_create_all_private_parents_under_both_umasks(self):
+        for mask in (0o022, 0o077):
+            with self.subTest(umask=oct(mask)):
+                old = os.umask(mask)
+                try:
+                    request = self.next_scope()
+                    manifest = self.store.stage(request, self.dynamic_first_files(), self.validate)
+                finally:
+                    os.umask(old)
+                target = self.store.generations / request["operationUuid"]
+                for name in ("nfs", "nfs/ganesha", "nfs/exports", "smb", "smb/listeners", "block"):
+                    self.assertEqual(0o700, (target / name).lstat().st_mode & 0o777)
+                self.assertEqual(manifest, self.store.inspect(target))
+                self.assertEqual([], self.calls)
+
+    def test_existing_insecure_linked_or_foreign_stage_parent_is_never_adopted(self):
+        real_mkdtemp = module.tempfile.mkdtemp
+        for kind in ("insecure", "linked", "foreign"):
+            with self.subTest(kind=kind):
+                request = self.next_scope()
+                external = self.store.root.parent / ("outside-" + kind)
+                external.mkdir(mode=0o700)
+                sentinel = external / "sentinel"
+                sentinel.write_text("preserved")
+                seen = []; foreign = set(); real_lstat = Path.lstat
+                def observed_lstat(path, *args, **kwargs):
+                    info = real_lstat(path, *args, **kwargs)
+                    if (info.st_dev, info.st_ino) in foreign:
+                        fields = {name: getattr(info, name) for name in dir(info) if name.startswith("st_")}
+                        fields["st_uid"] = os.geteuid() + 1
+                        return types.SimpleNamespace(**fields)
+                    return info
+                def stage_dir(*args, **kwargs):
+                    path = Path(real_mkdtemp(*args, **kwargs))
+                    parent = path / "nfs"
+                    if kind == "linked":
+                        parent.symlink_to(external)
+                    else:
+                        parent.mkdir(mode=0o755 if kind == "insecure" else 0o700)
+                        if kind == "foreign":
+                            info = real_lstat(parent)
+                            foreign.add((info.st_dev, info.st_ino))
+                    seen.append((parent.lstat().st_mode, parent.lstat().st_uid))
+                    return str(path)
+                old = os.umask(0o022)
+                try:
+                    with patch.object(module.tempfile, "mkdtemp", stage_dir), patch.object(Path, "lstat", observed_lstat):
+                        with self.assertRaisesRegex(ValueError, "directory is not protected"):
+                            self.store.stage(request, self.dynamic_first_files(), self.validate)
+                finally:
+                    os.umask(old)
+                self.assertTrue(seen)
+                self.assertEqual("preserved", sentinel.read_text())
+                self.assertEqual([sentinel], list(external.iterdir()))
+                self.assertFalse((self.store.generations / request["operationUuid"]).exists())
+                self.assertEqual([], self.calls)
 
     def test_validation_failure_never_changes_current_files_or_runtime(self):
         request=self.next_scope();old=self.store.pointer()

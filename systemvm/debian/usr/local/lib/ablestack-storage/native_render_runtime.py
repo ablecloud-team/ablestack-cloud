@@ -139,7 +139,8 @@ class NativeRenderedRuntime:
         desired = json.loads(rendered_read(path / "desired-state.json"))
         value = desired[PROTOCOL_FILES[domain]]
         if value is None:
-            value = {"enabled": False, {"NFS":"exports", "SMB":"shares", "ISCSI":"targets", "NVMEOF":"subsystems"}[domain]: []}
+            value = {"instanceUuid": self.store.inspect(path)["scope"]["instanceUuid"],
+                     "enabled": False, {"NFS":"exports", "SMB":"shares", "ISCSI":"targets", "NVMEOF":"subsystems"}[domain]: []}
         value = json.loads(json.dumps(value))
         # Credential input is indexed by the immutable resource ACL identity.
         # Reject unused/foreign entries rather than expanding desired access.

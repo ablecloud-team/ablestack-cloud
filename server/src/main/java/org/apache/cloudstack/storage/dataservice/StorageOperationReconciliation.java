@@ -57,8 +57,19 @@ public final class StorageOperationReconciliation {
 
     public static void requireTarget(String instanceUuid, StorageServiceOperationVO operation, String currentSnapshot,
             com.google.gson.JsonObject currentBindings, com.google.gson.JsonObject status) {
+        requireTargetEvidence(instanceUuid,operation,currentSnapshot,currentBindings,status,java.util.Set.of("RUNNING","RECOVERY_REQUIRED"));
+    }
+
+    /** Completion publication never rewrites an unresolved operation or replays its target. */
+    public static void requireCompletedTarget(String instanceUuid, StorageServiceOperationVO operation, String currentSnapshot,
+            com.google.gson.JsonObject currentBindings, com.google.gson.JsonObject status) {
+        requireTargetEvidence(instanceUuid,operation,currentSnapshot,currentBindings,status,java.util.Set.of("COMPLETE"));
+    }
+
+    private static void requireTargetEvidence(String instanceUuid, StorageServiceOperationVO operation, String currentSnapshot,
+            com.google.gson.JsonObject currentBindings, com.google.gson.JsonObject status,java.util.Set<String> states) {
         com.google.gson.JsonObject result = object(operation.getResultJson());
-        if (!java.util.Set.of("RUNNING","RECOVERY_REQUIRED").contains(operation.getState())
+        if (!states.contains(operation.getState())
                 || operation.getSnapshotJson() == null || !object(operation.getSnapshotJson()).equals(object(currentSnapshot))
                 || !result.has("_response") || !currentBindings.equals(result.get("_targetResourceBindings"))
                 || !committedTarget(instanceUuid,operation,status)

@@ -96,7 +96,46 @@ public final class StorageConfigDomainRestore {
         if (visible == null || !visible.startsWith("/export/")) throw new InvalidParameterValueException("Legacy share directory must be a verified export path");
         return PosixDirectoryPolicy.relativePath(visible.substring(1));
     }
-    public void validateBindings(JsonObject plan) {
+    static boolean legacyProtocolEndpoint(JsonObject row, boolean wildcard) {
+        try {
+            if (!row.keySet().equals(StorageConfigRestorePlan.ROW_KEYS.get("protocols"))
+                    || !Set.of("ISCSI","NVME_OF").contains(text(row,"protocol"))
+                    || !row.get("enabled").isJsonPrimitive() || !row.get("enabled").getAsJsonPrimitive().isBoolean() || !row.get("enabled").getAsBoolean()
+                    || row.getAsJsonObject("config").size()!=0
+                    || !java.util.UUID.fromString(text(row,"uuid")).toString().equals(text(row,"uuid"))
+                    || !row.get("port").isJsonPrimitive() || !row.get("port").getAsJsonPrimitive().isNumber()
+                    || row.get("port").getAsBigDecimal().longValueExact()!=("ISCSI".equals(text(row,"protocol"))?3260:4420)) return false;
+            JsonElement state=row.get("state");
+            if (!state.isJsonNull()) {
+                if (!state.isJsonPrimitive() || !state.getAsJsonPrimitive().isString()) return false;
+                StorageServiceInstance.ResourceState.valueOf(state.getAsString());
+            }
+            if (wildcard) return row.get("listen_ip").isJsonNull();
+            String address=text(row,"listen_ip");
+            return address!=null && !address.equals("0.0.0.0") && com.cloud.utils.net.NetUtils.isValidIp4(address);
+        } catch (RuntimeException invalid) {return false;}
+    }
+    private static boolean legacyDefault(JsonObject change, JsonArray changes) {
+        if (!"CREATE".equals(text(change,"action")) || !"protocols".equals(text(change,"kind"))
+                || !legacyProtocolEndpoint(change.getAsJsonObject("desired"),true)) return false;
+        JsonObject desired=change.getAsJsonObject("desired");
+        for (JsonElement value:changes) {
+            JsonObject peer=value.getAsJsonObject(),source=peer.getAsJsonObject("desired");
+            if ("protocols".equals(text(peer,"kind")) && legacyProtocolEndpoint(source,false)
+                    && desired.get("protocol").equals(source.get("protocol")) && desired.get("port").equals(source.get("port"))) return true;
+        }
+        return false;
+    }
+    private static final class ProtocolOrder implements java.util.Comparator<JsonElement> {
+        private final JsonArray changes;
+        ProtocolOrder(JsonArray value) {changes=value;}
+        public int compare(JsonElement left,JsonElement right) {
+            return Boolean.compare(legacyDefault(left.getAsJsonObject(),changes),legacyDefault(right.getAsJsonObject(),changes));
+        }
+    }
+    public void validateBindings(JsonObject plan) {validateBindings(plan,false);}
+    void validatePlanBindings(JsonObject plan) {validateBindings(plan,true);}
+    private void validateBindings(JsonObject plan, boolean planning) {
         Map<String, JsonObject> owners = new HashMap<>();
         for (String action : new String[] {"keep", "update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
             JsonObject change = item.getAsJsonObject();owners.put(text(change, "sourceUuid"), change.getAsJsonObject("desired"));
@@ -107,6 +146,13 @@ public final class StorageConfigDomainRestore {
                 if(text(desired,"domain_name")!=null&&!text(desired,"domain_name").isBlank()&&!plan.has("adIdentitySourceDescriptor"))throw new InvalidParameterValueException("AD domain restore requires the reviewed authenticated source");
                 continue;
             }
+            if ("protocols".equals(kind) && !StorageConfigRestorePlan.protocolEnabled(desired)
+                    && (!planning || !plan.getAsJsonArray("blockers").contains(new com.google.gson.JsonPrimitive("DISABLED_PROTOCOL_RESTORE_UNSUPPORTED:"+text(desired,"uuid")))))
+                throw new InvalidParameterValueException("Disabled protocol configuration cannot be restored through the current domain API");
+            if ("protocols".equals(kind) && "update".equals(action) && change.has("current")
+                    && !StorageConfigRestorePlan.protocolTuple(desired).equals(StorageConfigRestorePlan.protocolTuple(change.getAsJsonObject("current")))
+                    && (!planning || !plan.getAsJsonArray("blockers").contains(new com.google.gson.JsonPrimitive("PROTOCOL_ENDPOINT_UPDATE_UNSUPPORTED:"+text(desired,"uuid")))))
+                throw new InvalidParameterValueException("Protocol address or port changes cannot be restored as an endpoint UPDATE");
             Command command = command(kind, desired, "update".equals(action), owners,plan.has("adIdentitySourceDescriptor"));
             JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
             if ("access-rules".equals(kind)) {
@@ -128,6 +174,8 @@ public final class StorageConfigDomainRestore {
             JsonObject change=item.getAsJsonObject(),desired=change.getAsJsonObject("desired");
             if("access-rules".equals(text(change,"kind"))&&Set.of("LOCAL_USER","LOCAL_GROUP").contains(text(desired,"principal_type"))&&credentials.has(text(desired,"uuid")))throw new InvalidParameterValueException("Encrypted-source LOCAL restore forbids credential replacement");
         }
+        validateBindings(plan);
+        JsonObject protocolBefore=manager.configurationProtocolIntentSnapshot(instance);
         Map<String, Long> currentIds = manager.configurationResourceIds(instance.getId());
         Map<String, Long> mapped = new HashMap<>();Map<String, JsonObject> owners = new HashMap<>();
         JsonArray changes = new JsonArray();
@@ -171,6 +219,7 @@ public final class StorageConfigDomainRestore {
             for (String kind : new String[] {"protocols", "posix-directory-policies", "file-shares", "block-targets", "access-rules"}) {
                 java.util.List<JsonElement> ordered = new java.util.ArrayList<>();
                 for (JsonElement item : changes) ordered.add(item);
+                if ("protocols".equals(kind)) ordered.sort(new ProtocolOrder(changes));
                 if ("block-targets".equals(kind)) ordered.sort(java.util.Comparator.comparingInt(item -> {
                     JsonObject desired = item.getAsJsonObject().getAsJsonObject("desired");
                     return desired.has("config") && "namespace".equals(text(desired.getAsJsonObject("config"), "type")) ? 1 : 0;
@@ -180,7 +229,8 @@ public final class StorageConfigDomainRestore {
                     if ("identity-domain".equals(kind)) continue;
                     JsonObject desired = change.getAsJsonObject("desired");boolean update = "UPDATE".equals(text(change, "action"));
                     Command command = command(kind, desired, update, owners,plan.has("adIdentitySourceDescriptor"));JsonObject parameters = StorageConfigCommandBinding.parameters(desired, kind);
-                    if (update) parameters.addProperty("id", mapped.get(text(change, "sourceUuid")));
+                    if ("protocols".equals(kind)) parameters.addProperty("instanceid",instance.getId());
+                    else if (update) parameters.addProperty("id", mapped.get(text(change, "sourceUuid")));
                     else if (!command.type.equals(CreateStorageNvmeOfNamespaceCmd.class) && !kind.equals("access-rules")) parameters.addProperty("instanceid", instance.getId());
                     String volume = text(desired, "volumeUuid");
                     if (volume != null) parameters.addProperty("volumeid", manager.configurationVolumeId(instance, plan.getAsJsonObject("volumeMappings").get(volume).getAsString()));
@@ -237,7 +287,19 @@ public final class StorageConfigDomainRestore {
                         parameters.addProperty("confirmfileexecute", true);
                     }
                     BaseCmd cmd = StorageConfigCommandBinding.bind(command.type, parameters);
-                    Object response = manager.invokeConfigurationDomainCommand(cmd, command.method);
+                    Object response;
+                    if ("protocols".equals(kind) && legacyDefault(change,changes)) {
+                        JsonArray peers=new JsonArray();
+                        for (JsonElement candidate:changes) {
+                            JsonObject peer=candidate.getAsJsonObject(),source=peer.getAsJsonObject("desired");
+                            if (!"protocols".equals(text(peer,"kind")) || !legacyProtocolEndpoint(source,false)
+                                    || !source.get("protocol").equals(desired.get("protocol")) || !source.get("port").equals(desired.get("port"))) continue;
+                            Long actual=mapped.get(text(peer,"sourceUuid"));
+                            if (actual==null) throw new InvalidParameterValueException("Reviewed specific protocol endpoint is not applied before its legacy default");
+                            JsonObject evidence=new JsonObject();evidence.add("source",source.deepCopy());evidence.addProperty("id",actual);peers.add(evidence);
+                        }
+                        response=manager.restoreConfigurationLegacyDefaultProtocol(instance,desired,peers);
+                    } else response = manager.invokeConfigurationDomainCommand(cmd, command.method);
                     Map<String, Long> after = manager.configurationResourceIds(instance.getId());
                     if (update) continue;
                     // Current API services allocate fresh UUIDs. Bind provenance to the one new scoped row.
@@ -252,6 +314,7 @@ public final class StorageConfigDomainRestore {
                     String newUuid = added.iterator().next();mapped.put(text(change, "sourceUuid"), after.get(newUuid));currentIds = after;
                 }
             }
+            manager.requireConfigurationProtocolIntent(instance,plan,mapped,protocolBefore);
             manager.finishConfigurationBatch(instance);
         } finally { manager.abortConfigurationBatch(); }
     }

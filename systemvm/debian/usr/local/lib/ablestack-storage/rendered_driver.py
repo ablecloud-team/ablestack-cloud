@@ -442,11 +442,37 @@ class RenderedDriver:
         refs=self.staged_credential_refs(path);saved=self.recovery_key(request)
         return credential_target_inputs(request,desired,refs,saved,self.credential_source(request)["configurationSha256"],source_only)
 
+    def verified_empty_local_smb_restore(self, request, record):
+        # Only the already-authenticated, imported opaque LOCAL SOURCE can
+        # suppress a lower empty apply that would replace its original vendor
+        # configuration. This proof is consumed by this one rollback closure.
+        if record["sourceDesiredState"]["desired-state/smb-share-apply.json"] is not None:
+            return False
+        if (record["scope"] != {**self.store.scope(request),
+                "localCheckpointUuid": request["localSourceCheckpointReference"]["localCheckpointUuid"]}
+                or record["privateFingerprints"] != {}
+                or any(row.get("present") is not False for row in record["stoppedDatabases"].values())):
+            raise ValueError("Empty LOCAL SMB replay lacks its original absent private source")
+        common = record["common"]
+        observed = self.runtime.command(("smb", "identity", "local-source-status"), common)
+        expected = {"scope": record["scope"], "bootId": common["expectedBootId"],
+            "sourceGeneration": common["sourceGeneration"],
+            "sourceConfigurationSha256": common["sourceConfigurationSha256"],
+            "currentConfigurationSha256": common["sourceConfigurationSha256"],
+            "currentSmbConfigurationSha256": record["sourceConfigurationFileSha256"],
+            "localSourceCheckpointReference": request["localSourceCheckpointReference"], "phase": "RESUMED"}
+        if (any(observed.get(key) != value for key, value in expected.items())
+                or any(observed.get(key) is not True for key in ("success", "sourceSmbResumed",
+                    "sourceRuntimeVerified", "currentRuntimeOwnershipVerified", "currentSessionsVerifiedEmpty"))):
+            raise ValueError("Empty LOCAL SMB original runtime did not freshly verify")
+        return True
+
     def restore_identity(self, request):
         journal=self.store.scoped_activation(request)
         domains=[domain for domain in journal.get("startedDomains",journal["changedDomains"]) if domain in ("SMB","ISCSI","NVMEOF")]
         if not domains:return {"success":True,"identityRestored":False,"unaffectedIdentityPreserved":True}
         saved = self.recovery_key(request)
+        empty_local_smb_restored = False
         previous = self.store.pointer()
         previous_manifest = self.store.inspect(previous)
         if previous_manifest["configurationSha256"] != saved["sourceConfigurationSha256"]:
@@ -501,6 +527,8 @@ class RenderedDriver:
             common=record["common"]
             # Both manifests/checkpoint/key were authenticated before this
             # canonical SOURCE restoration. No current TARGET is called SOURCE.
+            if "SMB" in domains:
+                SmbSourceCheckpoint(self.runtime.cli).prepare_rendered_target_private_restore(request)
             self.persist_desired(previous)
             local_request={**common,"capsule":saved["capsule"],"credentialPrivateKey":request["checkpointPrivateKey"],
                 "localSourceCheckpointReference":local_ref,"renderedManifestSha256":request["renderedManifestSha256"]}
@@ -511,6 +539,7 @@ class RenderedDriver:
             if auth:
                 self.runtime.command(("identity","capsule","replay-local-source-auth"),{**local_request,"restoreDomains":auth,
                     **({"nvmeDesired":desired}if "NVMEOF"in auth else {})})
+            empty_local_smb_restored = self.verified_empty_local_smb_restore(request, record) if "SMB" in domains else False
         else:self.runtime.command(("identity", "capsule", "import"), {**saved["scope"], "capsule": saved["capsule"],
                              "credentialPrivateKey": request["checkpointPrivateKey"], "deferNvmeReplay": True,"restoreDomains":domains})
         if "SMB" in domains and identity.get("adIdentity") is not None:
@@ -520,6 +549,7 @@ class RenderedDriver:
             if (retained.get("scope")!=saved["scope"] or retained.get("identityPreserved") is not True or retained.get("rejoined") is not False
                     or retained.get("identity",{}).get("identityVerified") is not True):
                 raise ValueError("Scoped SMB rollback did not verify its exact preserved AD identity")
+        return empty_local_smb_restored
 
 
     def persist_one(self, name, value):
@@ -936,12 +966,19 @@ class RenderedDriver:
         target_credentials=self.protected_target_credentials(request,source_only=action=="render-rollback")
         self.runtime.credentials={"target":target_credentials,"previous":{}}
         previous_restored = False
+        empty_local_smb_restored = False
         def replay(path, domain, rollback):
-            nonlocal previous_restored
+            nonlocal previous_restored, empty_local_smb_restored
             if retained is not None and rollback:raise ValueError("Retained ROOT cannot replay historical protocols/identity/permissions; latest ROOT compensation is required")
             if rollback and not previous_restored:
-                self.restore_identity(request); previous_restored = True
-            return self.runtime.replay(path, domain, rollback)
+                empty_local_smb_restored = self.restore_identity(request) is True
+                previous_restored = True
+            if rollback and domain == "SMB" and empty_local_smb_restored:
+                return
+            result=self.runtime.replay(path, domain, rollback)
+            if not rollback and domain=="SMB"and request.get("localSourceCheckpointReference")is not None:
+                SmbSourceCheckpoint(self.runtime.cli).capture_rendered_target_private(request)
+            return result
         proof=None
         try:
             proof = self.authorize_units(request)

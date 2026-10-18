@@ -59,6 +59,16 @@ public class StorageOperationReconciliationTest {
         status.addProperty("pendingOperationUuid",operation.getUuid());
         StorageOperationReconciliation.requireTarget("instance",operation,operation.getSnapshotJson(),new com.google.gson.JsonObject(),status);
     }
+    @Test public void completedPublicationUsesTheSameTargetProofWithoutAdoptingAnUnresolvedState() {
+        StorageServiceOperationVO operation=row(7,8,"COMPLETE");com.google.gson.JsonObject status=status(operation);target(operation,status);
+        StorageOperationReconciliation.requireCompletedTarget("instance",operation,operation.getSnapshotJson(),new com.google.gson.JsonObject(),status);
+        Assert.assertThrows(RuntimeException.class,()->StorageOperationReconciliation.requireTarget("instance",operation,operation.getSnapshotJson(),new com.google.gson.JsonObject(),status));
+        operation.setState("RUNNING");
+        Assert.assertThrows(RuntimeException.class,()->StorageOperationReconciliation.requireCompletedTarget("instance",operation,operation.getSnapshotJson(),new com.google.gson.JsonObject(),status));
+        operation.setState("COMPLETE");
+        Assert.assertThrows(RuntimeException.class,()->StorageOperationReconciliation.requireCompletedTarget("instance",operation,"{}",new com.google.gson.JsonObject(),status));
+    }
+
     @Test public void foreignBootDigestRevisionPendingOrMissingTargetCannotFinalize() {
         for(String field:new String[]{"bootId","configurationSha256","runtimeRevision","pendingOperationUuid"}) {
             StorageServiceOperationVO operation=row(7,8,"RECOVERY_REQUIRED");com.google.gson.JsonObject status=status(operation);target(operation,status);

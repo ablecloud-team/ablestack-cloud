@@ -37,11 +37,11 @@ public class StorageConfigFreshObservationTest {
     }
 
     @Test public void stoppedOrMissingVmAvailabilityHasNoGuestSideEffect() {
-        for(boolean missing:new boolean[]{false,true}) {
+        for(VirtualMachine.State state:new VirtualMachine.State[]{VirtualMachine.State.Stopped,VirtualMachine.State.Error,null}) {
             StorageServiceManagerImpl manager=new StorageServiceManagerImpl();StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
             VMInstanceDao vms=Mockito.mock(VMInstanceDao.class);ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);ReflectionTestUtils.setField(manager,"vmInstanceDao",vms);
             StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(48L);
-            if(!missing){VMInstanceVO vm=Mockito.mock(VMInstanceVO.class);Mockito.when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);Mockito.when(vms.findById(48L)).thenReturn(vm);}
+            if(state!=null){VMInstanceVO vm=Mockito.mock(VMInstanceVO.class);Mockito.when(vm.getState()).thenReturn(state);Mockito.when(vms.findById(48L)).thenReturn(vm);}
             com.google.gson.JsonObject availability=manager.configurationBackupAvailability(instance);
             Assert.assertFalse(availability.get("sourceNativeVerified").getAsBoolean());Assert.assertEquals("VM_NOT_RUNNING",availability.get("reason").getAsString());
             Mockito.verifyNoInteractions(guest);

@@ -64,8 +64,9 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
         self.adapter.require_drained(('NFS','SMB'))
 
     def test_unknown_adapter_and_foreign_credential_acl_are_rejected_before_execution(self):
+        scope={"instanceUuid":str(uuid.uuid4()),"operationUuid":str(uuid.uuid4()),"revision":1}
         class Store:
-            def inspect(self,path):return {}
+            def inspect(self,path):return {"scope":scope}
         self.adapter.store=Store()
         self.adapter.command=lambda *args,**kwargs: (_ for _ in ()).throw(AssertionError('unexpected execution'))
         with self.assertRaises(ValueError):self.adapter.replay(Path('/unused'),'EXECUTABLE')
@@ -73,6 +74,18 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
         desired={name:None for name in ('desired-state/nfs-export-apply.json','desired-state/smb-share-apply.json','iscsi-targets.json','nvmeof-subsystems.json')}
         with patch('native_render_runtime.rendered_read',return_value=json.dumps(desired).encode()):
             with self.assertRaises(ValueError):self.adapter.payload(Path('/unused'),'SMB')
+
+    def test_null_source_payload_keeps_the_immutable_manifest_instance_for_normal_empty_adapters(self):
+        instance=str(uuid.uuid4());scope={"instanceUuid":instance,"operationUuid":str(uuid.uuid4()),"revision":1}
+        self.adapter.store=type("Store",(),{"inspect":lambda ignored,path:{"scope":scope}})()
+        self.adapter.reobserve_block=lambda path,plan:{}
+        desired={name:None for name in ("desired-state/nfs-export-apply.json","desired-state/smb-share-apply.json",
+                                        "iscsi-targets.json","nvmeof-subsystems.json")}
+        for domain,collection in (("NFS","exports"),("SMB","shares"),("ISCSI","targets"),("NVMEOF","subsystems")):
+            with self.subTest(domain=domain),patch("native_render_runtime.rendered_read",
+                    side_effect=lambda path:json.dumps({"targets":[]}if str(path).endswith("-plan.json")else desired).encode()):
+                self.assertEqual({"instanceUuid":instance,"enabled":False,collection:[]},
+                                 self.adapter.payload(Path("/unused"),domain,rollback=True))
 
     def test_cold_nvme_readback_requires_durable_instance_and_exact_host_controller_keys(self):
         from nvme_credentials import NvmeCredentialStore

@@ -150,6 +150,30 @@ public final class StorageConfigurationVolumeAllocation {
         JsonObject next = advance(receipt, "PREPARED");next.addProperty("filesystemUuid", filesystemUuid);return save(runtime, receipt, next);
     }
 
+    /** Observe the completed foundation without allocating, attaching or formatting again. */
+    public static void requirePrepared(JsonObject frozenPlan, Runtime runtime) {
+        StorageConfigurationVolumePlan.requireFrozen(frozenPlan);
+        for (JsonElement value : frozenPlan.getAsJsonArray("allocations")) {
+            JsonObject allocation = executionAllocation(frozenPlan, value.getAsJsonObject());
+            JsonObject receipt = runtime.loadReceipt(text(allocation, "plannedUuid"));
+            require(receipt != null, "Completed foundation has no durable additional DATA receipt");
+            requireReceipt(allocation, receipt);
+            require("PREPARED".equals(text(receipt, "phase")), "Additional DATA foundation is incomplete");
+            JsonObject volume = runtime.findVolume(text(allocation, "plannedUuid"));requireVolume(allocation, volume, true);
+            require(text(allocation, "targetInstanceUuid").equals(nullable(volume, "attachedInstanceUuid")), "Prepared DATA left its exact target");
+            JsonObject observed = runtime.inspect(allocation.deepCopy());requireObservation(allocation, observed);
+            require(observed.has("formatterActive") && !StorageConfigurationVolumePlan.flag(observed, "formatterActive"), "Prepared DATA formatter is active or unknown");
+            if ("FILE".equals(text(allocation, "usage"))) {
+                require(text(receipt, "filesystemUuid").equals(nullable(observed, "filesystemUuid"))
+                        && text(allocation, "filesystem").equalsIgnoreCase(nullable(observed, "filesystem")), "Prepared FILE DATA filesystem changed");
+                if (StorageConfigurationVolumePlan.flag(receipt, "formatStarted"))
+                    require(completedNativePreparation(allocation, observed), "Prepared FILE DATA lost its successful formatter proof");
+            } else require("BLOCK_RAW".equals(text(allocation, "usage"))
+                    && !StorageConfigurationVolumePlan.flag(receipt, "formatStarted")
+                    && StorageConfigurationVolumePlan.flag(receipt, "rawIdentityVerified"), "Prepared RAW DATA has no exact no-format receipt");
+        }
+    }
+
     /** Explicit opt-in only. Default failures preserve DATA. Formatted/published/referenced DATA cannot be auto-deleted. */
     public static JsonObject cleanupUnpublished(JsonObject frozenPlan, String sourceUuid, boolean explicitlyRequested, Runtime runtime) {
         StorageConfigurationVolumePlan.requireFrozen(frozenPlan);require(explicitlyRequested, "Default clone failure policy is PRESERVE");

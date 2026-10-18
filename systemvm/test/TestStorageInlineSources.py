@@ -228,7 +228,8 @@ class StorageInlineSourcesTest(unittest.TestCase):
         self.assertEqual(pending_nfs_readonly_body(),readers);ast.parse(readers)
         generation=(LIB/"config_generation.py").read_text()
         generation=generation[generation.index('"""Durable desired-state'):].rstrip()
-        embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\nimport sys\nrequest =",1)[0]
+        self.assertEqual(1,source.count("# BEGIN EMBEDDED CLONE_INITIAL_WITNESS_V1"+chr(10)))
+        embedded=source.split("<<'PYGENERATION'\n",1)[1].split("\n# BEGIN EMBEDDED CLONE_INITIAL_WITNESS_V1",1)[0]
         self.assertEqual(generation,embedded);ast.parse(embedded)
 
     def test_signed_iscsi_cleanup_reuses_exact_protected_generation_readers_and_receipt_validation(self):

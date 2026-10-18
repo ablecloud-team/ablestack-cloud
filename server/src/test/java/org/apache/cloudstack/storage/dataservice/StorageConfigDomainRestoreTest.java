@@ -265,4 +265,22 @@ public class StorageConfigDomainRestoreTest {
         JsonObject parameters=StorageConfigCommandBinding.parameters(row,"block-targets");Assert.assertEquals("FILE",parameters.get("backstoretype").getAsString());Assert.assertEquals("ALL",parameters.get("endpointmode").getAsString());
         StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageIscsiTargetCmd.class,parameters);
     }
+    @Test public void sameProtocolEndpointModeUpdateUsesItsNormalInstanceTupleCommand() {
+        StorageServiceManagerImpl manager=Mockito.mock(StorageServiceManagerImpl.class);StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getId()).thenReturn(7L);Mockito.when(instance.getUuid()).thenReturn("11111111-1111-4111-8111-111111111111");
+        String uuid="22222222-2222-4222-8222-222222222222";
+        Mockito.when(manager.configurationResourceIds(7L)).thenReturn(java.util.Map.of(uuid,10L));
+        JsonObject plan=new JsonObject();for(String action:new String[]{"create","update","keep","preserve","blockers"})plan.add(action,new JsonArray());
+        plan.addProperty("targetInstanceUuid",instance.getUuid());plan.addProperty("targetMode","RESTORE_EXISTING");
+        JsonObject row=new JsonObject();row.addProperty("uuid",uuid);row.addProperty("protocol","NFS");row.addProperty("enabled",true);row.add("listen_ip",com.google.gson.JsonNull.INSTANCE);row.addProperty("port",2049);
+        JsonObject config=new JsonObject();config.addProperty("protocolMode","V4_ONLY");row.add("config",config);
+        JsonObject current=row.deepCopy();current.getAsJsonObject("config").addProperty("protocolMode","V3_ONLY");
+        JsonObject change=new JsonObject();change.addProperty("kind","protocols");change.addProperty("action","UPDATE");change.addProperty("sourceUuid",uuid);change.addProperty("targetUuid",uuid);change.add("desired",row);change.add("current",current);plan.getAsJsonArray("update").add(change);
+        new StorageConfigDomainRestore(manager).apply(instance,plan,new JsonObject());
+        org.mockito.ArgumentCaptor<org.apache.cloudstack.api.BaseCmd> captured=org.mockito.ArgumentCaptor.forClass(org.apache.cloudstack.api.BaseCmd.class);
+        Mockito.verify(manager).invokeConfigurationDomainCommand(captured.capture(),Mockito.eq("enableStorageServiceProtocol"));
+        org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd cmd=(org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd)captured.getValue();
+        Assert.assertEquals(Long.valueOf(7),cmd.getInstanceId());Assert.assertEquals("NFS",cmd.getProtocol());Assert.assertEquals("V4_ONLY",cmd.getProtocolMode());
+        Mockito.verify(manager).requireConfigurationProtocolIntent(Mockito.eq(instance),Mockito.eq(plan),Mockito.eq(java.util.Map.of(uuid,10L)),Mockito.any());
+    }
 }

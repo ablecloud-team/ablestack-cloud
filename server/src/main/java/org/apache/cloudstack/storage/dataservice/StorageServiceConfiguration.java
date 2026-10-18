@@ -153,6 +153,16 @@ public final class StorageServiceConfiguration {
             if (current.has("receipts")) metadata.add("receipts", current.get("receipts").deepCopy());
             if (current.has("cloneAllocation")) metadata.add("cloneAllocation", current.get("cloneAllocation").deepCopy());
             if (current.has("cloneAllocationRealizations")) metadata.add("cloneAllocationRealizations", current.get("cloneAllocationRealizations").deepCopy());
+            if (current.has("cloneRestoreOperation")) {
+                if (metadata.has("cloneRestoreOperation") && !metadata.get("cloneRestoreOperation").equals(current.get("cloneRestoreOperation")))
+                    throw new CloudRuntimeException("Clone restore operation reference cannot be changed by a stale metadata update");
+                metadata.add("cloneRestoreOperation",current.get("cloneRestoreOperation").deepCopy());
+            }
+            if (current.has("cloneInitialBaseline")) {
+                if (metadata.has("cloneInitialBaseline") && !metadata.get("cloneInitialBaseline").equals(current.get("cloneInitialBaseline")))
+                    throw new CloudRuntimeException("Initial baseline receipt cannot be changed by a stale phase snapshot");
+                metadata.add("cloneInitialBaseline", current.get("cloneInitialBaseline").deepCopy());
+            }
             locked.setMetadataJson(metadata.toString());locked.setState(state);locked.setUpdated(new Date());
             if (!artifacts.update(locked.getId(), locked)) throw new CloudRuntimeException("Configuration artifact metadata update failed");
             row.setMetadataJson(locked.getMetadataJson());row.setState(state);row.setUpdated(locked.getUpdated());
@@ -703,7 +713,7 @@ public final class StorageServiceConfiguration {
         }
         plan.add("requiredCredentials",required);
         StorageConfigRestorePlan.reviewForcedFileExecute(plan, mappings);
-        new StorageConfigDomainRestore(manager).validateBindings(plan);
+        new StorageConfigDomainRestore(manager).validatePlanBindings(plan);
         if (blueprint != null) {
             JsonArray directories = new JsonArray();
             for (JsonElement item : plan.getAsJsonArray("create")) {
@@ -811,6 +821,8 @@ public final class StorageServiceConfiguration {
         }
         metadata.addProperty("restoreState", "PREPARING");update(row, metadata, row.getState());
         try {
+        if (createNew && manager.completeConfigurationCloneRestorePublication(row,plan,new ClonePublicationCompletion(this,row,metadata)))
+            return response(compactRow(row),row.getUuid());
         StorageServiceInstanceVO selectedTarget = existingTarget;
         JsonObject executionPlan = plan.deepCopy();
         if (createNew) {
@@ -876,8 +888,12 @@ public final class StorageServiceConfiguration {
             executionPlan.add("volumeMappings", realized.getAsJsonObject("volumeMappings").deepCopy());
             metadata.addProperty("restoreState", "TARGET_PREPARED");update(row, metadata, row.getState());
         }
+        if(createNew){
+            manager.prepareConfigurationCloneFoundation(selectedTarget,row,executionPlan);
+            selectedTarget=manager.prepareConfigurationCloneInitialBaseline(selectedTarget,row,executionPlan);
+            manager.authorizeConfigurationCloneProfile(selectedTarget,row,executionPlan);
+        }
         final StorageServiceInstanceVO target = selectedTarget;final JsonObject reviewed = executionPlan;
-        if(createNew){manager.prepareConfigurationCloneFoundation(target,row,reviewed);manager.authorizeConfigurationCloneProfile(target,row,reviewed);}
             java.util.function.Supplier<StorageServiceConfigArtifactResponse> change=() -> {
             String current = manager.captureConfigurationSnapshot(target.getId());
             if (!createNew && (revision(target.getId()) != plan.get("expectedRevision").getAsLong()
@@ -886,12 +902,14 @@ public final class StorageServiceConfiguration {
             }
             manager.requireConfigurationResolvedPrimary(target, reviewed);
             if(sourceAuthority==null)manager.checkpointConfigurationIdentity(target);
+            if(createNew && sourceAuthority==null)metadata.add("cloneRestoreOperation",manager.recordConfigurationCloneRestoreOperation(target,row,reviewed));
             metadata.remove("planToken");metadata.addProperty("restoreState", "APPLYING");update(row, metadata, row.getState());
             new StorageConfigDomainRestore(manager).apply(target, reviewed, credentials);
             metadata.addProperty("restoreState", "VERIFYING");update(row, metadata, row.getState());
             return response(compactRow(row), row.getUuid());
         };
             if(sourceAuthority!=null)manager.executeProtectedIdentityConfiguration(target,request,sourceAuthority,StorageServiceConfigArtifactResponse.class,change);
+            else if(createNew)manager.executeConfigurationCloneRestore(target,row,reviewed,request.getBaseCmd(),StorageServiceConfigArtifactResponse.class,change);
             else manager.executeDesiredChange(manager.configurationTargetCommand(target.getId(),request.getBaseCmd()),StorageServiceConfigArtifactResponse.class,change);
             // Native probe, exact desired/runtime verification and LKG promotion have all returned.
             metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());
@@ -904,6 +922,18 @@ public final class StorageServiceConfiguration {
             throw failure;
         }
     }
+    private static final class ClonePublicationCompletion implements Runnable {
+        private final StorageServiceConfiguration configuration;private final StorageConfigArtifactVO artifact;private final JsonObject metadata;
+        ClonePublicationCompletion(StorageServiceConfiguration value,StorageConfigArtifactVO row,JsonObject current) {configuration=value;artifact=row;metadata=current;}
+        public void run() {
+            JsonObject recovered=new JsonObject();recovered.add("operation",metadata.get("cloneRestoreOperation").deepCopy());
+            if (metadata.has("errorCode")) recovered.add("previousErrorCode",metadata.get("errorCode").deepCopy());
+            recovered.addProperty("recoveredAt",System.currentTimeMillis());metadata.add("clonePublicationRecovery",recovered);
+            metadata.remove("errorCode");metadata.addProperty("restoreState","COMPLETE");metadata.addProperty("restoredAt",System.currentTimeMillis());
+            configuration.updateRestoredArtifact(artifact,metadata);
+        }
+    }
+
     void updateRestoredArtifact(StorageConfigArtifactVO stale, JsonObject metadata) {
         StorageConfigArtifactVO current = artifacts.findById(stale.getId());
         if (current == null || current.getInstanceId() != stale.getInstanceId()) throw new CloudRuntimeException("Restored artifact disappeared before completion");
