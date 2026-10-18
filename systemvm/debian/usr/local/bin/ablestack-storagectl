@@ -33659,7 +33659,7 @@ def render_smb_candidate(payload, cli, credential_refs=None):
         raise ValueError('SMB wildcard/specific acceptor overlap requires maintenance')
     ports=sorted({port for ip,port in rows})
     lines=['[global]','   server string = ABLESTACK Storage Service','   netbios name = '+netbios,
-           '   smb ports = '+' '.join(str(port) for port in ports),'   load printers = no','   printing = bsd',
+           '   smb ports = '+' '.join(str(port) for port in (ports or [445])),'   load printers = no','   printing = bsd',
            '   disable spoolss = yes','   map to guest = Bad User','   passdb backend = tdbsam']
     if rows and not any(ip in ('0.0.0.0','::') for ip,port in rows):
         lines+=['   interfaces = lo '+' '.join(dict.fromkeys(ip for ip,port in rows)),'   bind interfaces only = yes']

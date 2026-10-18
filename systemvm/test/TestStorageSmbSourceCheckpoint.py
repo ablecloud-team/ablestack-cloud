@@ -472,6 +472,15 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_d524_before_disabled_smb_parser(self,current):
+        # Test-only reconstruction of real Code6 bytes, never Code7 runtime authority.
+        new=b"'   smb ports = '+' '.join(str(port) for port in (ports or [445]))"
+        old=b"'   smb ports = '+' '.join(str(port) for port in ports)"
+        self.assertEqual(1,current.count(new));current=current.replace(new,old,1)
+        self.assertEqual("d5241c01c48822f16f6eb7ea21754280fb923b323e93e65e853353603af94189",
+                         hashlib.sha256(current).hexdigest())
+        return current
+
     def historical_ba792_before_empty_source_restore(self,current):
         # Exact test-only inverse of the reviewed Runtime/Driver changes.
         # The intermediate whole-code pin precedes the existing vendor/c25b inverse.
@@ -491,6 +500,7 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
 
     def historical_c25b_before_vendor_source(self,current):
         # Exact test-only inverse; production compatibility remains unchanged.
+        current=self.historical_d524_before_disabled_smb_parser(current)
         current=self.historical_ba792_before_empty_source_restore(current)
         import ast
         pins={'export': 'bd35e8cc30b71a3400cd4ecbe802efc53062df467eb938c77397fadaf50f56fa', 'restore_source_smb_configuration': 'e3dd3f656cecbcb681caba9ea434e25e16e732a237921bbab76ea57d70188887', 'smb_configuration_file_fingerprint': '3e81ac56bb18dbaedbbd84a031eee632dc21ada14c382b670972703220821c98', 'vendor_source_smb_candidate': 'c89e0b85c5aaabfd9776ddfaa2772f2107b90ae6cd2492a142f2df83f4f52936'}

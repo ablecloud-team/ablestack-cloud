@@ -53,6 +53,29 @@ class StorageNativeRenderersTest(unittest.TestCase):
         self.assertTrue(all('SYNTHETIC' not in value for value in files.values()))
         self.assertEqual(original,self.smb);self.assertEqual(before,self.file.stat())
 
+    def test_disabled_smb_candidate_has_valid_parser_port_without_authorizing_acceptors_or_shares(self):
+        import configparser
+        before=self.file.stat()
+        for payload in ({'enabled':False},{**copy.deepcopy(self.smb),'enabled':False,'listeners':[]}):
+            with self.subTest(payload=sorted(payload)):
+                original=copy.deepcopy(payload);files=m.render_smb_candidate(payload,CLI)
+                parser=configparser.ConfigParser(interpolation=None,strict=True);parser.read_string(files['smb/smb.conf'])
+                ports=[int(value)for value in parser['global']['smb ports'].split()]
+                self.assertEqual([445],ports)
+                self.assertTrue(all(1<=port<=65535 for port in ports))
+                manifest=json.loads(files['smb/manifest.json'])
+                self.assertIs(False,manifest['enabled']);self.assertEqual([],manifest['listeners']);self.assertEqual([],manifest['shares'])
+                self.assertEqual({'smb/smb.conf','smb/manifest.json'},set(files))
+                self.assertEqual(original,payload);self.assertEqual(before,self.file.stat());self.assertEqual('unchanged',self.file.read_text())
+
+    def test_active_smb_candidate_preserves_only_explicit_ports_without_disabled_fallback(self):
+        payload=copy.deepcopy(self.smb);payload['listeners']=[{'listenIp':'10.10.13.240','port':1445},{'listenIp':'10.10.13.241','port':2445}]
+        original=copy.deepcopy(payload);files=m.render_smb_candidate(payload,CLI)
+        self.assertIn('   smb ports = 1445 2445\n',files['smb/smb.conf'])
+        self.assertNotIn('   smb ports = 445\n',files['smb/smb.conf'])
+        manifest=json.loads(files['smb/manifest.json']);self.assertIs(True,manifest['enabled'])
+        self.assertEqual(payload['listeners'],manifest['listeners']);self.assertEqual(original,payload)
+
     def test_overlap_is_rejected_and_joined_ad_renders_existing_kerberos_contract(self):
         with self.assertRaises(ValueError):m.render_smb_candidate({**self.smb,'listeners':[{'listenIp':'0.0.0.0','port':445},{'listenIp':'10.10.13.240','port':445}]},CLI)
         with self.assertRaises((ValueError,OSError)):

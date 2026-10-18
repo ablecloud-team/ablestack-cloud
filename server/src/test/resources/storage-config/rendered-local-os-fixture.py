@@ -999,6 +999,8 @@ class RenderedGuestFixture:
             parser.read_string(path.read_text())
             require("global"in parser and parser["global"].get("security")=="user",
                     "SYNTHETIC_OS_TESTPARM_CONFIG_REJECTED")
+            require(not parser.has_option("global","smb ports") or bool(parser["global"]["smb ports"].strip()),
+                    "RENDERED_SMB_EMPTY_PORTS")
             self.effects.append({"kind":"OS_SYNTAX_FIXTURE_ONLY","tool":"testparm",
                                  "candidateSha256":hashlib.sha256(path.read_bytes()).hexdigest()})
             return types.SimpleNamespace(returncode=0,stdout="\n".join("["+x+"]"for x in parser.sections())+"\n",stderr="")
