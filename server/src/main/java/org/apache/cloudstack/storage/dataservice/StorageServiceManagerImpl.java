@@ -5207,13 +5207,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!Boolean.TRUE.equals(getNativeBoolean(capability,"success")) || !Boolean.TRUE.equals(getNativeBoolean(capability,"cloneInitialBaselineV1Supported")))
             throw new CloudRuntimeException("Installed runtime cannot verify a global-empty initial clone source");
         JsonObject database=parseJsonObject(captureConfigurationSnapshot(target.getId()));
-        Set<String> tables=new HashSet<>();
-        for (JsonElement value:database.getAsJsonArray("tables")) {
-            JsonObject table=value.getAsJsonObject();
-            if (!tables.add(getJsonString(table,"table")) || table.getAsJsonArray("rows").size()!=0) throw new CloudRuntimeException("Initial baseline has configured or unknown DB resources");
-        }
-        if (!tables.equals(Set.of("storage_service_protocol","storage_file_share","storage_block_target","storage_identity_domain","storage_access_rule","storage_posix_directory_policy")))
-            throw new CloudRuntimeException("Initial baseline DB scope is incomplete");
+        requireConfigurationCloneInitialDatabase(target,database);
         JsonObject bindings=operationResourceBindings(target);
         VolumeVO root=volumeDao.findById(bindings.get("rootVolumeId").getAsLong());
         JsonObject manifest=inspectRootData(target,sharedFSDao.findByVm(target.getVmId()),foundation.getUuid(),foundation.getUuid());
@@ -5229,6 +5223,42 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         authority.add("bindings",bindings);authority.addProperty("rootSizeBytes",root.getSize());
         authority.add("data",StorageConfigInitialBaseline.stableData(manifest));authority.add("database",database);
         return authority;
+    }
+
+    /** A newly created SharedFS has one unapplied compatibility NFS marker, not a configured export. */
+    protected void requireConfigurationCloneInitialDatabase(StorageServiceInstanceVO target, JsonObject database) {
+        Set<String> tables=new HashSet<>();JsonArray protocols=null;
+        for (JsonElement value:database.getAsJsonArray("tables")) {
+            JsonObject table=value.getAsJsonObject();String name=getJsonString(table,"table");JsonArray rows=table.getAsJsonArray("rows");
+            if (!tables.add(name) || !"storage_service_protocol".equals(name) && rows.size()!=0)
+                throw new CloudRuntimeException("Initial baseline has configured or unknown DB resources");
+            if ("storage_service_protocol".equals(name)) protocols=rows;
+        }
+        if (!tables.equals(Set.of("storage_service_protocol","storage_file_share","storage_block_target","storage_identity_domain","storage_access_rule","storage_posix_directory_policy")))
+            throw new CloudRuntimeException("Initial baseline DB scope is incomplete");
+        List<StorageServiceProtocolVO> fresh=storageServiceProtocolDao.listByInstanceId(target.getId());
+        if (protocols.size()==0 && fresh.isEmpty()) return;
+        if (protocols.size()!=1 || fresh.size()!=1) throw new CloudRuntimeException("Initial baseline has configured or unknown DB resources");
+        JsonObject row=protocols.get(0).getAsJsonObject();StorageServiceProtocolVO current=fresh.get(0);
+        JsonElement enabled=row.get("enabled");
+        boolean active=enabled!=null && enabled.isJsonPrimitive() && (enabled.getAsJsonPrimitive().isBoolean() && enabled.getAsBoolean()
+                || enabled.getAsJsonPrimitive().isNumber() && "1".equals(enabled.getAsString()));
+        Set<String> columns=Set.of("id","uuid","instance_id","protocol","enabled","listen_ip","port","state","config_json","created");
+        Set<String> extended=new HashSet<>(columns);extended.add("updated");extended.add("removed");
+        boolean sqlMetadata=row.keySet().equals(extended);
+        if (!(row.keySet().equals(columns) || sqlMetadata)
+                || configurationAllocationId(row,"id")!=current.getId() || configurationAllocationId(row,"instance_id")!=target.getId()
+                || current.getInstanceId()!=target.getId() || !nativeGenerationCanonicalUuid(getJsonString(row,"uuid"))
+                || !current.getUuid().equals(getJsonString(row,"uuid")) || !"NFS".equals(getJsonString(row,"protocol"))
+                || current.getProtocol()!=StorageServiceInstance.Protocol.NFS || !active || !current.isEnabled()
+                || !row.get("listen_ip").isJsonNull() || current.getListenIp()!=null || row.get("port").isJsonNull()
+                || !row.get("port").getAsJsonPrimitive().isNumber() || row.get("port").getAsBigDecimal().longValueExact()!=2049
+                || !Integer.valueOf(2049).equals(current.getPort()) || !"Ready".equals(getJsonString(row,"state"))
+                || current.getState()!=StorageServiceInstance.ResourceState.Ready || !row.get("config_json").isJsonNull() || current.getConfigJson()!=null
+                || sqlMetadata && (!row.get("removed").isJsonNull() || !row.get("updated").isJsonNull()
+                    && (!row.get("updated").isJsonPrimitive() || !row.get("updated").getAsJsonPrimitive().isNumber()
+                        || row.get("updated").getAsBigDecimal().longValueExact()<0)))
+            throw new CloudRuntimeException("Initial baseline compatibility NFS identity or constructor defaults changed");
     }
 
     protected void verifyConfigurationCloneBaselineSource(StorageServiceInstanceVO target, StorageServiceOperationVO operation, boolean pending) {

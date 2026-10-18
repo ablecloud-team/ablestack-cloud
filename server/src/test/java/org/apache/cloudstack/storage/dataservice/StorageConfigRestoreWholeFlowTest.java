@@ -55,7 +55,7 @@ public class StorageConfigRestoreWholeFlowTest {
                 ()->fixture.manager.storageServiceConfiguration(fixture.reviewedCommand()));
         fixture.assertNoBaselineCommit();
         Assert.assertFalse(fixture.nativeActions().contains("begin"));
-        Assert.assertEquals(0,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
     }
 
     @Test public void rejectedStageRestoresTheVerifiedEmptySourceAndReleasesOnlyItsOwnHold()throws Exception {
@@ -65,7 +65,7 @@ public class StorageConfigRestoreWholeFlowTest {
         StorageServiceOperationVO operation=fixture.operationRows.values().stream()
                 .filter(row->"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(row.getAction())).findFirst().orElseThrow();
         Assert.assertEquals(operation.getDiagnostic(),"ROLLED_BACK",operation.getState());
-        Assert.assertEquals(0,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
         JsonObject state=fixture.generation("operation generation status",null);
         Assert.assertEquals("IN_SYNC",state.get("generationStatus").getAsString());
         Assert.assertTrue(state.get("pendingOperationUuid").isJsonNull());Assert.assertEquals(1,state.get("runtimeRevision").getAsLong());
@@ -104,7 +104,7 @@ public class StorageConfigRestoreWholeFlowTest {
         StorageServiceOperationVO operation=fixture.operationRows.values().stream()
                 .filter(row->"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(row.getAction())).findFirst().orElseThrow();
         Assert.assertEquals(operation.getDiagnostic(),"ROLLED_BACK",operation.getState());
-        Assert.assertEquals(0,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
         JsonObject state=fixture.generation("operation generation status",null);
         Assert.assertEquals("IN_SYNC",state.get("generationStatus").getAsString());
         Assert.assertTrue(state.get("pendingOperationUuid").isJsonNull());Assert.assertEquals(1,state.get("runtimeRevision").getAsLong());
@@ -229,6 +229,10 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals("COMPLETE",fixture.obj(fixture.artifactRows.get(900L).getMetadataJson()).get("restoreState").getAsString());
         Assert.assertEquals(16,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
         Assert.assertEquals(6,fixture.database.rows.get("storage_service_protocol").size());
+        JsonObject originalDefault=fixture.obj(fixture.initialDatabaseSnapshot).getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();
+        Assert.assertTrue(fixture.database.rows.get("storage_service_protocol").containsKey(originalDefault.get("id").getAsLong()));
+        StorageServiceProtocolVO retained=(StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").get(originalDefault.get("id").getAsLong());
+        Assert.assertEquals(originalDefault.get("uuid").getAsString(),retained.getUuid());Assert.assertEquals(StorageServiceInstance.Protocol.NFS,retained.getProtocol());
         Assert.assertEquals(disks,new com.google.gson.Gson().toJson(fixture.volumeRows));
         Assert.assertEquals(2,fixture.nativeActions().stream().filter("commit"::equals).count());
         Assert.assertTrue(fixture.nativeActions().stream().filter("finish"::equals).count()>=2);
@@ -269,7 +273,7 @@ public class StorageConfigRestoreWholeFlowTest {
     String transientCredentials;
     JsonObject sourceLocalFingerprint,sourceLkgIdentity;
     @Override @org.junit.Before public void setup()throws Exception{
-        manager=new BuildManifestManager(repo);super.setup();database=new StorageConfigStatefulResourceFixture(manager);
+        manager=new BuildManifestManager(repo);super.setup();database=initialDatabase;
         recordedMapping=new JsonObject();recordedMapping.add("createNew",plan.get("createNew").deepCopy());
         recordedMapping.add("volumes",plan.get("volumeMappings").deepCopy());recordedMapping.addProperty("runtimeBundleUuid",BUNDLE);
         String initialSource=null;for(JsonElement allocation:plan.getAsJsonObject("volumeAllocationPlan").getAsJsonArray("allocations"))

@@ -121,6 +121,8 @@ public class StorageConfigInitialBaselineFlowTest {
     StorageServiceOperationDao operations;
     StorageConfigArtifactStore store;
     StorageServiceConfiguration configuration;
+    StorageConfigStatefulResourceFixture initialDatabase;
+    String initialDatabaseSnapshot;
     StorageServiceRuntimeUpgradeManager runtimes;
     JsonObject plan, metadata, runtimePin, allocation;
     StorageServiceOperationVO foundation;
@@ -259,7 +261,7 @@ public class StorageConfigInitialBaselineFlowTest {
         org.apache.cloudstack.context.CallContext.register(actor,account);
         var depot=Mockito.mock(org.apache.cloudstack.framework.config.impl.ConfigDepotImpl.class);
         Mockito.when(depot.getConfigStringValue(Mockito.anyString(),Mockito.any(),Mockito.any())).thenAnswer(c->
-            c.<String>getArgument(0).equals("storage.service.verified.configuration.enabled")?"true":null);
+            java.util.Set.of("storage.service.verified.configuration.enabled",SharedFS.SharedFSFeatureEnabled.key()).contains(c.<String>getArgument(0))?"true":null);
         org.apache.cloudstack.framework.config.ConfigKey.init(depot);
         DbProperties.getDbProperties().setProperty("db.cloud.encrypt.secret","fixture-only-encryption-secret");
         com.cloud.utils.crypt.EncryptionSecretKeyChecker.initEncryptor("fixture-only-encryption-secret");
@@ -310,6 +312,7 @@ public class StorageConfigInitialBaselineFlowTest {
         Mockito.when(vms.findById(80L)).thenReturn(vm);set(manager,"rootUpgradeVmDao",vms);VMInstanceDao allVms=Mockito.mock(VMInstanceDao.class);Mockito.when(allVms.findById(80L)).thenReturn(vm);set(manager,"vmInstanceDao",allVms);
         SharedFSDao shared=Mockito.mock(SharedFSDao.class);SharedFSVO fs=Mockito.mock(SharedFSVO.class);
         Mockito.when(fs.getId()).thenReturn(580L);Mockito.when(fs.getUuid()).thenReturn(id(580));Mockito.when(fs.getDomainId()).thenReturn(1L);
+        Mockito.when(fs.getState()).thenReturn(SharedFS.State.Ready);
         Mockito.when(fs.getName()).thenReturn("retained-data-restore-fixture");Mockito.when(fs.getServiceOfferingId()).thenReturn(51L);
         Mockito.when(fs.getBackingVolumeMode()).thenReturn(existingInitial?SharedFS.BackingVolumeMode.EXISTING:SharedFS.BackingVolumeMode.NEW);Mockito.when(fs.getFsType()).thenReturn(SharedFS.FileSystemType.EXT4);
         Mockito.when(fs.getFsProviderName()).thenReturn("StorageVm");Mockito.when(fs.getVmId()).thenReturn(80L);Mockito.when(fs.getAccountId()).thenReturn(2L);Mockito.when(fs.getDataCenterId()).thenReturn(1L);
@@ -320,10 +323,10 @@ public class StorageConfigInitialBaselineFlowTest {
         com.cloud.vm.dao.NicDao nics=Mockito.mock(com.cloud.vm.dao.NicDao.class);NicVO nic=Mockito.mock(NicVO.class);
         Mockito.when(nic.getId()).thenReturn(32L);Mockito.when(nic.getUuid()).thenReturn(id(32));Mockito.when(nic.getNetworkId()).thenReturn(20L);
         Mockito.when(nic.isDefaultNic()).thenReturn(true);Mockito.when(nic.getMacAddress()).thenReturn("02:00:00:00:00:80");
-        Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.226");Mockito.when(nics.listByVmId(80L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
+        Mockito.when(nic.getIPv4Address()).thenAnswer(c->creatorStageInitialOnly?null:"10.10.13.226");Mockito.when(nic.getIPv4Netmask()).thenReturn("255.255.0.0");Mockito.when(nic.getMode()).thenReturn(com.cloud.network.Networks.Mode.Dhcp);Mockito.when(nic.getAddressFormat()).thenReturn(com.cloud.network.Networks.AddressFormat.Ip4);Mockito.when(nics.listByVmId(80L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
         com.cloud.network.dao.NetworkDao networks=Mockito.mock(com.cloud.network.dao.NetworkDao.class);com.cloud.network.dao.NetworkVO network=Mockito.mock(com.cloud.network.dao.NetworkVO.class);
-        Mockito.when(network.getId()).thenReturn(20L);Mockito.when(network.getUuid()).thenReturn(id(20));Mockito.when(network.getGuruName()).thenReturn("DirectNetworkGuru");
-        Mockito.when(network.getCidr()).thenReturn("10.10.0.0/16");Mockito.when(network.getGateway()).thenReturn("10.10.0.1");
+        Mockito.when(network.getId()).thenReturn(20L);Mockito.when(network.getUuid()).thenReturn(id(20));Mockito.when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");Mockito.when(network.getGuestType()).thenReturn(com.cloud.network.Network.GuestType.L2);
+        Mockito.when(network.getCidr()).thenReturn(null);Mockito.when(network.getGateway()).thenReturn(null);
         Mockito.when(networks.findById(20L)).thenReturn(network);Mockito.when(networks.findByUuid(id(20))).thenReturn(network);set(manager,"networkDao",networks);
         DataCenterDao zones=Mockito.mock(DataCenterDao.class);DataCenterVO zone=Mockito.mock(DataCenterVO.class);
         Mockito.when(zone.getId()).thenReturn(1L);Mockito.when(zone.getUuid()).thenReturn(ZONE);
@@ -388,7 +391,7 @@ public class StorageConfigInitialBaselineFlowTest {
         MockedStatic<Transaction> tx=Mockito.mockStatic(Transaction.class);
         tx.when(()->Transaction.execute(Mockito.<TransactionCallback<Void>>any())).thenAnswer(c->c.<TransactionCallback<Void>>getArgument(0).doInTransaction(null));closeables.add(tx);
         MockedConstruction<StorageServiceDesiredSnapshot> snapshots=Mockito.mockConstruction(StorageServiceDesiredSnapshot.class,(mock,ctx)->
-            Mockito.when(mock.capture(Mockito.anyLong())).thenAnswer(c->snapshot(c.getArgument(0))));closeables.add(snapshots);
+            Mockito.when(mock.capture(Mockito.anyLong())).thenAnswer(c->initialDatabase==null?snapshot(c.getArgument(0)):initialDatabase.snapshot(c.getArgument(0))));closeables.add(snapshots);
         store=new StorageConfigArtifactStore(root.resolve("config-store"));store.write(ARTIFACT,zip);archiveSha=StorageConfigArchive.sha256(zip);
         StorageConfigArtifactVO artifact=new StorageConfigArtifactVO();set(artifact,"id",900L);set(artifact,"uuid",ARTIFACT);artifact.setInstanceId(7);artifact.setKind("IMPORT");
         artifact.setState("ARCHIVE_VALIDATED");artifact.setSha256(archiveSha);artifact.setSize(zip.length);artifact.setCreatedBy(2);artifact.setExpires(new Date(System.currentTimeMillis()+3600000));
@@ -444,6 +447,7 @@ public class StorageConfigInitialBaselineFlowTest {
         JsonObject observed=new JsonObject();observed.addProperty("volumeUuid",initialUuid);observed.addProperty("filesystem","EXT4");observed.addProperty("filesystemUuid",id(9000));metadata.add("cloneExistingFilesystem",observed);
 
         creatorStageInitialOnly=true;artifact.setMetadataJson(metadata.toString());artifactRows.put(900L,artifact);
+        Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.226");
         manager.requireConfigurationCloneAllocation(artifact,plan,creator);
         creatorStageInitialOnly=false;metadata=obj(artifact.getMetadataJson());
         JsonObject capability=obj("{\"hash\":\""+sha("fixture-review-token")+"\",\"user\":2,\"expires\":"+(System.currentTimeMillis()+60000)+",\"planSha256\":\""+sha(plan.toString())+"\",\"baselineSha256\":\""+sha(snapshot(7))+"\"}");
@@ -462,7 +466,47 @@ public class StorageConfigInitialBaselineFlowTest {
         finally{((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"storageWriterOperation")).remove();}
         artifact.setMetadataJson(artifactRows.get(900L).getMetadataJson());
 
+        initialDatabase=new StorageConfigStatefulResourceFixture(manager);
+        class Compatibility extends org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl {
+            void sync(SharedFS value) {syncSharedFSToStorageService(value);}
+        }
+        Compatibility compatibility=new Compatibility();set(compatibility,"storageServiceInstanceDao",instances);
+        for(String field:List.of("storageServiceProtocolDao","storageFileShareDao","storageAccessRuleDao"))set(compatibility,field,ReflectionTestUtils.getField(manager,field));
+        compatibility.sync(fs);
+        Assert.assertEquals(1,initialDatabase.rows.get("storage_service_protocol").size());
+        initialDatabaseSnapshot=initialDatabase.snapshot(80L);
         configuration=new StorageServiceConfiguration(manager,artifacts,operations,store);
+    }
+    @Test public void initialCompatibilityDatabaseRejectsChangedDefaultIdentityConfigAndAnyLeaf() {
+        StorageServiceProtocolVO original=(StorageServiceProtocolVO)initialDatabase.rows.get("storage_service_protocol").values().iterator().next();
+        JsonObject snapshot=obj(initialDatabaseSnapshot);manager.requireConfigurationCloneInitialDatabase(instanceRows.get(80L),snapshot);
+        JsonObject numeric=snapshot.deepCopy();numeric.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject().addProperty("enabled",1);
+        manager.requireConfigurationCloneInitialDatabase(instanceRows.get(80L),numeric);
+        JsonObject observedTimestamp=snapshot.deepCopy();observedTimestamp.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject().addProperty("updated",123456789L);
+        String timestampBefore=observedTimestamp.toString();manager.requireConfigurationCloneInitialDatabase(instanceRows.get(80L),observedTimestamp);Assert.assertEquals(timestampBefore,observedTimestamp.toString());
+        JsonObject oldSchema=snapshot.deepCopy(),legacy=oldSchema.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();legacy.remove("updated");legacy.remove("removed");
+        manager.requireConfigurationCloneInitialDatabase(instanceRows.get(80L),oldSchema);
+        for(String change:List.of("CONFIG","IP","PORT","DISABLED","STATE","OWNER","UUID","EXTRA","LEAF","REMOVED","UPDATED_TYPE","UNKNOWN_KEY","MISSING_KEY")) {
+            StorageServiceProtocolVO row=copy(original,StorageServiceProtocolVO.class);
+            if(change.equals("CONFIG"))row.setConfigJson("{}");if(change.equals("IP"))row.setListenIp("10.10.13.226");
+            if(change.equals("PORT"))row.setPort(2050);if(change.equals("DISABLED"))row.setEnabled(false);
+            if(change.equals("STATE"))row.setState(StorageServiceInstance.ResourceState.Error);
+            if(change.equals("OWNER"))set(row,"instanceId",81L);if(change.equals("UUID"))set(row,"uuid",id(8123));
+            initialDatabase.rows.get("storage_service_protocol").put(original.getId(),row);
+            JsonObject actual=obj(initialDatabase.snapshot(80L));
+            if(change.equals("OWNER"))actual=snapshot.deepCopy();
+            if(change.equals("UUID"))actual=snapshot.deepCopy();
+            if(change.equals("EXTRA"))actual.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").add(snapshot.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).deepCopy());
+            if(change.equals("LEAF"))actual.getAsJsonArray("tables").get(1).getAsJsonObject().getAsJsonArray("rows").add(new JsonObject());
+            JsonObject raw=actual.getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();
+            if(change.equals("REMOVED"))raw.addProperty("removed",123456789L);
+            if(change.equals("UPDATED_TYPE"))raw.addProperty("updated","untrusted");
+            if(change.equals("UNKNOWN_KEY"))raw.addProperty("unreviewed",true);
+            if(change.equals("MISSING_KEY"))raw.remove("uuid");
+            JsonObject rejected=actual;Assert.assertThrows(RuntimeException.class,()->manager.requireConfigurationCloneInitialDatabase(instanceRows.get(80L),rejected));
+            initialDatabase.rows.get("storage_service_protocol").put(original.getId(),original);
+        }
+        Assert.assertEquals(initialDatabaseSnapshot,initialDatabase.snapshot(80L));
     }
     @Test public void completedFoundationBecomesVerifiedNativeBaselineBeforeTheProfile()throws Exception {completeBaselineAndProfile();}
     @Test public void newInitialAndRetainedAdditionalDataUseTheSameNormalInitialGenerationChain()throws Exception {completeBaselineAndProfile();}

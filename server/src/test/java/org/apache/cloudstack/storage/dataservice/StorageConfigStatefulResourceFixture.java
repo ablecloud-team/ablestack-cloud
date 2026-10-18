@@ -109,6 +109,10 @@ final class StorageConfigStatefulResourceFixture {
                     JsonObject definition=new JsonObject();definition.addProperty("name",column.getKey());Class<?> type=column.getValue().getType();
                     definition.addProperty("type",java.util.Date.class.isAssignableFrom(type)?java.sql.Types.TIMESTAMP:Number.class.isAssignableFrom(type)||type==long.class||type==int.class?java.sql.Types.BIGINT:type==boolean.class||type==Boolean.class?java.sql.Types.BOOLEAN:java.sql.Types.VARCHAR);columnNames.add(definition);
                 }
+                // schema-Diplo-After.sql also declares two nullable DATETIME observation columns absent from the entity.
+                if(table.equals("storage_service_protocol"))for(String name:List.of("updated","removed")){
+                    JsonObject definition=new JsonObject();definition.addProperty("name",name);definition.addProperty("type",java.sql.Types.TIMESTAMP);columnNames.add(definition);
+                }
                 for(Object object:rows.get(table).values())if(scoped(table,object,instance)){
                     JsonObject value=new JsonObject();
                     for(Map.Entry<String,Field> column:columns.entrySet()){
@@ -119,6 +123,7 @@ final class StorageConfigStatefulResourceFixture {
                         else if(item instanceof Boolean)value.addProperty(key,(Boolean)item);
                         else value.addProperty(key,item.toString());
                     }
+                    if(table.equals("storage_service_protocol")){value.add("updated",JsonNull.INSTANCE);value.add("removed",JsonNull.INSTANCE);}
                     values.add(value);
                 }
                 entry.add("columns",columnNames);entry.add("rows",values);tables.add(entry);
