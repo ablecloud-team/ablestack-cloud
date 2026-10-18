@@ -6122,7 +6122,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         || !configurationLegacyEmptyProtocolConfig(row.getConfigJson())) throw new InvalidParameterValueException("Existing wildcard endpoint is not the strict legacy default");
                 previousDefault=row.getId();continue;
             }
-            preserved.put(row.getId(),GSON.toJson(row));
+            preserved.put(row.getId(),GSON.toJson(row,StorageServiceProtocolVO.class));
             if (row.isEnabled() && (row.getPort()==null?defaultProtocolPort(type):row.getPort())==port) actual.add(row.getId());
         }
         if (!actual.equals(expected)) throw new InvalidParameterValueException("Legacy default restore found an unreviewed specific endpoint");
@@ -6135,7 +6135,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         || previousDefault!=null && previousDefault!=row.getId())
                     throw new CloudRuntimeException("Normal target default endpoint did not retain its exact restore tuple");
                 result=row;
-            } else if (!seen.add(row.getId()) || !java.util.Objects.equals(preserved.get(row.getId()),GSON.toJson(row)))
+            } else if (!seen.add(row.getId()) || !java.util.Objects.equals(preserved.get(row.getId()),GSON.toJson(row,StorageServiceProtocolVO.class)))
                 throw new CloudRuntimeException("Legacy default preparation changed another protocol endpoint");
         }
         if (result==null || !seen.equals(preserved.keySet())) throw new CloudRuntimeException("Legacy default preparation lost its exact endpoint set");

@@ -36026,7 +36026,7 @@ class ServiceIdentitySource:
 
     def stopped(self,request):
         scope,saved,actual=self.validate(request,True)
-        journal=credential_json(rendered_read(self.root/"service-maintenance.json"));owners=saved["sourceOwners"]
+        journal=Maintenance(root=self.root).read(self.root/"service-maintenance.json");owners=saved["sourceOwners"]
         if (journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
                 or journal.get("sourceGeneration")!=saved["sourceGeneration"] or journal.get("sourceRendered")!=saved["sourceRendered"]
                 or journal.get("sourceActivation")!=saved["sourceActivation"] or journal.get("owners")!=owners
@@ -40086,7 +40086,7 @@ class RenderedDriver:
         if (expected["maintenanceUuid"]!=expected["operationUuid"] or maintenance.get("maintenanceKind")!="SERVICE"
                 or maintenance.get("bootHeld") is not True or maintenance.get("scope")!=expected):raise ValueError("SERVICE source recovery lacks its exact held scope")
         checkpoint_path=Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR","/var/lib/ablestack-storage"))/"service-maintenance.json"
-        checkpoint=json.loads(rendered_read(checkpoint_path));status=self.store.status();actual=self.generation()
+        checkpoint=Maintenance().read(checkpoint_path);status=self.store.status();actual=self.generation()
         if (checkpoint.get("scope")!=expected or checkpoint.get("phase") not in ("HELD","RECOVERY_REQUIRED")
                 or not checkpoint.get("sourceRendered") or status.get("current")!=checkpoint["sourceRendered"]
                 or actual.get("generation")!=checkpoint.get("sourceGeneration") or actual.get("pendingOperationUuid")
@@ -40248,16 +40248,16 @@ class RenderedDriver:
             if not isinstance(units,list) or any(not isinstance(unit,str) or not re.fullmatch(r"ablestack-storage-(?:ganesha@[A-Za-z0-9_.-]+|smb@[0-9a-f]{24})\.service",unit) for unit in units):
                 raise ValueError("SERVICE source resume contains an unknown stopped acceptor")
             domains=[domain for domain,prefix in (("NFS","ablestack-storage-ganesha@"),("SMB","ablestack-storage-smb@")) if any(unit.startswith(prefix) for unit in units)]
-            checkpoint["sourceResumePhase"]="REPLAYING";checkpoint["sourceResumeDomains"]=domains;rendered_json(checkpoint_path,checkpoint)
+            checkpoint["sourceResumePhase"]="REPLAYING";checkpoint["sourceResumeDomains"]=domains;Maintenance(root=checkpoint_path.parent).write(checkpoint_path,checkpoint)
             proof=self.authorize_units(request,source_only=True);self.runtime.credentials=request.get("transientCredentials") or {}
             try:
                 for domain in domains:self.runtime.replay(self.store.pointer(),domain)
                 result=self.verify(self.store.pointer())
                 if not all(result.get(domain) is True for domain in DOMAINS):raise ValueError("SERVICE resumed source runtime failed all-four readback")
-                checkpoint["sourceResumePhase"]="VERIFIED";rendered_json(checkpoint_path,checkpoint)
+                checkpoint["sourceResumePhase"]="VERIFIED";Maintenance(root=checkpoint_path.parent).write(checkpoint_path,checkpoint)
                 return {"success":True,"scope":expected,"sourceUnchangedVerified":True,"runtimeVerified":True,"resumedDomains":domains,"blockTargetsPreserved":True,"generationAdvanced":False}
             except Exception:
-                checkpoint["sourceResumePhase"]="RECOVERY_REQUIRED";rendered_json(checkpoint_path,checkpoint);raise
+                checkpoint["sourceResumePhase"]="RECOVERY_REQUIRED";Maintenance(root=checkpoint_path.parent).write(checkpoint_path,checkpoint);raise
             finally:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)
         if action == "render-maintenance-verify":
             maintenance=self.runtime.command(("operation","maintenance","status"))

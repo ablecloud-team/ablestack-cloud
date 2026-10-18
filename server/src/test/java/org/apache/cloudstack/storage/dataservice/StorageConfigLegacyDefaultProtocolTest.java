@@ -75,6 +75,50 @@ public class StorageConfigLegacyDefaultProtocolTest {
         NicDao nics=Mockito.mock(NicDao.class);NicVO nic=Mockito.mock(NicVO.class);Mockito.when(nic.getId()).thenReturn(1L);Mockito.when(nic.getIPv4Address()).thenReturn("192.0.2.10");Mockito.when(nic.isDefaultNic()).thenReturn(true);Mockito.when(nics.listByVmId(42L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
     }
     @After public void close(){((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"serviceMaintenanceOperation")).remove();manager.abortConfigurationBatch();((ThreadLocal<?>)ReflectionTestUtils.getField(manager,"storageWriterOperation")).remove();org.apache.cloudstack.context.CallContext.unregister();}
+    static final class ApiContextProtocolDao extends com.cloud.utils.db.GenericDaoBase<StorageServiceProtocolVO,Long> {
+        final Thread apiWorker=Thread.currentThread();
+        final org.apache.cloudstack.context.CallContext requestContext=org.apache.cloudstack.context.CallContext.current();
+    }
+    StorageServiceProtocolVO daoEnhancedPeer() throws Exception {
+        // Same real DAO enhancement as production, with a live API worker/context behind its update callback.
+        Map registry=(Map)ReflectionTestUtils.getField(com.cloud.utils.db.GenericDaoBase.class,"s_daoMaps");
+        Object previous=registry.get(StorageServiceProtocolVO.class);ApiContextProtocolDao dao;
+        try {dao=new ApiContextProtocolDao();} finally {if(previous==null)registry.remove(StorageServiceProtocolVO.class);else registry.put(StorageServiceProtocolVO.class,previous);}
+        StorageServiceProtocolVO row=dao.createForUpdate(10L),plain=rows.get(10L);
+        for(java.lang.reflect.Field field:StorageServiceProtocolVO.class.getDeclaredFields())if(field.getAnnotation(javax.persistence.Column.class)!=null){field.setAccessible(true);field.set(row,field.get(plain));}
+        Assert.assertTrue(net.sf.cglib.proxy.Enhancer.isEnhanced(row.getClass()));
+        Object callback=((net.sf.cglib.proxy.Factory)row).getCallback(1);Assert.assertTrue(callback instanceof com.cloud.utils.db.UpdateBuilder);
+        Assert.assertSame(dao,ReflectionTestUtils.getField(callback,"_dao"));Assert.assertSame(Thread.currentThread(),dao.apiWorker);
+        Assert.assertSame(org.apache.cloudstack.context.CallContext.current(),dao.requestContext);rows.put(10L,row);
+        Mockito.doAnswer(c->rows.values().stream().filter(v->v.getInstanceId()==7L&&v.getProtocol()==StorageServiceInstance.Protocol.ISCSI)
+            .collect(java.util.stream.Collectors.toList())).when(protocols).listByInstanceIdAndProtocol(7L,StorageServiceInstance.Protocol.ISCSI);
+        Mockito.doAnswer(c->rows.get(c.<Long>getArgument(0))).when(protocols).findById(Mockito.anyLong());return row;
+    }
+    @Test public void daoEnhancedProtocolWithLiveApiContextRetainsOnlyItsMappedState() throws Exception {
+        StorageServiceProtocolVO row=daoEnhancedPeer();
+        var originalFailure=Assert.assertThrows(com.google.gson.JsonIOException.class,()->gson.toJson(row));
+        Assert.assertTrue(originalFailure.getMessage(),originalFailure.getMessage().contains("accessible"));
+        String before=gson.toJson(row,StorageServiceProtocolVO.class);
+        for(java.lang.reflect.Field field:StorageServiceProtocolVO.class.getDeclaredFields())if(!java.lang.reflect.Modifier.isStatic(field.getModifiers()))
+            Assert.assertNotNull("Declared protocol snapshot must contain mapped fields only: "+field.getName(),field.getAnnotation(javax.persistence.Column.class));
+        restore(source(true));restore(source(true));
+        Assert.assertEquals(before,gson.toJson(rows.get(10L),StorageServiceProtocolVO.class));Assert.assertSame(row,rows.get(10L));Assert.assertEquals(2,rows.size());
+        Mockito.verify(protocols,Mockito.times(1)).persist(Mockito.any());
+    }
+    @Test public void everyMappedProtocolFieldDriftStillRejectsAfterDefaultInitialization() throws Exception {
+        StorageServiceProtocolVO row=daoEnhancedPeer();Map<String,Object> original=new LinkedHashMap<>();
+        for(java.lang.reflect.Field field:StorageServiceProtocolVO.class.getDeclaredFields())if(field.getAnnotation(javax.persistence.Column.class)!=null){field.setAccessible(true);original.put(field.getName(),field.get(row));}
+        Map<String,Object> changed=new LinkedHashMap<>();changed.put("id",99L);changed.put("uuid","44444444-4444-4444-8444-444444444444");changed.put("instanceId",8L);
+        changed.put("protocol",StorageServiceInstance.Protocol.NVME_OF);changed.put("enabled",false);changed.put("listenIp","192.0.2.11");changed.put("port",3261);
+        changed.put("state",StorageServiceInstance.ResourceState.Error);changed.put("configJson","{\"changed\":true}");changed.put("created",new java.util.Date(((java.util.Date)original.get("created")).getTime()+1000));
+        Assert.assertEquals(original.keySet(),changed.keySet());
+        for(Map.Entry<String,Object> fault:changed.entrySet()) {
+            Mockito.doAnswer(c->{StorageServiceProtocolVO value=copy(c.getArgument(0),StorageServiceProtocolVO.class);set(value,"id",11L);rows.put(11L,value);set(row,fault.getKey(),fault.getValue());return value;}).when(protocols).persist(Mockito.any());
+            var rejected=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->restore(source(true)));
+            Assert.assertTrue(fault.getKey()+": "+rejected.getMessage(),rejected.getMessage().startsWith("Legacy default preparation"));
+            for(Map.Entry<String,Object> prior:original.entrySet())set(row,prior.getKey(),prior.getValue());rows.remove(11L);
+        }
+    }
     @Test public void legacyDefaultUsesTheNormalTargetInitializerWithoutChangingTheSpecificPeer(){
         JsonObject before=gson.toJsonTree(rows.get(10L)).getAsJsonObject();restore(source(true));restore(source(true));
         Assert.assertEquals(2,rows.size());Assert.assertEquals(before,gson.toJsonTree(rows.get(10L)));Assert.assertNull(rows.get(11L).getListenIp());Assert.assertTrue(rows.get(11L).isEnabled());

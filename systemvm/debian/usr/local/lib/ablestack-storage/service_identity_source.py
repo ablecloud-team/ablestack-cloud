@@ -27,6 +27,7 @@ from rendered_credentials import credential_json
 from root_source_identity_checkpoint import RootSourceIdentityCheckpoint,root_public_sha,root_source_validate_ad_identity,ROOT_IDENTITY_HOLDER_SCOPE
 from root_source_recovery import RootSourceRecovery
 from samba_public_sid import samba_public_sid
+from template_maintenance import Maintenance
 
 
 def service_identity_scope(request):
@@ -194,7 +195,7 @@ class ServiceIdentitySource:
 
     def stopped(self,request):
         scope,saved,actual=self.validate(request,True)
-        journal=credential_json(rendered_read(self.root/"service-maintenance.json"));owners=saved["sourceOwners"]
+        journal=Maintenance(root=self.root).read(self.root/"service-maintenance.json");owners=saved["sourceOwners"]
         if (journal.get("scope")!=scope or journal.get("phase") not in ("HELD","RECOVERY_REQUIRED")
                 or journal.get("sourceGeneration")!=saved["sourceGeneration"] or journal.get("sourceRendered")!=saved["sourceRendered"]
                 or journal.get("sourceActivation")!=saved["sourceActivation"] or journal.get("owners")!=owners

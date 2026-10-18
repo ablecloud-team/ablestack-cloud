@@ -472,7 +472,24 @@ class StorageSmbSourceCheckpointTest(unittest.TestCase):
             original=original[:start]+block+original[finish:]
         return original,current
 
+    def historical_code8_before_shared_service_journal_io(self,current):
+        # Test-only inverse: keep the actual Code8 whole CLI, never relabel new code as old.
+        spans=[
+            (b'checkpoint=Maintenance().read(checkpoint_path);status=self.store.status();actual=self.generation()',
+             b'checkpoint=json.loads(rendered_read(checkpoint_path));status=self.store.status();actual=self.generation()',1),
+            (b'Maintenance(root=checkpoint_path.parent).write(checkpoint_path,checkpoint)',
+             b'rendered_json(checkpoint_path,checkpoint)',3),
+            (b'journal=Maintenance(root=self.root).read(self.root/"service-maintenance.json");owners=saved["sourceOwners"]',
+             b'journal=credential_json(rendered_read(self.root/"service-maintenance.json"));owners=saved["sourceOwners"]',1)]
+        for after,before,count in spans:
+            self.assertEqual(count,current.count(after));current=current.replace(after,before)
+        self.assertEqual("4e5f9624ee03cb56941655f2100782e08fd60dff69a26de78d0eac54637eac5d",hashlib.sha256(current).hexdigest())
+        return current
+    def test_shared_service_journal_projection_reconstructs_genuine_code8(self):
+        self.historical_code8_before_shared_service_journal_io(fixture.CLI.read_bytes())
+
     def historical_code7_before_formatter_mutexes(self,current):
+        current=self.historical_code8_before_shared_service_journal_io(current)
         # This reconstructs the real old Code7 fixture, never Code8 runtime authority.
         import ast
         source=(Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage/service_maintenance.py").read_text()

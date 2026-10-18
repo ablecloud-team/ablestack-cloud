@@ -91,6 +91,17 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
         state={"state":"JOINED","machineConfigurationSha256":hashlib.sha256(machine.encode()).hexdigest()}
         rendered_json(self.config/"smb-domain.json",state)
         self.active.append({"unit":"ablestack-storage-winbind.service","pid":101,"startTicks":"24","configurationPath":"/etc/ablestack-storage/ad-machine.conf","listenerEndpoints":[]})
+    def test_afterstop_shared_journal_uses_existing_maintenance_reader_under_parent_0755(self):
+        self.source.capture(self.scope);self.journal()
+        self.source.stopped(self.scope)
+        captured=self.source.validate(self.scope,True)
+        self.maintenance_root.chmod(0o755)
+        # Private identity capture validation has its own contract; exercise this same-journal read only.
+        with patch.object(self.source,"validate",return_value=captured):
+            receipt=self.source.stopped(self.scope)
+        self.assertTrue(receipt["serviceSourceStoppedVerified"])
+        self.assertEqual(0o755,self.maintenance_root.stat().st_mode&0o777)
+
     def test_prestop_capture_contains_only_public_sam_ad_and_existing_policy_metadata(self):
         self.joined();paths=[];original=self.public.public_file
         def observe(path,*args,**kwargs):
