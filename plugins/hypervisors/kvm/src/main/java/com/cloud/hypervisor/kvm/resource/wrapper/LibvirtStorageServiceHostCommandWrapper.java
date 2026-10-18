@@ -349,12 +349,56 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 || (command.getOperation() != null && java.util.Set.of("operation generation render-activate", "operation generation render-rollback").contains(command.getOperation()));
     }
 
+    /** Closed Native NFS validator metadata only; never copy reason, stderr, paths or command text. */
+    private String renderedValidationFailureDiagnostic(String output) {
+        if (output==null || output.length()>65536) return null;
+        java.util.Map<String,String> stages=java.util.Map.ofEntries(
+            java.util.Map.entry("NFS_VALIDATOR_RUNTIME_UNAVAILABLE","RUNTIME_SELECTION"), java.util.Map.entry("NFS_VALIDATOR_RUNTIME_UNTRUSTED","RUNTIME_SELECTION"),
+            java.util.Map.entry("NFS_VALIDATOR_NAMESPACE_FAILED","NAMESPACE_SETUP"), java.util.Map.entry("NFS_VALIDATOR_CHROOT_FAILED","CHROOT_SETUP"),
+            java.util.Map.entry("NFS_VALIDATOR_PRIVATE_SERVICES_FAILED","PRIVATE_SERVICES"), java.util.Map.entry("NFS_VALIDATOR_PARSER_REJECTED","PARSER_STARTUP"),
+            java.util.Map.entry("NFS_VALIDATOR_PARSER_TIMEOUT","PARSER_STARTUP"), java.util.Map.entry("NFS_VALIDATOR_WORKER_FAILED","WORKER_TRANSPORT"),
+            java.util.Map.entry("NFS_VALIDATOR_WORKER_TIMEOUT","WORKER_TRANSPORT"));
+        try (JsonReader reader=new JsonReader(new StringReader(output))) {
+            reader.setLenient(false);reader.beginObject();java.util.Set<String> seen=new java.util.HashSet<>();
+            java.util.Map<String,String> diagnostic=null;
+            while(reader.hasNext()) {
+                String name=reader.nextName();if(!seen.add(name))return null;
+                if("success".equals(name)) {if(reader.peek()!=JsonToken.BOOLEAN || reader.nextBoolean())return null;}
+                else if("errorCode".equals(name)) {if(reader.peek()!=JsonToken.STRING || !"RENDERED_GENERATION_REJECTED".equals(reader.nextString()))return null;}
+                else if("diagnostic".equals(name)) {
+                    diagnostic=new java.util.HashMap<>();reader.beginObject();
+                    while(reader.hasNext()) {
+                        String key=reader.nextName();if(!java.util.Set.of("protocol","stage","runtimeValidationCode").contains(key) || diagnostic.containsKey(key) || reader.peek()!=JsonToken.STRING)return null;
+                        String value=reader.nextString();if(value.length()>64)return null;diagnostic.put(key,value);
+                    }
+                    reader.endObject();
+                } else reader.skipValue();
+            }
+            reader.endObject();
+            if(reader.peek()!=JsonToken.END_DOCUMENT || !seen.containsAll(java.util.Set.of("success","errorCode","diagnostic")) || diagnostic==null
+                    || !diagnostic.keySet().equals(java.util.Set.of("protocol","stage","runtimeValidationCode")) || !"NFS".equals(diagnostic.get("protocol"))
+                    || !java.util.Objects.equals(stages.get(diagnostic.get("runtimeValidationCode")),diagnostic.get("stage")))return null;
+            return "protocol=NFS; stage="+diagnostic.get("stage")+"; runtimeValidationCode="+diagnostic.get("runtimeValidationCode");
+        } catch(java.io.IOException | RuntimeException unavailable) {return null;}
+    }
+
+    private boolean renderedGenerationOperation(StorageServiceHostCommand command) {
+        return command.getOperation()!=null && java.util.Set.of("operation generation render-import","operation generation render-stage",
+            "operation generation render-activate","operation generation render-rollback","operation generation render-finalize","operation generation render-status").contains(command.getOperation());
+    }
+
     protected String commandExceptionDetails(StorageServiceHostCommand command,String diagnostic) {
-        if (hasSensitivePayload(command)) return "Sensitive Storage Service host command failed; secret-bearing diagnostic omitted";
+        if (hasSensitivePayload(command) || renderedGenerationOperation(command)) return "Sensitive Storage Service host command failed; secret-bearing diagnostic omitted";
         return diagnostic;
     }
 
     protected String commandFailureDetails(StorageServiceHostCommand command, int exitCode, String stdout, String stderr) {
+        if (renderedGenerationOperation(command)) {
+            String fixed=renderedValidationFailureDiagnostic(stdout);
+            String masked=hasSensitivePayload(command)?"Sensitive Storage Service command failed with exit code "+exitCode+"; secret-bearing output omitted"
+                :"Rendered Storage Service command failed with exit code "+exitCode+"; guest diagnostic omitted";
+            return fixed==null?masked:masked+" ["+fixed+"]";
+        }
         if (hasSensitivePayload(command)) {
             final String masked = "Sensitive Storage Service command failed with exit code " + exitCode + "; secret-bearing output omitted";
             final String fixed = "iscsi target apply".equals(command.getOperation()) ? fixedIscsiFailureDiagnostic(stdout) : null;
