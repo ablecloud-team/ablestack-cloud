@@ -476,6 +476,8 @@ then
 fi
 
 %post management
+/usr/bin/python3 -I -B %{_datadir}/%{name}-common/scripts/installer/storage-protected-stores.py --initialize || exit 1
+
 # Install mysql-connector-python
 pip3 install %{_datadir}/%{name}-management/setup/wheel/six-1.15.0-py2.py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/setuptools-47.3.1-py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/protobuf-3.19.6-py2.py3-none-any.whl %{_datadir}/%{name}-management/setup/wheel/mysql_connector_python-8.0.31-py2.py3-none-any.whl
 

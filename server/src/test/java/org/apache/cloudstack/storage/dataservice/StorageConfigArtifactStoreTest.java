@@ -30,6 +30,13 @@ public class StorageConfigArtifactStoreTest {
     private Path root() throws Exception {
         return Files.createTempDirectory("config-artifact-test-", PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
     }
+    @Test public void writableAccessCheckDoesNotPublishOrReadArtifacts() throws Exception {
+        Path root=root();try {
+            StorageConfigArtifactStore store=new StorageConfigArtifactStore(root);store.requireWritable();
+            try(var files=Files.list(root)){Assert.assertEquals(0,files.count());}
+            Assert.assertEquals(PosixFilePermissions.fromString("rwx------"),Files.getPosixFilePermissions(root));
+        } finally {Files.delete(root);}
+    }
     @Test public void artifactsAreImmutablePrivateAndChecksumVerified() throws Exception {
         Path root = root();
         try {

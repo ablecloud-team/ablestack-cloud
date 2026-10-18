@@ -1055,7 +1055,7 @@ class RenderedGuestFixture:
 
     def execute(self, action, request=None):
         require(action in ("render-status","render-import","render-stage","export-identity","export-local-source","local-source-status",
-                                    "service-enter","service-status","service-release","render-activate","render-finalize","render-rollback","render-maintenance-resume-source","render-maintenance-verify","observe","inventory","verify","health","writer-idle"),
+                                    "service-enter","service-status","service-release","reservation-status","render-activate","render-finalize","render-rollback","render-maintenance-resume-source","render-maintenance-verify","observe","inventory","verify","health","writer-idle"),
                 "RENDERED_ACTION_NOT_IMPLEMENTED")
         previous=dict(os.environ)
         os.environ["ABLESTACK_STORAGE_GENERATION_DIR"]=str(self.generation.root)
@@ -1077,6 +1077,10 @@ class RenderedGuestFixture:
                 if action in ("observe","inventory"):return self.inventory()
                 if action in ("verify","health"):return self.verified_health()
                 if action=="service-status":return self.service.status(request)
+                if action=="reservation-status":
+                    module=importlib.import_module("resource_reservation")
+                    return module.ResourceReservation(self.case/"resource-reservation",self.generation.root,
+                        boot_id=self.generation.status()["bootId"],maintenance=self.maintenance.marker).status()
                 if action in ("service-enter","service-release"):
                     with self.actual_writer_lock():
                         return self.service.enter(request) if action=="service-enter" else self.service.release(request)

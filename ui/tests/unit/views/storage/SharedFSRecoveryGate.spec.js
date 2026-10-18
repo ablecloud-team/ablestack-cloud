@@ -50,6 +50,19 @@ const context = () => {
 const ready = (vm, rows = []) => vm.acceptStorageOperationRead(vm.beginStorageOperationRead('instance-a'), rows, false)
 const run = vm => vm.runStorageAction('editNfsExport', 'updateStorageNfsExport', { id: 'export-a', readonly: true }, 'update')
 
+const historyContext = parent => {
+  const history = { ...History.data(), instanceId: 'instance-a', $store: parent.$store }
+  Object.entries(History.methods).forEach(([name, method]) => { history[name] = (...args) => method.apply(history, args) })
+  history.$emit = (event, value) => {
+    if (event === 'read-started') parent.storageOperationHistoryStarted(value)
+    if (event === 'read-complete') parent.storageOperationHistoryLoaded(value)
+  }
+  parent.$refs = { storageOperationHistory: history }
+  parent.refreshStorageOperationHistory = (...args) => SharedFSTab.methods.refreshStorageOperationHistory.apply(parent, args)
+  return history
+}
+const historyEnvelope = rows => ({ liststorageserviceoperationsresponse: { count: rows.length, storageserviceoperation: rows } })
+
 describe('SharedFS current writer recovery gate', () => {
   beforeEach(() => { jest.clearAllMocks(); postAPI.mockResolvedValue({ updatestoragenfsexportresponse: { jobid: 'job-a' } }) })
 
@@ -188,6 +201,83 @@ describe('SharedFS current writer recovery gate', () => {
     vm.$store.getters.project.id = 'changed'
     vm.storageOperationHistoryLoaded({ instanceId: 'instance-a', generation: 2, rows: [], readError: false })
     expect(vm.storageMutationBlocked).toBe(true)
+  })
+
+  it('invalidates stale READY immediately and queues one post-mutation read behind an in-flight history query', async () => {
+    const vm = context(); const history = historyContext(vm)
+    const oldRead = deferred(); const freshRead = deferred()
+    getAPI.mockReturnValueOnce(oldRead.promise).mockReturnValueOnce(freshRead.promise)
+    const pending = history.refresh()
+    // A parallel parent read can finish while the older history query is still running.
+    ready(vm, [row('COMPLETE', 71)])
+    expect(vm.storageMutationBlocked).toBe(false)
+    vm.refreshStorageOperationHistory('instance-a')
+    vm.refreshStorageOperationHistory('instance-a')
+    expect(vm.storageOperationGate.status).toBe('LOADING')
+    expect(vm.storageMutationBlocked).toBe(true)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    oldRead.resolve(historyEnvelope([row('COMPLETE', 71)])); await flushPromises()
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    expect(vm.storageOperationGate.status).toBe('LOADING')
+    expect(vm.storageMutationBlocked).toBe(true)
+    expect(await run(vm)).toBe(false)
+    freshRead.resolve(historyEnvelope([row('COMPLETE', 71), row('RECOVERY_REQUIRED', 72)]))
+    await pending
+    expect(vm.storageRecoveryGate.blocker.id).toBe('RECOVERY_REQUIRED72')
+    expect(vm.storageRecoveryGateMessage).toContain('복구')
+    expect(history.refreshQueued).toBe(false)
+    expect(getAPI).toHaveBeenCalledTimes(2)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('keeps mutations blocked when the queued post-failure observation fails', async () => {
+    const vm = context(); const history = historyContext(vm); const oldRead = deferred()
+    getAPI.mockReturnValueOnce(oldRead.promise).mockRejectedValueOnce(new Error('PRIVATE_BACKEND_CONTEXT'))
+    const pending = history.refresh()
+    vm.refreshStorageOperationHistory('instance-a')
+    oldRead.resolve(historyEnvelope([row('COMPLETE', 71)])); await pending
+    expect(vm.storageOperationGate.status).toBe('ERROR')
+    expect(vm.storageMutationBlocked).toBe(true)
+    expect(JSON.stringify(vm.storageOperationGate)).not.toContain('PRIVATE')
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it.each(['instance', 'user', 'project', 'unmount'])('discards the queued read across the %s boundary', async scope => {
+    const vm = context(); const history = historyContext(vm); const oldRead = deferred()
+    getAPI.mockReturnValueOnce(oldRead.promise)
+    const pending = history.refresh()
+    vm.refreshStorageOperationHistory('instance-a')
+    if (scope === 'instance') { history.instanceId = 'instance-b'; vm.storageService.instance.id = 'instance-b' }
+    if (scope === 'user') vm.$store.getters.userInfo.id = 'user-b'
+    if (scope === 'project') vm.$store.getters.project.id = 'project-b'
+    if (scope === 'unmount') History.beforeUnmount.call(history)
+    else history.invalidateHistory()
+    oldRead.resolve(historyEnvelope([row('COMPLETE', 71)])); await pending
+    expect(history.refreshQueued).toBe(false)
+    expect(vm.storageMutationBlocked).toBe(true)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('does not turn ordinary overlapping history polls into extra queries', async () => {
+    const vm = context(); const history = historyContext(vm); const oldRead = deferred()
+    getAPI.mockReturnValueOnce(oldRead.promise)
+    const pending = history.refresh()
+    await history.refresh()
+    oldRead.resolve(historyEnvelope([row('COMPLETE', 71)])); await pending
+    expect(history.refreshQueued).toBe(false)
+    expect(getAPI).toHaveBeenCalledTimes(1)
+  })
+
+  it('refreshes the parent gate without requiring the operations tab to have mounted', async () => {
+    const vm = context(); vm.$refs = {}; ready(vm)
+    const freshRead = deferred(); vm.listApi.mockReturnValueOnce(freshRead.promise)
+    const pending = SharedFSTab.methods.refreshStorageOperationHistory.call(vm, 'instance-a')
+    expect(vm.storageOperationGate.status).toBe('LOADING')
+    freshRead.resolve([row('COMPLETE', 71), row('RECOVERY_REQUIRED', 72)]); await pending
+    expect(vm.storageMutationBlocked).toBe(true)
+    expect(vm.listApi).toHaveBeenCalledTimes(1)
+    expect(postAPI).not.toHaveBeenCalled()
   })
 
   it('rejects new central mutations and modal submissions without an API POST', async () => {

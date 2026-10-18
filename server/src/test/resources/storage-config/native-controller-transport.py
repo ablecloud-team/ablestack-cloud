@@ -28,7 +28,7 @@ import sys
 import time
 
 MODULE_SHA256 = "01f3d84d5e655be77039b1d3f6423aa27e07ebce395a0d636e58c8f7b6c155ab"
-ACTIONS = frozenset(("status", "begin", "verify", "commit", "finish", "restore", "rollback", "frozen", "frozen-initial", "clone-initial-inspect", "render-import", "render-status", "render-stage", "render-activate", "render-finalize", "render-rollback", "render-maintenance-resume-source", "service-enter", "service-status", "service-release", "observe", "inventory", "verify-health", "health", "writer-idle", "identity-capabilities", "export-identity", "export-local-source", "local-source-status"))
+ACTIONS = frozenset(("status", "begin", "verify", "commit", "finish", "restore", "rollback", "frozen", "frozen-initial", "clone-initial-inspect", "render-import", "render-status", "render-stage", "render-activate", "render-finalize", "render-rollback", "render-maintenance-resume-source", "service-enter", "service-status", "service-release", "reservation-status", "observe", "inventory", "verify-health", "health", "writer-idle", "identity-capabilities", "export-identity", "export-local-source", "local-source-status"))
 MAX_INPUT = 65536
 
 def require(value, code):
@@ -93,7 +93,7 @@ def main():
     require(0 < len(raw) <= MAX_INPUT, "BOUNDED_JSON_STDIN_REQUIRED")
     wire = json.loads(raw)
     require(type(wire) is dict and set(wire) == {"operation", "request"}, "EXACT_TRANSPORT_WIRE_REQUIRED")
-    aliases={"operation observe":"observe","inventory":"inventory","operation verify":"verify-health","health":"health","operation writer-idle":"writer-idle","operation maintenance service-enter":"service-enter","operation maintenance service-status":"service-status","operation maintenance service-release":"service-release","identity capsule capabilities":"identity-capabilities","identity capsule export":"export-identity","identity capsule export-local-source":"export-local-source","smb identity local-source-status":"local-source-status"}
+    aliases={"operation observe":"observe","inventory":"inventory","operation verify":"verify-health","health":"health","operation writer-idle":"writer-idle","operation maintenance service-enter":"service-enter","operation maintenance service-status":"service-status","operation maintenance service-release":"service-release","operation reservation status":"reservation-status","identity capsule capabilities":"identity-capabilities","identity capsule export":"export-identity","identity capsule export-local-source":"export-local-source","smb identity local-source-status":"local-source-status"}
     literal=aliases.get(wire["operation"])
     match = re.fullmatch(r"operation generation ([a-z-]+)", wire["operation"]) if type(wire["operation"]) is str else None
     if literal:match=re.fullmatch(r"operation generation ([a-z-]+)","operation generation "+literal)
@@ -125,7 +125,7 @@ def main():
             spec=importlib.util.spec_from_file_location("real_identity_capability",path)
             helper=importlib.util.module_from_spec(spec);spec.loader.exec_module(helper)
             result=helper.capability(repository,wire["request"])
-        elif action.startswith("render-") or action in ("export-identity","export-local-source","local-source-status","service-enter","service-status","service-release","observe","inventory","verify-health","health","writer-idle"):
+        elif action.startswith("render-") or action in ("export-identity","export-local-source","local-source-status","service-enter","service-status","service-release","reservation-status","observe","inventory","verify-health","health","writer-idle"):
             guard_name="case_filesystem_guard"
             guard_path=Path(__file__).with_name("case_filesystem_guard.py").resolve(strict=True)
             loaded=sys.modules.get(guard_name)

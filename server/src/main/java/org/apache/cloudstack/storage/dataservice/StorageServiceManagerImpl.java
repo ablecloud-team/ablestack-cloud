@@ -254,6 +254,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if ("SERVICE_MAINTENANCE".equals(operation.getAction())
+                && !parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration")) {
+            recoverCheckpointlessApprovedServiceSource(instance,operation);return;
+        }
         if (recoverOperationFinalization(instance,operation)) return;
         if (recoverUnchangedVerifiedSource(instance,operation)) return;
         if (parseJsonObject(operation.getResultJson()).has(StorageUnchangedVerifiedSourceRecovery.RESULT_KEY))
@@ -446,6 +450,127 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!Boolean.TRUE.equals(getNativeBoolean(restored,"canonicalRestored")) || !getJsonString(frozen,"configurationSha256").equals(getJsonString(restored,"configurationSha256"))
                 || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid")))
             throw new CloudRuntimeException("Initial primary endpoint normalization did not restore exact SOURCE");
+    }
+
+    /** Explicit recovery of an initial empty SOURCE when SERVICE failed before its native checkpoint. */
+    protected void recoverCheckpointlessApprovedServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId()))
+            throw new CloudRuntimeException("Checkpointless SERVICE recovery requires its original administrator's explicit reconciliation");
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=checkpointlessApprovedServiceSourceProof(instance,operation);
+            String key="_checkpointlessServiceSourceRecovery";JsonObject result=parseJsonObject(operation.getResultJson());
+            if (result.has(key) && !proof.equals(result.get(key)))
+                throw new CloudRuntimeException("Checkpointless SERVICE SOURCE recovery intent changed");
+            if (!result.has(key)) {
+                result.add(key,proof.deepCopy());operation.setResultJson(result.toString());
+                if (!storageOperationDao.update(operation.getId(),operation)) throw new CloudRuntimeException("Checkpointless SERVICE SOURCE intent could not be persisted");
+            }
+            if (!proof.equals(checkpointlessApprovedServiceSourceProof(instance,operation)))
+                throw new CloudRuntimeException("Checkpointless SERVICE SOURCE drifted before finalization");
+            String diagnostic=StringUtils.defaultString(operation.getDiagnostic())+" | Explicit original administrator verified unchanged initial SOURCE; no protocol replay or native mutation";
+            if (diagnostic.length()>2048) throw new CloudRuntimeException("Original SERVICE failure cannot be preserved within the diagnostic bound");
+            operation.setDiagnostic(diagnostic);completeOperationFinalization(operation,"ROLLED_BACK");
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    protected JsonObject checkpointlessApprovedServiceSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        JsonObject previous=parseJsonObject(operation.getPreviousSnapshotJson()),result=parseJsonObject(operation.getResultJson());
+        Set<String> resultKeys=new HashSet<>(Set.of("_requestFingerprint"));
+        if (result.has("_checkpointlessServiceSourceRecovery")) resultKeys.add("_checkpointlessServiceSourceRecovery");
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId()) || storageWriterOperation.get()!=operation
+                || operation.getId()<=0 || operation.getInstanceId()!=instance.getId() || instance.getVmId()==null
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"SERVICE_MAINTENANCE".equals(operation.getAction()) || !"RECOVERY_REQUIRED".equals(operation.getState())
+                || !"RECOVERY_REQUIRED".equals(operation.getPhase()) || operation.getProgress()!=0 || operation.getRevision()!=2
+                || operation.getSnapshotJson()!=null || operation.getRequestKey()==null || !operation.getRequestKey().startsWith("SERVICE_MAINTENANCE:")
+                || !previous.keySet().equals(Set.of("schemaVersion","instanceId","tables")) || !result.keySet().equals(resultKeys)
+                || StringUtils.isBlank(getJsonString(result,"_requestFingerprint")) || getJsonString(result,"_requestFingerprint").length()>256
+                || fresh==null || fresh.getInstanceId()!=operation.getInstanceId() || fresh.getCreatedBy()!=operation.getCreatedBy()
+                || fresh.getRevision()!=operation.getRevision() || fresh.getProgress()!=0 || fresh.getSnapshotJson()!=null
+                || !operation.getUuid().equals(fresh.getUuid()) || !operation.getAction().equals(fresh.getAction())
+                || !operation.getState().equals(fresh.getState()) || !operation.getPhase().equals(fresh.getPhase())
+                || !operation.getRequestKey().equals(fresh.getRequestKey()) || !java.util.Objects.equals(operation.getPreviousSnapshotJson(),fresh.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(operation.getResultJson(),fresh.getResultJson()) || storageOperationControlDao.findByOperation(operation.getId())!=null)
+            throw new CloudRuntimeException("Checkpointless SERVICE recovery lacks its exact pre-checkpoint original writer");
+        requireNoOperationCancellation(operation);requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
+        StorageServiceOperationVO source=null;
+        for (StorageServiceOperationVO row:latestCompleteHistory(instance.getId())) {
+            if ("COMPLETE".equals(row.getState()) && (source==null || row.getRevision()>source.getRevision())) source=row;
+        }
+        if (source==null || source.getRevision()!=1 || source.getId()==operation.getId() || source.getInstanceId()!=instance.getId()
+                || source.getCreatedBy()!=operation.getCreatedBy() || !"verifyStorageServiceConfiguration".equals(source.getAction())
+                || !"COMPLETE".equals(source.getPhase()))
+            throw new CloudRuntimeException("Checkpointless SERVICE recovery has no original completed initial verifier");
+        JsonObject sourceResult=parseJsonObject(source.getResultJson()),authority=getJsonObject(sourceResult,"_cloneInitialBaselineAuthority");
+        JsonObject database=parseJsonObject(captureConfigurationSnapshot(instance.getId())),bindings=operationResourceBindings(instance);
+        if (authority==null || !instance.getUuid().equals(getJsonString(authority,"targetUuid")) || getJsonLong(authority,"targetId")!=instance.getId()
+                || getJsonLong(authority,"createdBy")!=operation.getCreatedBy() || !bindings.equals(authority.get("bindings"))
+                || !bindings.equals(sourceResult.get("_targetResourceBindings")) || !previous.equals(database)
+                || !previous.equals(parseJsonObject(source.getSnapshotJson())) || !previous.equals(authority.get("database")))
+            throw new CloudRuntimeException("Checkpointless SERVICE initial SOURCE DB or physical allocation identity changed");
+        requireConfigurationCloneInitialDatabase(instance,database);
+        VolumeVO root=volumeDao.findById(bindings.get("rootVolumeId").getAsLong());
+        if (root==null || root.getSize()!=authority.get("rootSizeBytes").getAsLong())
+            throw new CloudRuntimeException("Checkpointless SERVICE ROOT size changed");
+        JsonObject profile=requiredRenderedValidationProfile(instance),status=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject nativeProof=StorageConfigRuntimeEvidence.generation(status,instance.getUuid(),source.getUuid(),source.getRevision());
+        JsonObject generation=status.getAsJsonObject("generation"),initial=authority.getAsJsonObject("foundationSource");
+        if (!"IN_SYNC".equals(getJsonString(status,"generationStatus")) || !status.get("pendingOperationUuid").isJsonNull()
+                || !status.get("bootId").equals(sourceResult.get("_targetNativeBootId"))
+                || !status.get("configurationSha256").equals(sourceResult.get("_targetConfigurationSha256"))
+                || !status.get("configurationSha256").equals(initial.get("configurationSha256"))
+                || !status.get("configurationDesiredState").equals(initial.get("configurationDesiredState")))
+            throw new CloudRuntimeException("Checkpointless SERVICE verified initial native SOURCE changed");
+        JsonObject frozen=rootGuest(instance,"operation generation frozen",generation,30);
+        if (!Boolean.TRUE.equals(getNativeBoolean(frozen,"success")) || !Boolean.TRUE.equals(getNativeBoolean(frozen,"frozen"))
+                || !generation.equals(frozen.get("generation")) || !status.get("configurationDesiredState").equals(frozen.get("configurationDesiredState")))
+            throw new CloudRuntimeException("Checkpointless SERVICE frozen SOURCE changed");
+        JsonObject request=configurationCloneBaselineRequest(authority,source.getUuid(),source.getRevision(),generation,false);
+        requireConfigurationCloneBaselineWitness(instance,authority,request);
+        JsonObject rendered=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        JsonObject current=getJsonObject(rendered,"current"),activation=getJsonObject(rendered,"activation"),sourceScope=operationReservationScope(instance,source);
+        if (!Boolean.TRUE.equals(getNativeBoolean(rendered,"success")) || current==null || activation==null
+                || !current.equals(profile.get("baselineManifest")) || !sourceScope.equals(current.get("scope"))
+                || !status.get("configurationSha256").equals(current.get("configurationSha256"))
+                || !"COMPLETE".equals(getJsonString(activation,"phase")) || !sourceScope.equals(activation.get("scope"))
+                || !Boolean.TRUE.equals(getNativeBoolean(activation,"baselineImported")) || !current.get("manifestSha256").equals(activation.get("targetSha256"))
+                || !activation.has("previousSha256") || !activation.get("previousSha256").isJsonNull()
+                || !activation.has("changedDomains") || activation.getAsJsonArray("changedDomains").size()!=0)
+            throw new CloudRuntimeException("Checkpointless SERVICE rendered SOURCE is not its unchanged imported initial baseline");
+        StorageConfigArtifactVO lkg=null;
+        for (StorageConfigArtifactVO row:storageConfigArtifactDao.listByInstance(instance.getId())) if ("RESTORE_POINT".equals(row.getKind()) && "ACTIVE_LKG".equals(row.getState())) {
+            if (lkg!=null) throw new CloudRuntimeException("Checkpointless SERVICE active LKG is ambiguous");lkg=row;
+        }
+        if (lkg==null || lkg.getInstanceId()!=instance.getId() || lkg.getSourceOperationId()==null || lkg.getSourceOperationId()!=source.getId()
+                || lkg.getDesiredRevision()!=source.getRevision()) throw new CloudRuntimeException("Checkpointless SERVICE original LKG changed");
+        JsonObject lkgMetadata=parseJsonObject(lkg.getMetadataJson());
+        if (!generation.equals(lkgMetadata.get("nativeGeneration"))) throw new CloudRuntimeException("Checkpointless SERVICE LKG native scope changed");
+        StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.config.path","/var/lib/cloudstack-management/storage-config-artifacts")));
+        StorageConfigRuntimeEvidence.requireStored(lkgMetadata.getAsJsonObject("runtimeEvidence"),instance.getUuid(),source.getUuid(),source.getRevision(),StorageConfigArchive.validate(store.read(lkg.getUuid(),lkg.getSha256())));
+        JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),15),maintenance=rootGuest(instance,"operation maintenance service-status",serviceMaintenanceScope(instance,operation),15);
+        if (!Boolean.TRUE.equals(getNativeBoolean(idle,"success")) || !Boolean.TRUE.equals(getNativeBoolean(idle,"writerLockSupported"))
+                || !"WRITER_IDLE".equals(getJsonString(idle,"status")) || !Boolean.TRUE.equals(getNativeBoolean(maintenance,"success"))
+                || !Boolean.FALSE.equals(getNativeBoolean(maintenance,"bootHeld"))) throw new CloudRuntimeException("Checkpointless SERVICE native writer or maintenance is not idle");
+        JsonObject lease=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,operation),15);requireFreshReservationObservation(lease);
+        if (!Boolean.TRUE.equals(getNativeBoolean(lease,"success")) || !Boolean.TRUE.equals(getNativeBoolean(lease,"reservationSupported"))
+                || !Boolean.TRUE.equals(getNativeBoolean(lease,"logicalReservationOnly")) || !Boolean.FALSE.equals(getNativeBoolean(lease,"reservationAcquired"))
+                || !Boolean.FALSE.equals(getNativeBoolean(lease,"expired")) || !lease.has("scope") || !lease.get("scope").isJsonNull()
+                || !lease.has("requirements") || !lease.get("requirements").isJsonNull() || !lease.has("leaseBootId") || !lease.get("leaseBootId").isJsonNull()
+                || !status.get("bootId").equals(lease.get("bootId"))) throw new CloudRuntimeException("Checkpointless SERVICE logical reservation is not absent");
+        if (!nativeProof.equals(StorageConfigRuntimeEvidence.generation(nativeConfigurationGeneration(instance,null,"status"),instance.getUuid(),source.getUuid(),source.getRevision())))
+            throw new CloudRuntimeException("Checkpointless SERVICE native SOURCE changed during observation");
+        JsonObject proof=new JsonObject();proof.addProperty("kind","CHECKPOINTLESS_INITIAL_SERVICE_SOURCE");
+        proof.addProperty("instanceUuid",instance.getUuid());proof.addProperty("operationUuid",operation.getUuid());proof.addProperty("revision",operation.getRevision());
+        proof.addProperty("createdBy",operation.getCreatedBy());proof.addProperty("sourceOperationUuid",source.getUuid());proof.add("nativeSource",nativeProof);
+        proof.addProperty("snapshotSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(database)));
+        proof.addProperty("authoritySha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(authority)));
+        proof.addProperty("renderedManifestSha256",getJsonString(current,"manifestSha256"));proof.addProperty("lkgUuid",lkg.getUuid());proof.addProperty("lkgSha256",lkg.getSha256());
+        proof.addProperty("profileArtifactUuid",getJsonString(profile,"artifactUuid"));proof.addProperty("profileArtifactSha256",getJsonString(profile,"artifactSha256"));
+        proof.addProperty("requestFingerprintSha256",StorageConfigArchive.sha256(getJsonString(result,"_requestFingerprint").getBytes(java.nio.charset.StandardCharsets.UTF_8)));return proof;
     }
 
     /** Explicitly confirms a checkpointless create's unchanged prior verified SOURCE; never replays it. */
@@ -2660,6 +2785,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!Boolean.TRUE.equals(getJsonBoolean(released,"released")) || !Boolean.FALSE.equals(getJsonBoolean(released,"bootHeld")))throw new CloudRuntimeException("Approved service maintenance remains held");
     }
 
+    protected void preflightApprovedServiceArtifactStores() {
+        new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.config.path",
+                "/var/lib/cloudstack-management/storage-config-artifacts"))).requireWritable();
+        localSourceIdentityStore().requireWritable();renderedKeyStore().requireWritable();
+    }
+
     @Override
     public StorageServiceRuntimeResponse applyStorageServiceApprovedMaintenance(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd cmd) {
         requireConfigurationAdministrator();StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
@@ -2687,6 +2818,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     return createRuntimeResponse(instance,"approved service maintenance",true,"COMPLETE","Reviewed protected AD configuration restored",new com.google.gson.Gson().toJson(restored));
                 }
                 requireVolumeResumeIdle(instance,null);requireNoPendingVolumeFormatter(instance);
+                preflightApprovedServiceArtifactStores();
                 new StorageServiceConfiguration(StorageServiceManagerImpl.this,storageConfigArtifactDao,storageOperationDao).validateApprovedMaintenancePlan(instance,cmd);
                 long revision=rootDesiredRevision(instance.getId());if(cmd.getExpectedRevision()!=null&&cmd.getExpectedRevision()!=revision)throw new InvalidParameterValueException("Maintenance desired revision changed");
                 operation=new StorageServiceOperationVO();operation.setInstanceId(instance.getId());operation.setAction("SERVICE_MAINTENANCE");operation.setRequestKey(key);operation.setRevision(revision+1);operation.setCreatedBy(org.apache.cloudstack.context.CallContext.current().getCallingUserId());operation.setState("RUNNING");operation.setPhase("PREFLIGHT");operation.setPreviousSnapshotJson(captureConfigurationSnapshot(instance.getId()));JsonObject retryIntent=new JsonObject();retryIntent.addProperty("_requestFingerprint",StorageServiceRequestFingerprint.of(cmd));operation.setResultJson(retryIntent.toString());operation=storageOperationDao.persist(operation);beginStorageWriterHeartbeat(operation);serviceMaintenanceOperation.set(operation);

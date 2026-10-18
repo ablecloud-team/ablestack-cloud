@@ -481,6 +481,8 @@ then
 fi
 
 %post management
+/usr/bin/python3 -I -B %{_datadir}/%{name}-common/scripts/installer/storage-protected-stores.py --initialize || exit 1
+
 # Install mysql-connector-python wheel
 # Detect Python version to install compatible wheel
 if python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 7) else 1)'; then

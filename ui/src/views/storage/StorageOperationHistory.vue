@@ -86,7 +86,7 @@ export default {
   emits: ['read-started', 'read-complete'],
   components: { ReloadOutlined, StorageOperationControl },
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' } },
-  data: () => ({ rows: [], loading: false, readError: false, generation: 0, scopeEpoch: 0, reconcileTarget: null, saving: '', error: '', recoveryMode: 'ORIGINAL_OPERATION', currentRecoveryMode: SMB_CURRENT_RETAIN_MODE, currentReview: null, currentReviewLoading: false, currentMaintenanceApproved: false, currentConfirmation: '', currentApprovedParameters: null, recoveryToken: 0, recoveryDisposed: false }),
+  data: () => ({ rows: [], loading: false, refreshQueued: false, readError: false, generation: 0, scopeEpoch: 0, reconcileTarget: null, saving: '', error: '', recoveryMode: 'ORIGINAL_OPERATION', currentRecoveryMode: SMB_CURRENT_RETAIN_MODE, currentReview: null, currentReviewLoading: false, currentMaintenanceApproved: false, currentConfirmation: '', currentApprovedParameters: null, recoveryToken: 0, recoveryDisposed: false }),
   computed: {
     operationSecurityScope () { return securityScope(this) },
     canControl () { return 'getStorageServiceOperationControl' in this.$store.getters.apis },
@@ -126,7 +126,7 @@ export default {
       refresh: async () => { await this.refresh(); if (this.readError) throw new Error('Operation history observation unavailable') }
     })
   },
-  beforeUnmount () { this.scopeEpoch++; this.generation++; this.recoveryDisposed = true; if (this.observationRefresh) this.observationRefresh.stop(); this.cancelRecovery() },
+  beforeUnmount () { this.scopeEpoch++; this.generation++; this.recoveryDisposed = true; this.refreshQueued = false; if (this.observationRefresh) this.observationRefresh.stop(); this.cancelRecovery() },
   methods: {
     operationTime (value) {
       if (typeof value !== 'string' || !value || !Number.isFinite(Date.parse(value))) return '—'
@@ -134,7 +134,7 @@ export default {
     },
     operationProgress (value) { return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100 ? value + '%' : '—' },
     invalidateHistory () {
-      this.scopeEpoch++; this.generation++; this.rows = []; this.loading = false; this.readError = false; this.cancelRecovery(); this.saving = ''; this.error = ''
+      this.scopeEpoch++; this.generation++; this.rows = []; this.loading = false; this.refreshQueued = false; this.readError = false; this.cancelRecovery(); this.saving = ''; this.error = ''
     },
     resetCurrentRecovery () {
       this.recoveryToken++; this.currentReview = null; this.currentReviewLoading = false; this.currentMaintenanceApproved = false; this.currentConfirmation = ''; this.currentApprovedParameters = null
@@ -210,8 +210,9 @@ export default {
       } finally { if (this.saving === expected.operationId) this.saving = '' }
     },
     color (state) { return state === 'COMPLETE' || state === 'COMPLETE_NO_CONFIG_CHANGE' || state === 'RECONCILED_SUPERSEDED' ? 'green' : (state === 'RECOVERY_REQUIRED' ? 'red' : (state === 'RUNNING' ? 'blue' : 'orange')) },
-    async refresh () {
-      if (this.recoveryDisposed || this.loading) return
+    async refresh (afterMutation = false) {
+      if (this.recoveryDisposed) return
+      if (this.loading) { if (afterMutation === true) this.refreshQueued = true; return }
       const token = ++this.generation; const instance = this.instanceId; const epoch = this.scopeEpoch || 0; const security = securityScope(this)
       const current = () => !this.recoveryDisposed && token === this.generation && instance === this.instanceId && epoch === (this.scopeEpoch || 0) && security === securityScope(this)
       this.loading = true
@@ -221,7 +222,12 @@ export default {
         if (!current()) return
         this.rows = storageOperationRows(result); this.readError = false
         if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: false })
-      } catch (error) { if (current()) { this.readError = true; if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: true }) } } finally { if (current()) this.loading = false }
+      } catch (error) { if (current()) { this.readError = true; if (this.$emit) this.$emit('read-complete', { instanceId: instance, generation: token, rows: this.rows, readError: true }) } } finally {
+        if (current()) {
+          this.loading = false
+          if (this.refreshQueued) { this.refreshQueued = false; await this.refresh() }
+        }
+      }
     },
     async reconcile () {
       if (this.recoveryMode === SMB_CURRENT_RETAIN_MODE) return this.retainCurrentIdentity()

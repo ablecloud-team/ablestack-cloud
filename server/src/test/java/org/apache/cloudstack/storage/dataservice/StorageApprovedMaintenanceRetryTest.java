@@ -34,7 +34,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 public class StorageApprovedMaintenanceRetryTest {
     private static class Manager extends StorageServiceManagerImpl {
-        StorageServiceInstanceVO instance;boolean routeProtected,routeGeneric;int protectedEntries,genericEntries,holdCalls;String holdVariant="ACTUAL";
+        StorageServiceInstanceVO instance;boolean routeProtected,routeGeneric;int protectedEntries,genericEntries,holdCalls;String holdVariant="ACTUAL";boolean unavailableStore;
         @Override public org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse storageServiceConfiguration(StorageConfigRequest request){if(routeGeneric){genericEntries++;return new org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse();}if(!routeProtected)throw new AssertionError("Unexpected protected route");Assert.assertEquals(Boolean.TRUE,request.getMaintenanceWindow());protectedEntries++;return new org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse();}
         @Override protected void requireConfigurationAdministrator(){ }
         @Override protected StorageServiceInstanceVO requireInstance(Long id){return instance;}
@@ -42,6 +42,7 @@ public class StorageApprovedMaintenanceRetryTest {
         // Only the external lifecycle/DAO boundaries are isolated in these reply-contract units.
         @Override protected void requireVolumeResumeIdle(StorageServiceInstanceVO instance,StorageServiceOperationVO own){Assert.assertTrue(routeGeneric);}
         @Override protected void requireNoPendingVolumeFormatter(StorageServiceInstanceVO instance){Assert.assertTrue(routeGeneric);}
+        @Override protected void preflightApprovedServiceArtifactStores(){Assert.assertTrue(routeGeneric);if(unavailableStore)throw new com.cloud.utils.exception.CloudRuntimeException("Configuration artifact directory is unavailable");}
         @Override protected long rootDesiredRevision(long id){Assert.assertTrue(routeGeneric);return 2;}
         @Override protected String captureConfigurationSnapshot(long id){Assert.assertTrue(routeGeneric);return "{}";}
         @Override protected void beginStorageWriterHeartbeat(StorageServiceOperationVO operation){Assert.assertTrue(routeGeneric);}
@@ -91,6 +92,11 @@ public class StorageApprovedMaintenanceRetryTest {
                 Assert.assertEquals(1,manager.holdCalls);Assert.assertEquals(0,manager.genericEntries);
             }
         }
+    }
+    @Test public void unavailableArtifactStoreRejectsBeforeWriterPersistenceNativeBeginOrServiceHold() {
+        prepareGenericEntry();manager.unavailableStore=true;
+        Assert.assertEquals("Configuration artifact directory is unavailable",Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,this::replay).getMessage());
+        Mockito.verify(operations,Mockito.never()).persist(Mockito.any());Assert.assertEquals(0,manager.holdCalls);Assert.assertEquals(0,manager.genericEntries);
     }
     private void prepareGenericEntry() {
         manager.routeGeneric=true;String target="11111111-1111-4111-8111-111111111111";Mockito.when(manager.instance.getUuid()).thenReturn(target);

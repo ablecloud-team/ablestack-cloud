@@ -64,6 +64,68 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(3,fixture.nativeActions().stream().filter("begin"::equals).count());
     }
 
+    @Test public void checkpointlessApprovedServiceClosesTheSameVerifiedInitialSourceThenRestoresNormally()throws Exception {
+        fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        JsonObject source=fixture.generation("operation generation status",null),lkg=fixture.initialLkgIdentity();
+        String volumes=new com.google.gson.Gson().toJson(fixture.volumeRows),creator=fixture.artifactRows.get(900L).getMetadataJson();
+        var command=fixture.existingApprovedCommand("approved-before-key-publication");
+        try(var fault=Mockito.mockStatic(StorageIdentityCapsule.class,Mockito.CALLS_REAL_METHODS)) {
+            fault.when(()->StorageIdentityCapsule.protectedPrivateKey(Mockito.any(java.security.KeyPair.class)))
+                .thenThrow(new com.cloud.utils.exception.CloudRuntimeException("Configuration artifact directory is unavailable",
+                    new java.nio.file.AccessDeniedException("synthetic-owned-rendered-keys")));
+            Assert.assertEquals("Configuration artifact directory is unavailable",Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+                ()->fixture.manager.applyStorageServiceApprovedMaintenance(command)).getMessage());
+        }
+        StorageServiceOperationVO failed=fixture.operationRows.values().stream().filter(v->"SERVICE_MAINTENANCE".equals(v.getAction())).findFirst().orElseThrow();
+        Assert.assertEquals("RECOVERY_REQUIRED",failed.getState());Assert.assertEquals(0,failed.getProgress());String diagnostic=failed.getDiagnostic();
+        Assert.assertEquals(java.util.Set.of("schemaVersion","instanceId","tables"),fixture.obj(failed.getPreviousSnapshotJson()).keySet());
+        Assert.assertEquals(1,fixture.nativeActions().stream().filter("begin"::equals).count());Assert.assertFalse(fixture.nativeActions().contains("service-enter"));
+        JsonObject args=new JsonObject();args.addProperty("operationid",failed.getId());
+        var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,args);
+        for(String fault:java.util.List.of("actor","phase","progress","checkpoint","database","lkg","fileUuid","rawData","boot","foreignTarget")) {
+            StorageServiceOperationVO before=fixture.copy(fixture.operationRows.get(failed.getId()),StorageServiceOperationVO.class);
+            String database=fixture.database.snapshot(80L),os=Files.readString(fixture.nativeCase.resolve("witness-os-fixture.json"));
+            java.util.Map<Long,StorageConfigArtifactVO> artifacts=new java.util.LinkedHashMap<>();for(var row:fixture.artifactRows.entrySet())artifacts.put(row.getKey(),fixture.copy(row.getValue(),StorageConfigArtifactVO.class));
+            if(fault.equals("actor"))fixture.operationRows.get(failed.getId()).setCreatedBy(3);
+            if(fault.equals("phase"))fixture.operationRows.get(failed.getId()).setPhase("APPLYING");
+            if(fault.equals("progress"))fixture.operationRows.get(failed.getId()).setProgress(1);
+            if(fault.equals("checkpoint")){JsonObject previous=fixture.obj(before.getPreviousSnapshotJson());previous.add("nativeGeneration",new JsonObject());fixture.operationRows.get(failed.getId()).setPreviousSnapshotJson(previous.toString());}
+            if(fault.equals("database"))((StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").values().iterator().next()).setPort(2050);
+            if(fault.equals("lkg"))for(var row:fixture.artifactRows.values())if("ACTIVE_LKG".equals(row.getState()))row.setSha256("0".repeat(64));
+            if(java.util.Set.of("fileUuid","rawData","boot","foreignTarget").contains(fault)){
+                JsonObject osValue=fixture.obj(os);
+                if(fault.equals("fileUuid"))osValue.getAsJsonArray("dataVolumes").get(0).getAsJsonObject().addProperty("filesystemUuid",fixture.id(992));
+                if(fault.equals("rawData"))osValue.getAsJsonArray("dataVolumes").get(2).getAsJsonObject().addProperty("sizeBytes",3L<<30);
+                if(fault.equals("boot"))osValue.addProperty("bootId",fixture.id(993));
+                if(fault.equals("foreignTarget"))osValue.addProperty("foreignIscsiTarget","iqn.2026-10.example:foreign");
+                Files.writeString(fixture.nativeCase.resolve("witness-os-fixture.json"),osValue.toString());
+            }
+            Assert.assertThrows(fault,RuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+            if(fault.equals("foreignTarget")){
+                java.nio.file.Path orphan=fixture.nativeCase.resolve("sys/kernel/config/target/iscsi/iqn.2026-10.example:foreign");
+                Assert.assertFalse(Files.isSymbolicLink(orphan));Assert.assertTrue(orphan.toRealPath().startsWith(fixture.nativeCase.toRealPath()));
+                Files.delete(orphan); // Revert only the empty owned OS fixture node introduced by this negative.
+            }
+            fixture.operationRows.put(failed.getId(),before);fixture.database.restore(80L,database);fixture.artifactRows.clear();fixture.artifactRows.putAll(artifacts);
+            Files.writeString(fixture.nativeCase.resolve("witness-os-fixture.json"),os);
+        }
+        fixture.loseCheckpointlessFinalizationOnce=true;
+        var completionFailure=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.reconcileStorageServiceOperation(reconcile));
+        if(!"Resource-finalized operation completion could not be persisted".equals(completionFailure.getMessage()))throw completionFailure;
+        Assert.assertEquals("RECOVERY_REQUIRED",fixture.operationRows.get(failed.getId()).getState());
+        Assert.assertTrue(fixture.obj(fixture.operationRows.get(failed.getId()).getResultJson()).has("_checkpointlessServiceSourceRecovery"));
+        fixture.manager.reconcileStorageServiceOperation(reconcile);
+        StorageServiceOperationVO recovered=fixture.operationRows.get(failed.getId());Assert.assertEquals("ROLLED_BACK",recovered.getState());Assert.assertEquals(100,recovered.getProgress());
+        Assert.assertTrue(recovered.getDiagnostic().startsWith(diagnostic));Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
+        Assert.assertEquals(volumes,new com.google.gson.Gson().toJson(fixture.volumeRows));Assert.assertEquals(lkg,fixture.initialLkgIdentity());
+        Assert.assertEquals(source.get("generation"),fixture.generation("operation generation status",null).get("generation"));fixture.assertEmptySourceRuntime();
+        java.util.List<String> actions=fixture.nativeActions();Assert.assertEquals(1,actions.stream().filter("begin"::equals).count());
+        for(String action:java.util.List.of("service-enter","service-release","render-stage","render-activate","restore","rollback"))Assert.assertFalse(action,actions.contains(action));
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("approved-after-checkpointless-source-recovery"));
+        assertCompletedRestore(volumes,901L);Assert.assertEquals(creator,fixture.artifactRows.get(900L).getMetadataJson());
+    }
+
     @Test public void reversedArchivedProtocolsPreserveSpecificAndLegacyDefaultEndpoints()throws Exception {
         JsonArray changes=fixture.plan.getAsJsonArray("create");java.util.List<JsonElement> protocols=new java.util.ArrayList<>();
         for(JsonElement item:changes)if("protocols".equals(item.getAsJsonObject().get("kind").getAsString()))protocols.add(item.deepCopy());
@@ -295,6 +357,7 @@ public class StorageConfigRestoreWholeFlowTest {
     boolean rejectAfterActivateOnce;
     boolean loseFirstStageReceiptOnce;
     boolean loseCompletionOnce;
+    boolean loseCheckpointlessFinalizationOnce;
     JsonObject recordedMapping;
     String transientCredentials;
     JsonObject sourceLocalFingerprint,sourceLkgIdentity;
@@ -311,6 +374,8 @@ public class StorageConfigRestoreWholeFlowTest {
         Mockito.doAnswer(call->{
             StorageServiceOperationVO value=call.getArgument(1);JsonObject prior=obj(value.getPreviousSnapshotJson()==null?"{}":value.getPreviousSnapshotJson());
             JsonObject rendered=prior.has("renderedGeneration")?prior.getAsJsonObject("renderedGeneration"):new JsonObject();
+            if(loseCheckpointlessFinalizationOnce && "ROLLED_BACK".equals(value.getState())
+                    && obj(value.getResultJson()).has("_checkpointlessServiceSourceRecovery")) {loseCheckpointlessFinalizationOnce=false;return false;}
             if(loseFirstStageReceiptOnce && rendered.has("receipt") && "STAGING".equals(rendered.getAsJsonObject("receipt").get("phase").getAsString())) {
                 loseFirstStageReceiptOnce=false;return false;
             }
@@ -430,7 +495,7 @@ public class StorageConfigRestoreWholeFlowTest {
             capabilities.addProperty("smbNetworkAccessSupported",StorageRuntimeFeatureCompatibility.advertised(signed).contains("SMB_NETWORK_ACL"));
             capabilities.addProperty("smbNetworkIpv6Supported",false);reply.add("capabilities",capabilities);return reply;
         }
-        if(java.util.Set.of("operation observe","inventory","health","operation writer-idle").contains(command))return generation(command,new JsonObject());
+        if(java.util.Set.of("operation observe","inventory","health","operation writer-idle","operation reservation status").contains(command))return generation(command,new JsonObject());
         if(command.equals("nfs idmapping preflight")){
             JsonObject requested=obj(body);Assert.assertEquals("NAME_DOMAIN",requested.get("idMappingMode").getAsString());
             return fresh(obj("{\"idMappingMode\":\"NAME_DOMAIN\"}"));

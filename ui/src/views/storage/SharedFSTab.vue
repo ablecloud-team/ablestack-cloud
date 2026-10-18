@@ -4915,7 +4915,8 @@ export default {
     },
     refreshStorageOperationHistory (instanceId) {
       if (instanceId !== this.storageService.instance?.id) return
-      if (this.$refs.storageOperationHistory) return this.$refs.storageOperationHistory.refresh()
+      this.beginStorageOperationRead(instanceId)
+      if (this.$refs.storageOperationHistory) return this.$refs.storageOperationHistory.refresh(true)
       if (this.storageOperationReadSupported) return this.fetchStorageOperationGate(instanceId).catch(() => {})
     },
     beginStorageOperationRead (instanceId) {

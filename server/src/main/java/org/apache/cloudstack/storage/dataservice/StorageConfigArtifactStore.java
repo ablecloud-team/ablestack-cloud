@@ -38,6 +38,12 @@ public final class StorageConfigArtifactStore {
             }
         } catch (IOException error) { throw new CloudRuntimeException("Configuration artifact directory is unavailable", error); }
     }
+    /** Check directory access without creating an artifact or reading protected file contents. */
+    public void requireWritable() {
+        try { root.getFileSystem().provider().checkAccess(root, java.nio.file.AccessMode.READ,
+                java.nio.file.AccessMode.WRITE, java.nio.file.AccessMode.EXECUTE); }
+        catch (IOException error) { throw new CloudRuntimeException("Configuration artifact directory is unavailable", error); }
+    }
     private Path path(String uuid) {
         if (uuid == null || !uuid.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")) {
             throw new CloudRuntimeException("Invalid configuration artifact identity");

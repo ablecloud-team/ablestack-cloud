@@ -26,6 +26,8 @@ if [ "$1" = configure ]; then
         usermod -m -d /var/lib/cloudstack/management cloud || true
     fi
 
+    /usr/bin/python3 -I -B /usr/share/cloudstack-common/scripts/installer/storage-protected-stores.py --initialize
+
     rm -fr /var/cache/cloudstack/management/work/*
 
     for i in /var/cache/cloudstack/management \

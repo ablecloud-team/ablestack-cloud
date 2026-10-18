@@ -16,6 +16,16 @@
 # specific language governing permissions and limitations
 # under the License.
 
+STORAGE_STORES_CHECKER=/usr/share/cloudstack-common/scripts/installer/storage-protected-stores.py
+if [ ! -f "$STORAGE_STORES_CHECKER" ] || [ -L "$STORAGE_STORES_CHECKER" ]; then
+    echo "ERROR: protected storage checker is missing or unsafe; install matching cloudstack-common and rerun cloudstack-setup-management."
+    exit 1
+fi
+if ! /usr/bin/python3 -I -B "$STORAGE_STORES_CHECKER" --check; then
+    echo "ERROR: management protected storage pre-check failed; run cloudstack-setup-management as root before starting the service."
+    exit 1
+fi
+
 if [ ! -f "/usr/bin/java" ];then
     echo "ERROR: /usr/bin/java does not exist"
     exit 1
