@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import { nfsPermissionPreset, recommendedNfsPermissionPatch } from '@/utils/storageNfsPermissions'
+import { nfsPermissionPreset, recommendedNfsPermissionPatch, nfsPermissionEditParams } from '@/utils/storageNfsPermissions'
 
 describe('NFS permission recommendations', () => {
   it('suggests 0:0 and a conservative directory mode when no squash is selected', () => {
@@ -37,5 +37,20 @@ describe('NFS permission recommendations', () => {
     expect(input.owneruid).toBe(1234)
     expect(recommendedNfsPermissionPatch(input)).toEqual({ owneruid: 0, ownergid: 0, mode: '0770', recursivepermission: false })
     expect(recommendedNfsPermissionPatch({ ...input, posixpolicyid: 'common-policy' })).toEqual({})
+  })
+})
+
+describe('existing NFS permission request fields', () => {
+  it('omits absent POSIX fields when only read-only state changes', () => {
+    expect(nfsPermissionEditParams({ readonly: true, owneruid: null, ownergid: null, mode: '', recursivepermission: false }, { readOnly: false })).toEqual({})
+  })
+  it('omits unchanged numeric identities and equivalent octal modes', () => {
+    expect(nfsPermissionEditParams({ owneruid: '0', ownergid: 42, mode: '755', recursivepermission: false }, { ownerUid: 0, ownerGid: 42, mode: '0755' })).toEqual({})
+  })
+  it('preserves explicit changes including zero instead of fabricating absence', () => {
+    expect(nfsPermissionEditParams({ owneruid: 0, ownergid: 20, mode: '0700', recursivepermission: true }, {})).toEqual({ owneruid: 0, ownergid: 20, mode: '0700', recursivepermission: true })
+  })
+  it('keeps ownership and mode under the selected common policy', () => {
+    expect(nfsPermissionEditParams({ posixpolicyid: 'reviewed-policy', owneruid: 1, ownergid: 2, mode: '0700' }, { ownerUid: 0, ownerGid: 0, mode: '0755' })).toEqual({})
   })
 })

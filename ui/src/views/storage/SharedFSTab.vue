@@ -2399,7 +2399,7 @@ import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
 import PosixDirectoryPolicies from '@/views/storage/PosixDirectoryPolicies'
 import PosixPolicyInheritance from '@/views/storage/PosixPolicyInheritance'
 import NfsPermissionRecommendations from '@/views/storage/NfsPermissionRecommendations'
-import { nfsPermissionPreset, recommendedNfsPermissionPatch } from '@/utils/storageNfsPermissions'
+import { nfsPermissionPreset, recommendedNfsPermissionPatch, nfsPermissionEditParams } from '@/utils/storageNfsPermissions'
 import StorageControlPolicy from './StorageControlPolicy'
 import StorageOperationHistory from '@/views/storage/StorageOperationHistory'
 import StorageServiceConfiguration from '@/views/storage/StorageServiceConfiguration'
@@ -3963,7 +3963,7 @@ export default {
       return this.storageService.nfsExports.map((share, index) => {
         const name = this.clientVisibleName(share.name || share.exportname, `nfs${index + 1}`)
         const acls = this.nfsAclsForShare(share)
-        const config = this.effectiveNfsExportConfig(this.parseStorageConfig(share.config))
+        const config = this.parseStorageConfig(share.config)
         const volume = this.volumeForShare(share)
         const protocolMode = this.nfsExportProtocolMode(share, config)
         return {
@@ -4018,7 +4018,7 @@ export default {
         if (this.nfsAclsForShare(share).length > 0) {
           return
         }
-        const config = this.effectiveNfsExportConfig(this.parseStorageConfig(share.config))
+        const config = this.parseStorageConfig(share.config)
         rows.push({
           key: `nfs-acl-implicit-${share.id || share.uuid || index}`,
           exportName: this.clientVisibleName(share.name || share.exportname, '-'),
@@ -7544,7 +7544,7 @@ export default {
     },
     populateNfsExportForm (record) {
       const share = record?.raw || record || {}
-      const config = this.effectiveNfsExportConfig(this.parseStorageConfig(share.config || share.configjson || share.configJson))
+      const config = this.parseStorageConfig(share.config || share.configjson || share.configJson)
       const quota = this.capacityBytesToInput(share.quotabytes || share.quotaBytes || share.capacitybytes || share.sizebytes)
       const rawListenIps = this.normalizeEndpointIps(share.listenips ?? share.listenIps ?? config.listenIps ?? config.listenips)
       const endpointMode = this.nfsExportEndpointMode(share, config, rawListenIps)
@@ -8048,7 +8048,8 @@ export default {
       if (!this.validateNfsExportNameAndPath()) {
         return Promise.resolve(false)
       }
-      this.applyNfsWritableDefaults()
+      const original = this.parseStorageConfig(context.config || context.configjson || context.configJson)
+      const posixChanges = nfsPermissionEditParams(this.forms.nfsExport, original)
       return this.runStorageAction('editNfsExport', 'updateStorageNfsExport', {
         id: context.id || this.actionModal.context?.id,
         name: this.forms.nfsExport.name,
@@ -8066,10 +8067,7 @@ export default {
         allsquash: this.forms.nfsExport.allsquash,
         anonuid: this.forms.nfsExport.anonuid,
         anongid: this.forms.nfsExport.anongid,
-        owneruid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.owneruid,
-        ownergid: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.ownergid,
-        mode: this.forms.nfsExport.posixpolicyid ? undefined : this.forms.nfsExport.mode,
-        recursivepermission: this.forms.nfsExport.recursivepermission,
+        ...posixChanges,
         sync: this.forms.nfsExport.sync,
         secure: this.forms.nfsExport.secure,
         endpointmode: dualMode ? undefined : 'LISTENER_GROUP',
@@ -8758,24 +8756,9 @@ export default {
       const recursive = this.boolValue(config.recursivePermission ?? config.recursivepermission) ? this.$t('label.yes') : this.$t('label.no')
       return `${owner} / ${mode} / ${recursive}`
     },
-    effectiveNfsExportConfig (config = {}) {
-      const next = { ...config }
-      const preset = nfsPermissionPreset(config)
-      if (preset.applyowner) {
-        if (preset.policy !== 'NO_ROOT_SQUASH') {
-          if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
-          if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
-        }
-        if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = preset.owneruid
-        if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = preset.ownergid
-        if (!next.mode) next.mode = preset.mode
-        if (next.recursivePermission === undefined && next.recursivepermission === undefined) next.recursivePermission = false
-      }
-      return next
-    },
     updateNfsSquashOption (key, checked) {
       this.forms.nfsExport[key] = checked
-      Object.assign(this.forms.nfsExport, recommendedNfsPermissionPatch(this.forms.nfsExport))
+      if (this.actionModal.type !== 'editNfsExport') Object.assign(this.forms.nfsExport, recommendedNfsPermissionPatch(this.forms.nfsExport))
     },
     applyNfsWritableDefaults () {
       if (this.forms.nfsExport.posixpolicyid || this.forms.nfsExport.readonly) return

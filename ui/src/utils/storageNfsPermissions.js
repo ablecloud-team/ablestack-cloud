@@ -42,3 +42,18 @@ export function recommendedNfsPermissionPatch (config = {}) {
   if (!preset.applyowner || config.posixpolicyid) return {}
   return { owneruid: preset.owneruid, ownergid: preset.ownergid, mode: preset.mode, recursivepermission: false }
 }
+
+/** Existing exports only: send explicit POSIX edits, never recommendation defaults. */
+export function nfsPermissionEditParams (form = {}, original = {}) {
+  const missing = input => input === undefined || input === null || input === ''
+  const numeric = input => missing(input) ? undefined : Number(input)
+  const mode = input => missing(input) ? undefined : String(input).trim().padStart(4, '0')
+  const changes = {}
+  if (!form.posixpolicyid) {
+    for (const [key, upper, normalize] of [['owneruid', 'ownerUid', numeric], ['ownergid', 'ownerGid', numeric], ['mode', 'mode', mode]]) {
+      if (!missing(form[key]) && normalize(form[key]) !== normalize(value(original, upper, key))) changes[key] = form[key]
+    }
+  }
+  if (booleanValue(form.recursivepermission) !== booleanValue(value(original, 'recursivePermission', 'recursivepermission'))) changes.recursivepermission = booleanValue(form.recursivepermission)
+  return changes
+}
