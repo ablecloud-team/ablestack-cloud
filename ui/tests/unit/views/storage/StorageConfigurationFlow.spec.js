@@ -229,12 +229,12 @@ describe('existing resource mappings and ordinary explicit clone templates', () 
   })
   const template = () => ({ id: '11111111-1111-4111-8111-111111111111', templatetype: 'USER', isready: true, isdynamicallyscalable: true, hypervisor: 'KVM', arch: 'x86_64', format: 'QCOW2', templatestate: 'Active', zoneid: 'zone', checksum: 'checksum', ispublic: false, account: 'owner', domainid: 'domain' })
   it.each([{ ispublic: true }, { arch: 'aarch64' }, { templatestate: 'Inactive' }, { account: 'other' }, { zoneid: 'other' }])('rejects an ineligible private clone image %j', fields => {
-    const vm = { clone: { zoneid: 'zone' }, resource: { account: 'owner', domainid: 'domain' } }
+    const vm = { clone: { zoneid: 'zone', backingvolumemode: 'NEW' }, resource: { account: 'owner', domainid: 'domain' } }
     expect(Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, { ...template(), ...fields })).toBe(false)
     expect(Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, template())).toBe(true)
   })
   it('requires the exact private template permit before constructing a clone plan', () => {
-    const row = template(); const vm = { cloneRequiresIdentityTemplate: false, cloneTemplateSelection: 'EXPLICIT', clone: { zoneid: 'zone', templateid: row.id }, cloneTemplateRows: [row], cloneTemplateScope: 'scope', cloneDiscoveryScope: () => 'scope', resource: { account: 'owner', domainid: 'domain' }, $t: key => key }
+    const row = template(); const vm = { cloneRequiresIdentityTemplate: false, cloneTemplateSelection: 'EXPLICIT', clone: { zoneid: 'zone', templateid: row.id, backingvolumemode: 'NEW' }, cloneTemplateRows: [row], cloneTemplateScope: 'scope', cloneTemplateBackingMode: 'NEW', cloneDiscoveryScope: () => 'scope', resource: { account: 'owner', domainid: 'domain' }, $t: key => key }
     vm.eligibleOrdinaryCloneTemplate = value => Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, value)
     expect(() => Widget.methods.assertOrdinaryCloneTemplate.call(vm)).toThrow('message.storage.config.clone.template.approval.required')
     vm.clone.validationartifactuuid = '22222222-2222-4222-8222-222222222222'; vm.clone.validationartifactsha256 = 'a'.repeat(64)
@@ -242,8 +242,8 @@ describe('existing resource mappings and ordinary explicit clone templates', () 
   })
   it.each(['DEFAULT_SYSTEM', 'EXPLICIT'])('keeps default and explicitly approved template requests distinct: %s', async selection => {
     const row = template()
-    const clone = { name: 'clone', zoneid: 'zone', templateid: row.id, validationartifactuuid: '22222222-2222-4222-8222-222222222222', validationartifactsha256: 'a'.repeat(64) }
-    const vm = { instanceId: 'a', resource: { account: 'owner', domainid: 'domain' }, planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', cloneTemplateSelection: selection, cloneRequiresIdentityTemplate: false, ordinaryClonePrivateTemplate: selection === 'EXPLICIT', clone, cloneTemplateRows: [row], cloneTemplateScope: 'scope', cloneDiscoveryScope: () => 'scope', initialVolumeSource: 'data', cloneRuntime: 'bundle', volumeMapping: {}, $t: key => key, assertCloneOffering: jest.fn() }
+    const clone = { name: 'clone', zoneid: 'zone', backingvolumemode: 'NEW', templateid: row.id, validationartifactuuid: '22222222-2222-4222-8222-222222222222', validationartifactsha256: 'a'.repeat(64) }
+    const vm = { instanceId: 'a', resource: { account: 'owner', domainid: 'domain' }, planTarget: { id: 'backup' }, targetMode: 'CREATE_NEW', cloneTemplateSelection: selection, cloneRequiresIdentityTemplate: false, ordinaryClonePrivateTemplate: selection === 'EXPLICIT', clone, cloneTemplateRows: [row], cloneTemplateScope: 'scope', cloneTemplateBackingMode: 'NEW', cloneDiscoveryScope: () => 'scope', initialVolumeSource: 'data', cloneRuntime: 'bundle', volumeMapping: {}, $t: key => key, assertCloneOffering: jest.fn() }
     vm.eligibleOrdinaryCloneTemplate = value => Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, value)
     vm.assertOrdinaryCloneTemplate = () => Widget.methods.assertOrdinaryCloneTemplate.call(vm)
     vm.mutation = jest.fn().mockResolvedValue({ planToken: 'token', metadata: { plan: { blockers: [], requiredCredentials: [] } } })
@@ -304,7 +304,7 @@ describe('existing resource mappings and ordinary explicit clone templates', () 
   })
   it('uses the public readiness fields when listTemplates has no private database state property', () => {
     const row = template(); delete row.templatestate
-    const vm = { clone: { zoneid: 'zone' }, resource: { account: 'owner', domainid: 'domain' } }
+    const vm = { clone: { zoneid: 'zone', backingvolumemode: 'NEW' }, resource: { account: 'owner', domainid: 'domain' } }
     expect(Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, row)).toBe(true)
     expect(Widget.methods.eligibleOrdinaryCloneTemplate.call(vm, { ...row, removed: '2026-10-18' })).toBe(false)
   })
