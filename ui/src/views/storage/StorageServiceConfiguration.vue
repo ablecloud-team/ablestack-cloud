@@ -242,7 +242,7 @@ export default {
   components: { CloudDownloadOutlined, UploadOutlined, DownloadOutlined, RollbackOutlined, ReloadOutlined },
   emits: ['operation-updated'],
   props: { instanceId: { type: String, required: true }, instanceName: { type: String, default: '' }, resource: { type: Object, required: true } },
-  data: () => ({ disposed: false, rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planTarget: null, cloneResume: null, cloneResumeUnavailable: false, plan: null, planPhase: 'MAPPING', planToken: '', resourceMapping: {}, listenerMapping: {}, listenerChoices: {}, lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateBackingMode: null, cloneTemplateSelection: 'DEFAULT_SYSTEM', cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
+  data: () => ({ disposed: false, rows: [], loading: false, readFailed: false, generation: 0, busy: '', error: '', backupDialog: false, includeAdIdentity: false, backupMaintenance: false, backupConfirmation: '', includeRuntime: true, retentionHours: 168, planRequestToken: 0, planTarget: null, cloneResume: null, cloneResumeUnavailable: false, plan: null, planPhase: 'MAPPING', planToken: '', resourceMapping: {}, listenerMapping: {}, listenerChoices: {}, lkgPlan: false, planning: false, volumeMapping: {}, newVolumeSpecs: {}, targetVolumes: [], credentialValues: {}, confirmation: '', restoreMaintenance: false, reviewedPlan: '', confirmFileExecute: false, targetMode: 'RESTORE_EXISTING', clone: { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' }, initialVolumeSource: '', plannedVolume: '', cloneRuntime: '', cloneOptionToken: 0, cloneOptionScope: null, cloneOfferingRows: [], cloneOfferingLoading: false, cloneOfferingError: false, cloneTemplateToken: 0, cloneTemplateScope: null, cloneTemplateBackingMode: null, cloneTemplateSelection: 'DEFAULT_SYSTEM', cloneTemplateRows: [], cloneTemplateLoading: false, cloneTemplateError: false, cloneOptions: { zones: [], networks: [], offerings: [], disks: [], pools: [], bundles: [], volumes: [], templates: [] } }),
   computed: {
     mappingLocked () { return this.planPhase === 'REVIEW' || !!this.cloneResume || this.cloneResumeUnavailable },
     configurationActor () { return configurationActor(this) },
@@ -340,10 +340,22 @@ export default {
       this.editPlanMapping()
       if (this.cloneTemplateSelection === 'EXPLICIT') return this.loadOrdinaryCloneTemplates(true)
     },
-    'planTarget.metadata': { deep: true, handler () { this.clearCloneZoneOptions() } }
+    'planTarget.metadata': {
+      deep: true,
+      handler () {
+        if (!this.planTarget || this.cloneResumeUnavailable) return
+        if (this.cloneResume) {
+          // Opening a recorded restore is hydration, not a change of the user's mapping.
+          // Volatile receipts may change; the recorded target and allocation may not.
+          try { requireConfigurationCloneResumePlan(this.cloneResume, this.planTarget.metadata) } catch (_) { this.invalidateCloneResume() }
+          return
+        }
+        this.clearCloneZoneOptions()
+      }
+    }
   },
   mounted () { ensureConfigurationActor(this.configurationActor); this.refresh(); if (this.configurationIntent?.jobId && activeConfigurationIntent(this.configurationIntent)) this.resumeConfigurationJob() },
-  beforeUnmount () { this.disposed = true; this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.credentialValues = {} },
+  beforeUnmount () { this.disposed = true; this.planRequestToken++; this.generation++; this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.credentialValues = {} },
   methods: {
     can (api) { return api in this.$store.getters.apis },
     unwrap (value, api) {
@@ -618,9 +630,10 @@ export default {
         template.isready === true && template.isdynamicallyscalable === true && template.hypervisor === 'KVM' &&
         template.arch === 'x86_64' && template.zoneid === this.clone.zoneid && template.details?.['storage.service.local.identity.seed.absent'] === 'true'
     },
-    clearCloneTemplates () {
+    clearCloneTemplates (preserveSelection = false) {
       this.cloneTemplateToken++; this.cloneTemplateScope = null; this.cloneTemplateBackingMode = null; this.cloneTemplateRows = []; this.cloneTemplateLoading = false; this.cloneTemplateError = false
-      this.cloneOptions.templates = []; delete this.clone.templateid; delete this.clone.validationartifactuuid; delete this.clone.validationartifactsha256
+      this.cloneOptions.templates = []
+      if (!preserveSelection) { delete this.clone.templateid; delete this.clone.validationartifactuuid; delete this.clone.validationartifactsha256 }
     },
     async loadCloneTemplates () {
       this.clearCloneTemplates()
@@ -686,10 +699,16 @@ export default {
       if (this.cloneTemplateLoading || this.cloneTemplateError || this.cloneTemplateScope !== this.cloneIdentityTemplateScope() || !this.eligibleCloneIdentityTemplate(template) ||
         (reviewedPlan && reviewedPlan.createNew?.templateid !== template.id)) throw new Error(this.$t('message.storage.config.clone.identity.template.required'))
     },
+    invalidateCloneResume () {
+      this.planRequestToken++; this.cloneResumeUnavailable = true; this.planPhase = 'MAPPING'; this.planToken = ''; this.reviewedPlan = ''
+      this.restoreMaintenance = false; this.confirmation = ''; this.credentialValues = {}; this.planning = false
+      this.error = this.$t(cloneResumeUnavailable)
+    },
     clearCloneZoneOptions () {
-      if (this.clearCloneTemplates) this.clearCloneTemplates()
+      if (this.clearCloneTemplates) this.clearCloneTemplates(!!this.cloneResume)
       this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false
       for (const key of ['networks', 'offerings', 'disks', 'pools', 'volumes']) this.cloneOptions[key] = []
+      if (this.cloneResume) { this.invalidateCloneResume(); return }
       for (const key of ['networkid', 'storageid', 'diskofferingid', 'serviceofferingid', 'existingvolumeid']) this.clone[key] = undefined
       this.volumeMapping = {}; this.newVolumeSpecs = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planToken = ''; this.confirmation = ''
     },
@@ -747,6 +766,7 @@ export default {
     async preparePlan () {
       if (this.planning || activeConfigurationIntent(configurationIntents[configurationScope(this)])) return
       const target = this.planTarget; const instance = this.instanceId
+      const request = this.planRequestToken = (this.planRequestToken || 0) + 1
       this.planning = true; this.error = ''; this.restoreMaintenance = false; this.reviewedPlan = ''
       try {
         if (this.lkgPlan) requireStorageMutationAllowed(this, 'restoreStorageServiceLastKnownGood')
@@ -786,7 +806,7 @@ export default {
         const cloneScope = mode === 'CREATE_NEW' && this.cloneRequiresIdentityTemplate ? this.cloneIdentityTemplateScope() : null
         const selectedTemplate = this.clone?.templateid
         const result = await this.mutation(api, { artifactid: this.planTarget.id, targetmode: mode, mapping: JSON.stringify(mappings) })
-        if (target !== this.planTarget || instance !== this.instanceId) return
+        if (request !== this.planRequestToken || target !== this.planTarget || instance !== this.instanceId || this.cloneResumeUnavailable) return
         if (mode !== this.targetMode || (mode === 'CREATE_NEW' && ((cloneScope !== null && cloneScope !== this.cloneIdentityTemplateScope()) || selectedTemplate !== this.clone?.templateid))) throw new Error(this.$t('message.storage.config.scope.changed'))
         if (this.cloneResume) requireConfigurationCloneResumePlan(this.cloneResume, result.metadata)
         this.plan = result.metadata.plan; this.planToken = result.planToken || ''
@@ -800,12 +820,13 @@ export default {
         this.planPhase = this.plan.blockers.length ? 'MAPPING' : 'REVIEW'
         this.reviewedPlan = JSON.stringify({ instance: this.instanceId, artifact: this.planTarget.id, token: this.planToken, plan: this.plan })
         this.credentialValues = Object.fromEntries(this.plan.requiredCredentials.map(row => [row.ruleUuid, {}]))
-      } catch (error) { if (target === this.planTarget && instance === this.instanceId) this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message } finally { if (target === this.planTarget && instance === this.instanceId) this.planning = false }
+      } catch (error) { if (request === this.planRequestToken && target === this.planTarget && instance === this.instanceId) this.error = error.message === cloneResumeUnavailable ? this.$t(cloneResumeUnavailable) : error.message } finally { if (request === this.planRequestToken && target === this.planTarget && instance === this.instanceId) this.planning = false }
     },
     restoreReviewFingerprint () {
       return JSON.stringify({ instance: this.instanceId, artifact: this.planTarget?.id, token: this.planToken, plan: this.plan })
     },
     async applyPlan () {
+      if (this.cloneResumeUnavailable) { this.error = this.$t(cloneResumeUnavailable); return }
       const requiresIdentity = this.plan?.adIdentityRestoreRequiresMaintenance === true
       if (!this.plan || this.confirmation !== this.plan.targetName || typeof this.planToken !== 'string' || !this.planToken) { this.error = this.$t('message.storage.config.confirmation.required'); return }
       if (!this.reviewedPlan || this.reviewedPlan !== this.restoreReviewFingerprint()) { this.restoreMaintenance = false; this.error = this.$t('message.storage.config.scope.changed'); return }
@@ -836,7 +857,7 @@ export default {
         await this.refresh()
       } catch (error) { if ((scope === configurationScope(this) && !this.disposed)) this.error = error?.message || this.$t('message.storage.config.failed') } finally { parameters.credentials = ''; if ((scope === configurationScope(this) && !this.disposed)) this.busy = '' }
     },
-    closePlan () { if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.cloneResume = null; this.cloneResumeUnavailable = false; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.resourceMapping = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.cloneTemplateSelection = 'DEFAULT_SYSTEM'; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
+    closePlan () { this.planRequestToken = (this.planRequestToken || 0) + 1; if (this.clearCloneTemplates) this.clearCloneTemplates(); this.cloneOptionToken++; this.cloneOptionScope = null; this.cloneOfferingRows = []; this.cloneOfferingLoading = false; this.cloneOfferingError = false; this.planTarget = null; this.cloneResume = null; this.cloneResumeUnavailable = false; this.plan = null; this.planToken = ''; this.restoreMaintenance = false; this.reviewedPlan = ''; this.planPhase = 'MAPPING'; this.resourceMapping = {}; this.listenerMapping = {}; this.listenerChoices = {}; this.volumeMapping = {}; this.newVolumeSpecs = {}; this.credentialValues = {}; this.confirmation = ''; this.lkgPlan = false; this.planning = false; this.confirmFileExecute = false; this.targetMode = 'RESTORE_EXISTING'; this.initialVolumeSource = ''; this.plannedVolume = ''; this.cloneRuntime = ''; this.cloneTemplateSelection = 'DEFAULT_SYSTEM'; this.clone = { name: '', size: 20, filesystem: 'XFS', networkmode: 'DHCP', backingvolumemode: 'NEW' } }
   }
 }
 </script>
