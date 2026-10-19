@@ -69,4 +69,41 @@ public class StorageConfigurationBatchTest {
         Mockito.verify(manager, Mockito.never()).applySmbDesiredState(Mockito.any(), Mockito.anyMap());
         Assert.assertNull(batches(manager).get());
     }
+    @Test public void restoreReusesSpecificBlockAndSmbListenersWithoutImplicitWildcardRows() {
+        for (StorageServiceInstance.Protocol type : java.util.List.of(StorageServiceInstance.Protocol.ISCSI,
+                StorageServiceInstance.Protocol.NVME_OF, StorageServiceInstance.Protocol.SMB)) {
+            StorageServiceManagerImpl manager = manager();StorageServiceProtocolDao dao = Mockito.mock(StorageServiceProtocolDao.class);
+            ReflectionTestUtils.setField(manager, "storageServiceProtocolDao", dao);
+            StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
+            StorageServiceProtocolVO endpoint = new StorageServiceProtocolVO(7, type, true, "10.10.13.227", type == StorageServiceInstance.Protocol.ISCSI ? 3260 : type == StorageServiceInstance.Protocol.SMB ? 445 : 4420);
+            endpoint.setState(StorageServiceInstance.ResourceState.Ready);
+            Mockito.when(dao.listByInstanceIdAndProtocol(7, type)).thenReturn(java.util.List.of(endpoint));
+            manager.beginConfigurationBatch(7);manager.ensureProtocol(instance, type);
+            Mockito.verify(dao).listByInstanceIdAndProtocol(7, type);Mockito.verifyNoMoreInteractions(dao);
+            manager.abortConfigurationBatch();
+        }
+    }
+    @Test public void restoreNeverCreatesOrEnablesMissingDisabledOrErrorListeners() {
+        for (StorageServiceInstance.ResourceState state : java.util.List.of(StorageServiceInstance.ResourceState.Ready,
+                StorageServiceInstance.ResourceState.Error)) {
+            StorageServiceManagerImpl manager = manager();StorageServiceProtocolDao dao = Mockito.mock(StorageServiceProtocolDao.class);
+            ReflectionTestUtils.setField(manager, "storageServiceProtocolDao", dao);
+            StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
+            StorageServiceProtocolVO endpoint = new StorageServiceProtocolVO(7, StorageServiceInstance.Protocol.ISCSI, state == StorageServiceInstance.ResourceState.Error, "10.10.13.227", 3260);
+            endpoint.setState(state);Mockito.when(dao.listByInstanceIdAndProtocol(7, StorageServiceInstance.Protocol.ISCSI)).thenReturn(java.util.List.of(endpoint));
+            manager.beginConfigurationBatch(7);
+            Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class, () -> manager.ensureProtocol(instance, StorageServiceInstance.Protocol.ISCSI));
+            Mockito.verify(dao).listByInstanceIdAndProtocol(7, StorageServiceInstance.Protocol.ISCSI);Mockito.verifyNoMoreInteractions(dao);
+            manager.abortConfigurationBatch();
+        }
+    }
+    @Test public void listenerScopeCannotBorrowAnotherInstanceBatch() {
+        StorageServiceManagerImpl manager = manager();StorageServiceProtocolDao dao = Mockito.mock(StorageServiceProtocolDao.class);
+        ReflectionTestUtils.setField(manager, "storageServiceProtocolDao", dao);
+        StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(8L);
+        manager.beginConfigurationBatch(7);
+        Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class, () -> manager.ensureProtocol(instance, StorageServiceInstance.Protocol.ISCSI));
+        Mockito.verifyNoInteractions(dao);manager.abortConfigurationBatch();
+    }
+
 }

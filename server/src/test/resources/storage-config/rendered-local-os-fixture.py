@@ -1068,7 +1068,16 @@ class RenderedGuestFixture:
                                  "candidateSha256":hashlib.sha256(path.read_bytes()).hexdigest()})
             return types.SimpleNamespace(returncode=0,stdout="\n".join("["+x+"]"for x in parser.sections())+"\n",stderr="")
         if args[:1]==["unshare"]:
-            path=self.original_path(args[-1]).resolve(strict=True)
+            # The real validator passes its bounded worker deadline after the
+            # candidate directory; never interpret that number as a pathname.
+            validation=importlib.import_module("native_render_validation")
+            require(len(args)==12 and args[:9]==["unshare","--mount","--net","--pid","--fork",
+                    "--kill-child=SIGKILL","--mount-proc","python3","-c"]
+                    and args[9]==validation.GANESHA_NAMESPACE_WORKER,
+                    "EXACT_NFS_VALIDATOR_WORKER_REQUIRED")
+            require(0<float(args[11])<float(kwargs["timeout"]),
+                    "NFS_VALIDATOR_DEADLINE_NOT_BOUNDED")
+            path=self.original_path(args[10]).resolve(strict=True)
             require(self.store.root in path.parents,"NFS_PARSER_CANDIDATE_OUTSIDE_CASE")
             manifest=json.loads((path/"nfs/manifest.json").read_text())
             parsed=[]

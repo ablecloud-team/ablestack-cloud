@@ -22,6 +22,7 @@ from pending_nfs_authorization import PendingNfsAuthorization,PendingNfsGenerati
 from identity_capsule import collect,encrypt,decrypt,validate_payload,regular_file,restore,select_restore_domains,restore_protected,ACCOUNT_FILES,owned_account_records
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_digest
 from posix_receipt_transfer import PosixReceiptTransfer
+from smb_source_module_link import source_module_link_compatibility
 LOCAL_SOURCE_SMB_CONFIG=Path("/etc/samba/smb.conf")
 LOCAL_SOURCE_NVME_ROOT=Path("/sys/kernel/config/nvmet")
 LOCAL_SOURCE_KIND="LOCAL_SOURCE_IDENTITY_CHECKPOINT"
@@ -30,6 +31,7 @@ LOCAL_SOURCE_COMMON=LOCAL_SOURCE_SCOPE|{"sourceGeneration","sourceConfigurationS
 
 LOCAL_UNCONFIGURED_STOP_BRIDGE_METHOD_SHA256={"stable_sessions_empty":"433c93bb827d2901761f69a02310e5337824934bdf1a6599d0188aef0ce3ac16","unconfigured_stop_bridge":"9cdbd9f92e6fdbe61b393e9ae0d72c42a720a4098fdc3d85961ec38dd90903ff","unconfigured_stop_bridge_cli":"981a9dcb110d7f8ccc627f6081578bd88c1277d05b202b924a2aa180fb2bbcaf","unconfigured_stop_empty_identity":"2e65a69c95cd6ebb04cdd7017a5caf70bad69383a967c1cb581afff774146dd2"}
 
+LOCAL_SOURCE_MODULE_LINK_SHA256="c7ed7e7868edf9eb14a07702608acec0d7b107364ba9fc42f2f430977dacf007"
 LOCAL_SOURCE_FAILURE_STAGES=frozenset({
     "EXPORT_SOURCE_AUTHORITY",
     "EXPORT_SOURCE_OBSERVE",
@@ -911,7 +913,8 @@ class SmbSourceCheckpoint:
         if (journal.get("scope")!={key:value[key]for key in LOCAL_SOURCE_SCOPE}or journal.get("common")!=self.common(value)):
             raise ValueError("LOCAL source journal/command authority changed")
         if journal.get('cliSha256')!=hashlib.sha256(self.cli.read_bytes()).hexdigest():
-            if not self.unconfigured_stop_bridge(value,journal):self.code_compatibility(value,journal)
+            if not source_module_link_compatibility(self,value,journal,LOCAL_SOURCE_MODULE_LINK_SHA256,regular_file,SmbIdentity):
+                if not self.unconfigured_stop_bridge(value,journal):self.code_compatibility(value,journal)
         return journal
 
     def stable_sessions_empty(self,value,before):

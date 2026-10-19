@@ -6163,7 +6163,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (row.isEnabled() && (row.getPort()==null?defaultProtocolPort(type):row.getPort())==port) actual.add(row.getId());
         }
         if (!actual.equals(expected)) throw new InvalidParameterValueException("Legacy default restore found an unreviewed specific endpoint");
-        ensureProtocol(instance,type);
+        ensureDefaultProtocol(instance,type);
         StorageServiceProtocolVO result=null;Set<Long> seen=new HashSet<>();
         for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),type)) {
             if (row.getListenIp()==null && Integer.valueOf(port).equals(row.getPort())) {
@@ -14772,6 +14772,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected void ensureProtocol(final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocolType) {
+        ConfigurationBatch batch = configurationBatch.get();
+        if (batch != null) {
+            if (batch.instanceId != instance.getId()) throw new InvalidParameterValueException("Configuration listener belongs to another instance");
+            // Restore applies reviewed endpoints before their resources. Never
+            // synthesize an unreviewed wildcard listener as a target side effect.
+            for (StorageServiceProtocolVO endpoint : storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocolType)) {
+                if (endpoint != null && endpoint.isEnabled() && (endpoint.getState() == StorageServiceInstance.ResourceState.Ready
+                        || endpoint.getState() == StorageServiceInstance.ResourceState.Allocated)) return;
+            }
+            throw new InvalidParameterValueException("Configuration batch requires an applied enabled " + protocolType.name() + " listener");
+        }
+        ensureDefaultProtocol(instance, protocolType);
+    }
+
+    /** Existing initializer, also used by the separately authenticated legacy-default restore. */
+    protected void ensureDefaultProtocol(final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocolType) {
         if (protocolType == StorageServiceInstance.Protocol.SMB) {
             final List<StorageServiceProtocolVO> endpoints = storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocolType);
             if (endpoints.stream().anyMatch(StorageServiceProtocolVO::isEnabled)) return;

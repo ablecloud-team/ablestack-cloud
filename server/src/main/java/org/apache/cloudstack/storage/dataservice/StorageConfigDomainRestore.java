@@ -310,7 +310,8 @@ public final class StorageConfigDomainRestore {
                         if (uuid == null || !after.containsKey(uuid)) throw new InvalidParameterValueException("Existing protocol endpoint identity was not returned");
                         mapped.put(text(change, "sourceUuid"), after.get(uuid));currentIds = after;continue;
                     }
-                    if (added.size() != 1) throw new InvalidParameterValueException("Configuration API did not allocate exactly one resource");
+                    if (added.size() != 1) throw new InvalidParameterValueException("Configuration API did not allocate exactly one resource"
+                            + " [command=" + command.method + ", kind=" + kind + ", addedCount=" + added.size() + "]");
                     String newUuid = added.iterator().next();mapped.put(text(change, "sourceUuid"), after.get(newUuid));currentIds = after;
                 }
             }

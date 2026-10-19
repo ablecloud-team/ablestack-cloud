@@ -63,10 +63,26 @@ def current_smb_reviewed_bodies():
         function("service_identity_cipher","service_cipher_json"),files,lock,aliases(current,{"ServiceIdentityCipher":"CurrentSmbCipherFiles"})))
     return codec,plain
 
+def local_recovery_module_block():
+    import json
+    modules={name:(LIB/(name+".py")).read_text() for name in
+        ("template_maintenance","service_maintenance","rendered_generation")}
+    loader=("import sys as _local_recovery_sys,types as _local_recovery_types\n"
+        "_local_recovery_sources="+repr(modules)+"\n"
+        "for _local_recovery_name,_local_recovery_source in _local_recovery_sources.items():\n"
+        "    _local_recovery_module=_local_recovery_types.ModuleType(_local_recovery_name)\n"
+        "    _local_recovery_module.__file__='ablestack-storagectl:'+_local_recovery_name\n"
+        "    _local_recovery_sys.modules[_local_recovery_name]=_local_recovery_module\n"
+        "    exec(compile(_local_recovery_source,_local_recovery_module.__file__,'exec'),_local_recovery_module.__dict__)\n")
+    helper=(LIB/"smb_source_module_link.py").read_text()
+    helper=helper[helper.index(chr(34)*3):].rstrip()
+    return ("# BEGIN EMBEDDED SIGNED LOCAL RECOVERY MODULES\n"+loader+helper+
+        "\n# END EMBEDDED SIGNED LOCAL RECOVERY MODULES")
+
 def local_source_reviewed_body():
     value=(LIB/"smb_source_checkpoint.py").read_text();value=value[value.index('"""'):]
-    dependencies=("smb_identity","smb_current_retention","pending_nfs_authorization","identity_capsule","service_identity_cipher","posix_receipt_transfer")
-    return "\n".join(line for line in value.splitlines()if not any(line.lstrip().startswith("from "+name+" import ")for name in dependencies)).rstrip()
+    dependencies=("smb_identity","smb_current_retention","pending_nfs_authorization","identity_capsule","service_identity_cipher","posix_receipt_transfer","smb_source_module_link")
+    return local_recovery_module_block()+"\n"+"\n".join(line for line in value.splitlines()if not any(line.lstrip().startswith("from "+name+" import ")for name in dependencies)).rstrip()
 
 class StorageInlineSourcesTest(unittest.TestCase):
     def test_signed_rendered_entrypoint_matches_all_fixed_reviewed_library_bodies_exactly(self):
