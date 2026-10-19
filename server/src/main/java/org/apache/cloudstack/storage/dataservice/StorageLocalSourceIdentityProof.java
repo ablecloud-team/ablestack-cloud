@@ -120,6 +120,13 @@ public final class StorageLocalSourceIdentityProof {
 
     static void resumed(JsonObject context, JsonObject response) {
         status(context, response);
+        if (literal(response, "journalPresent", false) && literal(response, "sourceStopNotStarted", true)
+                && "NOT_STARTED".equals(string(response, "phase"))) {
+            require(literal(response, "checkpointCipherAbsent", true) && literal(response, "sourceRuntimeVerified", true)
+                    && literal(response, "currentSessionsVerifiedEmpty", true) && literal(response, "canonicalDesiredStateChanged", false),
+                    "LOCAL pre-STOP cancellation lacks its unchanged empty SOURCE proof");
+            return;
+        }
         require(literal(response, "journalPresent", true) && "RESUMED".equals(string(response, "phase")), "LOCAL source STOP is unresolved; terminal rollback is forbidden");
         runtime(response);
     }

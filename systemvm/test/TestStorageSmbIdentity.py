@@ -243,6 +243,45 @@ class StorageSmbIdentityTest(unittest.TestCase):
         self.assertFalse((self.handler.configuration/'desired-state/smb-share-apply.json').exists())
         self.assertFalse(any(args[0] in ('net','pdbedit','smbstatus') for args in commands))
 
+    def test_fresh_root_without_desired_state_directory_is_read_only_and_restore_safe(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        directory=self.handler.configuration/'desired-state';directory.rmdir()
+        pending=(self.handler.generations/'pending.json').read_bytes()
+        with paths,patch.object(module.signal,'pidfd_send_signal')as signal:
+            result=self.handler.inspect(self.scope);signal.assert_not_called()
+        self.assertEqual('UNCONFIGURED_SMB_SOURCE',result['identityBaselineKind'])
+        self.assertIs(result['identityRestoreSafe'],True)
+        self.assertFalse(directory.exists())
+        self.assertEqual(pending,(self.handler.generations/'pending.json').read_bytes())
+        self.assertTrue(all(args[0]in('ss','systemctl')and('show'in args or args[0]=='ss')for args in commands))
+
+    def test_absent_desired_directory_does_not_bypass_root_or_original_generation_guards(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        (self.handler.configuration/'desired-state').rmdir()
+        self.handler.configuration.chmod(0o777)
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        self.handler.configuration.chmod(0o700)
+        artifact=self.handler.generations/(self.current['operationUuid']+'.json')
+        original=json.loads(artifact.read_text());original['desired']['desired-state/smb-share-apply.json']={}
+        write(artifact,original)
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+
+    def test_unconfigured_directory_rejects_symlink_file_and_appearance_during_read(self):
+        write,desired,commands,paths=self.unconfigured_fixture()
+        directory=self.handler.configuration/'desired-state';directory.rmdir()
+        target=Path(self.temp.name)/'foreign';target.mkdir()
+        directory.symlink_to(target,target_is_directory=True)
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        directory.unlink();directory.write_text('foreign')
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+        directory.unlink()
+        original=self.handler.run
+        def appear(args):
+            if args[0]=='ss':directory.mkdir(mode=0o700,exist_ok=True)
+            return original(args)
+        self.handler.run=appear
+        with paths,self.assertRaises(ValueError):self.handler.inspect(self.scope)
+
     def test_unconfigured_source_rejects_changed_original_or_nonabsent_database(self):
         write,desired,commands,paths=self.unconfigured_fixture()
         artifact=self.handler.generations/(self.current['operationUuid']+'.json')

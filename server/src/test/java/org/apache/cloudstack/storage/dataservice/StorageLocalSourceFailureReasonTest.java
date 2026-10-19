@@ -101,6 +101,18 @@ public class StorageLocalSourceFailureReasonTest {
             Assert.assertEquals(GENERIC + " [nativeReason=ValueError]", new Fixture(false, VALID).failure(action));
     }
 
+    @Test public void closedPhaseAndFixedPathCodeSurviveWithoutExceptionText() throws Exception {
+        String body = VALID.replace("ValueError", "FileNotFoundError").replace("}",
+                ",\"failurePhase\":\"PREFLIGHT\",\"pathCode\":\"SMB_DESIRED_STATE_DIRECTORY\"}");
+        Assert.assertEquals(GENERIC + " [nativeReason=FileNotFoundError, nativePhase=PREFLIGHT, nativePath=SMB_DESIRED_STATE_DIRECTORY]",
+                new Fixture(false, body).failure("export-local-source"));
+        generic(body.replace("PREFLIGHT", SECRET));
+        generic(body.replace("SMB_DESIRED_STATE_DIRECTORY", "/etc/" + SECRET));
+        generic(body.replace(",\"pathCode\":\"SMB_DESIRED_STATE_DIRECTORY\"", ""));
+        generic(body.replace("}", ",\"failurePhase\":\"CHECKPOINT\"}"));
+        generic(body.replace("}", ",\"message\":\"" + SECRET + "\"}"));
+    }
+
     @Test public void successfulNativeResultIsUnchanged() throws Exception {
         String body = "{\"success\":true,\"scope\":{\"revision\":11},\"sourceSmbResumed\":true}";
         Fixture f = new Fixture(true, body);

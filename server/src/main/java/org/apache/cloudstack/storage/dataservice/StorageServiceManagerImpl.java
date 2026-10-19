@@ -7245,12 +7245,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || resultJson == null || resultJson.length() > 512) return null;
         // Gson accepts uppercase keywords; require the native producer's literal false before parsing its closed object.
         if (!Pattern.compile("\"success\"\\s*:\\s*false\\s*(?=[,}])").matcher(resultJson).find()) return null;
-        Set<String> fields = Set.of("success", "errorCode", "reason");
+        Set<String> fields = Set.of("success", "errorCode", "reason", "failurePhase", "pathCode");
         Set<String> classes = Set.of("ValueError", "TypeError", "KeyError", "AttributeError", "ImportError", "ModuleNotFoundError",
                 "PermissionError", "FileNotFoundError", "NotADirectoryError", "IsADirectoryError", "FileExistsError", "OSError",
                 "RuntimeError", "TimeoutError", "JSONDecodeError", "CalledProcessError", "UnicodeDecodeError", "UnicodeEncodeError", "InvalidTag",
                 "ProcessLookupError", "TimeoutExpired", "StopIteration");
-        Set<String> seen = new HashSet<>();String reason = null;
+        Set<String> seen = new HashSet<>();String reason = null, phase = null, path = null;
         try (JsonReader reader = new JsonReader(new StringReader(resultJson))) {
             reader.setLenient(false);reader.beginObject();
             while (reader.hasNext()) {
@@ -7267,11 +7267,21 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if (reader.peek() != JsonToken.STRING) return null;
                         reason = reader.nextString();if (!classes.contains(reason)) return null;
                         break;
+                    case "failurePhase":
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        phase = reader.nextString();if (!Set.of("PREFLIGHT", "CHECKPOINT").contains(phase)) return null;
+                        break;
+                    case "pathCode":
+                        if (reader.peek() != JsonToken.STRING) return null;
+                        path = reader.nextString();if (!Set.of("SMB_DESIRED_STATE_DIRECTORY", "UNSPECIFIED").contains(path)) return null;
+                        break;
                     default: return null;
                 }
             }
             reader.endObject();
-            return seen.equals(fields) && reader.peek() == JsonToken.END_DOCUMENT ? reason : null;
+            if (reader.peek() != JsonToken.END_DOCUMENT) return null;
+            if (seen.equals(Set.of("success", "errorCode", "reason"))) return reason;
+            return seen.equals(fields) ? reason + ", nativePhase=" + phase + ", nativePath=" + path : null;
         } catch (java.io.IOException | RuntimeException rejected) { return null; }
     }
 

@@ -19468,8 +19468,17 @@ class SmbIdentity:
         desired_path = self.configuration / "desired-state/smb-share-apply.json"
         if os.path.lexists(desired_path):
             raise ValueError("SMB unconfigured source declaration exists")
-        parent = desired_path.parent.lstat()
-        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        # Fresh ROOTs may have no desired-state directory at all. Absence is
+        # valid only below the same protected configuration root; inspection
+        # must never create directories, declarations or Samba identity.
+        configuration = self.configuration.lstat()
+        if not stat.S_ISDIR(configuration.st_mode) or configuration.st_uid != os.geteuid() or configuration.st_mode & 0o022:
+            raise ValueError("SMB unconfigured configuration root is not protected")
+        try:
+            parent = desired_path.parent.lstat()
+        except FileNotFoundError:
+            parent = None
+        if parent is not None and (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
             raise ValueError("SMB unconfigured source parent is not protected")
         artifact = identity_json(self.generations / (current["operationUuid"] + ".json"))
         keys = ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")
@@ -19511,6 +19520,19 @@ class SmbIdentity:
             pid = self.run(["systemctl", "show", unit, "--property=MainPID", "--value"]).strip()
             if pid != "0":
                 raise ValueError("SMB unconfigured source has an unobserved or active identity unit")
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode")
+        after = self.configuration.lstat()
+        if any(getattr(configuration, key) != getattr(after, key) for key in fields):
+            raise ValueError("SMB unconfigured configuration root changed")
+        if parent is None:
+            if os.path.lexists(desired_path.parent):
+                raise ValueError("SMB unconfigured source parent appeared during inspection")
+        else:
+            after = desired_path.parent.lstat()
+            if any(getattr(parent, key) != getattr(after, key) for key in fields):
+                raise ValueError("SMB unconfigured source parent changed")
+        if os.path.lexists(desired_path):
+            raise ValueError("SMB unconfigured source declaration appeared during inspection")
         sessions = {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0, "smbSessionCount": 0,
                     "treeConnectionCount": 0, "openFileCount": 0, "byteLockOpenFileCount": 0,
                     "lockingDatabasesAligned": True, "safeToRebind": True, "source": "UNCONFIGURED_SMB_SOURCE_ABSENCE"}
@@ -20777,6 +20799,7 @@ LOCAL_UNCONFIGURED_STOP_BRIDGE_METHOD_SHA256={"stable_sessions_empty":"433c93bb8
 
 LOCAL_SOURCE_FAILURE_STAGES=frozenset({
     "EXPORT_SOURCE_AUTHORITY",
+    "EXPORT_SOURCE_OBSERVE",
     "EXPORT_RECORD_VALIDATE",
     "EXPORT_CACHE_OBSERVE",
     "EXPORT_RETRY_STOP_OBSERVE",
@@ -21869,8 +21892,10 @@ class SmbSourceCheckpoint:
         if journal is None:
             journal={"schemaVersion":1,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],
                 "names":names,"nvmeHosts":hosts,"authReplayDomains":value["authReplayDomains"],
-                "sourceDesiredState":source["configurationDesiredState"],"prior":self.observe(value),"phase":"INTENT_DURABLE",
+                "sourceDesiredState":source["configurationDesiredState"],"phase":"INTENT_DURABLE",
                 "cliSha256":hashlib.sha256(self.cli.read_bytes()).hexdigest()}
+            self._failure_stage="EXPORT_SOURCE_OBSERVE"
+            journal["prior"]=self.observe(value)
             self.write(scope,"journal",journal)
         self.frozen(value,journal)
         if any(journal[key]!=value[key]for key in ("publicKey","names","nvmeHosts","authReplayDomains")):
@@ -22364,7 +22389,21 @@ class SmbSourceCheckpoint:
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
             "journalPresent":journal is not None,"canonicalDesiredStateChanged":False}
-        if journal is None:return result
+        if journal is None:
+            # Export publishes its durable journal before STOP. Journal absence
+            # alone is insufficient: prove the exact unmodified, empty SOURCE
+            # under its original pending writer before permitting cancellation.
+            if (not os.path.lexists(self.path(scope,"cipher"))
+                    and actual["configurationDesiredState"]["desired-state/smb-share-apply.json"] is None):
+                self.state(value,source_only=True,terminal=True,recovery=True)
+                view=self.observe(value,allow_missing=True)
+                if (not view["units"] and not view["ownedEndpoints"] and view["sessionsVerifiedEmpty"] is True
+                        and set(view["databases"])==set(IDENTITY_DATABASES)
+                        and all(row=={"path":IDENTITY_DATABASES[name],"present":False}
+                            for name,row in view["databases"].items())):
+                    result.update({"phase":"NOT_STARTED","sourceStopNotStarted":True,"checkpointCipherAbsent":True,
+                        "sourceRuntimeVerified":True,"currentSessionsVerifiedEmpty":True})
+            return result
         self.frozen(value,journal);record=self.read(self.path(scope,"cipher"))
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')
@@ -22530,7 +22569,12 @@ if action in ("export-local-source", "import-local-source", "local-source-status
                 "local-source-status":local_handler.status,"replay-local-source-auth":local_handler.replay_auth}[action]
         print(json.dumps(method(request),sort_keys=True))
     except Exception as error:
-        print(json.dumps({"success":False,"errorCode":"LOCAL_SOURCE_CHECKPOINT_REJECTED","reason":type(error).__name__}))
+        stage=getattr(locals().get("local_handler"),"_failure_stage",None)
+        phase=("PREFLIGHT" if stage in ("EXPORT_SOURCE_AUTHORITY","EXPORT_SOURCE_OBSERVE") else "CHECKPOINT")
+        path_code=("SMB_DESIRED_STATE_DIRECTORY" if isinstance(error,OSError)
+            and error.filename=="/etc/ablestack-storage/desired-state" else "UNSPECIFIED")
+        print(json.dumps({"success":False,"errorCode":"LOCAL_SOURCE_CHECKPOINT_REJECTED","reason":type(error).__name__,
+            "failurePhase":phase,"pathCode":path_code}))
         raise SystemExit(1)
 elif action in ("current-review", "current-quiesce", "current-export", "current-retain", "current-verify"):
     try:
@@ -26729,8 +26773,17 @@ class SmbIdentity:
         desired_path = self.configuration / "desired-state/smb-share-apply.json"
         if os.path.lexists(desired_path):
             raise ValueError("SMB unconfigured source declaration exists")
-        parent = desired_path.parent.lstat()
-        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        # Fresh ROOTs may have no desired-state directory at all. Absence is
+        # valid only below the same protected configuration root; inspection
+        # must never create directories, declarations or Samba identity.
+        configuration = self.configuration.lstat()
+        if not stat.S_ISDIR(configuration.st_mode) or configuration.st_uid != os.geteuid() or configuration.st_mode & 0o022:
+            raise ValueError("SMB unconfigured configuration root is not protected")
+        try:
+            parent = desired_path.parent.lstat()
+        except FileNotFoundError:
+            parent = None
+        if parent is not None and (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
             raise ValueError("SMB unconfigured source parent is not protected")
         artifact = identity_json(self.generations / (current["operationUuid"] + ".json"))
         keys = ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")
@@ -26772,6 +26825,19 @@ class SmbIdentity:
             pid = self.run(["systemctl", "show", unit, "--property=MainPID", "--value"]).strip()
             if pid != "0":
                 raise ValueError("SMB unconfigured source has an unobserved or active identity unit")
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode")
+        after = self.configuration.lstat()
+        if any(getattr(configuration, key) != getattr(after, key) for key in fields):
+            raise ValueError("SMB unconfigured configuration root changed")
+        if parent is None:
+            if os.path.lexists(desired_path.parent):
+                raise ValueError("SMB unconfigured source parent appeared during inspection")
+        else:
+            after = desired_path.parent.lstat()
+            if any(getattr(parent, key) != getattr(after, key) for key in fields):
+                raise ValueError("SMB unconfigured source parent changed")
+        if os.path.lexists(desired_path):
+            raise ValueError("SMB unconfigured source declaration appeared during inspection")
         sessions = {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0, "smbSessionCount": 0,
                     "treeConnectionCount": 0, "openFileCount": 0, "byteLockOpenFileCount": 0,
                     "lockingDatabasesAligned": True, "safeToRebind": True, "source": "UNCONFIGURED_SMB_SOURCE_ABSENCE"}
@@ -37934,6 +38000,7 @@ LOCAL_UNCONFIGURED_STOP_BRIDGE_METHOD_SHA256={"stable_sessions_empty":"433c93bb8
 
 LOCAL_SOURCE_FAILURE_STAGES=frozenset({
     "EXPORT_SOURCE_AUTHORITY",
+    "EXPORT_SOURCE_OBSERVE",
     "EXPORT_RECORD_VALIDATE",
     "EXPORT_CACHE_OBSERVE",
     "EXPORT_RETRY_STOP_OBSERVE",
@@ -39026,8 +39093,10 @@ class SmbSourceCheckpoint:
         if journal is None:
             journal={"schemaVersion":1,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],
                 "names":names,"nvmeHosts":hosts,"authReplayDomains":value["authReplayDomains"],
-                "sourceDesiredState":source["configurationDesiredState"],"prior":self.observe(value),"phase":"INTENT_DURABLE",
+                "sourceDesiredState":source["configurationDesiredState"],"phase":"INTENT_DURABLE",
                 "cliSha256":hashlib.sha256(self.cli.read_bytes()).hexdigest()}
+            self._failure_stage="EXPORT_SOURCE_OBSERVE"
+            journal["prior"]=self.observe(value)
             self.write(scope,"journal",journal)
         self.frozen(value,journal)
         if any(journal[key]!=value[key]for key in ("publicKey","names","nvmeHosts","authReplayDomains")):
@@ -39521,7 +39590,21 @@ class SmbSourceCheckpoint:
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
             "journalPresent":journal is not None,"canonicalDesiredStateChanged":False}
-        if journal is None:return result
+        if journal is None:
+            # Export publishes its durable journal before STOP. Journal absence
+            # alone is insufficient: prove the exact unmodified, empty SOURCE
+            # under its original pending writer before permitting cancellation.
+            if (not os.path.lexists(self.path(scope,"cipher"))
+                    and actual["configurationDesiredState"]["desired-state/smb-share-apply.json"] is None):
+                self.state(value,source_only=True,terminal=True,recovery=True)
+                view=self.observe(value,allow_missing=True)
+                if (not view["units"] and not view["ownedEndpoints"] and view["sessionsVerifiedEmpty"] is True
+                        and set(view["databases"])==set(IDENTITY_DATABASES)
+                        and all(row=={"path":IDENTITY_DATABASES[name],"present":False}
+                            for name,row in view["databases"].items())):
+                    result.update({"phase":"NOT_STARTED","sourceStopNotStarted":True,"checkpointCipherAbsent":True,
+                        "sourceRuntimeVerified":True,"currentSessionsVerifiedEmpty":True})
+            return result
         self.frozen(value,journal);record=self.read(self.path(scope,"cipher"))
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')

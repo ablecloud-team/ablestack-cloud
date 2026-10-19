@@ -32,6 +32,7 @@ LOCAL_UNCONFIGURED_STOP_BRIDGE_METHOD_SHA256={"stable_sessions_empty":"433c93bb8
 
 LOCAL_SOURCE_FAILURE_STAGES=frozenset({
     "EXPORT_SOURCE_AUTHORITY",
+    "EXPORT_SOURCE_OBSERVE",
     "EXPORT_RECORD_VALIDATE",
     "EXPORT_CACHE_OBSERVE",
     "EXPORT_RETRY_STOP_OBSERVE",
@@ -1125,8 +1126,10 @@ class SmbSourceCheckpoint:
         if journal is None:
             journal={"schemaVersion":1,"scope":scope,"common":self.common(value),"publicKey":value["publicKey"],
                 "names":names,"nvmeHosts":hosts,"authReplayDomains":value["authReplayDomains"],
-                "sourceDesiredState":source["configurationDesiredState"],"prior":self.observe(value),"phase":"INTENT_DURABLE",
+                "sourceDesiredState":source["configurationDesiredState"],"phase":"INTENT_DURABLE",
                 "cliSha256":hashlib.sha256(self.cli.read_bytes()).hexdigest()}
+            self._failure_stage="EXPORT_SOURCE_OBSERVE"
+            journal["prior"]=self.observe(value)
             self.write(scope,"journal",journal)
         self.frozen(value,journal)
         if any(journal[key]!=value[key]for key in ("publicKey","names","nvmeHosts","authReplayDomains")):
@@ -1620,7 +1623,21 @@ class SmbSourceCheckpoint:
         result={"success":True,"checkpointSupported":True,"scope":scope,"sourceGeneration":value["sourceGeneration"],
             "sourceConfigurationSha256":value["sourceConfigurationSha256"],"bootId":self.boot(),
             "journalPresent":journal is not None,"canonicalDesiredStateChanged":False}
-        if journal is None:return result
+        if journal is None:
+            # Export publishes its durable journal before STOP. Journal absence
+            # alone is insufficient: prove the exact unmodified, empty SOURCE
+            # under its original pending writer before permitting cancellation.
+            if (not os.path.lexists(self.path(scope,"cipher"))
+                    and actual["configurationDesiredState"]["desired-state/smb-share-apply.json"] is None):
+                self.state(value,source_only=True,terminal=True,recovery=True)
+                view=self.observe(value,allow_missing=True)
+                if (not view["units"] and not view["ownedEndpoints"] and view["sessionsVerifiedEmpty"] is True
+                        and set(view["databases"])==set(IDENTITY_DATABASES)
+                        and all(row=={"path":IDENTITY_DATABASES[name],"present":False}
+                            for name,row in view["databases"].items())):
+                    result.update({"phase":"NOT_STARTED","sourceStopNotStarted":True,"checkpointCipherAbsent":True,
+                        "sourceRuntimeVerified":True,"currentSessionsVerifiedEmpty":True})
+            return result
         self.frozen(value,journal);record=self.read(self.path(scope,"cipher"))
         if record is not None:self.validate_record(value,record)
         if (record is None and journal.get('phase')in ('STOPPED','RECOVERY_REQUIRED')

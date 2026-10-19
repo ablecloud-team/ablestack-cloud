@@ -201,8 +201,17 @@ class SmbIdentity:
         desired_path = self.configuration / "desired-state/smb-share-apply.json"
         if os.path.lexists(desired_path):
             raise ValueError("SMB unconfigured source declaration exists")
-        parent = desired_path.parent.lstat()
-        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+        # Fresh ROOTs may have no desired-state directory at all. Absence is
+        # valid only below the same protected configuration root; inspection
+        # must never create directories, declarations or Samba identity.
+        configuration = self.configuration.lstat()
+        if not stat.S_ISDIR(configuration.st_mode) or configuration.st_uid != os.geteuid() or configuration.st_mode & 0o022:
+            raise ValueError("SMB unconfigured configuration root is not protected")
+        try:
+            parent = desired_path.parent.lstat()
+        except FileNotFoundError:
+            parent = None
+        if parent is not None and (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
             raise ValueError("SMB unconfigured source parent is not protected")
         artifact = identity_json(self.generations / (current["operationUuid"] + ".json"))
         keys = ("instanceUuid", "operationUuid", "revision", "configurationSha256", "verifiedAt")
@@ -244,6 +253,19 @@ class SmbIdentity:
             pid = self.run(["systemctl", "show", unit, "--property=MainPID", "--value"]).strip()
             if pid != "0":
                 raise ValueError("SMB unconfigured source has an unobserved or active identity unit")
+        fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode")
+        after = self.configuration.lstat()
+        if any(getattr(configuration, key) != getattr(after, key) for key in fields):
+            raise ValueError("SMB unconfigured configuration root changed")
+        if parent is None:
+            if os.path.lexists(desired_path.parent):
+                raise ValueError("SMB unconfigured source parent appeared during inspection")
+        else:
+            after = desired_path.parent.lstat()
+            if any(getattr(parent, key) != getattr(after, key) for key in fields):
+                raise ValueError("SMB unconfigured source parent changed")
+        if os.path.lexists(desired_path):
+            raise ValueError("SMB unconfigured source declaration appeared during inspection")
         sessions = {"available": True, "establishedTcpCount": 0, "synRecvTcpCount": 0, "smbSessionCount": 0,
                     "treeConnectionCount": 0, "openFileCount": 0, "byteLockOpenFileCount": 0,
                     "lockingDatabasesAligned": True, "safeToRebind": True, "source": "UNCONFIGURED_SMB_SOURCE_ABSENCE"}
