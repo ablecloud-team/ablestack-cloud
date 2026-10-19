@@ -13868,14 +13868,21 @@ if shutil.which("systemctl"):
     else:
         run(["smbcontrol", "all", "reload-config"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 runtime_endpoints = reconcile_smb_endpoint_units(listener_rows)
-fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
-try:
-    with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
-        json.dump({**managed_identities, **active_managed_identities}, managed_fp, sort_keys=True, indent=2);managed_fp.flush();os.fsync(managed_fp.fileno())
-    os.replace(managed_temporary, managed_identity_path)
-finally:
-    if os.path.exists(managed_temporary):
-        os.unlink(managed_temporary)
+# Preserve authenticated SOURCE absence during an empty rendered inverse.
+# Enabled/manual reconciliation and every existing receipt keep their original
+# publication semantics; endpoint cleanup above is always executed first.
+if (not os.environ.get("ABLESTACK_STORAGE_RENDERED_REPLAY")
+        or payload.get("enabled") is not False
+        or managed_identities or active_managed_identities
+        or os.path.lexists(managed_identity_path)):
+    fd, managed_temporary = tempfile.mkstemp(prefix=".smb-identities-", dir=state_dir)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as managed_fp:
+            json.dump({**managed_identities, **active_managed_identities}, managed_fp, sort_keys=True, indent=2);managed_fp.flush();os.fsync(managed_fp.fileno())
+        os.replace(managed_temporary, managed_identity_path)
+    finally:
+        if os.path.exists(managed_temporary):
+            os.unlink(managed_temporary)
 identity_apply_verified = True
 # Remove only previously recorded controller identities after a verified reload.
 for share_uuid, old_identity in managed_identities.items():

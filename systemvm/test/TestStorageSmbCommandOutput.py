@@ -92,6 +92,28 @@ class SmbCommandOutputTest(unittest.TestCase):
         self.assertEqual(subprocess.DEVNULL, observed.call_args.kwargs["stdout"])
         self.assertEqual(subprocess.DEVNULL, observed.call_args.kwargs["stderr"])
 
+    def test_empty_identity_receipt_absence_is_preserved_only_for_disabled_rendered_inverse(self):
+        publication=next(node for node in TREE.body if isinstance(node,ast.If)
+                         and "os.path.lexists(managed_identity_path)" in (ast.get_source_segment(BODY,node.test) or ""))
+        cases=[("rendered-disabled-absent",True,False,False,{}, {},False),
+               ("rendered-disabled-existing",True,False,True,{}, {},True),
+               ("rendered-enabled",True,True,False,{}, {},True),
+               ("legacy-disabled",False,False,False,{}, {},True),
+               ("rendered-previous-managed",True,False,False,{"owned":{"ownerUid":12000}}, {},True),
+               ("rendered-active-managed",True,False,False,{}, {"owned":{"ownerUid":12000}},True)]
+        for label,rendered,enabled,existing,previous,active,expected_exists in cases:
+            with self.subTest(case=label),tempfile.TemporaryDirectory(prefix="smb-receipt-") as directory:
+                receipt=Path(directory)/"smb-managed-identities.json"
+                if existing:receipt.write_text("{}")
+                namespace={"os":os,"json":json,"tempfile":tempfile,"state_dir":directory,
+                           "payload":{"enabled":enabled},"managed_identity_path":str(receipt),
+                           "managed_identities":previous,"active_managed_identities":active}
+                environment={"ABLESTACK_STORAGE_RENDERED_REPLAY":"owned-rendered"} if rendered else {}
+                with patch.dict(os.environ,environment,clear=True):
+                    exec(compile(ast.Module(body=[publication],type_ignores=[]),str(CLI),"exec"),namespace)
+                self.assertEqual(expected_exists,os.path.lexists(receipt))
+                if expected_exists:self.assertEqual({**previous,**active},json.loads(receipt.read_text()))
+
     def test_direct_subprocess_observers_in_smb_body_have_no_inherited_output(self):
         for node in ast.walk(TREE):
             if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
@@ -397,8 +419,42 @@ class SmbActualCliLifecycleTest(unittest.TestCase):
                  "operatorHostAccountsModified":False,"fixturePasswordStoredInFiles":False}
         (self.proof/"smb-cli-lifecycle-public.json").write_text(json.dumps(receipt,indent=2))
         key=next(Path("/etc/ablestack-storage/smb-endpoint-listeners").glob("*.json")).stem
-        stopped=subprocess.run(["systemctl","stop","ablestack-storage-smb@"+key+".service"],capture_output=True,text=True)
-        self.assertEqual(0,stopped.returncode)
+        managed=Path("/etc/ablestack-storage/smb-managed-identities.json")
+        self.assertEqual({},json.loads(managed.read_text()))
+        # SOURCE capsule restoration legitimately restores an absent identity
+        # receipt before replaying its empty previous service configuration.
+        managed.unlink()
+        sam=Path("/var/lib/samba/private/passdb.tdb")
+        sam_before=hashlib.sha256(sam.read_bytes()).hexdigest()
+        baseline_uuid=str(uuid.uuid4());baseline=store/"generations"/baseline_uuid
+        baseline.mkdir(mode=0o700)
+        disabled={"instanceUuid":instance,"enabled":False,"netbiosName":"CLICONTRACT",
+                  "listenIp":"127.0.0.1","port":1445,"shares":[]}
+        disabled_files=render_smb_candidate(disabled,self.cli)
+        baseline_manifest={"scope":{**scope,"operationUuid":baseline_uuid,"revision":1},
+                           "files":{name:hashlib.sha256(raw.encode()).hexdigest() for name,raw in disabled_files.items()},
+                           "previousRenderedSha256":None}
+        baseline_digest=hashlib.sha256(json.dumps(baseline_manifest,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+        baseline_manifest["manifestSha256"]=baseline_digest
+        for name,raw in {**disabled_files,"generation.json":json.dumps(baseline_manifest)}.items():
+            path=baseline/name;path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+            path.write_text(raw);path.chmod(0o600)
+        (store/"activation.json").write_text(json.dumps({"scope":scope,"phase":"ROLLING_BACK",
+            "targetSha256":digest,"previousSha256":baseline_digest,"previousOperationUuid":baseline_uuid}))
+        (store/"current").unlink();(store/"current").symlink_to("generations/"+baseline_uuid)
+        inverse=runtime.command(("smb","share","apply"),disabled,replay=baseline,replay_from=target)
+        self.assertTrue(inverse["success"])
+        self.assertEqual([],inverse["runtimeEndpoints"])
+        self.assertFalse(os.path.lexists(managed),"disabled rendered inverse resurrected absent SOURCE identity metadata")
+        self.assertEqual([],list(Path("/etc/ablestack-storage/smb-endpoint-listeners").glob("*.json")))
+        self.assertEqual(3,subprocess.run(["systemctl","is-active","--quiet","ablestack-storage-smb@"+key+".service"],
+                                        capture_output=True,text=True).returncode)
+        self.assertEqual(sam_before,hashlib.sha256(sam.read_bytes()).hexdigest())
+        self.assertEqual(retained,(backing/"retained.txt").read_bytes())
+        self.assertEqual(upload.read_bytes(),(backing/"client-created.txt").read_bytes())
+        receipt.update(disabledRenderedInverseSuccess=True,sourceIdentityReceiptAbsencePreserved=True,
+                       ownedAcceptorStoppedAndRegistryRemoved=True,privateSamPreserved=True,inverseDataPreserved=True)
+        (self.proof/"smb-cli-lifecycle-public.json").write_text(json.dumps(receipt,indent=2))
 
 
 if __name__ == "__main__":
