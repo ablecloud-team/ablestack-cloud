@@ -19,6 +19,7 @@
 
 """Approved downtime boundary with durable typed scopes and owned acceptors."""
 import fcntl
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -56,6 +57,63 @@ def service_run(arguments,timeout=15,pass_fds=()):
     finally:
         if descriptor is not None:os.close(descriptor)
         if child.stdout:child.stdout.close()
+
+
+def service_process_observation(process):
+    fields=(process/"stat").read_text().rpartition(")")[2].split()
+    if len(fields)<20 or not fields[1].isdigit() or not fields[19].isdigit():raise ValueError("SERVICE process identity is malformed")
+    return {"parentPid":int(fields[1]),"startTicks":fields[19],"executable":os.readlink(process/"exe"),
+            "arguments":[os.fsdecode(item) for item in (process/"cmdline").read_bytes().split(bytes([0])) if item],
+            "cgroups":[line.split(":",2)[-1] for line in (process/"cgroup").read_text().splitlines()]}
+
+def smb_controller_acceptor(unit,key,controller_pid,endpoint,cli,process_root=None):
+    processes=Path(process_root or "/proc");controller=processes/str(controller_pid);owner=service_process_observation(controller)
+    expected_cli="/usr/local/bin/ablestack-storagectl"
+    allowed_arguments=[[shell,expected_cli,"smb","endpoint-run",key] for shell in ("/bin/bash","/usr/bin/bash")]
+    if str(cli)!=expected_cli or owner["executable"]!="/usr/bin/bash" or owner["arguments"] not in allowed_arguments:
+        raise ValueError("SERVICE SMB controller is not its exact packaged endpoint runner")
+    groups=owner["cgroups"]
+    if len(groups)!=1 or not groups[0].endswith("/"+unit):raise ValueError("SERVICE SMB controller is outside its exact owned unit")
+    if (not isinstance(endpoint,dict) or set(endpoint)!={"listenIp","port"} or type(endpoint["port"]) is not int
+            or not 1<=endpoint["port"]<=65535):raise ValueError("SERVICE SMB endpoint record is invalid")
+    address=str(ipaddress.ip_address(endpoint["listenIp"]));port=endpoint["port"]
+    if hashlib.sha256((address+":"+str(port)).encode()).hexdigest()[:24]!=key:
+        raise ValueError("SERVICE SMB endpoint record differs from its unit")
+    directory=Path("/run/ablestack-storage/smb")/key
+    directory_info=directory.lstat()
+    if not stat.S_ISDIR(directory_info.st_mode) or directory_info.st_uid!=os.geteuid() or directory_info.st_mode&0o022:
+        raise ValueError("SERVICE SMB PID directory is not protected")
+    directory_fd=os.open(directory,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+    pid_fd=None
+    try:
+        opened_directory=os.fstat(directory_fd)
+        if (opened_directory.st_dev,opened_directory.st_ino)!=(directory_info.st_dev,directory_info.st_ino):
+            raise ValueError("SERVICE SMB PID directory changed")
+        pid_fd=os.open("smbd.pid",os.O_RDONLY|os.O_NOFOLLOW,dir_fd=directory_fd);receipt=os.fstat(pid_fd)
+        fields=("st_dev","st_ino","st_mode","st_uid","st_gid","st_nlink","st_size","st_mtime_ns","st_ctime_ns")
+        if (not stat.S_ISREG(receipt.st_mode) or receipt.st_uid!=os.geteuid() or receipt.st_mode&0o022
+                or receipt.st_nlink!=1 or not 1<=receipt.st_size<=32):
+            raise ValueError("SERVICE SMB acceptor PID receipt is not protected")
+        raw=os.read(pid_fd,33).decode("ascii")
+        if not re.fullmatch(r"[1-9][0-9]{0,9}\n?",raw):raise ValueError("SERVICE SMB acceptor PID receipt is malformed")
+        pid=int(raw);process=processes/str(pid);acceptor=service_process_observation(process)
+        arguments=["/usr/sbin/smbd","--foreground","--no-process-group","-s","/etc/samba/smb.conf",
+                   "--option=smb ports="+str(port),"--option=pid directory=/run/ablestack-storage/smb/"+key]
+        if address in ("0.0.0.0","::"):arguments.append("--option=bind interfaces only=no")
+        else:arguments.extend(("--option=interfaces="+address,"--option=bind interfaces only=yes"))
+        if (pid==controller_pid or acceptor["parentPid"]!=controller_pid or acceptor["executable"]!="/usr/sbin/smbd"
+                or acceptor["arguments"]!=arguments or acceptor["cgroups"]!=groups):
+            raise ValueError("SERVICE SMB acceptor differs from its exact packaged controller/endpoint")
+        named=os.stat("smbd.pid",dir_fd=directory_fd,follow_symlinks=False)
+        if (any(getattr(receipt,field)!=getattr(named,field) for field in fields)
+                or any(getattr(receipt,field)!=getattr(os.fstat(pid_fd),field) for field in fields)
+                or directory.lstat()!=directory_info
+                or service_process_observation(controller)!=owner or service_process_observation(process)!=acceptor):
+            raise ValueError("SERVICE SMB controller/acceptor identity changed during proof")
+        return pid,process,acceptor["arguments"]
+    finally:
+        if pid_fd is not None:os.close(pid_fd)
+        os.close(directory_fd)
 
 
 class ServiceMaintenance:
@@ -148,6 +206,14 @@ class ServiceMaintenance:
         if pid<=0:raise ValueError("SERVICE acceptor has no exact main PID")
         proc=Path("/proc")/str(pid);arguments=[os.fsdecode(item) for item in (proc/"cmdline").read_bytes().split(bytes([0])) if item]
         executable_path=os.readlink(proc/"exe");executable=Path(executable_path).name
+        endpoint=None
+        if managed_smb:
+            bindings=Path("/etc/ablestack-storage/smb-endpoint-listeners")/(managed_smb[1]+".json")
+            endpoint=self.maintenance.read(bindings)
+            if endpoint is None:raise ValueError("SERVICE SMB unit lacks a protected endpoint")
+            if executable_path=="/usr/bin/bash":
+                pid,proc,arguments=smb_controller_acceptor(unit,managed_smb[1],pid,endpoint,self.cli)
+                executable_path=os.readlink(proc/"exe");executable=Path(executable_path).name
         allowed={"/usr/bin/ganesha.nfsd","/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd"} if managed_nfs else {"/usr/sbin/winbindd"} if managed_ad else {"/usr/sbin/smbd"}
         if executable_path not in allowed:raise ValueError("SERVICE executable is outside its packaged paths")
         if managed_nfs:
@@ -158,9 +224,7 @@ class ServiceMaintenance:
             if arguments.count("--configfile="+configuration)!=1:raise ValueError("SERVICE owned AD daemon has a foreign configuration")
         else:
             configuration="/etc/samba/smb.conf"
-            bindings=Path("/etc/ablestack-storage/smb-endpoint-listeners")/(managed_smb[1]+".json")
-            endpoint=self.maintenance.read(bindings)
-            if endpoint is None or executable!="smbd":raise ValueError("SERVICE SMB unit lacks a protected endpoint")
+            if executable!="smbd":raise ValueError("SERVICE SMB unit lacks a protected endpoint")
             if not any(argument in ("--configfile="+configuration,configuration) for argument in arguments):raise ValueError("SERVICE SMB unit has a foreign configuration")
         if "/"+unit not in (proc/"cgroup").read_text():raise ValueError("SERVICE main PID is outside its owned unit")
         if managed_nfs:
@@ -194,12 +258,27 @@ class ServiceMaintenance:
                 if any(int(port)==row["port"] and (address in ("0.0.0.0","::") or row["listenIp"] in (address,"0.0.0.0","::")) for row in endpoints):
                     raise ValueError("SERVICE listener remains exposed after owned stop")
 
-    def owned_units(self):
-        output=self.run(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",
-                         "ablestack-storage-ganesha@*.service","ablestack-storage-smb@*.service","ablestack-storage-winbind.service",
-                         "smbd.service","nmbd.service","winbind.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"],timeout=self.remaining())
+    @staticmethod
+    def unit_domain(unit):
+        if unit.startswith("ablestack-storage-ganesha@") or unit in ("nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"):return "NFS"
+        if unit.startswith("ablestack-storage-smb@") or unit in ("ablestack-storage-winbind.service","smbd.service","nmbd.service","winbind.service"):return "SMB"
+        raise ValueError("SERVICE inventory contains a foreign acceptor")
+
+    def owned_units(self,domains=None):
+        selected={"NFS","SMB"} if domains is None else set(domains)
+        if not selected or not selected<={"NFS","SMB"}:raise ValueError("SERVICE inventory domains are invalid")
+        patterns=[]
+        if "NFS" in selected:
+            patterns.extend(("ablestack-storage-ganesha@*.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"))
+        if "SMB" in selected:
+            patterns.extend(("ablestack-storage-smb@*.service","ablestack-storage-winbind.service","smbd.service","nmbd.service","winbind.service"))
+        output=self.run(["systemctl","list-units","--state=active","--type=service","--no-legend","--plain",*patterns],timeout=self.remaining())
         names=[line.split()[0] for line in output.splitlines() if line.split()]
         if len(names)!=len(set(names)):raise ValueError("SERVICE owned acceptor set is ambiguous")
+        # Domain selection precedes configuration/PID proof. An inverse of SMB
+        # must not dereference an NFS link after current moved to its source.
+        # Selected legacy/foreign units still fail the normal exact proof.
+        if any(self.unit_domain(unit) not in selected for unit in names):raise ValueError("SERVICE inventory escaped its requested domains")
         return [self.prove_unit(unit) for unit in sorted(names)]
 
     def status(self,request=None):
@@ -272,14 +351,16 @@ class ServiceMaintenance:
         if status.get("maintenanceKind")!="SERVICE" or status.get("bootHeld") is not True:raise ValueError("SERVICE quiesce requires its protected held scope")
         domains=request.get("domains")
         if not isinstance(domains,list) or not domains or len(set(domains))!=len(domains) or not set(domains)<={"NFS","SMB"}:raise ValueError("SERVICE quiesce domains are invalid")
-        def domain(unit):return "NFS" if unit.startswith("ablestack-storage-ganesha@") else "SMB"
-        owners=[owner for owner in self.units() if domain(owner["unit"]) in domains]
+        def selected_units():
+            if self.units==self.owned_units:return self.owned_units(domains)
+            return [owner for owner in self.units() if self.unit_domain(owner["unit"]) in domains]
+        owners=selected_units()
         stopped=[]
         for owner in sorted(owners,key=lambda row:row["unit"]=="ablestack-storage-winbind.service"):
             fresh=self.prove_unit(owner["unit"],False) if self.units==self.owned_units else next((row for row in self.units() if row["unit"]==owner["unit"]),None)
             if fresh!=owner:raise ValueError("SERVICE acceptor changed before inverse quiesce")
             self.run(["systemctl","stop",owner["unit"]],timeout=self.remaining());stopped.append(owner["unit"])
-        if any(domain(owner["unit"]) in domains for owner in self.units()):raise ValueError("SERVICE inverse acceptors remain active")
+        if selected_units():raise ValueError("SERVICE inverse acceptors remain active")
         self.listeners_clear(owners)
         return {"success":True,"quiesced":True,"scope":desired,"bootHeld":True,"maintenanceKind":"SERVICE","domainsQuiesced":domains,"stoppedUnits":stopped,"drainSupported":False}
 

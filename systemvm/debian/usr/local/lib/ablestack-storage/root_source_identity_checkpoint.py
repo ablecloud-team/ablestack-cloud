@@ -15,6 +15,7 @@
 
 """Public PRESTOP identity and scoped owned-stop proof; no private DB reads."""
 import hashlib
+from service_maintenance import smb_controller_acceptor
 import json
 import os
 from pathlib import Path
@@ -218,10 +219,14 @@ class RootSourceIdentityCheckpoint:
             endpoints=[{"listenIp":str(ipaddress.ip_address(addresses[0].strip().strip('"'))),"port":int(ports[0])}]
         elif smb:
             config="/etc/samba/smb.conf"
+            raw,_=self.public_file(self.configuration/"smb-endpoint-listeners"/(smb[1]+".json"))
+            endpoint=credential_json(raw)
+            if exe=="/usr/bin/bash":
+                pid,process,args=smb_controller_acceptor(unit,smb[1],pid,endpoint,self.runtime.cli,self.process_root)
+                exe=os.readlink(process/"exe")
             if exe!="/usr/sbin/smbd" or not any(arg in ("--configfile="+config,config) for arg in args):
                 raise ValueError("ROOT SMB owner executable/configuration differs")
-            raw,_=self.public_file(self.configuration/"smb-endpoint-listeners"/(smb[1]+".json"))
-            endpoint=credential_json(raw);endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
+            endpoints=[{"listenIp":str(ipaddress.ip_address(endpoint["listenIp"])),"port":int(endpoint["port"])}]
         else:
             config="/etc/ablestack-storage/ad-machine.conf"
             if exe!="/usr/sbin/winbindd" or args.count("--configfile="+config)!=1:

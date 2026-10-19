@@ -272,4 +272,256 @@ class StorageServiceMaintenanceTest(unittest.TestCase):
             with self.assertRaises(ValueError):self.service.prove_unit(unit)
         self.assertFalse(self.calls)
 
+
+class StorageServiceDomainInventoryTest(unittest.TestCase):
+    """Exercise production inventory/proof against private /proc and config paths."""
+    def setUp(self):
+        import fnmatch
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.calls=[];self.stops=[];self.show_counts={}
+        self.nfs="ablestack-storage-ganesha@10.10.13.227_2049.service"
+        self.smb="ablestack-storage-smb@"+"a"*24+".service"
+        self.active={self.nfs,self.smb};self.change_before_second_show=None
+        self.operation=str(uuid.uuid4());self.instance=str(uuid.uuid4())
+        self.scope={"instanceUuid":self.instance,"maintenanceUuid":self.operation,"operationUuid":self.operation,"revision":2}
+        self.generation={"generation":{"instanceUuid":self.instance,"operationUuid":self.operation,"revision":1,
+                           "configurationSha256":"a"*64},"configurationSha256":"a"*64,
+                         "generationStatus":"PENDING","pendingOperationUuid":self.operation}
+        self.maintenance=Maintenance(self.root/"state",lambda:self.generation)
+        self.maintenance.enter(self.scope,"SERVICE")
+        self.maintenance.write(self.root/"state/service-maintenance.json",{"scope":self.scope,"phase":"HELD"})
+        self.private_file("/etc/ablestack-storage/smb-endpoint-listeners/"+"a"*24+".json",
+                          json.dumps({"listenIp":"10.10.13.227","port":445}),0o600)
+        configuration=self.mapped("/etc/ganesha/ablestack-storage/10.10.13.227_2049.conf")
+        configuration.parent.mkdir(parents=True,mode=0o700);configuration.symlink_to(self.root/"missing-current/nfs.conf")
+        self.process(self.nfs,51001,"/opt/ablestack-ganesha/5.5.3/bin/ganesha.nfsd",
+                     ["ganesha.nfsd","-f","/etc/ganesha/ablestack-storage/10.10.13.227_2049.conf"])
+        self.process(self.smb,51002,"/usr/sbin/smbd",["smbd","--configfile=/etc/samba/smb.conf"])
+        self.pid_by_unit={self.nfs:51001,self.smb:51002}
+        def run(arguments,**kwargs):
+            self.calls.append(arguments)
+            if arguments[:2]==["systemctl","list-units"]:
+                patterns=arguments[6:]
+                return "".join(unit+" loaded active running\n" for unit in sorted(self.active)
+                               if any(fnmatch.fnmatchcase(unit,pattern) for pattern in patterns))
+            if arguments[:2]==["systemctl","show"]:
+                unit=arguments[2];self.show_counts[unit]=self.show_counts.get(unit,0)+1
+                if self.show_counts[unit]==2 and self.change_before_second_show:self.change_before_second_show(unit)
+                return "MainPID="+str(self.pid_by_unit[unit])+"\nActiveState=active\nSubState=running\n"
+            if arguments[:2]==["systemctl","stop"]:
+                self.stops.append(arguments[2]);self.active.remove(arguments[2]);return ""
+            if arguments[0]=="ss":return ""
+            raise AssertionError("Unexpected fixture command: "+repr(arguments))
+        self.service=ServiceMaintenance(self.maintenance,"unused",run)
+        self.patch_path=patch("service_maintenance.Path",self.mapped);self.patch_path.start();self.addCleanup(self.patch_path.stop)
+        self.patch_environment=patch.dict(os.environ,{"ABLESTACK_STORAGE_VOLUME_OPERATIONS":str(self.root/"absent-volumes")})
+        self.patch_environment.start();self.addCleanup(self.patch_environment.stop)
+
+    def mapped(self,value):
+        path=Path(value)
+        return self.root/str(path).lstrip("/") if str(path).startswith(("/etc/","/proc/","/run/")) or str(path)=="/proc" else path
+
+    def private_file(self,name,content,mode=0o600):
+        path=self.mapped(name);path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+        path.write_text(content);path.chmod(mode);return path
+
+    def process(self,unit,pid,executable,arguments,start_ticks="12345"):
+        proc=self.mapped("/proc")/str(pid);proc.mkdir(parents=True,exist_ok=True,mode=0o700)
+        (proc/"exe").symlink_to(executable)
+        (proc/"cmdline").write_bytes(("\0".join(arguments)+"\0").encode())
+        (proc/"cgroup").write_text("0::/system.slice/"+unit+"\n")
+        (proc/"stat").write_text(str(pid)+" (private-fixture) S "+"0 "*18+start_ticks+"\n")
+
+    def quiesce(self,domains):
+        return self.service.quiesce({**self.scope,"domains":domains})
+
+    def test_smb_inverse_uses_real_proof_without_opening_dangling_nfs_configuration(self):
+        self.assertTrue(self.mapped("/etc/ganesha/ablestack-storage/10.10.13.227_2049.conf").is_symlink())
+        result=self.quiesce(["SMB"])
+        self.assertEqual([self.smb],result["stoppedUnits"]);self.assertTrue(result["quiesced"])
+        self.assertEqual({self.nfs},self.active);self.assertNotIn(self.nfs,self.show_counts)
+        for call in self.calls:
+            if call[:2]==["systemctl","list-units"]:
+                self.assertNotIn("ablestack-storage-ganesha@*.service",call)
+                self.assertIn("smbd.service",call)
+        self.assertTrue(self.maintenance.status()["bootHeld"])
+
+    def test_selected_nfs_and_both_domains_still_validate_dangling_configuration(self):
+        for domains in (["NFS"],["NFS","SMB"]):
+            with self.subTest(domains=domains):
+                with self.assertRaises(FileNotFoundError):self.quiesce(domains)
+                self.assertFalse(self.stops)
+        self.assertNotIn(self.smb,self.show_counts)
+
+    def test_full_enter_still_validates_every_owned_acceptor_before_effects(self):
+        self.maintenance.marker.unlink();self.service.journal.unlink()
+        with self.assertRaises(FileNotFoundError):self.service.enter(self.scope)
+        self.assertFalse(self.stops);self.assertFalse(self.maintenance.marker.exists())
+
+    def test_selected_foreign_smb_is_rejected_before_any_owned_stop(self):
+        foreign="ablestack-storage-smb@"+"b"*24+".service";self.active.add(foreign);self.pid_by_unit[foreign]=51003
+        self.process(foreign,51003,"/usr/sbin/sshd",["sshd","--configfile=/etc/samba/smb.conf"])
+        self.private_file("/etc/ablestack-storage/smb-endpoint-listeners/"+"b"*24+".json",
+                          json.dumps({"listenIp":"10.10.13.227","port":1445}))
+        with self.assertRaisesRegex(ValueError,"executable is outside"):self.quiesce(["SMB"])
+        self.assertFalse(self.stops);self.assertNotIn(self.nfs,self.show_counts)
+
+    def test_selected_legacy_acceptors_remain_rejected(self):
+        for legacy in ("smbd.service","nmbd.service","winbind.service"):
+            with self.subTest(unit=legacy):
+                self.active.add(legacy)
+                try:
+                    with self.assertRaisesRegex(ValueError,"foreign or legacy"):self.quiesce(["SMB"])
+                    self.assertFalse(self.stops)
+                finally:self.active.remove(legacy)
+
+    def test_unselected_legacy_nfs_does_not_block_smb_inverse(self):
+        self.active.add("nfs-server.service")
+        self.assertTrue(self.quiesce(["SMB"])["quiesced"])
+        self.assertEqual({self.nfs,"nfs-server.service"},self.active)
+
+    def test_selected_pid_start_identity_is_rechecked_before_stop(self):
+        def change(unit):
+            self.private_file("/proc/"+str(self.pid_by_unit[unit])+"/stat",
+                              str(self.pid_by_unit[unit])+" (private-fixture) S "+"0 "*18+"changed\n")
+        self.change_before_second_show=change
+        with self.assertRaisesRegex(ValueError,"changed before inverse"):self.quiesce(["SMB"])
+        self.assertFalse(self.stops)
+
+    def test_selected_cgroup_and_protected_endpoint_checks_remain_strict(self):
+        cgroup=self.private_file("/proc/51002/cgroup","0::/system.slice/foreign.service\n")
+        with self.assertRaisesRegex(ValueError,"outside its owned unit"):self.quiesce(["SMB"])
+        cgroup.write_text("0::/system.slice/"+self.smb+"\n")
+        self.mapped("/etc/ablestack-storage/smb-endpoint-listeners/"+"a"*24+".json").chmod(0o644)
+        with self.assertRaisesRegex(ValueError,"record is not protected"):self.quiesce(["SMB"])
+        self.assertFalse(self.stops)
+
+    def test_scoped_inventory_rejects_cross_domain_systemctl_readback(self):
+        original=self.service.run
+        def run(arguments,**kwargs):
+            if arguments[:2]==["systemctl","list-units"]:return self.nfs+" loaded active running\n"
+            return original(arguments,**kwargs)
+        self.service.run=run
+        with self.assertRaisesRegex(ValueError,"escaped its requested domains"):self.quiesce(["SMB"])
+        self.assertFalse(self.stops);self.assertFalse(self.show_counts)
+
+
+class StorageSmbControllerOwnershipTest(unittest.TestCase):
+    """The packaged endpoint runner owns a distinct, pidfile-pinned smbd."""
+    def setUp(self):
+        import hashlib
+        self.fixture=StorageServiceDomainInventoryTest("test_smb_inverse_uses_real_proof_without_opening_dangling_nfs_configuration")
+        self.fixture.setUp();self.addCleanup(self.fixture.doCleanups);f=self.fixture
+        self.key=hashlib.sha256(b"10.10.13.227:445").hexdigest()[:24]
+        self.unit="ablestack-storage-smb@"+self.key+".service"
+        f.active.remove(f.smb);f.active.add(self.unit)
+        self.controller=51010;self.daemon=51011;f.pid_by_unit[self.unit]=self.controller
+        f.service.cli="/usr/local/bin/ablestack-storagectl"
+        f.private_file("/etc/ablestack-storage/smb-endpoint-listeners/"+self.key+".json",
+                       json.dumps({"listenIp":"10.10.13.227","port":445}),0o600)
+        self.controller_args=["/bin/bash",f.service.cli,"smb","endpoint-run",self.key]
+        self.daemon_args=["/usr/sbin/smbd","--foreground","--no-process-group","-s","/etc/samba/smb.conf",
+                          "--option=smb ports=445","--option=pid directory=/run/ablestack-storage/smb/"+self.key,
+                          "--option=interfaces=10.10.13.227","--option=bind interfaces only=yes"]
+        f.process(self.unit,self.controller,"/usr/bin/bash",self.controller_args,"201")
+        f.process(self.unit,self.daemon,"/usr/sbin/smbd",self.daemon_args,"202")
+        self.group="0::/system.slice/system-ablestack\\x2dstorage\\x2dsmb.slice/"+self.unit+"\n"
+        for pid in (self.controller,self.daemon):f.private_file("/proc/"+str(pid)+"/cgroup",self.group)
+        self.stat(self.daemon,self.controller,"202")
+        directory=f.mapped("/run/ablestack-storage/smb/"+self.key);directory.mkdir(parents=True,mode=0o750)
+        self.pidfile=f.private_file("/run/ablestack-storage/smb/"+self.key+"/smbd.pid",str(self.daemon)+"\n",0o644)
+        from root_source_identity_checkpoint import RootSourceIdentityCheckpoint
+        from service_identity_source import ServicePublicIdentity
+        runtime=types.SimpleNamespace(cli=f.service.cli)
+        def run(arguments,**kwargs):return types.SimpleNamespace(returncode=0,stdout=f.service.run(arguments))
+        parameters=(runtime,f.mapped("/etc/ablestack-storage"),run,f.mapped("/proc"))
+        self.identities=[RootSourceIdentityCheckpoint(*parameters),ServicePublicIdentity(*parameters)]
+    def stat(self,pid,parent,ticks):
+        return self.fixture.private_file("/proc/"+str(pid)+"/stat",
+               str(pid)+" (private-controller-fixture) S "+str(parent)+" "+"0 "*17+ticks+"\n")
+    def args(self,pid,arguments):
+        (self.fixture.mapped("/proc")/str(pid)/"cmdline").write_bytes(("\0".join(arguments)+"\0").encode())
+    def reject(self,pattern=None):
+        f=self.fixture
+        readers=[lambda:f.service.prove_unit(self.unit),*[lambda identity=identity:identity.owner(self.unit) for identity in self.identities]]
+        for reader in readers:
+            if pattern:
+                with self.assertRaisesRegex(ValueError,pattern):reader()
+            else:
+                with self.assertRaises((ValueError,OSError)):reader()
+        self.assertFalse(f.stops)
+
+    def test_actual_acceptor_owner_is_identical_for_service_root_and_service_identity(self):
+        owner=self.fixture.service.prove_unit(self.unit)
+        self.assertEqual(self.daemon,owner["pid"]);self.assertEqual("202",owner["startTicks"])
+        self.assertEqual({"unit","pid","startTicks","configurationPath","listenerEndpoints"},set(owner))
+        for identity in self.identities:self.assertEqual(owner,identity.owner(self.unit))
+        self.assertFalse(self.fixture.stops)
+        result=self.fixture.quiesce(["SMB"])
+        self.assertEqual([self.unit],result["stoppedUnits"]);self.assertEqual({self.fixture.nfs},self.fixture.active)
+
+    def test_controller_requires_exact_packaged_cli_and_five_arguments(self):
+        variants=[["/bin/bash","-c","smbd"],["/bin/bash","/tmp/ablestack-storagectl","smb","endpoint-run",self.key],
+                  [*self.controller_args,"extra"],[*self.controller_args[:-1],"b"*24]]
+        for arguments in variants:
+            with self.subTest(arguments=arguments):
+                self.args(self.controller,arguments);self.reject("exact packaged endpoint runner")
+        self.args(self.controller,self.controller_args)
+        self.fixture.service.cli="/tmp/ablestack-storagectl"
+        with self.assertRaisesRegex(ValueError,"exact packaged endpoint runner"):self.fixture.service.prove_unit(self.unit)
+        self.assertFalse(self.fixture.stops)
+
+    def test_acceptor_exact_parent_executable_and_cgroup_are_required(self):
+        f=self.fixture
+        self.stat(self.daemon,1,"202");self.reject("exact packaged controller")
+        self.stat(self.daemon,self.controller,"202")
+        executable=f.mapped("/proc")/str(self.daemon)/"exe"
+        executable.unlink();executable.symlink_to("/usr/sbin/sshd");self.reject("exact packaged controller")
+        executable.unlink();executable.symlink_to("/usr/sbin/smbd")
+        f.private_file("/proc/"+str(self.daemon)+"/cgroup",self.group.rstrip()+"/foreign-child\n")
+        self.reject("exact packaged controller")
+
+    def test_acceptor_configuration_port_pid_directory_and_interface_options_are_exact(self):
+        variants=[]
+        for index,value in ((4,"/tmp/smb.conf"),(5,"--option=smb ports=1445"),
+                            (6,"--option=pid directory=/tmp"),(7,"--option=interfaces=10.10.13.228"),
+                            (8,"--option=bind interfaces only=no")):
+            changed=list(self.daemon_args);changed[index]=value;variants.append(changed)
+        variants.append([*self.daemon_args,"--option=interfaces=0.0.0.0"])
+        for arguments in variants:
+            with self.subTest(arguments=arguments):
+                self.args(self.daemon,arguments);self.reject("exact packaged controller")
+        self.args(self.daemon,self.daemon_args)
+
+    def test_pid_receipt_and_its_directory_remain_protected(self):
+        self.pidfile.chmod(0o666);self.reject("PID receipt is not protected")
+        self.pidfile.chmod(0o644);self.pidfile.parent.chmod(0o777);self.reject("PID directory is not protected")
+        self.pidfile.parent.chmod(0o750);self.pidfile.write_text(str(self.controller)+"\n");self.reject("exact packaged controller")
+        self.pidfile.unlink();self.pidfile.symlink_to(self.fixture.root/"foreign.pid");self.reject()
+
+    def test_controller_and_acceptor_ticks_cannot_change_during_proof(self):
+        import service_maintenance
+        original=service_maintenance.service_process_observation
+        for victim in (self.controller,self.daemon):
+            with self.subTest(pid=victim):
+                def observe(process):
+                    result=original(process)
+                    if process.name==str(victim):
+                        self.stat(victim,self.controller if victim==self.daemon else 0,str(int(result["startTicks"])+1))
+                    return result
+                with patch("service_maintenance.service_process_observation",side_effect=observe):
+                    self.reject("identity changed during proof")
+                self.stat(self.controller,0,"201");self.stat(self.daemon,self.controller,"202")
+
+    def test_protected_endpoint_key_must_match_controller_and_acceptor(self):
+        self.fixture.private_file("/etc/ablestack-storage/smb-endpoint-listeners/"+self.key+".json",
+                                  json.dumps({"listenIp":"10.10.13.228","port":445}),0o600)
+        self.reject("record differs from its unit")
+
+    def test_direct_main_smbd_retains_the_same_existing_owner_shape(self):
+        f=self.fixture
+        direct=f.service.prove_unit(f.smb)
+        for identity in self.identities:self.assertEqual(direct,identity.owner(f.smb))
+        self.assertEqual(51002,direct["pid"]);self.assertEqual("12345",direct["startTicks"])
+
 if __name__=="__main__":unittest.main()

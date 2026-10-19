@@ -134,9 +134,11 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
                     and "previous_netbios_name" in (ast.get_source_segment(body,node) or "")
                     and "shutil.which" in (ast.get_source_segment(body,node.test) or ""))
 
-    def run_startup(self, statement, active=False, changed=True):
+    def run_startup(self, statement, active=False, changed=True, rendered=False):
         calls=[]
+        self.startup_status_calls=[]
         def status(args,**kwargs):
+            self.startup_status_calls.append(list(args))
             self.assertEqual(['systemctl','is-active','--quiet'],args[:3])
             return SimpleNamespace(returncode=0 if args[-1]=='smbd.service' and active else 3)
         def service(unit,**kwargs):
@@ -144,6 +146,7 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
             if unit=='smbd.service':
                 self.legacy={('0.0.0.0',445),('::',445)}
         namespace={'shutil':SimpleNamespace(which=lambda name:'/usr/bin/'+name),
+                   'os':SimpleNamespace(environ={'ABLESTACK_STORAGE_RENDERED_REPLAY':'fixture-rendered'} if rendered else {}),
                    'subprocess':SimpleNamespace(run=status,DEVNULL=-3),
                    'pending_smb_service_start':service,'previous_netbios_name':'SYSTEMVM',
                    'netbios_name':'STOR1234567890' if changed else 'SYSTEMVM',
@@ -177,6 +180,23 @@ class StorageSmbEndpointLifecycleTest(unittest.TestCase):
         self.assertEqual(set(),self.legacy)
         starts=[args for args in self.calls if args[:2]==['systemctl','start']]
         self.assertEqual(1,len(starts));self.assertIn('ablestack-storage-smb@',starts[0][2])
+
+    def test_actual_rendered_cold_rename_starts_only_manifest_owned_acceptors(self):
+        self.legacy=set()
+        calls=self.run_startup(self.startup_statement(),active=False,rendered=True)
+        self.assertEqual([],calls)
+        self.assertFalse(any(args[-1] in ('nmbd','nmbd.service') for args in self.startup_status_calls))
+        self.apply([{'listenIp':'0.0.0.0','port':445}])
+        self.assertEqual(set(),self.legacy)
+        starts=[args for args in self.calls if args[:2]==['systemctl','start']]
+        self.assertEqual(1,len(starts))
+        self.assertIn('ablestack-storage-smb@',starts[0][2])
+        self.assertFalse(any('nmbd' in str(args) for args in self.calls))
+
+    def test_actual_rendered_rename_does_not_restart_unplanned_netbios(self):
+        calls=self.run_startup(self.startup_statement(),active=True,rendered=True)
+        self.assertEqual([('smbd.service',{'restart':True})],calls)
+        self.assertFalse(any(args[-1] in ('nmbd','nmbd.service') for args in self.startup_status_calls))
 
     def test_actual_active_default_rename_restart_and_unchanged_name_reload_are_retained(self):
         calls=self.run_startup(self.startup_statement(),active=True)
