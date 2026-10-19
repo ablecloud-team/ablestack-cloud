@@ -37,7 +37,7 @@ class RuntimeDiagnosticTest(unittest.TestCase):
     def test_all_fixed_pairs_and_protocols_are_accepted(self):
         for code, phase in generation.RUNTIME_CODE_PHASES.items():
             protocols = ("NFS",) if code.startswith("NFS_") or code == "ENDPOINT_LISTENER_ADDRESS_MISMATCH" else generation.RUNTIME_PROTOCOLS
-            if code == "RUNTIME_PREPARE_FAILED":
+            if code in ("RUNTIME_PREPARE_FAILED", "NATIVE_CHILD_INPUT_UNAVAILABLE"):
                 protocols = ("GENERATION",)
             for protocol in protocols:
                 error = generation.NativeRuntimeFailure(protocol, code)
@@ -98,6 +98,20 @@ class RuntimeDiagnosticTest(unittest.TestCase):
         self.failure(json.dumps({"success": False, "runtimeDiagnostic": {**diagnostic, "private": PRIVATE}}),
                      "NATIVE_CHILD_FAILED")
         self.failure(json.dumps({"success": False, "runtimeDiagnostic": diagnostic}), "NATIVE_CHILD_FAILED", "SMB")
+
+    def test_nested_input_failure_keeps_only_its_fixed_generation_transport_code(self):
+        diagnostic = generation.NativeRuntimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE").runtime_diagnostic
+        self.failure(json.dumps({"success": False, "errorCode": "ROOT_MAINTENANCE_REJECTED",
+                                 "runtimeDiagnostic": diagnostic, "reason": PRIVATE}),
+                     "NATIVE_CHILD_INPUT_UNAVAILABLE", "GENERATION")
+        for candidate in ({**diagnostic, "protocol": "SMB"}, {**diagnostic, "phase": "APPLY"},
+                          {**diagnostic, "code": PRIVATE}, {**diagnostic, "private": PRIVATE},
+                          {**diagnostic, "protocol": "UNKNOWN"}):
+            self.assertIsNone(generation.sanitized_runtime_diagnostic(candidate))
+            self.failure(json.dumps({"success": False, "runtimeDiagnostic": candidate, "reason": PRIVATE}),
+                         "NATIVE_CHILD_FAILED", "GENERATION")
+        self.failure(json.dumps({"success": False, "runtimeDiagnostic": diagnostic}),
+                     "NATIVE_CHILD_FAILED", "SMB")
 
     def test_nonzero_exit_never_promotes_success(self):
         self.failure('{"success":true}', "NATIVE_CHILD_FAILED")
@@ -207,6 +221,24 @@ class JournalFailureTest(unittest.TestCase):
         self.assertEqual("ENDPOINT_LISTENER_ADDRESS_MISMATCH", journal["forwardFailure"]["code"])
         self.assertEqual("NFS_ALIAS_UNMOUNT_FAILED", journal["rollbackFailure"]["code"])
         self.assertEqual(journal["forwardFailure"], caught.exception.runtime_diagnostic)
+        self.assert_private_absent()
+
+    def test_nested_input_failure_is_durable_and_separate_from_original_apply_error(self):
+        def replay(path, domain, inverse):
+            if inverse:
+                raise generation.NativeRuntimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE")
+            raise generation.NativeRuntimeFailure("SMB", "NATIVE_CHILD_OUTPUT_INVALID")
+        with self.assertRaises(generation.NativeRuntimeFailure):
+            self.store.activate(self.request, replay, self.verify)
+        journal = self.store.read_journal()
+        self.assertEqual("RECOVERY_REQUIRED", journal["phase"])
+        self.assertEqual("NATIVE_CHILD_OUTPUT_INVALID", journal["forwardFailure"]["code"])
+        self.assertEqual({"schemaVersion": 1, "protocol": "GENERATION", "phase": "TRANSPORT",
+                          "code": "NATIVE_CHILD_INPUT_UNAVAILABLE"}, journal["rollbackFailure"])
+        with self.assertRaises(generation.NativeRuntimeFailure) as caught:
+            self.store.rollback(self.request, replay, self.verify)
+        self.assertEqual(journal["rollbackFailure"], caught.exception.runtime_diagnostic)
+        self.assertEqual(journal["rollbackFailure"], self.store.read_journal()["rollbackFailure"])
         self.assert_private_absent()
 
     def test_unknown_exceptions_are_fixed_metadata_without_messages(self):

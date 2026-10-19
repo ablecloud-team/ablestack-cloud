@@ -45,6 +45,7 @@ RUNTIME_CODE_PHASES = {
     "NATIVE_CHILD_TIMEOUT": "TRANSPORT",
     "NATIVE_CHILD_OUTPUT_INVALID": "TRANSPORT",
     "NATIVE_CHILD_FAILED": "TRANSPORT",
+    "NATIVE_CHILD_INPUT_UNAVAILABLE": "TRANSPORT",
     "RUNTIME_PREPARE_FAILED": "PREPARE",
     "RUNTIME_APPLY_FAILED": "APPLY",
     "RUNTIME_VERIFY_FAILED": "VERIFY",
@@ -64,7 +65,7 @@ def sanitized_runtime_diagnostic(value):
         return None
     if (value["code"].startswith("NFS_") or value["code"] == "ENDPOINT_LISTENER_ADDRESS_MISMATCH") and value["protocol"] != "NFS":
         return None
-    if value["code"] == "RUNTIME_PREPARE_FAILED" and value["protocol"] != "GENERATION":
+    if value["code"] in ("RUNTIME_PREPARE_FAILED", "NATIVE_CHILD_INPUT_UNAVAILABLE") and value["protocol"] != "GENERATION":
         return None
     return dict(value)
 

@@ -354,7 +354,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         if (output == null || output.length() > 65536) return null;
         java.util.Map<String, String> phases = java.util.Map.ofEntries(
             java.util.Map.entry("NATIVE_CHILD_TIMEOUT", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"),
-            java.util.Map.entry("NATIVE_CHILD_FAILED", "TRANSPORT"), java.util.Map.entry("RUNTIME_PREPARE_FAILED", "PREPARE"),
+            java.util.Map.entry("NATIVE_CHILD_FAILED", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"),
+            java.util.Map.entry("RUNTIME_PREPARE_FAILED", "PREPARE"),
             java.util.Map.entry("RUNTIME_APPLY_FAILED", "APPLY"), java.util.Map.entry("RUNTIME_VERIFY_FAILED", "VERIFY"),
             java.util.Map.entry("RUNTIME_ROLLBACK_FAILED", "ROLLBACK"), java.util.Map.entry("ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"),
             java.util.Map.entry("NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"), java.util.Map.entry("NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"));
@@ -389,7 +390,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                     || !java.util.Objects.equals(phases.get(diagnostic.get("code")), diagnostic.get("phase"))) return null;
             String code = diagnostic.get("code"), protocol = diagnostic.get("protocol");
             if ((code.startsWith("NFS_") || "ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code)) && !"NFS".equals(protocol)) return null;
-            if ("RUNTIME_PREPARE_FAILED".equals(code) && !"GENERATION".equals(protocol)) return null;
+            if (("RUNTIME_PREPARE_FAILED".equals(code) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)) && !"GENERATION".equals(protocol)) return null;
             return "runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + diagnostic.get("phase") + "; code=" + code;
         } catch (java.io.IOException | RuntimeException unavailable) {return null;}
     }

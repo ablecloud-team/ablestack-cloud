@@ -77,7 +77,7 @@ public class StorageServiceHostDiagnosticTest {
     }
     private static final String[][] RUNTIME_PAIRS = {
         {"NATIVE_CHILD_TIMEOUT", "TRANSPORT"}, {"NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"},
-        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
+        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
         {"RUNTIME_APPLY_FAILED", "APPLY"}, {"RUNTIME_VERIFY_FAILED", "VERIFY"},
         {"RUNTIME_ROLLBACK_FAILED", "ROLLBACK"}, {"ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"},
         {"NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"}, {"NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"}};
@@ -105,12 +105,17 @@ public class StorageServiceHostDiagnosticTest {
             valid.replace("\"schemaVersion\":1,", ""),
             valid.replace(PRIVATE, PRIVATE + "x".repeat(65536)));
         bad.add(runtimeFailure("NFS", "RUNTIME_PREPARE_FAILED", "PREPARE"));
+        String input = runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT");
+        bad.add(runtimeFailure("SMB", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"));
+        bad.add(runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "APPLY"));
+        bad.add(input.replace("NATIVE_CHILD_INPUT_UNAVAILABLE", PRIVATE));
+        bad.add(input.replace("\"code\":", "\"private\":\"" + PRIVATE + "\",\"code\":"));
         return bad;
     }
     @Test public void fixedRuntimeFailuresReachAgentWithoutPrivateReason() {
         StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "operation generation render-activate", PRIVATE, 30, Collections.singleton("transientCredentials"));
         for (String[] pair : RUNTIME_PAIRS) {
-            String protocol = "RUNTIME_PREPARE_FAILED".equals(pair[0]) ? "GENERATION" : "NFS";
+            String protocol = ("RUNTIME_PREPARE_FAILED".equals(pair[0]) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(pair[0])) ? "GENERATION" : "NFS";
             String message = wrapper.commandFailureDetails(command, 1, runtimeFailure(protocol, pair[0], pair[1]), PRIVATE);
             Assert.assertTrue(message, message.contains("runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + pair[1] + "; code=" + pair[0]));
             Assert.assertFalse(message.contains(PRIVATE));
@@ -118,6 +123,15 @@ public class StorageServiceHostDiagnosticTest {
         for (String protocol : new String[]{"SMB", "ISCSI", "NVMEOF", "GENERATION"}) {
             Assert.assertTrue(wrapper.commandFailureDetails(command, 1, runtimeFailure(protocol, "RUNTIME_APPLY_FAILED", "APPLY"), PRIVATE).contains("protocol=" + protocol));
         }
+    }
+    @Test public void missingNestedInputReachesRollbackHostDetailWithoutPrivateText() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "operation generation render-rollback",
+            PRIVATE, 30, Collections.singleton("checkpointPrivateKey"));
+        String message = wrapper.commandFailureDetails(command, 1,
+            runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"), PRIVATE);
+        Assert.assertTrue(message, message.contains("runtimeSchemaVersion=1; protocol=GENERATION; phase=TRANSPORT; code=NATIVE_CHILD_INPUT_UNAVAILABLE"));
+        Assert.assertFalse(message.contains(PRIVATE));Assert.assertTrue(message.startsWith("Sensitive Storage Service command failed"));
+        Assert.assertFalse(wrapper.commandFailureDetails(command, 1, null, message).contains("runtimeSchemaVersion="));
     }
     @Test public void malformedRuntimeFailuresRemainMaskedWithoutPrivateFallback() {
         StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "operation generation render-rollback", PRIVATE, 30);

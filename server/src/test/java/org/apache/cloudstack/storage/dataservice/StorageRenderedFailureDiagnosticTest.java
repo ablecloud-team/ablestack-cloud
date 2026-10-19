@@ -51,13 +51,18 @@ public class StorageRenderedFailureDiagnosticTest {
         return bad;
     }
     private StorageRenderedGenerationCoordinator.Runtime runtime(boolean success,String body,String hostDetail) {
+        return runtime(success,body,hostDetail,"stage");
+    }
+    private StorageRenderedGenerationCoordinator.Runtime runtime(boolean success,String body,String hostDetail,String action) {
         StorageServiceManagerImpl manager=new StorageServiceManagerImpl();StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getVmId()).thenReturn(42L);
         StorageServiceGuestCommandDispatcher dispatcher=command->{
-            Assert.assertEquals("operation generation render-stage",command.getOperation());
+            Assert.assertEquals("operation generation render-"+action,command.getOperation());
             Assert.assertTrue(command.getMaskedFields().contains("checkpointPrivateKey"));
             return new StorageServiceGuestCommandResult(success,hostDetail,body);
         };
-        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);return manager.renderedRuntime(instance,null);
+        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",dispatcher);
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();operation.setPreviousSnapshotJson("{}");
+        return manager.renderedRuntime(instance,new StorageServiceManagerImpl.RenderedBatch(operation,new JsonObject(),new JsonObject(),null));
     }
     private String rejected(String body,String detail) {
         CloudRuntimeException error=Assert.assertThrows(CloudRuntimeException.class,()->runtime(false,body,detail).render("stage",new JsonObject()));
@@ -82,7 +87,7 @@ public class StorageRenderedFailureDiagnosticTest {
     }
     private static final String[][] RUNTIME_PAIRS = {
         {"NATIVE_CHILD_TIMEOUT", "TRANSPORT"}, {"NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"},
-        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
+        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
         {"RUNTIME_APPLY_FAILED", "APPLY"}, {"RUNTIME_VERIFY_FAILED", "VERIFY"},
         {"RUNTIME_ROLLBACK_FAILED", "ROLLBACK"}, {"ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"},
         {"NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"}, {"NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"}};
@@ -110,11 +115,16 @@ public class StorageRenderedFailureDiagnosticTest {
             valid.replace("\"schemaVersion\":1,", ""),
             valid.replace(PRIVATE, PRIVATE + "x".repeat(65536)));
         bad.add(runtimeFailure("NFS", "RUNTIME_PREPARE_FAILED", "PREPARE"));
+        String input = runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT");
+        bad.add(runtimeFailure("SMB", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"));
+        bad.add(runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "APPLY"));
+        bad.add(input.replace("NATIVE_CHILD_INPUT_UNAVAILABLE", PRIVATE));
+        bad.add(input.replace("\"code\":", "\"private\":\"" + PRIVATE + "\",\"code\":"));
         return bad;
     }
     @Test public void fixedRuntimeFailuresReachManagerWithoutPrivateReason() {
         for (String[] pair : RUNTIME_PAIRS) {
-            String protocol = "RUNTIME_PREPARE_FAILED".equals(pair[0]) ? "GENERATION" : "NFS";
+            String protocol = ("RUNTIME_PREPARE_FAILED".equals(pair[0]) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(pair[0])) ? "GENERATION" : "NFS";
             String message = rejected(runtimeFailure(protocol, pair[0], pair[1]), PRIVATE);
             Assert.assertTrue(message, message.contains("runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + pair[1] + "; code=" + pair[0]));
             Assert.assertFalse(message.contains(PRIVATE));
@@ -122,6 +132,14 @@ public class StorageRenderedFailureDiagnosticTest {
         for (String protocol : new String[]{"SMB", "ISCSI", "NVMEOF", "GENERATION"}) {
             Assert.assertTrue(rejected(runtimeFailure(protocol, "RUNTIME_APPLY_FAILED", "APPLY"), PRIVATE).contains("protocol=" + protocol));
         }
+    }
+    @Test public void missingNestedInputReachesRollbackApiWithOnlyClosedMetadata() {
+        String body = runtimeFailure("GENERATION", "NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT");
+        CloudRuntimeException error = Assert.assertThrows(CloudRuntimeException.class,
+            () -> runtime(false, body, PRIVATE, "rollback").render("rollback", new JsonObject()));
+        Assert.assertEquals("Rendered generation rollback failed; inspect its scoped recovery receipt "
+            + "[runtimeSchemaVersion=1; protocol=GENERATION; phase=TRANSPORT; code=NATIVE_CHILD_INPUT_UNAVAILABLE]", error.getMessage());
+        Assert.assertFalse(error.getMessage().contains(PRIVATE));Assert.assertNull(error.getCause());
     }
     @Test public void malformedRuntimeFailuresRemainGenericWithoutPrivateFallback() {
         for (String value : rejectedRuntimeFailures()) {
