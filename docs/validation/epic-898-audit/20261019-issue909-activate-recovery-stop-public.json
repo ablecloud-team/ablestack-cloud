@@ -1,0 +1,322 @@
+{
+  "issue": 909,
+  "result": "CONFIRMED_API_BACKEND_ERROR_STOPPED",
+  "readyToClose": false,
+  "implementationCommit": "252a9228a3b6798562d13bf44218d139504cde67",
+  "validationSourceHead": "7872e1ed5e40f07a3587c2789e9eccbe49f75594",
+  "upstreamLocalBase": "248653b5892",
+  "productCodeChangesThisTurn": 0,
+  "buildsOrDeploymentsThisTurn": 0,
+  "preflightDeployment": {
+    "jarSha256": "cdb54f66fdc648f7bc308349c4cf7be365b4adf039bdbeea12f1937e8977809a",
+    "classSha256": "4576782729ba316cf49cbe7f01e7b1b1bf30d6c61bfd863bfd28283071645dd7",
+    "pid": 2720487,
+    "service": "active",
+    "httpStatus": 200,
+    "ui": {
+      "index.html": "7c6a5db4eacae50416277c7fbc915dc7577a16b3ff6b0d27a7302a06abdbc15e",
+      "config.json": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5"
+    }
+  },
+  "uiFreshReview": {
+    "artifactId": "c1181cde-33d2-4209-9721-0dfc86308838",
+    "sha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+    "targetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "ipCidr": "10.10.13.227/16",
+    "listenerAddressMappings": {
+      "0.0.0.0": "PRIMARY"
+    },
+    "volumeMappings": {
+      "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+      "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+      "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+      "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+    },
+    "create": 14,
+    "blockers": [],
+    "planTokenPresent": true
+  },
+  "uiAcceptedJobId": "35061611-3e0a-4760-bee7-a1e5d3f15391",
+  "asyncJob": {
+    "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+    "account": "admin",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "domainpath": "ROOT",
+    "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Storage Service operation 71e0d23c-541d-4b61-85d4-5cbc0d0ca473 RECOVERY_REQUIRED: failurePhase=APPLYING; Rendered generation activate failed; inspect its scoped recovery receipt"
+    },
+    "created": "2026-10-19T22:06:38+0900",
+    "completed": "2026-10-19T22:08:41+0900",
+    "jobid": "35061611-3e0a-4760-bee7-a1e5d3f15391",
+    "jobstatus": 2
+  },
+  "apiStateAfterFailure": {
+    "operation": {
+      "id": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "applystorageserviceconfigrestoreresponse",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 2,
+      "progress": 100,
+      "created": "2026-10-19T22:07:18+0900",
+      "heartbeat": "2026-10-19T22:08:41+0900",
+      "completed": "2026-10-19T22:08:41+0900",
+      "diagnostic": "failurePhase=APPLYING; Rendered generation activate failed; inspect its scoped recovery receipt | rollback: Rendered generation rollback failed; inspect its scoped recovery receipt"
+    },
+    "vmId": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+    "vmState": "Running",
+    "moldMac": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse",
+        "virtualmachineid": "374ff78d-4bbd-41bd-8c37-f46643fa28bf"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "virtualmachineid": "374ff78d-4bbd-41bd-8c37-f46643fa28bf"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "virtualmachineid": "374ff78d-4bbd-41bd-8c37-f46643fa28bf"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "virtualmachineid": "374ff78d-4bbd-41bd-8c37-f46643fa28bf"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse",
+        "virtualmachineid": "374ff78d-4bbd-41bd-8c37-f46643fa28bf"
+      }
+    ],
+    "protocols": [
+      {
+        "id": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "protocol": "NFS",
+        "enabled": true,
+        "state": "Ready",
+        "listenip": null,
+        "port": 2049,
+        "linkedresourcecount": 0
+      }
+    ],
+    "lkg": [
+      {
+        "id": "36368268-08e1-4024-944e-e67742f3532f",
+        "state": "ACTIVE_LKG",
+        "desiredRevision": 1,
+        "sha256": "ca302769082a8e8299f213d1b531dd3f5bbdd5d0cbd0e51a071cd0e488daec2b"
+      }
+    ],
+    "artifactId": "c1181cde-33d2-4209-9721-0dfc86308838",
+    "restoreState": "FAILED",
+    "cloneRestoreOperation": {
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+      "revision": 2,
+      "createdBy": 2,
+      "artifactUuid": "c1181cde-33d2-4209-9721-0dfc86308838",
+      "artifactSha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+      "planSha256": "d15b09b62a2a7951800685d8a1bdba0c5ea98ad14860b5ff626f5f73ad798f13",
+      "baselineSha256": "7778fea917d737f85eece69fc61ffa0948ed7773a5fb10fe1f8b8f899fbb2e27"
+    },
+    "frozenFieldsUnchanged": [
+      "plan",
+      "cloneAllocation",
+      "volumeExecutionPlan",
+      "cloneInitialBaseline",
+      "requestedVolumeMapping"
+    ],
+    "changedFrozenFields": [
+      "cloneRestoreOperation"
+    ],
+    "protectedFileChanges": [
+      "config-generations/pending.json",
+      "template-maintenance.json",
+      "service-maintenance.json"
+    ],
+    "bootUnchanged": true,
+    "macUnchanged": true
+  },
+  "nativeReadOnlyAfterFailure": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "public": {
+      "generation": {
+        "generation": {
+          "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+          "revision": 1,
+          "verifiedAt": 1792395320.1495302
+        },
+        "generationStatus": "PENDING",
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "pendingOperationUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473"
+      },
+      "rendered": {
+        "activation": {
+          "activeDomain": "NFS",
+          "appliedDomains": [],
+          "changedDomains": [
+            "NFS",
+            "SMB",
+            "ISCSI",
+            "NVMEOF"
+          ],
+          "phase": "RECOVERY_REQUIRED",
+          "prerequisitesStarted": true,
+          "prerequisitesVerified": true,
+          "previousOperationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+          "previousSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+          "scope": {
+            "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+            "operationUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+            "revision": 2
+          },
+          "startedDomains": [
+            "NFS"
+          ],
+          "startedEpoch": 1792415282.450028,
+          "targetSha256": "d3e520abba2c275b702ce827c0289c33796e4ecfbfb40a7c52d429784a979f17"
+        },
+        "bootHeld": true,
+        "current": {
+          "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+          "domainSha256": {
+            "ISCSI": "ad6f76728de426d7a7ed64684f2e2eff2249532847a5f32cf45442ad8303cdcd",
+            "NFS": "019ab3490962d09e06fac399f6b68a340279e6e19aa6c8f655a1303bdb4a9259",
+            "NVMEOF": "17dce5a75d309028de331782ec46d7657daed8da2599a30752dd334ed133ffab",
+            "SMB": "62d77596c7888c80cbafe18f37bae0114db8557ce2a23254eb0fd47424558326"
+          },
+          "files": {
+            "block/iscsi-plan.json": "85cf024940befd85a98b80e15dfe43345be2cd33936190b910db63cac27d1bb4",
+            "block/nvmeof-plan.json": "8f0a82ef8b260591546c239cab2071f8e6e8f322c5d805d6d4e874db4fe89601",
+            "desired-state.json": "4d40ee271f4047b595c70d74203bf226b0aff275242f59b05865a3614380dbf8",
+            "file-volumes.json": "212ca2487da78844d4ddb66bd9bdbfce1685aff1d3a5682b2e97115fe0a691e7",
+            "network-bindings.json": "77d45603db52b7c07393204adbe64b098694b1ebc646b83862eba4f52579de6a",
+            "nfs/manifest.json": "5b0aba8f1e92f2969253f09e9ad2bfcba3c2b588470d7b679fae9320b90c7a60",
+            "posix-plan.json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "prerequisites.json": "28178ac8224ecdbd084348bb777479839b498dde8ec4826404d8ee7eaeebc148",
+            "smb/manifest.json": "1bcb8cc63f3b158547af1537bd99013aeee636c317b61c3847524a8e839daf0f",
+            "smb/smb.conf": "0613a1682c47022dc1f18ae5de2345a5fb50fc5bf39c349f48caf0c9e40bc144"
+          },
+          "manifestSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+          "previousRenderedSha256": null,
+          "schemaVersion": 1,
+          "scope": {
+            "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+            "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+            "revision": 1
+          }
+        },
+        "fullFourProtocolActivationSupported": false,
+        "localSourceIdentityCheckpointSupported": true,
+        "renderedGenerationSchemaVersion": 1,
+        "renderedGenerationSupported": true,
+        "retainedRootRestoreSupported": true,
+        "rootSourceIdentityCheckpointSupported": true,
+        "serviceIdentityCheckpointSupported": true,
+        "success": true,
+        "supportedFeatures": [
+          "RENDERED_CONFIG_GENERATION_HANDLER"
+        ]
+      },
+      "maintenance": {
+        "bootHeld": true,
+        "maintenanceKind": "SERVICE",
+        "maintenanceSupported": true,
+        "scope": {
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "maintenanceUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+          "operationUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+          "revision": 2
+        },
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "rootEntryNames": [
+        "config-generations",
+        "network-endpoint-bindings.json",
+        "rendered-generations",
+        "runtime-updates",
+        "service-maintenance.json",
+        "smb-local-source-checkpoints",
+        "template-build",
+        "template-maintenance-release.json",
+        "template-maintenance.json",
+        "volume-operations"
+      ],
+      "scopedPaths": [
+        "rendered-generations/network-transitions/71e0d23c-541d-4b61-85d4-5cbc0d0ca473.json",
+        "rendered-generations/generations/71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+        "rendered-generations/identity-checkpoints/71e0d23c-541d-4b61-85d4-5cbc0d0ca473.json"
+      ]
+    }
+  },
+  "dataReadOnlyComparison": {
+    "guestExitCode": 0,
+    "fileContentsUnchanged": true,
+    "rawRegionsUnchanged": true,
+    "differences": [
+      {
+        "path": "files/NFS/disk/mountpoints",
+        "before": [
+          "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        ],
+        "after": [
+          "/export/issue909-mixed-nfs",
+          "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        ]
+      }
+    ],
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225"
+  },
+  "controlActions": {
+    "acceptedRestoreApplies": 1,
+    "manualRestoreRetries": 0,
+    "manualRecovery": 0,
+    "newVmsOrDisks": 0,
+    "macChanges": 0,
+    "clientIoAfterError": 0,
+    "newSparseDataBranch": 0,
+    "runtimeUpdates": 0
+  },
+  "limits": [
+    "Activation failed starting NFS; the precise lower-level activation and rollback causes are not yet established",
+    "Old baseline1 pointers remain but Native is PENDING with bootHeld=true; successful runtime rollback is not claimed",
+    "FILE6 and RAW4 sample regions are preserved, not a full-volume checksum",
+    "No post-restore external client connectivity or simultaneous IO completed in this turn",
+    "Only read-only state and data inspection followed the product error"
+  ],
+  "screenshot": {
+    "file": "issue909-activate-recovery-stop-20261019.png",
+    "sha256": "5a4a3c1212c5175d6487ccb62276073a1807150ba4e6a08a59df31848f9aa91f"
+  }
+}
