@@ -1,0 +1,42 @@
+{
+  "sourceCommit": "0b3f6730427f4f05eaf6b7e4b40816c8c7009742",
+  "validation": {
+    "kind": "CONFIRMED_UI_CODE_ERROR_STOPPED",
+    "stage": "CREATE_NEW_RESUME_REVIEW",
+    "message": "선택한 서비스가 변경됐습니다. 현재 서비스의 작업 이력을 확인하세요.",
+    "applyClicked": false,
+    "newRestoreOperations": 0,
+    "operationCountUnchanged": true,
+    "previousOperationState": "ROLLED_BACK",
+    "nativeProtectedFilesUnchanged": 6,
+    "bootUnchanged": true,
+    "moldMacUnchanged": true,
+    "volumes5ReadySparseUnchanged": true,
+    "dataFilesPreserved": 6,
+    "rawSampleRegionsPreserved": 4,
+    "lkgRevision": 1,
+    "initialNfsStillOnlyUnusedEndpoint": true,
+    "frozenFieldChanges": [],
+    "restorationNotCompleted": true,
+    "newDataBranchNotStarted": true,
+    "waitingForInstruction": true
+  },
+  "localVueReproduction": {
+    "sourceSha256": "238881d0e0cdbc9b2cfa50bcb28ec18105dcd102c028c47ef070b69a0a8c8e2a",
+    "watcher": "'planTarget.metadata': { deep: true, handler () { this.clearCloneZoneOptions() } }",
+    "sameServiceAndPlanTarget": true,
+    "before": {
+      "templateUuid": "9d6703e2-5301-49dc-8068-4b3c7f8746d3",
+      "mappedVolumes": 4,
+      "listeners": 1
+    },
+    "after": {
+      "templateUuid": null,
+      "mappedVolumes": 0,
+      "listeners": 0
+    },
+    "preparePlanScopeGuardFails": true,
+    "productApiCalls": 0,
+    "repoEdits": 0
+  }
+}
