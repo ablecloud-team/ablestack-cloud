@@ -19,5 +19,14 @@
     "ENABLE_VFS_POSIX_ACL": "ON",
     "ENABLE_VFS_DEBUG_ACL": "OFF",
     "USE_DBUS": "ON"
-  }
+  },
+  "packageRevision": "1+ablestack2",
+  "sourcePatches": [
+    {
+      "id": "bind-addr-resolved-family-v1",
+      "path": "src/MainNFSD/nfs_rpc_dispatcher_thread.c",
+      "beforeSha256": "9df417d7c7f7d5b1bfa233dbd7c952e01d9453c470a183e8b4029014679d39f8",
+      "afterSha256": "4deb73229469cf0b121de9ddc38d2aebabdcbdc80cb37df122fc7447f7be5884"
+    }
+  ]
 }

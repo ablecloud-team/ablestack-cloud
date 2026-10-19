@@ -23,12 +23,14 @@ class StorageIdentitySourceFenceTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
         self.tdb=self.root/"passdb.tdb";self.tdb.write_bytes(b"SYNTHETIC_PRIVATE_DB_ONLY");self.tdb.chmod(0o600)
-        self.accounts=set()
+        self.accounts={}
         for name in ("passwd","group","shadow","gshadow"):
-            path=self.root/name;path.touch(mode=0o600);self.accounts.add(str(path))
+            path=self.root/name;path.touch(mode=0o600);self.accounts["/etc/"+name]=str(path)
         self.files=patch.object(identity_capsule,"FILES",{str(self.tdb)});self.files.start();self.addCleanup(self.files.stop)
         self.adfiles=patch.object(identity_capsule,"AD_FILES",set());self.adfiles.start();self.addCleanup(self.adfiles.stop)
-        self.accountfiles=patch.object(identity_capsule,"ACCOUNT_FILES",self.accounts);self.accountfiles.start();self.addCleanup(self.accountfiles.stop)
+        reader=identity_capsule.regular_file
+        self.accountfiles=patch.object(identity_capsule,"regular_file",side_effect=lambda path:reader(self.accounts.get(str(path),path)))
+        self.accountfiles.start();self.addCleanup(self.accountfiles.stop)
         self.livefiles=patch.object(identity_capsule,"LIVE_TDB_FILES",{str(self.tdb)});self.livefiles.start();self.addCleanup(self.livefiles.stop)
     def test_real_open_samba_identity_holder_blocks_before_raw_tdb_or_account_read(self):
         holder=subprocess.Popen([sys.executable,"-c","import sys; from pathlib import Path; Path('/proc/self/comm').write_text('smbd'); f=open(sys.argv[1],'rb'); print('READY',flush=True); sys.stdin.read(1)",str(self.tdb)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)

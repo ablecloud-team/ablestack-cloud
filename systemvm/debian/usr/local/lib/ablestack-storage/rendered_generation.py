@@ -38,6 +38,55 @@ MAX_FILE = 8 * 1024 * 1024
 MAX_TOTAL = 32 * 1024 * 1024
 
 
+# This public contract contains fixed metadata only, never child messages,
+# configuration paths, stderr, principals or transient credential material.
+RUNTIME_PROTOCOLS = (*DOMAINS, "GENERATION")
+RUNTIME_CODE_PHASES = {
+    "NATIVE_CHILD_TIMEOUT": "TRANSPORT",
+    "NATIVE_CHILD_OUTPUT_INVALID": "TRANSPORT",
+    "NATIVE_CHILD_FAILED": "TRANSPORT",
+    "RUNTIME_PREPARE_FAILED": "PREPARE",
+    "RUNTIME_APPLY_FAILED": "APPLY",
+    "RUNTIME_VERIFY_FAILED": "VERIFY",
+    "RUNTIME_ROLLBACK_FAILED": "ROLLBACK",
+    "ENDPOINT_LISTENER_ADDRESS_MISMATCH": "VERIFY",
+    "NFS_ALIAS_UNMOUNT_FAILED": "CLEANUP",
+    "NFS_ALIAS_UNMOUNT_UNVERIFIED": "CLEANUP",
+}
+
+
+def sanitized_runtime_diagnostic(value):
+    if (type(value) is not dict or set(value) != {"schemaVersion", "protocol", "phase", "code"}
+            or type(value.get("schemaVersion")) is not int or value["schemaVersion"] != 1
+            or type(value.get("protocol")) is not str or value["protocol"] not in RUNTIME_PROTOCOLS
+            or type(value.get("phase")) is not str or type(value.get("code")) is not str
+            or RUNTIME_CODE_PHASES.get(value["code"]) != value["phase"]):
+        return None
+    if (value["code"].startswith("NFS_") or value["code"] == "ENDPOINT_LISTENER_ADDRESS_MISMATCH") and value["protocol"] != "NFS":
+        return None
+    if value["code"] == "RUNTIME_PREPARE_FAILED" and value["protocol"] != "GENERATION":
+        return None
+    return dict(value)
+
+
+def native_runtime_diagnostic(error):
+    return sanitized_runtime_diagnostic(getattr(error, "runtime_diagnostic", None))
+
+
+class NativeRuntimeFailure(ValueError):
+    def __init__(self, protocol, code):
+        diagnostic = sanitized_runtime_diagnostic({"schemaVersion": 1, "protocol": protocol,
+                                                  "phase": RUNTIME_CODE_PHASES.get(code), "code": code})
+        if diagnostic is None:
+            raise ValueError("Unknown public Native runtime diagnostic")
+        self.runtime_diagnostic = diagnostic
+        super().__init__(code)
+
+
+def runtime_failure(error, protocol, code):
+    return native_runtime_diagnostic(error) or NativeRuntimeFailure(protocol, code).runtime_diagnostic
+
+
 def rendered_directory(path, create=False):
     if create:
         path.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -275,6 +324,8 @@ class RenderedGeneration:
                        "previousSha256": (current or {}).get("manifestSha256"), "previousOperationUuid": (current or {}).get("scope", {}).get("operationUuid"),
                        "changedDomains": changed, "startedDomains": [], "appliedDomains": [], "startedEpoch": time.time()}
             rendered_json(self.journal, journal)
+        failure_protocol = "GENERATION"
+        failure_code = "RUNTIME_PREPARE_FAILED"
         try:
             self.publish_pointer(target)
             if prerequisites is not None:
@@ -287,20 +338,31 @@ class RenderedGeneration:
                 if domain not in journal.setdefault("startedDomains",[]):
                     journal["startedDomains"].append(domain)
                 journal["activeDomain"]=domain;rendered_json(self.journal,journal)
+                failure_protocol, failure_code = domain, "RUNTIME_APPLY_FAILED"
                 replay(target, domain, False)
                 if domain not in journal.setdefault("appliedDomains",[]):journal["appliedDomains"].append(domain)
                 rendered_json(self.journal,journal)
+            failure_protocol, failure_code = "GENERATION", "RUNTIME_VERIFY_FAILED"
             verified = verify(target)
             if not isinstance(verified, dict) or set(verified) != set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
                 raise ValueError("Rendered runtime did not pass all four protocol checks")
             if persist_desired is not None: persist_desired(target)
             journal.update(phase="VERIFIED", verifiedEpoch=time.time()); rendered_json(self.journal, journal)
             return self.status()
-        except Exception:
+        except Exception as forward:
+            # rollback() reads and updates its own durable journal. Never save
+            # this older object over the rollback progress or inverse failure.
+            journal = self.scoped_activation(request)
+            journal["forwardFailure"] = runtime_failure(forward, failure_protocol, failure_code)
+            rendered_json(self.journal, journal)
             try: self.rollback(request, replay, verify, persist_desired, prerequisites)
-            except Exception:
-                journal.update(phase="RECOVERY_REQUIRED"); rendered_json(self.journal, journal)
-            raise
+            except Exception as inverse:
+                journal = self.scoped_activation(request)
+                journal.update(phase="RECOVERY_REQUIRED")
+                journal.setdefault("rollbackFailure", runtime_failure(inverse, "GENERATION", "RUNTIME_ROLLBACK_FAILED"))
+                rendered_json(self.journal, journal)
+            diagnostic = native_runtime_diagnostic(forward) or journal["forwardFailure"]
+            raise NativeRuntimeFailure(diagnostic["protocol"], diagnostic["code"]) from None
 
     def finalize(self, request, generation, verify):
         journal = self.scoped_activation(request)
@@ -343,6 +405,11 @@ class RenderedGeneration:
             if persist_desired is not None: persist_desired(previous)
             journal.update(phase="ROLLED_BACK", rolledBackEpoch=time.time()); rendered_json(self.journal, journal)
             return self.status()
-        except Exception:
-            journal.update(phase="RECOVERY_REQUIRED"); rendered_json(self.journal, journal)
-            raise
+        except Exception as inverse:
+            journal = self.scoped_activation(request)
+            journal.update(phase="RECOVERY_REQUIRED")
+            protocol = journal.get("activeDomain") if journal.get("activeDomain") in DOMAINS else "GENERATION"
+            journal["rollbackFailure"] = runtime_failure(inverse, protocol, "RUNTIME_ROLLBACK_FAILED")
+            rendered_json(self.journal, journal)
+            diagnostic = journal["rollbackFailure"]
+            raise NativeRuntimeFailure(diagnostic["protocol"], diagnostic["code"]) from None

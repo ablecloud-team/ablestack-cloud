@@ -82,6 +82,11 @@
       "destination": "/tmp/test_storage_ganesha_acl.sh"
     },
     {
+      "type": "file",
+      "source": "scripts/test_storage_ganesha_bind.sh",
+      "destination": "/tmp/test_storage_ganesha_bind.sh"
+    },
+    {
       "execute_command": "echo 'cloud' | sudo -u root -S bash {{.Path}}",
       "scripts": [
         "scripts/apt_upgrade.sh",

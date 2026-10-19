@@ -48,6 +48,19 @@ for name,destination in (("source",root/"source"),("ntirpc",root/"source/src/lib
    if entry.issym() and (Path(entry.linkname).is_absolute() or not (destination/entry.name).parent.joinpath(entry.linkname).resolve().is_relative_to(destination.resolve())):raise ValueError("Ganesha source link escapes its fixed tree")
    members.append(entry)
   handle.extractall(destination,members=members)
+# Apply the local fix only to the exact pinned upstream source.  Record both
+# hashes in the installed build attestation so a package cannot hide drift.
+patch=lock["sourcePatches"]
+if len(patch)!=1 or patch[0]["id"]!="bind-addr-resolved-family-v1":raise ValueError("Unsupported Ganesha source patches")
+item=patch[0];target=root/"source"/item["path"]
+content=target.read_text()
+if hashlib.sha256(content.encode()).hexdigest()!=item["beforeSha256"]:raise ValueError("Ganesha patch source checksum differs")
+before='#else\n\tv6disabled = false;\n#endif\n#ifdef RPC_VSOCK\n'
+after='#else\n\t/*\n\t * Match the resolved Bind_Addr family.  AI_ADDRCONFIG may select an\n\t * IPv4 sockaddr even when the kernel can still create IPv6 sockets.\n\t * Treating that sockaddr as IPv6 silently binds the wildcard address.\n\t */\n\tv6disabled = nfs_param.core_param.bind_addr.ss_family == AF_INET;\n\tif (nfs_param.core_param.bind_addr.ss_family != AF_INET &&\n\t    nfs_param.core_param.bind_addr.ss_family != AF_INET6)\n\t\tLogFatal(COMPONENT_DISPATCH,\n\t\t\t "Unsupported resolved Bind_Addr address family");\n#endif\n#ifdef RPC_VSOCK\n'
+if content.count(before)!=1:raise ValueError("Ganesha patch source anchor differs")
+content=content.replace(before,after)
+if hashlib.sha256(content.encode()).hexdigest()!=item["afterSha256"]:raise ValueError("Ganesha patched source checksum differs")
+target.write_text(content)
 PYFETCH
 cmake -S "$work/source/src" -B "$work/build" \
  -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$prefix" -DSYSCONFDIR=/etc -DSYSSTATEDIR=/var -DRUNTIMEDIR=/run/ganesha \
@@ -70,6 +83,7 @@ if [[ -d /run/systemd/system ]]; then
 fi
 ldd /usr/local/bin/ganesha.nfsd > "$work/ldd.txt"
 ! grep -q "not found" "$work/ldd.txt"
+bash /tmp/test_storage_ganesha_bind.sh > "$work/bind-selftest.log"
 bash /tmp/test_storage_ganesha_acl.sh > "$work/selftest.log"
 python3 - "$lock" "$work" <<'PYATTEST'
 import hashlib,json,os,sys
@@ -77,18 +91,24 @@ from pathlib import Path
 lock=json.loads(Path(sys.argv[1]).read_text());work=Path(sys.argv[2])
 result=next(json.loads(line) for line in (work/"selftest.log").read_text().splitlines() if line.startswith("{"))
 if result!={"namedAclReadWrite":True,"defaultAclInheritance":True}:raise ValueError("Real Ganesha ACL self-test did not pass")
+binding=next(json.loads(line) for line in (work/"bind-selftest.log").read_text().splitlines() if line.startswith("{"))
+if (binding.get("success") is not True or len(binding.get("cases",[]))!=5
+ or binding.get("disabledIpv6Precondition",{}).get("ipv6SocketCanBeCreated") is not True
+ or binding.get("disabledIpv6Precondition",{}).get("ipv6AddrconfigResolutionRejected") is not True
+ or binding["cases"][0].get("nfsReadWrite") is not True
+ or binding["cases"][0].get("otherAddressRejected") is not True):raise ValueError("Real Ganesha bind address self-test did not pass")
 package=json.loads((work/"package-files.json").read_text());files=package["files"]
 manifest={"schemaVersion":1,"version":lock["version"],"sourceCommit":lock["source"]["commit"],"sourceArchiveSha256":lock["source"]["sha256"],
  "ntirpcCommit":lock["ntirpc"]["commit"],"ntirpcArchiveSha256":lock["ntirpc"]["sha256"],"prefix":lock["prefix"],
-  "requiredCmakeFlags":lock["requiredCmakeFlags"],"files":files,"serviceBindings":package["serviceBindings"],"selfTest":result,"packageSha256":hashlib.sha256((work/"runtime.deb").read_bytes()).hexdigest()}
+  "requiredCmakeFlags":lock["requiredCmakeFlags"],"sourcePatches":lock["sourcePatches"],"packageRevision":lock["packageRevision"],"files":files,"serviceBindings":package["serviceBindings"],"selfTest":result,"bindAddressSelfTest":binding,"packageSha256":hashlib.sha256((work/"runtime.deb").read_bytes()).hexdigest()}
 output=Path("/etc/ablestack-storage/ganesha-build-manifest.json");output.parent.mkdir(parents=True,exist_ok=True)
 output.write_text(json.dumps(manifest,sort_keys=True,indent=2)+"\n");output.chmod(0o644)
 PYATTEST
 
-python3 - "$work" <<'PYCLEAN'
+python3 - "$work" "$lock" <<'PYCLEAN'
 import json,re,shutil,subprocess,sys
 from pathlib import Path
-work=Path(sys.argv[1]).resolve()
+work=Path(sys.argv[1]).resolve();lock=json.loads(Path(sys.argv[2]).read_text())
 if work.parent!=Path("/var/tmp") or not work.name.startswith("ablestack-ganesha-build."):raise ValueError("Foreign Ganesha build workspace")
 old=set((work/"manual-before.txt").read_text().splitlines())
 new=set(subprocess.check_output(["apt-mark","showmanual"],text=True).splitlines())-old-{"ablestack-nfs-ganesha-vfs-acl"}
@@ -98,6 +118,6 @@ subprocess.run(["apt-get","-y","autoremove","--purge"],check=True)
 subprocess.run(["/usr/local/bin/ganesha.nfsd","-v"],check=True,timeout=10)
 if "not found" in subprocess.check_output(["ldd","/usr/local/bin/ganesha.nfsd"],text=True,timeout=10):raise ValueError("Ganesha runtime dependency disappeared")
 artifact=Path("/var/lib/ablestack-storage/template-build");artifact.mkdir(parents=True,exist_ok=True,mode=0o700)
-shutil.copyfile(work/"runtime.deb",artifact/"ablestack-nfs-ganesha-vfs-acl_5.5.3-1+ablestack1_amd64.deb")
+shutil.copyfile(work/"runtime.deb",artifact/(lock["packageName"]+"_"+lock["version"]+"-"+lock["packageRevision"]+"_amd64.deb"))
 shutil.rmtree(work)
 PYCLEAN

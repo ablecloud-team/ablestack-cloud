@@ -473,6 +473,7 @@ class StorageNfsReadinessTest(unittest.TestCase):
             "write_ganesha_configs":Mock(return_value=[("known","/unused","127.0.0.1",2049,"V4_ONLY")]),
             "BootCoordinator":SimpleNamespace(attach_existing=lambda:None),"NfsReadinessError":NfsReadinessError,
             "subprocess":subprocess,"json":json,"payload":{"exports":[]},"enabled":True,"configs":[("known",)],
+            "cleanup_stale_export_aliases":Mock(),
             "quota_state":{},"endpoint_exports":{},"needs_rpcbind":False,"default_port":2049,"start_ganesha_endpoints":lambda *args:[endpoint],
             "probe_nfs_export_visibility":Mock(side_effect=TypeError("SYNTHETIC_RAW_BODY_MUST_NOT_LEAK"))}
         output=io.StringIO()

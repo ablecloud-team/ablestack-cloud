@@ -27,6 +27,7 @@ from unittest.mock import patch
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage"
 sys.path.insert(0,str(LIB))
 from native_render_runtime import NativeRenderedRuntime
+from rendered_generation import NativeRuntimeFailure
 
 
 class StorageRenderedRuntimeTest(unittest.TestCase):
@@ -47,7 +48,7 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
     def test_total_deadline_is_enforced_and_child_is_boundedly_terminated(self):
         self.adapter.deadline=time.monotonic()+.05
         began=time.monotonic()
-        with self.assertRaises(TimeoutError):self.adapter.command(('sleep',))
+        with self.assertRaisesRegex(NativeRuntimeFailure,'NATIVE_CHILD_TIMEOUT'):self.adapter.command(('sleep',))
         self.assertLess(time.monotonic()-began,1)
 
     def test_active_unknown_or_degraded_block_sessions_never_enter_a_runtime_rebuild(self):
@@ -105,7 +106,7 @@ class StorageRenderedRuntimeTest(unittest.TestCase):
         with patch.dict(os.environ,{'ABLESTACK_STORAGE_BOOT_DEADLINE_MONOTONIC':str(deadline)}):
             adapter=NativeRenderedRuntime(self.cli,None)
         self.assertEqual(deadline,adapter.deadline)
-        with self.assertRaises(TimeoutError):adapter.command(('sleep',))
+        with self.assertRaisesRegex(NativeRuntimeFailure,'NATIVE_CHILD_TIMEOUT'):adapter.command(('sleep',))
 
     def test_block_replay_reobserves_exact_serial_and_allows_device_rename_without_binding_other_data(self):
         scope={'instanceUuid':str(uuid.uuid4()),'operationUuid':str(uuid.uuid4()),'revision':3};volume=str(uuid.uuid4())

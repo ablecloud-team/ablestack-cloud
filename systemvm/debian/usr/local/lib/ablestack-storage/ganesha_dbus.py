@@ -259,11 +259,12 @@ class GaneshaDbusPolicy:
               '"http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">\n'
               '<!-- Managed exact endpoint names; no wildcard or prefix grants. -->\n')
 
-    def __init__(self, config_root=None, policy_path=None, bus=None, deadline=None):
+    def __init__(self, config_root=None, policy_path=None, bus=None, deadline=None, rendered_source=None):
         from pathlib import Path
         self.config_root = Path(config_root or "/etc/ganesha/ablestack-storage")
         self.policy_path = Path(policy_path or "/etc/dbus-1/system.d/ablestack-storage-ganesha-endpoints.conf")
         self.bus = bus
+        self.rendered_source = rendered_source
         self.deadline = deadline if deadline is not None else time.monotonic() + 10
 
     @staticmethod
@@ -346,6 +347,55 @@ class GaneshaDbusPolicy:
         ip = str(ipaddress.ip_address(ip))
         return GaneshaDbus.name(ip, port)
 
+    def rollback_source_configuration(self, named, link):
+        """Resolve ownership against the pinned TARGET, never the switched current."""
+        from pathlib import Path
+        root = Path("/var/lib/ablestack-storage/rendered-generations")
+        source = Path(self.rendered_source)
+        if not re.fullmatch(re.escape(str(root / "generations")) + r"/[0-9a-f-]{36}", str(source)):
+            raise ValueError("Ganesha rollback source is outside its immutable store")
+        for directory in (root, root / "generations", source):
+            self.directory(directory)
+        raw, _ = self.read(source / "generation.json", 8 * 1024 * 1024)
+        manifest = json.loads(raw)
+        canonical = {key: value for key, value in manifest.items() if key != "manifestSha256"}
+        digest = hashlib.sha256(json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if digest != manifest.get("manifestSha256"):
+            raise ValueError("Ganesha rollback source manifest changed")
+        raw, _ = self.read(root / "activation.json", 128 * 1024)
+        journal = json.loads(raw)
+        current = root / "current"
+        if (journal.get("phase") != "ROLLING_BACK" or journal.get("targetSha256") != digest
+                or journal.get("scope") != manifest.get("scope")
+                or source.name != journal.get("scope", {}).get("operationUuid")
+                or not current.is_symlink()
+                or current.readlink().as_posix() != "generations/" + str(journal.get("previousOperationUuid"))):
+            raise ValueError("Ganesha rollback source lacks its exact inverse boundary")
+        previous = root / current.readlink()
+        self.directory(previous)
+        previous_raw, _ = self.read(previous / "generation.json", 8 * 1024 * 1024)
+        previous_manifest = json.loads(previous_raw)
+        previous_canonical = {key: value for key, value in previous_manifest.items() if key != "manifestSha256"}
+        previous_digest = hashlib.sha256(json.dumps(previous_canonical, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if (previous_digest != journal.get("previousSha256")
+                or previous_manifest.get("manifestSha256") != previous_digest
+                or manifest.get("previousRenderedSha256") != previous_digest):
+            raise ValueError("Ganesha rollback previous/source pins changed")
+        relative = str(Path(link).relative_to(root / "current"))
+        raw, _ = self.read(source / "nfs/manifest.json", 8 * 1024 * 1024)
+        if hashlib.sha256(raw).hexdigest() != manifest.get("files", {}).get("nfs/manifest.json"):
+            raise ValueError("Ganesha rollback endpoint manifest changed")
+        rows = json.loads(raw).get("endpoints", [])
+        matching = [row for row in rows if isinstance(row.get("legacyUnitKey"), str) and row["legacyUnitKey"] + ".conf" == named.name
+                    and row.get("configurationPath") == relative]
+        if len(matching) != 1:
+            raise ValueError("Ganesha rollback configuration is outside its exact TARGET")
+        target = source / relative
+        raw, _ = self.read(target, 8 * 1024 * 1024)
+        if hashlib.sha256(raw).hexdigest() != manifest.get("files", {}).get(relative):
+            raise ValueError("Ganesha rollback configuration changed")
+        return target
+
     def source_names(self):
         import os, stat
         from pathlib import Path
@@ -366,7 +416,8 @@ class GaneshaDbusPolicy:
                         not re.fullmatch(re.escape(str(rendered / "current/nfs/ganesha")) +
                                          r"/[0-9a-f]{24}\.conf", link)):
                     raise ValueError("Ganesha source configuration link is foreign")
-                target = path.resolve(strict=True)
+                target = (self.rollback_source_configuration(path, link) if self.rendered_source is not None
+                          else path.resolve(strict=True))
                 if not re.fullmatch(re.escape(str(rendered / "generations")) +
                                     r"/[0-9a-f-]{36}/nfs/ganesha/[0-9a-f]{24}\.conf", str(target)):
                     raise ValueError("Ganesha rendered configuration escapes its store")

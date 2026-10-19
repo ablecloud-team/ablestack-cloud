@@ -30,7 +30,7 @@ import socket
 import subprocess
 import time
 
-from rendered_generation import rendered_read
+from rendered_generation import rendered_read, NativeRuntimeFailure, sanitized_runtime_diagnostic
 from ganesha_dbus import GaneshaDbus
 from boot_reconcile import BootCoordinator, boot_report
 from nfs_readiness import NfsProbeRunner, NfsEndpointReadiness
@@ -101,14 +101,31 @@ class NativeRenderedRuntime:
                     os.killpg(child.pid, signal.SIGKILL)
                     try: child.communicate(timeout=2)
                     except subprocess.TimeoutExpired: pass
-                raise TimeoutError("Rendered native replay timed out; reconciliation is required")
+                protocol = next((domain for domain, command in RENDER_COMMANDS.items()
+                                 if tuple(arguments[:3]) == command), "GENERATION")
+                raise NativeRuntimeFailure(protocol, "NATIVE_CHILD_TIMEOUT") from None
+            protocol = next((domain for domain, command in RENDER_COMMANDS.items()
+                             if tuple(arguments[:3]) == command), "GENERATION")
             if len(output) > 16 * 1024 * 1024:
-                raise ValueError("Fixed native rendered operation failed")
-            result = json.loads(output)
+                raise NativeRuntimeFailure(protocol, "NATIVE_CHILD_OUTPUT_INVALID")
+            try:
+                result = json.loads(output)
+            except (ValueError, TypeError):
+                raise NativeRuntimeFailure(protocol, "NATIVE_CHILD_OUTPUT_INVALID") from None
+            if type(result) is not dict:
+                raise NativeRuntimeFailure(protocol, "NATIVE_CHILD_OUTPUT_INVALID")
             if child.returncode or result.get("success") is not True:
                 if allow_incomplete and tuple(arguments[:3])==("nfs","export","apply"):
                     return boot_report(result)
-                raise ValueError("Fixed native rendered operation did not verify success")
+                diagnostic = sanitized_runtime_diagnostic(result.get("runtimeDiagnostic"))
+                if diagnostic is not None and diagnostic["protocol"] == protocol:
+                    raise NativeRuntimeFailure(protocol, diagnostic["code"])
+                failure = result.get("lastFailure")
+                code = failure.get("code") if type(failure) is dict and failure.get("protocol") == "NFS" else None
+                if protocol == "NFS" and code in ("ENDPOINT_LISTENER_ADDRESS_MISMATCH", "NFS_ALIAS_UNMOUNT_FAILED",
+                                                 "NFS_ALIAS_UNMOUNT_UNVERIFIED"):
+                    raise NativeRuntimeFailure(protocol, code)
+                raise NativeRuntimeFailure(protocol, "NATIVE_CHILD_FAILED")
             return result
         finally:
             if descriptor is not None: os.close(descriptor)

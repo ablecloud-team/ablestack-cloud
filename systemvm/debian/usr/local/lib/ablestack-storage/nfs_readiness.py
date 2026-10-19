@@ -609,13 +609,16 @@ class NfsEndpointReadiness:
         # Inventory is only readiness: it does not replace the endpoint/protocol
         # and export visibility mounts, or grant UpdateExport/RemoveExport.
         deadline = min(self.deadline, time.monotonic() + 20)
+        listener_mismatch = False
         while time.monotonic() < deadline:
             try:
                 adapter = self.adapter_type(deadline=deadline)
                 name, manager = adapter.owned_endpoint_manager(endpoint["listenIp"], endpoint["port"], endpoint["pid"])
                 adapter.verify(manager, adapter.configuration(content)["exports"])
                 if not self.listener_owned(endpoint):
-                    raise ValueError("NFS listener does not belong to the exact endpoint PID")
+                    listener_mismatch = True
+                    raise ValueError("NFS listener has not acquired its exact endpoint address")
+                listener_mismatch = False
                 if endpoint["protocolMode"] == "V3V4_DUAL":
                     host = "127.0.0.1" if endpoint["listenIp"] == "0.0.0.0" else endpoint["listenIp"]
                     result = self.command(["rpcinfo", "-T", "tcp", host, "100003", "3"],
@@ -636,7 +639,7 @@ class NfsEndpointReadiness:
                 if self.deadline <= time.monotonic():
                     break
                 time.sleep(min(.2, max(0, deadline - time.monotonic())))
-        raise NfsReadinessError("EXPORT_INVENTORY_NOT_READY", endpoint)
+        raise NfsReadinessError("ENDPOINT_LISTENER_ADDRESS_MISMATCH" if listener_mismatch else "EXPORT_INVENTORY_NOT_READY", endpoint)
 
 
 def nfs_export_endpoint_ips(export_config, default_ip):

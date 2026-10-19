@@ -25,11 +25,15 @@ from pathlib import Path
 import shutil
 import subprocess
 import os
+import re
 
 def package_runtime(installed, output, lock):
     prefix=Path(lock["prefix"])
     if lock["schemaVersion"]!=1 or str(prefix)!="/opt/ablestack-ganesha/"+lock["version"] or lock["architecture"]!="amd64":
         raise ValueError("Ganesha package lock has an unsupported layout")
+    revision=lock.get("packageRevision")
+    if not isinstance(revision,str) or not re.fullmatch(r"[0-9]+[+a-zA-Z0-9.~-]*",revision):
+        raise ValueError("Ganesha package revision is missing or invalid")
     output.mkdir(parents=True,exist_ok=True)
     private=output/str(prefix).lstrip("/")
     (private/"bin").mkdir(parents=True)
@@ -56,7 +60,7 @@ def package_runtime(installed, output, lock):
     for path,content in bindings.items():
         destination=output/path.lstrip("/");destination.parent.mkdir(parents=True,exist_ok=True);destination.write_text(content)
     control=output/"DEBIAN";control.mkdir()
-    (control/"control").write_text("Package: "+lock["packageName"]+"\nVersion: "+lock["version"]+"-1+ablestack1\nArchitecture: amd64\n"
+    (control/"control").write_text("Package: "+lock["packageName"]+"\nVersion: "+lock["version"]+"-"+revision+"\nArchitecture: amd64\n"
         "Maintainer: ABLESTACK <support@ablecloud.io>\n"
         "Depends: libacl1, libblkid1, libc6, libcap2, libdbus-1-3, libgssapi-krb5-2, libkrb5-3, libnfsidmap1, liburcu8, libuuid1, libjemalloc2, libssl3\n"
         "Description: Pinned Ganesha VFS POSIX ACL runtime for ABLESTACK SystemVM\n")

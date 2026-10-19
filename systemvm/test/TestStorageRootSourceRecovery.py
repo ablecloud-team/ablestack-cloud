@@ -167,7 +167,7 @@ class StorageRootSourceRecoveryTest(unittest.TestCase):
         for function,target in (("apply_iscsi_targets","iscsi-targets.json"),("apply_nvmeof_subsystems","nvmeof-subsystems.json")):
             start=source.index(function+"() {");begin=source.index("<<'PY'\n",start)+len("<<'PY'\n");end=source.index("\nPY",begin)
             tree=ast.parse(source[begin:end])
-            guarded=[node for node in tree.body if isinstance(node,ast.If) and "ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY" in ast.unparse(node.test)
+            guarded=[node for node in ast.walk(tree) if isinstance(node,ast.If) and "ABLESTACK_STORAGE_ROOT_SOURCE_REPLAY" in ast.unparse(node.test)
                      and any(isinstance(item,ast.With) for item in ast.walk(node))]
             self.assertEqual(1,len(guarded))
             namespace={"os":os,"json":json,"payload":{"newPublicState":True},"sanitized":lambda value:value,"state_file":str(self.config/target),"state_dir":str(self.config),"state_payload":{"newPublicState":True}}

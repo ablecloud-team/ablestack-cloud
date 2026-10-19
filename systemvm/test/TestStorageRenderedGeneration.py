@@ -153,14 +153,14 @@ class StorageRenderedGenerationTest(unittest.TestCase):
         def fail(path,domain,rollback):
             self.replay(path,domain,rollback)
             if not rollback:raise RuntimeError('injected ordered runtime failure')
-        with self.assertRaises(RuntimeError):self.store.activate(request,fail,self.verify)
+        with self.assertRaises(module.NativeRuntimeFailure):self.store.activate(request,fail,self.verify)
         self.assertEqual(old,self.store.pointer());self.assertEqual('ROLLED_BACK',self.store.status()['activation']['phase'])
         self.assertFalse(self.store.status()['bootHeld']);self.assertEqual([('SMB',False),('SMB',True)],self.calls)
 
     def test_failed_previous_runtime_readback_remains_recovery_required(self):
         request=self.next_scope();self.store.stage(request,self.rendered_files('new'),self.validate)
         def failure(path,domain,rollback):raise RuntimeError('injected failure')
-        with self.assertRaises(RuntimeError):self.store.activate(request,failure,lambda path:{domain:False for domain in module.DOMAINS})
+        with self.assertRaises(module.NativeRuntimeFailure):self.store.activate(request,failure,lambda path:{domain:False for domain in module.DOMAINS})
         self.assertEqual('RECOVERY_REQUIRED',self.store.status()['activation']['phase']);self.assertTrue(self.store.status()['bootHeld'])
 
     def test_process_death_after_pointer_swap_is_detected_and_resumes_same_pinned_generation(self):
@@ -226,7 +226,7 @@ class StorageRenderedGenerationTest(unittest.TestCase):
         def fail(path,domain,rollback):
             self.replay(path,domain,rollback)
             if domain=='NVMEOF' and not rollback:raise RuntimeError('fault after all four domain effects')
-        with self.assertRaises(RuntimeError):self.store.activate(request,fail,self.verify,lambda path:normalization.append(self.verify(path)))
+        with self.assertRaises(module.NativeRuntimeFailure):self.store.activate(request,fail,self.verify,lambda path:normalization.append(self.verify(path)))
         self.assertEqual([(domain,False) for domain in module.DOMAINS]+[(domain,True) for domain in reversed(module.DOMAINS)],self.calls)
         self.assertEqual([{domain:True for domain in module.DOMAINS}],normalization)
         self.assertEqual('ROLLED_BACK',self.store.status()['activation']['phase'])
@@ -236,7 +236,7 @@ class StorageRenderedGenerationTest(unittest.TestCase):
         def prerequisite(path,rollback):
             events.append((rollback,self.store.pointer()==path))
             if not rollback:raise RuntimeError('permission/network prerequisite injected failure')
-        with self.assertRaises(RuntimeError):self.store.activate(request,self.replay,self.verify,prerequisites=prerequisite)
+        with self.assertRaises(module.NativeRuntimeFailure):self.store.activate(request,self.replay,self.verify,prerequisites=prerequisite)
         self.assertEqual(old,self.store.pointer());self.assertEqual([(False,True),(True,True)],events)
         self.assertEqual('ROLLED_BACK',self.store.status()['activation']['phase'])
 
@@ -249,7 +249,7 @@ class StorageRenderedGenerationTest(unittest.TestCase):
             if not rollback:self.assertIn(domain,journal['startedDomains'])
             self.replay(path,domain,rollback)
             if domain=='NFS' and not rollback:raise RuntimeError('first-domain failure')
-        with self.assertRaises(RuntimeError):self.store.activate(request,fail,self.verify)
+        with self.assertRaises(module.NativeRuntimeFailure):self.store.activate(request,fail,self.verify)
         self.assertEqual([('NFS',False),('NFS',True)],self.calls)
         self.assertEqual(['NFS'],self.store.read_journal()['startedDomains'])
         self.assertEqual([],self.store.read_journal()['appliedDomains'])

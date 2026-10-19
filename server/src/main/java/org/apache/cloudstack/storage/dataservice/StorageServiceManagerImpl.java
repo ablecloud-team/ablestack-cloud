@@ -2618,6 +2618,51 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected StorageRenderedGenerationCoordinator renderedCoordinator(StorageServiceInstanceVO instance,RenderedBatch batch){return new StorageRenderedGenerationCoordinator(renderedRuntime(instance,batch),operationReservationScope(instance,batch.operation));}
+    /** Fixed activation/rollback metadata only; no private Native text is accepted. */
+    private String renderedRuntimeFailureDiagnostic(String output) {
+        if (output == null || output.length() > 65536) return null;
+        java.util.Map<String, String> phases = java.util.Map.ofEntries(
+            java.util.Map.entry("NATIVE_CHILD_TIMEOUT", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"),
+            java.util.Map.entry("NATIVE_CHILD_FAILED", "TRANSPORT"), java.util.Map.entry("RUNTIME_PREPARE_FAILED", "PREPARE"),
+            java.util.Map.entry("RUNTIME_APPLY_FAILED", "APPLY"), java.util.Map.entry("RUNTIME_VERIFY_FAILED", "VERIFY"),
+            java.util.Map.entry("RUNTIME_ROLLBACK_FAILED", "ROLLBACK"), java.util.Map.entry("ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"),
+            java.util.Map.entry("NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"), java.util.Map.entry("NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"));
+        try (JsonReader reader = new JsonReader(new StringReader(output))) {
+            reader.setLenient(false);reader.beginObject();java.util.Set<String> seen = new java.util.HashSet<>();
+            java.util.Map<String, String> diagnostic = null;
+            while (reader.hasNext()) {
+                String name = reader.nextName();if (!seen.add(name)) return null;
+                if ("success".equals(name)) {if (reader.peek() != JsonToken.BOOLEAN || reader.nextBoolean()) return null;}
+                else if ("errorCode".equals(name)) {
+                    if (reader.peek() != JsonToken.STRING || !"RENDERED_GENERATION_REJECTED".equals(reader.nextString())) return null;
+                } else if ("runtimeDiagnostic".equals(name)) {
+                    diagnostic = new java.util.HashMap<>();reader.beginObject();
+                    while (reader.hasNext()) {
+                        String key = reader.nextName();
+                        if (!java.util.Set.of("schemaVersion", "protocol", "phase", "code").contains(key) || diagnostic.containsKey(key)) return null;
+                        if ("schemaVersion".equals(key)) {
+                            if (reader.peek() != JsonToken.NUMBER || !"1".equals(reader.nextString())) return null;
+                            diagnostic.put(key, "1");
+                        } else {
+                            if (reader.peek() != JsonToken.STRING) return null;
+                            String value = reader.nextString();if (value.length() > 64) return null;diagnostic.put(key, value);
+                        }
+                    }
+                    reader.endObject();
+                } else reader.skipValue();
+            }
+            reader.endObject();
+            if (reader.peek() != JsonToken.END_DOCUMENT || !seen.containsAll(java.util.Set.of("success", "errorCode", "runtimeDiagnostic"))
+                    || diagnostic == null || !diagnostic.keySet().equals(java.util.Set.of("schemaVersion", "protocol", "phase", "code"))
+                    || !java.util.Set.of("NFS", "SMB", "ISCSI", "NVMEOF", "GENERATION").contains(diagnostic.get("protocol"))
+                    || !java.util.Objects.equals(phases.get(diagnostic.get("code")), diagnostic.get("phase"))) return null;
+            String code = diagnostic.get("code"), protocol = diagnostic.get("protocol");
+            if ((code.startsWith("NFS_") || "ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code)) && !"NFS".equals(protocol)) return null;
+            if ("RUNTIME_PREPARE_FAILED".equals(code) && !"GENERATION".equals(protocol)) return null;
+            return "runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + diagnostic.get("phase") + "; code=" + code;
+        } catch (java.io.IOException | RuntimeException unavailable) {return null;}
+    }
+
     /** Closed Native NFS validator metadata only; never copy reason, stderr, paths or command text. */
     private String renderedValidationFailureDiagnostic(String output) {
         if (output==null || output.length()>65536) return null;
@@ -2657,7 +2702,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if("rollback".equals(action))requireAdIdentityRollbackAllowed(instance,batch.operation);
                 StorageServiceGuestCommandResult result=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),"operation generation render-"+action,request.toString(),120,Set.of("checkpointPrivateKey","transientCredentials","targetCredentialArtifact")));
                 if(!result.isSuccess()) {
-                    String fixed=renderedValidationFailureDiagnostic(result.getResultJson());
+                    String fixed=renderedRuntimeFailureDiagnostic(result.getResultJson());
+                    if (fixed == null) fixed=renderedValidationFailureDiagnostic(result.getResultJson());
                     throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt"+(fixed==null?"":" ["+fixed+"]"));
                 }
                 JsonObject response=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));

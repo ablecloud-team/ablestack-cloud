@@ -210,7 +210,7 @@ class NfsAclIsolationTest(unittest.TestCase):
             "NfsLegacyDynamicApply":Mock(return_value=legacy),"GaneshaDbusPolicy":Mock(),
             "BootCoordinator":SimpleNamespace(attach_existing=lambda:None),"NfsReadinessError":NfsReadinessError,
             "write_ganesha_configs":Mock(return_value=[("owned","/owned.conf","0.0.0.0",2049,"V3V4_DUAL")]),
-            "start_ganesha_endpoints":Mock(return_value=[endpoint]),"probe_nfs_export_visibility":Mock(return_value=[]),
+            "start_ganesha_endpoints":Mock(return_value=[endpoint]),"cleanup_stale_export_aliases":Mock(),"probe_nfs_export_visibility":Mock(return_value=[]),
             "default_port":2049,"rpcbind_active":Mock(return_value=False),"subprocess":subprocess,"json":json}
         output=io.StringIO()
         with redirect_stdout(output):
@@ -415,18 +415,17 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
         source=cli.read_text()
         inline=source.split("# BEGIN EMBEDDED NFS LEGACY DYNAMIC\n",1)[1].split("# END EMBEDDED NFS LEGACY DYNAMIC",1)[0]
         program=next(value for value in re.findall(r"<<'PY'\n(.*?)\nPY",source,re.S)if"def start_ganesha_endpoints("in value)
-        loop=next(node for node in ast.parse(program).body if isinstance(node,ast.For)
-                  and isinstance(node.target,ast.Tuple) and isinstance(node.target.elts[0],ast.Name)
-                  and node.target.elts[0].id=="uuid" and isinstance(node.iter,ast.Call)
-                  and isinstance(node.iter.func,ast.Attribute) and isinstance(node.iter.func.value,ast.Name)
-                  and node.iter.func.value.id=="alias_state")
+        cleanup=next(node for node in ast.parse(program).body if isinstance(node,ast.FunctionDef)
+                     and node.name=="cleanup_stale_export_aliases")
         ns={"GaneshaDbus":GaneshaDbus,"NfsEndpointReadiness":NfsEndpointReadiness,"NfsProbeRunner":NfsProbeRunner,
             "pending_nfs_redact":canonical_nfs_redact}
         exec(compile(inline,str(cli),"exec"),ns)
         alias=str(uuid.uuid4())
-        ns.update(alias_state={alias:{}},next_alias_state={alias:{}})
-        exec(compile(ast.Module(body=[loop],type_ignores=[]),str(cli),"exec"),ns)
-        self.assertEqual(alias,ns["uuid"])
+        ns.update(alias_state={alias:{}},next_alias_state={alias:{}},save_alias_state=lambda value:None)
+        original_uuid=ns.get("uuid")
+        exec(compile(ast.Module(body=[cleanup],type_ignores=[]),str(cli),"exec"),ns)
+        ns["cleanup_stale_export_aliases"]()
+        self.assertIs(original_uuid,ns.get("uuid"))
         original_kind=self.kind
         try:
             self.kind=ns["NfsLegacyDynamicApply"]

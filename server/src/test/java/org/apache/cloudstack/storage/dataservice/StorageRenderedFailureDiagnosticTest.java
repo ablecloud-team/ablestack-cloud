@@ -80,4 +80,52 @@ public class StorageRenderedFailureDiagnosticTest {
     @Test public void successfulRenderedReplyRetainsItsExistingPayloadPath() {
         JsonObject reply=runtime(true,"{\"success\":true,\"publicValue\":1}",PRIVATE).render("stage",new JsonObject());Assert.assertTrue(reply.get("success").getAsBoolean());Assert.assertEquals(1,reply.get("publicValue").getAsInt());
     }
+    private static final String[][] RUNTIME_PAIRS = {
+        {"NATIVE_CHILD_TIMEOUT", "TRANSPORT"}, {"NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"},
+        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
+        {"RUNTIME_APPLY_FAILED", "APPLY"}, {"RUNTIME_VERIFY_FAILED", "VERIFY"},
+        {"RUNTIME_ROLLBACK_FAILED", "ROLLBACK"}, {"ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"},
+        {"NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"}, {"NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"}};
+    private String runtimeFailure(String protocol, String code, String phase) {
+        com.google.gson.JsonObject value = new com.google.gson.JsonObject(), diagnostic = new com.google.gson.JsonObject();
+        value.addProperty("success", false);value.addProperty("errorCode", "RENDERED_GENERATION_REJECTED");value.addProperty("reason", PRIVATE);
+        diagnostic.addProperty("schemaVersion", 1);diagnostic.addProperty("protocol", protocol);
+        diagnostic.addProperty("phase", phase);diagnostic.addProperty("code", code);value.add("runtimeDiagnostic", diagnostic);return value.toString();
+    }
+    private java.util.List<String> rejectedRuntimeFailures() {
+        String valid = runtimeFailure("NFS", "ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY");
+        java.util.List<String> bad = new java.util.ArrayList<>();
+        java.util.Collections.addAll(bad, valid + "{}", valid.replace("\"success\":false", "\"success\":true"),
+            valid.replace("\"success\":false", "\"success\":false,\"success\":false"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":true"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":\"1\""),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":1.0"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":2"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":1,\"schemaVersion\":1"),
+            valid.replace("\"protocol\":\"NFS\"", "\"protocol\":\"SMB\""),
+            valid.replace("\"protocol\":\"NFS\"", "\"protocol\":\"PRIVATE\""),
+            valid.replace("\"phase\":\"VERIFY\"", "\"phase\":\"ROLLBACK\""),
+            valid.replace("ENDPOINT_LISTENER_ADDRESS_MISMATCH", PRIVATE),
+            valid.replace("\"code\":", "\"private\":\"" + PRIVATE + "\",\"code\":"),
+            valid.replace("\"schemaVersion\":1,", ""),
+            valid.replace(PRIVATE, PRIVATE + "x".repeat(65536)));
+        bad.add(runtimeFailure("NFS", "RUNTIME_PREPARE_FAILED", "PREPARE"));
+        return bad;
+    }
+    @Test public void fixedRuntimeFailuresReachManagerWithoutPrivateReason() {
+        for (String[] pair : RUNTIME_PAIRS) {
+            String protocol = "RUNTIME_PREPARE_FAILED".equals(pair[0]) ? "GENERATION" : "NFS";
+            String message = rejected(runtimeFailure(protocol, pair[0], pair[1]), PRIVATE);
+            Assert.assertTrue(message, message.contains("runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + pair[1] + "; code=" + pair[0]));
+            Assert.assertFalse(message.contains(PRIVATE));
+        }
+        for (String protocol : new String[]{"SMB", "ISCSI", "NVMEOF", "GENERATION"}) {
+            Assert.assertTrue(rejected(runtimeFailure(protocol, "RUNTIME_APPLY_FAILED", "APPLY"), PRIVATE).contains("protocol=" + protocol));
+        }
+    }
+    @Test public void malformedRuntimeFailuresRemainGenericWithoutPrivateFallback() {
+        for (String value : rejectedRuntimeFailures()) {
+            Assert.assertEquals("Rendered generation stage failed; inspect its scoped recovery receipt", rejected(value, PRIVATE));
+        }
+    }
 }

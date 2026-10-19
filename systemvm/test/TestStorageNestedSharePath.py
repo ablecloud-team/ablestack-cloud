@@ -76,7 +76,8 @@ class NestedExportIdentityTest(unittest.TestCase):
         start = text.index("import json", text.index("apply_nfs_exports()"))
         end = text.index("\nPY\n", start)
         tree = ast.parse(text[start:end])
-        functions = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef)], type_ignores=[])
+        from native_renderers import NFS_HELPERS
+        functions = ast.Module(body=[node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in NFS_HELPERS], type_ignores=[])
         context = {"hashlib": hashlib, "json": json, "ipaddress": ipaddress, "re": re}
         exec(compile(functions, str(SOURCE), "exec"), context)
         return context

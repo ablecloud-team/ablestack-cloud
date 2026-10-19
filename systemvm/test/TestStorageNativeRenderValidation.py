@@ -190,7 +190,7 @@ class StorageNativeRenderValidationTest(unittest.TestCase):
         tree=ast.parse("\n".join(lines[first:last])+"\n")
         handler=tree.body[-1].handlers[0];outputs=[]
         error=self.ns["NativeRenderValidationError"]("NFS_VALIDATOR_RUNTIME_UNAVAILABLE")
-        scope={"error":error,"json":json,"native_validation_diagnostic":self.ns["native_validation_diagnostic"],"print":outputs.append,"SystemExit":SystemExit}
+        scope={"error":error,"json":json,"native_validation_diagnostic":self.ns["native_validation_diagnostic"],"native_runtime_diagnostic":lambda error:None,"print":outputs.append,"SystemExit":SystemExit}
         with self.assertRaises(SystemExit):
             exec(compile(ast.Module(body=handler.body,type_ignores=[]),"pure_rpc_error_catch","exec"),scope)
         result=json.loads(outputs[0])

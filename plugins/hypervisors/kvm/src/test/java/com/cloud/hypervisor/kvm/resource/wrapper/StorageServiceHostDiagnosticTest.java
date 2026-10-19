@@ -75,4 +75,60 @@ public class StorageServiceHostDiagnosticTest {
         StorageServiceHostCommand command=new StorageServiceHostCommand("fixture","operation generation render-import",PRIVATE,30);
         Assert.assertFalse(wrapper.commandExceptionDetails(command,PRIVATE).contains(PRIVATE));
     }
+    private static final String[][] RUNTIME_PAIRS = {
+        {"NATIVE_CHILD_TIMEOUT", "TRANSPORT"}, {"NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"},
+        {"NATIVE_CHILD_FAILED", "TRANSPORT"}, {"RUNTIME_PREPARE_FAILED", "PREPARE"},
+        {"RUNTIME_APPLY_FAILED", "APPLY"}, {"RUNTIME_VERIFY_FAILED", "VERIFY"},
+        {"RUNTIME_ROLLBACK_FAILED", "ROLLBACK"}, {"ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"},
+        {"NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"}, {"NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"}};
+    private String runtimeFailure(String protocol, String code, String phase) {
+        com.google.gson.JsonObject value = new com.google.gson.JsonObject(), diagnostic = new com.google.gson.JsonObject();
+        value.addProperty("success", false);value.addProperty("errorCode", "RENDERED_GENERATION_REJECTED");value.addProperty("reason", PRIVATE);
+        diagnostic.addProperty("schemaVersion", 1);diagnostic.addProperty("protocol", protocol);
+        diagnostic.addProperty("phase", phase);diagnostic.addProperty("code", code);value.add("runtimeDiagnostic", diagnostic);return value.toString();
+    }
+    private java.util.List<String> rejectedRuntimeFailures() {
+        String valid = runtimeFailure("NFS", "ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY");
+        java.util.List<String> bad = new java.util.ArrayList<>();
+        java.util.Collections.addAll(bad, valid + "{}", valid.replace("\"success\":false", "\"success\":true"),
+            valid.replace("\"success\":false", "\"success\":false,\"success\":false"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":true"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":\"1\""),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":1.0"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":2"),
+            valid.replace("\"schemaVersion\":1", "\"schemaVersion\":1,\"schemaVersion\":1"),
+            valid.replace("\"protocol\":\"NFS\"", "\"protocol\":\"SMB\""),
+            valid.replace("\"protocol\":\"NFS\"", "\"protocol\":\"PRIVATE\""),
+            valid.replace("\"phase\":\"VERIFY\"", "\"phase\":\"ROLLBACK\""),
+            valid.replace("ENDPOINT_LISTENER_ADDRESS_MISMATCH", PRIVATE),
+            valid.replace("\"code\":", "\"private\":\"" + PRIVATE + "\",\"code\":"),
+            valid.replace("\"schemaVersion\":1,", ""),
+            valid.replace(PRIVATE, PRIVATE + "x".repeat(65536)));
+        bad.add(runtimeFailure("NFS", "RUNTIME_PREPARE_FAILED", "PREPARE"));
+        return bad;
+    }
+    @Test public void fixedRuntimeFailuresReachAgentWithoutPrivateReason() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "operation generation render-activate", PRIVATE, 30, Collections.singleton("transientCredentials"));
+        for (String[] pair : RUNTIME_PAIRS) {
+            String protocol = "RUNTIME_PREPARE_FAILED".equals(pair[0]) ? "GENERATION" : "NFS";
+            String message = wrapper.commandFailureDetails(command, 1, runtimeFailure(protocol, pair[0], pair[1]), PRIVATE);
+            Assert.assertTrue(message, message.contains("runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + pair[1] + "; code=" + pair[0]));
+            Assert.assertFalse(message.contains(PRIVATE));
+        }
+        for (String protocol : new String[]{"SMB", "ISCSI", "NVMEOF", "GENERATION"}) {
+            Assert.assertTrue(wrapper.commandFailureDetails(command, 1, runtimeFailure(protocol, "RUNTIME_APPLY_FAILED", "APPLY"), PRIVATE).contains("protocol=" + protocol));
+        }
+    }
+    @Test public void malformedRuntimeFailuresRemainMaskedWithoutPrivateFallback() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "operation generation render-rollback", PRIVATE, 30);
+        for (String value : rejectedRuntimeFailures()) {
+            String message = wrapper.commandFailureDetails(command, 1, value, PRIVATE);
+            Assert.assertFalse(message, message.contains("runtimeSchemaVersion="));Assert.assertFalse(message, message.contains(PRIVATE));
+        }
+    }
+    @Test public void runtimeDiagnosticCannotBeBorrowedByUnrelatedSensitiveOperation() {
+        StorageServiceHostCommand command = new StorageServiceHostCommand("fixture", "smb share apply", PRIVATE, 30, Collections.singleton("password"));
+        Assert.assertEquals("Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted",
+            wrapper.commandFailureDetails(command, 1, runtimeFailure("NFS", "NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"), PRIVATE));
+    }
 }
