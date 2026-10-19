@@ -211,6 +211,17 @@ public class StorageConfigInitialBaselineFlowTest {
         if(command.equals("operation observe")||command.equals("inventory"))return fresh(obj("{\"status\":\"ok\"}"));
         if(command.equals("operation verify")||command.equals("health"))return fresh(obj("{\"status\":\"ok\"}"));
         if(command.equals("volume attach inspect"))return fresh(rootDataRow(obj(body).get("volumeUuid").getAsString(),"UNUSED"));
+        if(command.equals("network endpoints inspect")){
+            JsonObject request=obj(body);JsonArray rows=new JsonArray();java.util.Set<String> seen=new java.util.HashSet<>();
+            for(JsonElement item:request.getAsJsonArray("expectedBindings")){
+                JsonObject binding=item.getAsJsonObject();
+                Assert.assertEquals("The independently seeded fixture NIC is /16",16,binding.get("prefixlen").getAsInt());
+                Assert.assertEquals("02:00:00:00:00:80",binding.get("macAddress").getAsString());
+                Assert.assertEquals("10.10.13.226",binding.get("primaryIp").getAsString());
+                if(seen.add(binding.get("listenIp").getAsString())){JsonObject row=binding.deepCopy();row.addProperty("active",binding.get("listenIp").equals(binding.get("primaryIp")));rows.add(row);}
+            }
+            JsonObject proof=fresh(new JsonObject());proof.addProperty("sideEffects",false);proof.addProperty("bindingsValidated",true);proof.add("endpoints",rows);return proof;
+        }
         if(command.equals("operation preflight"))return obj("{\"success\":true}");
         throw new AssertionError("Unplanned OS effect: "+command);
     }
@@ -324,6 +335,7 @@ public class StorageConfigInitialBaselineFlowTest {
         SharedFSDao shared=Mockito.mock(SharedFSDao.class);SharedFSVO fs=Mockito.mock(SharedFSVO.class);
         Mockito.when(fs.getId()).thenReturn(580L);Mockito.when(fs.getUuid()).thenReturn(id(580));Mockito.when(fs.getDomainId()).thenReturn(1L);
         Mockito.when(fs.getState()).thenReturn(SharedFS.State.Ready);
+        Mockito.when(fs.getNetworkMode()).thenAnswer(c->primaryNfsFourProtocols?SharedFS.NetworkMode.STATIC:null);Mockito.when(fs.getIpAddress()).thenReturn("10.10.13.226");Mockito.when(fs.getCidr()).thenReturn("10.10.0.0/16");
         Mockito.when(fs.getName()).thenReturn("retained-data-restore-fixture");Mockito.when(fs.getServiceOfferingId()).thenReturn(51L);
         Mockito.when(fs.getBackingVolumeMode()).thenReturn(existingInitial?SharedFS.BackingVolumeMode.EXISTING:SharedFS.BackingVolumeMode.NEW);Mockito.when(fs.getFsType()).thenReturn(SharedFS.FileSystemType.EXT4);
         Mockito.when(fs.getFsProviderName()).thenReturn("StorageVm");Mockito.when(fs.getVmId()).thenReturn(80L);Mockito.when(fs.getAccountId()).thenReturn(2L);Mockito.when(fs.getDataCenterId()).thenReturn(1L);
@@ -334,7 +346,7 @@ public class StorageConfigInitialBaselineFlowTest {
         com.cloud.vm.dao.NicDao nics=Mockito.mock(com.cloud.vm.dao.NicDao.class);NicVO nic=Mockito.mock(NicVO.class);
         Mockito.when(nic.getId()).thenReturn(32L);Mockito.when(nic.getUuid()).thenReturn(id(32));Mockito.when(nic.getNetworkId()).thenReturn(20L);
         Mockito.when(nic.isDefaultNic()).thenReturn(true);Mockito.when(nic.getMacAddress()).thenReturn("02:00:00:00:00:80");
-        Mockito.when(nic.getIPv4Address()).thenAnswer(c->creatorStageInitialOnly?null:"10.10.13.226");Mockito.when(nic.getIPv4Netmask()).thenReturn("255.255.0.0");Mockito.when(nic.getMode()).thenReturn(com.cloud.network.Networks.Mode.Dhcp);Mockito.when(nic.getAddressFormat()).thenReturn(com.cloud.network.Networks.AddressFormat.Ip4);Mockito.when(nics.listByVmId(80L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
+        Mockito.when(nic.getIPv4Address()).thenAnswer(c->creatorStageInitialOnly?null:"10.10.13.226");Mockito.when(nic.getIPv4Netmask()).thenAnswer(c->primaryNfsFourProtocols?null:"255.255.0.0");Mockito.when(nic.getMode()).thenReturn(com.cloud.network.Networks.Mode.Dhcp);Mockito.when(nic.getAddressFormat()).thenReturn(com.cloud.network.Networks.AddressFormat.Ip4);Mockito.when(nics.listByVmId(80L)).thenReturn(List.of(nic));set(manager,"nicDao",nics);
         com.cloud.network.dao.NetworkDao networks=Mockito.mock(com.cloud.network.dao.NetworkDao.class);com.cloud.network.dao.NetworkVO network=Mockito.mock(com.cloud.network.dao.NetworkVO.class);
         Mockito.when(network.getId()).thenReturn(20L);Mockito.when(network.getUuid()).thenReturn(id(20));Mockito.when(network.getGuruName()).thenReturn("ExternalGuestNetworkGuru");Mockito.when(network.getGuestType()).thenReturn(com.cloud.network.Network.GuestType.L2);
         Mockito.when(network.getCidr()).thenReturn(null);Mockito.when(network.getGateway()).thenReturn(null);

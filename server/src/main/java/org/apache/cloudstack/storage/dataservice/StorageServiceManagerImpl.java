@@ -2968,6 +2968,46 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         finally{renderedBatch.remove();endStorageWriterHeartbeat();}
     }
 
+    protected void validateRenderedEndpointBindings(StorageServiceInstanceVO instance, JsonObject canonical, JsonObject source) {
+        JsonObject endpoints = getJsonObject(canonical, "network-endpoints.json");
+        if (endpoints == null || !endpoints.has("endpoints") || endpoints.getAsJsonArray("endpoints").size() == 0) return;
+        JsonArray expected = rootNetworkBindings(instance, endpoints);
+        JsonObject primary = getJsonObject(source.getAsJsonObject("configurationDesiredState"), "sharedfs-network.json");
+        java.util.Map<String, JsonObject> wanted = new java.util.LinkedHashMap<>();
+        for (JsonElement value : expected) {
+            JsonObject binding = value.getAsJsonObject();String ip = getJsonString(binding, "listenIp");
+            if (!binding.has("prefixlen")) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE; listenIp=" + ip);
+            int prefix = binding.get("prefixlen").getAsInt();
+            if (prefix < 0 || prefix > 32) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE; listenIp=" + ip);
+            if (primary != null && ip.equals(getJsonString(primary, "ipAddress"))) {
+                int actual = cidrPrefixLength(getJsonString(primary, "cidr"));
+                if (!StringUtils.equalsIgnoreCase(getJsonString(primary, "macAddress"), getJsonString(binding, "macAddress")))
+                    throw new CloudRuntimeException("ENDPOINT_MAC_MISMATCH; listenIp=" + ip);
+                if (prefix != actual) throw new CloudRuntimeException("ENDPOINT_PREFIX_MISMATCH; listenIp=" + ip + "; requestedPrefix=" + prefix + "; sourcePrefix=" + actual);
+            }
+            JsonObject old = wanted.putIfAbsent(ip, binding);
+            if (old != null && !old.equals(binding)) throw new CloudRuntimeException("ENDPOINT_BINDING_CONFLICT; listenIp=" + ip);
+        }
+        JsonObject request = endpoints.deepCopy();request.add("expectedBindings", expected);
+        JsonObject proof;
+        try { proof = rootGuest(instance, "network endpoints inspect", request, 30); }
+        catch (RuntimeException rejected) { throw new CloudRuntimeException("ENDPOINT_BINDING_PREFLIGHT_FAILED; stage=NETWORK_BINDINGS; inspect=READ_ONLY"); }
+        if (!Boolean.TRUE.equals(getJsonBoolean(proof, "success")) || !Boolean.FALSE.equals(getJsonBoolean(proof, "sideEffects"))
+                || !Boolean.TRUE.equals(getJsonBoolean(proof, "bindingsValidated")) || !proof.has("endpoints") || !proof.get("endpoints").isJsonArray())
+            throw new CloudRuntimeException("ENDPOINT_BINDING_PREFLIGHT_UNVERIFIED; stage=NETWORK_BINDINGS");
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (JsonElement value : proof.getAsJsonArray("endpoints")) {
+            JsonObject row = value.getAsJsonObject();String ip = getJsonString(row, "listenIp");JsonObject binding = wanted.get(ip);
+            if (binding == null || !seen.add(ip) || !java.util.Objects.equals(binding.get("prefixlen"), row.get("prefixlen"))
+                    || !StringUtils.equalsIgnoreCase(getJsonString(binding, "macAddress"), getJsonString(row, "macAddress"))
+                    || !java.util.Objects.equals(getJsonString(binding, "primaryIp"), getJsonString(row, "primaryIp")))
+                throw new CloudRuntimeException("ENDPOINT_BINDING_READBACK_MISMATCH; stage=NETWORK_BINDINGS");
+            if (ip.equals(getJsonString(binding, "primaryIp")) && !Boolean.TRUE.equals(getJsonBoolean(row, "active")))
+                throw new CloudRuntimeException("ENDPOINT_PRIMARY_NOT_ACTIVE; listenIp=" + ip);
+        }
+        if (!seen.equals(wanted.keySet())) throw new CloudRuntimeException("ENDPOINT_BINDING_READBACK_INCOMPLETE; stage=NETWORK_BINDINGS");
+    }
+
     protected void stageAndActivateRendered(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         RenderedBatch batch=renderedBatch.get();if(batch==null)return;
         JsonObject canonical=buildRenderedConfigurationDesiredState(instance,batch.source.getAsJsonObject("configurationDesiredState"),batch.smbPasswords,batch.iscsiSecrets,batch.nvmeSecrets,batch.nvmeStates);
@@ -2976,6 +3016,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             JsonObject network=canonical.get("network-endpoints.json").isJsonObject()?canonical.getAsJsonObject("network-endpoints.json").deepCopy():new JsonObject();JsonArray endpoints=network.has("endpoints")?network.getAsJsonArray("endpoints"):new JsonArray();
             for(Map.Entry<String,JsonElement> entry:batch.plannedEndpoints.entrySet()){for(int i=endpoints.size()-1;i>=0;i--)if(entry.getKey().equals(getJsonString(endpoints.get(i).getAsJsonObject(),"listenIp")))endpoints.remove(i);endpoints.add(entry.getValue().deepCopy());}network.add("endpoints",endpoints);canonical.add("network-endpoints.json",network);
         }
+        validateRenderedEndpointBindings(instance, canonical, batch.source);
         JsonObject request=renderedRequest(instance,operation,canonical,batch.source.getAsJsonObject("generation"),batch.previousManifest);request.addProperty("checkpointPublicKey",StorageIdentityCapsule.pem("PUBLIC KEY",batch.key.getPublic().getEncoded()));request.add("credentialRefs",renderedCredentialReferences(batch,canonical));bindLocalSourceRenderedRequest(batch.operation, request);batch.stageRequest=request;
         requirePreparedResourceBudget(instance, canonical.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
         StorageRenderedGenerationCoordinator coordinator=renderedCoordinator(instance,batch);batch.receipt=coordinator.stage(request);coordinator.activate(batch.receipt,renderedActivationRequest(instance,batch));
@@ -11789,17 +11830,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (StringUtils.isNotBlank(targetNic.getIPv4Address())) {
                 endpoint.addProperty("primaryIp", declaredProtocolPrimary(instance,targetNic));
             }
-            if (StringUtils.isNotBlank(targetNic.getIPv4Netmask())) {
-                endpoint.addProperty("netmask", targetNic.getIPv4Netmask());
-                endpoint.addProperty("prefixlen", ipv4NetmaskToPrefixLength(targetNic.getIPv4Netmask()));
-            }
+            if (StringUtils.isNotBlank(targetNic.getIPv4Netmask())) endpoint.addProperty("netmask", targetNic.getIPv4Netmask());
             final String cidr = findProtocolEndpointCidr(instance, targetNic, listenIp);
-            if (StringUtils.isNotBlank(cidr)) {
-                endpoint.addProperty("networkCidr", cidr);
-                if (!endpoint.has("prefixlen")) {
-                    endpoint.addProperty("prefixlen", cidrPrefixLength(cidr));
-                }
-            }
+            if (StringUtils.isNotBlank(cidr)) endpoint.addProperty("networkCidr", cidr);
+            endpoint.addProperty("prefixlen", protocolEndpointPrefix(targetNic, cidr));
         } catch (final RuntimeException e) {
             logger.warn("Unable to enrich Storage Service endpoint [{}] with guest network metadata; System VM will validate it at apply time",
                     listenIp, e);
@@ -11807,6 +11841,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected String findProtocolEndpointCidr(final StorageServiceInstanceVO instance, final NicVO targetNic, final String listenIp) {
+        if (instance != null && instance.getVmId() != null && targetNic != null && targetNic.isDefaultNic() && sharedFSDao != null) {
+            SharedFSVO declared = sharedFSDao.findByVm(instance.getVmId());
+            if (declared != null && declared.getNetworkMode() == SharedFS.NetworkMode.STATIC
+                    && isIpv4InCidr(declared.getIpAddress(), declared.getCidr()) && isIpv4InCidr(listenIp, declared.getCidr())) {
+                return declared.getCidr();
+            }
+        }
         if (targetNic != null) {
             final NetworkVO network = networkDao.findById(targetNic.getNetworkId());
             if (network != null) {
@@ -11827,15 +11868,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected int cidrPrefixLength(final String cidr) {
-        if (StringUtils.isBlank(cidr)) {
-            return 24;
-        }
-        final String[] parts = StringUtils.split(cidr, '/');
-        if (parts == null || parts.length != 2 || !StringUtils.isNumeric(parts[1])) {
-            return 24;
-        }
+        if (StringUtils.isBlank(cidr)) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE: CIDR is missing");
+        final String[] parts = cidr.trim().split("/", -1);
+        if (parts.length != 2 || !isValidIpv4Address(parts[0]) || !parts[1].matches("[0-9]{1,2}"))
+            throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE: CIDR is invalid");
         final int prefix = Integer.parseInt(parts[1]);
-        return prefix >= 0 && prefix <= 32 ? prefix : 24;
+        if (prefix > 32) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE: CIDR prefix is invalid");
+        return prefix;
+    }
+
+    protected int protocolEndpointPrefix(NicVO nic, String cidr) {
+        if (StringUtils.isNotBlank(nic.getIPv4Netmask())) return ipv4NetmaskToPrefixLength(nic.getIPv4Netmask());
+        return cidrPrefixLength(cidr);
     }
 
     protected JsonObject createBlockTargetJson(final StorageBlockTargetVO target) {
@@ -14721,21 +14765,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (targetNic == null || StringUtils.isBlank(listenIp) || "0.0.0.0".equals(listenIp) || "::".equals(listenIp) || instance.getVmId() == null) {
             return;
         }
-        final JsonObject payload = new JsonObject();
-        payload.addProperty("listenIp", listenIp);
-        payload.addProperty("primaryIp", targetNic.getIPv4Address());
-        payload.addProperty("netmask", targetNic.getIPv4Netmask());
-        payload.addProperty("prefixlen", ipv4NetmaskToPrefixLength(targetNic.getIPv4Netmask()));
-        final String networkCidr = findProtocolEndpointCidr(instance, targetNic, listenIp);
-        if (StringUtils.isNotBlank(networkCidr)) {
-            payload.addProperty("networkCidr", networkCidr);
-            if (StringUtils.isBlank(targetNic.getIPv4Netmask())) {
-                payload.addProperty("prefixlen", cidrPrefixLength(networkCidr));
-            }
-        }
-        if (port != null) {
-            payload.addProperty("port", port);
-        }
+        final JsonObject payload = protocolListenAddressPayload(instance, listenIp, targetNic, port);
         if(renderedBatch.get()!=null) {payload.addProperty("macAddress",targetNic.getMacAddress());renderedBatch.get().plannedEndpoints.add(listenIp,payload);return;}
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "network endpoint apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
@@ -14744,28 +14774,24 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+    protected JsonObject protocolListenAddressPayload(StorageServiceInstanceVO instance, String listenIp, NicVO nic, Integer port) {
+        String cidr = findProtocolEndpointCidr(instance, nic, listenIp);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("listenIp", listenIp);
+        payload.addProperty("primaryIp", declaredProtocolPrimary(instance, nic));
+        payload.addProperty("netmask", nic.getIPv4Netmask());
+        payload.addProperty("prefixlen", protocolEndpointPrefix(nic, cidr));
+        if (StringUtils.isNotBlank(cidr)) payload.addProperty("networkCidr", cidr);
+        if (port != null) payload.addProperty("port", port);
+        return payload;
+    }
+
     protected int ipv4NetmaskToPrefixLength(final String netmask) {
-        if (StringUtils.isBlank(netmask)) {
-            return 24;
-        }
-        final String[] parts = netmask.trim().split("\\.");
-        if (parts.length != 4) {
-            return 24;
-        }
-        int prefix = 0;
-        for (final String part : parts) {
-            final int value;
-            try {
-                value = Integer.parseInt(part);
-            } catch (final NumberFormatException e) {
-                return 24;
-            }
-            if (value < 0 || value > 255) {
-                return 24;
-            }
-            prefix += Integer.bitCount(value);
-        }
-        return prefix;
+        if (netmask == null || !netmask.matches("(?:[0-9]{1,3}[.]){3}[0-9]{1,3}") || !isValidIpv4Address(netmask)) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE: NIC netmask is missing or invalid");
+        final long mask = com.cloud.utils.net.NetUtils.ip2Long(netmask);
+        final long inverse = (~mask) & 0xffffffffL;
+        if ((inverse & (inverse + 1)) != 0) throw new CloudRuntimeException("ENDPOINT_PREFIX_UNAVAILABLE: NIC netmask is not contiguous");
+        return Long.bitCount(mask);
     }
 
     protected void rollbackProtocolEnable(final StorageServiceProtocolVO protocolVO, final boolean created, final Boolean previousEnabled,
