@@ -106,4 +106,45 @@ public class StorageConfigurationBatchTest {
         Mockito.verifyNoInteractions(dao);manager.abortConfigurationBatch();
     }
 
+    @Test public void initialNfsCannotBeReusedWithoutTheOwnedCreateNewWriter() {
+        StorageServiceManagerImpl manager=manager();StorageServiceProtocolDao dao=Mockito.mock(StorageServiceProtocolDao.class);
+        ReflectionTestUtils.setField(manager,"storageServiceProtocolDao",dao);
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
+        manager.beginConfigurationBatch(7);
+        com.google.gson.JsonObject plan=new com.google.gson.JsonObject();plan.addProperty("targetMode","CREATE_NEW");
+        CloudRuntimeException error=Assert.assertThrows(CloudRuntimeException.class,()->manager.prepareConfigurationInitialNfsReuse(instance,plan));
+        Assert.assertTrue(error.getMessage().contains("exact reviewed CREATE_NEW writer"));
+        Assert.assertNull(batches(manager).get().initialNfsReuse);Mockito.verifyNoInteractions(dao);manager.abortConfigurationBatch();
+    }
+
+    @Test public void ordinaryRestoreNeverAcquiresInitialNfsReuseAuthority() {
+        StorageServiceManagerImpl manager=manager();StorageServiceProtocolDao dao=Mockito.mock(StorageServiceProtocolDao.class);
+        ReflectionTestUtils.setField(manager,"storageServiceProtocolDao",dao);
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getId()).thenReturn(7L);
+        manager.beginConfigurationBatch(7);
+        com.google.gson.JsonObject plan=new com.google.gson.JsonObject();plan.addProperty("targetMode","RESTORE_EXISTING");
+        manager.prepareConfigurationInitialNfsReuse(instance,plan);
+        Assert.assertNull(batches(manager).get().initialNfsReuse);Mockito.verifyNoInteractions(dao);manager.abortConfigurationBatch();
+    }
+
+    @Test public void unexpectedEndpointStillFailsWithPublicIdentityDiagnostics() {
+        StorageServiceManagerImpl manager=manager();StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        com.google.gson.JsonObject desired=com.google.gson.JsonParser.parseString(
+            "{\"protocol\":\"SMB\",\"enabled\":true,\"listen_ip\":\"10.10.13.227\",\"port\":445,\"config\":{}}").getAsJsonObject();
+        com.google.gson.JsonObject actual=com.google.gson.JsonParser.parseString(
+            "{\"11111111-1111-4111-8111-111111111111\":{\"id\":11,\"protocol\":\"SMB\",\"enabled\":true,\"listenIp\":\"10.10.13.227\",\"port\":445,\"settings\":{}},"
+            +"\"22222222-2222-4222-8222-222222222222\":{\"id\":12,\"protocol\":\"ISCSI\",\"enabled\":true,\"listenIp\":\"0.0.0.0\",\"port\":3260,\"settings\":{}}}").getAsJsonObject();
+        Mockito.doReturn(actual).when(manager).configurationProtocolIntentSnapshot(instance);
+        com.google.gson.JsonObject change=new com.google.gson.JsonObject();change.addProperty("kind","protocols");
+        change.addProperty("sourceUuid","33333333-3333-4333-8333-333333333333");change.add("desired",desired);
+        com.google.gson.JsonObject plan=new com.google.gson.JsonObject();
+        for(String key:java.util.List.of("keep","update","create","preserve"))plan.add(key,new com.google.gson.JsonArray());
+        plan.getAsJsonArray("create").add(change);
+        CloudRuntimeException error=Assert.assertThrows(CloudRuntimeException.class,()->manager.requireConfigurationProtocolIntent(instance,plan,
+            Map.of("33333333-3333-4333-8333-333333333333",11L),new com.google.gson.JsonObject()));
+        Assert.assertTrue(error.getMessage(),error.getMessage().contains("expectedCount=1, actualCount=2"));
+        Assert.assertTrue(error.getMessage().contains("22222222-2222-4222-8222-222222222222"));
+        Assert.assertTrue(error.getMessage().contains("ISCSI"));Assert.assertTrue(error.getMessage().contains("3260"));
+    }
+
 }

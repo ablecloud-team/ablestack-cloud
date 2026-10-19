@@ -991,6 +991,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final Map<Long, String> smbCredentials = new HashMap<>();
         final Map<String,String> plannedSmbShareUuids=new HashMap<>();
         JsonObject semanticLocalReceipt;
+        JsonObject initialNfsReuse;
+        boolean initialNfsReused;
         final Map<Long, JsonObject> iscsiCredentials = new HashMap<>();
         final Map<Long, JsonObject> nvmeCredentials = new HashMap<>();
         final Map<Long, StorageServiceInstance.ResourceState> nvmeHostStates = new HashMap<>();
@@ -6052,6 +6054,91 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Clone initial existing filesystem changed during recovery");
         markVolumeLifecycleVerified(volume);
     }
+    /** Bind only this CREATE_NEW writer's verified, unused compatibility NFS row. */
+    protected void prepareConfigurationInitialNfsReuse(StorageServiceInstanceVO instance, JsonObject plan) {
+        if (!"CREATE_NEW".equals(getJsonString(plan,"targetMode"))) return;
+        ConfigurationBatch batch=configurationBatch.get();StorageServiceOperationVO operation=storageWriterOperation.get();
+        JsonObject active=configurationCloneRestoreMaintenance.get();
+        if (batch==null || batch.instanceId!=instance.getId() || operation==null || active==null
+                || operation.getInstanceId()!=instance.getId() || !"RUNNING".equals(operation.getState())
+                || !"APPLYING".equals(operation.getPhase()) || renderedBatch.get()==null
+                || !hasConfigurationCloneMaintenance(instance,operation)
+                || !StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(plan)).equals(getJsonString(active,"planSha256")))
+            throw new CloudRuntimeException("Initial NFS reuse requires its exact reviewed CREATE_NEW writer");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),saved=snapshot.getAsJsonObject("cloneServiceMaintenance");
+        JsonObject held=getJsonObject(saved,"held"),baseline=active.getAsJsonObject("baseline"),authority=baseline.getAsJsonObject("authority");
+        if (!baseline.equals(saved.get("baseline")) || !active.get("planSha256").equals(saved.get("planSha256"))
+                || held==null || !Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))
+                || !"SERVICE".equals(getJsonString(held,"maintenanceKind")) || !"HELD".equals(getJsonString(held,"phase"))
+                || !serviceMaintenanceScope(instance,operation).equals(held.get("scope")))
+            throw new CloudRuntimeException("Initial NFS reuse lost its original held baseline");
+        JsonObject current=parseJsonObject(captureConfigurationSnapshot(instance.getId()));
+        if (!authority.getAsJsonObject("database").get("tables").equals(current.get("tables")))
+            throw new CloudRuntimeException("Initial NFS reuse baseline database changed before application");
+        requireConfigurationCloneInitialDatabase(instance,current);
+        JsonObject original=null;
+        for (JsonElement table:current.getAsJsonArray("tables")) {
+            JsonObject value=table.getAsJsonObject();
+            if ("storage_service_protocol".equals(getJsonString(value,"table")) && value.getAsJsonArray("rows").size()==1)
+                original=value.getAsJsonArray("rows").get(0).getAsJsonObject();
+        }
+        if (original==null) return;
+        JsonObject selected=null;
+        for (JsonElement value:plan.getAsJsonArray("create")) {
+            JsonObject change=value.getAsJsonObject(),desired=change.getAsJsonObject("desired");
+            if (!"protocols".equals(getJsonString(change,"kind")) || !"NFS".equals(getJsonString(desired,"protocol"))
+                    || getJsonInt(desired,"port",2049)!=2049) continue;
+            if (selected==null || configurationProtocolIntent(desired).toString().compareTo(
+                    configurationProtocolIntent(selected.getAsJsonObject("desired")).toString())<0) selected=change;
+        }
+        if (selected==null) throw new CloudRuntimeException("CREATE_NEW plan has no reviewed endpoint for its unused initial NFS row");
+        StorageServiceProtocolVO row=storageServiceProtocolDao.findById(original.get("id").getAsLong());
+        if (row==null || !row.getUuid().equals(getJsonString(original,"uuid"))) throw new CloudRuntimeException("Initial NFS reuse row disappeared");
+        JsonObject binding=new JsonObject();binding.addProperty("kind","INITIAL_NFS_REUSE_INTENT");
+        binding.add("scope",operationReservationScope(instance,operation));
+        binding.addProperty("sourceUuid",getJsonString(selected,"sourceUuid"));binding.addProperty("targetProtocolUuid",row.getUuid());
+        binding.add("originalRow",original.deepCopy());binding.add("originalIntent",configurationProtocolIntent(row));
+        binding.add("desiredIntent",configurationProtocolIntent(selected.getAsJsonObject("desired")));
+        binding.add("planSha256",active.get("planSha256").deepCopy());
+        JsonObject previous=getJsonObject(snapshot,"configurationInitialNfsReuse");
+        if (previous!=null && !previous.equals(binding)) throw new CloudRuntimeException("Initial NFS reuse intent cannot change its original binding");
+        if (previous==null) {snapshot.add("configurationInitialNfsReuse",binding.deepCopy());saveLocalCheckpointSnapshot(operation,snapshot);}
+        batch.initialNfsReuse=binding;
+    }
+
+    private StorageServiceProtocolVO configurationInitialNfsEndpoint(StorageServiceInstanceVO instance,
+            EnableStorageServiceProtocolCmd command, StorageServiceInstance.Protocol protocol, int port, StorageServiceProtocolVO found) {
+        ConfigurationBatch batch=configurationBatch.get();
+        if (batch==null || batch.initialNfsReuse==null || protocol!=StorageServiceInstance.Protocol.NFS) return found;
+        JsonObject binding=batch.initialNfsReuse,desired=binding.getAsJsonObject("desiredIntent");
+        if (port!=desired.get("port").getAsInt() || !StringUtils.equals(normalizeListenIp(command.getListenIp()),getJsonString(desired,"listenIp"))) return found;
+        StorageServiceOperationVO writer=storageWriterOperation.get();
+        if (batch.instanceId!=instance.getId() || writer==null || !"RUNNING".equals(writer.getState())
+                || !"APPLYING".equals(writer.getPhase()) || !operationReservationScope(instance,writer).equals(binding.get("scope"))
+                || !hasConfigurationCloneMaintenance(instance,writer))
+            throw new CloudRuntimeException("Initial NFS reuse cannot borrow another writer or instance");
+        String uuid=getJsonString(binding,"targetProtocolUuid");
+        if (batch.initialNfsReused) {
+            if (found!=null && uuid.equals(found.getUuid())) return found;
+            throw new CloudRuntimeException("Initial NFS reuse was already consumed by another endpoint");
+        }
+        JsonObject original=binding.getAsJsonObject("originalRow"),observed=null;
+        JsonObject database=parseJsonObject(captureConfigurationSnapshot(instance.getId()));
+        for (JsonElement table:database.getAsJsonArray("tables")) {
+            JsonObject value=table.getAsJsonObject();if (!"storage_service_protocol".equals(getJsonString(value,"table"))) continue;
+            for (JsonElement valueRow:value.getAsJsonArray("rows")) {
+                JsonObject row=valueRow.getAsJsonObject();if (uuid.equals(getJsonString(row,"uuid"))) observed=row;
+            }
+        }
+        StorageServiceProtocolVO candidate=storageServiceProtocolDao.findById(original.get("id").getAsLong());
+        if (!original.equals(observed) || candidate==null || candidate.getInstanceId()!=instance.getId()
+                || !uuid.equals(candidate.getUuid()) || !configurationProtocolIntent(candidate).equals(binding.get("originalIntent"))
+                || found!=null && found.getId()!=candidate.getId())
+            throw new CloudRuntimeException("Initial NFS compatibility row changed before its approved reuse");
+        batch.initialNfsReused=true;
+        return candidate;
+    }
+
     protected JsonObject configurationProtocolIntentSnapshot(StorageServiceInstanceVO instance) {
         JsonObject result=new JsonObject();Set<Long> ids=new HashSet<>();
         for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceId(instance.getId())) {
@@ -6108,7 +6195,22 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (original==null || !original.equals(current) || !expected.add(original.get("id").getAsLong()))
                 throw new CloudRuntimeException("Preserved protocol endpoint identity or effective settings changed");
         }
-        if (expected.size()!=actual.size()) throw new CloudRuntimeException("Configuration application introduced an unreviewed protocol endpoint");
+        if (expected.size()!=actual.size()) {
+            JsonArray unexpected=new JsonArray();
+            for (Map.Entry<String,JsonElement> value:actual.entrySet()) {
+                JsonObject row=value.getValue().getAsJsonObject();if (expected.contains(row.get("id").getAsLong()) || unexpected.size()>=8) continue;
+                JsonObject endpoint=new JsonObject();endpoint.addProperty("uuid",value.getKey());
+                for (String field:List.of("protocol","listenIp","port")) endpoint.add(field,row.get(field).deepCopy());
+                unexpected.add(endpoint);
+            }
+            throw new CloudRuntimeException("Configuration application introduced an unreviewed protocol endpoint"
+                    +" [expectedCount="+expected.size()+", actualCount="+actual.size()+", unexpected="+unexpected+"]");
+        }
+        ConfigurationBatch batch=configurationBatch.get();
+        if (batch!=null && batch.initialNfsReuse!=null && (!batch.initialNfsReused
+                || !java.util.Objects.equals(mapped.get(getJsonString(batch.initialNfsReuse,"sourceUuid")),
+                    batch.initialNfsReuse.getAsJsonObject("originalRow").get("id").getAsLong())))
+            throw new CloudRuntimeException("Configuration application lost its reviewed initial NFS binding");
     }
 
     private boolean configurationLegacyEmptyProtocolConfig(String value) {
@@ -8013,6 +8115,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceProtocolVO protocolVO = isEndpointProtocol(protocol) ?
                 findProtocolEndpoint(instance.getId(), protocol, cmd.getListenIp(), port) :
                 storageServiceProtocolDao.findByInstanceIdAndProtocol(instance.getId(), protocol);
+        protocolVO=configurationInitialNfsEndpoint(instance,cmd,protocol,port,protocolVO);
         final StorageServiceProtocolVO modeProtocol = protocol == StorageServiceInstance.Protocol.NFS ?
                 selectNfsModeProtocol(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) : protocolVO;
         final String protocolMode = resolveProtocolModeForEnable(protocol, modeProtocol, cmd.getProtocolMode());

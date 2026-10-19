@@ -189,6 +189,7 @@ public final class StorageConfigDomainRestore {
         }
         manager.beginConfigurationBatch(instance.getId());
         try {
+            manager.prepareConfigurationInitialNfsReuse(instance,plan);
             if(plan.has("adIdentitySourceDescriptor"))manager.prepareAdSemanticResourceMappings(instance,plan);
             for(JsonElement item:changes){
                 JsonObject change=item.getAsJsonObject(),desired=change.getAsJsonObject("desired");

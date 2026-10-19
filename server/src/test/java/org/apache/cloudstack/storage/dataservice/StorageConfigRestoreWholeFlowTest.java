@@ -39,6 +39,40 @@ public class StorageConfigRestoreWholeFlowTest {
         requireCompletedRestore();
     }
 
+    private void primaryMappedFixture()throws Exception {
+        fixture.close();fixture=new Fixture();fixture.primaryNfsFourProtocols=true;fixture.setup();
+    }
+
+    @Test public void initialNfsDriftAfterMaintenanceCannotBeAdoptedAndRestoresTheSameSource()throws Exception {
+        primaryMappedFixture();String disks=new com.google.gson.Gson().toJson(fixture.volumeRows);
+        ((BuildManifestManager)fixture.manager).beforeInitialNfsReuse=()->{
+            StorageServiceProtocolVO row=(StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").values().iterator().next();
+            row.setConfigJson("{\"changed\":true}");
+        };
+        com.cloud.utils.exception.CloudRuntimeException error=Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+            ()->fixture.manager.storageServiceConfiguration(fixture.reviewedCommand()));
+        Assert.assertTrue(error.getMessage(),error.getMessage().contains("Initial NFS reuse baseline database changed"));
+        Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
+        Assert.assertEquals(disks,new com.google.gson.Gson().toJson(fixture.volumeRows));
+        Assert.assertFalse(fixture.nativeActions().contains("render-stage"));
+        JsonObject current=fixture.generation("operation generation status",null);
+        Assert.assertEquals("IN_SYNC",current.get("generationStatus").getAsString());Assert.assertTrue(current.get("pendingOperationUuid").isJsonNull());
+        Assert.assertEquals(1,current.get("runtimeRevision").getAsLong());
+        Assert.assertEquals(1,fixture.artifactRows.values().stream().filter(v->"ACTIVE_LKG".equals(v.getState())&&v.getDesiredRevision()==1).count());
+    }
+
+    @Test public void primaryMappedFourProtocolRestoreReusesOnlyItsInitialNfsEndpoint()throws Exception {
+        primaryMappedFixture();
+        String initial=fixture.database.rows.get("storage_service_protocol").values().stream()
+            .map(v->((StorageServiceProtocolVO)v).getUuid()).findFirst().orElseThrow();
+        requireCompletedRestore();
+        java.util.List<StorageServiceProtocolVO> nfs=fixture.database.rows.get("storage_service_protocol").values().stream()
+            .map(v->(StorageServiceProtocolVO)v).filter(v->v.getProtocol()==StorageServiceInstance.Protocol.NFS).collect(java.util.stream.Collectors.toList());
+        Assert.assertEquals(1,nfs.size());Assert.assertEquals(initial,nfs.get(0).getUuid());
+        Assert.assertEquals("10.10.13.226",nfs.get(0).getListenIp());Assert.assertEquals(Integer.valueOf(2049),nfs.get(0).getPort());
+        Assert.assertEquals(4,fixture.database.rows.get("storage_service_protocol").size());
+    }
+
     @Test public void approvedExistingRestoreRollsBackTheSameDefaultThenCompletesThroughTheRealController()throws Exception {
         fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
         fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
@@ -229,10 +263,19 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));
     }
 
+    @Test public void primaryMappedFailureRestoresInitialNfsThenRetriesTheSameCreator()throws Exception {
+        primaryMappedFixture();assertRejectedStageRestoresSourceThenRetries();
+    }
+
     @Test public void rejectedStageRestoresTheVerifiedEmptySourceAndReleasesOnlyItsOwnHold()throws Exception {
+        assertRejectedStageRestoresSourceThenRetries();
+    }
+
+    private void assertRejectedStageRestoresSourceThenRetries()throws Exception {
         fixture.rejectStageOnce=true;
         Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
                 ()->fixture.manager.storageServiceConfiguration(fixture.reviewedCommand()));
+        Assert.assertFalse("The actual render-stage fault must be reached",fixture.rejectStageOnce);
         StorageServiceOperationVO operation=fixture.operationRows.values().stream()
                 .filter(row->"applystorageserviceconfigrestoreresponse".equalsIgnoreCase(row.getAction())).findFirst().orElseThrow();
         Assert.assertEquals(operation.getDiagnostic(),"ROLLED_BACK",operation.getState());
@@ -399,8 +442,8 @@ public class StorageConfigRestoreWholeFlowTest {
         JsonObject heldScope=scope.deepCopy();heldScope.add("maintenanceUuid",scope.get("operationUuid"));
         Assert.assertFalse(fixture.generation("operation maintenance service-status",heldScope).get("bootHeld").getAsBoolean());
         Assert.assertEquals("COMPLETE",fixture.obj(fixture.artifactRows.get(artifactId).getMetadataJson()).get("restoreState").getAsString());
-        Assert.assertEquals(16,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
-        Assert.assertEquals(6,fixture.database.rows.get("storage_service_protocol").size());
+        Assert.assertEquals(fixture.primaryNfsFourProtocols?14:16,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
+        Assert.assertEquals(fixture.primaryNfsFourProtocols?4:6,fixture.database.rows.get("storage_service_protocol").size());
         JsonObject originalDefault=fixture.obj(fixture.initialDatabaseSnapshot).getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();
         Assert.assertTrue(fixture.database.rows.get("storage_service_protocol").containsKey(originalDefault.get("id").getAsLong()));
         StorageServiceProtocolVO retained=(StorageServiceProtocolVO)fixture.database.rows.get("storage_service_protocol").get(originalDefault.get("id").getAsLong());
@@ -420,6 +463,11 @@ public class StorageConfigRestoreWholeFlowTest {
     /** Surefire class directories omit the normal JAR manifest; no runtime/generation result is replaced. */
     private static final class BuildManifestManager extends StorageServiceManagerImpl {
         private final String buildVersion;
+        Runnable beforeInitialNfsReuse;
+        @Override protected void prepareConfigurationInitialNfsReuse(StorageServiceInstanceVO instance,JsonObject plan) {
+            if(beforeInitialNfsReuse!=null){Runnable hook=beforeInitialNfsReuse;beforeInitialNfsReuse=null;hook.run();}
+            super.prepareConfigurationInitialNfsReuse(instance,plan);
+        }
         BuildManifestManager(java.nio.file.Path repository)throws Exception {
             javax.xml.parsers.DocumentBuilderFactory factory=javax.xml.parsers.DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
@@ -453,7 +501,7 @@ public class StorageConfigRestoreWholeFlowTest {
         String initialSource=null;for(JsonElement allocation:plan.getAsJsonObject("volumeAllocationPlan").getAsJsonArray("allocations"))
             if(allocation.getAsJsonObject().get("initial").getAsBoolean())initialSource=allocation.getAsJsonObject().get("sourceUuid").getAsString();
         Assert.assertNotNull(initialSource);recordedMapping.addProperty("initialVolumeSourceUuid",initialSource);plan.addProperty("initialVolumeSourceUuid",initialSource);
-        JsonObject listeners=new JsonObject();listeners.addProperty("10.10.13.223","PRIMARY");recordedMapping.add("listenerAddresses",listeners);
+        JsonObject listeners=new JsonObject();listeners.addProperty("10.10.13.223","PRIMARY");if(primaryNfsFourProtocols)listeners.addProperty("0.0.0.0","PRIMARY");recordedMapping.add("listenerAddresses",listeners);
         StorageConfigArtifactVO artifact=artifactRows.get(900L);JsonObject metadata=obj(artifact.getMetadataJson()),requested=recordedMapping.deepCopy();
         requested.remove("listenerAddresses");metadata.add("requestedVolumeMapping",requested);metadata.add("plan",plan.deepCopy());artifact.setMetadataJson(metadata.toString());
         Mockito.doAnswer(call->{
@@ -634,7 +682,7 @@ public class StorageConfigRestoreWholeFlowTest {
         }
         JsonObject mapping=new JsonObject(),volumes=new JsonObject(),listeners=new JsonObject();
         for(var item:sourceToTarget.entrySet())volumes.addProperty(item.getKey(),item.getValue());mapping.add("volumes",volumes);
-        listeners.addProperty("10.10.13.223","PRIMARY");mapping.add("listenerAddresses",listeners);
+        listeners.addProperty("10.10.13.223","PRIMARY");if(primaryNfsFourProtocols)listeners.addProperty("0.0.0.0","PRIMARY");mapping.add("listenerAddresses",listeners);
         JsonObject currentProtocols=manager.configurationProtocolIntentSnapshot(instanceRows.get(80L)),protocols=new JsonObject();
         Assert.assertEquals(1,currentProtocols.size());String defaultUuid=currentProtocols.keySet().iterator().next();
         JsonObject constructor=currentProtocols.getAsJsonObject(defaultUuid);Assert.assertEquals("NFS",constructor.get("protocol").getAsString());

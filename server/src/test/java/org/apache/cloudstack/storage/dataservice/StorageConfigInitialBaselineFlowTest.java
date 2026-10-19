@@ -129,6 +129,7 @@ public class StorageConfigInitialBaselineFlowTest {
     String initialUuid, archiveSha;
     boolean creatorStageInitialOnly;
     boolean existingInitial=true;
+    boolean primaryNfsFourProtocols;
     @Rule public TestName testName=new TestName();
     final Map<String,String> sourceToTarget=new LinkedHashMap<>();
     Path renderedStore;
@@ -137,6 +138,16 @@ public class StorageConfigInitialBaselineFlowTest {
     static final String[] SOURCE_DATA={"5c53f9d6-4153-4e3d-a440-7d507f4a106b","c7ca4348-e835-46cb-ba65-f105264b8e52","48906777-5ce1-42a3-9690-054f73496f1d","076eae6e-b0b5-4a8a-885f-b594454bc925"};
     byte[] publicArchive()throws Exception{
         JsonObject resources=obj(Files.readString(repo.resolve("server/src/test/resources/storage-config/issue909-public-four-protocol-bindings.json"))).getAsJsonObject("publicSemanticResources");
+        if(primaryNfsFourProtocols) {
+            JsonArray protocols=new JsonArray();
+            for(JsonElement item:resources.getAsJsonArray("protocols")) {
+                JsonObject row=item.getAsJsonObject();
+                if(java.util.Set.of("ISCSI","NVME_OF").contains(row.get("protocol").getAsString()) && row.get("listen_ip").isJsonNull())continue;
+                if("NFS".equals(row.get("protocol").getAsString()))row.addProperty("listen_ip","0.0.0.0");
+                protocols.add(row);
+            }
+            resources.add("protocols",protocols);
+        }
         Map<String,byte[]> entries=new LinkedHashMap<>();
         JsonObject owner=new JsonObject();owner.addProperty("uuid",ANCHOR);entries.put("desired/instance.json",owner.toString().getBytes(StandardCharsets.UTF_8));
         for(String kind:StorageConfigRestorePlan.ROW_KEYS.keySet())entries.put("desired/"+kind+".json",(resources.has(kind)?resources.get(kind):new JsonArray()).toString().getBytes(StandardCharsets.UTF_8));
@@ -413,10 +424,10 @@ public class StorageConfigInitialBaselineFlowTest {
         targetArchive.put("desired/volumes.json",targetData.toString().getBytes(StandardCharsets.UTF_8));
         JsonObject resourceMapping=new JsonObject(),listenerMapping=new JsonObject(),diskMapping=new JsonObject();
         for(Map.Entry<String,String> value:sourceToTarget.entrySet())diskMapping.addProperty(value.getKey(),value.getValue());
-        resourceMapping.add("createNew",blueprint.deepCopy());resourceMapping.add("volumes",diskMapping);listenerMapping.addProperty("10.10.13.223","PRIMARY");resourceMapping.add("listenerAddresses",listenerMapping);
+        resourceMapping.add("createNew",blueprint.deepCopy());resourceMapping.add("volumes",diskMapping);listenerMapping.addProperty("10.10.13.223","PRIMARY");if(primaryNfsFourProtocols)listenerMapping.addProperty("0.0.0.0","PRIMARY");resourceMapping.add("listenerAddresses",listenerMapping);
         plan=StorageConfigRestorePlan.build(archive,targetArchive,resourceMapping,"CREATE_NEW",TARGET,0,"10.10.13.226");
         plan.addProperty("targetName","retained-data-restore-fixture");plan.addProperty("artifactSha256",archiveSha);plan.addProperty("runtimeBundleUuid",BUNDLE);
-        Assert.assertEquals(16,plan.getAsJsonArray("create").size());Assert.assertEquals(plan.getAsJsonArray("blockers").toString(),0,plan.getAsJsonArray("blockers").size());
+        Assert.assertEquals(primaryNfsFourProtocols?14:16,plan.getAsJsonArray("create").size());Assert.assertEquals(plan.getAsJsonArray("blockers").toString(),0,plan.getAsJsonArray("blockers").size());
         new StorageConfigDomainRestore(manager).validateBindings(plan);plan.add("createNew",blueprint);plan.add("cloneTemplatePin",pin);plan.add("cloneRuntimePin",runtimePin);
         allocation=new JsonObject();JsonObject scope=obj("{\"targetInstanceUuid\":\""+TARGET+"\",\"accountId\":2,\"domainId\":1,\"projectId\":null,\"zoneUuid\":\""+ZONE+"\",\"baselineRevision\":0}");
         scope.addProperty("artifactUuid",ARTIFACT);scope.addProperty("artifactSha256",archiveSha);scope.addProperty("allocationNamespace",id(908));
