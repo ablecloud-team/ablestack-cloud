@@ -1,0 +1,114 @@
+{
+  "kind": "ISSUE909_UI_RESUME_IMPROVEMENT_READY_WAITING",
+  "issue": 909,
+  "sourceCommit": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+  "implementationScope": {
+    "productionUiFiles": 1,
+    "newMountedRegressionTests": 10,
+    "backendChanges": 0,
+    "nativeChanges": 0,
+    "ddlChanges": 0,
+    "finalUi1275Started": false
+  },
+  "tests": {
+    "sourceCommit": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+    "beforeProductFix": {
+      "mountedSuiteTests": 10,
+      "failed": 8,
+      "passed": 2
+    },
+    "afterProductFix": {
+      "passedSuites": 6,
+      "passedTests": 138,
+      "failedTests": 0,
+      "mountedResumeCases": 10
+    },
+    "lint": {
+      "exitCode": 0,
+      "scope": [
+        "src/views/storage/StorageServiceConfiguration.vue",
+        "tests/unit/views/storage/StorageConfigurationResumeMounted.spec.js"
+      ]
+    },
+    "productionSourceFilesChanged": 1,
+    "backendNativeDDLChanges": 0
+  },
+  "productionBuild": {
+    "sourceCommit": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+    "productionExit": 0,
+    "configRestoredExact": true,
+    "sourceUnchanged": true,
+    "buildWorkers": 2
+  },
+  "deployment": {
+    "sourceCommit": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+    "backupDirectory": "/root/issue909-ui-resume-fix-76e42c791bfb",
+    "indexSha256": "7c6a5db4eacae50416277c7fbc915dc7577a16b3ff6b0d27a7302a06abdbc15e",
+    "addedAssets": 6,
+    "oldJsCssPreserved": 2684,
+    "protectedFilesPreserved": 21,
+    "backendAndConfigUnchanged": true,
+    "managementPid": "2705101",
+    "serviceRestarted": false
+  },
+  "httpVerification": {
+    "assetsIncludingIndex": 7,
+    "all200AndSha256Match": true
+  },
+  "actualUiReadiness": {
+    "sourceCommit": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+    "artifactId": "c1181cde-33d2-4209-9721-0dfc86308838",
+    "reviewTokenPresent": true,
+    "planHttpStatus": 200,
+    "targetMode": "CREATE_NEW",
+    "targetName": "issue909-final-existing-4574712-20261019",
+    "createCount": 14,
+    "blockers": [],
+    "volumeMapping": {
+      "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+      "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+      "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+      "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+    },
+    "listenerAddressMappings": {
+      "0.0.0.0": "PRIMARY"
+    },
+    "templateUuid": "9d6703e2-5301-49dc-8068-4b3c7f8746d3",
+    "requiredCredentialRules": 2,
+    "serviceChangedErrorAbsent": true,
+    "applyButtonVisible": true,
+    "applyButtonEnabled": true,
+    "planPostCount": 1,
+    "applyPostCount": 0,
+    "credentialsEntered": false,
+    "restoreApplied": false,
+    "plannedTargetInstanceUuid": "a09fef97-f50a-42ca-aaf5-d0c1a95b80a3",
+    "createdTargetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863"
+  },
+  "preservation": {
+    "success": true,
+    "sourceProtectedFilesUnchanged": 6,
+    "bootUnchanged": true,
+    "nativeRuntimeUnchanged": true,
+    "profileRevision": 1,
+    "initialNfsSourceUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+    "initialNfsSourceUnused": true,
+    "operationState": "ROLLED_BACK",
+    "frozenImportBaselineAndPlanUnchanged": true,
+    "sameVmData5ReadySparse": true,
+    "moldMacUnchanged": true,
+    "uiDeploymentScope": "static assets and index only",
+    "restoreReapplied": false,
+    "newResourcesCreated": 0,
+    "nativeRuntimeUpgrades": 0
+  },
+  "dataPreservation": {
+    "files6ShaInodeUidGidModeAndFsUuidUnchanged": true,
+    "rawTwoDisksFour64KiBRegionsUnchanged": true,
+    "wholeVolumeHashVerified": false,
+    "writesPerformed": 0
+  },
+  "restoreApplyCount": 0,
+  "newVmOrDiskCount": 0,
+  "waitingForInstruction": true
+}
