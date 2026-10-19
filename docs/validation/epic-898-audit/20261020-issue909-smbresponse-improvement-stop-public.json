@@ -1,0 +1,692 @@
+{
+  "recordedAt": "2026-10-20T01:44:58.947452+09:00",
+  "scope": {
+    "issue": 909,
+    "epic": 898,
+    "pullRequest": 1271,
+    "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f"
+  },
+  "sourceCommits": [
+    "8e5d963fe0b73d67716f56d2fba49c069332824e",
+    "ea7f59de163da34bb6c51461f5a400c4129e4864"
+  ],
+  "finalCliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+  "build": {
+    "sourceCommit": "ea7f59de163da34bb6c51461f5a400c4129e4864",
+    "keyId": "epic898-909-ea7f59de16-smbsource-test",
+    "version": "4.23.0.0-epic898-909-ea7f59de16-smbsource-20261020",
+    "privateKeyFilesCreated": 0,
+    "privateDescriptorClosed": true,
+    "privateInputBufferWiped": true,
+    "signatureVerified": true,
+    "testOnly": true,
+    "files": {
+      "SHA256SUMS": {
+        "bytes": 309,
+        "sha256": "858fb81298f356828e783e28db17033a2c9ad9456d29424a5dc2f752f60c31df"
+      },
+      "manifest.sig": {
+        "bytes": 64,
+        "sha256": "9582c1937cbaac49d910070ae3eedab82858c8a08d7d58e6ce6c7709a9019c75"
+      },
+      "epic898-909-ea7f59de16-smbsource-test.pem": {
+        "bytes": 113,
+        "sha256": "fca77f2a8a176ea5b0406ff6df2d841dfccb0529fc13ba7453f0d84604d7eb69"
+      },
+      "ablestack-storage-runtime-4.23.0.0-epic898-909-ea7f59de16-smbsource-20261020.tar.gz": {
+        "bytes": 662526,
+        "sha256": "9cae0fb305c54034215c182487b672571dbee68542855602a901bcbf5a2cd860"
+      },
+      "manifest.json": {
+        "bytes": 1542,
+        "sha256": "46dafe4f2045b940eb360ce7bda196ff5b8bd288c5aa97ca04bbef20575aa437"
+      }
+    }
+  },
+  "tests": {
+    "native": {
+      "total": 1121,
+      "passed": 1115,
+      "skipped": 6,
+      "failures": 0,
+      "errors": 0,
+      "isolation": {
+        "hostRootReadonly": true,
+        "privateEtcVarRunTmp": true,
+        "networkNamespaceIsolated": true,
+        "secretsEnvCleared": true,
+        "operatorShellProfilesMasked": true
+      }
+    },
+    "actualSamba": {
+      "success": true,
+      "scope": "isolated disposable Samba4.17.12 container; read-only source; no live cluster changes",
+      "cliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+      "testCount": 11,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "realCompleteCliContractVerified": true,
+      "realPrivateSamSuccessAndFailureVerified": true,
+      "strictJsonParserUnchanged": true,
+      "explicitPipeAndCaptureOutputPreserved": true,
+      "atexitToolOutputSuppressed": true,
+      "noRenderedNetbiosSideEffect": true,
+      "image": "localhost/issue909-smb-cli-lifecycle:local",
+      "imageId": "d6f8411f12af13160b5ef22b47c5718bc5abfb773e6d03eddb4f35f34dc4d781",
+      "fixtureCorrections": [
+        "Inherited image ENTRYPOINT required explicit /bin/bash override",
+        "smbpasswd has no usable version-query option; fixture now verifies executable availability, actual runtime version from smbd --version"
+      ],
+      "testsPath": "systemvm/test/TestStorageSmbCommandOutput.py",
+      "limitations": [
+        "systemctl lifecycle is a fixed container process adapter; actual systemd is validated by parent deployment",
+        "Forward multi-protocol restore is intentionally not run in the live13 environment this turn"
+      ],
+      "disabledRenderedInverseSuccess": true,
+      "sourceIdentityReceiptAbsencePreserved": true,
+      "ownedAcceptorStoppedAndRegistryRemoved": true,
+      "privateSamPreserved": true,
+      "inverseDataPreserved": true
+    },
+    "actualNfs": {
+      "cases": [
+        {
+          "actualGaneshaDbusAndKernelNfs": true,
+          "actualNativeCli": true,
+          "aliasReceiptCleared": true,
+          "aliasUnmountVerified": true,
+          "applyVerified": true,
+          "busyUnmount": false,
+          "cliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+          "clientReadWrite": true,
+          "danglingCurrentExercised": true,
+          "maintenanceKind": "ROOT",
+          "originalDataAndPosixPreserved": true,
+          "ownedDaemonStopped": true,
+          "rollbackSuccess": true
+        },
+        {
+          "actualGaneshaDbusAndKernelNfs": true,
+          "actualNativeCli": true,
+          "aliasReceiptPreserved": true,
+          "applyVerified": true,
+          "busyMountRetained": true,
+          "busyUnmount": true,
+          "cliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+          "clientReadWrite": true,
+          "danglingCurrentExercised": true,
+          "failureCode": "NFS_ALIAS_UNMOUNT_FAILED",
+          "fstabReceiptPreserved": true,
+          "inverseResumedAfterOwnedBlockerRelease": true,
+          "maintenanceKind": "SERVICE",
+          "originalDataAndPosixPreserved": true,
+          "originalScopePinsUnchanged": true,
+          "ownedDaemonStopped": true,
+          "resumedAliasReceiptCleared": true,
+          "resumedAliasUnmountVerified": true,
+          "resumedFstabReceiptCleared": true,
+          "resumedRollbackSuccess": true,
+          "rollbackSuccess": false,
+          "stoppedUnitAndConfigStillAbsent": true
+        },
+        {
+          "actualGaneshaDbusAndKernelNfs": true,
+          "actualNativeCli": true,
+          "aliasReceiptCleared": true,
+          "aliasUnmountVerified": true,
+          "applyVerified": true,
+          "busyUnmount": false,
+          "cliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+          "clientReadWrite": true,
+          "danglingCurrentExercised": true,
+          "maintenanceKind": "SERVICE",
+          "originalDataAndPosixPreserved": true,
+          "ownedDaemonStopped": true,
+          "rollbackSuccess": true
+        }
+      ],
+      "isolatedRuns": 1,
+      "launcher": "Exact prior passing launcher including explicit netbase extraction; only CLI pin and sibling evidence paths changed.",
+      "limitations": [
+        "Protected generation and maintenance records are seeded.",
+        "systemctl alone is a fixed process lifecycle shim; actual Ganesha, DBus, kernel mounts and CLI execute.",
+        "Full RenderedDriver/Backend/UI restore is outside scope."
+      ],
+      "liveClusterConnections": 0,
+      "nativeCliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+      "productionSourceEdits": 0,
+      "scope": "native NFS CLI lifecycle with seeded protected generation/maintenance records; full RenderedDriver not executed",
+      "scriptSha256": "19a68dc7df33b674bd620cc243f75f1451c4260af215bae53989c7bd32418767",
+      "success": true,
+      "systemctlOnlyShim": true,
+      "testCount": 3,
+      "testSourceEdits": 0
+    }
+  },
+  "intermediateDeployment": {
+    "success": true,
+    "bundleId": "507faa85-bda1-4822-85d6-b1eda9f780a3",
+    "upgradeId": "248b2a04-3dab-42c5-b670-115c704ce164",
+    "state": "COMPLETE",
+    "version": "4.23.0.0-epic898-909-8e5d963fe0-smbresponse-20261020",
+    "originalRestoreState": "RECOVERY_REQUIRED",
+    "fullRestoreResumed": false
+  },
+  "finalDeployment": {
+    "success": true,
+    "bundleId": "8de7350c-4834-4c6f-bac4-ca2a3646bea7",
+    "upgradeId": "ae50c010-0063-4310-b7ca-3ac7a8b80b15",
+    "state": "COMPLETE",
+    "version": "4.23.0.0-epic898-909-ea7f59de16-smbsource-20261020",
+    "originalRestoreState": "RECOVERY_REQUIRED",
+    "fullRestoreResumed": false
+  },
+  "profile": {
+    "success": true,
+    "revision": 5,
+    "artifactUuid": "9e81945b-1cf2-4af0-a0bd-1e31801422dd",
+    "artifactSha256": "3cae48c7d85187a562fe1a3ab73386262a7978c7eb1be5c290aec36dfd6db2ac",
+    "actualCliSha256": "0dfcb9e6bcbfb0a250d64ac2cf363a42fe923d763aadc63ac4582de25bdfc5bf",
+    "baselineImported": true,
+    "sourceCommit": "ea7f59de163da34bb6c51461f5a400c4129e4864"
+  },
+  "liveRecovery": {
+    "attempts": 1,
+    "uiAction": "원래 작업 복구",
+    "api": "reconcileStorageServiceOperation",
+    "uiError": "Rendered generation rollback failed; inspect its scoped recovery receipt",
+    "operation": {
+      "id": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 2,
+      "progress": 0,
+      "created": "2026-10-20T00:39:34+0900",
+      "heartbeat": "2026-10-20T00:39:54+0900",
+      "diagnostic": "Rendered scoped recovery remains pending"
+    },
+    "newForwardRestoreApplyCount": 0,
+    "success": false,
+    "readyToResume": false,
+    "originalNativeFailureRecordUnchanged": true,
+    "lowerFailureCauseConfirmed": false,
+    "warning": "The unchanged old Native diagnostic is not proof of the new nested failure cause."
+  },
+  "sourceEquivalence": {
+    "exitCode": 3,
+    "stderrBytes": 0,
+    "public": {
+      "accounts": {
+        "/etc/group": {
+          "observed": {
+            "bytes": 843,
+            "gid": 0,
+            "mode": 420,
+            "present": true,
+            "sha256": "6b6071e7d27af8783906f1b0935e52d2308c79124f3be72459c5f0b160fc6970",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/etc/gshadow": {
+          "observed": {
+            "bytes": 699,
+            "gid": 42,
+            "mode": 416,
+            "present": true,
+            "sha256": "0c8a74fa81ce756ad08e5dfa300b6d947d5b7e5f26a4ae49efdfe88630c095ef",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/etc/passwd": {
+          "observed": {
+            "bytes": 1842,
+            "gid": 0,
+            "mode": 420,
+            "present": true,
+            "sha256": "82133c772a2154d26563ee6871c81ec945d0af1f861bce6074c0c7f67a023728",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/etc/shadow": {
+          "observed": {
+            "bytes": 1019,
+            "gid": 42,
+            "mode": 416,
+            "present": true,
+            "sha256": "59dfdea772f1d52ff5d006a0b1e98e3c7601c307e253c1bade75398b4ec5d39f",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        }
+      },
+      "accountsSourceEquivalent": false,
+      "expectedSourceSha256": "4ebced64a8790dffc2790c96e948f5b3b9d2c3bd25c1094af7fade8d8d8da100",
+      "files": {
+        "/etc/ablestack-storage/smb-local-account-provenance.json": {
+          "observed": {
+            "bytes": 154,
+            "gid": 0,
+            "mode": 384,
+            "present": true,
+            "sha256": "e4574e785a8c9eefd1e1bb4c4c4e0ce119138cb406ea44391e7e301eeea67d15",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/etc/ablestack-storage/smb-managed-identities.json": {
+          "observed": {
+            "bytes": 2,
+            "gid": 0,
+            "mode": 384,
+            "present": true,
+            "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/etc/ablestack-storage/smb-semantic-identity-aliases.json": {
+          "observed": {
+            "present": false
+          },
+          "sourceEquivalent": true
+        },
+        "/var/lib/samba/private/passdb.tdb": {
+          "observed": {
+            "bytes": 421888,
+            "gid": 0,
+            "mode": 384,
+            "present": true,
+            "sha256": "b1cc659a2ec2ec6cee39378b5d1137a38dc677159a408168c561456a1153d8a0",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        },
+        "/var/lib/samba/private/secrets.tdb": {
+          "observed": {
+            "bytes": 438272,
+            "gid": 0,
+            "mode": 384,
+            "present": true,
+            "sha256": "568cc1831202356cb49a779ab583d09df589e7bbcea9e6f7ff9e2c5c19af5e82",
+            "uid": 0
+          },
+          "sourceEquivalent": false
+        }
+      },
+      "filesSourceEquivalent": false,
+      "kind": "ISSUE909_SOURCE_EQUIVALENCE_CHECK",
+      "phase": "post",
+      "plaintextIdentitiesExported": false,
+      "readOnly": true,
+      "schemaVersion": 1,
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "revision": 2
+      },
+      "sourceEquivalent": false
+    }
+  },
+  "preservation": {
+    "operation": {
+      "id": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 2,
+      "progress": 0,
+      "created": "2026-10-20T00:39:34+0900",
+      "heartbeat": "2026-10-20T00:39:54+0900",
+      "diagnostic": "Rendered scoped recovery remains pending"
+    },
+    "instance": {
+      "id": "7ce81c35-1189-46c7-955e-127b15205863",
+      "revision": null,
+      "state": "Running",
+      "healthstatus": null,
+      "diagnostic": null,
+      "pendingoperationid": null
+    },
+    "vm": {
+      "id": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+      "state": "Running",
+      "macAddress": "02:0d:00:cc:00:2e"
+    },
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "originalImportFrozenFieldsUnchanged": [
+      "plan",
+      "cloneAllocation",
+      "volumeExecutionPlan",
+      "cloneInitialBaseline",
+      "requestedVolumeMapping"
+    ],
+    "originalCheckpointsUnchanged": true,
+    "nativeCurrentBaselineUnchanged": true,
+    "nativeActivationUnchanged": true,
+    "nativePendingRetained": true,
+    "bootHeld": true,
+    "sourceRestoreCompleted": false,
+    "fullRestoreResumed": false,
+    "reconcileAttempts": 1,
+    "recoveryReady": false
+  },
+  "data": {
+    "fileCanariesUnchanged": 6,
+    "rawRegionsUnchanged": 4,
+    "filesystemUuidsUnchanged": true,
+    "guestReadOnly": true,
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225"
+  },
+  "cleanupBeforeRuntimeUpgrade": {
+    "nfs": {
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "public": {
+        "scope": {
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+          "revision": 2
+        },
+        "unit": "ablestack-storage-ganesha@0.0.0.0_2049.service",
+        "fingerprint": {
+          "protected": {
+            "rendered-generations/identity-checkpoints/c794a8f9-06fe-47cc-9e62-fbf1b37c446f.json": "00c495d4c4be4005a7338809e5419d2cc6826a1df41f9e425e580fe13838cda2",
+            "config-generations/current.json": "d2360c2c91efe76d76d5b1c536329d2691200968ce46812708a9d3369b5175d7",
+            "config-generations/pending.json": "b9af9805f561c2e757cfeaec9ec49753aebb594ce26e1aa7a03169b68712371f",
+            "template-maintenance.json": "f45d5a66da39670c32cc69b1475ab7241379dbff5529bc1569f41624bf1fc7b5",
+            "service-maintenance.json": "d8516e1af73a0c48e067431b3c0fa35fd3d0bf21ea0f4e311f98764d0ce126db",
+            "rendered-generations/activation.json": "ac279fd26d68dda028837eed892d53e57ac2b89ed78b9865134cb3c0025b2c70",
+            "checkpointSet": {
+              "fd19001d-f9bd-38fa-9670-c05ed505841b-journal.json": "d83c37eba5e2ff2983267831e6e9e0ad3da186065e9662caada5f6792cbd2d59",
+              "6e28492b-43aa-3011-95fd-a08c97ee84a2-cipher.json": "5d06b27260109061ad2caa5d0389859e45264e808af0ed7fc5b9cc3639b68242",
+              "fd19001d-f9bd-38fa-9670-c05ed505841b-cipher.json": "d54f17326bd787e0237f1b3a7cb0e9c6b183eaae7f3b4771cce063a3606a4dce",
+              "9c6b7cfc-e4ff-3457-8d09-44faccb90c52-journal.json": "374d7e020bb03af2b088daa3ea935cf05c897e54f57efabf7fd204bb61b53113",
+              "9c6b7cfc-e4ff-3457-8d09-44faccb90c52-cipher.json": "51c339f99d6f6027afdd307809d278d06b1fe35d7ed3b373e2d5188c91244919",
+              "6e28492b-43aa-3011-95fd-a08c97ee84a2-journal.json": "ddad07d242c9dbeddbee38a7c405c5b669ff298fdf3fd4df73ce4890b2901c5b"
+            }
+          },
+          "pid": 310108,
+          "startTicks": "2917778",
+          "configurationLinkIdentity": [
+            2054,
+            130943,
+            0
+          ],
+          "aliasInode": [
+            2064,
+            393219
+          ],
+          "sourceManifestSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+          "targetManifestSha256": "3f7dbea10365509c5b13a267b742ba2e343f1fe711e95c6e93c7c2b2b833821f"
+        },
+        "fingerprintSha256": "d0514fd376d17786b9cd09006bbd7c7746ad61e54acc10eb2524fcd06172d48a",
+        "apply": true,
+        "establishedNfsConnections": 0,
+        "plannedEffects": [
+          "stop exact owned Ganesha unit",
+          "normal unmount exact owned alias",
+          "unlink exact dangling config symlink"
+        ],
+        "privateStateEdits": 0,
+        "dataWrites": 0,
+        "macChanges": 0,
+        "success": true,
+        "ownedUnitStopped": true,
+        "ownedAliasNormallyUnmounted": true,
+        "onlyDanglingConfigurationUnlinked": true,
+        "allProtectedJournalsAndCiphertextsUnchanged": true
+      }
+    },
+    "netbios": {
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "public": {
+        "scope": {
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+          "revision": 2
+        },
+        "fingerprint": {
+          "pid": 310245,
+          "startTicks": "2918031",
+          "protected": {
+            "config-generations/current.json": "d2360c2c91efe76d76d5b1c536329d2691200968ce46812708a9d3369b5175d7",
+            "config-generations/pending.json": "b9af9805f561c2e757cfeaec9ec49753aebb594ce26e1aa7a03169b68712371f",
+            "template-maintenance.json": "f45d5a66da39670c32cc69b1475ab7241379dbff5529bc1569f41624bf1fc7b5",
+            "service-maintenance.json": "d8516e1af73a0c48e067431b3c0fa35fd3d0bf21ea0f4e311f98764d0ce126db",
+            "rendered-generations/activation.json": "ac279fd26d68dda028837eed892d53e57ac2b89ed78b9865134cb3c0025b2c70",
+            "rendered-generations/identity-checkpoints/c794a8f9-06fe-47cc-9e62-fbf1b37c446f.json": "00c495d4c4be4005a7338809e5419d2cc6826a1df41f9e425e580fe13838cda2"
+          },
+          "samAndAccounts": {
+            "/var/lib/samba/private/passdb.tdb": "b1cc659a2ec2ec6cee39378b5d1137a38dc677159a408168c561456a1153d8a0",
+            "/var/lib/samba/private/secrets.tdb": "568cc1831202356cb49a779ab583d09df589e7bbcea9e6f7ff9e2c5c19af5e82",
+            "/etc/ablestack-storage/smb-managed-identities.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "/etc/ablestack-storage/smb-local-account-provenance.json": "e4574e785a8c9eefd1e1bb4c4c4e0ce119138cb406ea44391e7e301eeea67d15",
+            "/etc/passwd": "82133c772a2154d26563ee6871c81ec945d0af1f861bce6074c0c7f67a023728",
+            "/etc/group": "6b6071e7d27af8783906f1b0935e52d2308c79124f3be72459c5f0b160fc6970",
+            "/etc/shadow": "59dfdea772f1d52ff5d006a0b1e98e3c7601c307e253c1bade75398b4ec5d39f",
+            "/etc/gshadow": "0c8a74fa81ce756ad08e5dfa300b6d947d5b7e5f26a4ae49efdfe88630c095ef"
+          },
+          "smbMainPid": 310275,
+          "nmbdEnabledBefore": "enabled"
+        },
+        "fingerprintSha256": "de46b6e96d5e5dffb1558579c8d488d18143b82cab8c05cdcdcc43b4bfab0d83",
+        "apply": true,
+        "plannedEffects": [
+          "normal stop exact failed-target nmbd.service",
+          "disable nmbd for rendered direct-SMB deployment policy"
+        ],
+        "sourceEnablementRestoreClaimed": false,
+        "privateStateEdits": 0,
+        "success": true,
+        "nmbdInactive": true,
+        "nmbdEnabledAfter": "disabled",
+        "smbMainPidUnchanged": true,
+        "samAndAccountHashesUnchanged": true,
+        "allProtectedJournalsUnchanged": true
+      }
+    },
+    "limits": "Only fixed failed-target daemons/config alias were cleaned. nmbd disable is explicit rendered445 normalization; old SOURCE owners[] proved inactive, not disabled."
+  },
+  "native": {
+    "current": {
+      "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "revision": 1,
+      "verifiedAt": 1792395320.1495302
+    },
+    "pending": {
+      "beforeSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "phase": "PREPARED",
+      "previous": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "revision": 1,
+        "verifiedAt": 1792395320.1495302
+      },
+      "revision": 2,
+      "startedAt": 1792424379.7214544
+    },
+    "activation": {
+      "activeDomain": "SMB",
+      "appliedDomains": [
+        "NFS"
+      ],
+      "changedDomains": [
+        "NFS",
+        "SMB",
+        "ISCSI",
+        "NVMEOF"
+      ],
+      "forwardFailure": {
+        "code": "NATIVE_CHILD_OUTPUT_INVALID",
+        "phase": "TRANSPORT",
+        "protocol": "SMB",
+        "schemaVersion": 1
+      },
+      "phase": "RECOVERY_REQUIRED",
+      "prerequisitesStarted": true,
+      "prerequisitesVerified": true,
+      "previousOperationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "previousSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+      "rollbackFailure": {
+        "code": "NATIVE_CHILD_FAILED",
+        "phase": "TRANSPORT",
+        "protocol": "GENERATION",
+        "schemaVersion": 1
+      },
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "revision": 2
+      },
+      "startedDomains": [
+        "NFS",
+        "SMB"
+      ],
+      "startedEpoch": 1792424402.1397529,
+      "targetSha256": "3f7dbea10365509c5b13a267b742ba2e343f1fe711e95c6e93c7c2b2b833821f"
+    },
+    "templateMaintenance": {
+      "bootHeld": true,
+      "kind": "SERVICE",
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "maintenanceUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "revision": 2
+      }
+    },
+    "serviceMaintenance": {
+      "owners": [],
+      "phase": "HELD",
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "maintenanceUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "revision": 2
+      },
+      "sourceActivation": {
+        "activeDomain": "NFS",
+        "appliedDomains": [],
+        "changedDomains": [
+          "NFS",
+          "SMB",
+          "ISCSI",
+          "NVMEOF"
+        ],
+        "phase": "ROLLED_BACK",
+        "prerequisitesStarted": true,
+        "prerequisitesVerified": true,
+        "previousOperationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "previousSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+        "rolledBackEpoch": 1792423134.3861248,
+        "scope": {
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "operationUuid": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+          "revision": 2
+        },
+        "startedDomains": [
+          "NFS"
+        ],
+        "startedEpoch": 1792415282.450028,
+        "targetSha256": "d3e520abba2c275b702ce827c0289c33796e4ecfbfb40a7c52d429784a979f17"
+      },
+      "sourceGeneration": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "revision": 1,
+        "verifiedAt": 1792395320.1495302
+      },
+      "sourceRendered": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "domainSha256": {
+          "ISCSI": "ad6f76728de426d7a7ed64684f2e2eff2249532847a5f32cf45442ad8303cdcd",
+          "NFS": "019ab3490962d09e06fac399f6b68a340279e6e19aa6c8f655a1303bdb4a9259",
+          "NVMEOF": "17dce5a75d309028de331782ec46d7657daed8da2599a30752dd334ed133ffab",
+          "SMB": "62d77596c7888c80cbafe18f37bae0114db8557ce2a23254eb0fd47424558326"
+        },
+        "files": {
+          "block/iscsi-plan.json": "85cf024940befd85a98b80e15dfe43345be2cd33936190b910db63cac27d1bb4",
+          "block/nvmeof-plan.json": "8f0a82ef8b260591546c239cab2071f8e6e8f322c5d805d6d4e874db4fe89601",
+          "desired-state.json": "4d40ee271f4047b595c70d74203bf226b0aff275242f59b05865a3614380dbf8",
+          "file-volumes.json": "212ca2487da78844d4ddb66bd9bdbfce1685aff1d3a5682b2e97115fe0a691e7",
+          "network-bindings.json": "77d45603db52b7c07393204adbe64b098694b1ebc646b83862eba4f52579de6a",
+          "nfs/manifest.json": "5b0aba8f1e92f2969253f09e9ad2bfcba3c2b588470d7b679fae9320b90c7a60",
+          "posix-plan.json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "prerequisites.json": "28178ac8224ecdbd084348bb777479839b498dde8ec4826404d8ee7eaeebc148",
+          "smb/manifest.json": "1bcb8cc63f3b158547af1537bd99013aeee636c317b61c3847524a8e839daf0f",
+          "smb/smb.conf": "0613a1682c47022dc1f18ae5de2345a5fb50fc5bf39c349f48caf0c9e40bc144"
+        },
+        "manifestSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+        "previousRenderedSha256": null,
+        "schemaVersion": 1,
+        "scope": {
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+          "revision": 1
+        }
+      },
+      "stoppedUnits": []
+    },
+    "smbRegistryCount": 1
+  },
+  "remaining": [
+    "Identify the new nested rollback failure without rerunning recovery",
+    "After approval, fix only the confirmed cause and prepare again",
+    "Final same-service four-protocol forward restore and external client I/O remain pending"
+  ],
+  "issueState": "OPEN",
+  "prState": "DRAFT",
+  "newIssuesCreated": 0,
+  "uiStandardization1275": "HOLD"
+}
