@@ -1,0 +1,628 @@
+{
+  "recordedAt": "2026-10-20T06:46:20.449294+09:00",
+  "scope": {
+    "issue": 909,
+    "epic": 898,
+    "pr": 1271,
+    "sharedFilesystemUuid": "886e9f06-a01e-4840-8bc5-970aca706295",
+    "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "jobUuid": "d975703d-c02b-4ba6-b395-27488244cb94",
+    "operationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2"
+  },
+  "deployedSourceCommit": "6669160a39c50fe0c358411791bb71545ea0fa36",
+  "cliSha256": "eaf3929e26ca345721bbd2a988f30cabc041a844439350f2cbaa603b601569af",
+  "profileRevision": 6,
+  "freshUiPlan": {
+    "importId": "42084fe7-1526-41c5-8505-cc1b29b90355",
+    "backupSha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+    "targetMode": "RESTORE_EXISTING",
+    "targetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "expectedRevision": 1,
+    "planState": "PLANNED",
+    "create": 13,
+    "update": [
+      {
+        "kind": "protocols",
+        "sourceUuid": "d9cec5a5-e753-4a80-94e2-0b341e8faf49",
+        "desired": {
+          "uuid": "d9cec5a5-e753-4a80-94e2-0b341e8faf49",
+          "protocol": "NFS",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 2049,
+          "state": "Ready",
+          "config": {
+            "protocolMode": "V4_ONLY",
+            "listenerGroups": [
+              {
+                "port": 2049,
+                "state": "Ready"
+              }
+            ],
+            "idMappingMode": "NAME_DOMAIN"
+          }
+        },
+        "targetUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "current": {
+          "uuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+          "protocol": "NFS",
+          "enabled": true,
+          "listen_ip": null,
+          "port": 2049,
+          "state": "Ready",
+          "config": {}
+        },
+        "action": "UPDATE"
+      }
+    ],
+    "preserve": [],
+    "listenerAddressMappings": {
+      "0.0.0.0": "0.0.0.0"
+    },
+    "volumeMappings": {
+      "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+      "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+      "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+      "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+    },
+    "resourceMappings": {
+      "protocols": {
+        "d9cec5a5-e753-4a80-94e2-0b341e8faf49": "cc00c23d-c146-46f4-81be-fbec2b70951d"
+      },
+      "identity-domain": {},
+      "file-shares": {},
+      "block-targets": {},
+      "access-rules": {},
+      "posix-directory-policies": {}
+    },
+    "blockers": [],
+    "automaticFormat": false,
+    "dataPolicy": "PRESERVE",
+    "requiredCredentials": [
+      {
+        "resourceUuid": "2da511be-a257-4a60-924f-c2c899ff8588",
+        "ruleUuid": "c488b4df-4364-46f7-a940-6ebdd7e44c10",
+        "principal": "issue909smb",
+        "coverage": "REQUIRES_REENTRY",
+        "kind": "SMB_LOCAL",
+        "fields": [
+          "password"
+        ]
+      },
+      {
+        "resourceUuid": "d85ceaf6-1046-42ec-9884-da5c1a84d954",
+        "ruleUuid": "01f1e097-05b4-43cf-925c-9a2b404e74f3",
+        "principal": "iqn.2026-10.local.ablestack:issue909-client13-1",
+        "coverage": "REQUIRES_REENTRY",
+        "kind": "ISCSI_CHAP",
+        "fields": [
+          "chapsecret"
+        ]
+      }
+    ],
+    "planHash": null
+  },
+  "execution": {
+    "actualBrowser": "Chrome",
+    "applyCount": 1,
+    "targetMode": "RESTORE_EXISTING",
+    "cloneSubstitution": false,
+    "newVirtualMachines": 0,
+    "newDisks": 0,
+    "macChanges": 0,
+    "jobStatus": 1,
+    "jobResultCode": 0,
+    "apiCommand": "org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd",
+    "created": "2026-10-20T06:35:30+0900",
+    "completed": "2026-10-20T06:36:29+0900",
+    "runtimeSuccess": true,
+    "runtimeStatus": "COMPLETE",
+    "details": "Reviewed all-protocol configuration applied during approved downtime",
+    "operation": {
+      "id": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "COMPLETE",
+      "phase": "COMPLETE",
+      "revision": 2,
+      "progress": 100,
+      "created": "2026-10-20T06:35:37+0900",
+      "heartbeat": "2026-10-20T06:36:17+0900",
+      "completed": "2026-10-20T06:36:29+0900"
+    }
+  },
+  "native": {
+    "generation": {
+      "generation": {
+        "configurationSha256": "92de4edcc4417d88f34caa979090848484125815c945cf0ca718760e91eec19e",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+        "revision": 2,
+        "verifiedAt": 1792445775.3284602
+      },
+      "generationStatus": "IN_SYNC",
+      "pendingOperationUuid": null
+    },
+    "renderedActivation": {
+      "activeDomain": "NVMEOF",
+      "appliedDomains": [
+        "NFS",
+        "SMB",
+        "ISCSI",
+        "NVMEOF"
+      ],
+      "changedDomains": [
+        "NFS",
+        "SMB",
+        "ISCSI",
+        "NVMEOF"
+      ],
+      "completedEpoch": 1792445779.1550462,
+      "phase": "COMPLETE",
+      "prerequisitesStarted": true,
+      "prerequisitesVerified": true,
+      "previousOperationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "previousSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+        "revision": 2
+      },
+      "startedDomains": [
+        "NFS",
+        "SMB",
+        "ISCSI",
+        "NVMEOF"
+      ],
+      "startedEpoch": 1792445763.833376,
+      "targetSha256": "920ae57f64615f69b913e811f2cf7f795b4fd17c0e36ee8babd192047c8f6461",
+      "verifiedEpoch": 1792445770.0284977
+    },
+    "bootHeld": false,
+    "healthStatus": "ok",
+    "localIdentity": {
+      "username": "issue909smb",
+      "uid": 1001,
+      "gid": 1001,
+      "sambaAccountExists": true
+    },
+    "iscsiChapRequired": "1",
+    "iscsiIdentity": {
+      "wwn": "T10 VPD Unit Serial Number: f5ee4307-38f3-49ef-a693-fe4495ef1671",
+      "backstore": "/sys/kernel/config/target/core/iblock_0/ablestack-d09fe726-aea7-412d-80f6-f60ecbe51f2d",
+      "mappedLunWriteProtect": "0"
+    },
+    "nvmeIdentity": {
+      "attr_serial": "be4932eafe9971cf4888",
+      "attr_model": "Linux",
+      "attr_allow_any_host": "0",
+      "device_uuid": "71b0b432-0b05-4d29-a323-02110323afb7",
+      "device_nguid": "00000000-0000-0000-0000-000000000000",
+      "enable": "1"
+    },
+    "nvmeAllowedHosts": [
+      "nqn.2026-10.local.ablestack:issue909-client13-1"
+    ]
+  },
+  "actualUi": [
+    {
+      "tab": "nfs",
+      "observed": true,
+      "expectedFields": [
+        "issue909-mixed-nfs",
+        "10.10.13.1/32",
+        "Ready",
+        "SPARSE"
+      ],
+      "domSha256": "d0176bf18e27b81a959f86f819c14d3718751a8da96c500336bdb58b5a4e07d5"
+    },
+    {
+      "tab": "smb",
+      "observed": true,
+      "expectedFields": [
+        "issue909-mixed-smb",
+        "issue909smb",
+        "CONSISTENT",
+        "Ready",
+        "SPARSE"
+      ],
+      "domSha256": "2fe058e3cb7c6736caaeba3cd1667e01a37273060f6643778706fcadc4102b12"
+    },
+    {
+      "tab": "iscsi",
+      "observed": true,
+      "expectedFields": [
+        "issue909-mixed-20261019",
+        "issue909chap",
+        "Ready",
+        "SPARSE"
+      ],
+      "domSha256": "8d50d574d6dd2b97f9820ec8a0f82b79d4a85913a8d6277fc05adb6089898af3"
+    },
+    {
+      "tab": "nvme",
+      "observed": true,
+      "expectedFields": [
+        "issue909-mixed-20261019",
+        "Host ACL 1개",
+        "/dev/sde",
+        "READY",
+        "SPARSE"
+      ],
+      "domSha256": "8d6698e83bbb3377908fda8eb6f69e8516f8ea8bd7de75efcdaf21ddf7dae4d0"
+    }
+  ],
+  "clients": {
+    "exitCode": 0,
+    "public": {
+      "mode": "restored",
+      "results": {
+        "NFS": {
+          "mode": "restored",
+          "server": "10.10.13.227",
+          "export": "issue909-mixed-nfs",
+          "mountSucceeded": true,
+          "connectedEpoch": 1792445993.7798038,
+          "canaryBytes": 65536,
+          "canarySha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+          "canaryMatches": true,
+          "afterRestoreWriteMatches": true,
+          "success": true,
+          "ioCompleteEpoch": 1792445993.7963686,
+          "unmountSucceeded": true,
+          "temporaryDirectoryRemoved": true,
+          "disconnectedEpoch": 1792445993.8148987
+        },
+        "SMB": {
+          "mode": "restored",
+          "client": "10.10.13.1",
+          "server": "10.10.13.227",
+          "share": "issue909-mixed-smb",
+          "username": "issue909smb",
+          "success": true,
+          "mountExit": 0,
+          "mountStderrBytes": 0,
+          "mountStderr": "",
+          "mountSucceeded": true,
+          "connectedEpoch": 1792445993.759635,
+          "bytes": 65536,
+          "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+          "dataMatches": true,
+          "restoredWriteSha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+          "restoredWriteMatches": true,
+          "ioCompleteEpoch": 1792445993.7967622,
+          "unmountSucceeded": true,
+          "temporaryDirectoryRemoved": true,
+          "disconnectedEpoch": 1792445993.8010664
+        },
+        "ISCSI": {
+          "mode": "restored",
+          "success": true,
+          "first": {
+            "event": "CONNECTED",
+            "protocol": "ISCSI"
+          },
+          "connectedEpoch": 1792445993.735968,
+          "stage": "COMPLETE",
+          "loginSucceeded": true,
+          "originalBytes": 65536,
+          "newBytes": 65536,
+          "writeDenied": false,
+          "scsiStatus": 0,
+          "senseKey": 0,
+          "sha256": "433cfc486135e1ae4a5d04f65ffd6be1a97259d5ff041f3a17a1ae2809a60d72",
+          "newSha256": "1eadca97abf9233ef8f88cacdaf7e33b2c7c7c9d8542555370ca4af7a5ca4cfd",
+          "ioCompleteEpoch": 1792445993.7846096,
+          "processExit": 0,
+          "stderrBytes": 0,
+          "logoutSucceeded": true,
+          "disconnectedEpoch": 1792445993.7992969
+        },
+        "NVME_OF": {
+          "tcp4420Reachable": true,
+          "mode": "restored",
+          "connect": {
+            "code": 0,
+            "stdout": "{\n  \"device\":\"nvme0\"\n}",
+            "stderr": ""
+          },
+          "expectedHostNqn": "nqn.2026-10.local.ablestack:issue909-client13-1",
+          "subsystemNqn": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+          "regions": [
+            {
+              "offset": 1048576,
+              "bytes": 65536,
+              "sha256": "82453847604f296a0366e423cb284284e24af9665eb3a98c70bad1397285e541"
+            },
+            {
+              "offset": 2097152,
+              "bytes": 65536,
+              "sha256": "462afdd5bd49ce180f4d3de648e634803bacee85bd4a92240530bf47351ff4a6"
+            }
+          ],
+          "controllersAfterConnect": [
+            {
+              "name": "nvme0",
+              "nqn": "nqn.2026-10.local.storage:issue909-mixed-20261019"
+            }
+          ],
+          "blockInventoryBeforeIdentityAssert": [
+            {
+              "name": "nvme0n1",
+              "wwid": "uuid.71b0b432-0b05-4d29-a323-02110323afb7"
+            },
+            {
+              "name": "nvme0c0n1",
+              "wwid": "uuid.71b0b432-0b05-4d29-a323-02110323afb7"
+            }
+          ],
+          "device": "/dev/nvme0n1",
+          "size": 2147483648,
+          "wwid": "uuid.71b0b432-0b05-4d29-a323-02110323afb7",
+          "namespaceIdentify": {
+            "nsze": 4194304,
+            "ncap": 4194304,
+            "nguid": "00000000000000000000000000000000",
+            "eui64": "0000000000000000",
+            "uuid": null,
+            "flbas": 0
+          },
+          "controllerIdentity": {
+            "sn": "be4932eafe9971cf4888",
+            "mn": "Linux                                   ",
+            "subnqn": "nqn.2026-10.local.storage:issue909-mixed-20261019"
+          },
+          "connectedEpoch": 1792445993.757624,
+          "directIoVerified": true,
+          "ioCompleteEpoch": 1792445993.784281,
+          "disconnect": {
+            "code": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          "pass": true,
+          "disconnectedEpoch": 1792445993.86634
+        }
+      },
+      "fourSessionsRequired": true,
+      "success": true,
+      "allFourSessionOverlap": {
+        "start": 1792445993.7798038,
+        "end": 1792445993.7992969,
+        "seconds": 0.01949310302734375
+      }
+    },
+    "stderr": ""
+  },
+  "dataAfterClients": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "public": {
+      "files": {
+        "NFS": {
+          "issue909-mixed-nfs-canary.bin": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 393220,
+            "uid": 0,
+            "gid": 0,
+            "mode": "0o644"
+          },
+          "issue909-mixed-nfs-canary.bin-after-restore": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 393221,
+            "uid": 0,
+            "gid": 0,
+            "mode": "0o644"
+          },
+          "issue909-mixed-nfs-canary.bin-lkg-manual-write": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 393222,
+            "uid": 0,
+            "gid": 0,
+            "mode": "0o644"
+          }
+        },
+        "SMB": {
+          "issue909-mixed-smb-canary.bin": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 15,
+            "uid": 1001,
+            "gid": 1001,
+            "mode": "0o660"
+          },
+          "issue909-mixed-smb-canary.bin-restored-write": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 16,
+            "uid": 1001,
+            "gid": 1001,
+            "mode": "0o660"
+          },
+          "issue909-mixed-smb-canary.bin-lkg-manual-write": {
+            "exists": true,
+            "bytes": 65536,
+            "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+            "inode": 17,
+            "uid": 1001,
+            "gid": 1001,
+            "mode": "0o660"
+          }
+        }
+      },
+      "blocks": {
+        "ISCSI": {
+          "volumeUuid": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+          "regions": [
+            {
+              "offset": 1048576,
+              "bytes": 65536,
+              "sha256": "433cfc486135e1ae4a5d04f65ffd6be1a97259d5ff041f3a17a1ae2809a60d72",
+              "zero": false
+            },
+            {
+              "offset": 2097152,
+              "bytes": 65536,
+              "sha256": "1eadca97abf9233ef8f88cacdaf7e33b2c7c7c9d8542555370ca4af7a5ca4cfd",
+              "zero": false
+            }
+          ]
+        },
+        "NVME_OF": {
+          "volumeUuid": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+          "regions": [
+            {
+              "offset": 1048576,
+              "bytes": 65536,
+              "sha256": "82453847604f296a0366e423cb284284e24af9665eb3a98c70bad1397285e541",
+              "zero": false
+            },
+            {
+              "offset": 2097152,
+              "bytes": 65536,
+              "sha256": "462afdd5bd49ce180f4d3de648e634803bacee85bd4a92240530bf47351ff4a6",
+              "zero": false
+            }
+          ]
+        }
+      },
+      "newClientFiles": {
+        "NFS": {
+          "name": "issue909-mixed-nfs-canary.bin-final-fdrelay-3b2845c4",
+          "bytes": 65536,
+          "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+          "uid": 0,
+          "gid": 0,
+          "mode": "0o644"
+        },
+        "SMB": {
+          "name": "issue909-mixed-smb-canary.bin-final-fdrelay-3b2845c4",
+          "bytes": 65536,
+          "sha256": "d315da9553e7464c8f1b42dd1129cfd77239f0a27fc126e98b7470e5035cd094",
+          "uid": 1001,
+          "gid": 1001,
+          "mode": "0o660"
+        }
+      },
+      "success": true,
+      "readOnly": true,
+      "oldFilesPreserved": 6,
+      "rawRegionsPreserved": 4,
+      "postRestoreNewFilesVerified": 2
+    }
+  },
+  "resourcePreservation": {
+    "vm": {
+      "id": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+      "name": "sharedfs-issue909-final-existing-4574712-202-1a15314887f",
+      "state": "Running",
+      "hostname": "ablecube13-1"
+    },
+    "mac": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "restorePoints": [
+      {
+        "id": "a686acba-bba8-46e4-bcc7-ee3c23d52733",
+        "state": "ACTIVE_LKG",
+        "sha256": "a60d26e668a96dc0ec990478fac7b5736e17fa4c973912850559ca1b8359845d",
+        "desiredRevision": 2,
+        "runtimeRevision": null
+      },
+      {
+        "id": "36368268-08e1-4024-944e-e67742f3532f",
+        "state": "SUPERSEDED",
+        "sha256": "ca302769082a8e8299f213d1b531dd3f5bbdd5d0cbd0e51a071cd0e488daec2b",
+        "desiredRevision": 1,
+        "runtimeRevision": null
+      }
+    ]
+  },
+  "metadataDefect": {
+    "classification": "STALE_API_ARTIFACT_DIAGNOSTIC",
+    "isCurrentRestoreExecutionFailure": false,
+    "isIntentionalVersionedHistoryField": false,
+    "source": "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.java",
+    "failureSetterLine": 925,
+    "successWithoutClearLine": 920,
+    "responseProjectionLine": 1107,
+    "cloneSuccessClearContrastLine": 937,
+    "actualSuccessfulArtifactSummary": {
+      "id": "42084fe7-1526-41c5-8505-cc1b29b90355",
+      "kind": "IMPORT",
+      "state": "ARCHIVE_VALIDATED",
+      "desiredRevision": 1,
+      "size": 10285,
+      "sha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+      "created": 1792423194000,
+      "createdBy": 2,
+      "expires": 1793027994000,
+      "metadata": {
+        "phase": "DRY_RUN_REVIEW",
+        "restoreState": "COMPLETE",
+        "errorCode": "CONFIG_RESTORE_FAILED"
+      }
+    },
+    "impact": "A consumer reading metadata.errorCode can misclassify the successful restore as failed. The current job, operation, Native generation, clients and LKG all succeeded.",
+    "proposedFix": "Clear the current errorCode only after verified restore completion; preserve original failed jobs and operation diagnostics as history.",
+    "implementedThisTurn": false
+  },
+  "harnessCorrections": {
+    "nfsMountAliases": "Expected restored NFS bind alias is checked separately from bytes/FS/volume identity.",
+    "namespaceIdentity": "Mold resource UUID and kernel NVMe device UUID are separate; current NQN/NSID/device UUID is cross-checked against exact volume serial/size before client I/O.",
+    "postRestoreFiles": "Unique suffix used for two new client writes; no existing file overwritten."
+  },
+  "functionalValidationPassed": true,
+  "closureReady": false,
+  "stopReason": "Confirmed API success-response metadata cleanup defect",
+  "newProductCodeChanges": 0,
+  "newApplyAfterDefect": 0,
+  "manualRecoveryAfterDefect": 0,
+  "issueState": "OPEN",
+  "prState": "DRAFT",
+  "newIssuesCreated": 0,
+  "waitingForUser": true
+}
