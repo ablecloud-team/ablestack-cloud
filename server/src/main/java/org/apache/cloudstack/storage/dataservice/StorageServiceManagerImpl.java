@@ -256,7 +256,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void recoverInterruptedStorageWriter(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
         if ("SERVICE_MAINTENANCE".equals(operation.getAction())
                 && !parseJsonObject(operation.getPreviousSnapshotJson()).has("renderedGeneration")) {
-            recoverCheckpointlessApprovedServiceSource(instance,operation);return;
+            if (operation.getRevision()>2)recoverPreImportApprovedServiceSource(instance,operation);
+            else recoverCheckpointlessApprovedServiceSource(instance,operation);
+            return;
         }
         if (recoverOperationFinalization(instance,operation)) return;
         if (recoverUnchangedVerifiedSource(instance,operation)) return;
@@ -497,6 +499,164 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 || !java.util.Objects.equals(operation.getResultJson(),fresh.getResultJson()) || storageOperationControlDao.findByOperation(operation.getId())!=null)
             throw new CloudRuntimeException("Checkpointless SERVICE recovery lacks its exact pre-checkpoint original writer");
         return initialServiceSourceProof(instance,operation,previous,null);
+    }
+
+    /** Explicitly closes only an unchanged SERVICE writer that failed before SOURCE import had any effects. */
+    protected void recoverPreImportApprovedServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId()))
+            throw new CloudRuntimeException("Pre-import SERVICE recovery requires its original administrator's explicit reconciliation");
+        beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=preImportApprovedServiceSourceProof(instance,operation);
+            JsonObject result=parseJsonObject(operation.getResultJson());String key=StorageUnchangedVerifiedSourceRecovery.SERVICE_IMPORT_RESULT_KEY;
+            if(result.has(key)&&!StorageUnchangedVerifiedSourceRecovery.same(result.get(key),proof))
+                throw new CloudRuntimeException("Pre-import SERVICE SOURCE intent changed");
+            if(!result.has(key)) {
+                result.add(key,proof.deepCopy());operation.setResultJson(result.toString());
+                if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Pre-import SERVICE SOURCE intent could not be persisted");
+            }
+            if(!StorageUnchangedVerifiedSourceRecovery.same(proof,preImportApprovedServiceSourceProof(instance,operation)))
+                throw new CloudRuntimeException("Pre-import SERVICE SOURCE changed before finalization");
+            requireNoOperationCancellation(operation);
+            String diagnostic=StringUtils.defaultString(operation.getDiagnostic())+" | Explicit original administrator verified unchanged pre-import SOURCE; no protocol replay or native mutation";
+            if(diagnostic.length()>2048)throw new CloudRuntimeException("Original SERVICE failure exceeds the finalization diagnostic bound");
+            operation.setDiagnostic(diagnostic);completeOperationFinalization(operation,"ROLLED_BACK");
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    private void requireExactPreImportServiceWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireConfigurationAdministrator();
+        if(!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId())
+                || storageWriterOperation.get()!=operation || operation.getInstanceId()!=instance.getId() || instance.getVmId()==null
+                || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || storageOperationDao==null || storageOperationControlDao==null || storageTemplateUpgradeDao==null
+                || storageRuntimeUpgradeDao==null || storageConfigArtifactDao==null || volumeDao==null
+                || !StorageUnchangedVerifiedSourceRecovery.eligiblePreImportService(operation)
+                || storageOperationControlDao.findByOperation(operation.getId())!=null)
+            throw new CloudRuntimeException("Pre-import SERVICE recovery lacks its original administrator and checkpointless writer");
+        StorageServiceOperationVO fresh=storageOperationDao.findById(operation.getId());
+        if(fresh==null || !StorageUnchangedVerifiedSourceRecovery.eligiblePreImportService(fresh)
+                || fresh.getId()!=operation.getId() || fresh.getInstanceId()!=operation.getInstanceId()
+                || fresh.getCreatedBy()!=operation.getCreatedBy() || fresh.getRevision()!=operation.getRevision()
+                || !java.util.Objects.equals(fresh.getUuid(),operation.getUuid())
+                || !java.util.Objects.equals(fresh.getAction(),operation.getAction())
+                || !java.util.Objects.equals(fresh.getState(),operation.getState())
+                || !java.util.Objects.equals(fresh.getPhase(),operation.getPhase())
+                || !java.util.Objects.equals(fresh.getRequestKey(),operation.getRequestKey())
+                || !java.util.Objects.equals(fresh.getPreviousSnapshotJson(),operation.getPreviousSnapshotJson())
+                || !java.util.Objects.equals(fresh.getSnapshotJson(),operation.getSnapshotJson())
+                || !java.util.Objects.equals(fresh.getResultJson(),operation.getResultJson())
+                || !java.util.Objects.equals(fresh.getDiagnostic(),operation.getDiagnostic()))
+            throw new CloudRuntimeException("Pre-import SERVICE original writer changed");
+    }
+
+    protected JsonObject preImportApprovedServiceSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        requireExactPreImportServiceWriter(instance,operation);requireNoOperationCancellation(operation);
+        List<StorageServiceOperationSummary> history=operationSummaries(instance.getId());
+        if(history==null||StorageOperationReconciliation.supersededSummaries(operation,history))
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE is superseded or unavailable");
+        StorageServiceOperationSummary source=null;
+        for(StorageServiceOperationSummary row:history) {
+            if(row.getId()!=operation.getId() && (Set.of("RUNNING","RECOVERY_REQUIRED").contains(row.getState()) || row.getRevision()>=operation.getRevision()))
+                throw new CloudRuntimeException("Another writer prevents pre-import SERVICE SOURCE recovery");
+            if("COMPLETE".equals(row.getState())&&(source==null||row.getRevision()>source.getRevision()))source=row;
+        }
+        if(source==null||source.getRevision()!=operation.getRevision()-1)
+            throw new CloudRuntimeException("Pre-import SERVICE requires its immediately preceding COMPLETE SOURCE");
+        final long sourceRevision=source.getRevision();
+        if(history.stream().filter(row->"COMPLETE".equals(row.getState())&&row.getRevision()==sourceRevision).count()!=1)
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE revision is ambiguous");
+        StorageServiceOperationVO sourceRow=fullOperation(source),freshSource=storageOperationDao.findById(source.getId());
+        requireExactPreImportServiceCompletedSource(instance,operation,sourceRow,freshSource);
+        requireVolumeResumeIdle(instance,operation);requireNoPendingVolumeFormatter(instance);
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status"),generation=getJsonObject(status,"generation");
+        if(generation==null)throw new CloudRuntimeException("Pre-import SERVICE native SOURCE is unavailable");
+        JsonObject frozen=rootGuest(instance,"operation generation frozen",generation,30);
+        JsonObject proof=StorageUnchangedVerifiedSourceRecovery.requirePreImportService(instance.getUuid(),operation,freshSource,
+                captureConfigurationSnapshot(instance.getId()),operationResourceBindings(instance),status,frozen);
+        requirePreImportServiceUnheld(instance,operation);
+        JsonObject lkg=preImportServiceLkgProof(instance,freshSource,status);
+        JsonObject health=rootGuest(instance,"operation verify",new JsonObject(),60),inventory=rootGuest(instance,"operation observe",new JsonObject(),30);
+        StorageRecoveryObservation.requireFresh(health,System.currentTimeMillis()/1000.0);
+        StorageRecoveryObservation.requireFresh(inventory,System.currentTimeMillis()/1000.0);
+        if(!Boolean.TRUE.equals(getNativeBoolean(health,"success"))||!"ok".equalsIgnoreCase(getJsonString(health,"status"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(inventory,"success"))||!"ok".equalsIgnoreCase(getJsonString(inventory,"status")))
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE runtime is not freshly verified");
+        verifyReconciledStorageDesiredState(instance);
+        JsonObject data=currentSmbDataIdentity(instance,operation);
+        if(!status.get("bootId").equals(data.get("bootId")))throw new CloudRuntimeException("Pre-import SERVICE SOURCE DATA boot changed");
+        StorageCanonicalRecovery.requireSourceData(frozen.getAsJsonObject("configurationDesiredState"),data);
+        JsonObject bindings=operationResourceBindings(instance);
+        if(!bindings.getAsJsonObject("dataVolumes").keySet().equals(StorageConfigInitialBaseline.stableData(data).getAsJsonObject("volumes").keySet()))
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE physical DATA coverage changed");
+        JsonObject lease=rootGuest(instance,"operation reservation status",operationReservationRequest(instance,operation),15);
+        requireFreshReservationObservation(lease);
+        if(!Boolean.TRUE.equals(getNativeBoolean(lease,"success"))||!Boolean.TRUE.equals(getNativeBoolean(lease,"reservationSupported"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(lease,"logicalReservationOnly"))||!Boolean.FALSE.equals(getNativeBoolean(lease,"reservationAcquired"))
+                ||!Boolean.FALSE.equals(getNativeBoolean(lease,"expired"))||!lease.has("scope")||!lease.get("scope").isJsonNull()
+                ||!lease.has("requirements")||!lease.get("requirements").isJsonNull()||!lease.has("leaseBootId")||!lease.get("leaseBootId").isJsonNull()
+                ||!status.get("bootId").equals(lease.get("bootId")))
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE logical reservation is not absent");
+        requirePreImportServiceUnheld(instance,operation);
+        JsonObject latest=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject finalProof=StorageUnchangedVerifiedSourceRecovery.requirePreImportService(instance.getUuid(),operation,freshSource,
+                captureConfigurationSnapshot(instance.getId()),operationResourceBindings(instance),latest,frozen);
+        if(!StorageUnchangedVerifiedSourceRecovery.same(proof,finalProof)||!lkg.equals(preImportServiceLkgProof(instance,freshSource,latest)))
+            throw new CloudRuntimeException("Pre-import SERVICE SOURCE changed during physical observation");
+        requireExactPreImportServiceWriter(instance,operation);
+        requireExactPreImportServiceCompletedSource(instance,operation,sourceRow,storageOperationDao.findById(source.getId()));
+        proof.add("activeLkg",lkg);
+        proof.addProperty("dataIdentitySha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(StorageConfigInitialBaseline.stableData(data))));
+        return proof;
+    }
+
+    private void requireExactPreImportServiceCompletedSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,
+            StorageServiceOperationVO source,StorageServiceOperationVO fresh) {
+        if(source==null||fresh==null||source.getId()!=fresh.getId()||source.getId()==operation.getId()
+                ||fresh.getInstanceId()!=instance.getId()||fresh.getCreatedBy()!=operation.getCreatedBy()
+                ||fresh.getRevision()!=operation.getRevision()-1||!"COMPLETE".equals(fresh.getState())||!"COMPLETE".equals(fresh.getPhase())
+                ||!java.util.Objects.equals(source.getUuid(),fresh.getUuid())||source.getRevision()!=fresh.getRevision()
+                ||!java.util.Objects.equals(source.getSnapshotJson(),fresh.getSnapshotJson())||!java.util.Objects.equals(source.getResultJson(),fresh.getResultJson()))
+            throw new CloudRuntimeException("Pre-import SERVICE COMPLETE SOURCE changed");
+    }
+
+    private void requirePreImportServiceUnheld(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        for(String action:List.of("operation maintenance status","operation maintenance service-status")) {
+            JsonObject held=rootGuest(instance,action,serviceMaintenanceScope(instance,operation),15);
+            if(!Boolean.TRUE.equals(getNativeBoolean(held,"success"))||!Boolean.TRUE.equals(getNativeBoolean(held,"maintenanceSupported"))
+                    ||!Boolean.TRUE.equals(getNativeBoolean(held,"serviceMaintenanceSupported"))||!Boolean.FALSE.equals(getNativeBoolean(held,"bootHeld"))
+                    ||!held.has("scope")||!held.get("scope").isJsonNull())
+                throw new CloudRuntimeException("Pre-import SERVICE requires absence of ROOT and SERVICE holds");
+        }
+        JsonObject rendered=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
+        if(!Boolean.TRUE.equals(getNativeBoolean(rendered,"success"))||!Boolean.TRUE.equals(getNativeBoolean(rendered,"renderedGenerationSupported"))
+                ||!Boolean.FALSE.equals(getNativeBoolean(rendered,"bootHeld"))||!rendered.has("current")||!rendered.get("current").isJsonNull()
+                ||!rendered.has("activation")||!rendered.get("activation").isJsonNull())
+            throw new CloudRuntimeException("Pre-import SERVICE requires absent rendered SOURCE and activation");
+    }
+
+    protected JsonObject preImportServiceLkgProof(StorageServiceInstanceVO instance,StorageServiceOperationVO source,JsonObject status) {
+        StorageConfigArtifactVO lkg=null;
+        for(StorageConfigArtifactVO row:storageConfigArtifactDao.listByInstance(instance.getId()))if("RESTORE_POINT".equals(row.getKind())&&"ACTIVE_LKG".equals(row.getState())) {
+            if(lkg!=null)throw new CloudRuntimeException("Pre-import SERVICE active LKG is ambiguous");lkg=row;
+        }
+        if(lkg==null||lkg.getInstanceId()!=instance.getId()||lkg.getSourceOperationId()==null||lkg.getSourceOperationId()!=source.getId()
+                ||lkg.getDesiredRevision()!=source.getRevision()||lkg.getCreatedBy()!=source.getCreatedBy()||lkg.getRemoved()!=null)
+            throw new CloudRuntimeException("Pre-import SERVICE ACTIVE_LKG is not its completed SOURCE");
+        JsonObject metadata=parseJsonObject(lkg.getMetadataJson()),evidence=getJsonObject(metadata,"runtimeEvidence"),generation=getJsonObject(status,"generation");
+        JsonObject stored=evidence==null?null:getJsonObject(evidence,"nativeGeneration");
+        if(!"VERIFIED_SUCCESS".equals(getJsonString(metadata,"verification"))||!instance.getUuid().equals(getJsonString(metadata,"sourceInstanceUuid"))
+                ||!source.getUuid().equals(getJsonString(metadata,"operationUuid"))||!java.util.Objects.equals(getJsonLong(metadata,"desiredRevision"),source.getRevision())
+                ||generation==null||!generation.equals(metadata.get("nativeGeneration"))||stored==null
+                ||!generation.equals(stored.get("generation"))||!status.get("bootId").equals(stored.get("bootId"))
+                ||!status.get("configurationSha256").equals(stored.get("configurationSha256"))
+                ||!StorageConfigArchive.sha256(source.getSnapshotJson().getBytes(java.nio.charset.StandardCharsets.UTF_8)).equals(getJsonString(evidence,"desiredSnapshotSha256")))
+            throw new CloudRuntimeException("Pre-import SERVICE ACTIVE_LKG native SOURCE witness changed");
+        StorageConfigArtifactStore store=new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.config.path","/var/lib/cloudstack-management/storage-config-artifacts")));
+        StorageConfigRuntimeEvidence.requireStored(evidence,instance.getUuid(),source.getUuid(),source.getRevision(),StorageConfigArchive.validate(store.read(lkg.getUuid(),lkg.getSha256())));
+        JsonObject proof=new JsonObject();proof.addProperty("uuid",lkg.getUuid());proof.addProperty("sha256",lkg.getSha256());
+        proof.addProperty("metadataSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(metadata)));return proof;
     }
 
     /** SOURCE facts shared by two separately admitted initial-service recovery boundaries. */
@@ -1365,7 +1525,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceGuestCommandResult result = "network endpoints reconcile".equals(command)
                 ? dispatchPlainProtocolApply(instance, guest) : guestCommandDispatcher.dispatch(guest);
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
-        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed,"success"))) throw new CloudRuntimeException("ROOT runtime step failed: " + command);
+        if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed,"success"))) {
+            String fixed=null;
+            if ("operation generation render-import".equals(command)) {
+                fixed=renderedRuntimeFailureDiagnostic(result.getResultJson());
+                if (fixed!=null&&fixed.contains("phase=STAGE;"))fixed=null;
+                if (fixed==null)fixed=renderedValidationFailureDiagnostic(result.getResultJson());
+                StorageServiceOperationVO writer=storageWriterOperation.get();
+                if (fixed!=null&&writer!=null)saveRenderedFailureDiagnostic(instance,writer,"import",fixed);
+            }
+            throw new CloudRuntimeException("ROOT runtime step failed: " + command+(fixed==null?"":" ["+fixed+"]"));
+        }
         return observed;
     }
 
@@ -2690,6 +2860,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         java.util.Map<String, String> phases = java.util.Map.ofEntries(
             java.util.Map.entry("NATIVE_CHILD_TIMEOUT", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"),
             java.util.Map.entry("NATIVE_CHILD_FAILED", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"),
+            java.util.Map.entry("IMPORT_INPUT_INVALID", "IMPORT"), java.util.Map.entry("IMPORT_CREDENTIAL_BINDING_FAILED", "IMPORT"),
+            java.util.Map.entry("IMPORT_RENDER_FAILED", "IMPORT"), java.util.Map.entry("IMPORT_SOURCE_SCOPE_MISMATCH", "IMPORT"),
+            java.util.Map.entry("IMPORT_CANDIDATE_VALIDATION_FAILED", "IMPORT"), java.util.Map.entry("IMPORT_SOURCE_VERIFY_FAILED", "IMPORT"),
+            java.util.Map.entry("IMPORT_PUBLICATION_FAILED", "IMPORT"),
             java.util.Map.entry("STAGE_INPUT_INVALID", "STAGE"), java.util.Map.entry("STAGE_CREDENTIAL_BINDING_FAILED", "STAGE"),
             java.util.Map.entry("STAGE_RENDER_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_SCOPE_MISMATCH", "STAGE"),
             java.util.Map.entry("STAGE_SOURCE_VERIFY_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_IDENTITY_FAILED", "STAGE"),
@@ -2730,6 +2904,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             String code = diagnostic.get("code"), protocol = diagnostic.get("protocol");
             if ((code.startsWith("NFS_") || "ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code)) && !"NFS".equals(protocol)) return null;
             if ((code.startsWith("STAGE_") || "RUNTIME_PREPARE_FAILED".equals(code) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)) && !"GENERATION".equals(protocol)) return null;
+            if (code.startsWith("IMPORT_") && !"IMPORT_RENDER_FAILED".equals(code) && !"GENERATION".equals(protocol)) return null;
             return "runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + diagnostic.get("phase") + "; code=" + code;
         } catch (java.io.IOException | RuntimeException unavailable) {return null;}
     }
@@ -2770,7 +2945,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     /** Persists only text synthesized by the closed diagnostic parsers, bound to the exact writer. */
     protected void saveRenderedFailureDiagnostic(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action,String fixed) {
         if(operation.getId()<=0||operation.getInstanceId()!=instance.getId()||storageWriterOperation.get()!=operation
-                ||!Set.of("stage","activate","rollback","finalize").contains(action))return;
+                ||!Set.of("import","stage","activate","rollback","finalize").contains(action))return;
         JsonObject receipt=new JsonObject();receipt.addProperty("schemaVersion",1);
         receipt.add("scope",operationReservationScope(instance,operation));receipt.addProperty("action",action);
         receipt.addProperty("diagnostic",fixed);JsonObject result=parseJsonObject(operation.getResultJson());
@@ -2787,6 +2962,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     String fixed=renderedRuntimeFailureDiagnostic(result.getResultJson());
                     if (fixed == null) fixed=renderedValidationFailureDiagnostic(result.getResultJson());
                     if(fixed!=null&&fixed.contains("phase=STAGE;")&&!"stage".equals(action))fixed=null;
+                    if(fixed!=null&&fixed.contains("phase=IMPORT;")&&!"import".equals(action))fixed=null;
                     if(fixed!=null)saveRenderedFailureDiagnostic(instance,batch.operation,action,fixed);
                     throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt"+(fixed==null?"":" ["+fixed+"]"));
                 }

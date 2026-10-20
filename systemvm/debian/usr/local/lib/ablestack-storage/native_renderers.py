@@ -179,6 +179,36 @@ def render_smb_candidate(payload, cli, credential_refs=None):
     files['smb/manifest.json']=json.dumps({'enabled':bool(payload.get('enabled',True)),'netbiosName':netbios,'shares':manifest_shares,'listeners':[{'listenIp':ip,'port':port} for ip,port in rows]},sort_keys=True)
     return files
 
+def block_listener_ports(item):
+    """Interpret legacy aliases without changing canonical SOURCE/TARGET bytes."""
+    config=item.get('config') or {}
+    if not isinstance(config,dict):raise ValueError('Block listener group config is invalid')
+    declarations=[]
+    for container,keys in ((item,('listenerPorts','listenerports')),
+                           (config,('listenerGroupPorts','listenergroupports','listenerPorts','listenerports'))):
+        for key in keys:
+            value=container.get(key)
+            if value is None or value==[] or isinstance(value,str) and not value.strip():
+                continue
+            if isinstance(value,str):
+                tokens=value.split(',')
+                if any(not re.fullmatch(r'[0-9]+',token.strip()) for token in tokens):
+                    raise ValueError('Block listener group is invalid')
+                ports=[int(token.strip()) for token in tokens]
+            elif isinstance(value,list):
+                if any(type(port) is not int for port in value):
+                    raise ValueError('Block listener group is invalid')
+                ports=value
+            else:raise ValueError('Block listener group is invalid')
+            if any(not 1<=port<=65535 for port in ports) or len(set(ports))!=len(ports):
+                raise ValueError('Block listener group is invalid')
+            selected=set(ports)
+            if declarations and selected!=declarations[0]:
+                raise ValueError('Block listener group representations conflict')
+            declarations.append(selected)
+    return declarations[0] if declarations else None
+
+
 def render_block_candidate(payload, protocol, resolve_device, credential_refs=None):
     if protocol not in ('ISCSI','NVMEOF'):raise ValueError('Unknown block protocol renderer')
     collection='targets' if protocol=='ISCSI' else 'subsystems';default_port=3260 if protocol=='ISCSI' else 4420
@@ -221,12 +251,8 @@ def render_block_candidate(payload, protocol, resolve_device, credential_refs=No
             acls.append({'uuid':acl.get('uuid'),'principal':principal,'config':{key:config[key] for key in fields if key in config},'credentialRef':refs})
         requested=set()
         for item in items:
-            config=item.get('config') or {}
-            selected=item.get('listenerPorts') or config.get('listenerGroupPorts') or config.get('listenerPorts')
-            if selected is not None:
-                if not isinstance(selected,list) or any(isinstance(port,bool) or not isinstance(port,int) for port in selected):
-                    raise ValueError('Block listener group is invalid')
-                requested.update(selected)
+            selected=block_listener_ports(item)
+            if selected is not None:requested.update(selected)
         selected_listeners=[item for item in normalized if not requested or item['port'] in requested]
         if not selected_listeners or requested-set(item['port'] for item in normalized):
             raise ValueError('Block listener group refers to an unavailable endpoint')

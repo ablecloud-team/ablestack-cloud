@@ -359,6 +359,10 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             java.util.Map.entry("RUNTIME_APPLY_FAILED", "APPLY"), java.util.Map.entry("RUNTIME_VERIFY_FAILED", "VERIFY"),
             java.util.Map.entry("RUNTIME_ROLLBACK_FAILED", "ROLLBACK"), java.util.Map.entry("ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"),
             java.util.Map.entry("NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"), java.util.Map.entry("NFS_ALIAS_UNMOUNT_UNVERIFIED", "CLEANUP"),
+            java.util.Map.entry("IMPORT_INPUT_INVALID", "IMPORT"), java.util.Map.entry("IMPORT_CREDENTIAL_BINDING_FAILED", "IMPORT"),
+            java.util.Map.entry("IMPORT_RENDER_FAILED", "IMPORT"), java.util.Map.entry("IMPORT_SOURCE_SCOPE_MISMATCH", "IMPORT"),
+            java.util.Map.entry("IMPORT_CANDIDATE_VALIDATION_FAILED", "IMPORT"), java.util.Map.entry("IMPORT_SOURCE_VERIFY_FAILED", "IMPORT"),
+            java.util.Map.entry("IMPORT_PUBLICATION_FAILED", "IMPORT"),
             java.util.Map.entry("STAGE_INPUT_INVALID", "STAGE"), java.util.Map.entry("STAGE_CREDENTIAL_BINDING_FAILED", "STAGE"),
             java.util.Map.entry("STAGE_RENDER_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_SCOPE_MISMATCH", "STAGE"),
             java.util.Map.entry("STAGE_SOURCE_VERIFY_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_IDENTITY_FAILED", "STAGE"),
@@ -396,6 +400,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             if ((code.startsWith("NFS_") || "ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code)) && !"NFS".equals(protocol)) return null;
             if (("RUNTIME_PREPARE_FAILED".equals(code) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)) && !"GENERATION".equals(protocol)) return null;
             if (code.startsWith("STAGE_") && !"GENERATION".equals(protocol)) return null;
+            if (code.startsWith("IMPORT_") && !"IMPORT_RENDER_FAILED".equals(code) && !"GENERATION".equals(protocol)) return null;
             return "runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + diagnostic.get("phase") + "; code=" + code;
         } catch (java.io.IOException | RuntimeException unavailable) {return null;}
     }
@@ -447,6 +452,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         if (renderedGenerationOperation(command)) {
             String fixed=renderedRuntimeFailureDiagnostic(stdout);
             if (fixed != null && fixed.contains("; phase=STAGE;") && !"operation generation render-stage".equals(command.getOperation())) fixed=null;
+            if (fixed != null && fixed.contains("; phase=IMPORT;") && !"operation generation render-import".equals(command.getOperation())) fixed=null;
             if (fixed == null) fixed=renderedValidationFailureDiagnostic(stdout);
             String masked=hasSensitivePayload(command)?"Sensitive Storage Service command failed with exit code "+exitCode+"; secret-bearing output omitted"
                 :"Rendered Storage Service command failed with exit code "+exitCode+"; guest diagnostic omitted";

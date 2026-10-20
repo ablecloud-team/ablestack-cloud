@@ -167,4 +167,32 @@ public class StorageServiceHostDiagnosticTest {
         Assert.assertFalse(wrapper.commandFailureDetails(stage, 1, forged.toString(), PRIVATE).contains("runtimeSchemaVersion="));
     }
 
+    @Test public void importDiagnosticsUseOnlyClosedSourceContextForTheImportCommand() {
+        StorageServiceHostCommand command=new StorageServiceHostCommand("fixture","operation generation render-import",PRIVATE,30);
+        StorageServiceHostCommand stage=new StorageServiceHostCommand("fixture","operation generation render-stage",PRIVATE,30);
+        for(String code:java.util.List.of("IMPORT_INPUT_INVALID","IMPORT_CREDENTIAL_BINDING_FAILED","IMPORT_RENDER_FAILED",
+                "IMPORT_SOURCE_SCOPE_MISMATCH","IMPORT_CANDIDATE_VALIDATION_FAILED","IMPORT_SOURCE_VERIFY_FAILED","IMPORT_PUBLICATION_FAILED")) {
+            String value=runtimeFailure("GENERATION",code,"IMPORT");
+            String message=wrapper.commandFailureDetails(command,1,value,PRIVATE);
+            Assert.assertTrue(message,message.contains("protocol=GENERATION; phase=IMPORT; code="+code));
+            Assert.assertFalse(message.contains(PRIVATE));
+            Assert.assertFalse(wrapper.commandFailureDetails(stage,1,value,PRIVATE).contains("runtimeSchemaVersion="));
+            Assert.assertFalse(wrapper.commandFailureDetails(command,1,runtimeFailure("GENERATION",code,"STAGE"),PRIVATE).contains("runtimeSchemaVersion="));
+            if(!"IMPORT_RENDER_FAILED".equals(code))
+                Assert.assertFalse(wrapper.commandFailureDetails(command,1,runtimeFailure("ISCSI",code,"IMPORT"),PRIVATE).contains("runtimeSchemaVersion="));
+        }
+        for(String protocol:java.util.List.of("NFS","SMB","ISCSI","NVMEOF")) {
+            String value=runtimeFailure(protocol,"IMPORT_RENDER_FAILED","IMPORT");
+            Assert.assertTrue(wrapper.commandFailureDetails(command,1,value,PRIVATE).contains("protocol="+protocol+"; phase=IMPORT; code=IMPORT_RENDER_FAILED"));
+            com.google.gson.JsonObject forged=com.google.gson.JsonParser.parseString(value).getAsJsonObject();
+            forged.getAsJsonObject("runtimeDiagnostic").addProperty("private",PRIVATE);
+            Assert.assertFalse(wrapper.commandFailureDetails(command,1,forged.toString(),PRIVATE).contains("runtimeSchemaVersion="));
+        }
+        String value=runtimeFailure("ISCSI","IMPORT_RENDER_FAILED","IMPORT");
+        Assert.assertFalse(wrapper.commandFailureDetails(command,1,value+"{}",PRIVATE).contains("runtimeSchemaVersion="));
+        Assert.assertFalse(wrapper.commandFailureDetails(command,1,value.replace("\"schemaVersion\":1","\"schemaVersion\":1,\"schemaVersion\":1"),PRIVATE).contains("runtimeSchemaVersion="));
+        Assert.assertFalse(wrapper.commandFailureDetails(command,1,null,value).contains("runtimeSchemaVersion="));
+        Assert.assertFalse(wrapper.commandExceptionDetails(command,PRIVATE).contains(PRIVATE));
+    }
+
 }

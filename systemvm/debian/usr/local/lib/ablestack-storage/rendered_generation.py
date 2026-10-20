@@ -47,6 +47,13 @@ RUNTIME_CODE_PHASES = {
     "NATIVE_CHILD_FAILED": "TRANSPORT",
     "NATIVE_CHILD_INPUT_UNAVAILABLE": "TRANSPORT",
     "RUNTIME_PREPARE_FAILED": "PREPARE",
+    "IMPORT_INPUT_INVALID": "IMPORT",
+    "IMPORT_CREDENTIAL_BINDING_FAILED": "IMPORT",
+    "IMPORT_RENDER_FAILED": "IMPORT",
+    "IMPORT_SOURCE_SCOPE_MISMATCH": "IMPORT",
+    "IMPORT_CANDIDATE_VALIDATION_FAILED": "IMPORT",
+    "IMPORT_SOURCE_VERIFY_FAILED": "IMPORT",
+    "IMPORT_PUBLICATION_FAILED": "IMPORT",
     "STAGE_INPUT_INVALID": "STAGE",
     "STAGE_CREDENTIAL_BINDING_FAILED": "STAGE",
     "STAGE_RENDER_FAILED": "STAGE",
@@ -73,6 +80,8 @@ def sanitized_runtime_diagnostic(value):
     if (value["code"].startswith("NFS_") or value["code"] == "ENDPOINT_LISTENER_ADDRESS_MISMATCH") and value["protocol"] != "NFS":
         return None
     if (value["code"].startswith("STAGE_") or value["code"] in ("RUNTIME_PREPARE_FAILED", "NATIVE_CHILD_INPUT_UNAVAILABLE")) and value["protocol"] != "GENERATION":
+        return None
+    if value["code"].startswith("IMPORT_") and value["code"] != "IMPORT_RENDER_FAILED" and value["protocol"] != "GENERATION":
         return None
     return dict(value)
 

@@ -243,10 +243,16 @@ class RenderedDriver:
             raise ValueError("Credential references contain an unknown domain")
         files = {}
         for domain in DOMAINS:
+            # Import diagnostics name only this fixed protocol, never private
+            # exception text or fields from the imported configuration.
+            if getattr(self,"import_failure_code",None) == "IMPORT_RENDER_FAILED":
+                self.import_failure_protocol=domain
             value = desired[PROTOCOL_FILES[domain]] or {"enabled": False}
             if domain == "NFS": files.update(render_nfs_candidate(value, Path(self.runtime.cli)))
             elif domain == "SMB": files.update(render_smb_candidate(value, Path(self.runtime.cli), refs.get(domain)))
             else: files.update(render_block_candidate(value, domain, self.resolve_block, refs.get(domain)))
+        if getattr(self,"import_failure_code",None) == "IMPORT_RENDER_FAILED":
+            self.import_failure_protocol="GENERATION"
         files["file-volumes.json"]=json.dumps(self.file_bindings(request,files),sort_keys=True)
         files["desired-state.json"] = json.dumps(desired, sort_keys=True)
         files["network-bindings.json"] = json.dumps({"endpoints": desired["network-endpoints.json"], "primary": desired["sharedfs-network.json"]}, sort_keys=True)
@@ -764,6 +770,16 @@ class RenderedDriver:
             return
 
     def execute(self, action, request=None, unit=None):
+        if action=="render-import":
+            self.import_failure_code="IMPORT_INPUT_INVALID";self.import_failure_protocol="GENERATION"
+            try:
+                return self._execute(action,request,unit)
+            except Exception as error:
+                if native_runtime_diagnostic(error) is None and native_validation_diagnostic(error) is None:
+                    error=NativeRuntimeFailure(self.import_failure_protocol,self.import_failure_code)
+                raise error from None
+            finally:
+                self.import_failure_code=None;self.import_failure_protocol="GENERATION"
         if action!="render-stage":return self._execute(action,request,unit)
         self.stage_failure_code="STAGE_INPUT_INVALID";self.stage_source=None
         try:
@@ -950,10 +966,13 @@ class RenderedDriver:
                 self.stage_failure_code="STAGE_CREDENTIAL_BINDING_FAILED"
                 credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,retained["latestConfigurationSha256"] if retained is not None else source["configurationSha256"])
             if action=="render-import" and request.get("initialRootBaseline") is not True:
+                self.import_failure_code="IMPORT_CREDENTIAL_BINDING_FAILED"
                 request={**request,"credentialRefs":self.baseline_credential_refs(request,source)}
             if action=="render-stage":self.stage_failure_code="STAGE_RENDER_FAILED"
+            else:self.import_failure_code="IMPORT_RENDER_FAILED"
             files = self.render(request)
             if action == "render-import":
+                self.import_failure_code="IMPORT_SOURCE_SCOPE_MISMATCH"
                 if request.get("initialRootBaseline") is True:
                     maintenance=self.runtime.command(("operation","maintenance","status"))
                     if (source.get("generation") or source.get("pendingOperationUuid") or any(source["configurationDesiredState"][name] is not None for name in (*PROTOCOL_FILES.values(),"posix-directory-policies.json"))
@@ -964,10 +983,13 @@ class RenderedDriver:
                     # disabled baseline at revision0 without fabricating a
                     # native generation. Root adoption remains after real replay.
                     initial={**request,"operationUuid":str(uuid.uuid5(uuid.UUID(scope["operationUuid"]),"empty-rendered-root-baseline")),"revision":0,"expectedCurrentRenderedSha256":None}
+                    self.import_failure_code="IMPORT_CANDIDATE_VALIDATION_FAILED"
                     manifest=self.store.stage(initial,files,self.validate)
                     target=self.store.generations/manifest["scope"]["operationUuid"]
+                    self.import_failure_code="IMPORT_SOURCE_VERIFY_FAILED"
                     verified=self.verify(target)
                     if not all(verified[domain] is True for domain in DOMAINS):raise ValueError("Quarantined ROOT still exposes an unconfigured protocol")
+                    self.import_failure_code="IMPORT_PUBLICATION_FAILED"
                     self.install_boot_guards();self.store.publish_pointer(target)
                     rendered_json(self.store.journal,{"scope":manifest["scope"],"phase":"COMPLETE","targetSha256":manifest["manifestSha256"],"previousSha256":None,"changedDomains":[],"baselineImported":True,"initialRootScope":maintenance["scope"]})
                     return self.store.status()
@@ -979,11 +1001,14 @@ class RenderedDriver:
                     current = self.store.inspect(self.store.pointer())
                     if current["scope"] != scope: raise ValueError("Rendered baseline already exists with another scope")
                     return self.store.status()
+                self.import_failure_code="IMPORT_CANDIDATE_VALIDATION_FAILED"
                 files=self.retain_legacy_nfs_baseline(files)
                 manifest = self.store.stage({**request, "expectedCurrentRenderedSha256": None}, files, self.validate)
                 target = self.store.generations / scope["operationUuid"]
+                self.import_failure_code="IMPORT_SOURCE_VERIFY_FAILED"
                 verified = self.verify(target)
                 if not all(verified[domain] is True for domain in DOMAINS): raise ValueError("Existing native runtime did not verify the rendered source baseline")
+                self.import_failure_code="IMPORT_PUBLICATION_FAILED"
                 self.install_boot_guards()
                 self.store.publish_pointer(target)
                 rendered_json(self.store.journal, {"scope": scope, "phase": "COMPLETE", "targetSha256": manifest["manifestSha256"], "previousSha256": None, "changedDomains": [], "baselineImported": True})

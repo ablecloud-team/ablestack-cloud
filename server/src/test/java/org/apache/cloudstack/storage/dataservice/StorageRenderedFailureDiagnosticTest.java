@@ -177,4 +177,63 @@ public class StorageRenderedFailureDiagnosticTest {
             Assert.assertEquals("Rendered generation stage failed; inspect its scoped recovery receipt", rejected(value, PRIVATE));
         }
     }
+    private String rootFailure(String body,String hostDetail,String command) {
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl();
+        StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getVmId()).thenReturn(42L);
+        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",(StorageServiceGuestCommandDispatcher)request->new StorageServiceGuestCommandResult(false,hostDetail,body));
+        CloudRuntimeException error=Assert.assertThrows(CloudRuntimeException.class,()->manager.rootGuest(instance,command,new JsonObject(),30));
+        Assert.assertFalse(error.getMessage(),error.getMessage().contains(PRIVATE));Assert.assertNull(error.getCause());
+        return error.getMessage();
+    }
+    @Test public void legacyRootGuestImportPublishesClosedDiagnosticOnlyForTheImportAction() {
+        for(String code:java.util.List.of("IMPORT_INPUT_INVALID","IMPORT_CREDENTIAL_BINDING_FAILED","IMPORT_RENDER_FAILED",
+                "IMPORT_SOURCE_SCOPE_MISMATCH","IMPORT_CANDIDATE_VALIDATION_FAILED","IMPORT_SOURCE_VERIFY_FAILED","IMPORT_PUBLICATION_FAILED")) {
+            String body=runtimeFailure("GENERATION",code,"IMPORT");
+            Assert.assertEquals("ROOT runtime step failed: operation generation render-import [runtimeSchemaVersion=1; protocol=GENERATION; phase=IMPORT; code="+code+"]",
+                rootFailure(body,PRIVATE,"operation generation render-import"));
+            Assert.assertEquals("ROOT runtime step failed: operation generation render-status",rootFailure(body,PRIVATE,"operation generation render-status"));
+            Assert.assertEquals("Rendered generation stage failed; inspect its scoped recovery receipt",rejected(body,PRIVATE));
+            Assert.assertEquals("ROOT runtime step failed: operation generation render-import",rootFailure(runtimeFailure("GENERATION",code,"STAGE"),PRIVATE,"operation generation render-import"));
+            if(!"IMPORT_RENDER_FAILED".equals(code))
+                Assert.assertEquals("ROOT runtime step failed: operation generation render-import",rootFailure(runtimeFailure("ISCSI",code,"IMPORT"),PRIVATE,"operation generation render-import"));
+        }
+        for(String protocol:java.util.List.of("NFS","SMB","ISCSI","NVMEOF"))
+            Assert.assertTrue(rootFailure(runtimeFailure(protocol,"IMPORT_RENDER_FAILED","IMPORT"),PRIVATE,"operation generation render-import").contains("protocol="+protocol+"; phase=IMPORT; code=IMPORT_RENDER_FAILED"));
+        Assert.assertEquals("ROOT runtime step failed: operation generation render-import",
+            rootFailure(runtimeFailure("GENERATION","STAGE_RENDER_FAILED","STAGE"),PRIVATE,"operation generation render-import"));
+        Assert.assertEquals("ROOT runtime step failed: operation generation render-import",
+            rootFailure(null,runtimeFailure("ISCSI","IMPORT_RENDER_FAILED","IMPORT"),"operation generation render-import"));
+    }
+    @Test public void malformedImportDiagnosticsNeverLeakRawNativeBodyOrHostDetails() {
+        String valid=runtimeFailure("ISCSI","IMPORT_RENDER_FAILED","IMPORT");
+        JsonObject forged=com.google.gson.JsonParser.parseString(valid).getAsJsonObject();
+        forged.getAsJsonObject("runtimeDiagnostic").addProperty("private",PRIVATE);
+        for(String body:java.util.List.of(forged.toString(),valid+"{}",valid.replace("\"schemaVersion\":1","\"schemaVersion\":1,\"schemaVersion\":1"),valid.replace("IMPORT_RENDER_FAILED",PRIVATE),
+                valid.replace("\"schemaVersion\":1","\"schemaVersion\":\"1\""),runtimeFailure("ISCSI","IMPORT_RENDER_FAILED","VERIFY"))) {
+            Assert.assertEquals("ROOT runtime step failed: operation generation render-import",rootFailure(body,PRIVATE,"operation generation render-import"));
+        }
+    }
+    @Test public void importDiagnosticReceiptStaysBoundToItsOriginalWriterAndPreservesRequestFingerprint() {
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl();StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getId()).thenReturn(7L);Mockito.when(instance.getUuid()).thenReturn("11111111-1111-4111-8111-111111111111");Mockito.when(instance.getVmId()).thenReturn(42L);
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();ReflectionTestUtils.setField(operation,"id",9L);operation.setInstanceId(7);operation.setRevision(15);
+        operation.setPreviousSnapshotJson("{}");operation.setResultJson("{\"_requestFingerprint\":\"original-intent\"}");
+        var dao=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);Mockito.when(dao.update(Mockito.eq(9L),Mockito.any())).thenReturn(true);
+        ReflectionTestUtils.setField(manager,"storageOperationDao",dao);
+        @SuppressWarnings("unchecked") ThreadLocal<StorageServiceOperationVO> writer=(ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"storageWriterOperation");writer.set(operation);
+        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",(StorageServiceGuestCommandDispatcher)command->new StorageServiceGuestCommandResult(false,PRIVATE,runtimeFailure("ISCSI","IMPORT_RENDER_FAILED","IMPORT")));
+        try {
+            Assert.assertThrows(CloudRuntimeException.class,()->manager.rootGuest(instance,"operation generation render-import",new JsonObject(),30));
+            JsonObject result=com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject();
+            Assert.assertEquals("original-intent",result.get("_requestFingerprint").getAsString());
+            JsonObject saved=result.getAsJsonObject("_renderedFailureDiagnostic");Assert.assertEquals("import",saved.get("action").getAsString());
+            Assert.assertEquals(operation.getUuid(),saved.getAsJsonObject("scope").get("operationUuid").getAsString());
+            Assert.assertEquals(15,saved.getAsJsonObject("scope").get("revision").getAsLong());
+            Assert.assertTrue(saved.get("diagnostic").getAsString().contains("protocol=ISCSI; phase=IMPORT; code=IMPORT_RENDER_FAILED"));
+            Assert.assertFalse(operation.getResultJson().contains(PRIVATE));
+            Mockito.verify(dao).update(9L,operation);
+        } finally {writer.remove();}
+    }
+
 }

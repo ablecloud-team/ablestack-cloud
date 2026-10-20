@@ -31,6 +31,7 @@ import com.google.gson.JsonPrimitive;
 /** Confirms an unchanged, already verified SOURCE; never authorizes TARGET adoption or guest replay. */
 final class StorageUnchangedVerifiedSourceRecovery {
     static final String RESULT_KEY = "_unchangedVerifiedSourceRecovery";
+    static final String SERVICE_IMPORT_RESULT_KEY = "_preImportServiceSourceRecovery";
     private static final Set<String> SCHEMA = Set.of("schemaVersion", "instanceId", "tables");
     private static final Set<String> CHECKPOINTS = Set.of("nativeGeneration", "nativeDesiredState", "localCheckpointIntent",
             "nativeIdentityCapsule", "renderedGeneration", "adServiceSource", "adSamBootstrapAttempted");
@@ -50,10 +51,34 @@ final class StorageUnchangedVerifiedSourceRecovery {
         return CHECKPOINTS.stream().noneMatch(previous::has) && TARGETS.stream().noneMatch(result::has);
     }
 
+    /** Separate admission: the original create/NFS and initial-clone boundaries stay unchanged. */
+    static boolean eligiblePreImportService(StorageServiceOperationVO operation) {
+        try {
+            if (operation==null || !"SERVICE_MAINTENANCE".equals(operation.getAction())
+                    || !"RECOVERY_REQUIRED".equals(operation.getState()) || !"RECOVERY_REQUIRED".equals(operation.getPhase())
+                    || operation.getRevision()<=2 || operation.getProgress()!=0 || operation.getSnapshotJson()!=null
+                    || operation.getRequestKey()==null || !operation.getRequestKey().startsWith("SERVICE_MAINTENANCE:"))return false;
+            JsonObject previous=object(operation.getPreviousSnapshotJson()),result=object(operation.getResultJson());
+            return previous.keySet().equals(SCHEMA)
+                    && result.keySet().stream().allMatch(k->Set.of("_requestFingerprint",SERVICE_IMPORT_RESULT_KEY,"_renderedFailureDiagnostic").contains(k))
+                    && result.has("_requestFingerprint");
+        } catch (RuntimeException invalid) {return false;}
+    }
+
     static JsonObject require(String instanceUuid, StorageServiceOperationVO original, StorageServiceOperationVO source,
             String currentSnapshot, JsonObject bindings, JsonObject status, JsonObject frozen) {
+        return require(instanceUuid,original,source,currentSnapshot,bindings,status,frozen,false);
+    }
+
+    static JsonObject requirePreImportService(String instanceUuid, StorageServiceOperationVO original, StorageServiceOperationVO source,
+            String currentSnapshot, JsonObject bindings, JsonObject status, JsonObject frozen) {
+        return require(instanceUuid,original,source,currentSnapshot,bindings,status,frozen,true);
+    }
+
+    private static JsonObject require(String instanceUuid, StorageServiceOperationVO original, StorageServiceOperationVO source,
+            String currentSnapshot, JsonObject bindings, JsonObject status, JsonObject frozen,boolean serviceImport) {
         try {
-            need(eligible(original) && source != null && uuid(instanceUuid)
+            need((serviceImport?eligiblePreImportService(original):eligible(original)) && source != null && uuid(instanceUuid)
                     && Set.of("INTERRUPTED_RECOVERY_REQUIRED", "RECOVERY_REQUIRED").contains(original.getPhase()));
             need(original.getId() > 0 && source.getId() > 0 && original.getId() != source.getId()
                     && original.getInstanceId() == source.getInstanceId() && original.getInstanceId() > 0
@@ -68,7 +93,11 @@ final class StorageUnchangedVerifiedSourceRecovery {
             StorageServiceDesiredSnapshot.validateSnapshot(original.getInstanceId(), target.toString());
             StorageServiceDesiredSnapshot.validateSnapshot(original.getInstanceId(), current.toString());
             need(same(previous, target) && same(previous, current));
-            need(result.keySet().stream().allMatch(k -> "_requestFingerprint".equals(k) || RESULT_KEY.equals(k)));
+            if(serviceImport) {
+                need(source.getRevision()==original.getRevision()-1);
+                need(result.keySet().stream().allMatch(k->Set.of("_requestFingerprint",SERVICE_IMPORT_RESULT_KEY,"_renderedFailureDiagnostic").contains(k)));
+                if(result.has("_renderedFailureDiagnostic"))requireImportDiagnostic(instanceUuid,original,result.getAsJsonObject("_renderedFailureDiagnostic"));
+            } else need(result.keySet().stream().allMatch(k -> "_requestFingerprint".equals(k) || RESULT_KEY.equals(k)));
             need(result.has("_requestFingerprint") && !text(result, "_requestFingerprint").isBlank() && text(result, "_requestFingerprint").length() <= 256);
             need(CHECKPOINTS.stream().noneMatch(previous::has) && TARGETS.stream().noneMatch(result::has));
             need(witness.has("_response") && witness.get("_response").isJsonObject());
@@ -93,7 +122,7 @@ final class StorageUnchangedVerifiedSourceRecovery {
             JsonObject desired = status.getAsJsonObject("configurationDesiredState");
             need(desired != null && desired.keySet().equals(StorageRenderedDesiredState.PATHS)
                     && same(desired, frozen.get("configurationDesiredState")));
-            JsonObject proof = new JsonObject();proof.addProperty("kind", "UNCHANGED_VERIFIED_SOURCE");
+            JsonObject proof = new JsonObject();proof.addProperty("kind",serviceImport?"UNCHANGED_VERIFIED_PREIMPORT_SERVICE_SOURCE":"UNCHANGED_VERIFIED_SOURCE");
             proof.addProperty("instanceUuid", instanceUuid);proof.addProperty("operationUuid", original.getUuid());
             proof.addProperty("revision", original.getRevision());proof.addProperty("phase", original.getPhase());
             proof.addProperty("createdBy", original.getCreatedBy());proof.addProperty("sourceOperationUuid", source.getUuid());
@@ -105,6 +134,47 @@ final class StorageUnchangedVerifiedSourceRecovery {
         } catch (RuntimeException invalid) {
             throw new CloudRuntimeException("Unchanged verified SOURCE requires exact original intent, completed witness and current state", invalid);
         }
+    }
+
+    /** The optional receipt is descriptive only; none of its text establishes absence of guest effects. */
+    private static void requireImportDiagnostic(String instance,StorageServiceOperationVO operation,JsonObject receipt) {
+        need(receipt.keySet().equals(Set.of("schemaVersion","scope","action","diagnostic"))
+                && whole(receipt,"schemaVersion")==1 && "import".equals(text(receipt,"action")));
+        JsonObject scope=receipt.getAsJsonObject("scope");
+        need(scope!=null&&scope.keySet().equals(Set.of("instanceUuid","operationUuid","revision"))
+                && instance.equals(text(scope,"instanceUuid"))&&operation.getUuid().equals(text(scope,"operationUuid"))
+                && operation.getRevision()==whole(scope,"revision"));
+        String fixed=text(receipt,"diagnostic");
+        need(fixed.length()<=256);
+        java.util.Map<String,String> phases=java.util.Map.ofEntries(
+            java.util.Map.entry("NATIVE_CHILD_TIMEOUT","TRANSPORT"),java.util.Map.entry("NATIVE_CHILD_OUTPUT_INVALID","TRANSPORT"),
+            java.util.Map.entry("NATIVE_CHILD_FAILED","TRANSPORT"),java.util.Map.entry("NATIVE_CHILD_INPUT_UNAVAILABLE","TRANSPORT"),
+            java.util.Map.entry("RUNTIME_PREPARE_FAILED","PREPARE"),java.util.Map.entry("RUNTIME_APPLY_FAILED","APPLY"),
+            java.util.Map.entry("RUNTIME_VERIFY_FAILED","VERIFY"),java.util.Map.entry("RUNTIME_ROLLBACK_FAILED","ROLLBACK"),
+            java.util.Map.entry("ENDPOINT_LISTENER_ADDRESS_MISMATCH","VERIFY"),java.util.Map.entry("NFS_ALIAS_UNMOUNT_FAILED","CLEANUP"),
+            java.util.Map.entry("NFS_ALIAS_UNMOUNT_UNVERIFIED","CLEANUP"),
+            java.util.Map.entry("IMPORT_INPUT_INVALID","IMPORT"),java.util.Map.entry("IMPORT_CREDENTIAL_BINDING_FAILED","IMPORT"),
+            java.util.Map.entry("IMPORT_RENDER_FAILED","IMPORT"),java.util.Map.entry("IMPORT_SOURCE_SCOPE_MISMATCH","IMPORT"),
+            java.util.Map.entry("IMPORT_CANDIDATE_VALIDATION_FAILED","IMPORT"),java.util.Map.entry("IMPORT_SOURCE_VERIFY_FAILED","IMPORT"),
+            java.util.Map.entry("IMPORT_PUBLICATION_FAILED","IMPORT"));
+        String[] parts=fixed.split("; ",-1);boolean runtime=false;
+        if(parts.length==4&&"runtimeSchemaVersion=1".equals(parts[0])&&parts[1].startsWith("protocol=")
+                &&parts[2].startsWith("phase=")&&parts[3].startsWith("code=")) {
+            String protocol=parts[1].substring(9),phase=parts[2].substring(6),code=parts[3].substring(5);
+            runtime=Set.of("NFS","SMB","ISCSI","NVMEOF","GENERATION").contains(protocol)
+                    &&java.util.Objects.equals(phases.get(code),phase);
+            if((code.startsWith("NFS_")||"ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code))&&!"NFS".equals(protocol))runtime=false;
+            if(("RUNTIME_PREPARE_FAILED".equals(code)||"NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)
+                    ||code.startsWith("IMPORT_")&&!"IMPORT_RENDER_FAILED".equals(code))&&!"GENERATION".equals(protocol))runtime=false;
+        }
+        boolean nfsValidator=java.util.Map.ofEntries(
+            java.util.Map.entry("NFS_VALIDATOR_RUNTIME_UNAVAILABLE","RUNTIME_SELECTION"),java.util.Map.entry("NFS_VALIDATOR_RUNTIME_UNTRUSTED","RUNTIME_SELECTION"),
+            java.util.Map.entry("NFS_VALIDATOR_NAMESPACE_FAILED","NAMESPACE_SETUP"),java.util.Map.entry("NFS_VALIDATOR_CHROOT_FAILED","CHROOT_SETUP"),
+            java.util.Map.entry("NFS_VALIDATOR_PRIVATE_SERVICES_FAILED","PRIVATE_SERVICES"),java.util.Map.entry("NFS_VALIDATOR_PARSER_REJECTED","PARSER_STARTUP"),
+            java.util.Map.entry("NFS_VALIDATOR_PARSER_TIMEOUT","PARSER_STARTUP"),java.util.Map.entry("NFS_VALIDATOR_WORKER_FAILED","WORKER_TRANSPORT"),
+            java.util.Map.entry("NFS_VALIDATOR_WORKER_TIMEOUT","WORKER_TRANSPORT")).entrySet().stream()
+            .anyMatch(pair->fixed.equals("protocol=NFS; stage="+pair.getValue()+"; runtimeValidationCode="+pair.getKey()));
+        need(runtime||nfsValidator);
     }
 
     private static void requireBindings(JsonObject value) {
