@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "sourceCommit": "a607138400bb2c6b52859702c5a3e1796337b2e5",
+  "indexSha256": "39900d8dcf2e013b777a631e7d9ca54e4bb8e85e393b23e282856ee89dd44177",
+  "oldIndexSha256": "173695968666cfc8bc07f2f9257ad1579ed115fd8ef88adc92b3d3c0dc6e8a12",
+  "backupDirectory": "/var/backups/mold/issue909-ui-assets-a607138400bb",
+  "addedAssets": 5,
+  "oldAssetsPreserved": 4452,
+  "protectedOtherFilesPreserved": 20,
+  "localeKeysUpdated": {
+    "en.json": 22,
+    "ko_KR.json": 22
+  },
+  "localeSha256": {
+    "locales/en.json": "361d20b4ba4379c35de412588dfd2be4c9f574ddd8a79ea027d339e245b6a22d",
+    "locales/ko_KR.json": "62af0f6e29b9a6d9140be0ead4fc59a2f6677e810de42f9271727bee52a57d42"
+  },
+  "managementPid": "2884487",
+  "backendJarSha256": "a731257f88b3bcf5684fb2d0904faff01d096c60d70edae3af36be16c6ac4ed7",
+  "serviceRestarted": false,
+  "completedEpoch": 1792508654.1590383,
+  "artifactSourceCommit": "a607138400bb2c6b52859702c5a3e1796337b2e5",
+  "validatedForProductCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "uiProductTreeExactMatch": true
+}

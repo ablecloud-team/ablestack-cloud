@@ -1,0 +1,105 @@
+{
+  "capturedAtUtc": [
+    "2026-10-09T20:20:16.207686+00:00",
+    "2026-10-09T20:20:26.719545+00:00"
+  ],
+  "intervalSeconds": 10.511858940124512,
+  "vmName": "i-2-51-VM",
+  "vmUuid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+  "hostIdentityOnlyProofSha256": "9909ab62846b43b942fa3a533f66f4fa82be1d2bba4e987803ed3ccb5032e8f6",
+  "volumeUuid": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+  "target": {
+    "path": "/dev/sdd",
+    "type": "disk",
+    "serial": "021b0cac327e444b9cff",
+    "size": 10995116277760,
+    "fstype": "xfs",
+    "uuid": "f8c35b5d-3cb3-4a7f-82a8-06dce2c2108d",
+    "pkname": null,
+    "mountpoints": [
+      null
+    ]
+  },
+  "journalPhase": "TIMED_OUT_PENDING_RECONCILE",
+  "journalFormatter": {
+    "pid": 78663,
+    "exists": false
+  },
+  "guestGuard1960": {
+    "pid": 1960,
+    "exists": false
+  },
+  "hostGuard1960Observed": false,
+  "filesystemProcessComms": [],
+  "targetMounted": false,
+  "rootAncestors": [
+    "/dev/sda6",
+    "/dev/sda"
+  ],
+  "headerSameBetweenSamples": true,
+  "headerSameAsOldPartial": true,
+  "writeCountersBetweenSamplesUnchanged": true,
+  "writeCountersSameAsOldPartial": true,
+  "writeCounters": [
+    4,
+    0,
+    4174337,
+    645120
+  ],
+  "qcowPhysical": [
+    {
+      "serial": "021b0cac327e444b9cff",
+      "fileBasename": "021b0cac-327e-444b-9cff-3c9da0d1f539",
+      "virtualSizeBytes": 10995116277760,
+      "format": "qcow2",
+      "backingFilePresent": false,
+      "allocatedBytes": 1807904768,
+      "qemuActualBytes": 1807904768,
+      "inode": 1231335,
+      "diskReadOnly": false
+    }
+  ],
+  "formatCompleteVerified": false,
+  "filesystemHealthyVerified": false,
+  "newExact10TiBAcceptanceVerified": false,
+  "newPoolOrFactorChanged": false,
+  "rawCmdlineOrPrivateLogRead": false,
+  "repairOrFormatMountInvoked": false,
+  "originalProcessSignals": false,
+  "originalThinChanged": false,
+  "f1QgaCalls": 0,
+  "dataAndServiceWrites": 0,
+  "inputsSha256": {
+    "live-public-readonly.json": "a218090d986e56b83bc5a56c68fb586d04744d7ca023457341226309b9056eed",
+    "oldPartialSummary": "6ac1d032d5abb2bba6461a5aa592d3482c1b7bebabfe96ad3a016ed9417911b7",
+    "guestReader": "8f5142f28186b687911ece1f636309f1b93dde26919bca3cce1133e77861870c",
+    "hostReader": "7441ac0bddd86dabea6a7305473e276eeb60cb16e04d37146e020d17fe3f1f5b",
+    "ptyReader": "830eaabccd9c93cfd00f8f2043f3dbe3a7f13faf198687e6bb61cf0101b4e8f4"
+  },
+  "initialTransportFailure": {
+    "directStdinSsh105Seconds": true,
+    "outputBytes": 0,
+    "guestExecutionBoundaryKnown": false,
+    "filesystemFailureInferred": false
+  },
+  "localFixtureCorrection": {
+    "ptyControllerMissingTermiosImportBeforeSshExec": true,
+    "notGuestFailure": true
+  },
+  "noFurtherObservationOrResume": true,
+  "effects": {
+    "format": 0,
+    "repair": 0,
+    "mount": 0,
+    "attach": 0,
+    "detach": 0,
+    "vmRestart": 0,
+    "serviceChange": 0,
+    "newDisk": 0,
+    "guardKill": 0,
+    "source": 0,
+    "git": 0,
+    "gh": 0,
+    "finalUi1275": 0
+  }
+}

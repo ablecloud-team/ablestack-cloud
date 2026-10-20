@@ -125,6 +125,7 @@ class RuntimeUpdater:
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT", "/usr/local/bin"))
         self.lock_file = Path(os.environ.get(
             "ABLESTACK_STORAGE_RUNTIME_LOCK", "/run/lock/ablestack-storage-runtime-upgrade.lock"))
+        self.template_manifest = Path(os.environ.get("ABLESTACK_STORAGE_TEMPLATE_MANIFEST", "/etc/ablestack-storage/template-manifest.json"))
         self.releases = self.runtime_root / "releases"
         self.current = self.runtime_root / "current"
         self.previous = self.runtime_root / "previous"
@@ -168,11 +169,64 @@ class RuntimeUpdater:
         except OSError:
             return None
 
+    def platform_attestation(self):
+        unknown = {"platformVersionKnown": False, "platformVersion": None, "productVersion": None,
+                   "templateManifestSha256": None, "platformVersionDiagnostic": "PLATFORM_VERSION_UNKNOWN"}
+        try:
+            path = self.template_manifest
+            info = path.lstat(); parent = path.parent.lstat()
+            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid() or info.st_mode & 0o022
+                    or info.st_size > 2 * 1024 * 1024 or not stat.S_ISDIR(parent.st_mode)
+                    or parent.st_uid != os.geteuid() or parent.st_mode & 0o022):
+                return unknown
+            directory = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                opened_parent = os.fstat(directory)
+                fields = ("st_dev", "st_ino", "st_uid", "st_mode")
+                if tuple(getattr(opened_parent, key) for key in fields) != tuple(getattr(parent, key) for key in fields):
+                    return unknown
+                descriptor = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NOATIME", 0), dir_fd=directory)
+            finally:
+                os.close(directory)
+            try:
+                opened = os.fstat(descriptor)
+                fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if tuple(getattr(opened, key) for key in fields) != tuple(getattr(info, key) for key in fields):
+                    return unknown
+                with os.fdopen(descriptor, "rb", closefd=False) as handle:
+                    content = handle.read(2 * 1024 * 1024 + 1)
+                after = os.fstat(descriptor)
+                if len(content) > 2 * 1024 * 1024 or tuple(getattr(after, key) for key in fields) != tuple(getattr(opened, key) for key in fields):
+                    return unknown
+            finally:
+                os.close(descriptor)
+            manifest = json.loads(content)
+            version = manifest.get("platformVersion")
+            proof = manifest.get("platformVersionSource") or {}
+            declared = proof.get("declaredVersion")
+            matched = re.fullmatch(r"([0-9]+(?:\.[0-9]+){2,3})(?:-[A-Za-z][A-Za-z0-9_.-]*)?", declared) if isinstance(declared, str) else None
+            normalized = matched.group(1) if matched else None
+            if normalized and normalized.count(".") == 2:
+                normalized += ".0"
+            if (normalized != version or not isinstance(version, str) or not re.fullmatch(r"[0-9]+(?:\.[0-9]+){3}", version)
+                    or manifest.get("productVersion") != version
+                    or (manifest.get("registrationDetails") or {}).get("storage.service.platform.version") != version
+                    or proof.get("path") != "pom.xml" or not SHA256_RE.fullmatch(str(proof.get("sha256") or ""))
+                    or (manifest.get("sourceFiles") or {}).get("pom.xml") != proof.get("sha256")):
+                return unknown
+            return {"platformVersionKnown": True, "platformVersion": version, "productVersion": version,
+                    "templateManifestSha256": hashlib.sha256(content).hexdigest(), "platformVersionSource": proof}
+        except (OSError, ValueError, TypeError, AttributeError):
+            return unknown
+
     def capabilities(self, _request):
         return {
             "success": True,
+            **self.platform_attestation(),
             "runtimeAbiVersion": RUNTIME_ABI_VERSION,
             "desiredStateSchemaVersion": DESIRED_STATE_SCHEMA_VERSION,
+            "signedRuntimeReadback": True,
+            "updaterSha256": sha256_file(Path(__file__)),
             "supportedServiceImpacts": sorted(SUPPORTED_IMPACTS),
             "currentVersion": self.current_version(),
             "previousVersion": self.current_version(self.previous),
@@ -181,7 +235,7 @@ class RuntimeUpdater:
             ),
             "commands": [
                 "capabilities", "bootstrap", "begin", "status", "finalize", "verify",
-                "preflight", "activate", "rollback", "cleanup",
+                "preflight", "activate", "rollback", "cleanup", "readback",
             ],
         }
 
@@ -395,9 +449,10 @@ class RuntimeUpdater:
                     if result.returncode != 0:
                         raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"shell syntax check failed: {name}")
                 elif interpreter.endswith("python3"):
-                    result = subprocess.run([interpreter, "-m", "py_compile", str(path)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    if result.returncode != 0:
-                        raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"python syntax check failed: {name}")
+                    try:
+                        compile(path.read_bytes(), str(path), "exec")
+                    except (SyntaxError, ValueError) as invalid:
+                        raise RuntimeUpgradeError("RELEASE_SELF_TEST_FAILED", f"python syntax check failed: {name}") from invalid
 
     def verify(self, request):
         state = self.read_state(request)
@@ -438,26 +493,40 @@ class RuntimeUpdater:
 
     def activate(self, request):
         state = self.read_state(request)
-        if state.get("phase") not in {"PREFLIGHT_OK", "COMPLETE"}:
+        phase = state.get("phase")
+        if phase not in {"PREFLIGHT_OK", "ACTIVATING", "COMPLETE"}:
             raise RuntimeUpgradeError("INVALID_PHASE", "runtime bundle did not pass preflight")
         target_version = state["bundleVersion"]
-        if self.current_version() == target_version and state.get("phase") == "COMPLETE":
-            return {"success": True, **state}
-        manifest = self.load_manifest(self.transaction_dir(request))
         target = self.releases / target_version
-        previous_version = self.current_version()
+        manifest = self.pinned_manifest(state)
+        observed = self.current_version()
+        if phase == "COMPLETE":
+            self.signed_runtime_readback(state, state)
+            return {"success": True, **state}
+        if phase == "ACTIVATING":
+            previous_version = require_identifier(state.get("previousVersion"), "previousVersion")
+            if observed not in {target_version, previous_version}:
+                raise RuntimeUpgradeError("ACTIVATION_RESUME_STATE_MISMATCH", "active runtime changed during activation")
+            if observed == target_version:
+                self.signed_runtime_readback(state, state)
+                if self.current_version(self.previous) != previous_version:
+                    raise RuntimeUpgradeError("ACTIVATION_RESUME_STATE_MISMATCH", "previous runtime changed during activation")
+                state = self.write_state(request, state, "COMPLETE", previousVersion=previous_version,
+                                         currentVersion=target_version, activatedAt=int(time.time()))
+                return {"success": True, **state}
+        else:
+            previous_version = observed
         if not previous_version:
             raise RuntimeUpgradeError("BOOTSTRAP_REQUIRED", "runtime entrypoints have not been bootstrapped")
         previous_target = self.releases / previous_version
+        if not previous_target.is_dir():
+            raise RuntimeUpgradeError("ACTIVATION_RESUME_STATE_MISMATCH", "previous runtime release is unavailable")
         self.write_state(request, state, "ACTIVATING", previousVersion=previous_version)
-        atomic_symlink(previous_target, self.previous)
-        atomic_symlink(target, self.current)
         try:
-            self.verify_release(manifest, self.current.resolve(strict=True))
-            for name in ENTRYPOINTS:
-                managed = self.entrypoint_root / name
-                if not managed.is_symlink() or managed.resolve(strict=True) != (target / name).resolve(strict=True):
-                    raise RuntimeUpgradeError("ENTRYPOINT_NOT_MANAGED", f"runtime entrypoint is not managed: {name}")
+            self.verify_release(manifest, target)
+            atomic_symlink(previous_target, self.previous)
+            atomic_symlink(target, self.current)
+            self.signed_runtime_readback(state, state)
         except Exception as error:
             atomic_symlink(previous_target, self.current)
             rolled_back = self.write_state(
@@ -468,6 +537,52 @@ class RuntimeUpdater:
         state = self.write_state(request, state, "COMPLETE", previousVersion=previous_version,
                                  currentVersion=target_version, activatedAt=int(time.time()))
         return {"success": True, **state}
+
+    def pinned_manifest(self, state):
+        transaction = self.transaction_dir(state)
+        if sha256_file(transaction / "manifest.json") != state["manifestSha256"]:
+            raise RuntimeUpgradeError("MANIFEST_HASH_MISMATCH", "staged manifest hash differs from its pinned source")
+        if sha256_file(transaction / "bundle.tar.gz") != state["archiveSha256"]:
+            raise RuntimeUpgradeError("ARCHIVE_HASH_MISMATCH", "staged bundle hash differs from its pinned source")
+        manifest = self.load_manifest(transaction)
+        if manifest["bundleVersion"] != state["bundleVersion"]:
+            raise RuntimeUpgradeError("MANIFEST_INVALID", "signed runtime manifest version differs from its pinned source")
+        self.verify_signature(transaction, manifest)
+        return manifest
+
+    def readback(self, request):
+        state = self.read_state(request)
+        if state.get("phase") not in {"VERIFIED", "PREFLIGHT_OK", "COMPLETE"}:
+            raise RuntimeUpgradeError("INVALID_PHASE", "signed runtime readback requires a verified transaction")
+        return self.signed_runtime_readback(request, state)
+
+    def signed_runtime_readback(self, request, state):
+        expected = {
+            "bundleVersion": require_identifier(request.get("bundleVersion"), "bundleVersion"),
+            "archiveSha256": require_sha256(request.get("archiveSha256"), "archiveSha256"),
+            "manifestSha256": require_sha256(request.get("manifestSha256"), "manifestSha256"),
+        }
+        if any(state.get(key) != value for key, value in expected.items()):
+            raise RuntimeUpgradeError("RUNTIME_READBACK_SCOPE_MISMATCH", "signed runtime readback transaction scope changed")
+        manifest = self.pinned_manifest(state)
+        if self.current_version() != expected["bundleVersion"]:
+            raise RuntimeUpgradeError("SIGNED_RUNTIME_NOT_INSTALLED", "current runtime is not the pinned signed release")
+        release = self.releases / expected["bundleVersion"]
+        self.verify_release(manifest, release)
+        for name in ENTRYPOINTS:
+            entrypoint = self.entrypoint_root / name
+            expected_link = self.current / name
+            try:
+                literal = Path(os.path.abspath(entrypoint.parent / os.readlink(entrypoint)))
+                bound = entrypoint.resolve(strict=True)
+                required = (release / name).resolve(strict=True)
+            except (OSError, RuntimeError) as failure:
+                raise RuntimeUpgradeError("RUNTIME_ENTRYPOINT_BINDING_INVALID", "a managed runtime entrypoint is not bound") from failure
+            if not entrypoint.is_symlink() or literal != expected_link or bound != required:
+                raise RuntimeUpgradeError("RUNTIME_ENTRYPOINT_BINDING_INVALID", "a managed runtime entrypoint differs from the active release")
+        return {"success": True, "signedRuntimeVerified": True, "installedFilesVerified": True,
+                "entrypointsVerified": True, "currentVersion": expected["bundleVersion"],
+                "archiveSha256": expected["archiveSha256"], "manifestSha256": expected["manifestSha256"], "updaterSha256": sha256_file(Path(__file__))}
 
     def rollback(self, request):
         state = self.read_state(request)
@@ -504,6 +619,7 @@ class RuntimeUpdater:
             "preflight": self.preflight,
             "activate": self.activate,
             "rollback": self.rollback,
+            "readback": self.readback,
             "cleanup": self.cleanup,
         }
         if operation not in handlers:

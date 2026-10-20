@@ -59,6 +59,22 @@ public class ExpungeSharedFSCmd extends BaseAsyncCmd implements UserCmd {
     /////////////////// Accessors ///////////////////////
     /////////////////////////////////////////////////////
 
+    @Inject
+    private org.apache.cloudstack.storage.dataservice.StorageService storageScope;
+    public Long getSharedFileSystemId() { return id; }
+    @Override public String getSyncObjType() { return "StorageServiceInstance"; }
+    @Override public Long getSyncObjId() { return storageScope.getStorageServiceSyncId(this); }
+
+    @Parameter(name = "datavolumepolicy", type = CommandType.STRING, description = "PRESERVE_VOLUMES (default) or explicitly confirmed DELETE_VOLUMES")
+    private String dataVolumePolicy;
+    @Parameter(name = "confirmdataloss", type = CommandType.STRING, description = "exact service name required for DELETE_VOLUMES")
+    private String confirmDataLoss;
+    @Parameter(name = "expectedplanhash", type = CommandType.STRING, description = "hash returned by getSharedFileSystemDeletionPlan for DELETE_VOLUMES")
+    private String expectedPlanHash;
+    public String getDataVolumePolicy() { return dataVolumePolicy; }
+    public String getConfirmDataLoss() { return confirmDataLoss; }
+    public String getExpectedPlanHash() { return expectedPlanHash; }
+
     public Long getId() {
         return id;
     }
@@ -85,12 +101,11 @@ public class ExpungeSharedFSCmd extends BaseAsyncCmd implements UserCmd {
     @Override
     public void execute() {
         try {
-            sharedFSService.deleteSharedFS(id);
+            sharedFSService.deleteSharedFS(id, dataVolumePolicy, confirmDataLoss, expectedPlanHash);
         } catch (Exception ex) {
             throw new ServerApiException(ApiErrorCode.INTERNAL_ERROR, "Failed to expunge Shared FileSystem");
-        } finally {
-            SuccessResponse response = new SuccessResponse(getCommandName());
-            setResponseObject(response);
         }
+        SuccessResponse response = new SuccessResponse(getCommandName());
+        setResponseObject(response);
     }
 }

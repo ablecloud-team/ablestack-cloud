@@ -1,0 +1,72 @@
+{
+  "kind": "RESOLVER_6F830_OUTER1_SELECTED_RUNTIME_ABI_REVIEW",
+  "sourcePin": "6f830e4b6d04528d01eed50133bf9d37a4f66dd2",
+  "normalCoreProofSha256": "15637e7a8e359f0110324908cc918687b72fe78a32a0f3534e99c16cf654c384",
+  "moduleOutputManifestSha256": "e368f0d5c44f53c023e75a8b6073ade00e138232de2deef581aaf2f53c5d935b",
+  "normalDeltaSha256": "ead639735a84eb551fb2dc137f734a022449ca0b8224e21cac5d62df6f44a726",
+  "normalByteDeltaCount": 3,
+  "semanticClassCount": 1,
+  "newClassCount": 0,
+  "candidateManagerSha256": "cde7bbe3f6cef4c07084d35b4ef25a8c9098abb936d5c4fff63f509d243fad68",
+  "previousManagerSha256": "94b3c3a8ad818849e5e6077b28cc923fc59cc35406e33187b7426dbf9677069c",
+  "existingPublicProtectedAbiPreserved": true,
+  "descriptorVisibilityHierarchySame": true,
+  "addedExportedMembers": [],
+  "constantPoolMemberReferences": 2603,
+  "addedReferences": [],
+  "allReferencesResolved": true,
+  "checks": {
+    "member-link": {
+      "exitCode": 0,
+      "summary": [
+        "RESOLVED 2603 FAILED 0"
+      ],
+      "logSha256": "4621c2e9c5de1f1558c9b85c8197e2573c109f5b97acdbb2dcb78f7ca8f629c2"
+    },
+    "class-link": {
+      "exitCode": 0,
+      "summary": [
+        "CLASS_SIGNATURE_LINK_PASS 1"
+      ],
+      "logSha256": "2953dc381bdfc9c6cdbf3a32ec0111ecae4a373ed67e6960ce2406a2f05f418e"
+    }
+  },
+  "reusedInners": [
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class",
+      "actualLogicalOldSha256": "678a93dfc8d38fb1ab073ff5675425accc26fc0138e9274c8de0350edf16761f",
+      "normalOldSha256": "be60249414cdd30ff54108720821d0f426e06858a787138cd41aba88f2a38474",
+      "normalNewSha256": "475550676f420177b4a7ed591eb50264287efef41148c6add3edacc1e23a1187",
+      "javapCodePrivateFieldsDescriptorsIdentical": true,
+      "constantPoolReferencesIdentical": true
+    },
+    {
+      "entry": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class",
+      "actualLogicalOldSha256": "9b3b37f958eacd6e493a442cd8e6b8c6a988739fb063fea48f885506d5bf935d",
+      "normalOldSha256": "17209d6c36364443560bdbf9b336a48da2c2834673187e3ffd26a3c059330b51",
+      "normalNewSha256": "15627355dfbbd3369b4253dc41a7c6d78aeda4bad52e7907e5c5148c74e206d2",
+      "javapCodePrivateFieldsDescriptorsIdentical": true,
+      "constantPoolReferencesIdentical": true
+    }
+  ],
+  "actualBaselineJarSha256": "ed3a6be2492af27d2c57072959e25db232050fecd7715154695244f6c5d424bf",
+  "actualBaselinePid": 1408330,
+  "actualFreshBaselineSha256": "9bd6430bc88481e513462e164c7f5ae005ad5598faff4ece31b1897e0d787384",
+  "previousSelectedAbiManifestSha256": "47e77de5037eb2fd2215b2e80ba38e991f8042412eb513d8bccb0b20acc86ebf",
+  "libraryHashes": {
+    "bcpkix-jdk18on-1.83.jar": "d3c4c6b700c74ef8164bb15e549d939721b8f14fc0ff89fe19b220243bcfcbd8",
+    "bcprov-jdk18on-1.83.jar": "82cf3a2af766c3bc874f6d36b9f20a8b99a8f09762dc776e8a227a45d8daaafb",
+    "bctls-jdk18on-1.83.jar": "0d1fd6b6fba6c44d4594d8be3f6888b00e2f1a00a3a6ee64b65b9be1e8291266",
+    "bcutil-jdk18on-1.83.jar": "ee7d0eb4e74de70a735f7fb36b604dd5c6ad35720d50b914604db042114a0185",
+    "cloud-plugin-storage-volume-linstor-4.23.0.0-Mold.Europa-202610011115.jar": "48168dbcdf6e40f15fae6ff37fd0b31af4943c6ea6db22b942b820245b04e893",
+    "cloud-plugin-storage-volume-storpool-4.23.0.0-Mold.Europa-202610011115.jar": "cfb0d309db1549df6e0ac550604e85f326b49d2e62c355ff63542d7513376c17",
+    "cloudstack-4.23.0.0-Mold.Europa-202610011115.jar": "ade51548bcdce95d6f9783458da009432c6f7f0904618b742000176c6f6443e5",
+    "java-linstor-0.7.0.jar": "2e391ab05ff261c3d1540ffb920fada129b94614cb0eb4bc12cafeca5c98b8e3",
+    "mysql-connector-j-8.4.0.jar": "d77962877d010777cff997015da90ee689f0f4bb76848340e1488f2b83332af5"
+  },
+  "historicalCachedUberJarIsNotWholeCurrentJar": true,
+  "actualEd3WholeJarBytesClaimed": false,
+  "method": "Proven deployed ff1 logical classspace tied to exact fresh ed3/94b3/Runtime3/reuse11/libs9 baseline; outer-only overlay; reflection probes without class initialization.",
+  "actualCalls": 0,
+  "canonicalSourceEdits": 0
+}

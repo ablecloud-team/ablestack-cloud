@@ -576,6 +576,13 @@ public class DatabaseUpgradeChecker implements SystemIntegrityChecker {
                 runEuropaPhase(conn, "europa-4.23-autoscale-operation-v1", () -> com.cloud.upgrade.dao.EuropaAutoScaleOperationUpgrade.migrate(conn));
                 runEuropaPhase(conn, "europa-4.23-autoscale-evaluation-v1", () -> com.cloud.upgrade.dao.EuropaAutoScaleEvaluationUpgrade.migrate(conn));
                 runEuropaPhase(conn, "europa-4.23-autoscale-evaluation-precision-v2", () -> com.cloud.upgrade.dao.EuropaAutoScaleEvaluationUpgrade.migratePrecision(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-catalog-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSCatalogUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-operation-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSOperationUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-retention-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSRetentionUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-initial-volume-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSInitialVolumeUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-template-upgrade-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSTemplateUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-operation-control-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSOperationControlUpgrade.migrate(conn));
+                runEuropaPhase(conn, "europa-4.23-sharedfs-operation-control-policy-v1", () -> com.cloud.upgrade.dao.EuropaSharedFSOperationControlUpgrade.migratePolicy(conn));
                 // Completed phase markers do not guarantee views match the running binary.
                 try {
                     EuropaVolumeViewReconciler.reconcile(conn);

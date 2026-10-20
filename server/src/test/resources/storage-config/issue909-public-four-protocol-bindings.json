@@ -1,0 +1,255 @@
+{
+  "sourceArchiveSha256": "2d0aeca0b75e7f4fcb45869052e81077ec9c222d69a9dbbdfb624c931288207e",
+  "publicSemanticResources": {
+    "protocols": [
+      {
+        "uuid": "0a0d3b18-36b8-4633-8006-a82e1f344c5d",
+        "protocol": "NFS",
+        "enabled": true,
+        "listen_ip": null,
+        "port": 2049,
+        "state": "Ready",
+        "config": {
+          "protocolMode": "V4_ONLY",
+          "listenerGroups": [
+            {
+              "port": 2049,
+              "state": "Ready"
+            }
+          ],
+          "idMappingMode": "NAME_DOMAIN"
+        }
+      },
+      {
+        "uuid": "58b1760a-e3ca-4bac-8bca-93465ddfa3af",
+        "protocol": "SMB",
+        "enabled": true,
+        "listen_ip": "10.10.13.223",
+        "port": 445,
+        "state": "Ready",
+        "config": {}
+      },
+      {
+        "uuid": "bd1bd462-b481-4091-bbf8-a3013ec3c7b2",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listen_ip": "10.10.13.223",
+        "port": 3260,
+        "state": "Ready",
+        "config": {}
+      },
+      {
+        "uuid": "07329424-8678-4d31-a46f-78ecce2cc4a6",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listen_ip": "10.10.13.223",
+        "port": 4420,
+        "state": "Ready",
+        "config": {}
+      },
+      {
+        "uuid": "ca1d126d-968c-4caa-9d29-82ecd3a3a614",
+        "protocol": "ISCSI",
+        "enabled": true,
+        "listen_ip": null,
+        "port": 3260,
+        "state": "Ready",
+        "config": {}
+      },
+      {
+        "uuid": "ac8bb90d-7e40-4cfb-8cac-6290394a0354",
+        "protocol": "NVME_OF",
+        "enabled": true,
+        "listen_ip": null,
+        "port": 4420,
+        "state": "Ready",
+        "config": {}
+      }
+    ],
+    "file-shares": [
+      {
+        "uuid": "5ba8fd61-5e04-4243-b9c3-47b837eccc1d",
+        "protocol": "NFS",
+        "name": "issue909-source-nfs",
+        "path": "/export/issue909-source-nfs",
+        "filesystem": "ext4",
+        "quota_bytes": null,
+        "state": "Ready",
+        "config": {
+          "readOnly": false,
+          "rootSquash": true,
+          "allSquash": false,
+          "sync": true,
+          "secure": false,
+          "anonUid": 65534,
+          "anonGid": 65534,
+          "ownerUid": 65534,
+          "ownerGid": 65534,
+          "mode": "0777",
+          "recursivePermission": false,
+          "protocolMode": "V4_ONLY",
+          "listenerGroupPorts": [
+            2049
+          ],
+          "endpointMode": "LISTENER_GROUP",
+          "posixPolicy": "ANONYMOUS_WRITE",
+          "createDirectory": true,
+          "relativeSharePath": "issue909-source-nfs",
+          "volumeMode": "EXISTING_VOLUME",
+          "importMode": "FORMAT_EMPTY"
+        },
+        "volumeUuid": "5c53f9d6-4153-4e3d-a440-7d507f4a106b"
+      },
+      {
+        "uuid": "4188278a-5318-43eb-a681-8d5c06f7bc12",
+        "protocol": "SMB",
+        "name": "issue909-source-smb",
+        "path": "/export/issue909-source-smb",
+        "filesystem": "ext4",
+        "quota_bytes": null,
+        "state": "Ready",
+        "config": {
+          "readOnly": false,
+          "browseable": true,
+          "guestOk": false,
+          "createDirectory": true,
+          "crossProtocol": false,
+          "directoryMode": "0777",
+          "createMask": "0666",
+          "forceCreateMode": "0000",
+          "directoryMask": "0777",
+          "forceDirectoryMode": "0000",
+          "inheritPermissions": false,
+          "ownershipInheritance": "AUTHENTICATED_USER",
+          "inheritGroup": false,
+          "posixOwnershipMode": "AUTHENTICATED_USER",
+          "relativeSharePath": "issue909-source-smb",
+          "volumeMode": "EXISTING_VOLUME",
+          "importMode": "FORMAT_EMPTY"
+        },
+        "volumeUuid": "c7ca4348-e835-46cb-ba65-f105264b8e52"
+      }
+    ],
+    "block-targets": [
+      {
+        "uuid": "04ba7214-e56b-4981-9667-1e0d68e83ef4",
+        "protocol": "ISCSI",
+        "target_name": "iqn.2026-10.local.storage:issue909-source-8e766d3c4c65",
+        "lun_or_namespace": "0",
+        "state": "Ready",
+        "config": {
+          "type": "target",
+          "backstoreType": "BLOCK",
+          "listenerGroupPorts": [
+            3260
+          ],
+          "endpointMode": "LISTENER_GROUP"
+        },
+        "volumeUuid": "48906777-5ce1-42a3-9690-054f73496f1d"
+      },
+      {
+        "uuid": "5784ff6b-3d22-456a-8b4b-8888329a01d2",
+        "protocol": "NVME_OF",
+        "target_name": "nqn.2026-10.local.storage:issue909-source-8e766d3c4c65",
+        "lun_or_namespace": null,
+        "state": "Ready",
+        "config": {
+          "type": "subsystem",
+          "allowAnyHost": false,
+          "engine": "KERNEL_NVMET",
+          "engineState": "SUPPORTED",
+          "transport": "tcp"
+        }
+      },
+      {
+        "uuid": "d6148c6f-6413-457e-8516-48f6a69819c3",
+        "protocol": "NVME_OF",
+        "target_name": "nqn.2026-10.local.storage:issue909-source-8e766d3c4c65",
+        "lun_or_namespace": "1",
+        "state": "Ready",
+        "config": {
+          "type": "namespace",
+          "backstoreType": "BLOCK",
+          "listenerGroupPorts": [
+            4420
+          ],
+          "endpointMode": "LISTENER_GROUP"
+        },
+        "volumeUuid": "076eae6e-b0b5-4a8a-885f-b594454bc925"
+      }
+    ],
+    "access-rules": [
+      {
+        "uuid": "f426a7cf-6b4d-41e9-a585-5932f195e094",
+        "resource_type": "FILE_SHARE",
+        "principal_type": "CIDR",
+        "principal": "10.10.13.1/32",
+        "permission": "READ_WRITE",
+        "state": "Ready",
+        "config": {
+          "readOnly": false,
+          "rootSquash": true,
+          "allSquash": false,
+          "sync": true,
+          "secure": false,
+          "anonUid": 65534,
+          "anonGid": 65534,
+          "protocolMode": "V4_ONLY",
+          "endpointMode": "LISTENER_GROUP",
+          "listenerGroupPorts": [
+            2049
+          ]
+        },
+        "resourceUuid": "5ba8fd61-5e04-4243-b9c3-47b837eccc1d"
+      },
+      {
+        "uuid": "569b7eb8-651b-403d-bbe3-9f0feff58cff",
+        "resource_type": "FILE_SHARE",
+        "principal_type": "CIDR",
+        "principal": "10.10.13.1/32",
+        "permission": "CONNECT",
+        "state": "Ready",
+        "config": {},
+        "resourceUuid": "4188278a-5318-43eb-a681-8d5c06f7bc12"
+      },
+      {
+        "uuid": "86b6addd-4d4a-41e6-94d4-c8e4f4d5c8f7",
+        "resource_type": "FILE_SHARE",
+        "principal_type": "LOCAL_USER",
+        "principal": "issue909user",
+        "permission": "READ_WRITE",
+        "state": "Ready",
+        "config": {
+          "localAccount": true
+        },
+        "resourceUuid": "4188278a-5318-43eb-a681-8d5c06f7bc12"
+      },
+      {
+        "uuid": "1805e027-b7f5-478e-b51c-8c50d7c1a281",
+        "resource_type": "BLOCK_TARGET",
+        "principal_type": "ISCSI_INITIATOR_IQN",
+        "principal": "iqn.1994-05.com.redhat:87612cfc9324",
+        "permission": "READ_WRITE",
+        "state": "Ready",
+        "config": {
+          "chapEnabled": false,
+          "mutualChapEnabled": false
+        },
+        "resourceUuid": "04ba7214-e56b-4981-9667-1e0d68e83ef4"
+      },
+      {
+        "uuid": "1a4115e6-8bd9-45a8-ba02-d5a2137cba8d",
+        "resource_type": "BLOCK_TARGET",
+        "principal_type": "NVME_HOST_NQN",
+        "principal": "nqn.2014-08.org.nvmexpress:uuid:d92064b0-e917-11eb-862b-3a68dd5921ef",
+        "permission": "READ_WRITE",
+        "state": "Ready",
+        "config": {
+          "dhChapEnabled": false,
+          "dhChapCtrlEnabled": false
+        },
+        "resourceUuid": "5784ff6b-3d22-456a-8b4b-8888329a01d2"
+      }
+    ]
+  }
+}

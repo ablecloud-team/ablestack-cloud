@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "command": [
+    "mvn",
+    "-B",
+    "-pl",
+    "server,plugins/hypervisors/kvm",
+    "-am",
+    "package",
+    "-Dtest=StorageIscsiNameAdmissionTest,StorageProtocolRepresentativeTest,StorageIscsiAclSourceRollbackTest,StorageProtocolDefaultListenerTest,StorageConfigLegacyDefaultProtocolTest,StorageServiceRuntimeQueueScopeTest,InterruptedStateChangeTest,StorageServicePreparationStateTest,StoragePreparationHealthWireContractTest,StoragePreparationObservationTest,StorageInitialPreparationAdmissionTest,StorageConfigInitialBaselineFlowTest,LibvirtStorageServiceHostCommandWrapperTest,StorageProtocolEndpointPreparationTest,StorageProtocolEndpointNativeContractTest,StorageInitialPrimaryEndpointRecoveryTest,StorageCanonicalRecoveryRuntimeTest,StorageProtocolPrefixBindingTest,StorageNfsPermissionEditGateTest",
+    "-Dsurefire.failIfNoSpecifiedTests=false",
+    "-DfailIfNoTests=false",
+    "-DskipITs",
+    "-Dmaven.javadoc.skip=true",
+    "-Dcheckstyle.skip=true"
+  ],
+  "startedEpoch": 1792508402.7982798,
+  "completedEpoch": 1792508508.2525923,
+  "exitCode": 0
+}

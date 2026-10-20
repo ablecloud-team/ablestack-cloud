@@ -35,6 +35,17 @@ public class StorageServiceProtocolEndpointResponse extends BaseResponse {
     @Param(description = "endpoint address role: PRIMARY, ALIAS, or DEDICATED")
     private String role;
 
+    @SerializedName("runtimestate") @Param(description="Fresh owned listener state: READY, DEGRADED, UNAVAILABLE, or DISABLED") private String runtimeState;
+    @SerializedName("listening") @Param(description="Fresh exact IP and port TCP readiness") private Boolean listening;
+    @SerializedName("listenerowned") @Param(description="Listener belongs to the SMB service") private Boolean listenerOwned;
+    @SerializedName("observedepoch") @Param(description="Guest observation epoch") private Double observedEpoch;
+    @SerializedName("diagnostic") @Param(description="Fresh endpoint verification limitation") private String diagnostic;
+    public void setRuntimeState(String value){runtimeState=value;}
+    public void setListening(Boolean value){listening=value;}
+    public void setListenerOwned(Boolean value){listenerOwned=value;}
+    public void setObservedEpoch(Double value){observedEpoch=value;}
+    public void setDiagnostic(String value){diagnostic=value;}
+
     public void setIpAddress(final String ipAddress) {
         this.ipAddress = ipAddress;
     }

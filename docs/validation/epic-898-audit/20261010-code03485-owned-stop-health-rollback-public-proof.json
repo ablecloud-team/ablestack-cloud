@@ -1,0 +1,128 @@
+{
+  "kind": "EPIC898_ACTUAL_CODE03485_WORKLOAD_HEALTH_ROLLBACK",
+  "nativeSourcePin": "03485cd931ede6ab4c1792b1c4aa1f411fc4d66f",
+  "catalogUuid": "6c2e3aa3-c054-430b-ac5d-e4294bcee11d",
+  "runtimeUpgradeUuid": "d9c473ad-12f4-4a98-9cc1-b1afa4301f3e",
+  "runtimeTransaction": "runtime-d0e2c4eb-5532-4358-8597-e978b5756afb",
+  "terminal": "ROLLED_BACK100",
+  "currentCliSha256": "2dc47c3a31ac5f1e7250281e52bce50e10e428d541252b099f3cb8a539548c38",
+  "currentVersion": "epic898-smb-launcher-6bc435-20261009",
+  "originalOperation": "fef126a6-936a-4936-b22c-201b7e5b9b4d",
+  "originalJournalPhase": "RECOVERY_REQUIRED",
+  "originalCipherPresent": false,
+  "publicHealth": {
+    "desiredState": {
+      "iscsiTargets": false,
+      "nfsQuotas": true,
+      "nvmeofSubsystems": false,
+      "smbDomain": false,
+      "smbDomainError": false,
+      "smbQuotas": true
+    },
+    "exitCode": 0,
+    "listenPorts": {
+      "iscsi": false,
+      "iscsiPorts": {
+        "3260": false
+      },
+      "nfs": true,
+      "nvmeof": true,
+      "nvmeofPorts": {},
+      "smb": false
+    },
+    "nfsGanesha": {
+      "active": 1,
+      "configured": 1,
+      "endpoints": [
+        {
+          "file": "0.0.0.0_2049.conf",
+          "idMappingMode": "NAME_DOMAIN",
+          "listenIp": "0.0.0.0",
+          "listening": true,
+          "logPath": "/run/ablestack-storage/ganesha/0.0.0.0_2049.log",
+          "pid": 115355,
+          "pidPath": "/run/ablestack-storage/ganesha/0.0.0.0_2049.pid",
+          "port": 2049,
+          "processRunning": true,
+          "protocolMode": "V4_ONLY",
+          "status": "active"
+        }
+      ],
+      "idMappingMode": "NAME_DOMAIN",
+      "listening": true,
+      "protocolMode": "V4_ONLY",
+      "rpcbindActive": true,
+      "rpcbindRequired": false,
+      "status": "ok"
+    },
+    "services": {
+      "iscsiTarget": "inactive",
+      "nfs": "ok",
+      "nfsGanesha": "ok",
+      "nmbd": "inactive",
+      "qemuGuestAgent": "active",
+      "smbd": "failed",
+      "winbind": "inactive"
+    },
+    "smbRuntime": {
+      "available": true,
+      "configured": 1,
+      "listening": false,
+      "runtimeEndpoints": [
+        {
+          "available": true,
+          "listenIp": "0.0.0.0",
+          "listenerOwned": false,
+          "listening": false,
+          "port": 445,
+          "tcpReady": false
+        }
+      ]
+    },
+    "status": "degraded",
+    "success": true
+  },
+  "preservedFieldsSame": [
+    "vmUuid",
+    "bootId",
+    "cliSha256",
+    "current",
+    "pending",
+    "databases",
+    "blockdevices",
+    "mounts",
+    "nfsSentinel"
+  ],
+  "current": {
+    "configurationSha256": "dafecb8bd68c29c0abd2b6e5ff31422361bb325768a54c77de7e305f24db544a",
+    "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "operationUuid": "219b09d5-fe32-40b0-befa-d919c6c964fe",
+    "revision": 4,
+    "verifiedAt": 1791545310.741826
+  },
+  "nfsSentinel": {
+    "gid": 65534,
+    "sha256": "9ba0b0280276cad982cfa3df6e6821f2b4b8ea04761b905cc1d089cbd72c4c8a",
+    "sizeBytes": 4096,
+    "uid": 65534
+  },
+  "sourceCallChain": "RuntimeUpgradeManager post-ACTIVATE operation verify -> status != ok -> automatic previous runtime rollback",
+  "nativeGenericRuntimeHealthChanged": false,
+  "manualStartJournalRehashForceClearOrFormat": false,
+  "subsequentSourceRecoveryOrClientIoInvoked": false,
+  "finalUi1275Started": false,
+  "evidenceFiles": [
+    {
+      "name": "before-code-03485-readonly.json",
+      "sha256": "d43c76f10aebbf114fb2a9e87b7b46cf4b72d1afbc5c4a80d3e7c37d61c397bc"
+    },
+    {
+      "name": "after-code-03485-rolledback-readonly.json",
+      "sha256": "d43c76f10aebbf114fb2a9e87b7b46cf4b72d1afbc5c4a80d3e7c37d61c397bc"
+    },
+    {
+      "name": "code-03485-operation-verify-readonly.json",
+      "sha256": "678bffbb5f9d4b19c286704170e69bb58cf1a4df116ee1e826ddca7270657bc6"
+    }
+  ]
+}

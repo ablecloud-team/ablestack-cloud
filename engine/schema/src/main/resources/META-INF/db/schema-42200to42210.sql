@@ -1214,3 +1214,139 @@ SET @storage_service_config_json_ddl = IF(
 PREPARE stmt FROM @storage_service_config_json_ddl;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+-- SharedFS Epic898 protocol-neutral directory ownership and ACL policy (#903/#916).
+CREATE TABLE IF NOT EXISTS `cloud`.`storage_posix_directory_policy` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(40) NOT NULL,
+  `instance_id` bigint unsigned NOT NULL,
+  `volume_id` bigint unsigned NOT NULL,
+  `relative_path` varchar(1024) NOT NULL,
+  `path_key` char(64) CHARACTER SET ascii NOT NULL,
+  `revision` bigint unsigned NOT NULL DEFAULT 1,
+  `state` varchar(32) NOT NULL DEFAULT 'Allocated',
+  `config_json` mediumtext NOT NULL,
+  `effective_json` mediumtext DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_applied` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_storage_posix_directory_policy__uuid` (`uuid`),
+  UNIQUE KEY `uk_storage_posix_directory_policy__path` (`instance_id`, `path_key`),
+  KEY `idx_storage_posix_directory_policy__volume_id` (`volume_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+SET @epic898_posix_reference_sql = IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud' AND TABLE_NAME='storage_file_share' AND COLUMN_NAME='posix_policy_id') = 0,
+    'ALTER TABLE `cloud`.`storage_file_share` ADD COLUMN `posix_policy_id` bigint unsigned DEFAULT NULL, ADD KEY `idx_storage_file_share__posix_policy_id` (`posix_policy_id`)',
+    'SELECT 1');
+PREPARE epic898_posix_reference_stmt FROM @epic898_posix_reference_sql;
+EXECUTE epic898_posix_reference_stmt;
+DEALLOCATE PREPARE epic898_posix_reference_stmt;
+
+
+-- Epic #898 / #909: immutable configuration artifacts and quarantined imports; no data volume bytes or secrets.
+CREATE TABLE IF NOT EXISTS cloud.storage_service_config_artifact (
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  uuid varchar(40) NOT NULL,
+  instance_id bigint unsigned NOT NULL,
+  kind varchar(32) NOT NULL,
+  state varchar(32) NOT NULL,
+  desired_revision bigint unsigned NOT NULL DEFAULT 0,
+  source_operation_id bigint unsigned DEFAULT NULL,
+  metadata_json mediumtext DEFAULT NULL,
+  sha256 char(64) CHARACTER SET ascii DEFAULT NULL,
+  size bigint unsigned NOT NULL DEFAULT 0,
+  created_by bigint unsigned NOT NULL,
+  created datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires datetime DEFAULT NULL,
+  removed datetime DEFAULT NULL,
+  active_lkg_instance_id bigint unsigned GENERATED ALWAYS AS
+    (CASE WHEN kind='RESTORE_POINT' AND state='ACTIVE_LKG' AND removed IS NULL THEN instance_id ELSE NULL END) STORED,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_storage_service_config_artifact__active_lkg (active_lkg_instance_id),
+  UNIQUE KEY uk_storage_service_config_artifact__uuid (uuid),
+  KEY idx_storage_service_config_artifact__scope (instance_id,kind,state),
+  KEY idx_storage_service_config_artifact__expires (expires)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+
+-- Existing Epic #909 artifact tables: fail rather than silently discard duplicate active points.
+DROP PROCEDURE IF EXISTS cloud.ensure_storage_config_active_lkg;
+DELIMITER //
+CREATE PROCEDURE cloud.ensure_storage_config_active_lkg()
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='cloud'
+      AND TABLE_NAME='storage_service_config_artifact' AND COLUMN_NAME='active_lkg_instance_id') THEN
+    ALTER TABLE cloud.storage_service_config_artifact
+      ADD COLUMN active_lkg_instance_id bigint unsigned GENERATED ALWAYS AS
+        (CASE WHEN kind='RESTORE_POINT' AND state='ACTIVE_LKG' AND removed IS NULL THEN instance_id ELSE NULL END) STORED,
+      ADD UNIQUE KEY uk_storage_service_config_artifact__active_lkg (active_lkg_instance_id);
+  END IF;
+END //
+DELIMITER ;
+CALL cloud.ensure_storage_config_active_lkg();
+DROP PROCEDURE cloud.ensure_storage_config_active_lkg;
+
+
+-- Epic #920: retained ROOT/template upgrade transactions; no user-data volume changes.
+CREATE TABLE IF NOT EXISTS cloud.storage_service_template_upgrade (
+  id bigint unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  uuid varchar(40) NOT NULL,
+  instance_id bigint unsigned NOT NULL,
+  shared_filesystem_id bigint unsigned NOT NULL,
+  source_template_id bigint unsigned NOT NULL,
+  target_template_id bigint unsigned NOT NULL,
+  previous_root_volume_id bigint unsigned NOT NULL,
+  target_root_volume_id bigint unsigned DEFAULT NULL,
+  previous_guest_os_id bigint unsigned NOT NULL,
+  root_device_id bigint unsigned NOT NULL,
+  previous_vm_state varchar(32) NOT NULL,
+  state varchar(40) NOT NULL,
+  phase varchar(64) NOT NULL,
+  progress int NOT NULL DEFAULT 0,
+  revision bigint unsigned NOT NULL,
+  request_key varchar(191) NOT NULL,
+  operation_id bigint unsigned DEFAULT NULL,
+  snapshot_json LONGTEXT,
+  preflight_json MEDIUMTEXT,
+  verification_json MEDIUMTEXT,
+  rollback_result_json MEDIUMTEXT,
+  error_code varchar(128),
+  error_message TEXT,
+  created_by bigint unsigned NOT NULL,
+  started datetime DEFAULT NULL,
+  heartbeat datetime NOT NULL,
+  completed datetime DEFAULT NULL,
+  rollback_retain_until datetime DEFAULT NULL,
+  created datetime NOT NULL,
+  active_instance_id bigint unsigned GENERATED ALWAYS AS
+    (CASE WHEN state IN ('RUNNING','RECOVERY_REQUIRED') THEN instance_id ELSE NULL END) STORED,
+  UNIQUE KEY uk_storage_template_upgrade_uuid(uuid),
+  UNIQUE KEY uk_storage_template_upgrade_request(instance_id,request_key),
+  UNIQUE KEY uk_storage_template_upgrade_active(active_instance_id),
+  KEY idx_storage_template_upgrade_retention(rollback_retain_until),
+  KEY idx_storage_template_upgrade_scope(instance_id,created)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Existing SharedFS installations need the ROOT projection; Diplo-After creates it for new installations.
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''current_template_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''previous_template_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''template_upgrade_state'', ''varchar(40) DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''last_template_upgrade_id'', ''bigint unsigned DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;
+SET @storage_root_projection_sql = IF(EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='cloud' AND table_name='storage_service_instance'), 'CALL cloud.IDEMPOTENT_ADD_COLUMN(''cloud.storage_service_instance'', ''template_verified_at'', ''datetime DEFAULT NULL'')', 'SELECT 1');
+PREPARE storage_root_projection_stmt FROM @storage_root_projection_sql;
+EXECUTE storage_root_projection_stmt;
+DEALLOCATE PREPARE storage_root_projection_stmt;

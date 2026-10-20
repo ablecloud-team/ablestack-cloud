@@ -1,0 +1,80 @@
+{
+  "actualReadonlyGuardCalls": 1,
+  "guestExitCode": 0,
+  "kind": "DF11_READONLY_SOURCE_RECOVERY_GUARD_PROVIDER",
+  "observation": {
+    "configfsWrites": 0,
+    "current": {
+      "configurationSha256": "498d87b174bb4fa16b86660d946d01a3a19017bb4e89564ec614fb74e6ed6871",
+      "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+      "operationUuid": "c9e5fe51-21bc-4d02-925d-bcbe4d639ca2",
+      "revision": 26,
+      "verifiedAt": 1791620643.6818442
+    },
+    "dataWrites": 0,
+    "kind": "EXACT_EC92_POST_IO_WINDOW_PROJECTION_READONLY",
+    "oldDataPreservationProofReused": "82b5308f3cd0c8019a5145bfce37ce4ed39b8e8f5a753905b0c36243adc56e85",
+    "ownNvmeNamespace": {
+      "actualReadLengths": {
+        "adjacentAfter": 4096,
+        "adjacentBefore": 4096,
+        "header": 65536,
+        "window": 4096
+      },
+      "adjacentAfter4096AllZero": true,
+      "adjacentBefore4096AllZero": true,
+      "allowAnyHost": false,
+      "allowedHostCount": 2,
+      "backingDevice": "/dev/sde",
+      "backingSerial": "ec92d6c62fde4f359d31",
+      "backingVolumeUuid": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+      "configfsWrites": 0,
+      "dataWrites": 0,
+      "enabled": true,
+      "expectedNvmePatternMatched": false,
+      "expectedPatternSha256": "31a8ca181e7ede2835efbb11dbe9f00baa1deeec0862655cbb1709f2999bd98b",
+      "header64KiBAllZero": true,
+      "linkedPorts": [
+        {
+          "exactSubsystemLinked": true,
+          "listenIp": "0.0.0.0",
+          "port": 4420,
+          "portId": 1,
+          "transport": "tcp"
+        }
+      ],
+      "logicalBlockSize": 512,
+      "namespaceId": 1,
+      "namespaceUuid": "13fe7ca1-8321-47c2-96f3-32d535700754",
+      "nqn": "nqn.2026-06.local.storage:epic898-s-b6aa-all4-f1-20261009",
+      "nvmetcliCalls": 0,
+      "openedDeviceStat": {
+        "mode": 432,
+        "rdevMajor": 8,
+        "rdevMinor": 64,
+        "uid": 0
+      },
+      "readMethod": "BUFFERED_PREAD",
+      "rootAndOtherDataExcluded": true,
+      "sizeBytes": 21474836480,
+      "subsystemUuid": "a5280d24-cacf-48f9-ac95-ebd5e730c6b5",
+      "unmountedNoFilesystemNoPartitions": true,
+      "windowAllZero": true,
+      "windowLengthBytes": 4096,
+      "windowOffsetBytes": 1048576,
+      "windowSha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7"
+    },
+    "ownNvmeTcpCounts": {
+      "established": 0,
+      "synRecv": 0
+    },
+    "pending": null,
+    "sourceWrites": 0,
+    "writerIdle": {
+      "status": "WRITER_IDLE",
+      "success": true,
+      "writerIdle": true
+    }
+  },
+  "stdoutBytes": 1958
+}

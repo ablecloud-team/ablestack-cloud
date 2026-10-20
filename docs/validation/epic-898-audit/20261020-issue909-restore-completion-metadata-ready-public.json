@@ -1,0 +1,574 @@
+{
+  "issue": 909,
+  "epic": 898,
+  "sourceCommit": "7a39cb4b10b87daf72a7241d1cc01d52a0f7739d",
+  "baseUpstream": "248653b58920d2a950393ed3edc7b343b831105d",
+  "redRegression": {
+    "expectedExitCode": 1,
+    "actualExitCode": 1,
+    "assertion": "A successful restore must not return a previous attempt's failure"
+  },
+  "build": {
+    "suites": [
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "tests": "4",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "time": "157.563"
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "tests": "4",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "time": "0.828"
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "tests": "19",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "time": "0.39"
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "tests": "31",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "time": "12.912"
+      }
+    ],
+    "tests": 58,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "reactorModules": 26,
+    "exitCode": 0,
+    "classes": {
+      "StorageServiceConfiguration.class": {
+        "sha256": "0414c056787f2bb194b9d6936278278c9436ace72f105d8d6ae884868c3c558b",
+        "bytes": 84308,
+        "classMajor": 55
+      },
+      "StorageServiceConfiguration$ClonePublicationCompletion.class": {
+        "sha256": "6f53e930b66e2d0cef47102053625308fd546f84cd8847c064ef39cbdb0888b0",
+        "bytes": 2100,
+        "classMajor": 55
+      }
+    },
+    "sourceCommit": "7a39cb4b10b87daf72a7241d1cc01d52a0f7739d"
+  },
+  "deployment": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/var/backups/mold/issue909-restore-metadata-7a39cb4b10b8/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "23e198313ab1d0c3e7e96597d6677f19c8c79b2b98d18ad59270387f18ee9a8a",
+    "newJarSha256": "88218dcd26aa2616301705ae8485da60bc96f32a7879bbf278bc5947dfdef104",
+    "changedClasses": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class": "0414c056787f2bb194b9d6936278278c9436ace72f105d8d6ae884868c3c558b",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$ClonePublicationCompletion.class": "6f53e930b66e2d0cef47102053625308fd546f84cd8847c064ef39cbdb0888b0"
+    },
+    "unchangedEntriesVerified": 204662,
+    "service": "mold",
+    "active": "active",
+    "pid": "2804452",
+    "sourceCommit": "7a39cb4b10b87daf72a7241d1cc01d52a0f7739d"
+  },
+  "readiness": {
+    "httpStatus": 200,
+    "nativeStatus": "ok",
+    "generation": {
+      "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+      "configurationDesiredState": {
+        "desired-state/nfs-export-apply.json": {
+          "enabled": true,
+          "exports": [
+            {
+              "acls": [
+                {
+                  "config": {
+                    "allSquash": false,
+                    "endpointMode": "LISTENER_GROUP",
+                    "listenerGroupPorts": [
+                      2049
+                    ],
+                    "protocolMode": "V4_ONLY",
+                    "readOnly": false,
+                    "rootSquash": false,
+                    "secure": false,
+                    "sync": true
+                  },
+                  "id": 408,
+                  "permission": "READ_WRITE",
+                  "principal": "10.10.13.1/32",
+                  "principalType": "CIDR",
+                  "state": "Ready",
+                  "uuid": "a08c4ff1-5852-467f-ac08-513255def571"
+                }
+              ],
+              "config": {
+                "allSquash": false,
+                "attachedVolumeName": "sharedfs-DATA-87",
+                "attachedVolumeUuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                "backingPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc/export/issue909-mixed-nfs",
+                "createDirectory": false,
+                "endpointMode": "LISTENER_GROUP",
+                "filesystemUuid": "061edb4b-cc56-4ec5-a66d-6c5601460fa0",
+                "importMode": "MOUNT_EXISTING",
+                "lastInspection": {
+                  "backingPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc/export/issue909-mixed-nfs",
+                  "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+                  "createdDirectoryReceipts": [],
+                  "filesystem": "ext4",
+                  "filesystemSupported": true,
+                  "filesystemUuid": "061edb4b-cc56-4ec5-a66d-6c5601460fa0",
+                  "formatInvoked": false,
+                  "formatterActive": false,
+                  "formatterObservationComplete": true,
+                  "importMode": "MOUNT_EXISTING",
+                  "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+                  "managerOperationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+                  "mappingStatus": "EXACT",
+                  "matchedBy": "VOLUME_SERIAL",
+                  "mountPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                  "observedDevicePath": "/dev/sdb",
+                  "operation": {
+                    "createdDirectoryReceipts": [],
+                    "devicePath": "/dev/sdb",
+                    "elapsedSeconds": -2.384185791015625e-07,
+                    "filesystem": "ext4",
+                    "filesystemUuid": "061edb4b-cc56-4ec5-a66d-6c5601460fa0",
+                    "formatDeadlineSeconds": 420,
+                    "heartbeat": 1792445752.146007,
+                    "mountPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                    "operationId": "volume-9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                    "phase": "COMPLETE",
+                    "volumeUuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+                  },
+                  "operationId": "volume-9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                  "persistentMount": true,
+                  "relativeSharePath": "export/issue909-mixed-nfs",
+                  "resumeOnly": false,
+                  "resumed": false,
+                  "revision": 2,
+                  "schemaVersion": 2,
+                  "serial": "9af4822e8c0247bab3a9",
+                  "sizeBytes": 8589934592,
+                  "status": "ok",
+                  "success": true,
+                  "terminationPending": false,
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+                  "volumeUuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+                },
+                "listenerGroupPorts": [
+                  2049
+                ],
+                "protocolMode": "V4_ONLY",
+                "readOnly": false,
+                "rootSquash": false,
+                "secure": false,
+                "sync": true,
+                "volumeMode": "EXISTING_VOLUME",
+                "volumeMountPath": "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+              },
+              "filesystem": "ext4",
+              "id": 375,
+              "name": "issue909-mixed-nfs",
+              "path": "/export/issue909-mixed-nfs",
+              "state": "Ready",
+              "uuid": "876e60d9-1411-40f2-aaa2-cfd783f5fe4e",
+              "volumeId": 152
+            }
+          ],
+          "idMappingMode": "NAME_DOMAIN",
+          "instanceId": 41,
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "listenIp": "0.0.0.0",
+          "listeners": [
+            {
+              "config": {
+                "idMappingMode": "NAME_DOMAIN",
+                "listenerGroups": [
+                  {
+                    "port": 2049,
+                    "state": "Ready"
+                  }
+                ],
+                "protocolMode": "V4_ONLY"
+              },
+              "listenIp": "0.0.0.0",
+              "port": 2049,
+              "state": "Ready"
+            }
+          ],
+          "port": 2049,
+          "protocolMode": "V4_ONLY"
+        },
+        "desired-state/smb-share-apply.json": {
+          "enabled": true,
+          "instanceId": 41,
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "listenIp": "0.0.0.0",
+          "listeners": [
+            {
+              "id": "a9527466-fb1d-4e6d-9169-f1f0364f7d8a",
+              "listenIp": "0.0.0.0",
+              "port": 445,
+              "state": "Ready"
+            }
+          ],
+          "netbiosName": "STOR7CE81C3511",
+          "port": 445,
+          "shares": [
+            {
+              "acls": [
+                {
+                  "config": {
+                    "localAccount": true
+                  },
+                  "id": 410,
+                  "permission": "READ_WRITE",
+                  "principal": "issue909smb",
+                  "principalType": "LOCAL_USER",
+                  "state": "Ready",
+                  "uuid": "74f341b3-d1b3-4c7d-83af-ddb57b4f8085"
+                }
+              ],
+              "config": {
+                "attachedVolumeName": "issue909-mixed-SMB-20261019",
+                "attachedVolumeUuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                "backingPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d/export/issue909-mixed-smb",
+                "browseable": true,
+                "createDirectory": false,
+                "createMask": "0660",
+                "crossProtocol": false,
+                "directoryMask": "0770",
+                "directoryMode": "0770",
+                "filesystemUuid": "aab40c90-e792-404e-9892-a9ed5f11a915",
+                "forceCreateMode": "0000",
+                "forceDirectoryMode": "0000",
+                "guestOk": false,
+                "importMode": "MOUNT_EXISTING",
+                "inheritGroup": false,
+                "inheritPermissions": false,
+                "lastInspection": {
+                  "backingPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d/export/issue909-mixed-smb",
+                  "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+                  "createdDirectoryReceipts": [],
+                  "filesystem": "ext4",
+                  "filesystemSupported": true,
+                  "filesystemUuid": "aab40c90-e792-404e-9892-a9ed5f11a915",
+                  "formatInvoked": false,
+                  "formatterActive": false,
+                  "formatterObservationComplete": true,
+                  "importMode": "MOUNT_EXISTING",
+                  "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+                  "managerOperationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+                  "mappingStatus": "EXACT",
+                  "matchedBy": "VOLUME_SERIAL",
+                  "mountPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                  "observedDevicePath": "/dev/sdc",
+                  "operation": {
+                    "createdDirectoryReceipts": [],
+                    "devicePath": "/dev/sdc",
+                    "elapsedSeconds": -2.384185791015625e-07,
+                    "filesystem": "ext4",
+                    "filesystemUuid": "aab40c90-e792-404e-9892-a9ed5f11a915",
+                    "formatDeadlineSeconds": 420,
+                    "heartbeat": 1792445755.190529,
+                    "mountPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                    "operationId": "volume-0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                    "phase": "COMPLETE",
+                    "volumeUuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+                  },
+                  "operationId": "volume-0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                  "persistentMount": true,
+                  "relativeSharePath": "export/issue909-mixed-smb",
+                  "resumeOnly": false,
+                  "resumed": false,
+                  "revision": 2,
+                  "schemaVersion": 2,
+                  "serial": "0482a680288c45649ccf",
+                  "sizeBytes": 2147483648,
+                  "status": "ok",
+                  "success": true,
+                  "terminationPending": false,
+                  "volumeMountPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d",
+                  "volumeUuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+                },
+                "ownershipInheritance": "AUTHENTICATED_USER",
+                "posixOwnershipMode": "AUTHENTICATED_USER",
+                "readOnly": false,
+                "volumeMode": "EXISTING_VOLUME",
+                "volumeMountPath": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d"
+              },
+              "displayPath": "/export/issue909-mixed-smb",
+              "filesystem": "ext4",
+              "id": 376,
+              "name": "issue909-mixed-smb",
+              "networkAcls": [
+                {
+                  "permission": "CONNECT",
+                  "principal": "10.10.13.1/32",
+                  "principalType": "CIDR",
+                  "state": "Ready",
+                  "uuid": "480b05a8-3340-4690-9af7-1209ebd04709"
+                }
+              ],
+              "path": "/srv/ablestack-storage/volumes/0482a680-288c-4564-9ccf-32c3bcb79b2d/export/issue909-mixed-smb",
+              "state": "Ready",
+              "uuid": "27086c9a-7872-4312-b510-9b6d72483aac",
+              "volumeId": 153
+            }
+          ]
+        },
+        "iscsi-targets.json": {
+          "enabled": true,
+          "endpointAliases": [],
+          "instanceId": 41,
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "listenIp": "0.0.0.0",
+          "listeners": [
+            {
+              "listenIp": "0.0.0.0",
+              "port": 3260
+            }
+          ],
+          "port": 3260,
+          "targets": [
+            {
+              "acls": [
+                {
+                  "config": {
+                    "chapEnabled": true,
+                    "chapUsername": "issue909chap",
+                    "mutualChapEnabled": false
+                  },
+                  "id": 411,
+                  "permission": "READ_WRITE",
+                  "principal": "iqn.2026-10.local.ablestack:issue909-client13-1",
+                  "principalType": "ISCSI_INITIATOR_IQN",
+                  "state": "Ready",
+                  "uuid": "08180d0c-4bbe-45e3-b57e-a20134bb580c"
+                }
+              ],
+              "backstoreType": "BLOCK",
+              "config": {
+                "backstoreType": "BLOCK",
+                "endpointMode": "LISTENER_GROUP",
+                "listenerGroupPorts": [
+                  3260
+                ],
+                "type": "target"
+              },
+              "effectiveSizeBytes": 2147483648,
+              "endpointMode": "LISTENER_GROUP",
+              "expectedSerialPrefix": "5a425723d6c54d90b510",
+              "id": 77,
+              "listenerPorts": [
+                3260
+              ],
+              "lunOrNamespace": "0",
+              "protocol": "ISCSI",
+              "state": "Ready",
+              "targetName": "iqn.2026-10.local.storage:issue909-mixed-20261019",
+              "uuid": "d09fe726-aea7-412d-80f6-f60ecbe51f2d",
+              "volumeDeviceId": 4,
+              "volumeId": 154,
+              "volumeName": "issue909-mixed-ISCSI-20261019",
+              "volumePath": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+              "volumeSizeBytes": 2147483648,
+              "volumeUuid": "5a425723-d6c5-4d90-b510-1dd802e5c6bf"
+            }
+          ]
+        },
+        "network-endpoints.json": null,
+        "nvmeof-subsystems.json": {
+          "enabled": true,
+          "endpointAliases": [],
+          "instanceId": 41,
+          "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+          "listenIp": "0.0.0.0",
+          "listeners": [
+            {
+              "listenIp": "0.0.0.0",
+              "port": 4420
+            }
+          ],
+          "port": 4420,
+          "subsystems": [
+            {
+              "config": {
+                "allowAnyHost": false,
+                "engine": "KERNEL_NVMET",
+                "engineState": "SUPPORTED",
+                "transport": "tcp",
+                "type": "subsystem"
+              },
+              "hosts": [
+                {
+                  "config": {
+                    "dhChapCtrlEnabled": false,
+                    "dhChapEnabled": false
+                  },
+                  "id": 412,
+                  "permission": "READ_WRITE",
+                  "principal": "nqn.2026-10.local.ablestack:issue909-client13-1",
+                  "principalType": "NVME_HOST_NQN",
+                  "state": "Ready",
+                  "uuid": "ac7714cc-0ba4-46a4-9336-03e099987473"
+                }
+              ],
+              "id": 78,
+              "lunOrNamespace": null,
+              "namespaces": [
+                {
+                  "backstoreType": "BLOCK",
+                  "config": {
+                    "backstoreType": "BLOCK",
+                    "endpointMode": "LISTENER_GROUP",
+                    "listenerGroupPorts": [
+                      4420
+                    ],
+                    "type": "namespace"
+                  },
+                  "effectiveSizeBytes": 2147483648,
+                  "endpointMode": "LISTENER_GROUP",
+                  "expectedSerialPrefix": "9f7aec17b7b84c0c8ad2",
+                  "id": 79,
+                  "listenerPorts": [
+                    4420
+                  ],
+                  "lunOrNamespace": "1",
+                  "protocol": "NVME_OF",
+                  "state": "Ready",
+                  "targetName": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+                  "uuid": "8573944b-0442-4d17-9766-949700808cc0",
+                  "volumeDeviceId": 5,
+                  "volumeId": 155,
+                  "volumeName": "issue909-mixed-NVME-20261019",
+                  "volumePath": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+                  "volumeSizeBytes": 2147483648,
+                  "volumeUuid": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+                }
+              ],
+              "protocol": "NVME_OF",
+              "state": "Ready",
+              "targetName": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+              "uuid": "67fdb66b-0eec-4914-ad8a-c8c7f284e7ce"
+            }
+          ]
+        },
+        "posix-directory-policies.json": null,
+        "sharedfs-network.json": {
+          "cidr": "10.10.0.0/16",
+          "dns1": "8.8.8.8",
+          "gateway": "10.10.0.1",
+          "ipAddress": "10.10.13.227",
+          "macAddress": "02:0d:00:cc:00:2e"
+        }
+      },
+      "configurationSha256": "92de4edcc4417d88f34caa979090848484125815c945cf0ca718760e91eec19e",
+      "generation": {
+        "configurationSha256": "92de4edcc4417d88f34caa979090848484125815c945cf0ca718760e91eec19e",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "182ae436-0c80-422a-967c-d71a3b7f9ae2",
+        "revision": 2,
+        "verifiedAt": 1792445775.3284602
+      },
+      "generationStatus": "IN_SYNC",
+      "generationSupported": true,
+      "pendingOperationUuid": null,
+      "runtimeRevision": 2,
+      "success": true
+    },
+    "activeLkg": "a686acba-bba8-46e4-bcc7-ee3c23d52733",
+    "activeLkgRevision": 2,
+    "pendingOperations": 0,
+    "vmState": "Running",
+    "mac": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+    "cliSha256": "eaf3929e26ca345721bbd2a988f30cabc041a844439350f2cbaa603b601569af",
+    "priorOperationAndImportUnchanged": true,
+    "ui": {
+      "browser": "Chrome",
+      "view": "백업·복원",
+      "serviceReady": true,
+      "backupListLoaded": true,
+      "activeLkgRevision": 2,
+      "screenshotSha256": "98e1d59d0b99230233330d38956afb7d54e757b26a197d9a63b7c09f9cb04417"
+    }
+  },
+  "boundary": {
+    "fullRestoreResumed": false,
+    "additionalApplyCount": 0,
+    "historicalJobResultsRewritten": false,
+    "metadataDatabaseManualUpdate": false,
+    "newVms": 0,
+    "newDisks": 0,
+    "formatCalls": 0,
+    "macModifications": 0,
+    "issueClosed": false,
+    "waitingForInstruction": true
+  },
+  "review": {
+    "scope": [
+      "StorageServiceConfiguration.java",
+      "StorageConfigRestoreWholeFlowTest.java",
+      "StorageConfigCloneTemplatePinTest.java"
+    ],
+    "blockingFindings": 0,
+    "reviewed": [
+      "verified-completion-only error cleanup",
+      "failed operation history preservation",
+      "clone previousErrorCode preservation",
+      "frozen CREATE_NEW metadata unchanged",
+      "stored/result/list regression coverage"
+    ],
+    "reviewMode": "independent read-only review",
+    "reviewerModifiedFiles": false,
+    "reviewerExecutedTests": false
+  }
+}

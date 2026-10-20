@@ -1,0 +1,104 @@
+{
+  "kind": "ISSUE909_FINAL_RENDER_STAGE_ERROR_STOPPED",
+  "productSourceUi": "76e42c791bfb2d52bcfe8c7191cebf6a44eed3b2",
+  "backendJarSha256": "f85b9758145339974bb2ea4bb585adcb0f3360b04fbbfc2fa868efc1edd7e5ea",
+  "artifactId": "c1181cde-33d2-4209-9721-0dfc86308838",
+  "sharedFsId": "886e9f06-a01e-4840-8bc5-970aca706295",
+  "instanceId": "7ce81c35-1189-46c7-955e-127b15205863",
+  "vmId": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+  "job": {
+    "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+    "account": "admin",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "domainpath": "ROOT",
+    "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.ApplyStorageServiceConfigRestoreCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Storage Service operation 6b3d97bb-1831-4756-b73e-a8eb4cbfa36d ROLLED_BACK: failurePhase=APPLYING; Rendered generation stage failed; inspect its scoped recovery receipt"
+    },
+    "created": "2026-10-19T18:22:31+0900",
+    "completed": "2026-10-19T18:24:14+0900",
+    "jobid": "f0cebb17-d509-4bae-b700-89717239389b",
+    "jobstatus": 2
+  },
+  "operation": {
+    "id": "6b3d97bb-1831-4756-b73e-a8eb4cbfa36d",
+    "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "action": "applystorageserviceconfigrestoreresponse",
+    "state": "ROLLED_BACK",
+    "phase": "ROLLED_BACK",
+    "revision": 2,
+    "progress": 100,
+    "created": "2026-10-19T18:23:11+0900",
+    "heartbeat": "2026-10-19T18:24:14+0900",
+    "completed": "2026-10-19T18:24:14+0900",
+    "diagnostic": "failurePhase=APPLYING; Rendered generation stage failed; inspect its scoped recovery receipt"
+  },
+  "acceptedApplyCount": 1,
+  "productErrorRetries": 0,
+  "clientPreflightPassed": true,
+  "clientIoTestsStarted": false,
+  "newSparseDataBranchStarted": false,
+  "newVmOrDiskCount": 0,
+  "manualMacChanges": 0,
+  "productCodeEditsThisRun": 0,
+  "moduleBuildOrDeployThisRun": 0,
+  "preservation": {
+    "nativeGeneration": {
+      "generation": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "revision": 1,
+        "verifiedAt": 1792395320.1495302
+      },
+      "generationStatus": "IN_SYNC",
+      "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "pendingOperationUuid": null
+    },
+    "nativeBootHeld": false,
+    "renderedBaselineScope": {
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "revision": 1
+    },
+    "renderedBaselineSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+    "lkg": {
+      "id": "36368268-08e1-4024-944e-e67742f3532f",
+      "state": "ACTIVE_LKG",
+      "desiredRevision": 1,
+      "sha256": "ca302769082a8e8299f213d1b531dd3f5bbdd5d0cbd0e51a071cd0e488daec2b"
+    },
+    "vmState": "Running",
+    "fiveVolumesReadySparse": true,
+    "moldMac": "02:0d:00:cc:00:2e",
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+    "fileCanaries6AndMetadataPreserved": true,
+    "rawDisks2Four64KiBRegionsPreserved": true,
+    "wholeVolumeHashVerified": false,
+    "protectedFilesUnchanged": 5,
+    "protectedFileChanges": [
+      "service-maintenance.json"
+    ],
+    "maintenanceReleaseScope": {
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "maintenanceUuid": "6b3d97bb-1831-4756-b73e-a8eb4cbfa36d",
+      "operationUuid": "6b3d97bb-1831-4756-b73e-a8eb4cbfa36d",
+      "revision": 2
+    },
+    "frozenFieldsUnchanged": [
+      "plan",
+      "cloneAllocation",
+      "volumeExecutionPlan",
+      "cloneInitialBaseline",
+      "requestedVolumeMapping"
+    ],
+    "cloneRestoreOperationUpdatedToLatestAttempt": true
+  },
+  "underlyingNativeValidationCauseConfirmed": false,
+  "waitingForInstruction": true
+}

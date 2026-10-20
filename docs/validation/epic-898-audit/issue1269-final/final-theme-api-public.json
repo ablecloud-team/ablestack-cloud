@@ -1,0 +1,518 @@
+{
+  "sourcePin": "77b222a8d8c531c984ab1e2db274fcb2fc64172a",
+  "routeInterceptionInstalled": false,
+  "observations": [
+    {
+      "name": "20-final-unrouted-NFS-baseline",
+      "time": "2026-10-15T01:44:01.578Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=nfs",
+      "timeOrigin": 1792028628267.2,
+      "available": true,
+      "ready": true,
+      "xfs": false,
+      "capacity100": true,
+      "nfsExport": true,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "NFS"
+      ],
+      "darkRadio": false,
+      "lightRadio": true,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "theme-ui-selected",
+      "time": "2026-10-15T01:44:05.630Z",
+      "theme": "dark",
+      "closeMethod": "drawer header button"
+    },
+    {
+      "name": "20-dark-NFS",
+      "time": "2026-10-15T01:44:06.350Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=nfs",
+      "timeOrigin": 1792028628267.2,
+      "available": true,
+      "ready": true,
+      "xfs": false,
+      "capacity100": true,
+      "nfsExport": true,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "NFS"
+      ],
+      "darkRadio": true,
+      "lightRadio": false,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "20-dark-NFS-screenshot",
+      "time": "2026-10-15T01:44:06.629Z",
+      "path": "20-dark-NFS.png"
+    },
+    {
+      "name": "20-dark-details",
+      "time": "2026-10-15T01:44:07.556Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=details",
+      "timeOrigin": 1792028628267.2,
+      "available": true,
+      "ready": true,
+      "xfs": true,
+      "capacity100": true,
+      "nfsExport": false,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "상세"
+      ],
+      "darkRadio": true,
+      "lightRadio": false,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "20-dark-details-screenshot",
+      "time": "2026-10-15T01:44:07.726Z",
+      "path": "20-dark-details.png"
+    },
+    {
+      "name": "theme-ui-selected",
+      "time": "2026-10-15T01:44:11.528Z",
+      "theme": "light",
+      "closeMethod": "drawer header button"
+    },
+    {
+      "name": "20-light-details",
+      "time": "2026-10-15T01:44:12.247Z",
+      "url": "http://10.10.13.10:8080/client/#/sharedfs/487a3d3b-b583-4499-be02-c40b45a7e6b1?tab=details",
+      "timeOrigin": 1792028628267.2,
+      "available": true,
+      "ready": true,
+      "xfs": true,
+      "capacity100": true,
+      "nfsExport": false,
+      "spinners": 0,
+      "partialAlerts": [],
+      "activeTab": [
+        "상세"
+      ],
+      "darkRadio": false,
+      "lightRadio": true,
+      "scriptPaths": [
+        "/client/js/auth.516ad1c5.js",
+        "/client/js/chunk-152e16dc.899ea26f.js",
+        "/client/js/chunk-c43e1aa6.f6137aa9.js",
+        "/client/js/chunk-fa55581a.216f05cb.js",
+        "/client/js/chunk-55b22fea.0412054d.js",
+        "/client/js/chunk-17f3a61d.2b78220b.js",
+        "/client/js/less.min.js",
+        "/client/js/vendors.ce3def06.js",
+        "/client/js/app.3f294902.js"
+      ]
+    },
+    {
+      "name": "20-light-details-screenshot",
+      "time": "2026-10-15T01:44:12.499Z",
+      "path": "20-light-details.png"
+    },
+    {
+      "name": "21-after-api-all-FS",
+      "time": "2026-10-15T01:44:12.544Z",
+      "directApi": true,
+      "command": "listSharedFileSystems",
+      "httpStatus": 200,
+      "scope": {
+        "listall": "true",
+        "page": 1,
+        "pagesize": 500
+      },
+      "responseEnvelope": "listsharedfilesystemsresponse",
+      "objectKey": "sharedfs",
+      "count": 8,
+      "rowsLength": 8,
+      "countComplete": true,
+      "expectedIdsVerified": true,
+      "rows": [
+        {
+          "id": "487a3d3b-b583-4499-be02-c40b45a7e6b1",
+          "state": "Ready",
+          "virtualmachineid": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+          "volumeid": "a5f4360d-5830-4c67-bac1-b078fb85c5fe",
+          "size": 107374182400,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "bc637fae-7b42-4757-b319-f05ccfd13cc3",
+          "state": "Ready",
+          "virtualmachineid": "2bd63f93-f5af-4256-9b46-ee042669f6de",
+          "volumeid": "07221486-9900-49ed-b617-9e44b87a0f54",
+          "size": 214748364800,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "25b7fbd0-9cc7-4951-a217-aa63962a7987",
+          "state": "Ready",
+          "virtualmachineid": "694d316f-9289-4500-ae17-cb6e3fa4bbe4",
+          "volumeid": "ca9bcef3-8881-4b3b-84be-a989e654fd6a",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "295291f4-2951-4fbb-9f22-5b613e16697f",
+          "state": "Ready",
+          "virtualmachineid": "c8d66f31-9d8a-4023-90fe-a316582e2f22",
+          "volumeid": "564e3799-f4dd-42c0-b86d-1ec3cf679604",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "65260ea9-bdb1-4ce4-bd6e-55cd755b5c59",
+          "state": "Ready",
+          "virtualmachineid": "fb6342f3-df51-41ef-89cb-4099ab466f69",
+          "volumeid": "12f44813-96a4-4b15-a9c1-ac7928403e6e",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "1ff60dc2-d276-499e-a7ac-3317d299a472",
+          "state": "Ready",
+          "virtualmachineid": "145cae0a-6077-4c0c-8cec-e126a36e4b82",
+          "volumeid": "a0bbe566-7aa6-4bbd-9998-226a4f52bf0c",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "4b760728-104b-4f90-a039-adca78d31a4c",
+          "state": "Ready",
+          "virtualmachineid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f",
+          "volumeid": "5368d530-d290-48db-b6d6-9f20d34b5d31",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "ee35189f-4914-4e9c-b4e6-64b86164f031",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "volumeid": "abfa15d5-a916-475f-9b9f-22b0483cc698",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-original-VM",
+      "time": "2026-10-15T01:44:12.572Z",
+      "directApi": true,
+      "command": "listVirtualMachines",
+      "httpStatus": 200,
+      "scope": {
+        "id": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+        "listall": "true"
+      },
+      "responseEnvelope": "listvirtualmachinesresponse",
+      "objectKey": "virtualmachine",
+      "count": 1,
+      "rowsLength": 1,
+      "countComplete": true,
+      "expectedIdsVerified": true,
+      "rows": [
+        {
+          "id": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+          "state": "Running",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-original-volumes",
+      "time": "2026-10-15T01:44:12.593Z",
+      "directApi": true,
+      "command": "listVolumes",
+      "httpStatus": 200,
+      "scope": {
+        "virtualmachineid": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+        "listsystemvms": "true",
+        "listall": "true"
+      },
+      "responseEnvelope": "listvolumesresponse",
+      "objectKey": "volume",
+      "count": 2,
+      "rowsLength": 2,
+      "countComplete": true,
+      "expectedIdsVerified": true,
+      "rows": [
+        {
+          "id": "9f1693d0-6f16-4010-bd34-b39207113d60",
+          "state": "Ready",
+          "virtualmachineid": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+          "type": "ROOT",
+          "size": 5242880000,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "provisioningtype": "thin"
+        },
+        {
+          "id": "a5f4360d-5830-4c67-bac1-b078fb85c5fe",
+          "state": "Ready",
+          "virtualmachineid": "82ff71b9-616b-4dd2-b7df-20dfee1c193c",
+          "type": "DATADISK",
+          "size": 107374182400,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "02a1e767-dfe0-4889-af23-00378b131e5c",
+          "provisioningtype": "thin"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-instances",
+      "time": "2026-10-15T01:44:12.610Z",
+      "directApi": true,
+      "command": "listStorageServiceInstances",
+      "httpStatus": 200,
+      "scope": {
+        "listall": "true",
+        "page": 1,
+        "pagesize": 500
+      },
+      "responseEnvelope": "liststorageserviceinstancesresponse",
+      "objectKey": "storageserviceinstance",
+      "count": 8,
+      "rowsLength": 8,
+      "countComplete": true,
+      "expectedIdsVerified": true,
+      "rows": [
+        {
+          "id": "1d3f751a-a254-43b7-9336-b34ff9c64625",
+          "state": "Running",
+          "virtualmachineid": "82ff71b9-616b-4dd2-b7df-20dfee1c193c"
+        },
+        {
+          "id": "0c7b3e03-0b74-400e-88c3-6b97e6dec5a7",
+          "state": "Running",
+          "virtualmachineid": "2bd63f93-f5af-4256-9b46-ee042669f6de"
+        },
+        {
+          "id": "00b331db-f1ba-4a40-aa19-931fdd393a0e",
+          "state": "Running",
+          "virtualmachineid": "694d316f-9289-4500-ae17-cb6e3fa4bbe4"
+        },
+        {
+          "id": "6e75936a-5a11-4e82-b9f0-849b754bf9d6",
+          "state": "Running",
+          "virtualmachineid": "c8d66f31-9d8a-4023-90fe-a316582e2f22"
+        },
+        {
+          "id": "67673fb1-f83c-4da7-a395-14d3f5321fe7",
+          "state": "Running",
+          "virtualmachineid": "fb6342f3-df51-41ef-89cb-4099ab466f69"
+        },
+        {
+          "id": "b54a3c04-fe88-4bde-9ae3-1c67e0998030",
+          "state": "Running",
+          "virtualmachineid": "145cae0a-6077-4c0c-8cec-e126a36e4b82"
+        },
+        {
+          "id": "0b5a950b-7362-4cc6-8c48-81f938bbe26e",
+          "state": "Running",
+          "virtualmachineid": "e38ab665-a5db-44a0-90f6-5ed06ee5df9f"
+        },
+        {
+          "id": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+          "state": "Running",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-original-health",
+      "time": "2026-10-15T01:44:13.628Z",
+      "directApi": true,
+      "command": "listStorageServiceHealth",
+      "httpStatus": 200,
+      "scope": {
+        "instanceid": "1d3f751a-a254-43b7-9336-b34ff9c64625"
+      },
+      "responseEnvelope": "liststorageservicehealthresponse",
+      "objectKey": "storageserviceruntime",
+      "count": 1,
+      "rowsLength": 1,
+      "countComplete": true,
+      "expectedIdsVerified": false,
+      "rows": [
+        {
+          "id": "1d3f751a-a254-43b7-9336-b34ff9c64625",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-original-protocols",
+      "time": "2026-10-15T01:44:14.652Z",
+      "directApi": true,
+      "command": "listStorageServiceProtocols",
+      "httpStatus": 200,
+      "scope": {
+        "instanceid": "1d3f751a-a254-43b7-9336-b34ff9c64625"
+      },
+      "responseEnvelope": "liststorageserviceprotocolsresponse",
+      "objectKey": "storageserviceprotocol",
+      "count": 1,
+      "rowsLength": 1,
+      "countComplete": true,
+      "expectedIdsVerified": false,
+      "rows": [
+        {
+          "id": "4af80e8a-7f1e-43d6-9fa2-80718eac5dae",
+          "state": "Ready",
+          "instanceid": "1d3f751a-a254-43b7-9336-b34ff9c64625",
+          "protocol": "NFS",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-F1-VM",
+      "time": "2026-10-15T01:44:14.681Z",
+      "directApi": true,
+      "command": "listVirtualMachines",
+      "httpStatus": 200,
+      "scope": {
+        "id": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+        "listall": "true"
+      },
+      "responseEnvelope": "listvirtualmachinesresponse",
+      "objectKey": "virtualmachine",
+      "count": 1,
+      "rowsLength": 1,
+      "countComplete": true,
+      "expectedIdsVerified": true,
+      "rows": [
+        {
+          "id": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "state": "Running",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+        }
+      ]
+    },
+    {
+      "name": "21-after-api-F1-visible-volumes",
+      "time": "2026-10-15T01:44:14.708Z",
+      "directApi": true,
+      "command": "listVolumes",
+      "httpStatus": 200,
+      "scope": {
+        "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+        "listsystemvms": "true",
+        "listall": "true"
+      },
+      "responseEnvelope": "listvolumesresponse",
+      "objectKey": "volume",
+      "count": 5,
+      "rowsLength": 5,
+      "countComplete": true,
+      "expectedIdsVerified": false,
+      "rows": [
+        {
+          "id": "f24d1253-cbe3-46d7-8b77-055bd17ed1bc",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "type": "ROOT",
+          "size": 5242880000,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "abfa15d5-a916-475f-9b9f-22b0483cc698",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "ceaee4ff-0dc6-4c4f-ac5d-e28e658906a7",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "db3de2b7-5fcb-4cb5-a0aa-7ac41a161ffa",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "ec92d6c6-2fde-4f35-9d31-e8a7efd69c63",
+          "state": "Ready",
+          "virtualmachineid": "9e57d31b-bb68-4ba3-a377-b0acbc89c22d",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "name": "FINAL_FAILURE",
+      "time": "2026-10-15T01:44:14.719Z",
+      "stage": "directApiAfter",
+      "error": "DIRECT_API_ARRAY_MISSING"
+    }
+  ]
+}

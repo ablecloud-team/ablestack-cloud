@@ -1,0 +1,1892 @@
+{
+  "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab",
+  "preparedAtKst": "2026-10-20T12:12:36.708246+09:00",
+  "issue": 909,
+  "epic": 898,
+  "epicPr": 1271,
+  "status": "IMPROVEMENT_DEPLOYED_ACCEPTANCE_PAUSED",
+  "sourceBase": {
+    "localBranch": "ablestack-europa",
+    "upstreamRef": "upstream/ablestack-europa",
+    "aheadBehind": [
+      0,
+      0
+    ]
+  },
+  "scope": {
+    "fullRestoreResumed": false,
+    "oldVmDeleted": false,
+    "newVmCreated": false,
+    "oldVmRuntimeUpgraded": false,
+    "macChanged": false,
+    "dataFormatted": false,
+    "issueClosed": false
+  },
+  "ui-readiness": {
+    "browser": "Chrome",
+    "loginSucceeded": true,
+    "sharedFsDetailsLoaded": true,
+    "runtimeBundleSelectedForReadOnlyInspection": "1bc48542-2e85-403a-b370-15127732e6b7",
+    "displayedTargetVersion": "4.23.0.0-epic898-909-4ccfd96379-service-source-20261020",
+    "managementAgentAndSystemVmCompatibilityRangesDisplayed": true,
+    "screenshotSha256": "ef55963cfad614a905fc72a7b86f20de301ae856150bfa5c1635f81fe3adf06b",
+    "screenshotFile": "20261020-issue909-service-source-contract-ready-ui.jpg",
+    "screenshotFormat": "JPEG",
+    "preflightSubmitted": false,
+    "runtimeUpgradeSubmitted": false,
+    "restoreSubmitted": false,
+    "formClosedWithoutExecution": true,
+    "knownRecoveryRequiredOperation": "e15fb44d-20d5-472a-a234-48a5607e9fb0",
+    "existingAlertBannerPreserved": true
+  },
+  "runtime-publication": {
+    "published": "/usr/share/cloudstack-management/webapp/epic898-909-4ccfd96379-service-source-test",
+    "trustKey": "/etc/cloudstack/management/storage-runtime/trusted-keys/epic898-909-4ccfd96379-service-source-test.pem",
+    "publicFiles": {
+      "SHA256SUMS": "c65c8b0d0d7892eb2799ca61c984dc889c18e9977c4b0245178fb2e28125a600",
+      "manifest.sig": "d4d8ca01ec30d160211c07676511b1813d277fbc2677fd5dc8eed301ff8c9633",
+      "epic898-909-4ccfd96379-service-source-test.pem": "cf5f323e0c58a70d86d6daddd40e236795bac05bd82db037f030ed9f71a9e181",
+      "ablestack-storage-runtime-4.23.0.0-epic898-909-4ccfd96379-service-source-20261020.tar.gz": "1cb00a7b73947b883869c2b0ba4b74a05e2be46708367c4d01ae4e4428275754",
+      "manifest.json": "e1bad7351000e602c6ea7ebbdc4c73acae797964bd1f6a5965cfd1e5595fc9a7"
+    },
+    "privateFilesCreated": 0
+  },
+  "production-source-continuity": {
+    "allProductionSourcesUnchangedDuringFixtureCorrection": true,
+    "files": {
+      "plugins/hypervisors/kvm/src/main/java/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.java": "5f4f8f5f5b5719dbf12f1ea986749c99bd259023899e9f873d10d78d3f13c10f",
+      "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageConfigDomainRestore.java": "739c086dcbaeea27cda0dac59a0ba780cc59aac40f189a64a98d348844fc3bf6",
+      "server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java": "abee79c1baf8a53ba2b882e68d1c67fa243a5f1462cffdfff3042311f631649e",
+      "systemvm/debian/usr/local/bin/ablestack-storagectl": "8995418a4194a0b910da6c56a43cbcd795a82ea7ca7ebccf656407083c9de850",
+      "systemvm/debian/usr/local/lib/ablestack-storage/rendered_driver.py": "322b343ddc8f19ad070eeef2570de5141efcb9f97d3d92eda600b61743c0bcbd",
+      "systemvm/debian/usr/local/lib/ablestack-storage/rendered_generation.py": "bac22997036bc0596d2859efe7cc21fecb4daa409942ecfc90ac03ff9916cbd6",
+      "systemvm/debian/usr/local/lib/ablestack-storage/service_identity_source.py": "5cf24d4ee79ce80403f26e21d9f1c30e4d7aec81dcd2a9b241d262e5e3af3164",
+      "systemvm/debian/usr/local/lib/ablestack-storage/service_maintenance.py": "d0d70d8a3042d3381dbbc4357ca85d5e7c1d079cbc8b9e92f52f2c911f58adc9",
+      "systemvm/debian/usr/local/lib/ablestack-storage/smb_source_checkpoint.py": "70ba7effec8c981324cfc139930e31a30b437176a9940942057f19c3c6e4926e"
+    }
+  },
+  "native-sam-absence-focused": {
+    "exitCode": 0,
+    "startedEpoch": 1792463506.8549743,
+    "completedEpoch": 1792463507.0721498,
+    "tests": [
+      "discover",
+      "-s",
+      "test/systemvm",
+      "-p",
+      "test_storage_service_source_absent_sam.py",
+      "-v"
+    ],
+    "isolation": {
+      "hostRootReadonly": true,
+      "privateEtcVarRunTmp": true,
+      "networkNamespaceIsolated": true,
+      "secretsEnvCleared": true,
+      "operatorShellProfilesMasked": true
+    }
+  },
+  "native-full-summary": {
+    "sourceCliSha256": "8995418a4194a0b910da6c56a43cbcd795a82ea7ca7ebccf656407083c9de850",
+    "tests": 1157,
+    "skipped": 6,
+    "failures": 0,
+    "errors": 0,
+    "durationSeconds": 274.531,
+    "skips": [
+      "test_root_empty_baseline_inverse (TestStorageNfsCliLifecycle.StorageNfsCliLifecycleTest) ... skipped 'requires an explicit isolated real NFS lifecycle container'",
+      "test_service_busy_unmount_preserves_receipt (TestStorageNfsCliLifecycle.StorageNfsCliLifecycleTest) ... skipped 'requires an explicit isolated real NFS lifecycle container'",
+      "test_service_empty_baseline_inverse (TestStorageNfsCliLifecycle.StorageNfsCliLifecycleTest) ... skipped 'requires an explicit isolated real NFS lifecycle container'",
+      "test_real_complete_cli_manual_and_strict_parent_apply_authenticate_and_keep_data (TestStorageSmbCommandOutput.SmbActualCliLifecycleTest) ... skipped 'requires an isolated disposable container with real smbd and SMB client'",
+      "test_real_samba_add_enable_and_repeat_are_strict_json_success (TestStorageSmbCommandOutput.SmbActualPrivateSamTest) ... skipped 'requires an isolated disposable container with Samba; never use the host SAM'",
+      "test_real_samba_failure_is_structured_nonzero_without_tool_output (TestStorageSmbCommandOutput.SmbActualPrivateSamTest) ... skipped 'requires an isolated disposable container with Samba; never use the host SAM'"
+    ],
+    "isolation": {
+      "hostRootReadonly": true,
+      "privateEtcVarRunTmp": true,
+      "networkNamespaceIsolated": true,
+      "secretsEnvCleared": true,
+      "operatorShellProfilesMasked": true
+    }
+  },
+  "backend-test-summary": {
+    "buildExitCode": 0,
+    "tests": 188,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "module": "server",
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "module": "server",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "module": "server",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "module": "server",
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "module": "server",
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "module": "server",
+        "tests": 23,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "module": "server",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "module": "server",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "module": "server",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "module": "server",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialBindingsTest",
+        "module": "server",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+        "module": "server",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "module": "server",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "module": "server",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "module": "plugins/hypervisors/kvm",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "executedCaseCountIncludingRepeats": 348,
+    "executionMode": "full-regression-plus-targeted-fixture-correction-and-module-package",
+    "priorFullRun": {
+      "suites": [
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+          "tests": 20,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+          "tests": 19,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+          "tests": 31,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+          "tests": 23,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialBindingsTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "name": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "tests": 177,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fixtureOnlyCorrections": [
+      "OS_ONLY_EMPTY_NVME_SOURCE_SUPPORTED",
+      "SERVICE_OS_UNIT_QUERY_SCHEMA"
+    ],
+    "provenance": [
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "closedRenderedDiagnosticCannotBeBorrowedByAnotherSensitiveOperation",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "fixedRuntimeFailuresReachAgentWithoutPrivateReason",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "malformedOrUntrustedRenderedDiagnosticsNeverFallBackToReasonOrStderr",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "malformedRuntimeFailuresRemainMaskedWithoutPrivateFallback",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "missingNestedInputReachesRollbackHostDetailWithoutPrivateText",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "renderedExceptionsWithoutStructuredReplyRemainMasked",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "runtimeDiagnosticCannotBeBorrowedByUnrelatedSensitiveOperation",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "secretBearingFailuresDoNotReachAuditDiagnostics",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "sensitiveRenderedFailuresExposeOnlyAllNineClosedValidatorPairs",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "stagingFailuresKeepClosedCodesOnlyForTheStageCommand",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "com.cloud.hypervisor.kvm.resource.wrapper.StorageServiceHostDiagnosticTest",
+        "case": "structuredGuestErrorIsUsedWhenStderrIsAbsent",
+        "module": "plugins/hypervisors/kvm",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "earlySourceRollbackImportsOnlySmbAndDefersUnrelatedNvmeReplay",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "foreignStopOrChangedFreshJoinedSourceCannotRecordCompletedRetention",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "incompleteRemoteOrPublicRestorationCannotPublishLeftState",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "joinProducesFullValidatedPublicReceiptAndCredentialsOnlyInProtectedServiceInput",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "joinedCrossBootOrChangedLocalSamCannotPublishJoinedIdentity",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "leaveCompletesOnlyAfterOwnedCleanupAndFreshNotJoined",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "leaveStaleCrossBootOrChangedSamCannotRecordVerifiedExternalEffect",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "leftCleanupRejectsMissingChangedOrUnnormalizedOwnedArtifacts",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "legacyLeaveSuccessWithoutCleanupReceiptCannotBecomeVerifiedNotJoined",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "missingCredentialsOrIncompleteInverseCannotPermitTerminalRollback",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "originallyJoinedSourceUsesNativeSourceRetainAndNeverExternalJoinInverse",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "serviceJoinedSourceStopsImportsThenRetainsUnderActualServiceScopeWithoutJoiningAgain",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "unavailableStoppedSourceRejectsBeforeAnyExternalJoinOrLeaveRpc",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdLifecycleRuntimeTest",
+        "case": "unjoinedSourceInverseUsesExactServiceScopeAndOnlyRamSealedCredentials",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "changedCiphertextDigestOrMalformedEncryptionCannotBeRetainedAsSource",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "coercedPrestopProofRejectsBeforePendingMarkerStopOrRawRead",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "durableServiceSourceBindingRejectsChangedStoppedSamAndBoot",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "encryptedServiceSourceUsesTheExactCipherScopeAndOriginalConfigurationReceipt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "failedDurableSourceReceiptWriteCannotReturnCipherToManagedStorage",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "firstJoinDispatchesApprovedSamBootstrapBeforeSourceImportAndCapture",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "missingOrForeignSourceReceiptRejectsBeforeDurableSourcePublication",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "missingStoppedReceiptPreservesDurableEnterIntentAndCannotReadRawTdb",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "nativeSourceCipherReceiptMustBeDurableBeforeExportReturnsToManagedStorage",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "restartedServiceSourceCannotReadRawIdentityAfterOldBootStop",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "rootTargetStopCipherResumeAndPromotionHaveIndependentRoleAndRetryWithoutReexport",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "serviceSourceImportCapturePendingStopAndRawIdentityHaveStrictOrder",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageAdServiceCheckpointTest",
+        "case": "unknownSamInitializationCannotCaptureSourceOrClaimGenericRollback",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "authenticatedAdMaintenanceUsesOneProtectedWriterBeforeGenericBeginOrStop",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "completedRetryReturnsOriginalPublicResultBeforeConsumedTokenOldRevisionOrExpiredProfileChecks",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "foreignActorOrParameterIntentCannotReadAnotherCompletedMaintenanceResult",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "knownHeldRecoveryDoesNotEnterTheSeparateInitialNoHeldAdministratorOrGuestGate",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "legacyAliasForeignScopeKindAndUnheldResponsesRejectBeforeConfiguration",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "nativeServiceHoldUsesMaintenanceKindWithoutInventingTheLegacyKindAlias",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageApprovedMaintenanceRetryTest",
+        "case": "unavailableArtifactStoreRejectsBeforeWriterPersistenceNativeBeginOrServiceHold",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "absentFirstMountPinCannotBeInventedFromCurrentVolumeDetailsOrTheArchive",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "actualStartThrowCapturesReadyRootDespiteTransientDataAndNeverReturnsSuccess",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "assignedL2StaticRejectsAddressDeletionIpv6AndEveryOriginalNicIdentityDrift",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "changedReservedExistingIdentityAndStoppedUnrecordedAttachmentCannotResume",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "committedVmAndDisksAreReusedAfterStartResponseLoss",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "directNullableAddressesPublishOnceThenRejectChangedAssignment",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "erroredOrThinRecordedRootBlocksBeforeAnyResumeCanRecreateIt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "existingInitialLostAttachResponseObservesSameRunningAttachmentWithoutRepeatingIt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "existingInitialLostRootOnlyStartResponseReusesSameVmWithoutAllocationOrAttachGuess",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "existingInitialPublishesReservedBeforeFirstStartAndAttachedBeforeFilesystemClaim",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "expiredNewPermitBlocksBeforeSharedFsAllocation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "explicitSameCreatorRecoveryCanResealOnlyTheLostOriginalMountPin",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "failedArtifactPublicationRollsBackSharedFsAndNeverDeploys",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "failedVmReceiptRollsBackVmAndDisksBeforeStart",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "firstExistingMountPinSurvivesStaleCreatedAndPreparedPhaseMetadata",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "firstRawCaptureOrMissingOriginalFormatPolicyNeverAdoptsTransition",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "firstReadyRootPoolIsPinnedIndependentlyAndLaterAllowedPoolDriftRejects",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "genericMetadataUpdateCannotEraseRecordedVmReceipt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "genuineQcow2ReceiptAllowsOnlyExactReadyRbdRealization",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "initialNicMacConcreteIpDefaultDeviceAndModeDriftRejectBeforeResume",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "l2StaticFirstAssignmentRejectsUnreviewedAddressAndCompetingRealizationCas",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "legacyL2StaticExistingCreatorCanPinLaterRuntimeAssignmentWithoutRedeployOrReceiptRewrite",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "lostMountPinRecoveryCannotUseMissingArchiveProofOrAnIncompleteMount",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "lostMountPinRecoveryRejectsBootUuidOwnerAndPathDriftWithoutPublication",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "numericReceiptCoercionIsRejectedBeforeExistingVmResume",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "partialVmDbAllocationFailureRollsBackAllIdsBeforeRecorderAndStart",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "realizationPublicationFailurePreventsSuccessAndPreservesOriginalReceipt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "retainedAllocationRejectsChangedSourceOwnerRootDataAndUnknownFieldsBeforeDeploy",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "reviewedL2StaticPinsApprovedAddressAfterPrestartNullCallbackWithoutRewritingAllocation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "sharedFsCommitReturnLossNeverAllocatesAnotherSharedFs",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "case": "stalePhaseCannotReplaceTheDurableFirstMountVolumeFilesystemOrNoFormatProof",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "adSourceCannotNormalizeOmittedOrNullTemplateIntoDefault",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "adSourceRequiresSeedAbsentBeforeTemplatePinAndUsesExplicitMode",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "changedDefaultRejectsProductionApplyBeforeCapabilityConsumptionOrAllocation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "changedRealizedRootOrVmIsRejectedWithoutNewAllocation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "changedTargetRelationsOrRecordedRootAfterRuntimeRejectBeforeFoundationBinding",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "checksumMetadataAndMissingLegacyPinRejectBeforeApplyMutation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "createdTargetResumeKeepsRealizedRootAndNeverSelectsOrCreatesNewDefault",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "explicitSystemDoesNotAcquireUnrelatedDefaultSemantics",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "failedBindingPreservesTargetAndRequiresExplicitReviewBeforeSameRootResume",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "firstApplyReloadsIndependentDaoRuntimeProjectionBeforeFoundationBinding",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "firstDurableTargetRecordIncludesVerifiedBindingEvenWhenResponseIsLost",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "inactiveOrForeignSelectionModeCannotAllocate",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "metadataKeyOrderDoesNotChangeCanonicalPin",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "missingBindingWithoutKnownCreationProvenanceIsNeverAdopted",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "omittedDefaultIsResolvedPinnedAndNormalizedForCreation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "privateUserReusesExistingPermitValidationAndRejectsExpiryOrScopeChange",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "recoveryReviewCannotApproveReplacementRootBetweenReviewAndApply",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "stableDefaultReachesOneCreationAndPersistsRealizedBindingBeforeRuntimeEffect",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "case": "strictPinRejectsExtraFieldsAndNonServerIntegerOrMalformedTypes",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "actualBundleManifestProducerBuildCommitAndCliHashBecomeSealedClonePin",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "actualFourProtocolArchiveCreatesAndUpdatesBindWithoutForwardingObservedNvmeState",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "actualLocalAclCreateConsumesImportedAccountWithoutPasswordRegeneration",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "cloneProfileCannotAuthorizeDifferentRuntimeOrMissingNormalTransaction",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "cloneProfileRequiresExactRealizedDataUnionAndRejectsForeignOrReusedInitialMembers",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "commonJoinedWriterConsentRequiresExactInstanceAndCannotUseDeleteConfirmation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "domainRestoreFaultCannotReachPosixOrShareApplication",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "encryptedSourceKeepStillRejectsLocalCredentialReplacementBeforeAnyManagerEffect",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "foundationPreparesOnlyReviewedNewTargetAndCannotAutomaticallyRepeatFailedPhysicalWork",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "iscsiBackstoreAndEndpointParametersAreNotDroppedByNvmeOnlyProjection",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "keptCredentialFailureAbortsWithoutFinishingOrChangingTheReviewedPlan",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "keptCredentialSourceOwnerAndResourceTypeMismatchAbortBeforeCredentialTransfer",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "keptCredentialTransferSkipsRulesWithoutReenteredInputs",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "keptLocalChapAndDhchapCredentialsReachTheirMappedTransientAclWithoutCrud",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "knownNvmeProjectionKeepsEngineTransportListenerPortsAndOriginalResourceUnchanged",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "legacyDirectoryBindingMatchesExistingRendererAndRejectsUntrustedRoots",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "localCredentialReplacementIsRejectedAtRestoreEntryBeforeAnyManagerEffect",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "realRestoreEntryAppliesVerifiedDomainBeforeAnyPosixDomainCommand",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "safeRestoreBindingsNeverNeedAFormatOrCleanupFlag",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "sameProtocolEndpointModeUpdateUsesItsNormalInstanceTupleCommand",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "twoReviewedSourceCredentialsCannotOverwriteTheSameTargetAcl",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "unknownOrWrongTypedLateResourceIsRejectedWithoutAnyManagerMutation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigDomainRestoreTest",
+        "case": "unsupportedNvmeNamespaceSemanticsTypesAndUnknownFieldsRemainRejected",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "case": "foreignInstanceIsRejectedBeforeReadingAnyArtifact",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "case": "ownerMetadataReadNeverReturnsDownloadOrPlanCapability",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "case": "restoreCompletionCannotReactivateTheSupersededSourcePoint",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigReadScopeTest",
+        "case": "transferRequiresRootAdministratorBeforePrivateArtifactLookup",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "activeFourProtocolSourceRestoresAgainThroughProtectedPrestopStoppedCipherAndKeptInputs",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "activeFourProtocolStageFailureExplicitlyResumesItsVerifiedOriginalSource",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "activeSourceEnterFenceFailureExplicitlyAbortsOnlyItsOwnPendingWithoutRestartingServices",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "anotherAdministratorCannotFinalizeTheOriginalActorsCompletedRestore",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "anotherOperationReferenceCannotPublishTheCommittedTarget",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "approvedExistingRestoreRollsBackTheSameDefaultThenCompletesThroughTheRealController",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "checkpointlessApprovedServiceClosesTheSameVerifiedInitialSourceThenRestoresNormally",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "firstStagingReceiptSaveFailureUsesOnlyFreshDurableSourceForRollback",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "foreignKernelTargetIsRejectedBeforeTheNormalBaselineOrDomainWriter",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "initialNfsDriftAfterMaintenanceCannotBeAdoptedAndRestoresTheSameSource",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "lostFinalArtifactPublicationIsFinalizedByFreshReviewWithoutAnotherNativeOrDomainWriter",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "nfsOnlySourceWithoutSamCompletesPrestopCipherAndSecondRestoreWithoutCreatingSambaIdentity",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "primaryMappedFailureRestoresInitialNfsThenRetriesTheSameCreator",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "primaryMappedFourProtocolRestoreReusesOnlyItsInitialNfsEndpoint",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "publicationFinalizationRejectsAChangedCurrentTargetWithoutReapplyingTheArchive",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "rejectedStageRestoresTheVerifiedEmptySourceAndReleasesOnlyItsOwnHold",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "retainedDataRestoresSixteenResourcesWithRealGenerationAndRenderedEngines",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "reversedArchivedProtocolsPreserveSpecificAndLegacyDefaultEndpoints",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "unheldPreparedServiceAbortsOnlyItsOwnPendingAndSafelyRetriesUnknownAndFinalSave",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "full-before-fixture-only-correction"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "case": "verifiedTargetResponseLossRestoresOriginalSourceAndRetainedData",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "chapUsernamesMustRemainLiteralStringsEvenWhenCurrentAndReviewedMalformedValuesMatch",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "disabledAuthenticationAndMissingEnabledCounterpartNeverCollectPartialSecrets",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "foreignOwnerPrincipalPermissionResourceTypeAndAuthenticationDriftAreRejectedBeforeCollection",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "inactiveOrChangedLiveRuleAndOwnerCannotAcceptTargetCredentials",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "malformedEmptyUnknownAndOversizedSecretsAreRejectedWithoutCollection",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "mutualChapAndControllerSecretsUseTheNormalCamelCaseTransientContract",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "sourceAndTargetUuidsDifferButExactLiveAclReceivesOnlyPrivateBatchInput",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageConfigRetainedCredentialsTest",
+        "case": "stringBooleanPolicyAndMissingActiveBatchFailClosed",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "closedPhaseAndFixedPathCodeSurviveWithoutExceptionText",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "duplicateFieldsIncludingEscapedNamesAreRejected",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "fourExistingActionsAcceptTheSameClosedNativeFailure",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "literalFalseAndKnownErrorCodeAreRequired",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "malformedTrailingArraysAndUnquotedJsonAreRejected",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "maskedHostFailureDoesNotExposePrivateDetails",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "missingExtraNestedAndSecretFieldsAreRejected",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "newlyAllowedClassesDoNotPermitSecretFieldsOrFreeformReasons",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "newlyAllowedFailureRetainsExact512CharacterLimit",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "nullEmptyAndOversizedResultRemainGeneric",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "onlyAllowlistedClassNamesCanAppearInException",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "realDispatcherFalseAnswerPreservesOnlyPublicClassAndTransport",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "standardProcessAndIterationFailuresSurviveRealDispatcherWithoutPrivateDetails",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "successfulNativeResultIsUnchanged",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageLocalSourceFailureReasonTest",
+        "case": "unrelatedActionCannotUsePublicDiagnostic",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialBindingsTest",
+        "case": "foreignShareReferenceAndDuplicateAclAcrossSharesAreRejected",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialBindingsTest",
+        "case": "shareAsAclForeignAclAndOldCheckpointCannotAuthorizeAnotherNewPassword",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialBindingsTest",
+        "case": "shareUuidRefsResolveAclUuidTransientInputWithoutPuttingPasswordInPublicGeneration",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+        "case": "changedEnvelopeBytesCannotPassTheDurableArtifactShaPin",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+        "case": "durableCiphertextBindsExactTargetDeclarationScopeAndAclInputsWithoutPublicSecrets",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+        "case": "foreignOperationAndForeignPrivateKeyCannotDecryptTheSameArtifact",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedCredentialCapsuleTest",
+        "case": "repeatedEncryptionProducesIndependentWrappedKeyNonceAndCiphertext",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "closedStageFailuresAreAcceptedOnlyForTheGenerationStageAction",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "fixedRuntimeFailuresReachManagerWithoutPrivateReason",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "hostDetailsCannotInventAnAbsentNativeDiagnostic",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "malformedDuplicateUnknownAndMismatchedRepliesStayGeneric",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "malformedRuntimeFailuresRemainGenericWithoutPrivateFallback",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "missingNestedInputReachesRollbackApiWithOnlyClosedMetadata",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "nativeClosedValidatorPairsReachTheManagerWithoutPrivateBodyOrHostDetails",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "privateExtraFieldsOutsideTheClosedDiagnosticAreNeverPublished",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "safeStageDiagnosticIsPersistedOnlyInsideItsOriginalWriterScope",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageRenderedFailureDiagnosticTest",
+        "case": "successfulRenderedReplyRetainsItsExistingPayloadPath",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "explicitOriginalAdminConfirmsCurrentSourceWithoutDatabaseRestoreProtocolReplayOrNativeMutation",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "explicitRetryRevalidatesSameIntentAndBackgroundCanNeverReplayIt",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "intentFailureAndPostIntentDriftCannotFinalizeOrFallBack",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "otherActorMissingWitnessUnavailableGuardsAndAnyLaterWriterNeverFallBackToReplay",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "pendingBootLeasePhysicalIdentityAndSnapshotDriftFailBeforeIntent",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      },
+      {
+        "suite": "org.apache.cloudstack.storage.dataservice.StorageUnchangedVerifiedSourceRecoveryManagerTest",
+        "case": "runtimeFalseUnknownAndWeakBooleanNeverFinalizeAndPreserveAnyExistingIntent",
+        "module": "server",
+        "outcome": "PASSED",
+        "run": "final-targeted-correction-and-module-package"
+      }
+    ],
+    "durationSeconds": 202.385,
+    "reactorSuccessModules": 38
+  },
+  "management-deployment": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/var/backups/mold/issue909-service-source-4ccfd963794b/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "88218dcd26aa2616301705ae8485da60bc96f32a7879bbf278bc5947dfdef104",
+    "newJarSha256": "46b8762e22df76952239d0f2235bb1a80724a65d7929a701bcff1253625bc0e5",
+    "addedClasses": [],
+    "changedClasses": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class": "290d6ad5484456602284f3d1930bf1fdd0915ff172a6e8def904b867e2153d92",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class": "716c7b5f03be62c81276f6439a9b9499a6769cf9441e33cdcac95a8e009bf8a7",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "8e3c34ed51986af5ddc29016971fb8fa363718791c1015a105bfc379f223458f",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "b1f0dcad271d759b476b9f0a5fcf6e24f50d8d6c8535a1133e39610bd804e8b5",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$6.class": "e547f89bbdb2deab6614ceea3d5bb0923264ee2f42ca2eb4b43dbd573c235737",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationCloneRestorePublication.class": "88283c2920450f97a98899bf2765a0268523b4752e45e565b1bdf558fb378ab1",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineCommand.class": "ca6f45027f0829ac4c9c5116c37637a1de84950b80121e3d044b9e3e26258114",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselinePublication.class": "e81900917b5f2b2e0a2c3a44a3963cfcd3b1e7b3fec9094b7e3c4285aeea8f5e",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineVerification.class": "dba49eb041064685682407cc5d159f44bf4d4fe47db0389c79cae58bc7a818ca",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "2b2ecb7c2011d85a35de81d28c16db229392ed717dccb5b1ce4bafc06fcf55cd",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$1.class": "2f848e2ef69e71f703309d60856405d3151618413f15238ec81bbd0114252d21",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$2.class": "4a2d5b5cc9434b092f710ecc4e6bb77326dd253c9b572565a86fb7775a937a38",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime.class": "82d501fed85a23a0279505a7a472fa8f13df02b4e3cce843814c71b59916b861",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "fe4b39c61e766ec8c82d83bc30216d5b705350b673678b743a748804d2d54189",
+      "org/apache/cloudstack/storage/dataservice/StorageConfigDomainRestore.class": "3bab557170023134be13e0bc72e5f3c5f14a8b2ed9132ec23f0e2f69c434087e"
+    },
+    "unchangedEntriesVerified": 204649,
+    "service": "mold",
+    "active": "active",
+    "pid": "2813985",
+    "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab"
+  },
+  "agents-deployment": {
+    "10.10.13.1": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "backup": "/root/issue909-service-source-4ccfd963794b/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "f38ae9071a6bff756105ee0803c1ab1e082e2c521661cc6f9aa1b34bc1c710f1",
+      "newJarSha256": "70576809af8b9e1c4a0ef97b188fab127434029282799d40e1c6873e3d9661b9",
+      "addedClasses": [],
+      "changedClasses": {
+        "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "6d5ceee54a3cd37636132061992829b7d2ee36a6290884defa984e36e9ceb4a6"
+      },
+      "unchangedEntriesVerified": 514,
+      "service": "mold-agent",
+      "active": "active",
+      "pid": "1691327",
+      "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab"
+    },
+    "10.10.13.2": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "backup": "/root/issue909-service-source-4ccfd963794b/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "01c56d51db19ad3f9dd33ae012eaed6ad908c07281de42989c66e1c057d567e2",
+      "newJarSha256": "8eb7d5570ef7178439dcaf3661f2479b07f0161a3fdd43b024514289bcd8c9dd",
+      "addedClasses": [],
+      "changedClasses": {
+        "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "6d5ceee54a3cd37636132061992829b7d2ee36a6290884defa984e36e9ceb4a6"
+      },
+      "unchangedEntriesVerified": 514,
+      "service": "mold-agent",
+      "active": "active",
+      "pid": "3849894",
+      "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab"
+    },
+    "10.10.13.3": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "backup": "/root/issue909-service-source-4ccfd963794b/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "a55b2d01bd17da83d423100b6c768136ea0c0a2dc8c581327844dea4c7ec5f48",
+      "newJarSha256": "f3ee4ac8033e9151f47ba7827e5b1ebcb221d632fe5c9f6d1fa95bbc89ad00c3",
+      "addedClasses": [],
+      "changedClasses": {
+        "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "6d5ceee54a3cd37636132061992829b7d2ee36a6290884defa984e36e9ceb4a6"
+      },
+      "unchangedEntriesVerified": 506,
+      "service": "mold-agent",
+      "active": "active",
+      "pid": "1014738",
+      "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab"
+    }
+  },
+  "signed-build": {
+    "sourceCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab",
+    "keyId": "epic898-909-4ccfd96379-service-source-test",
+    "version": "4.23.0.0-epic898-909-4ccfd96379-service-source-20261020",
+    "privateKeyFilesCreated": 0,
+    "privateDescriptorClosed": true,
+    "privateInputBufferWiped": true,
+    "signatureVerified": true,
+    "testOnly": true,
+    "files": {
+      "SHA256SUMS": {
+        "bytes": 314,
+        "sha256": "c65c8b0d0d7892eb2799ca61c984dc889c18e9977c4b0245178fb2e28125a600"
+      },
+      "manifest.sig": {
+        "bytes": 64,
+        "sha256": "d4d8ca01ec30d160211c07676511b1813d277fbc2677fd5dc8eed301ff8c9633"
+      },
+      "epic898-909-4ccfd96379-service-source-test.pem": {
+        "bytes": 113,
+        "sha256": "cf5f323e0c58a70d86d6daddd40e236795bac05bd82db037f030ed9f71a9e181"
+      },
+      "ablestack-storage-runtime-4.23.0.0-epic898-909-4ccfd96379-service-source-20261020.tar.gz": {
+        "bytes": 666876,
+        "sha256": "1cb00a7b73947b883869c2b0ba4b74a05e2be46708367c4d01ae4e4428275754"
+      },
+      "manifest.json": {
+        "bytes": 1552,
+        "sha256": "e1bad7351000e602c6ea7ebbdc4c73acae797964bd1f6a5965cfd1e5595fc9a7"
+      }
+    }
+  },
+  "runtime-deployment": {
+    "success": true,
+    "bundleId": "1bc48542-2e85-403a-b370-15127732e6b7",
+    "state": "AVAILABLE",
+    "version": "4.23.0.0-epic898-909-4ccfd96379-service-source-20261020",
+    "catalogReadyForFreshVm": true,
+    "oldVmRuntimeUpgraded": false,
+    "fullRestoreResumed": false
+  },
+  "api-after": {
+    "failedOperation": {
+      "id": "e15fb44d-20d5-472a-a234-48a5607e9fb0",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 3,
+      "progress": 0,
+      "created": "2026-10-20T10:53:05+0900",
+      "heartbeat": "2026-10-20T10:53:25+0900",
+      "diagnostic": "Approved service maintenance requires its scoped recovery"
+    },
+    "vm": {
+      "id": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+      "state": "Running",
+      "created": "2026-10-19T16:33:37+0900",
+      "hostname": "ablecube13-1"
+    },
+    "mac": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "hosts": [
+      {
+        "id": "9ac8f62b-38e6-4cef-aa6f-a04ebcb4f800",
+        "name": "ablecube13-1",
+        "ipaddress": "10.10.13.1",
+        "state": "Up",
+        "resourcestate": "Enabled"
+      },
+      {
+        "id": "a43cf305-f6bb-40e3-aeab-9dc5d5102cd4",
+        "name": "ablecube13-2",
+        "ipaddress": "10.10.13.2",
+        "state": "Up",
+        "resourcestate": "Enabled"
+      },
+      {
+        "id": "52ca8321-c228-4234-8273-f19b0d1c6525",
+        "name": "ablecube13-3",
+        "ipaddress": "10.10.13.3",
+        "state": "Up",
+        "resourcestate": "Enabled"
+      }
+    ],
+    "fullRestoreResumed": false,
+    "oldVmRuntimeUpgraded": false,
+    "newVmCreated": false,
+    "oldVmDeleted": false
+  },
+  "old-vm-after-readonly": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "public": {
+      "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+      "cliSha256": "eaf3929e26ca345721bbd2a988f30cabc041a844439350f2cbaa603b601569af",
+      "stateHashes": {
+        "config-generations/current.json": "94d801e95c5b8454221781013358a8a9286bc551f2a992a884d46ff8c8394e74",
+        "config-generations/pending.json": "0c5eb1cfc366911c58fbf1cae6c73ed9e2cdfc20973011c1f7e54465a90ad552",
+        "service-maintenance.json": "1f09741122fab0c8fa8f51d2957747b5329d65be7ee5c4a7d0bc262f8ac67f2f",
+        "rendered-generations/activation.json": "cf3e6d5178e194d5cd8699bc6506ef74b50aceb7c6673c70a12594c3b9650e5b"
+      }
+    }
+  }
+}

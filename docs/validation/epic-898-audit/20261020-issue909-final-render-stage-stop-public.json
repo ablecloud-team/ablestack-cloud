@@ -1,0 +1,805 @@
+{
+  "issue": 909,
+  "sourceCommit": "7a39cb4b10b87daf72a7241d1cc01d52a0f7739d",
+  "phase": "PRODUCT_ERROR_STOPPED",
+  "plan": {
+    "schemaVersion": 1,
+    "targetMode": "RESTORE_EXISTING",
+    "targetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "expectedRevision": 2,
+    "create": [],
+    "update": [
+      {
+        "kind": "file-shares",
+        "sourceUuid": "21c1b89a-0dad-4f65-82b7-069dd5da17e4",
+        "desired": {
+          "uuid": "21c1b89a-0dad-4f65-82b7-069dd5da17e4",
+          "protocol": "NFS",
+          "name": "issue909-mixed-nfs",
+          "path": "/export/issue909-mixed-nfs",
+          "filesystem": "ext4",
+          "quota_bytes": null,
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "rootSquash": false,
+            "allSquash": false,
+            "sync": true,
+            "secure": false,
+            "protocolMode": "V4_ONLY",
+            "listenerGroupPorts": [
+              2049
+            ],
+            "endpointMode": "LISTENER_GROUP",
+            "createDirectory": true,
+            "volumeMode": "EXISTING_VOLUME",
+            "importMode": "FORMAT_IF_EMPTY"
+          },
+          "volumeUuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        },
+        "targetUuid": "876e60d9-1411-40f2-aaa2-cfd783f5fe4e",
+        "current": {
+          "uuid": "876e60d9-1411-40f2-aaa2-cfd783f5fe4e",
+          "protocol": "NFS",
+          "name": "issue909-mixed-nfs",
+          "path": "/export/issue909-mixed-nfs",
+          "filesystem": "ext4",
+          "quota_bytes": null,
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "rootSquash": false,
+            "allSquash": false,
+            "sync": true,
+            "secure": false,
+            "protocolMode": "V4_ONLY",
+            "listenerGroupPorts": [
+              2049
+            ],
+            "endpointMode": "LISTENER_GROUP",
+            "createDirectory": false,
+            "volumeMode": "EXISTING_VOLUME",
+            "importMode": "MOUNT_EXISTING"
+          },
+          "volumeUuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        },
+        "action": "UPDATE"
+      },
+      {
+        "kind": "file-shares",
+        "sourceUuid": "2da511be-a257-4a60-924f-c2c899ff8588",
+        "desired": {
+          "uuid": "2da511be-a257-4a60-924f-c2c899ff8588",
+          "protocol": "SMB",
+          "name": "issue909-mixed-smb",
+          "path": "/export/issue909-mixed-smb",
+          "filesystem": "ext4",
+          "quota_bytes": null,
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": true,
+            "crossProtocol": false,
+            "directoryMode": "0770",
+            "createMask": "0660",
+            "forceCreateMode": "0000",
+            "directoryMask": "0770",
+            "forceDirectoryMode": "0000",
+            "inheritPermissions": false,
+            "ownershipInheritance": "AUTHENTICATED_USER",
+            "inheritGroup": false,
+            "posixOwnershipMode": "AUTHENTICATED_USER",
+            "volumeMode": "EXISTING_VOLUME",
+            "importMode": "FORMAT_IF_EMPTY"
+          },
+          "volumeUuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+        },
+        "targetUuid": "27086c9a-7872-4312-b510-9b6d72483aac",
+        "current": {
+          "uuid": "27086c9a-7872-4312-b510-9b6d72483aac",
+          "protocol": "SMB",
+          "name": "issue909-mixed-smb",
+          "path": "/export/issue909-mixed-smb",
+          "filesystem": "ext4",
+          "quota_bytes": null,
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "browseable": true,
+            "guestOk": false,
+            "createDirectory": false,
+            "crossProtocol": false,
+            "directoryMode": "0770",
+            "createMask": "0660",
+            "forceCreateMode": "0000",
+            "directoryMask": "0770",
+            "forceDirectoryMode": "0000",
+            "inheritPermissions": false,
+            "ownershipInheritance": "AUTHENTICATED_USER",
+            "inheritGroup": false,
+            "posixOwnershipMode": "AUTHENTICATED_USER",
+            "volumeMode": "EXISTING_VOLUME",
+            "importMode": "MOUNT_EXISTING"
+          },
+          "volumeUuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+        },
+        "action": "UPDATE"
+      }
+    ],
+    "keep": [
+      {
+        "kind": "protocols",
+        "sourceUuid": "d9cec5a5-e753-4a80-94e2-0b341e8faf49",
+        "desired": {
+          "uuid": "d9cec5a5-e753-4a80-94e2-0b341e8faf49",
+          "protocol": "NFS",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 2049,
+          "state": "Ready",
+          "config": {
+            "protocolMode": "V4_ONLY",
+            "listenerGroups": [
+              {
+                "port": 2049,
+                "state": "Ready"
+              }
+            ],
+            "idMappingMode": "NAME_DOMAIN"
+          }
+        },
+        "targetUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "current": {
+          "uuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+          "protocol": "NFS",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 2049,
+          "state": "Ready",
+          "config": {
+            "protocolMode": "V4_ONLY",
+            "listenerGroups": [
+              {
+                "port": 2049,
+                "state": "Ready"
+              }
+            ],
+            "idMappingMode": "NAME_DOMAIN"
+          }
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "protocols",
+        "sourceUuid": "d989de03-5c3f-400b-aec9-5a1e3cd69d24",
+        "desired": {
+          "uuid": "d989de03-5c3f-400b-aec9-5a1e3cd69d24",
+          "protocol": "SMB",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 445,
+          "state": "Ready",
+          "config": {}
+        },
+        "targetUuid": "a9527466-fb1d-4e6d-9169-f1f0364f7d8a",
+        "current": {
+          "uuid": "a9527466-fb1d-4e6d-9169-f1f0364f7d8a",
+          "protocol": "SMB",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 445,
+          "state": "Ready",
+          "config": {}
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "protocols",
+        "sourceUuid": "61060fc1-ae5b-4c4b-ad02-276be20f5fe2",
+        "desired": {
+          "uuid": "61060fc1-ae5b-4c4b-ad02-276be20f5fe2",
+          "protocol": "ISCSI",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 3260,
+          "state": "Ready",
+          "config": {}
+        },
+        "targetUuid": "43c28c0f-e84c-411d-aa4f-1eb1694e68ed",
+        "current": {
+          "uuid": "43c28c0f-e84c-411d-aa4f-1eb1694e68ed",
+          "protocol": "ISCSI",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 3260,
+          "state": "Ready",
+          "config": {}
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "protocols",
+        "sourceUuid": "f76ab081-397f-4592-9f36-0eb2d00a62e0",
+        "desired": {
+          "uuid": "f76ab081-397f-4592-9f36-0eb2d00a62e0",
+          "protocol": "NVME_OF",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 4420,
+          "state": "Ready",
+          "config": {}
+        },
+        "targetUuid": "2a4dd1c1-e675-4d8e-9462-173c4fbfdf4f",
+        "current": {
+          "uuid": "2a4dd1c1-e675-4d8e-9462-173c4fbfdf4f",
+          "protocol": "NVME_OF",
+          "enabled": true,
+          "listen_ip": "0.0.0.0",
+          "port": 4420,
+          "state": "Ready",
+          "config": {}
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "access-rules",
+        "sourceUuid": "d27559bf-ba81-45ec-a496-a6fa7ac0a2f1",
+        "desired": {
+          "uuid": "d27559bf-ba81-45ec-a496-a6fa7ac0a2f1",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "CIDR",
+          "principal": "10.10.13.1/32",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "rootSquash": false,
+            "allSquash": false,
+            "sync": true,
+            "secure": false,
+            "protocolMode": "V4_ONLY",
+            "endpointMode": "LISTENER_GROUP",
+            "listenerGroupPorts": [
+              2049
+            ]
+          },
+          "resourceUuid": "21c1b89a-0dad-4f65-82b7-069dd5da17e4"
+        },
+        "targetUuid": "a08c4ff1-5852-467f-ac08-513255def571",
+        "current": {
+          "uuid": "a08c4ff1-5852-467f-ac08-513255def571",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "CIDR",
+          "principal": "10.10.13.1/32",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "readOnly": false,
+            "rootSquash": false,
+            "allSquash": false,
+            "sync": true,
+            "secure": false,
+            "protocolMode": "V4_ONLY",
+            "endpointMode": "LISTENER_GROUP",
+            "listenerGroupPorts": [
+              2049
+            ]
+          },
+          "resourceUuid": "876e60d9-1411-40f2-aaa2-cfd783f5fe4e"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "access-rules",
+        "sourceUuid": "f72d8eef-48ed-4c89-b20d-48230fc7e491",
+        "desired": {
+          "uuid": "f72d8eef-48ed-4c89-b20d-48230fc7e491",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "CIDR",
+          "principal": "10.10.13.1/32",
+          "permission": "CONNECT",
+          "state": "Ready",
+          "config": {},
+          "resourceUuid": "2da511be-a257-4a60-924f-c2c899ff8588"
+        },
+        "targetUuid": "480b05a8-3340-4690-9af7-1209ebd04709",
+        "current": {
+          "uuid": "480b05a8-3340-4690-9af7-1209ebd04709",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "CIDR",
+          "principal": "10.10.13.1/32",
+          "permission": "CONNECT",
+          "state": "Ready",
+          "config": {},
+          "resourceUuid": "27086c9a-7872-4312-b510-9b6d72483aac"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "access-rules",
+        "sourceUuid": "c488b4df-4364-46f7-a940-6ebdd7e44c10",
+        "desired": {
+          "uuid": "c488b4df-4364-46f7-a940-6ebdd7e44c10",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "LOCAL_USER",
+          "principal": "issue909smb",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "localAccount": true
+          },
+          "resourceUuid": "2da511be-a257-4a60-924f-c2c899ff8588"
+        },
+        "targetUuid": "74f341b3-d1b3-4c7d-83af-ddb57b4f8085",
+        "current": {
+          "uuid": "74f341b3-d1b3-4c7d-83af-ddb57b4f8085",
+          "resource_type": "FILE_SHARE",
+          "principal_type": "LOCAL_USER",
+          "principal": "issue909smb",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "localAccount": true
+          },
+          "resourceUuid": "27086c9a-7872-4312-b510-9b6d72483aac"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "access-rules",
+        "sourceUuid": "01f1e097-05b4-43cf-925c-9a2b404e74f3",
+        "desired": {
+          "uuid": "01f1e097-05b4-43cf-925c-9a2b404e74f3",
+          "resource_type": "BLOCK_TARGET",
+          "principal_type": "ISCSI_INITIATOR_IQN",
+          "principal": "iqn.2026-10.local.ablestack:issue909-client13-1",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "chapEnabled": true,
+            "chapUsername": "issue909chap",
+            "mutualChapEnabled": false
+          },
+          "resourceUuid": "d85ceaf6-1046-42ec-9884-da5c1a84d954"
+        },
+        "targetUuid": "08180d0c-4bbe-45e3-b57e-a20134bb580c",
+        "current": {
+          "uuid": "08180d0c-4bbe-45e3-b57e-a20134bb580c",
+          "resource_type": "BLOCK_TARGET",
+          "principal_type": "ISCSI_INITIATOR_IQN",
+          "principal": "iqn.2026-10.local.ablestack:issue909-client13-1",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "chapEnabled": true,
+            "chapUsername": "issue909chap",
+            "mutualChapEnabled": false
+          },
+          "resourceUuid": "d09fe726-aea7-412d-80f6-f60ecbe51f2d"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "access-rules",
+        "sourceUuid": "8862e675-48d5-42af-ba21-5a4c43440bf0",
+        "desired": {
+          "uuid": "8862e675-48d5-42af-ba21-5a4c43440bf0",
+          "resource_type": "BLOCK_TARGET",
+          "principal_type": "NVME_HOST_NQN",
+          "principal": "nqn.2026-10.local.ablestack:issue909-client13-1",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "dhChapEnabled": false,
+            "dhChapCtrlEnabled": false
+          },
+          "resourceUuid": "44e2388c-64d5-4f70-add7-7ce3b19ca343"
+        },
+        "targetUuid": "ac7714cc-0ba4-46a4-9336-03e099987473",
+        "current": {
+          "uuid": "ac7714cc-0ba4-46a4-9336-03e099987473",
+          "resource_type": "BLOCK_TARGET",
+          "principal_type": "NVME_HOST_NQN",
+          "principal": "nqn.2026-10.local.ablestack:issue909-client13-1",
+          "permission": "READ_WRITE",
+          "state": "Ready",
+          "config": {
+            "dhChapEnabled": false,
+            "dhChapCtrlEnabled": false
+          },
+          "resourceUuid": "67fdb66b-0eec-4914-ad8a-c8c7f284e7ce"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "block-targets",
+        "sourceUuid": "d85ceaf6-1046-42ec-9884-da5c1a84d954",
+        "desired": {
+          "uuid": "d85ceaf6-1046-42ec-9884-da5c1a84d954",
+          "protocol": "ISCSI",
+          "target_name": "iqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": "0",
+          "state": "Ready",
+          "config": {
+            "type": "target",
+            "backstoreType": "BLOCK",
+            "listenerGroupPorts": [
+              3260
+            ],
+            "endpointMode": "LISTENER_GROUP"
+          },
+          "volumeUuid": "5a425723-d6c5-4d90-b510-1dd802e5c6bf"
+        },
+        "targetUuid": "d09fe726-aea7-412d-80f6-f60ecbe51f2d",
+        "current": {
+          "uuid": "d09fe726-aea7-412d-80f6-f60ecbe51f2d",
+          "protocol": "ISCSI",
+          "target_name": "iqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": "0",
+          "state": "Ready",
+          "config": {
+            "type": "target",
+            "backstoreType": "BLOCK",
+            "listenerGroupPorts": [
+              3260
+            ],
+            "endpointMode": "LISTENER_GROUP"
+          },
+          "volumeUuid": "5a425723-d6c5-4d90-b510-1dd802e5c6bf"
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "block-targets",
+        "sourceUuid": "44e2388c-64d5-4f70-add7-7ce3b19ca343",
+        "desired": {
+          "uuid": "44e2388c-64d5-4f70-add7-7ce3b19ca343",
+          "protocol": "NVME_OF",
+          "target_name": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": null,
+          "state": "Ready",
+          "config": {
+            "type": "subsystem",
+            "allowAnyHost": false,
+            "engine": "KERNEL_NVMET",
+            "engineState": "SUPPORTED",
+            "transport": "tcp"
+          }
+        },
+        "targetUuid": "67fdb66b-0eec-4914-ad8a-c8c7f284e7ce",
+        "current": {
+          "uuid": "67fdb66b-0eec-4914-ad8a-c8c7f284e7ce",
+          "protocol": "NVME_OF",
+          "target_name": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": null,
+          "state": "Ready",
+          "config": {
+            "type": "subsystem",
+            "allowAnyHost": false,
+            "engine": "KERNEL_NVMET",
+            "engineState": "SUPPORTED",
+            "transport": "tcp"
+          }
+        },
+        "action": "KEEP"
+      },
+      {
+        "kind": "block-targets",
+        "sourceUuid": "3caa26cd-8076-4a71-a4e2-fdced730a341",
+        "desired": {
+          "uuid": "3caa26cd-8076-4a71-a4e2-fdced730a341",
+          "protocol": "NVME_OF",
+          "target_name": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": "1",
+          "state": "Ready",
+          "config": {
+            "type": "namespace",
+            "backstoreType": "BLOCK",
+            "listenerGroupPorts": [
+              4420
+            ],
+            "endpointMode": "LISTENER_GROUP"
+          },
+          "volumeUuid": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+        },
+        "targetUuid": "8573944b-0442-4d17-9766-949700808cc0",
+        "current": {
+          "uuid": "8573944b-0442-4d17-9766-949700808cc0",
+          "protocol": "NVME_OF",
+          "target_name": "nqn.2026-10.local.storage:issue909-mixed-20261019",
+          "lun_or_namespace": "1",
+          "state": "Ready",
+          "config": {
+            "type": "namespace",
+            "backstoreType": "BLOCK",
+            "listenerGroupPorts": [
+              4420
+            ],
+            "endpointMode": "LISTENER_GROUP"
+          },
+          "volumeUuid": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+        },
+        "action": "KEEP"
+      }
+    ],
+    "preserve": [],
+    "delete": [],
+    "blockers": [],
+    "resourceMappings": {
+      "file-shares": {
+        "21c1b89a-0dad-4f65-82b7-069dd5da17e4": "876e60d9-1411-40f2-aaa2-cfd783f5fe4e",
+        "2da511be-a257-4a60-924f-c2c899ff8588": "27086c9a-7872-4312-b510-9b6d72483aac"
+      },
+      "identity-domain": {},
+      "protocols": {
+        "d9cec5a5-e753-4a80-94e2-0b341e8faf49": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "d989de03-5c3f-400b-aec9-5a1e3cd69d24": "a9527466-fb1d-4e6d-9169-f1f0364f7d8a",
+        "61060fc1-ae5b-4c4b-ad02-276be20f5fe2": "43c28c0f-e84c-411d-aa4f-1eb1694e68ed",
+        "f76ab081-397f-4592-9f36-0eb2d00a62e0": "2a4dd1c1-e675-4d8e-9462-173c4fbfdf4f"
+      },
+      "posix-directory-policies": {},
+      "access-rules": {
+        "d27559bf-ba81-45ec-a496-a6fa7ac0a2f1": "a08c4ff1-5852-467f-ac08-513255def571",
+        "f72d8eef-48ed-4c89-b20d-48230fc7e491": "480b05a8-3340-4690-9af7-1209ebd04709",
+        "c488b4df-4364-46f7-a940-6ebdd7e44c10": "74f341b3-d1b3-4c7d-83af-ddb57b4f8085",
+        "01f1e097-05b4-43cf-925c-9a2b404e74f3": "08180d0c-4bbe-45e3-b57e-a20134bb580c",
+        "8862e675-48d5-42af-ba21-5a4c43440bf0": "ac7714cc-0ba4-46a4-9336-03e099987473"
+      },
+      "block-targets": {
+        "d85ceaf6-1046-42ec-9884-da5c1a84d954": "d09fe726-aea7-412d-80f6-f60ecbe51f2d",
+        "44e2388c-64d5-4f70-add7-7ce3b19ca343": "67fdb66b-0eec-4914-ad8a-c8c7f284e7ce",
+        "3caa26cd-8076-4a71-a4e2-fdced730a341": "8573944b-0442-4d17-9766-949700808cc0"
+      }
+    },
+    "volumeMappings": {
+      "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+      "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+      "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+      "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d"
+    },
+    "sourceVolumeInventory": [
+      {
+        "uuid": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "name": "sharedfs-DATA-87",
+        "size": 8589934592,
+        "type": "DATADISK",
+        "state": "Ready",
+        "filesystemUuid": "061edb4b-cc56-4ec5-a66d-6c5601460fa0",
+        "usage": "FILE",
+        "filesystemHint": "ext4"
+      },
+      {
+        "uuid": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "name": "issue909-mixed-SMB-20261019",
+        "size": 2147483648,
+        "type": "DATADISK",
+        "state": "Ready",
+        "filesystemUuid": "aab40c90-e792-404e-9892-a9ed5f11a915",
+        "usage": "FILE",
+        "filesystemHint": "ext4"
+      },
+      {
+        "uuid": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "name": "issue909-mixed-ISCSI-20261019",
+        "size": 2147483648,
+        "type": "DATADISK",
+        "state": "Ready",
+        "usage": "BLOCK_RAW"
+      },
+      {
+        "uuid": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "name": "issue909-mixed-NVME-20261019",
+        "size": 2147483648,
+        "type": "DATADISK",
+        "state": "Ready",
+        "usage": "BLOCK_RAW"
+      }
+    ],
+    "listenerAddressRequirements": [
+      {
+        "sourceAddress": "0.0.0.0",
+        "target": "0.0.0.0",
+        "resolvedTarget": "0.0.0.0",
+        "locations": [
+          {
+            "kind": "protocols",
+            "sourceUuid": "d9cec5a5-e753-4a80-94e2-0b341e8faf49",
+            "path": "listen_ip"
+          },
+          {
+            "kind": "protocols",
+            "sourceUuid": "d989de03-5c3f-400b-aec9-5a1e3cd69d24",
+            "path": "listen_ip"
+          },
+          {
+            "kind": "protocols",
+            "sourceUuid": "61060fc1-ae5b-4c4b-ad02-276be20f5fe2",
+            "path": "listen_ip"
+          },
+          {
+            "kind": "protocols",
+            "sourceUuid": "f76ab081-397f-4592-9f36-0eb2d00a62e0",
+            "path": "listen_ip"
+          }
+        ]
+      }
+    ],
+    "listenerAddressMappings": {
+      "0.0.0.0": "0.0.0.0"
+    },
+    "dataPolicy": "PRESERVE",
+    "automaticFormat": false,
+    "artifactSha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+    "targetName": "issue909-final-existing-4574712-20261019",
+    "requiredCredentials": [
+      {
+        "resourceUuid": "2da511be-a257-4a60-924f-c2c899ff8588",
+        "ruleUuid": "c488b4df-4364-46f7-a940-6ebdd7e44c10",
+        "principal": "issue909smb",
+        "coverage": "REQUIRES_REENTRY",
+        "kind": "SMB_LOCAL",
+        "fields": [
+          "password"
+        ]
+      },
+      {
+        "resourceUuid": "d85ceaf6-1046-42ec-9884-da5c1a84d954",
+        "ruleUuid": "01f1e097-05b4-43cf-925c-9a2b404e74f3",
+        "principal": "iqn.2026-10.local.ablestack:issue909-client13-1",
+        "coverage": "REQUIRES_REENTRY",
+        "kind": "ISCSI_CHAP",
+        "fields": [
+          "chapsecret"
+        ]
+      }
+    ],
+    "forcedFileExecutePolicies": [],
+    "forceFileExecuteConfirmation": true
+  },
+  "managementCodePreflight": {
+    "classesMatch": true,
+    "classes": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration.class": "0414c056787f2bb194b9d6936278278c9436ace72f105d8d6ae884868c3c558b",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceConfiguration$ClonePublicationCompletion.class": "6f53e930b66e2d0cef47102053625308fd546f84cd8847c064ef39cbdb0888b0"
+    },
+    "active": "active",
+    "sourceCommit": "7a39cb4b10b87daf72a7241d1cc01d52a0f7739d"
+  },
+  "download": {
+    "path": "/mnt/c/Users/ablecloud/Downloads/storage-config-83ab8370-8208-4d26-bf7f-d996437c5be5.zip",
+    "bytes": 10285,
+    "sha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef"
+  },
+  "job": {
+    "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+    "account": "admin",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "domainpath": "ROOT",
+    "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+    "cmd": "org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Rendered generation stage failed; inspect its scoped recovery receipt"
+    },
+    "created": "2026-10-20T10:52:58+0900",
+    "completed": "2026-10-20T10:53:28+0900",
+    "jobid": "835cc7f4-63ad-483e-a486-335f675590ef",
+    "jobstatus": 2
+  },
+  "operation": {
+    "id": "e15fb44d-20d5-472a-a234-48a5607e9fb0",
+    "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "action": "SERVICE_MAINTENANCE",
+    "state": "RECOVERY_REQUIRED",
+    "phase": "RECOVERY_REQUIRED",
+    "revision": 3,
+    "progress": 0,
+    "created": "2026-10-20T10:53:05+0900",
+    "heartbeat": "2026-10-20T10:53:25+0900",
+    "diagnostic": "Approved service maintenance requires its scoped recovery"
+  },
+  "impact": {
+    "filesUnchanged": true,
+    "rawRegionsUnchanged": true,
+    "bootUnchanged": true,
+    "preservedFiles": 8,
+    "rawRegions": 4,
+    "clientTestsAfterFailure": 0,
+    "dataWritesAfterFailure": 0,
+    "activeLkg": [
+      {
+        "id": "a686acba-bba8-46e4-bcc7-ee3c23d52733",
+        "state": "ACTIVE_LKG",
+        "desiredRevision": 2,
+        "sha256": "a60d26e668a96dc0ec990478fac7b5736e17fa4c973912850559ca1b8359845d"
+      }
+    ],
+    "importCurrent": {
+      "restoreState": "FAILED",
+      "errorCode": "CONFIG_RESTORE_FAILED"
+    },
+    "vmState": "Running",
+    "macUnchanged": true,
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "runtimeRevision": 2,
+    "pendingOperation": "e15fb44d-20d5-472a-a234-48a5607e9fb0",
+    "maintenancePhase": "HELD",
+    "stoppedUnits": [
+      "ablestack-storage-ganesha@0.0.0.0_2049.service",
+      "ablestack-storage-smb@675fcbc172f7cb71e442afce.service"
+    ],
+    "health": "degraded",
+    "listenPorts": {
+      "iscsi": true,
+      "iscsiPorts": {
+        "3260": true
+      },
+      "nfs": false,
+      "nvmeof": true,
+      "nvmeofPorts": {
+        "4420": {
+          "configured": true,
+          "linked": true,
+          "listening": true,
+          "state": "LISTENING"
+        }
+      },
+      "smb": false
+    },
+    "renderBootHeld": false
+  },
+  "boundary": {
+    "uiApplyClicks": 1,
+    "retriesAfterFailure": 0,
+    "recoveryCommandsAfterFailure": 0,
+    "clientTestsAfterFailure": 0,
+    "newVms": 0,
+    "newDisks": 0,
+    "formatCalls": 0,
+    "macModifications": 0,
+    "issueClosed": false,
+    "waitingForInstruction": true
+  },
+  "causeStatus": "Render-stage failure confirmed; underlying rejection cause not yet established. Verified-success metadata cleanup was not reached."
+}

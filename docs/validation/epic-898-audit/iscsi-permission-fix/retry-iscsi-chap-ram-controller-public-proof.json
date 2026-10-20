@@ -1,0 +1,31 @@
+{
+  "kind": "PERMISSION_FIX_CHAP_RAM_CONTROLLER_EXISTING_ACLS",
+  "targetUuid": "0393e4f7-56a2-4e91-9e2e-efa76c300dcb",
+  "targetIqn": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-0732",
+  "credentialSetupViaNormalApi": true,
+  "newCredentialGuiEntry": false,
+  "secretRegularFilesOrArgv": 0,
+  "clients": {
+    "C1": {
+      "aclId": "bd76c8ab-e784-44ca-824c-8d70e32e4d6d",
+      "credentialOnlyRotationOfExistingAcl": true,
+      "initiatorIqn": "iqn.2026-10.local.epic898:cf6-chap-c1-7993a840",
+      "permission": "READ_WRITE",
+      "chapEnabledRequested": true,
+      "secretLength": 16,
+      "secretAscii": true,
+      "jobId": "f0216e93-8642-406e-a957-71394e007b59",
+      "jobStatus": 2,
+      "jobResultCode": 431
+    }
+  },
+  "cases": [],
+  "newVolumeOrFormatCalls": 0,
+  "nvmeCalls": 0,
+  "networkVpdSerialClaimed": false,
+  "serverSerialReadbackProofSha256": "390c648944ae5ae8d9c1eb92ae35f9965a94c1b37c324af572804c5f49cf83af",
+  "safeFailureStage": "NORMAL_API_CHAP_SETUP_C1",
+  "safeFailureClass": "RuntimeError",
+  "outcomeUnknownOrStopped": true,
+  "credentialsDiscardedAtControllerEnd": true
+}

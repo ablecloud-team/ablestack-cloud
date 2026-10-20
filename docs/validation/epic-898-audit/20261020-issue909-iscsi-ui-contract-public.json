@@ -1,0 +1,988 @@
+{
+  "productSourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+  "status": "NFS_ENABLE_REVISION5_RECOVERY_REQUIRED_FULL_RESTORE_NOT_RUN",
+  "base": "248653b58920d2a950393ed3edc7b343b831105d",
+  "localBaseUpstreamAheadBehind": [
+    0,
+    0
+  ],
+  "acceptance": {
+    "dir": "/root/work/epic898-preparation/issue909-20261017/report/iscsi-ui-contract-fix-20261020",
+    "base": "6e1a8919172462f0a328767cd3c87de8320d6d7e",
+    "head": "7495a38981af1ce0a3bd4af7903761a645439451",
+    "stage": "implemented-deployed-client-replaced-and-tested-nfs-rev5-blocked",
+    "nativeSha": "63d4da7f2390a83d18125a9854c5dcc81ef45fbb91a816a674ce0f19b5f83e13",
+    "pendingAgents": [],
+    "browserIds": {
+      "main": "1588259682",
+      "clientVm": "1588259748",
+      "clientConsole": "1588259757"
+    },
+    "clientFacts": {
+      "vmid": "9a006d06-6aa1-417d-9abf-297838c0c9d5",
+      "ip": "10.10.13.247",
+      "iqn": "iqn.1993-08.org.debian:01:2f8907a3fea",
+      "hostnqn": "nqn.2014-08.org.nvmexpress:uuid:00000000-0000-0000-0000-000000000000"
+    },
+    "issueProgress": "https://github.com/ablecloud-team/ablestack-cloud/issues/909#issuecomment-6290267428",
+    "moduleSelections": [
+      "StorageIscsiNameAdmissionTest",
+      "StorageProtocolRepresentativeTest",
+      "StorageIscsiAclSourceRollbackTest",
+      "StorageProtocolDefaultListenerTest",
+      "StorageConfigLegacyDefaultProtocolTest",
+      "StorageServiceRuntimeQueueScopeTest",
+      "InterruptedStateChangeTest",
+      "StorageServicePreparationStateTest",
+      "StoragePreparationHealthWireContractTest",
+      "StoragePreparationObservationTest",
+      "StorageInitialPreparationAdmissionTest",
+      "StorageConfigInitialBaselineFlowTest",
+      "LibvirtStorageServiceHostCommandWrapperTest"
+    ],
+    "jobs": {},
+    "nativeProofFocused": "/tmp/storage-preparation-health-wire-fke7ga03",
+    "harnessProof": "/tmp/storage-preparation-health-wire-qjg9u3dy",
+    "newUiTests": {
+      "suites": 10,
+      "tests": 256,
+      "dir": "/root/work/epic898-preparation/issue909-20261017/report/ui-iscsi-contract-fix-20261020"
+    },
+    "clientConsoleReady": true,
+    "clientConsoleVT": 2,
+    "buildResults": {
+      "java": 147,
+      "ui": 256,
+      "native": 1195,
+      "nativeSkipped": 6,
+      "nativeProof": "/tmp/storage-preparation-health-wire-gpyby12b"
+    },
+    "runtime": {
+      "version": "4.23.0.0-epic898-909-7495a38981-iscsi-ui-contract-20261020",
+      "keyId": "epic898-909-7495a38981-iscsi-ui-contract-test",
+      "archive": "ablestack-storage-runtime-4.23.0.0-epic898-909-7495a38981-iscsi-ui-contract-20261020.tar.gz",
+      "archiveBytes": 669520,
+      "archiveSha256": "756faa363727c6b119ee64ffedf22ea70247641b1db17c45ab154e83889205a8",
+      "manifestSha256": "fe3e77250f414ffc79941f683dcb0c243969b350e748bfa0bb5894fa90e41d16",
+      "bundleId": "878b5b97-2a81-4115-a7b2-4237d23405a0",
+      "state": "AVAILABLE"
+    },
+    "oldVm95RecoveredAndRemoved": true,
+    "newServiceName": "issue909-ui-contract-ready-20261020",
+    "newSharedFsId": "dc8651a9-54bc-4827-8f98-9b01e58c618d",
+    "newVmId": "8c1af5e2-00b3-443d-ae21-745e7166ba97",
+    "newDataId": "402cb9a7-0bc8-40cd-b45e-220680ddcb15",
+    "newBootId": "f098eea8-db05-49cf-b61c-99345126c6e8",
+    "newClient": {
+      "id": "94533085-d833-47eb-bb58-0747cbd294b7",
+      "name": "issue909-ui-contract-client-20261020",
+      "root": "30af98d5-17c2-4f33-a5c2-22ca67437179",
+      "mac": "02:0d:00:cc:00:35",
+      "cloudIp": "10.10.254.188",
+      "host": "10.10.13.3",
+      "configured": true,
+      "actualIp": "10.10.254.188",
+      "defaultInitiator": "iqn.1993-08.org.debian:01:3dc4c8697ca",
+      "comparisonInitiator": "iqn.1993-08.org.debian:01:2f8907a3fea",
+      "interfaceOverrideForComparisonOnly": true,
+      "macManuallyChanged": false,
+      "pingService": {
+        "sent": 20,
+        "received": 20,
+        "lossPercent": 0
+      },
+      "pingManagement": {
+        "sent": 20,
+        "received": 20,
+        "lossPercent": 0
+      },
+      "chapLogin": true,
+      "existingMarkersRead": 2,
+      "newMarkerWriteRead": true,
+      "continuousReadChecks": 75,
+      "continuousReadSuccess": 75,
+      "kernelConnectionErrors": 0,
+      "loggedOut": true,
+      "testNodeAndIfaceDeleted": true,
+      "fullRestoreNotRun": true
+    },
+    "iscsi": {
+      "target": "iqn.2026-10.local.ablestack:issue909-ui-contract-iscsi",
+      "lun": 0,
+      "volume": "3f1f97c4-6fb7-4fbc-948c-9a17e40a3f00",
+      "acl": "iqn.1993-08.org.debian:01:2f8907a3fea",
+      "chap": true,
+      "mutualChap": false,
+      "noChapIo": true,
+      "chapIo": true,
+      "stableClientIo": false
+    },
+    "failure": {
+      "uuid": "65122422-8243-412d-aecc-fc95c9483729",
+      "revision": 5,
+      "phase": "RECOVERY_REQUIRED",
+      "code": "NFS_RUNTIME_NOT_READY",
+      "sourceEndpointPort": 3260,
+      "observedEndpointPort": 2049,
+      "sourceSha": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+      "observedSha": "5a66553cdb39ba700e4838fec16e3d00f02ea961f04d48cf7c36731a4544381c"
+    },
+    "deletedClients": [
+      {
+        "name": "epic898-s-b6aa-linux-c1-20261009",
+        "id": "9a006d06-6aa1-417d-9abf-297838c0c9d5",
+        "root": "d5b9fe9d-d988-402f-a7d5-a26baf714ddf",
+        "deletedKst": "2026-10-20 22:26:26"
+      },
+      {
+        "name": "epic898-s-b6aa-linux-c2-20261009",
+        "id": "39facd8c-d967-4907-a377-819cb5e83979",
+        "root": "b1753ea0-5429-43c4-8f37-c0e63713b3b4",
+        "deletedKst": "2026-10-20 22:24:24"
+      },
+      {
+        "name": "epic898-ad-linux-c3-20261009",
+        "id": "dfd7b03f-481f-4f5d-921e-d61670563c79",
+        "root": "cbb72f38-48ae-4ef5-9bb5-d73a16d0b6ab",
+        "deletedKst": "2026-10-20 22:22:36"
+      }
+    ]
+  },
+  "evidence": {
+    "backend-tests-public.json": {
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+      "totalTests": 147,
+      "tests": [
+        {
+          "name": "StorageIscsiNameAdmissionTest",
+          "tests": 6,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageProtocolRepresentativeTest",
+          "tests": 3,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageIscsiAclSourceRollbackTest",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageProtocolDefaultListenerTest",
+          "tests": 11,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageConfigLegacyDefaultProtocolTest",
+          "tests": 12,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageServiceRuntimeQueueScopeTest",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "InterruptedStateChangeTest",
+          "tests": 7,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageServicePreparationStateTest",
+          "tests": 16,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StoragePreparationHealthWireContractTest",
+          "tests": 14,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StoragePreparationObservationTest",
+          "tests": 4,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageInitialPreparationAdmissionTest",
+          "tests": 2,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "StorageConfigInitialBaselineFlowTest",
+          "tests": 8,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        },
+        {
+          "name": "LibvirtStorageServiceHostCommandWrapperTest",
+          "tests": 50,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    "native-full-status-public.json": {
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+      "exitCode": 0,
+      "tests": 1195,
+      "hostAccountFilesUnchanged": true,
+      "sourceUnchanged": true,
+      "isolationOutput": "/tmp/storage-preparation-health-wire-gpyby12b",
+      "startedEpoch": 1792498907.3055432,
+      "completedEpoch": 1792499211.036858
+    },
+    "production-result-public.json": {
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+      "command": [
+        "./node_modules/.bin/vue-cli-service",
+        "build",
+        "--dest",
+        "/root/work/epic898-preparation/issue909-20261017/report/iscsi-ui-contract-fix-20261020/dist"
+      ],
+      "productionExit": 0,
+      "startedEpoch": 1792498906.7309153,
+      "completedEpoch": 1792499512.0874345,
+      "configRestoredExact": true,
+      "sourceUnchanged": true,
+      "buildWorkers": 2
+    },
+    "management-deployment-public.json": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "backup": "/var/backups/mold/issue909-iscsi-ui-contract-7495a38981af/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "ef0f7f9251cf51c94eb678d09fe80c169cabf227ce5c7479975e2865d52828db",
+      "newJarSha256": "6784ed059a41865aa356a24844d9a9f7aff2383426301ed054178dd1673b6d1b",
+      "addedClasses": [
+        "org/apache/cloudstack/storage/dataservice/StorageIscsiNamePolicy.class",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceProtocolSelection.class"
+      ],
+      "changedClasses": {
+        "org/apache/cloudstack/storage/dataservice/StorageIscsiNamePolicy.class": "5ec0354cf43b59313df8eb5288f233e06349cc78ae469a65cc29097771309bae",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceProtocolSelection.class": "0b49b18d82f167efa16bdf2a920be6b3fa676c001bd4f9d74ad204fec489eaf8",
+        "org/apache/cloudstack/storage/dataservice/dao/StorageServiceProtocolDaoImpl.class": "07c6e8857400126fe6523d0d0c5b7b9939a90369b31880d4c8751eee5b751d05",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselinePublication.class": "342ce19df846b204213f9bafb640cf469d8a59ef24e5ae7aa31fea2755cc3839",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineVerification.class": "eb63bc76600517cc154353dc9122448aae9e231f86d28f2a932dfc7c5481afd9",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationBatch.class": "9ea6ab27f97d468704e380324df3122639be92d0308a7d2816e4cd3e95502018",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "2c55703397f981b09f7842ab1270ebab35463e2fad80b5d93a5d551f1e77399e",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineCommand.class": "53db742a821283d8f93bcfddbc922a526ab3310cfb9561de073af5d00ccc3033",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class": "c344e2255a3c235abf2d15f01c1930f53b801b3481a0124181859cf935cf2437",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$1.class": "895715b6cb3177ca53ab72cb5c653abec26654ce940881c8865ead6aefb52c96",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$2.class": "95bdea70b6e0545d59fb94a7ea79192725ca56ba068633a3e8a2df9f724e7bbb",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class": "468007084a75484f90ed5a32f46f917b7db81d28575cb7ef1c3aa4f8a83f6b51",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "46e0a5ad10516d0d7892fece99a2c627597c2c5ffe2538841b6467bdff4a621a",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class": "fd259979129eda56c7cd33cfd04230a6aceb440a18c12bc8eb5b09119f2d0dfd",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationCloneRestorePublication.class": "11dcf7c572d808c3f59de511ec30d5262508a7fd1521478158872b5638af7034",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$6.class": "f98cd8b4c46a8ffe94640967145cf33d882b4752f7decc0ce56ddf3430f92ad0",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ProtocolResponseContext.class": "36595a14e27e0bc1d0c40d6bdb3de9024d847bce9ade10d4717303e74ce7ab67",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "aac5ca7b419081ff7ee9674695687ffa98c65d5a5640a9cc57ff84bf657c7d7c",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime.class": "f077c89590904bc64875af016d85f18dd9b995a76705c2198fb4b12dd9d212ee",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$7.class": "08f2c9d09cc527e5c09e97555a72c380035081138b23eae201facf09b14f4c21",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "16451d3a640e26b063e56232a56c7fe345b5f447ed79922bac1b1e09b1694a9d"
+      },
+      "unchangedEntriesVerified": 204654,
+      "service": "mold",
+      "active": "active",
+      "pid": "2869717",
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451"
+    },
+    "agents-deployment-public.json": {
+      "10.10.13.1": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-iscsi-ui-contract-7495a38981af/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "9bc86b3babc438769cc27e040858c6cef63d0fbe268c3b91a6d2ea179d20573f",
+        "newJarSha256": "88da4035ff5a75f442b4e27038d9d73efc181d1d9cbf12cdf2a2556091da1389",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "ceb72101ef346e30ee82403c4d2a39b37e0174bf5eb4e3417d52c42b72a70a05"
+        },
+        "unchangedEntriesVerified": 514,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "3620456",
+        "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451"
+      },
+      "10.10.13.2": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-iscsi-ui-contract-7495a38981af/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "f0ae88fccc586c02d49f1c2a14dbba9516b782cfcaf9c64832ec8c062a866a6d",
+        "newJarSha256": "9476ef63bb0cd69433b18299ae372881c00d4f1d566be422d52a5fe7a4907ec8",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "ceb72101ef346e30ee82403c4d2a39b37e0174bf5eb4e3417d52c42b72a70a05"
+        },
+        "unchangedEntriesVerified": 514,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "2764192",
+        "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451"
+      },
+      "10.10.13.3": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-iscsi-ui-contract-7495a38981af/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "b3e972ff151bd044661762ef5168e245286fd912869cb4363f6848810aab108f",
+        "newJarSha256": "25a390911a9a54a97e2664c143bae62f67e311a2abe10762d4c260ce151da862",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "ceb72101ef346e30ee82403c4d2a39b37e0174bf5eb4e3417d52c42b72a70a05"
+        },
+        "unchangedEntriesVerified": 506,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "1972474",
+        "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451"
+      }
+    },
+    "ui-deployment-public.json": {
+      "success": true,
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+      "indexSha256": "173695968666cfc8bc07f2f9257ad1579ed115fd8ef88adc92b3d3c0dc6e8a12",
+      "oldIndexSha256": "e079109aeaf85a4217bb16cd5aa6364fbd3d638b6d7a763c25d837d03f8bbfb2",
+      "backupDirectory": "/var/backups/mold/issue909-ui-assets-7495a38981af",
+      "addedAssets": 10,
+      "oldAssetsPreserved": 4442,
+      "protectedOtherFilesPreserved": 20,
+      "localeKeysUpdated": {
+        "en.json": 27,
+        "ko_KR.json": 27
+      },
+      "localeSha256": {
+        "locales/en.json": "d4f2158ad41fa73661deeddf197479109aa7d73950c5270b6952542279262cf3",
+        "locales/ko_KR.json": "791cdbab19688af8dd02d1f9f4775c342467b696b2ac9f277fdac73514060bbd"
+      },
+      "managementPid": "2869717",
+      "backendJarSha256": "6784ed059a41865aa356a24844d9a9f7aff2383426301ed054178dd1673b6d1b",
+      "serviceRestarted": false,
+      "completedEpoch": 1792499636.7157469
+    },
+    "old-test-ui-cleanup-public.json": {
+      "operationUuid": "d3076374-12bb-41fd-a368-60e91a95a1d8",
+      "revision": 9,
+      "recoveryPerformedViaUi": true,
+      "recoveryPhase": "INTERRUPTED_WRITER_ROLLED_BACK",
+      "originalDiagnosticRetained": true,
+      "sharedfilesystemid": "a52dbb5c-925e-45de-8bb4-f5c4fcd1438a",
+      "vmid": "caf20e42-5199-4bff-90d6-1b9e92514c7f",
+      "root": "019ed59a-659d-4881-9e6b-85c137d1c0b4",
+      "data": [
+        "c63fc46d-cfc9-4821-8a39-19cabbd3eb8c",
+        "ad471070-e760-4cd3-bf46-60f1d16feaf5",
+        "3e499ff0-8247-40f9-aac5-295a4149a5b5"
+      ],
+      "normalStopAndDeleteViaUi": true,
+      "sharedfsAndRootDeletionEventsObserved": true,
+      "dataDeletionEvents": 3,
+      "physicalGcNotIndependentlyClaimed": true
+    },
+    "signed-build-public.json": {
+      "sourceCommit": "7495a38981af1ce0a3bd4af7903761a645439451",
+      "keyId": "epic898-909-7495a38981-iscsi-ui-contract-test",
+      "version": "4.23.0.0-epic898-909-7495a38981-iscsi-ui-contract-20261020",
+      "privateKeyFilesCreated": 0,
+      "privateDescriptorClosed": true,
+      "privateInputBufferWiped": true,
+      "signatureVerified": true,
+      "testOnly": true,
+      "files": {
+        "SHA256SUMS": {
+          "bytes": 317,
+          "sha256": "66d43dd20eb7ccc85dbfbea650abb9a723d5db5e50040db700e616c341f95af9"
+        },
+        "ablestack-storage-runtime-4.23.0.0-epic898-909-7495a38981-iscsi-ui-contract-20261020.tar.gz": {
+          "bytes": 669520,
+          "sha256": "756faa363727c6b119ee64ffedf22ea70247641b1db17c45ab154e83889205a8"
+        },
+        "epic898-909-7495a38981-iscsi-ui-contract-test.pem": {
+          "bytes": 113,
+          "sha256": "bc0fed288105ed497cc027258d907ea20429ce2dccc1fe9df93339dc551848cc"
+        },
+        "manifest.sig": {
+          "bytes": 64,
+          "sha256": "d58b0d94c4cc7349708158690afefa4d3dbbfa5392eab82ea398f6163a344067"
+        },
+        "manifest.json": {
+          "bytes": 1558,
+          "sha256": "fe3e77250f414ffc79941f683dcb0c243969b350e748bfa0bb5894fa90e41d16"
+        }
+      }
+    },
+    "runtime-catalog-ui-public.json": {
+      "bundleId": "878b5b97-2a81-4115-a7b2-4237d23405a0",
+      "version": "4.23.0.0-epic898-909-7495a38981-iscsi-ui-contract-20261020",
+      "releaseChannel": "TEST",
+      "state": "AVAILABLE",
+      "registeredVerifiedPublishedViaUi": true,
+      "rawApiCatalogMutation": false
+    },
+    "nfs-enable-native-state-public.json": {
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "public": {
+        "generations": {
+          "331fe235-c0bc-4e09-8da2-ca769dec8ef7.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "331fe235-c0bc-4e09-8da2-ca769dec8ef7",
+            "revision": 3,
+            "phase": "VERIFIED",
+            "configurationSha256": "33785ce106b691da0763bd861b59218639f06be4e72d5625ce463d07b3adbf14",
+            "beforeSha256": "41de1b316a4759c40add27de038b680b8f939637a235ed8275eb1b680e92d1da",
+            "previous": {
+              "configurationSha256": "41de1b316a4759c40add27de038b680b8f939637a235ed8275eb1b680e92d1da",
+              "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+              "operationUuid": "ae1c5fa8-80fe-4200-b398-b6d4464e1686",
+              "revision": 2,
+              "verifiedAt": 1792500564.1975136
+            },
+            "verifiedAt": 1792500667.6949472,
+            "desiredNfs": null,
+            "desiredPaths": [
+              "desired-state/nfs-export-apply.json",
+              "desired-state/smb-share-apply.json",
+              "iscsi-targets.json",
+              "network-endpoints.json",
+              "nvmeof-subsystems.json",
+              "posix-directory-policies.json",
+              "sharedfs-network.json"
+            ]
+          },
+          "8d4d9db8-9231-4ea7-bff0-c7707eb49184.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "8d4d9db8-9231-4ea7-bff0-c7707eb49184",
+            "revision": 4,
+            "phase": "VERIFIED",
+            "configurationSha256": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+            "beforeSha256": "33785ce106b691da0763bd861b59218639f06be4e72d5625ce463d07b3adbf14",
+            "previous": {
+              "configurationSha256": "33785ce106b691da0763bd861b59218639f06be4e72d5625ce463d07b3adbf14",
+              "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+              "operationUuid": "331fe235-c0bc-4e09-8da2-ca769dec8ef7",
+              "revision": 3,
+              "verifiedAt": 1792500667.6949472
+            },
+            "verifiedAt": 1792501066.6970015,
+            "desiredNfs": null,
+            "desiredPaths": [
+              "desired-state/nfs-export-apply.json",
+              "desired-state/smb-share-apply.json",
+              "iscsi-targets.json",
+              "network-endpoints.json",
+              "nvmeof-subsystems.json",
+              "posix-directory-policies.json",
+              "sharedfs-network.json"
+            ]
+          },
+          "ae1c5fa8-80fe-4200-b398-b6d4464e1686.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "ae1c5fa8-80fe-4200-b398-b6d4464e1686",
+            "revision": 2,
+            "phase": "VERIFIED",
+            "configurationSha256": "41de1b316a4759c40add27de038b680b8f939637a235ed8275eb1b680e92d1da",
+            "beforeSha256": "d2b75b97505ec4bea380db93bd0200f2eee233ba834069e3f3b2147b4f367bb5",
+            "previous": {
+              "configurationSha256": "d2b75b97505ec4bea380db93bd0200f2eee233ba834069e3f3b2147b4f367bb5",
+              "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+              "operationUuid": "faf95225-08f1-4366-ae7d-ab7050a9360e",
+              "revision": 1,
+              "verifiedAt": 1792500396.7209387
+            },
+            "verifiedAt": 1792500564.1975136,
+            "desiredNfs": null,
+            "desiredPaths": [
+              "desired-state/nfs-export-apply.json",
+              "desired-state/smb-share-apply.json",
+              "iscsi-targets.json",
+              "network-endpoints.json",
+              "nvmeof-subsystems.json",
+              "posix-directory-policies.json",
+              "sharedfs-network.json"
+            ]
+          },
+          "current.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "8d4d9db8-9231-4ea7-bff0-c7707eb49184",
+            "revision": 4,
+            "configurationSha256": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+            "verifiedAt": 1792501066.6970015
+          },
+          "faf95225-08f1-4366-ae7d-ab7050a9360e.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "faf95225-08f1-4366-ae7d-ab7050a9360e",
+            "revision": 1,
+            "phase": "VERIFIED",
+            "configurationSha256": "d2b75b97505ec4bea380db93bd0200f2eee233ba834069e3f3b2147b4f367bb5",
+            "beforeSha256": "d52dc5638c0d0b6d79d758c3a13f9a2f61c57f247329283db02ecfab89823c0c",
+            "previous": {},
+            "verifiedAt": 1792500396.7209387,
+            "desiredNfs": null,
+            "desiredPaths": [
+              "desired-state/nfs-export-apply.json",
+              "desired-state/smb-share-apply.json",
+              "iscsi-targets.json",
+              "network-endpoints.json",
+              "nvmeof-subsystems.json",
+              "posix-directory-policies.json",
+              "sharedfs-network.json"
+            ]
+          },
+          "pending.json": {
+            "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+            "operationUuid": "65122422-8243-412d-aecc-fc95c9483729",
+            "revision": 5,
+            "phase": "PREPARED",
+            "beforeSha256": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+            "previous": {
+              "configurationSha256": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+              "instanceUuid": "15f115f0-8e90-4cef-9e3f-4a2067e673dd",
+              "operationUuid": "8d4d9db8-9231-4ea7-bff0-c7707eb49184",
+              "revision": 4,
+              "verifiedAt": 1792501066.6970015
+            }
+          }
+        },
+        "paths": {
+          "/etc/ganesha/ablestack-storage": {
+            "exists": true,
+            "symlink": false,
+            "mode": "0o755",
+            "uid": 0,
+            "entries": []
+          },
+          "/etc/dbus-1/system.d": {
+            "exists": true,
+            "symlink": false,
+            "mode": "0o755",
+            "uid": 0,
+            "entries": [
+              "nfs-ganesha-dbus.conf"
+            ]
+          },
+          "/run/ablestack-storage/nfs-dynamic-sources": {
+            "exists": true,
+            "symlink": false,
+            "mode": "0o700",
+            "uid": 0,
+            "entries": []
+          },
+          "/etc/ablestack-storage/desired-state/nfs-export-apply.json": {
+            "exists": false,
+            "symlink": false
+          }
+        },
+        "nfsJournal": []
+      }
+    },
+    "nfs-enable-source-diff-public.json": {
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "public": {
+        "differences": [
+          {
+            "path": "/network-endpoints.json/endpoints/0/port",
+            "source": 3260,
+            "observed": 2049
+          }
+        ],
+        "sourceDigest": "c7bd6d867bffbcb71ba9f42e89e4afc00b5c127553682946334fcb9dbb24e9be",
+        "observedDigest": "5a66553cdb39ba700e4838fec16e3d00f02ea961f04d48cf7c36731a4544381c"
+      }
+    },
+    "chap-network-client-mac-learning-public.json": {
+      "clientMac": "02:01:00:cc:00:0b",
+      "fdb": [
+        {
+          "at": "22:07:55",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:56",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:56",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:57",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:57",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:58",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:58",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:59",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:07:59",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:00",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:00",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:01",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:01",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:02",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:02",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:03",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:03",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:04",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:04",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:05",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:05",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:06",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:06",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:07",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:07",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:08",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:08",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:09",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:09",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:10",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:10",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:11",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:11",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:12",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:12",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:13",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:13",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:14",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:14",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:15",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:15",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:16",
+          "entries": [
+            "02:01:00:cc:00:0b dev vnet35 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:16",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:17",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:17",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:18",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:18",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        },
+        {
+          "at": "22:08:19",
+          "entries": [
+            "02:01:00:cc:00:0b dev ens1f0 master bridge0 "
+          ]
+        }
+      ],
+      "physicalIngress": {
+        "rc": 124,
+        "lines": [
+          "22:07:57.161218 02:01:00:cc:00:0b > 33:33:00:00:00:16, IPv6, length 90: fe80::1:ff:fecc:b > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28",
+          "22:07:58.098333 02:01:00:cc:00:0b > 33:33:00:00:00:16, IPv6, length 90: fe80::1:ff:fecc:b > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28",
+          "22:08:15.435369 02:01:00:cc:00:0b > 33:33:00:00:00:16, IPv6, length 90: fe80::1:ff:fecc:b > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28",
+          "22:08:16.402352 02:01:00:cc:00:0b > 33:33:00:00:00:16, IPv6, length 90: fe80::1:ff:fecc:b > ff02::16: HBH ICMP6, multicast listener report v2, 1 group record(s), length 28",
+          ""
+        ],
+        "summary": [
+          "4 packets captured",
+          "17 packets received by filter",
+          "0 packets dropped by kernel"
+        ]
+      }
+    }
+  },
+  "uiUnitValidation": {
+    "suites": 10,
+    "tests": 256,
+    "failures": 0,
+    "nodeHeapMiB": 3072,
+    "coverage": false,
+    "lint": "PASS",
+    "diffCheck": "PASS",
+    "testLog": "/root/work/epic898-preparation/issue909-20261017/report/ui-iscsi-contract-fix-20261020/tests-final.log",
+    "lintLog": "/root/work/epic898-preparation/issue909-20261017/report/ui-iscsi-contract-fix-20261020/lint-final.log"
+  },
+  "uiInputContract": {
+    "iqn": "ASCII iqn.YYYY-MM.domain:name, exact untrimmed input, max223; no .local.storage restriction",
+    "targetLun": "digits only, 0..65535; leading zeroes allowed",
+    "aclMappedLun": "active IQN-group targets 0..255; inactive historical CSV does not block current rows",
+    "listeners": "only registered enabled ISCSI port groups, explicit specific-IP versus wildcard scope; no invented 3260 selection"
+  },
+  "images": {
+    "20261020-issue909-iscsi-custom-first-acl-ready.jpg": {
+      "bytes": 128701,
+      "sha256": "f320bae547ff04cd7ad41cc00e6e41cfb785c53f69cc857c0eb1d42dab7e5e58"
+    },
+    "20261020-issue909-iscsi-original-recovery-complete.jpg": {
+      "bytes": 93907,
+      "sha256": "395fccd97a21196fcbfb4d6ac9da5fd226f6b247610d622aadddff4e4e7a292e"
+    },
+    "20261020-issue909-iscsi-invalid-iqn-blocked.jpg": {
+      "bytes": 119200,
+      "sha256": "7de11fce262e00c42adec1f56931ae0a79a690b155b42589d6b418aee033547e"
+    },
+    "20261020-issue909-iscsi-invalid-lun-blocked.jpg": {
+      "bytes": 111961,
+      "sha256": "9efd3bb2dedafd6f79a06194fd4344566f62b870ff6461ba5f47308a5303ddfa"
+    },
+    "20261020-issue909-fresh-client-network-ok.jpg": {
+      "bytes": 103524,
+      "sha256": "e60a02a6c7a0c910f1ebb1d51cc908abbb4cd6e83ce03ce41975a55b7e61df54"
+    },
+    "20261020-issue909-fresh-client-stable-io.jpg": {
+      "bytes": 100308,
+      "sha256": "a1b1f632e8260086ab610fb34c1662f063f1b41eb7213fd129c649ccfa8ff310"
+    },
+    "20261020-issue909-fresh-client-chap-session.jpg": {
+      "bytes": 148938,
+      "sha256": "17989daf5e08d1b1cc5b1d4b396048be28d237b45aa3305e721f0042519c7cee"
+    },
+    "20261020-issue909-old-linux-client-delete-events.jpg": {
+      "bytes": 114699,
+      "sha256": "fed11432f2164e8d378d4450464fbca79839ec3382c134208ef754ec50ee2e15"
+    },
+    "20261020-issue909-nfs-enable-operation-stop.jpg": {
+      "bytes": 105284,
+      "sha256": "c24b3644c23a1637cbc28f116e2c38e42f3010a3d178772c16ed5f03a8a20fcc"
+    }
+  },
+  "clientDeleteUiEvents": [
+    "INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: 9a006d06-6aa1-417d-9abf-297838c0c9d5epic898-s-b6aa-linux-c1-20261009adminadminROOT2026. 10. 20. 오후 10:26:26",
+    "INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: d5b9fe9d-d988-402f-a7d5-a26baf714ddf Instance ID: 9a006d06-6aa1-417d-9abf-297838c0c9d5ROOT-52adminadminROOT2026. 10. 20. 오후 10:26:25",
+    "INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: 39facd8c-d967-4907-a377-819cb5e83979epic898-s-b6aa-linux-c2-20261009adminadminROOT2026. 10. 20. 오후 10:24:24",
+    "INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: b1753ea0-5429-43c4-8f37-c0e63713b3b4 Instance ID: 39facd8c-d967-4907-a377-819cb5e83979ROOT-53adminadminROOT2026. 10. 20. 오후 10:24:23",
+    "INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: dfd7b03f-481f-4f5d-921e-d61670563c79epic898-ad-linux-c3-20261009adminadminROOT2026. 10. 20. 오후 10:22:36",
+    "INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: cbb72f38-48ae-4ef5-9bb5-d73a16d0b6ab Instance ID: dfd7b03f-481f-4f5d-921e-d61670563c79ROOT-55adminadminROOT2026. 10. 20. 오후 10:22:36"
+  ]
+}

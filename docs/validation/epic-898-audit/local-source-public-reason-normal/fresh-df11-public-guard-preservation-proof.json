@@ -1,0 +1,57 @@
+{
+  "kind": "DF11_FRESH_CURRENT_READONLY_SOURCE_GUARDS_AND_PRESERVATION",
+  "observedAtUtc": "2026-10-10T02:24:07Z",
+  "snapshot": {
+    "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/fresh-current-df11-bounded-public-snapshot.json",
+    "sha256": "8e06551fa1441597d281642d599c6f529bca7aed0590668c4db6c7a6736760aa"
+  },
+  "signedWriterIdle": {
+    "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/fresh-existing-writer-idle-public-proof.json",
+    "sha256": "c5c0d9093c8928391993ed3b3b581e28cdec852a1901476e89514a87fb91b98e",
+    "writerIdle": true
+  },
+  "comparedPreviousFailedRecoverySnapshot": {
+    "path": "/root/work/epic898-preparation/actual-current-recovery-500/after-df11-normal-ui-recovery-readonly.json",
+    "sha256": "117c9c4d653f9b5e8eb5a887fe760e06ae89e8dc0434933990df4e0ffcc37bc4"
+  },
+  "sameObservedFields": {
+    "cliSha256": true,
+    "bootId": true,
+    "vmUuid": true,
+    "current": true,
+    "pending": true,
+    "databases": true,
+    "blockdevices": true,
+    "mounts": true,
+    "nfsSentinel": true
+  },
+  "currentGen10PendingDf11AndBootCliSame": true,
+  "nativeCurrentOwnershipSessionEmptyRestoreSupportedLiteralTrue": true,
+  "sourceJournalPhase": "RECOVERY_REQUIRED",
+  "nativeImported": false,
+  "originalPublicKeyPresent": true,
+  "originalCipherPresent": true,
+  "originalRefExact": {
+    "localCheckpointUuid": "09845f87-bfbb-3bdd-b395-7a447b093701",
+    "sha256": "a6d984679ad38f9302fd294611ecfd69e6a9b91e0a9f1402b610545501d5ef54"
+  },
+  "liveHoldersCount": 2,
+  "ownedHolderAnyPaused": false,
+  "smbOwnFile4096UidGidHashPreserved": true,
+  "nfsSentinel4096UidGidHashPreserved": true,
+  "rawAttachedExactSerial20GiBRootExcludedBlankHeaderAndWindow": true,
+  "nvmeGuestSerialAbsent": true,
+  "nvmeUi": {
+    "path": "/root/work/epic898-preparation/df11-native-reason-recovery-preparation/df11-fresh-reserved-nvme-ui-public.json",
+    "sha256": "ac898f82ab63a57915c99032467abff2762c0bdb08023d50b3f4d5d2e0701926",
+    "ready20GiBSparseSamePool": true,
+    "virtualMachineLinkCount": 0,
+    "apiVirtualMachineIdLiteralObserved": false
+  },
+  "sourceDiagnosticReason": "UNOBSERVED",
+  "managementPrivateKeyFreshRead": false,
+  "normalUiSourceRecoveryCandidate": true,
+  "recoverySubmitGoReceived": false,
+  "writerRecoverySignalCredentialSetupOrExternalIoCalls": 0,
+  "ui1275": "UNSTARTED"
+}

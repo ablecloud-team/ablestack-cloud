@@ -1,0 +1,587 @@
+{
+  "issue": 909,
+  "epic": 898,
+  "result": "IMPROVEMENTS_DEPLOYED_READY_FOR_NEXT_VALIDATION",
+  "readyToCloseIssue": false,
+  "implementationCommit": "ab3f0edfaf0627025906c9d6f393934c62fd0965",
+  "base": "248653b5892",
+  "scope": "improvement, deployment, existing failure rollback and next review only",
+  "build": {
+    "reactors": 38,
+    "suiteCount": 10,
+    "tests": 124,
+    "result": "PASS",
+    "suites": [
+      {
+        "suite": "StorageProtocolPrefixBindingTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigurationBatchTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigDomainRestoreTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigRestoreWholeFlowTest",
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigLegacyDefaultProtocolTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageCanonicalRecoveryRuntimeTest",
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigInitialBaselineFlowTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageInitialPrimaryEndpointRecoveryTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageRenderedFailureDiagnosticTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageServiceHostDiagnosticTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "packageBuild": "BUILD SUCCESS",
+    "globalCheckstyle": "skipped due to unchanged 11 upstream baseline violations; changed Java 4 files separately pass 8.18"
+  },
+  "nativeRegression": {
+    "tests": 1090,
+    "passed": 1087,
+    "skippedOptInRealLifecycle": 3,
+    "failures": 0,
+    "errors": 0,
+    "isolatedPrivateEtcVarRunAndProfiles": true
+  },
+  "actualNfsCliLifecycle": {
+    "caseCount": 3,
+    "cases": [
+      {
+        "actualGaneshaDbusAndKernelNfs": true,
+        "actualNativeCli": true,
+        "aliasReceiptCleared": true,
+        "aliasUnmountVerified": true,
+        "applyVerified": true,
+        "busyUnmount": false,
+        "cliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+        "clientReadWrite": true,
+        "danglingCurrentExercised": true,
+        "maintenanceKind": "ROOT",
+        "originalDataAndPosixPreserved": true,
+        "ownedDaemonStopped": true,
+        "rollbackSuccess": true
+      },
+      {
+        "actualGaneshaDbusAndKernelNfs": true,
+        "actualNativeCli": true,
+        "aliasReceiptPreserved": true,
+        "applyVerified": true,
+        "busyMountRetained": true,
+        "busyUnmount": true,
+        "cliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+        "clientReadWrite": true,
+        "danglingCurrentExercised": true,
+        "failureCode": "NFS_ALIAS_UNMOUNT_FAILED",
+        "fstabReceiptPreserved": true,
+        "inverseResumedAfterOwnedBlockerRelease": true,
+        "maintenanceKind": "SERVICE",
+        "originalDataAndPosixPreserved": true,
+        "originalScopePinsUnchanged": true,
+        "ownedDaemonStopped": true,
+        "resumedAliasReceiptCleared": true,
+        "resumedAliasUnmountVerified": true,
+        "resumedFstabReceiptCleared": true,
+        "resumedRollbackSuccess": true,
+        "rollbackSuccess": false,
+        "stoppedUnitAndConfigStillAbsent": true
+      },
+      {
+        "actualGaneshaDbusAndKernelNfs": true,
+        "actualNativeCli": true,
+        "aliasReceiptCleared": true,
+        "aliasUnmountVerified": true,
+        "applyVerified": true,
+        "busyUnmount": false,
+        "cliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+        "clientReadWrite": true,
+        "danglingCurrentExercised": true,
+        "maintenanceKind": "SERVICE",
+        "originalDataAndPosixPreserved": true,
+        "ownedDaemonStopped": true,
+        "rollbackSuccess": true
+      }
+    ],
+    "checks": {
+      "gitDiffCheck": true,
+      "safeDefaultSkip3": true,
+      "syntax": true
+    },
+    "limitations": [
+      "Protected generation and maintenance records are seeded by the integration test.",
+      "systemctl is a fixed process lifecycle shim; actual systemd unit execution is outside this test.",
+      "Full RenderedDriver/Backend/UI restore application is outside this test."
+    ],
+    "liveClusterConnections": 0,
+    "nativeCliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+    "runSeconds": 14.444,
+    "scope": "native NFS CLI lifecycle with seeded protected generation/maintenance records; full RenderedDriver not executed",
+    "scriptSha256": "19a68dc7df33b674bd620cc243f75f1451c4260af215bae53989c7bd32418767",
+    "success": true,
+    "systemctlOnlyShim": true
+  },
+  "diagnosticTransportSeparateTests": {
+    "tests": 16,
+    "result": "PASS"
+  },
+  "ganeshaBuild": {
+    "bindAddressSelfTest": {
+      "cases": [
+        {
+          "case": "ipv4-disabled",
+          "configured": "192.0.2.1",
+          "dataSha256": "f65638d2d37a6f289013756bb83ba1377dac7cb59b3f3642154a58900e432a52",
+          "expected": "192.0.2.1",
+          "listeners": [
+            "192.0.2.1"
+          ],
+          "nfsReadWrite": true,
+          "otherAddressRejected": true,
+          "pid": 9
+        },
+        {
+          "case": "wildcard-disabled",
+          "configured": "0.0.0.0",
+          "expected": "0.0.0.0",
+          "listeners": [
+            "0.0.0.0"
+          ],
+          "pid": 31
+        },
+        {
+          "case": "ipv4-enabled",
+          "configured": "192.0.2.1",
+          "expected": "192.0.2.1",
+          "listeners": [
+            "::ffff:192.0.2.1"
+          ],
+          "otherAddressRejected": true,
+          "pid": 46
+        },
+        {
+          "case": "wildcard-enabled",
+          "configured": "0.0.0.0",
+          "expected": "0.0.0.0",
+          "listeners": [
+            "::ffff:0.0.0.0"
+          ],
+          "pid": 59
+        },
+        {
+          "case": "ipv6-enabled",
+          "configured": "2001:db8::1",
+          "expected": "2001:db8::1",
+          "listeners": [
+            "2001:db8::1"
+          ],
+          "pid": 72
+        }
+      ],
+      "disabledIpv6Precondition": {
+        "gaiErrno": -2,
+        "ipv6AddrconfigResolutionRejected": true,
+        "ipv6SocketCanBeCreated": true
+      },
+      "success": true
+    },
+    "checks": {
+      "actualNfsReadWrite": true,
+      "exactPinnedArchivePatch": true,
+      "gitDiffCheck": true,
+      "namedAndDefaultPosixAcl": true,
+      "oldPackageBugReproduced": true,
+      "pythonCompile": true,
+      "realDaemonBindFiveCases": true,
+      "shellSyntax": true
+    },
+    "files": {
+      "bin/ganesha.nfsd": "129cd37adee57af70f40cef20a2e40c1ce896a0045e009acc7f1901e8d7e3245",
+      "lib/x86_64-linux-gnu/ganesha/libfsalvfs.so": "2843c9094e58e22ba695fa580542bcc55c7afd36dc2e1f16c3eae2b2775f4f89",
+      "lib/x86_64-linux-gnu/libganesha_nfsd.so.5.5.3": "37d662fdd84a93b4db3ca7d20f042c2aaa2c9e87a6e353a1981734ef8052dcb7",
+      "lib/x86_64-linux-gnu/libntirpc.so.5.0": "659a38656ba59eb267d4381740d3c50a5026322db1155f47392d8cb5f95381cd"
+    },
+    "liveClusterChanges": 0,
+    "liveClusterConnections": 0,
+    "manifestSha256": "15cd775ee458e84a7b176528b6e217f07757cb8cdecd98e5c78828866622ce61",
+    "note": "Compiled the exact pinned patched source with existing Bookworm CMake settings, packaged by repository helper, and ran repository bind/ACL scripts plus exact build attestation. A whole image/template rebuild was not executed.",
+    "packageRevision": "1+ablestack2",
+    "packageSha256": "4c27ef5ace9ebac7297fe51b3cfcf4193a6ed22e48967fc891551aadca1e520e",
+    "productionSourcePatchVerified": true,
+    "repoFiles": [
+      "tools/appliance/scripts/package_storage_ganesha.py",
+      "tools/appliance/systemvmtemplate/scripts/build_storage_ganesha.sh",
+      "tools/appliance/systemvmtemplate/scripts/test_storage_ganesha_bind.sh",
+      "tools/appliance/systemvmtemplate/storage-ganesha-vfs-amd64.json",
+      "tools/appliance/systemvmtemplate/template-base_x86_64-target_x86_64.json"
+    ],
+    "selfTest": {
+      "defaultAclInheritance": true,
+      "namedAclReadWrite": true
+    },
+    "sourcePatches": [
+      {
+        "afterSha256": "4deb73229469cf0b121de9ddc38d2aebabdcbdc80cb37df122fc7447f7be5884",
+        "beforeSha256": "9df417d7c7f7d5b1bfa233dbd7c952e01d9453c470a183e8b4029014679d39f8",
+        "id": "bind-addr-resolved-family-v1",
+        "path": "src/MainNFSD/nfs_rpc_dispatcher_thread.c"
+      }
+    ],
+    "success": true,
+    "work": "/root/work/epic898-preparation/issue909-20261017/report/ganesha-bind-family-fix-20261019"
+  },
+  "deployment": {
+    "management": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "cdb54f66fdc648f7bc308349c4cf7be365b4adf039bdbeea12f1937e8977809a",
+      "newJarSha256": "d15a872c7eec62b1c4b0c9dc005c9047dfaee2d4a5d02d159549d3fd409bb8f5",
+      "backup": "/var/backups/mold/issue909-ab3f0edfaf-nfsinverse/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "service": "mold",
+      "changedClasses": {
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "5683452259df4544a168415b1b4daebb8a4e85a76e32f935b9fd15dbe5bbc405"
+      },
+      "unchangedEntriesVerified": 204663,
+      "active": "active",
+      "pid": 2745110
+    },
+    "agents": {
+      "10.10.13.1": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "4572ecaff1a2d7cd857e8dfbb3a8f9bc58f5b27e32f2016bfb146542ec30e32c",
+        "newJarSha256": "44330185366a99cd6b2d7f8e66d54bfe386c22a0d993d43531835b5c4f5edf29",
+        "backup": "/root/issue909-ab3f0edfaf-nfsinverse/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "service": "mold-agent",
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "028c8b090b2713ac1000fd250e7cc9bd68d10fa6f4be9e718b9d5fa77801b00f"
+        },
+        "unchangedEntriesVerified": 514,
+        "active": "active",
+        "pid": 3367571
+      },
+      "10.10.13.2": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "a88aef17a5b970b1acd3392b3ede1fd4ed22c9602a59d2866e407f9ee84f38b1",
+        "newJarSha256": "91ad64ec81eb68f6f24fb2652aa64a804f5315bd00e913a5018b96bdd6986777",
+        "backup": "/root/issue909-ab3f0edfaf-nfsinverse/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "service": "mold-agent",
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "028c8b090b2713ac1000fd250e7cc9bd68d10fa6f4be9e718b9d5fa77801b00f"
+        },
+        "unchangedEntriesVerified": 514,
+        "active": "active",
+        "pid": 4165227
+      },
+      "10.10.13.3": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "c39f07d8432e1db25b68263209a042215ed1364530cc89df65ea222d68df05ff",
+        "newJarSha256": "1064347a9ce0ca786070a2d2eb3368b6394a65300af336c0aaeb8e5cfe6bc6cf",
+        "backup": "/root/issue909-ab3f0edfaf-nfsinverse/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "service": "mold-agent",
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "028c8b090b2713ac1000fd250e7cc9bd68d10fa6f4be9e718b9d5fa77801b00f"
+        },
+        "unchangedEntriesVerified": 506,
+        "active": "active",
+        "pid": 4012503
+      }
+    },
+    "managementReadback": {
+      "service": "active",
+      "pid": 2745110,
+      "ui": {
+        "index.html": "7c6a5db4eacae50416277c7fbc915dc7577a16b3ff6b0d27a7302a06abdbc15e",
+        "config.json": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5"
+      },
+      "httpStatus": 200
+    },
+    "runtime": {
+      "success": true,
+      "bundleId": "0fef4b3d-ff16-40f8-82ad-213dbea7b9c2",
+      "upgradeId": "c2652fb9-03c4-4d04-9ebc-af6ddb9a43f6",
+      "state": "COMPLETE",
+      "version": "4.23.0.0-epic898-909-ab3f0edfaf-nfsinverse-20261020",
+      "originalRestoreState": "RECOVERY_REQUIRED",
+      "fullRestoreResumed": false
+    },
+    "signedBuild": {
+      "sourceCommit": "ab3f0edfaf0627025906c9d6f393934c62fd0965",
+      "keyId": "epic898-909-ab3f0edfaf-nfsinverse-test",
+      "version": "4.23.0.0-epic898-909-ab3f0edfaf-nfsinverse-20261020",
+      "privateKeyFilesCreated": 0,
+      "privateDescriptorClosed": true,
+      "privateInputBufferWiped": true,
+      "signatureVerified": true,
+      "testOnly": true,
+      "files": {
+        "SHA256SUMS": {
+          "bytes": 310,
+          "sha256": "defe40c76ecb157aa1f5a2e0ba5e59190589ad8f366de2c589410515a7594f24"
+        },
+        "manifest.sig": {
+          "bytes": 64,
+          "sha256": "b7a60635381a9543bf864dfadce6125f2c70a0d918e8bd8611e37677ceca8542"
+        },
+        "ablestack-storage-runtime-4.23.0.0-epic898-909-ab3f0edfaf-nfsinverse-20261020.tar.gz": {
+          "bytes": 656385,
+          "sha256": "450767f251b0b74330b4734f6689cde0ff60b3f94083aa0c6e0545191629bd0a"
+        },
+        "manifest.json": {
+          "bytes": 1544,
+          "sha256": "059eeb3d0fd502162cccf4a27536707cf1edd978bdd1f429133ff31b5f5a2e3f"
+        },
+        "epic898-909-ab3f0edfaf-nfsinverse-test.pem": {
+          "bytes": 113,
+          "sha256": "aba5f674fce12e74889f51b75b0a1e8d7868a4bed9cdd0db29e86a1f0774009d"
+        }
+      }
+    },
+    "ganesha": {
+      "success": true,
+      "version": "5.5.3-1+ablestack2",
+      "packageSha256": "4c27ef5ace9ebac7297fe51b3cfcf4193a6ed22e48967fc891551aadca1e520e",
+      "manifestSha256": "15cd775ee458e84a7b176528b6e217f07757cb8cdecd98e5c78828866622ce61",
+      "filesVerified": 4,
+      "serviceBindingsVerified": 2,
+      "backup": "/var/backups/ablestack-storage/issue909-ab3f0edfaf-nfsinverse",
+      "nfsStillStopped": true,
+      "forwardRestoreApplied": false
+    },
+    "profile": {
+      "success": true,
+      "revision": 4,
+      "artifactUuid": "23a9e404-d654-4dc6-80f7-60d9a092e3e2",
+      "artifactSha256": "98909182d359158a6c66395503083728ac75915b9bd9540ca0a6b58cf1918fe9",
+      "actualCliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+      "baselineImported": true,
+      "sourceCommit": "ab3f0edfaf0627025906c9d6f393934c62fd0965"
+    }
+  },
+  "recovery": {
+    "operatorOwnedResidueCleanup": {
+      "unitStopped": true,
+      "normalAliasUnmounted": true,
+      "exactDanglingLinkUnlinked": true,
+      "protectedJournalsAndCheckpointCiphertextsUnchanged": true,
+      "privateStateEdits": 0
+    },
+    "officialUiReconcile": {
+      "id": "71e0d23c-541d-4b61-85d4-5cbc0d0ca473",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "applystorageserviceconfigrestoreresponse",
+      "state": "ROLLED_BACK",
+      "phase": "INTERRUPTED_RENDERED_WRITER_ROLLED_BACK",
+      "revision": 2,
+      "progress": 100,
+      "created": "2026-10-19T22:07:18+0900",
+      "heartbeat": "2026-10-19T22:08:41+0900",
+      "completed": "2026-10-20T00:19:02+0900",
+      "diagnostic": "failurePhase=APPLYING; Rendered generation activate failed; inspect its scoped recovery receipt | rollback: Rendered generation rollback failed; inspect its scoped recovery receipt"
+    },
+    "baseline": {
+      "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "revision": 1,
+      "verifiedAt": 1792395320.1495302
+    },
+    "generationStatus": "IN_SYNC",
+    "pending": null,
+    "bootHeld": false,
+    "serviceMaintenancePhase": "RELEASED",
+    "immutableCheckpointFilesUnchanged": 6,
+    "ownedNfsPid": 0,
+    "aliasMounted": false
+  },
+  "dataReadOnly": {
+    "preservedFiles": 6,
+    "rawRegionsUnchanged": 4,
+    "fileAndDirectoryMetadataAndFilesystemUuidsPreserved": true,
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+    "dataWrites": 0,
+    "wholeVolumeChecksums": false
+  },
+  "nextReview": {
+    "success": true,
+    "newImport": {
+      "id": "42084fe7-1526-41c5-8505-cc1b29b90355",
+      "state": "ARCHIVE_VALIDATED",
+      "sha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef"
+    },
+    "planState": "PLANNED",
+    "plan": {
+      "targetMode": "RESTORE_EXISTING",
+      "targetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "expectedRevision": 1,
+      "blockers": [],
+      "volumeMappings": {
+        "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+      },
+      "listenerAddressMappings": {
+        "0.0.0.0": "PRIMARY"
+      },
+      "automaticFormat": false,
+      "dataPolicy": "PRESERVE"
+    },
+    "create": 14,
+    "update": 0,
+    "preserve": [
+      {
+        "kind": "protocols",
+        "targetUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "current": {
+          "uuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+          "protocol": "NFS",
+          "enabled": true,
+          "listen_ip": null,
+          "port": 2049,
+          "state": "Ready",
+          "config": {}
+        }
+      }
+    ],
+    "originalImportFrozenFieldsUnchanged": [
+      "plan",
+      "cloneAllocation",
+      "volumeExecutionPlan",
+      "cloneInitialBaseline",
+      "requestedVolumeMapping"
+    ],
+    "originalImportId": "c1181cde-33d2-4209-9721-0dfc86308838",
+    "originalImportPlanMode": "CREATE_NEW",
+    "sourceCommit": "ab3f0edfaf0627025906c9d6f393934c62fd0965",
+    "profileRevision": 4,
+    "runtimePin": {
+      "bundleUuid": "0fef4b3d-ff16-40f8-82ad-213dbea7b9c2",
+      "bundleVersion": "4.23.0.0-epic898-909-ab3f0edfaf-nfsinverse-20261020",
+      "archiveSha256": "450767f251b0b74330b4734f6689cde0ff60b3f94083aa0c6e0545191629bd0a",
+      "manifestSha256": "059eeb3d0fd502162cccf4a27536707cf1edd978bdd1f429133ff31b5f5a2e3f",
+      "signingKeyId": "epic898-909-ab3f0edfaf-nfsinverse-test",
+      "runtimeAbiVersion": "1",
+      "desiredStateSchemaVersion": "1"
+    },
+    "vmState": "Running",
+    "macAddress": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "size": 8589934592,
+        "provisioningtype": "sparse",
+        "state": "Ready"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "state": "Ready"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "state": "Ready"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "provisioningtype": "sparse",
+        "state": "Ready"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "size": 5242880000,
+        "provisioningtype": "sparse",
+        "state": "Ready"
+      }
+    ],
+    "operationCount": 5,
+    "forwardRestoreApplied": false,
+    "secretValuesSubmitted": 0,
+    "newVmsOrDisks": 0
+  },
+  "controls": {
+    "forwardRestoreApplies": 0,
+    "newVmsOrDisks": 0,
+    "macChanges": 0,
+    "dataFormats": 0,
+    "uiOrSchemaChanges": 0,
+    "issueClosed": false,
+    "nextIssueStarted": false,
+    "ui1275Started": false
+  },
+  "limitations": [
+    "Final mixed-protocol forward restore and external simultaneous client I/O have not been rerun on this candidate.",
+    "Live held recovery needed exact operator-owned NFS residue cleanup before the normal signed upgrade; new CLI stop/unmount lifecycle is separately proven in an isolated real Ganesha test.",
+    "Existing CREATE_NEW frozen plan is preserved with old runtime pins; next review is a fresh import of identical ZIP into the existing disposable service, not a resumed CREATE_NEW acceptance.",
+    "Full appliance image build and production template/key promotion were not performed.",
+    "Global Checkstyle remains blocked by 11 unchanged upstream AvoidStarImport violations; changed Java files separately passed."
+  ],
+  "screenshots": {
+    "issue909-nfsinverse-review-20261020.png": {
+      "sha256": "e1b220ff1e141435b02c2f009b091d79099ccb21047373349e37216c2ffa6f31"
+    },
+    "issue909-nfsinverse-confirmation-empty-20261020.png": {
+      "sha256": "a81937796f81dcf77986d1bba6029ca66838d5e292f41a98571b712fca92c635"
+    }
+  }
+}

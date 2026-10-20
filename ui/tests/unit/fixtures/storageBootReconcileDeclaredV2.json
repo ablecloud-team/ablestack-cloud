@@ -1,0 +1,395 @@
+{
+  "kind": "DECLARED_CONTRACT_GENERATED_BY_PRODUCT_CLASS_NOT_LIVE_ACCEPTANCE",
+  "schemaVersion": 1,
+  "productClassSourceSha256": "1633551517a1a85b70cb320a50092fa29c2e54f97cd75c7ab9f11e09af969a10",
+  "declaredNowEpoch": 1700000000.0,
+  "actualRemoteOrGuestCalls": 0,
+  "samples": {
+    "listenerReadyDetailedProbePending": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "RECONCILING",
+      "phase": "PROBE_EXPORTS",
+      "attempt": 1,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 750,
+      "remainingSeconds": 750.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": false,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "APPLIED",
+          "completedProbeCount": 9,
+          "configured": true,
+          "detailVerificationKind": "UNVERIFIED",
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "PENDING",
+          "skippedAclCount": 0,
+          "totalProbeCount": 10,
+          "verified": false
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "VERIFIED",
+          "completedProbeCount": 0,
+          "configured": true,
+          "detailVerificationKind": "EXACT_RUNTIME_READBACK",
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "VERIFIED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": {
+        "cleanup": {
+          "childActive": false,
+          "complete": true,
+          "mountPresent": false
+        },
+        "code": "NFS_PROBE_TIMEOUT",
+        "endpointIp": "192.0.2.10",
+        "endpointPort": 2049,
+        "exportName": "declared-example",
+        "exportUuid": null,
+        "phase": "PROBE_EXPORTS",
+        "protocol": "NFS",
+        "protocolMode": "NFS4",
+        "retryable": true,
+        "timedOut": true
+      }
+    },
+    "allRequiredDetailedVerifiedWithPastFailure": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "READY",
+      "phase": "COMPLETE",
+      "attempt": 1,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 750,
+      "remainingSeconds": 750.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": true,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "VERIFIED",
+          "completedProbeCount": 10,
+          "configured": true,
+          "detailVerificationKind": "MOUNT_PROBES_COMPLETE",
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "VERIFIED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 10,
+          "verified": true
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "VERIFIED",
+          "completedProbeCount": 0,
+          "configured": true,
+          "detailVerificationKind": "EXACT_RUNTIME_READBACK",
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "VERIFIED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": {
+        "cleanup": {
+          "childActive": false,
+          "complete": true,
+          "mountPresent": false
+        },
+        "code": "NFS_PROBE_TIMEOUT",
+        "endpointIp": "192.0.2.10",
+        "endpointPort": 2049,
+        "exportName": "declared-example",
+        "exportUuid": null,
+        "phase": "PROBE_EXPORTS",
+        "protocol": "NFS",
+        "protocolMode": "NFS4",
+        "retryable": true,
+        "timedOut": true
+      }
+    },
+    "noConfiguredProtocolsExplicitSkipped": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "READY",
+      "phase": "SKIPPED",
+      "attempt": 0,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 710,
+      "remainingSeconds": 710.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": true,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": null
+    },
+    "allAclSkippedExactInventoryOnlyNoMounts": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "READY",
+      "phase": "COMPLETE",
+      "attempt": 0,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 730,
+      "remainingSeconds": 730.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": true,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "VERIFIED",
+          "completedProbeCount": 0,
+          "configured": true,
+          "detailVerificationKind": "EXACT_INVENTORY_AND_ELIGIBLE_MOUNTS",
+          "listenerReady": true,
+          "observationComplete": true,
+          "probeState": "VERIFIED",
+          "skippedAclCount": 2,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": null
+    },
+    "unconfiguredAbsenceVerificationFailed": {
+      "schemaVersion": 1,
+      "kind": "STORAGE_BOOT_RECONCILE",
+      "bootId": "00000000-0000-0000-0000-000000000001",
+      "instanceUuid": null,
+      "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "DEGRADED",
+      "phase": "FAILED",
+      "attempt": 0,
+      "elapsedSeconds": 0,
+      "deadlineSeconds": 710,
+      "remainingSeconds": 710.0,
+      "updatedEpoch": 1700000000.0,
+      "heartbeatStaleAfterSeconds": 15,
+      "runtimeReady": true,
+      "detailedVerified": false,
+      "protocols": {
+        "ISCSI": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "NFS": {
+          "applyState": "FAILED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "UNVERIFIED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "FAILED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": false
+        },
+        "NVMEOF": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        },
+        "SMB": {
+          "applyState": "NOT_REQUIRED",
+          "completedProbeCount": 0,
+          "configured": false,
+          "detailVerificationKind": "NOT_REQUIRED",
+          "listenerReady": false,
+          "observationComplete": true,
+          "probeState": "NOT_REQUIRED",
+          "skippedAclCount": 0,
+          "totalProbeCount": 0,
+          "verified": true
+        }
+      },
+      "lastFailure": null
+    }
+  },
+  "metadataRequired": {
+    "skippedAclCount": "safe nonnegative int",
+    "detailVerificationKind": [
+      "MOUNT_PROBES_COMPLETE",
+      "EXACT_INVENTORY_AND_ELIGIBLE_MOUNTS",
+      "EXACT_RUNTIME_READBACK",
+      "NOT_REQUIRED",
+      "UNVERIFIED"
+    ]
+  },
+  "freshnessPolicy": {
+    "reconciling": "sameBOOT and heartbeat<=15s",
+    "terminal": "sameBOOT and fresh health generatedEpoch; historical phase time retained"
+  }
+}

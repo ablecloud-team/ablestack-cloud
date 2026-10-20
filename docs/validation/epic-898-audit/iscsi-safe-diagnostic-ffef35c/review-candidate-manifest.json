@@ -1,0 +1,16 @@
+{
+  "kind": "ISCSI_SAFE_FAILURE_SINGLE_WRAPPER_REVIEW_CANDIDATE",
+  "sourcePin": "ffef35c4986fa140609e89e392295ced6e6b8a0b",
+  "normalProofPath": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/normal-source-proof.json",
+  "normalProofSha256": "bbef88eafdff995aa40285179dfd78651e5c477c8ac8354532071c8340a93ae1",
+  "classPath": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/immutable-72/module-outputs/plugins/hypervisors/kvm/classes/com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+  "classSha256": "45e4173eadecf0f525eff2e4e6f3e98ca15e1e26e9ccd48dad62151193229851",
+  "classCount": 1,
+  "additionalClasses": 0,
+  "baselineClassSha256": "2eedeaf9515e5916c1669a40e10a92732c05550f54968c1a36ce10020787a4c4",
+  "abiRefProofPath": "/root/work/epic898-preparation/iscsi-safe-failure-diagnostics/final-ffef35c/added-member-resolution-proof.json",
+  "abiRefProofSha256": "65acef4fa9543736c1720db92b87895cb145448e96be3de14cf9a2fc8258acb4",
+  "sourceNativeCliSha256": "f9a2d5db19c7a4c45a94e9e6072cba598c4e913012cce0697087e34f5098b962",
+  "deploymentPreparedOnly": true,
+  "actualDeploymentGoRequired": true
+}

@@ -1,0 +1,6 @@
+INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: 9a006d06-6aa1-417d-9abf-297838c0c9d5epic898-s-b6aa-linux-c1-20261009adminadminROOT2026. 10. 20. 오후 10:26:26
+INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: d5b9fe9d-d988-402f-a7d5-a26baf714ddf Instance ID: 9a006d06-6aa1-417d-9abf-297838c0c9d5ROOT-52adminadminROOT2026. 10. 20. 오후 10:26:25
+INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: 39facd8c-d967-4907-a377-819cb5e83979epic898-s-b6aa-linux-c2-20261009adminadminROOT2026. 10. 20. 오후 10:24:24
+INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: b1753ea0-5429-43c4-8f37-c0e63713b3b4 Instance ID: 39facd8c-d967-4907-a377-819cb5e83979ROOT-53adminadminROOT2026. 10. 20. 오후 10:24:23
+INFO가상머신 삭제완료Successfully completed destroying Vm. Instance ID: dfd7b03f-481f-4f5d-921e-d61670563c79epic898-ad-linux-c3-20261009adminadminROOT2026. 10. 20. 오후 10:22:36
+INFO볼륨 삭제완료Successfully completed destroying a volume. Volume Type: ROOT Volume ID: cbb72f38-48ae-4ef5-9bb5-d73a16d0b6ab Instance ID: dfd7b03f-481f-4f5d-921e-d61670563c79ROOT-55adminadminROOT2026. 10. 20. 오후 10:22:36

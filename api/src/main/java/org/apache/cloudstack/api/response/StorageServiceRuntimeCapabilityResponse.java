@@ -23,6 +23,7 @@ public class StorageServiceRuntimeCapabilityResponse extends BaseResponse {
     @SerializedName("runtimeabiversion") @Param(description = "runtime ABI version") private String runtimeAbiVersion;
     @SerializedName("desiredstateschemaversion") @Param(description = "desired-state schema version") private String desiredStateSchemaVersion;
     @SerializedName("entrypointsmanaged") @Param(description = "whether runtime entrypoints are managed") private Boolean entrypointsManaged;
+    @SerializedName("consumerobservation") @Param(description = "fresh manager, agent and protected template platform observation as JSON") private String consumerObservation;
     @SerializedName("details") @Param(description = "capability details") private String details;
 
     public void setInstanceId(final String value) { instanceId = value; }
@@ -32,5 +33,6 @@ public class StorageServiceRuntimeCapabilityResponse extends BaseResponse {
     public void setRuntimeAbiVersion(final String value) { runtimeAbiVersion = value; }
     public void setDesiredStateSchemaVersion(final String value) { desiredStateSchemaVersion = value; }
     public void setEntrypointsManaged(final Boolean value) { entrypointsManaged = value; }
+    public void setConsumerObservation(final String value) { consumerObservation = value; }
     public void setDetails(final String value) { details = value; }
 }

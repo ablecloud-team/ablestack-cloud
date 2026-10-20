@@ -1,0 +1,337 @@
+{
+  "issue": 909,
+  "epic": 898,
+  "result": "API_BACKEND_ERROR_RECOVERY_REQUIRED_STOPPED",
+  "readyToClose": false,
+  "productSourceCommit": "ab3f0edfaf0627025906c9d6f393934c62fd0965",
+  "validationHead": "5fd3bc5c51195e5a3ff357fd5ee98e6aee32c720",
+  "base": "248653b5892",
+  "productCodeChanges": 0,
+  "buildsOrDeployments": 0,
+  "uiPlan": {
+    "importId": "42084fe7-1526-41c5-8505-cc1b29b90355",
+    "sha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+    "planState": "PLANNED",
+    "plan": {
+      "targetMode": "RESTORE_EXISTING",
+      "targetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "expectedRevision": 1,
+      "blockers": [],
+      "volumeMappings": {
+        "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+      },
+      "listenerAddressMappings": {
+        "0.0.0.0": "PRIMARY"
+      },
+      "automaticFormat": false,
+      "dataPolicy": "PRESERVE",
+      "preserve": [
+        {
+          "kind": "protocols",
+          "targetUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+          "current": {
+            "uuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+            "protocol": "NFS",
+            "enabled": true,
+            "listen_ip": null,
+            "port": 2049,
+            "state": "Ready",
+            "config": {}
+          }
+        }
+      ]
+    },
+    "createCount": 14,
+    "updateCount": 0
+  },
+  "job": {
+    "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+    "account": "admin",
+    "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+    "domainpath": "ROOT",
+    "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+    "cmd": "org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 530,
+    "jobresulttype": "object",
+    "jobresult": {
+      "errorcode": 530,
+      "errortext": "Rendered generation activate failed; inspect its scoped recovery receipt"
+    },
+    "created": "2026-10-20T00:39:28+0900",
+    "completed": "2026-10-20T00:40:09+0900",
+    "jobid": "17501382-fbda-45db-ac1c-eb40ee62f6ff",
+    "jobstatus": 2
+  },
+  "apiState": {
+    "operation": {
+      "id": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "instanceid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 2,
+      "progress": 0,
+      "created": "2026-10-20T00:39:34+0900",
+      "heartbeat": "2026-10-20T00:39:54+0900",
+      "diagnostic": "Approved service maintenance requires its scoped recovery"
+    },
+    "operationCount": 6,
+    "vmId": "374ff78d-4bbd-41bd-8c37-f46643fa28bf",
+    "vmState": "Running",
+    "moldMac": "02:0d:00:cc:00:2e",
+    "volumes": [
+      {
+        "id": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 8589934592,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4",
+        "type": "DATADISK",
+        "state": "Ready",
+        "size": 2147483648,
+        "provisioningtype": "sparse"
+      },
+      {
+        "id": "a3a5b5fa-2243-42a9-8165-131f1200e9bd",
+        "type": "ROOT",
+        "state": "Ready",
+        "size": 5242880000,
+        "provisioningtype": "sparse"
+      }
+    ],
+    "lkg": [
+      {
+        "id": "36368268-08e1-4024-944e-e67742f3532f",
+        "state": "ACTIVE_LKG",
+        "desiredRevision": 1,
+        "sha256": "ca302769082a8e8299f213d1b531dd3f5bbdd5d0cbd0e51a071cd0e488daec2b"
+      }
+    ]
+  },
+  "resourceCounts": {
+    "listStorageServiceProtocols": {
+      "count": 4,
+      "ids": [
+        "4dab31c4-01fb-4743-bdbe-0c009f3f3576",
+        "cc00c23d-c146-46f4-81be-fbec2b70951d",
+        "3be1f96d-4053-4416-b51f-53d70e4e5ee0",
+        "cc914d7d-5708-4807-8844-6106e56d64f7"
+      ]
+    },
+    "listStorageNfsExports": {
+      "count": 1,
+      "ids": [
+        "97e9218b-416b-4403-a532-eba3fda2547f"
+      ]
+    },
+    "listStorageSmbShares": {
+      "count": 1,
+      "ids": [
+        "49cb121a-71e3-48a9-9875-f141ac216e9c"
+      ]
+    },
+    "listStorageIscsiTargets": {
+      "count": 1,
+      "ids": [
+        "8b276995-a97a-49f3-a98b-e6cf6b3414c2"
+      ]
+    },
+    "listStorageNvmeOfSubsystems": {
+      "count": 1,
+      "ids": [
+        "05a4ec8c-e075-42a3-a254-4a67a6f25982"
+      ]
+    },
+    "listStorageNvmeOfNamespaces": {
+      "count": 1,
+      "ids": [
+        "76c9b865-d658-4cbe-a790-1297b1e8e131"
+      ]
+    }
+  },
+  "nativeFailure": {
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+    "cliSha256": "b0468a911f2d81a3493b9561721f1805c6a2fd43c64bdef179e17a4b1a49c1f9",
+    "activation": {
+      "activeDomain": "SMB",
+      "appliedDomains": [
+        "NFS"
+      ],
+      "changedDomains": [
+        "NFS",
+        "SMB",
+        "ISCSI",
+        "NVMEOF"
+      ],
+      "forwardFailure": {
+        "code": "NATIVE_CHILD_OUTPUT_INVALID",
+        "phase": "TRANSPORT",
+        "protocol": "SMB",
+        "schemaVersion": 1
+      },
+      "phase": "RECOVERY_REQUIRED",
+      "prerequisitesStarted": true,
+      "prerequisitesVerified": true,
+      "previousOperationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "previousSha256": "88858b25229584dd706d47fae818369c405b6f5b27e81d672bdd7c6c90f2332b",
+      "rollbackFailure": {
+        "code": "NATIVE_CHILD_FAILED",
+        "phase": "TRANSPORT",
+        "protocol": "GENERATION",
+        "schemaVersion": 1
+      },
+      "scope": {
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+        "revision": 2
+      },
+      "startedDomains": [
+        "NFS",
+        "SMB"
+      ],
+      "startedEpoch": 1792424402.1397529,
+      "targetSha256": "3f7dbea10365509c5b13a267b742ba2e343f1fe711e95c6e93c7c2b2b833821f"
+    },
+    "nativeCurrent": {
+      "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+      "revision": 1,
+      "verifiedAt": 1792395320.1495302
+    },
+    "pending": {
+      "beforeSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+      "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+      "operationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "phase": "PREPARED",
+      "previous": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "revision": 1,
+        "verifiedAt": 1792395320.1495302
+      },
+      "revision": 2,
+      "startedAt": 1792424379.7214544
+    },
+    "currentRenderedLink": "generations/50bf8055-ae44-4743-896c-a8a272ee5cce",
+    "checkpointSha256": {
+      "fd19001d-f9bd-38fa-9670-c05ed505841b-journal.json": "d83c37eba5e2ff2983267831e6e9e0ad3da186065e9662caada5f6792cbd2d59",
+      "6e28492b-43aa-3011-95fd-a08c97ee84a2-cipher.json": "5d06b27260109061ad2caa5d0389859e45264e808af0ed7fc5b9cc3639b68242",
+      "fd19001d-f9bd-38fa-9670-c05ed505841b-cipher.json": "d54f17326bd787e0237f1b3a7cb0e9c6b183eaae7f3b4771cce063a3606a4dce",
+      "9c6b7cfc-e4ff-3457-8d09-44faccb90c52-journal.json": "374d7e020bb03af2b088daa3ea935cf05c897e54f57efabf7fd204bb61b53113",
+      "9c6b7cfc-e4ff-3457-8d09-44faccb90c52-cipher.json": "51c339f99d6f6027afdd307809d278d06b1fe35d7ed3b373e2d5188c91244919",
+      "6e28492b-43aa-3011-95fd-a08c97ee84a2-journal.json": "ddad07d242c9dbeddbee38a7c405c5b669ff298fdf3fd4df73ce4890b2901c5b"
+    },
+    "runtimeReceiptNames": [],
+    "generation": {
+      "success": true,
+      "generation": {
+        "configurationSha256": "e3465707b1039ad35b9553a698e271b3646cf0c7e665ab0a5d1f23fb551c1265",
+        "instanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+        "operationUuid": "50bf8055-ae44-4743-896c-a8a272ee5cce",
+        "revision": 1,
+        "verifiedAt": 1792395320.1495302
+      },
+      "generationStatus": "PENDING",
+      "pendingOperationUuid": "c794a8f9-06fe-47cc-9e62-fbf1b37c446f",
+      "bootHeld": null,
+      "maintenanceKind": null
+    },
+    "maintenance": {
+      "success": true,
+      "generation": null,
+      "generationStatus": null,
+      "pendingOperationUuid": null,
+      "bootHeld": true,
+      "maintenanceKind": "SERVICE"
+    },
+    "listeners": [
+      "LISTEN 0      4096         0.0.0.0:2049      0.0.0.0:*    users:((\"ganesha.nfsd\",pid=310108,fd=14))                   ",
+      "LISTEN 0      50      10.10.13.227:445       0.0.0.0:*    users:((\"smbd\",pid=310276,fd=29))                           "
+    ]
+  },
+  "dataReadOnly": {
+    "guestExitCode": 0,
+    "fileContentsUnchanged": true,
+    "rawRegionsUnchanged": true,
+    "differences": [
+      {
+        "path": "files/NFS/disk/mountpoints",
+        "before": [
+          "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        ],
+        "after": [
+          "/export/issue909-mixed-nfs",
+          "/srv/ablestack-storage/volumes/9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc"
+        ]
+      }
+    ],
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225"
+  },
+  "checkpointFilesUnchanged": 6,
+  "interpretation": {
+    "nfsApplyStepCompleted": true,
+    "nfsExternalClientOrAddressAdmissionRetestCompleted": false,
+    "smbFailure": {
+      "code": "NATIVE_CHILD_OUTPUT_INVALID",
+      "phase": "TRANSPORT",
+      "protocol": "SMB",
+      "schemaVersion": 1
+    },
+    "rollbackFailure": {
+      "code": "NATIVE_CHILD_FAILED",
+      "phase": "TRANSPORT",
+      "protocol": "GENERATION",
+      "schemaVersion": 1
+    },
+    "subprocessStderrOrInvalidOutputRootCauseConfirmed": false,
+    "automaticRollbackCompleted": false,
+    "nativeBaselinePointerStillRevision": 1,
+    "allFourForwardRestoreVerified": false
+  },
+  "controls": {
+    "acceptedUiApplies": 1,
+    "manualRestoreRetries": 0,
+    "manualReconcileOrRecovery": 0,
+    "newVmsOrDisks": 0,
+    "macChanges": 0,
+    "formats": 0,
+    "externalClientIoAfterError": 0,
+    "productFixAfterError": 0,
+    "issueClosed": false,
+    "waitingForUser": true
+  },
+  "limits": [
+    "NATIVE_CHILD_OUTPUT_INVALID proves SMB child output could not be accepted as a JSON response; the exact original exception/output is not confirmed in this turn.",
+    "GENERATION/NATIVE_CHILD_FAILED is the recorded rollback transport failure; do not infer successful rollback from the unchanged baseline pointer.",
+    "The API and outer maintenance operation still expose generic errors; typed protocol codes above come from the preserved Native activation journal.",
+    "NFS was marked applied by Native, but external NFS access and PRIMARY-only admission were not revalidated before the SMB failure.",
+    "FILE6/RAW4 samples are not complete volume checksums; live LOCAL account/SID equivalence and full four-protocol I/O remain unverified."
+  ],
+  "screenshots": {
+    "issue909-nfsinverse-final-error-20261020.png": "8ea58d3b3f1b262c4bf7f6bd8d25c7c236e2f64c774c3cf3c8740cf6075263f8",
+    "issue909-nfsinverse-final-recovery-required-20261020.png": "eb8af54496b37e92c1bf80ed3ff03aabfe0e5bce02ec9435ae4b4de84e8f76cb"
+  }
+}

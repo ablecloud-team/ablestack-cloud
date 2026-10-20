@@ -1,0 +1,248 @@
+{
+  "sourceCommit": "9f0b6787d1163f18e834bed424e33e101a97ccb3",
+  "outcome": "UI_PREPARATION_CONTRACT_ERROR_STOPPED",
+  "readyToResumeRestore": false,
+  "issueState": "OPEN",
+  "prDraft": true,
+  "buildAndUnitTests": {
+    "javaUniqueTests": 116,
+    "javaFinalPackageTests": 23,
+    "uiSuites": 12,
+    "uiTests": 230,
+    "javaFailures": 0,
+    "uiFailures": 0,
+    "javaClasses": [
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneAllocationProvenanceTest",
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageInitialPreparationAdmissionTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageConfigRestoreWholeFlowTest",
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageConfigCloneTemplatePinTest",
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageRenderedValidationProfileTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageServicePreparationStateTest",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageConfigInitialBaselineTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageRenderedValidationUiFixtureTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "class": "org.apache.cloudstack.storage.dataservice.StorageConfigInitialBaselineFlowTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "liveUiOutcome": "STOPPED_AT_FIRST_PREPARATION_READ",
+    "overallReadyToResumeRestore": false
+  },
+  "managementDeployment": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/var/backups/mold/issue909-ui-preparation-9f0b6787d116/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "84c3e8c92ae5b9c0a5174fbf94321a8acac30bca2bf4cf72f463f5f3ea2e846a",
+    "newJarSha256": "cb1f96cbe3a4c134a93283bfa669df19e7c68c3c3fb5bbfa58fdcaf15716d6fb",
+    "addedClasses": [
+      "org/apache/cloudstack/api/command/admin/storage/dataservice/GetStorageRenderedValidationPreparationCmd.class",
+      "org/apache/cloudstack/api/command/admin/storage/dataservice/PrepareStorageRenderedValidationProfileCmd.class",
+      "org/apache/cloudstack/api/command/user/storage/dataservice/GetStorageServicePreparationStatusCmd.class",
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse$Condition.class",
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse.class",
+      "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationUiFixture.class",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$7.class",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState$Result.class",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState.class"
+    ],
+    "changedClasses": {
+      "org/apache/cloudstack/api/command/admin/storage/dataservice/GetStorageRenderedValidationPreparationCmd.class": "b8cebc2f97d7ffa6fd9577a6015f5131c9fa3cb350e07eb6e013b7dcac169a5e",
+      "org/apache/cloudstack/api/command/admin/storage/dataservice/PrepareStorageRenderedValidationProfileCmd.class": "17d7787b271956779805895e756393045c46d2d99762e4c0ce6de4bb3b9f6ce0",
+      "org/apache/cloudstack/api/command/user/storage/dataservice/GetStorageServicePreparationStatusCmd.class": "b49f51713a3244915bd5ac94c6df3e663bdfe3f297223e719440b2dfe757b7ed",
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse.class": "41cf82cdcecdcda12da7bb5a64c92b5f6293d5c4dda0d290ba1d37257d7193c6",
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse$Condition.class": "c0adffa000dfaa86dd8bd7704e1064a65da60cb133b573402e452d7442e01e67",
+      "org/apache/cloudstack/storage/dataservice/StorageService.class": "3a9c9c33cf9fcc8dbb38cb69dbde3faf3764762a93327b8ddd906b921eb0308d",
+      "org/apache/cloudstack/storage/dataservice/StorageRenderedValidationUiFixture.class": "04473156223caeb8cc89822decc39db3a2e4ca64307be2edb0d2b4a99a745ff0",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselinePublication.class": "74e36aa4bb4745347a124a217cb3b24d95d0886644a6400e2533e150509b8c3f",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineVerification.class": "bc65d9177e91d97b6a79554e104c3dc075ba49112821e89c818b13b9758d08d9",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "e2c12262c6c2169fdc5e8a30c553715393383ee63330207d7249235e03f52f86",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineCommand.class": "c62522c7392d52d23f11d5dff4cb698f8abcda94d64959ce089844d3789866fe",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class": "88d5d6e37b08c4a79c3cba399ca840a09ab4a5ee54ca809f1a60e6d7a3c9ba40",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "34c694f30ba9238f3ebbf9a9a58770b487005d1a88ab31a2fac5f050a8c489a3",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class": "3c8a7ecac4475bf0832c91026c778a17852d44e48bb9f794b68e6057a7e48e69",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationCloneRestorePublication.class": "0235c8a5bbdb54642fc681ac048acf296d68edbf522ff0466f907326328b7134",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$6.class": "e13d229fc3b554c9a63c8eb5e5a3a818bc84b765861e156ca244927ad2897455",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "a97eaa3e3d8342f27c7e96321ce20b380cdd3a37c3472d7f619ef3e54826ac01",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$7.class": "de0a7dba9fe4783b0467d86b3c98816bdfa1a1edfeccb2b42a8b558bf21dce49",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "31fe90ab1e303cf4b6b79f6a555a8b6c49a1cfcf0a6e07d5fcffe5695bcbd6ae",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState$Result.class": "dad9e3ae6141e96bf8294b5a9dda5efb0beca8beab02adfd8455e2d3a155bcb5",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState.class": "b07dbe32a1d6e948808c3db7a374ec99fbbe5fb9c1f44b9063c15d8a824e33da"
+    },
+    "unchangedEntriesVerified": 204652,
+    "service": "mold",
+    "active": "active",
+    "pid": "2846361",
+    "sourceCommit": "9f0b6787d1163f18e834bed424e33e101a97ccb3"
+  },
+  "uiDeployment": {
+    "success": true,
+    "sourceCommit": "9f0b6787d1163f18e834bed424e33e101a97ccb3",
+    "indexSha256": "73f389975459620995325425d305861c4bd5e0f36fa0f601c28200a409c7194f",
+    "oldIndexSha256": "7c6a5db4eacae50416277c7fbc915dc7577a16b3ff6b0d27a7302a06abdbc15e",
+    "backupDirectory": "/var/backups/mold/issue909-ui-assets-9f0b6787d116",
+    "addedAssets": 46,
+    "oldAssetsPreserved": 4388,
+    "protectedOtherFilesPreserved": 20,
+    "localeKeysUpdated": {
+      "en.json": 92,
+      "ko_KR.json": 92
+    },
+    "localeSha256": {
+      "locales/en.json": "e2fb140d94de85f86f97fff9657353344d63144fc82c92b9235d1c992319fcaf",
+      "locales/ko_KR.json": "838d28d22cd879c3c5f110a13ef956d6479782c40a87cb95f3ce00bb091bc005"
+    },
+    "managementPid": "2846361",
+    "backendJarSha256": "cb1f96cbe3a4c134a93283bfa669df19e7c68c3c3fb5bbfa58fdcaf15716d6fb",
+    "serviceRestarted": false,
+    "completedEpoch": 1792485657.705052
+  },
+  "uiTrial": {
+    "method": "Chrome Computer Use; resource creation and all preparation checks through UI",
+    "name": "issue909-ui-ready-default-20261020",
+    "sharedFsId": "390a5307-fc9d-4c13-99ef-c25d82a05310",
+    "vmId": "10ef441b-6abd-4c8c-8739-fd0b2a599c05",
+    "libvirtName": "i-2-93-VM",
+    "host": "10.10.13.3",
+    "rootId": "cf9088ce-0705-498a-9535-adf7949b61f5",
+    "dataId": "69e9dd36-1ae8-440a-add2-72f1d1622b0a",
+    "rootProvisioning": "sparse",
+    "dataProvisioning": "sparse",
+    "dataSizeGiB": 8,
+    "macChangedByAgent": false,
+    "bootId": "c7021d19-c7cd-40a7-b29e-2129ba839125",
+    "vmCreatedKst": "2026-10-20 17:44:18",
+    "failureStatus": "OBSERVATION_UNAVAILABLE",
+    "failureReason": "BOOT_CHANGED_OR_STALE",
+    "uiStagesObserved": [
+      "VM creation",
+      "Internal boot preparation",
+      "Automatic setup stopped before services"
+    ],
+    "subsequentUiReadOnlyObserved": "READY/SKIPPED and CURRENT_BOOT_READY, no configuration operation history",
+    "serviceConfigurationSubmissions": 0,
+    "formatterStarted": false,
+    "backupSubmitted": false,
+    "restoreSubmitted": false,
+    "deferredModeExecutionTestPerformed": false,
+    "runtimeUpgradeTestPerformed": false,
+    "profileApprovalTestPerformed": false,
+    "configurationRetryAfterError": false,
+    "resourceDeletionAfterError": false
+  },
+  "firstPreparationTimelineKst": [
+    [
+      "17:44:33",
+      "guest generation status"
+    ],
+    [
+      "17:44:34",
+      "guest health"
+    ],
+    [
+      "17:44:35",
+      "guest writer-idle"
+    ],
+    [
+      "17:44:36",
+      "guest maintenance status"
+    ],
+    [
+      "17:44:37",
+      "guest volume operation status"
+    ],
+    [
+      "17:44:38",
+      "monitor service starts; boot reconcile starts; guest generation status"
+    ],
+    [
+      "17:44:39",
+      "boot reconcile completes normally"
+    ]
+  ],
+  "installedBootstrap": {
+    "cliSha256": "8e14f84ea70b81ffd54dced38a48e31ff1a7202537557c414dabf28f0c2a5197",
+    "cachedHealthFallbackPresent": true,
+    "liveHealthOutputKeys": {
+      "bootId": false,
+      "bootReconcile": false,
+      "generatedEpoch": true,
+      "observedEpoch": true
+    },
+    "liveOutput": "print(json.dumps({\n    \"success\": True,\n    \"status\": status,\n    \"hostname\": socket.gethostname(),\n    \"generatedEpoch\": time.time(),\n    \"observedEpoch\": time.time(),\n    \"uptimeSeconds\": int(time.time() - os.stat(\"/proc/1\").st_ctime) if os.path.exists(\"/proc/1\") else None,\n    \"network\": {\"addresses\": collect_network_addresses()},\n    \"services\": services,\n    \"commands\": commands,\n    \"desiredState\": desired_state,\n    \"identity\": {\"smbDomain\": load_json_state(\"smb-domain.json\"), \"smbDomainError\": load_json_state(\"smb-domain-error.json\")},\n    \"listenPorts\": listen_ports,\n    \"nfsGanesha\": ganesha_runtime,\n    \"smbRuntime\": smb_runtime,\n    \"capabilities\": {\n        \"nvmeof\": nvmeof_capabilities(),\n        \"smbNetworkAccessSupported\": bool(commands.get(\"smbd\")),\n        \"smbNetworkIpv6Supported\": any(\":\" in str(address.get(\"ipaddress\") or \"\") and not str(address.get(\"ipaddress\") or \"\").lower().startswith(\"fe80:\") for address in collect_network_addresses()),\n    },\n}, sort_keys=True))\nPY\n}"
+  },
+  "journal": {
+    "bootId": "c7021d19-c7cd-40a7-b29e-2129ba839125",
+    "journalExitCode": 0,
+    "lines": [
+      "2026-10-20T08:44:31+0000 systemvm systemd[1]: Starting cloud-early-config.service - CloudStack post-boot patching service using cmdline...",
+      "2026-10-20T08:44:33+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' '' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl operation generation status \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:34+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' '' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl health \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:35+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' 'e30=' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl operation writer-idle \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:36+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' 'e30=' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl operation maintenance status \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:37+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' 'eyJ2b2x1bWVVdWlkIjoiNjllOWRkMzYtMWFlOC00NDBhLWFkZDItNzJmMWQxNjIyYjBhIn0=' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl volume operation status \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:38+0000 systemvm systemd[1]: Finished cloud-early-config.service - CloudStack post-boot patching service using cmdline.",
+      "2026-10-20T08:44:38+0000 systemvm systemd[1]: Started ablestack-storage-monitor.service - ABLESTACK Storage Service monitor cache.",
+      "2026-10-20T08:44:38+0000 systemvm systemd[1]: Starting ablestack-storage-reconcile.service - ABLESTACK Storage Service boot reconcile...",
+      "2026-10-20T08:44:38+0000 systemvm qemu-ga[623]: info: guest-exec called: \"/bin/bash -lc payload=$(mktemp /tmp/ablestack-storage-XXXXXX.json); printf '%s' '' | base64 -d > \"$payload\"; /usr/local/bin/ablestack-storagectl operation generation status \"$payload\"; rc=$?; rm -f \"$payload\"; exit $rc\"",
+      "2026-10-20T08:44:39+0000 systemvm systemd[1]: ablestack-storage-reconcile.service: Deactivated successfully.",
+      "2026-10-20T08:44:39+0000 systemvm systemd[1]: Finished ablestack-storage-reconcile.service - ABLESTACK Storage Service boot reconcile.",
+      "2026-10-20T08:44:39+0000 systemvm systemd[1]: ablestack-storage-reconcile.service: Consumed 1.460s CPU time."
+    ],
+    "stderrBytes": 0
+  },
+  "confirmedDefect": "Actual live health producer omits bootId and bootReconcile; evaluator treats missing health bootId as changed boot before WAITING_BOOT branch; UI immediately terminates this status",
+  "notRetained": "First raw health response was not persisted, so absent versus previous cached health bootId cannot be distinguished from the displayed error alone",
+  "nextCorrection": "Separate initial observation pending from real BOOT change and hard observation failure; UI bounded read-only waiting, no service commands until verified current-BOOT READY",
+  "productChangesAfterLiveFailure": false
+}

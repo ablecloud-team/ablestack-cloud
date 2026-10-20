@@ -1,0 +1,32 @@
+{
+  "kind": "PROTECTED_OWNED_PROFILE_PRODUCT_STORE_UPLOAD",
+  "success": true,
+  "stage": "PRODUCT_STORE_RESULT",
+  "rawStdoutStderrPrinted": false,
+  "configureCalls": 0,
+  "verifyWriterCalls": 0,
+  "guestCalls": 0,
+  "newStoreDirectoryProvisioned": true,
+  "parentOwnerModeUnchanged": true,
+  "result": {
+    "success": true,
+    "artifactUuid": "5f8eb0b5-c4e9-40af-bebc-103cc60a744f",
+    "artifactSha256": "b252aa1216bfde439be7891dbfa78d88e8b4d55b274045d5df00aa35ccf78533",
+    "artifactBytes": 2108,
+    "storePath": "/var/lib/cloudstack-management/storage-rendered-validation",
+    "storeOwnerMatchesJavaUser": true,
+    "fileOwnerMatchesJavaUser": true,
+    "storeMode0700": true,
+    "fileMode0600": true,
+    "shaReadbackMatches": true,
+    "productStoreWriteCalls": 1,
+    "existingArtifactsReplaced": 0,
+    "profileConfigureCalls": 0,
+    "verifyWriterCalls": 0
+  },
+  "verifiedManagementJavaUid": 985,
+  "publicHelperClassSha256": "cdf091959897c63f6c328d082da824050df86c3b3d5647660e11e84048b3bc4f",
+  "operatorCredentialFilesWritten": 0,
+  "oldStoreOwnerPermissionsChanged": false,
+  "oldArtifactReplacementCalls": 0
+}

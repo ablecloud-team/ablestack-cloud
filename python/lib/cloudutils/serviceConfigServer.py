@@ -27,6 +27,8 @@ class cloudManagementConfig(serviceCfgBase):
         self.serviceName = "CloudStack Management Server"
 
     def config(self):
+        if not bash("/usr/bin/python3 -I -B /usr/share/cloudstack-common/scripts/installer/storage-protected-stores.py --initialize").isSuccess():
+            raise CloudInternalException("Protected management storage setup failed; see the store checker diagnostic")
         def checkHostName():
            ret = bash("hostname --fqdn")
            if not ret.isSuccess():

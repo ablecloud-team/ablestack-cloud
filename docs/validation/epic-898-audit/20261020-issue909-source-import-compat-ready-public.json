@@ -1,0 +1,303 @@
+{
+  "issue": 909,
+  "epic": 898,
+  "sourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a",
+  "upstreamBase": "248653b58920d2a950393ed3edc7b343b831105d",
+  "baseComparedToUpstream": [
+    0,
+    0
+  ],
+  "changes": [
+    "RAM-only shared SOURCE/TARGET CSV and integer-array listener normalization; canonical bytes/hash unchanged",
+    "Closed import diagnostic code/phase/protocol propagated and stored only on original writer",
+    "Explicit original-admin pre-import unchanged SOURCE recovery with adjacent COMPLETE witness, ACTIVE_LKG, physical FILE+RAW, no pending/holds/reservation; original writer DB finalization only"
+  ],
+  "java": {
+    "buildExitCode": 0,
+    "tests": 208,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "executedCaseCountIncludingRepeats": 386,
+    "executionMode": "first-full-regression-then-final-recovery-extension-and-module-package",
+    "durationSeconds": 265.239,
+    "reactorSuccessModules": 38
+  },
+  "native": {
+    "tests": 1178,
+    "passed": 1172,
+    "skipped": 6,
+    "failures": 0,
+    "errors": 0,
+    "exitCode": 0,
+    "durationSeconds": 282.835,
+    "skippedReasons": [
+      "requires an explicit isolated real NFS lifecycle container",
+      "requires an explicit isolated real NFS lifecycle container",
+      "requires an explicit isolated real NFS lifecycle container",
+      "requires an isolated disposable container with real smbd and SMB client",
+      "requires an isolated disposable container with Samba; never use the host SAM",
+      "requires an isolated disposable container with Samba; never use the host SAM"
+    ],
+    "isolation": {
+      "hostRootReadonly": true,
+      "privateEtcVarRunTmp": true,
+      "networkNamespaceIsolated": true,
+      "secretsEnvCleared": true,
+      "operatorShellProfilesMasked": true
+    }
+  },
+  "actualFailedSourceOfflineRendering": {
+    "offlineSavedInputOnly": true,
+    "liveVmAccess": false,
+    "nativeImportOrStageExecuted": false,
+    "externalDeviceAndAuthProbesSubstituted": true,
+    "sourceRevision": 14,
+    "protocols": {
+      "ISCSI": {
+        "rendered": true,
+        "targets": 1,
+        "listeners": [
+          [
+            {
+              "listenIp": "0.0.0.0",
+              "port": 3260
+            }
+          ]
+        ]
+      },
+      "NVMEOF": {
+        "rendered": true,
+        "targets": 1,
+        "listeners": [
+          [
+            {
+              "listenIp": "0.0.0.0",
+              "port": 4420
+            }
+          ]
+        ]
+      }
+    },
+    "sourceHashUnchanged": true
+  },
+  "deployment": {
+    "management": {
+      "success": true,
+      "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "backup": "/var/backups/mold/issue909-source-import-022bc883d90a/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+      "oldJarSha256": "46b8762e22df76952239d0f2235bb1a80724a65d7929a701bcff1253625bc0e5",
+      "newJarSha256": "84c3e8c92ae5b9c0a5174fbf94321a8acac30bca2bf4cf72f463f5f3ea2e846a",
+      "addedClasses": [],
+      "changedClasses": {
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class": "4fe5f7390657d1bccc2b346e70423d682895221926d2e26ea39daa8c89e2da0b",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class": "e07beac09d567997a2c0dc1f7b521dc671950c9baebeeaa3d4bdba4600da0413",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class": "07ce6ded784ae0d618d86e6251fba56597d19017d2b68a65f2097000ca201a1e",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "a9787837ff76ed6763e32b55805c05c93071c3a16416c62d223ade50a0ad0b11",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "17ee38e8f632b51d677299c9abffe9101d68efc48cf1b003898b76608dcbd0fa",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$6.class": "a22659ef931a7989b86c268d336896f0e1dc3e457aca5b09d40d291a045e6112",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationBatch.class": "43d386c1e64657d2628e77a37baa60b926686fe419576be78b7642942f368acf",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationCloneRestorePublication.class": "acab75ebacacb8f2475f24aa0c93da2dadad7093c16ccc743559d3357d5bae92",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineCommand.class": "0b19f1a0325726e9cba22310b3121d35efab0c04a275997928f58309025d186f",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselinePublication.class": "eea7f4e03346f518be13a26576d2cea1fbfeeeaa01fd4e318e1a2ce5c7b15de6",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineVerification.class": "0e093002a91b862592ef5e85bbc5863d5710a2c9c1017442695391cf31421507",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "7b1b93319fdb9f9cdf849a82892ab77ef000b43c312fc7ad4f01b6dab61ed0c4",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ProtocolResponseContext.class": "3bdf28b396987e5a382938181e6f15e1effccad3e150b6704cc6b5e1498c4e99",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$1.class": "e0cef95a42fc8cf71ab2f7f17bb32f2b751036dbe7b309dd667e8816e31d4776",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime$2.class": "ca2004e309096247d83c84aca8238a1bc1218944c225483ff13b220fce9fbe30",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RootUpgradeRuntime.class": "9c6645b036fe2ae3e78e72da7456a439d4295fd440316d5ccac58fb248cda89a",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$RuntimeObservationSnapshot.class": "81b187a99abff52214d61f0e522ef7ac2d403361c15ff37e8b715c05c8c5a56e",
+        "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "84d036b888020b234395321375686138e46036ff509caab883b3fa09117efc38",
+        "org/apache/cloudstack/storage/dataservice/StorageUnchangedVerifiedSourceRecovery.class": "fd255899ddedc8f53d574ea030b970e53726724c90500325fe76ed12f92013e3"
+      },
+      "unchangedEntriesVerified": 204645,
+      "service": "mold",
+      "active": "active",
+      "pid": "2836884",
+      "sourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a"
+    },
+    "agents": {
+      "10.10.13.1": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-source-import-022bc883d90a/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "70576809af8b9e1c4a0ef97b188fab127434029282799d40e1c6873e3d9661b9",
+        "newJarSha256": "9bc86b3babc438769cc27e040858c6cef63d0fbe268c3b91a6d2ea179d20573f",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "feb5464ab787c88eb1c1cd5e2afc8a71568a5814aa8cc9144fe8d776019558bd"
+        },
+        "unchangedEntriesVerified": 514,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "2530136",
+        "sourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a"
+      },
+      "10.10.13.2": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-source-import-022bc883d90a/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "8eb7d5570ef7178439dcaf3661f2479b07f0161a3fdd43b024514289bcd8c9dd",
+        "newJarSha256": "f0ae88fccc586c02d49f1c2a14dbba9516b782cfcaf9c64832ec8c062a866a6d",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "feb5464ab787c88eb1c1cd5e2afc8a71568a5814aa8cc9144fe8d776019558bd"
+        },
+        "unchangedEntriesVerified": 514,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "949182",
+        "sourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a"
+      },
+      "10.10.13.3": {
+        "success": true,
+        "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "backup": "/root/issue909-source-import-022bc883d90a/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+        "oldJarSha256": "f3ee4ac8033e9151f47ba7827e5b1ebcb221d632fe5c9f6d1fa95bbc89ad00c3",
+        "newJarSha256": "b3e972ff151bd044661762ef5168e245286fd912869cb4363f6848810aab108f",
+        "addedClasses": [],
+        "changedClasses": {
+          "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "feb5464ab787c88eb1c1cd5e2afc8a71568a5814aa8cc9144fe8d776019558bd"
+        },
+        "unchangedEntriesVerified": 506,
+        "service": "mold-agent",
+        "active": "active",
+        "pid": "1417298",
+        "sourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a"
+      }
+    }
+  },
+  "runtime": {
+    "bundleId": "56dea2de-7dcc-4017-9b72-8f38102e2fc8",
+    "state": "AVAILABLE",
+    "version": "4.23.0.0-epic898-909-022bc883d9-source-import-20261020",
+    "signingKeyId": "epic898-909-022bc883d9-source-import-test",
+    "cliSha256": "e49a54deeed660da8dde5668b0676a7c5cfcff8245428db9bb0b923ea1b0d400",
+    "signatureVerified": true,
+    "privateKeyFilesCreated": 0,
+    "releaseChannel": "TEST",
+    "oldVmRuntimeUpgraded": false
+  },
+  "preservedFixture": {
+    "failedOperation": {
+      "id": "05a393fa-a3f1-4f24-814f-afb3d9684235",
+      "instanceid": "fbf32877-7746-4787-9f70-151b48d8f709",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 15,
+      "progress": 0,
+      "created": "2026-10-20T15:29:58+0900",
+      "heartbeat": "2026-10-20T15:29:58+0900",
+      "diagnostic": "Approved service maintenance requires its scoped recovery"
+    },
+    "vm": {
+      "id": "88c1b618-38c7-474c-9b4b-8fa4284e9245",
+      "name": "sharedfs-issue909-fresh-final-4ccfd963-20261-1a1576287db",
+      "instancename": "i-2-91-VM",
+      "state": "Running",
+      "hostid": "9ac8f62b-38e6-4cef-aa6f-a04ebcb4f800",
+      "created": "2026-10-20T12:37:17+0900"
+    },
+    "mac": "02:0d:00:cc:00:2f",
+    "volumes": [
+      {
+        "id": "2bba615a-dc2d-496b-8b2b-b3d7553a939c",
+        "type": "ROOT",
+        "size": 5242880000,
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "88c1b618-38c7-474c-9b4b-8fa4284e9245"
+      },
+      {
+        "id": "1284968a-4de3-424e-b9e7-49f32133293b",
+        "type": "DATADISK",
+        "size": 8589934592,
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "88c1b618-38c7-474c-9b4b-8fa4284e9245"
+      },
+      {
+        "id": "cab22410-f2e4-404d-9d89-09608282d4e0",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "88c1b618-38c7-474c-9b4b-8fa4284e9245"
+      },
+      {
+        "id": "5ae58bda-0a73-4a58-83e1-e35c1d41ba5a",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "88c1b618-38c7-474c-9b4b-8fa4284e9245"
+      },
+      {
+        "id": "e84bb174-9133-408c-a710-00450e100309",
+        "type": "DATADISK",
+        "size": 2147483648,
+        "state": "Ready",
+        "provisioningtype": "sparse",
+        "virtualmachineid": "88c1b618-38c7-474c-9b4b-8fa4284e9245"
+      }
+    ],
+    "nativeProof": {
+      "exitCode": 0,
+      "stderrBytes": 0,
+      "public": {
+        "bootId": "f622a75b-64fa-4a31-bcd6-3a870f5acf8f",
+        "cliSha256": "8995418a4194a0b910da6c56a43cbcd795a82ea7ca7ebccf656407083c9de850",
+        "generation": {
+          "configurationSha256": "bf9b91926b2a2503a42ac05f5f2dfaeaacca96226515d5a479e9b34247a65cad",
+          "instanceUuid": "fbf32877-7746-4787-9f70-151b48d8f709",
+          "operationUuid": "93c3940c-122f-461a-82a5-8e63390ba16c",
+          "revision": 14,
+          "verifiedAt": 1792477081.2858403
+        },
+        "generationStatus": "IN_SYNC",
+        "pendingOperationUuid": null,
+        "stateHashes": {
+          "config-generations/current.json": "fa4a55a560b80c2e8ab97ff4d4c60c3bdf7ea83ed2ff04aafae63ac95d0b9fe5",
+          "config-generations/pending.json": null,
+          "service-maintenance.json": null,
+          "rendered-generations/activation.json": null
+        }
+      }
+    },
+    "fullRestoreResumed": false,
+    "oldWriterRecoveryInvoked": false,
+    "oldVmDeleted": false,
+    "newVmCreated": false
+  },
+  "dataPreservationReadiness": {
+    "files2RawRegions4AndMetadataIdentityUnchanged": true,
+    "generation": {
+      "generation": {
+        "configurationSha256": "bf9b91926b2a2503a42ac05f5f2dfaeaacca96226515d5a479e9b34247a65cad",
+        "instanceUuid": "fbf32877-7746-4787-9f70-151b48d8f709",
+        "operationUuid": "93c3940c-122f-461a-82a5-8e63390ba16c",
+        "revision": 14,
+        "verifiedAt": 1792477081.2858403
+      },
+      "generationStatus": "IN_SYNC",
+      "pendingOperationUuid": null
+    },
+    "readOnlyQgaOnly": true,
+    "clientIoResumed": false
+  },
+  "uiReadiness": {
+    "actualChromeUiReadinessObserved": true,
+    "newBundleId": "56dea2de-7dcc-4017-9b72-8f38102e2fc8",
+    "newBundleVersion": "4.23.0.0-epic898-909-022bc883d9-source-import-20261020",
+    "newBundleVisible": true,
+    "oldCurrentVersion": "4.23.0.0-epic898-909-4ccfd96379-service-source-20261020",
+    "preflightExecuted": false,
+    "upgradeApplied": false,
+    "restoreResumed": false
+  },
+  "issueClosed": false,
+  "epicPrDraft": true,
+  "uiStandardization1275": "HOLD",
+  "dbSchemaChanges": []
+}

@@ -1,0 +1,18 @@
+[Unit]
+Description=ABLESTACK SharedFS mode-aware network readiness
+DefaultDependencies=no
+Requires=local-fs.target cloud-preinit.service
+After=local-fs.target cloud-preinit.service
+Before=networking.service cloud-early-config.service ablestack-storage-reconcile.service
+ConditionPathExists=/usr/local/sbin/ablestack-sharedfs-network
+
+[Service]
+Type=oneshot
+ExecCondition=/bin/sh -c 'test -e /etc/ablestack-storage/sharedfs-network.json || grep -Eq "(^|[[:space:]])type=sharedfsvm([[:space:]]|$)" /var/cache/cloud/cmdline'
+ExecStart=/usr/local/sbin/ablestack-sharedfs-network --prepare
+RemainAfterExit=yes
+TimeoutStartSec=30
+TimeoutStopSec=6
+
+[Install]
+WantedBy=multi-user.target

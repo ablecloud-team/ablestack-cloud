@@ -1,0 +1,44 @@
+{
+  "kind": "GUARD_TARGET9E_AFTER_ROLLBACK_NORMAL_UI_LIST_COUNTS",
+  "instanceUuid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+  "operationUuid": "9e1eac30-07b8-47d5-9d23-861f6464cd32",
+  "normalUiEmpty": {
+    "listeners": true,
+    "targets": true,
+    "acls": true,
+    "sessions": true
+  },
+  "existingObservedApiCounts": {
+    "listStorageIscsiTargets": {
+      "requestId": "29856.17771",
+      "count": 0,
+      "arrayCounts": {}
+    },
+    "listStorageServiceSessions": {
+      "requestId": "29856.17773",
+      "runtimeContainerRows": 1,
+      "runtimeSuccess": true,
+      "runtimeStatus": "ok",
+      "decodedSessionCount": 0,
+      "decodedSessionArrayLength": 0,
+      "cached": true,
+      "generatedAt": "2026-10-10T04:53:47Z",
+      "observedIscsiTcpCount": 0
+    }
+  },
+  "beforeRequest": {
+    "instanceid": "3480bb2c-99ee-42f2-91cf-715ded5dd35f",
+    "targetname": "iqn.2026-05.local.storage:epic898-s-b6aa-all4-f1-20261009-9657",
+    "lun": "0",
+    "volumeid": "db3de2b7-5fcb-4cb5-a0aa-7ac41a161ffa",
+    "endpointmode": "LISTENER_GROUP",
+    "listenerports": "3260",
+    "cleanupvolumeonfailure": "false"
+  },
+  "listenerPort2049Observed": false,
+  "listenerPort2049SourceInferenceOnly": true,
+  "newDaoOrApiRequestsMadeForThisProjection": 0,
+  "targetWriterSubmitsAfterFailure": 0,
+  "privateValuesIncluded": false,
+  "firstProjectionContainerCountNotSessionCount": true
+}

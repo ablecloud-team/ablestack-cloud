@@ -1,0 +1,697 @@
+#!/usr/bin/env python3
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+
+"""Mode-aware SharedFS primary networking. --inspect never changes the guest."""
+import argparse
+import ipaddress
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import stat
+import subprocess
+import tempfile
+import time
+
+STATE = Path("/etc/ablestack-storage/sharedfs-network.json")
+CLOUD_CONFIG = Path("/etc/cloud/cloud.cfg.d/zz-ablestack-sharedfs-network.cfg")
+CLOUD_CONFIG_CONTENT = ("# SharedFS primary networking is owned by ablestack-sharedfs-network.\n"
+                        "network:\n  config: disabled\n"
+                        "disable_network_activation: true\n"
+                        "datasource_list: [NoCloud, ConfigDrive]\n")
+MISMATCHES = {"INVALID_STATE", "INTERFACE_UNAVAILABLE", "ADDRESS_MISMATCH", "CONNECTED_ROUTE_MISMATCH",
+              "GATEWAY_MISMATCH", "UNEXPECTED_DEFAULT_ROUTE", "DNS_MISMATCH", "DHCP_UNIT_NOT_MASKED",
+              "DHCP_UNIT_NOT_RUNNING", "DHCP_CLIENT_RUNNING", "DHCP_ADDRESS_UNAVAILABLE", "OBSERVATION_UNAVAILABLE"}
+
+
+def protected_json(path):
+    try:
+        before = path.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid() or before.st_mode & 0o022 or before.st_size > 65536:
+        raise ValueError("INVALID_STATE")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")
+        opened = os.fstat(fd)
+        raw = os.read(fd, 65537)
+        if len(raw) != before.st_size or any(getattr(before, k) != getattr(opened, k) or getattr(opened, k) != getattr(os.fstat(fd), k) for k in fields):
+            raise ValueError("INVALID_STATE")
+        def unique(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError("INVALID_STATE")
+                result[key] = value
+            return result
+        value = json.loads(raw, object_pairs_hook=unique)
+        if type(value) is not dict:
+            raise ValueError("INVALID_STATE")
+        return value
+    finally:
+        os.close(fd)
+
+
+def protected_text(path):
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid() or before.st_mode & 0o022 or before.st_size > 1024 * 1024:
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")
+        opened = os.fstat(fd)
+        raw = os.read(fd, 1024 * 1024 + 1)
+        after = os.fstat(fd)
+        named = path.lstat()
+        if len(raw) != before.st_size or any(len({getattr(v, k) for v in (before, opened, after, named)}) != 1 for k in fields):
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        return raw.decode("ascii")
+    finally:
+        os.close(fd)
+
+
+def sharedfs_role(path):
+    # QGA's established cmdline producer creates a public 0666 file. This role
+    # is a routing selector, never authority for persistent state or operations.
+    parent = path.parent.lstat()
+    before = path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022
+            or not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid()
+            or before.st_mode & 0o111 or before.st_size > 1024 * 1024):
+        raise ValueError("INVALID_STATE")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")
+        opened = os.fstat(fd)
+        raw = os.read(fd, 1024 * 1024 + 1)
+        after = os.fstat(fd)
+        named = path.lstat()
+        directory = path.parent.lstat()
+        if (len(raw) != before.st_size
+                or any(len({getattr(v, k) for v in (before, opened, after, named)}) != 1 for k in fields)
+                or any(getattr(parent, k) != getattr(directory, k) for k in ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode"))):
+            raise ValueError("INVALID_STATE")
+        return [part for part in raw.decode("ascii").split() if part.startswith("type=")] == ["type=sharedfsvm"]
+    finally:
+        os.close(fd)
+
+
+def address(value):
+    if type(value) is not str:
+        raise ValueError("INVALID_STATE")
+    parsed = ipaddress.ip_address(value)
+    if parsed.is_unspecified or parsed.is_multicast or parsed.is_loopback or parsed.is_link_local or parsed.is_reserved:
+        raise ValueError("INVALID_STATE")
+    return str(parsed)
+
+
+def declaration(value):
+    if value is None:
+        return {"mode": "DHCP", "macAddress": None, "ipAddress": None, "cidr": None, "gateway": None, "dns": []}
+    if type(value) is not dict:
+        raise ValueError("INVALID_STATE")
+    mode = value.get("mode", "STATIC")
+    if mode not in ("STATIC", "DHCP") or "schemaVersion" in value and (type(value["schemaVersion"]) is not int or value["schemaVersion"] != 1):
+        raise ValueError("INVALID_STATE")
+    mac = value.get("macAddress")
+    if mac is not None and (type(mac) is not str or not re.fullmatch(r"[0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5}", mac)):
+        raise ValueError("INVALID_STATE")
+    if mode == "DHCP":
+        if any(value.get(k) is not None for k in ("ipAddress", "cidr", "gateway", "dns1", "dns2")):
+            raise ValueError("INVALID_STATE")
+        return {"mode": mode, "macAddress": mac.lower() if mac else None, "ipAddress": None, "cidr": None, "gateway": None, "dns": []}
+    if type(value.get("ipAddress")) is not str or type(value.get("cidr")) is not str or "/" not in value["cidr"]:
+        raise ValueError("INVALID_STATE")
+    if any(value.get(key) is not None and type(value[key]) is not str for key in ("gateway", "dns1", "dns2")):
+        raise ValueError("INVALID_STATE")
+    network = ipaddress.IPv4Network(value["cidr"], strict=False)
+    ip = ipaddress.IPv4Address(address(value["ipAddress"]))
+    if not mac or ip not in network or network.prefixlen <= 30 and ip in (network.network_address, network.broadcast_address):
+        raise ValueError("INVALID_STATE")
+    gateway = address(value["gateway"]) if value.get("gateway") else None
+    if gateway and (ipaddress.ip_address(gateway).version != 4 or ipaddress.ip_address(gateway) not in network
+                    or ipaddress.ip_address(gateway) in (ip, network.network_address, network.broadcast_address)):
+        raise ValueError("INVALID_STATE")
+    dns = list(dict.fromkeys(address(value[k]) for k in ("dns1", "dns2") if value.get(k)))
+    return {"mode": mode, "macAddress": mac.lower(), "ipAddress": str(ip), "cidr": str(network), "gateway": gateway, "dns": dns}
+
+
+
+def ifupdown_manual(text, name, empty_standard_include=False):
+    # Only the MAC-selected primary IPv4 stanza changes. Aliases/other NICs
+    # retain their exact bytes; unknown hooks/includes do not grant authority.
+    lines = text.splitlines(keepends=True)
+    includes = [line for line in lines if re.match(r"^\s*(?:source|source-directory|mapping)\s+", line)]
+    if includes and (not empty_standard_include or len(includes) != 1 or includes[0].strip() != "source /etc/network/interfaces.d/*"):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    header = re.compile(r"^(\s*iface[ \t]+" + re.escape(name) + r"[ \t]+inet[ \t]+)([^ \t\r\n#]+)([ \t]*(?:#[^\r\n]*)?)(\r?\n|$)")
+    positions = [i for i, line in enumerate(lines) if re.match(r"^\s*iface[ \t]+" + re.escape(name) + r"[ \t]+inet(?:[ \t]|$)", line)]
+    if len(positions) > 1 or any(header.fullmatch(lines[i]) is None for i in positions):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    if not positions:
+        return text + ("" if not text or text.endswith("\n") else "\n") + "iface " + name + " inet manual\n"
+    start = positions[0]
+    match = header.fullmatch(lines[start])
+    if match[2] not in ("dhcp", "static", "manual"):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    end = start + 1
+    while end < len(lines) and not re.match(r"^\s*(?:iface|auto|allow-[A-Za-z-]+|mapping|source|source-directory)\s+", lines[end]):
+        end += 1
+    body = []
+    for line in lines[start + 1:end]:
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            body.append(line)
+            continue
+        fields = stripped.split()
+        if fields[0] in ("address", "netmask", "gateway", "broadcast", "network", "dns-nameservers", "dns-search", "dns-domain", "metric"):
+            if len(fields) < 2:
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            continue
+        if fields[0] == "mtu" and len(fields) == 2 and fields[1].isdigit() and 576 <= int(fields[1]) <= 65535:
+            body.append(line)
+            continue
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    return "".join(lines[:start] + [match[1] + "manual" + match[3] + match[4]] + body + lines[end:])
+
+
+def dynamic_address(info):
+    lifetime = info.get("valid_life_time")
+    return info.get("dynamic") is True or type(lifetime) is int and 0 <= lifetime < 4294967295
+
+
+def process(pid, root=Path("/proc")):
+    folder = root / str(pid)
+    def identity():
+        info = folder.stat()
+        raw = (folder / "stat").read_bytes()
+        if len(raw) > 4096:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        fields = raw[raw.rindex(b")") + 2:].split()
+        return (info.st_uid, int(fields[19]), fields[0])
+    before = identity()
+    namespace = (folder / "ns/net").stat()
+    raw = (folder / "cmdline").read_bytes()
+    if len(raw) > 32768:
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    args = raw.rstrip(b"\0").split(b"\0") if raw else []
+    executable = folder / "exe"
+    binary = executable.stat()
+    after = identity()
+    namespace_after = (folder / "ns/net").stat()
+    if before[:2] != after[:2] or (namespace.st_dev, namespace.st_ino) != (namespace_after.st_dev, namespace_after.st_ino):
+        raise ValueError("OBSERVATION_UNAVAILABLE")
+    return {"pid": pid, "uid": after[0], "start": after[1], "state": after[2], "argv": args,
+            "netns": (namespace.st_dev, namespace.st_ino),
+            "exe": os.readlink(executable), "binary": (binary.st_dev, binary.st_ino, binary.st_uid, binary.st_mode)}
+
+
+def dhcp_interfaces(args):
+    values = {b"-pf", b"-lf", b"-cf", b"-sf", b"-e", b"-s", b"-g", b"-p", b"-H", b"-F", b"-D", b"-df"}
+    flags = {b"-4", b"-6", b"-1", b"-d", b"-v", b"-q", b"-r", b"-x", b"-n", b"-nw", b"-w", b"-I", b"-i", b"--no-pid"}
+    result = []
+    i = 1
+    while i < len(args):
+        token = args[i]
+        if token in values:
+            if i + 1 >= len(args):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            i += 2
+            continue
+        if token.startswith(b"-"):
+            if token not in flags:
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+        else:
+            result.append(token.decode("ascii"))
+        i += 1
+    return result
+
+
+class Network:
+    def __init__(self, state=STATE, run=None, resolver=Path("/etc/resolv.conf"), domain=Path("/etc/ablestack-storage/smb-domain.json"), proc=Path("/proc"), leases=Path("/var/lib/dhcp"), aliases=Path("/etc/ablestack-storage/network-endpoints.json")):
+        self.state, self.resolver, self.domain, self.proc = Path(state), Path(resolver), Path(domain), Path(proc)
+        self.leases, self.aliases = Path(leases), Path(aliases)
+        self.cloud_config, self.role = CLOUD_CONFIG, Path("/var/cache/cloud/cmdline")
+        self.interfaces = Path("/etc/network/interfaces")
+        self.run = run or subprocess.run
+
+    def command(self, args, required=True):
+        result = self.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=5)
+        if result.returncode and required:
+            raise OSError("OBSERVATION_UNAVAILABLE")
+        if len(result.stdout) > 1024 * 1024:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        return result
+
+    def json(self, args):
+        return json.loads(self.command(args).stdout)
+
+    def expected(self):
+        expected = declaration(protected_json(self.state))
+        joined = protected_json(self.domain)
+        search = None
+        if joined and (joined.get("joinState") == "JOINED" or joined.get("state") == "JOINED"):
+            servers = joined.get("dnsServers")
+            if servers is None:
+                legacy = self.domain.parent / "smb-dns-servers"
+                try:
+                    servers = protected_text(legacy).split()
+                except FileNotFoundError:
+                    servers = None
+            search = joined.get("domainName") or joined.get("domain")
+            if type(servers) is not list or not servers or type(search) is not str or not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?", search):
+                raise ValueError("INVALID_STATE")
+            expected["dns"] = list(dict.fromkeys(address(value) for value in servers))
+        return expected, search
+
+    def interface(self, expected):
+        links = [r for r in self.json(["ip", "-j", "link", "show"]) if r.get("ifname") != "lo" and r.get("link_type", "ether") == "ether"]
+        matches = [r for r in links if str(r.get("address", "")).lower() == expected["macAddress"]] if expected["macAddress"] else links
+        if len(matches) != 1 or not re.fullmatch(r"[A-Za-z0-9_.-]{1,15}", matches[0].get("ifname", "")):
+            raise ValueError("INTERFACE_UNAVAILABLE")
+        return matches[0]
+
+    def clients(self, interface):
+        found = []
+        namespace = (self.proc / "self/ns/net").stat()
+        current_namespace = (namespace.st_dev, namespace.st_ino)
+        for path in self.proc.iterdir():
+            if not path.name.isdigit():
+                continue
+            try:
+                with (path / "comm").open("rb", buffering=0) as stream:
+                    if stream.read(17) != b"dhclient\n":
+                        continue
+                row = process(int(path.name), self.proc)
+                if row["netns"] != current_namespace:
+                    continue
+                if row["state"] in (b"Z", b"X", b"x") or not row["argv"] or Path(os.fsdecode(row["argv"][0])).name != "dhclient":
+                    continue
+                if interface.encode() not in row["argv"]:
+                    continue
+                interfaces = dhcp_interfaces(row["argv"])
+                if interfaces != [interface] or Path(row["exe"]).name != "dhclient" or row["uid"] != 0 or row["binary"][2] != 0 or row["binary"][3] & 0o022:
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+                found.append(row)
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+        return found
+
+    def unit(self, name):
+        text = self.command(["systemctl", "show", name, "--property=ActiveState,UnitFileState"]).stdout
+        values = dict(line.split("=", 1) for line in text.splitlines())
+        if set(values) != {"ActiveState", "UnitFileState"}:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        return {"name": name, "active": values["ActiveState"] in ("active", "activating", "reloading"),
+                "masked": values["UnitFileState"] in ("masked", "masked-runtime")}
+
+    def lease_cleanup(self, name, expected, clients):
+        if not clients:
+            return [], []
+        desired = protected_json(self.aliases) or {}
+        configured = desired.get("endpoints") or []
+        if type(configured) is not list:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        protected = {row.get("listenIp") or row.get("listenip") for row in configured if type(row) is dict}
+        protected.add(expected["ipAddress"])
+        addresses = [info for row in self.json(["ip", "-j", "-4", "addr", "show", "dev", name])
+                     for info in row.get("addr_info", []) if info.get("family") == "inet" and info.get("scope") == "global"]
+        current_lease = set()
+        for client in clients:
+            args = client["argv"]
+            paths = [os.fsdecode(args[i + 1]) for i, arg in enumerate(args[:-1]) if arg == b"-lf"]
+            if len(paths) > 1:
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            path = Path(paths[0]) if paths else self.leases / "dhclient.leases"
+            if path not in (self.leases / ("dhclient." + name + ".leases"), self.leases / "dhclient.leases"):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            try:
+                text = protected_text(path)
+            except FileNotFoundError:
+                continue
+            matching = []
+            for block in re.findall(r"(?m)\blease\s*\{([^{}]*)\}", text):
+                interface = re.findall(r'(?m)^\s*interface\s+"([^"]+)"\s*;', block)
+                if interface == [name]:
+                    matching.append(block)
+            if matching:
+                fixed = re.findall(r"(?m)^\s*fixed-address\s+([0-9.]+)\s*;", matching[-1])
+                mask = re.findall(r"(?m)^\s*option\s+subnet-mask\s+([0-9.]+)\s*;", matching[-1])
+                if len(fixed) != 1 or len(mask) != 1:
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+                prefix = ipaddress.IPv4Network("0.0.0.0/" + mask[0]).prefixlen
+                current_lease.add((str(ipaddress.IPv4Address(fixed[0])), prefix))
+        removals, keep = [], []
+        for info in addresses:
+            item = (info["local"], info["prefixlen"])
+            named_alias = str(info.get("label") or "").startswith(name + ":")
+            if info["local"] in protected or named_alias:
+                keep.append(item)
+            elif item in current_lease:
+                removals.append(item)
+            else:
+                # A running DHCP owner plus an unexplained address is not permission to flush.
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+        return removals, keep
+
+    def resolver_values(self, text):
+        values = []
+        for line in text.splitlines():
+            fields = line.split("#", 1)[0].split()
+            if fields and fields[0] == "nameserver":
+                if len(fields) != 2:
+                    raise ValueError("DNS_MISMATCH")
+                values.append(str(ipaddress.ip_address(fields[1])))
+        return values
+
+    def inspect(self):
+        now = time.time()
+        result = {"schemaVersion": 1, "kind": "SHAREDFS_NETWORK_READINESS", "success": False, "status": "UNKNOWN",
+                  "mode": "UNKNOWN", "observedEpoch": now, "bootId": None,
+                  "expected": {"mode": "UNKNOWN", "macAddress": None, "ipAddress": None, "cidr": None, "gateway": None, "dns": []},
+                  "actual": {"mode": "UNKNOWN", "interfaceName": None, "macAddress": None, "addresses": [], "defaultRoutes": [], "dns": [],
+                             "dhcpUnit": {"name": None, "active": None, "masked": None}, "dhcpProcessCount": None}, "mismatches": []}
+        try:
+            result["bootId"] = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            try:
+                expected, _search = self.expected()
+            except (ValueError, KeyError, TypeError):
+                result.update(status="ERROR", mismatches=["INVALID_STATE"])
+                return result
+            result.update(mode=expected["mode"], expected=expected)
+            link = self.interface(expected)
+            name = link["ifname"]
+            information = [x for r in self.json(["ip", "-j", "-4", "addr", "show", "dev", name])
+                           for x in r.get("addr_info", []) if x.get("family") == "inet" and x.get("scope") == "global"]
+            addresses = [{"ipAddress": x["local"], "prefixLength": x["prefixlen"]} for x in information]
+            routes = self.json(["ip", "-j", "-4", "route", "show", "default"])
+            defaults = [{"gateway": r.get("gateway"), "interfaceName": name} for r in routes if r.get("dev") == name]
+            unit = self.unit("cloud-dhclient@" + name + ".service")
+            count = len(self.clients(name))
+            resolver_text = protected_text(self.resolver)
+            malformed_dns = False
+            try:
+                dns = self.resolver_values(resolver_text)
+            except ValueError:
+                dns, malformed_dns = [], True
+            actual = {"mode": "STATIC" if unit["masked"] and not count else "DHCP" if unit["active"] or count else "UNKNOWN",
+                      "interfaceName": name, "macAddress": link["address"].lower(), "addresses": addresses, "defaultRoutes": defaults,
+                      "dns": dns, "dhcpUnit": unit, "dhcpProcessCount": count}
+            result["actual"] = actual
+            mismatches = []
+            if expected["mode"] == "STATIC":
+                prefix = ipaddress.IPv4Network(expected["cidr"]).prefixlen
+                if ({"ipAddress": expected["ipAddress"], "prefixLength": prefix} not in addresses
+                        or any(dynamic_address(info) and info["local"] == expected["ipAddress"] for info in information)):
+                    mismatches.append("ADDRESS_MISMATCH")
+                desired = protected_json(self.aliases) or {}
+                endpoints = desired.get("endpoints") or []
+                if type(endpoints) is not list or any(type(row) is not dict for row in endpoints):
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+                declared = {row.get("listenIp") or row.get("listenip") for row in endpoints}
+                if any(dynamic_address(info) and info["local"] != expected["ipAddress"] and info["local"] not in declared
+                       and not str(info.get("label") or "").startswith(name + ":") for info in information):
+                    if "ADDRESS_MISMATCH" not in mismatches:
+                        mismatches.append("ADDRESS_MISMATCH")
+                connected = self.json(["ip", "-j", "-4", "route", "show", "dev", name])
+                if not any(str(ipaddress.IPv4Network(r.get("dst"), strict=False)) == expected["cidr"] and r.get("scope") == "link" for r in connected if r.get("dst") not in (None, "default")):
+                    mismatches.append("CONNECTED_ROUTE_MISMATCH")
+                if expected["gateway"]:
+                    if defaults != [{"gateway": expected["gateway"], "interfaceName": name}]:
+                        mismatches.append("GATEWAY_MISMATCH")
+                elif defaults:
+                    mismatches.append("UNEXPECTED_DEFAULT_ROUTE")
+                if not unit["masked"] or unit["active"]:
+                    mismatches.append("DHCP_UNIT_NOT_MASKED")
+                if count:
+                    mismatches.append("DHCP_CLIENT_RUNNING")
+            else:
+                if not addresses:
+                    mismatches.append("DHCP_ADDRESS_UNAVAILABLE")
+                if not unit["active"] or unit["masked"] or not count:
+                    mismatches.append("DHCP_UNIT_NOT_RUNNING")
+            search_domains = [value for line in resolver_text.splitlines() for fields in [line.split("#", 1)[0].split()]
+                              if fields and fields[0] == "search" for value in fields[1:]]
+            if malformed_dns or expected["dns"] and actual["dns"] != expected["dns"] or _search and search_domains != [_search]:
+                mismatches.append("DNS_MISMATCH")
+            result.update(success=not mismatches, status="ERROR" if mismatches else "OK", mismatches=mismatches)
+        except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError):
+            result["mismatches"] = ["OBSERVATION_UNAVAILABLE"]
+        return result
+
+    def stop_clients(self, name):
+        for row in self.clients(name):
+            try:
+                fd = os.pidfd_open(row["pid"], 0)
+            except ProcessLookupError:
+                continue
+            try:
+                try:
+                    fresh = process(row["pid"], self.proc)
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                if any(fresh[k] != row[k] for k in ("uid", "start", "argv", "exe", "binary", "netns")):
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+                try:
+                    signal.pidfd_send_signal(fd, signal.SIGTERM, None, 0)
+                except ProcessLookupError:
+                    continue
+                until = time.monotonic() + 5
+                while time.monotonic() < until:
+                    try:
+                        observed = process(row["pid"], self.proc)
+                        if observed["start"] != row["start"] or observed["state"] in (b"Z", b"X", b"x"):
+                            break
+                    except (FileNotFoundError, ProcessLookupError):
+                        break
+                    time.sleep(.05)
+                else:
+                    raise ValueError("DHCP_CLIENT_RUNNING")
+            finally:
+                os.close(fd)
+        if self.clients(name):
+            raise ValueError("DHCP_CLIENT_RUNNING")
+
+    def write_resolver(self, dns, search):
+        if not dns:
+            return
+        content = ("search " + search + "\n" if search else "") + "".join("nameserver " + value + "\n" for value in dns)
+        if self.resolver.read_text() == content:
+            return
+        before = self.resolver.lstat()
+        if not stat.S_ISREG(before.st_mode) or before.st_uid != os.geteuid() or before.st_mode & 0o022:
+            raise ValueError("DNS_MISMATCH")
+        fd, temporary = tempfile.mkstemp(prefix=".sharedfs-resolver-", dir=self.resolver.parent)
+        try:
+            os.fchmod(fd, 0o644)
+            with os.fdopen(fd, "w") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, self.resolver)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+
+    def prepare_cloud_init(self):
+        # SharedFS alone owns this exclusion. Local NoCloud/ConfigDrive user-data
+        # remains available; network metadata discovery must not start DHCP.
+        if not sharedfs_role(self.role):
+            raise ValueError("INVALID_STATE")
+        parent = self.cloud_config.parent
+        directory = parent.lstat()
+        if not stat.S_ISDIR(directory.st_mode) or directory.st_uid != os.geteuid() or directory.st_mode & 0o022:
+            raise ValueError("INVALID_STATE")
+        try:
+            existing = protected_text(self.cloud_config)
+        except FileNotFoundError:
+            if os.path.lexists(self.cloud_config):
+                raise ValueError("INVALID_STATE")
+        else:
+            if existing != CLOUD_CONFIG_CONTENT:
+                raise ValueError("INVALID_STATE")
+            return
+        fd, temporary = tempfile.mkstemp(prefix=".sharedfs-cloud-init-", dir=parent)
+        try:
+            os.fchmod(fd, 0o644)
+            with os.fdopen(fd, "w") as stream:
+                stream.write(CLOUD_CONFIG_CONTENT)
+                stream.flush()
+                os.fsync(stream.fileno())
+            named = parent.lstat()
+            if any(getattr(directory, key) != getattr(named, key) for key in ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode")) or os.path.lexists(self.cloud_config):
+                raise ValueError("INVALID_STATE")
+            os.link(temporary, self.cloud_config, follow_symlinks=False)
+            directory_fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+
+    def prepare_ifupdown(self, name):
+        parent = self.interfaces.parent.lstat()
+        before = self.interfaces.lstat()
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.geteuid() or parent.st_mode & 0o022:
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        current = protected_text(self.interfaces)
+        include = None
+        if any(re.match(r"^\s*(?:source|source-directory|mapping)\s+", line) for line in current.splitlines()):
+            folder = self.interfaces.parent / "interfaces.d"
+            include = folder.lstat()
+            if not stat.S_ISDIR(include.st_mode) or include.st_uid != os.geteuid() or include.st_mode & 0o022 or list(folder.iterdir()):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+        def verify_include():
+            if include is not None:
+                after = folder.lstat()
+                fields = ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode", "st_size", "st_mtime_ns", "st_ctime_ns")
+                if any(getattr(include, key) != getattr(after, key) for key in fields) or list(folder.iterdir()):
+                    raise ValueError("OBSERVATION_UNAVAILABLE")
+        content = ifupdown_manual(current, name, include is not None)
+        verify_include()
+        if content == current:
+            return
+        fd, temporary = tempfile.mkstemp(prefix=".sharedfs-interfaces-", dir=self.interfaces.parent)
+        try:
+            os.fchown(fd, before.st_uid, before.st_gid)
+            os.fchmod(fd, stat.S_IMODE(before.st_mode))
+            with os.fdopen(fd, "w") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            named, directory = self.interfaces.lstat(), self.interfaces.parent.lstat()
+            fields = ("st_dev", "st_ino", "st_mode", "st_uid", "st_gid", "st_size", "st_mtime_ns", "st_ctime_ns")
+            if (any(getattr(before, k) != getattr(named, k) for k in fields)
+                    or any(getattr(parent, k) != getattr(directory, k) for k in ("st_dev", "st_ino", "st_uid", "st_gid", "st_mode"))):
+                raise ValueError("OBSERVATION_UNAVAILABLE")
+            verify_include()
+            os.replace(temporary, self.interfaces)
+            directory_fd = os.open(self.interfaces.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def bootstrap_only(self):
+        expected, _search = self.expected()
+        link = self.interface(expected)
+        self.prepare_cloud_init()
+        self.prepare_ifupdown(link["ifname"])
+        return {"schemaVersion": 1, "kind": "SHAREDFS_NETWORK_BOOTSTRAP", "success": True, "status": "PREPARED",
+                "mode": expected["mode"], "interfaceName": link["ifname"], "macAddress": link["address"].lower(),
+                "networkEffects": False}
+
+    def prepare(self):
+        expected, search = self.expected()
+        link = self.interface(expected)
+        name = link["ifname"]
+        self.prepare_cloud_init()
+        self.prepare_ifupdown(name)
+        unit = "cloud-dhclient@" + name + ".service"
+        if expected["mode"] == "DHCP":
+            if "UP" not in link.get("flags", []):
+                self.command(["ip", "link", "set", "dev", name, "up"])
+            self.command(["systemctl", "unmask", unit])
+            if not self.unit(unit)["active"]:
+                self.command(["systemctl", "start", "--no-block", unit])
+            until = time.monotonic() + 15
+            while time.monotonic() < until:
+                # QGA may atomically inject STATIC while initial L2 has no DHCP server.
+                if self.expected()[0]["mode"] == "STATIC":
+                    return self.prepare()
+                self.write_resolver(expected["dns"], search)
+                observed = self.inspect()
+                if observed["success"]:
+                    return observed
+                time.sleep(.2)
+            raise ValueError("DHCP_ADDRESS_UNAVAILABLE")
+        clients = self.clients(name)  # Reject shared/multi-NIC or unreadable owners before stopping a unit.
+        removals, retained = self.lease_cleanup(name, expected, clients)
+        current_unit = self.unit(unit)
+        if current_unit["active"]:
+            self.command(["systemctl", "stop", unit])
+        if not current_unit["masked"]:
+            self.command(["systemctl", "mask", unit])
+        self.stop_clients(name)
+        remaining = [info for row in self.json(["ip", "-j", "-4", "addr", "show", "dev", name]) for info in row.get("addr_info", [])]
+        for ip, prefix in removals:
+            if any(info.get("local") == ip and info.get("prefixlen") == prefix for info in remaining):
+                self.command(["ip", "-4", "addr", "del", ip + "/" + str(prefix), "dev", name])
+        for ip, prefix in retained:
+            if not any(info.get("local") == ip and info.get("prefixlen") == prefix for info in remaining):
+                self.command(["ip", "-4", "addr", "replace", ip + "/" + str(prefix), "dev", name])
+        if "UP" not in link.get("flags", []):
+            self.command(["ip", "link", "set", "dev", name, "up"])
+        observed = self.inspect()
+        if observed["status"] == "UNKNOWN":
+            raise ValueError("OBSERVATION_UNAVAILABLE")
+        prefix = ipaddress.IPv4Network(expected["cidr"]).prefixlen
+        primary_dynamic = any(info.get("local") == expected["ipAddress"] and
+                              (info.get("dynamic") is True or type(info.get("valid_life_time")) is int and info["valid_life_time"] < 4294967295)
+                              for row in self.json(["ip", "-j", "-4", "addr", "show", "dev", name]) for info in row.get("addr_info", []))
+        if {"ipAddress": expected["ipAddress"], "prefixLength": prefix} not in observed["actual"]["addresses"] or primary_dynamic:
+            self.command(["ip", "-4", "addr", "replace", expected["ipAddress"] + "/" + str(prefix), "dev", name])
+        if "CONNECTED_ROUTE_MISMATCH" in observed["mismatches"]:
+            self.command(["ip", "-4", "route", "replace", expected["cidr"], "dev", name, "scope", "link", "src", expected["ipAddress"]])
+        wanted = [{"gateway": expected["gateway"], "interfaceName": name}] if expected["gateway"] else []
+        if observed["actual"]["defaultRoutes"] != wanted:
+            for _ in range(8):
+                routes = self.json(["ip", "-j", "-4", "route", "show", "default"])
+                if not any(r.get("dev") == name for r in routes):
+                    break
+                self.command(["ip", "-4", "route", "del", "default", "dev", name])
+            else:
+                raise ValueError("GATEWAY_MISMATCH")
+            if expected["gateway"]:
+                self.command(["ip", "-4", "route", "replace", "default", "via", expected["gateway"], "dev", name])
+        self.write_resolver(expected["dns"], search)
+        final = self.inspect()
+        if not final["success"]:
+            raise ValueError("NETWORK_NOT_READY")
+        return final
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--inspect", action="store_true")
+    action.add_argument("--prepare", action="store_true")
+    action.add_argument("--bootstrap-only", action="store_true")
+    parser.add_argument("state", nargs="?", type=Path, default=STATE)
+    args = parser.parse_args()
+    helper = Network(args.state)
+    try:
+        result = helper.inspect() if args.inspect else helper.bootstrap_only() if args.bootstrap_only else helper.prepare()
+    except (OSError, ValueError, KeyError, TypeError, UnicodeError, subprocess.SubprocessError):
+        result = helper.inspect()
+        if result["success"]:
+            result.update(success=False, status="UNKNOWN", mismatches=["OBSERVATION_UNAVAILABLE"])
+    print(json.dumps(result, sort_keys=True))
+    raise SystemExit(0 if result["success"] else 1)
+
+
+if __name__ == "__main__":
+    main()

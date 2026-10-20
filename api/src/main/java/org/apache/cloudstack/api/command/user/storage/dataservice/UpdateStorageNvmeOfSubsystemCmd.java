@@ -23,7 +23,6 @@ import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.ApiErrorCode;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.command.user.UserCmd;
@@ -37,7 +36,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class UpdateStorageNvmeOfSubsystemCmd extends BaseAsyncCmd implements UserCmd {
+public class UpdateStorageNvmeOfSubsystemCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -76,10 +75,7 @@ public class UpdateStorageNvmeOfSubsystemCmd extends BaseAsyncCmd implements Use
         return transport;
     }
 
-    @Override
-    public long getEntityOwnerId() {
-        return 0;
-    }
+
 
     @Override
     public String getEventType() {

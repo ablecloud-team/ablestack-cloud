@@ -43,10 +43,8 @@ public class StorageServiceProtocolDaoImpl extends GenericDaoBase<StorageService
 
     @Override
     public StorageServiceProtocolVO findByInstanceIdAndProtocol(long instanceId, StorageServiceInstance.Protocol protocol) {
-        SearchCriteria<StorageServiceProtocolVO> sc = InstanceProtocolSearch.create();
-        sc.setParameters("instanceId", instanceId);
-        sc.setParameters("protocol", protocol);
-        return findOneBy(sc);
+        return org.apache.cloudstack.storage.dataservice.StorageServiceProtocolSelection.representative(instanceId,protocol,
+                listByInstanceIdAndProtocol(instanceId,protocol));
     }
 
     @Override

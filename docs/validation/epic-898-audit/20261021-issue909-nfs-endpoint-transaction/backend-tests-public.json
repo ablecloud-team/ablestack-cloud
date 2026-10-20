@@ -1,0 +1,85 @@
+{
+  "sourceCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "tests": 218,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": [
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageInitialPreparationAdmissionTest",
+      "tests": 2
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.InterruptedStateChangeTest",
+      "tests": 7
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageIscsiNameAdmissionTest",
+      "tests": 6
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StoragePreparationObservationTest",
+      "tests": 4
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageConfigInitialBaselineFlowTest",
+      "tests": 8
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageConfigLegacyDefaultProtocolTest",
+      "tests": 12
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageProtocolEndpointPreparationTest",
+      "tests": 15
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageProtocolPrefixBindingTest",
+      "tests": 11
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageIscsiAclSourceRollbackTest",
+      "tests": 7
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServicePreparationStateTest",
+      "tests": 16
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StoragePreparationHealthWireContractTest",
+      "tests": 14
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageProtocolRepresentativeTest",
+      "tests": 3
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServiceRuntimeQueueScopeTest",
+      "tests": 7
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageNfsPermissionEditGateTest",
+      "tests": 6
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageCanonicalRecoveryRuntimeTest",
+      "tests": 27
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageProtocolEndpointNativeContractTest",
+      "tests": 1
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageInitialPrimaryEndpointRecoveryTest",
+      "tests": 10
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageProtocolDefaultListenerTest",
+      "tests": 11
+    },
+    {
+      "name": "com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest",
+      "tests": 51
+    }
+  ]
+}

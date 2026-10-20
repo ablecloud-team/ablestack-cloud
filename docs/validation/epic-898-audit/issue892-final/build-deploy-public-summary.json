@@ -1,0 +1,71 @@
+{
+  "componentAuthority": {
+    "managementSourcePin": "65c9cf0296372593e887bc669e948cab4adf32bb",
+    "hostPayloadSourcePin": "a2b68e71d263f1dd19a13a8003dc047d957d23ee",
+    "nativeCliSha256": "91e3f5115089c58e5affdc9e0503591b03995a4a056f45c77966f525aec03052",
+    "uiSourcePin": "1df03c030a1312d3e0b153b5f21a70645b8e2493",
+    "uiIndexSha256": "13cfdf83bc247e5ab1e66c612cee3eb092dbcebb119d88fc30ff14854131ae7d",
+    "uiWrapperSha256": "9e32b6baefda64383474aafb28406dad18b99d6ab9b5c5a206f011bddbbee6a5",
+    "uiControllerSha256": "807336e49649097507d5be27f9a0d4191cbacf32a9150f8545e082b6a296597e",
+    "historicalMgt8158PreservedUiIndexSha256": "c832e28ad1c34163a2ff5b1df6500e0d185b85b9fe964a3746eff18600e0eaa0"
+  },
+  "backend": {
+    "sourcePin": "65c9cf0296372593e887bc669e948cab4adf32bb",
+    "tests": 1066,
+    "suites": 131,
+    "reactorModules": 39,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "checkstyle": "PASS"
+  },
+  "management": {
+    "pass": true,
+    "sourcePin": "65c9cf0296372593e887bc669e948cab4adf32bb",
+    "jarSha256": "a08545fc4c6265771eeb958e83d6ec340923b4304212a08712cd74bf8a2420b1",
+    "changedClassEntries": 1,
+    "unchangedOtherEntries": 204647,
+    "preservedUiIndexAtThatDeployment": "c832e28ad1c34163a2ff5b1df6500e0d185b85b9fe964a3746eff18600e0eaa0",
+    "managementPidAfterDeployment": 2097188,
+    "originalDataAndIdentityPreserved": true,
+    "all11DatabaseGroupsPreserved": true
+  },
+  "hosts": [
+    {
+      "host": "10.10.13.2",
+      "jarSha256": "fdbf19283a739f28cfe5a5ea7ae4dc71e60eea24648206c53cff6129973ca432",
+      "changedClassEntries": 1,
+      "unchangedOtherEntries": 510,
+      "classSha256": "baaa226ff0e393756380adc5b3af14846feb3d0f301df74588030058e588d195"
+    },
+    {
+      "host": "10.10.13.1",
+      "jarSha256": "e8291d36a8e9d9197b28373fdb3efba55f1b28729549538b53b6ac6d1581d3a3",
+      "changedClassEntries": 1,
+      "unchangedOtherEntries": 510,
+      "classSha256": "baaa226ff0e393756380adc5b3af14846feb3d0f301df74588030058e588d195"
+    },
+    {
+      "host": "10.10.13.3",
+      "jarSha256": "0831bf4d7c4ede14659652e2930ee2f0306ffa76f821a9280480622e124acec3",
+      "changedClassEntries": 1,
+      "unchangedOtherEntries": 502,
+      "classSha256": "baaa226ff0e393756380adc5b3af14846feb3d0f301df74588030058e588d195"
+    }
+  ],
+  "ui": {
+    "sourcePin": "1df03c030a1312d3e0b153b5f21a70645b8e2493",
+    "indexSha256": "13cfdf83bc247e5ab1e66c612cee3eb092dbcebb119d88fc30ff14854131ae7d",
+    "tests": 588,
+    "suites": 26,
+    "lintPassed": true,
+    "normalProductionBuildPassed": true,
+    "staticFiles": 864,
+    "managementRestartInvoked": false,
+    "native13Exact": true,
+    "database11Exact": true,
+    "managementPidUnchanged": true,
+    "configSha256": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5"
+  },
+  "testCountsMustNotBeAddedAcrossOverlappingScopes": true
+}

@@ -1,0 +1,338 @@
+{
+  "scope": "#909 Backend prefix fix; deployed and ready for fresh final validation; no restore apply",
+  "sourceCommit": "252a9228a3b6798562d13bf44218d139504cde67",
+  "upstreamBase": "248653b5892",
+  "rootCause": {
+    "operationId": "6b3d97bb-1831-4756-b73e-a8eb4cbfa36d",
+    "failedState": "APPLYING",
+    "actualPrefix": 16,
+    "oldGeneratedPrefix": 24,
+    "nicNetmask": null,
+    "l2NetworkCidr": null,
+    "sharedFsStaticCidr": "10.10.0.0/16",
+    "nativeFailure": "ROOT endpoint IP is bound to a foreign MAC or prefix",
+    "singleNfsWrongPrefixFails": true,
+    "fourProtocolCorrectedPrefixPasses": true
+  },
+  "tests": {
+    "suites": [
+      {
+        "suite": "StorageProtocolPrefixBindingTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigurationBatchTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigDomainRestoreTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigRestoreWholeFlowTest",
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigLegacyDefaultProtocolTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageCanonicalRecoveryRuntimeTest",
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageConfigInitialBaselineFlowTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "StorageInitialPrimaryEndpointRecoveryTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "suiteCount": 8,
+    "tests": 108,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "reactors": 26,
+    "package": "BUILD SUCCESS",
+    "checkstyle": "changed files PASS; global skipped due to 11 upstream baseline violations"
+  },
+  "abi": {
+    "class": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "oldSha256": "d69b6c82d3e2f5028a6e728cb19cce2f5aba2b5540f2562eadd123cfc51615d6",
+    "newSha256": "4576782729ba316cf49cbe7f01e7b1b1bf30d6c61bfd863bfd28283071645dd7",
+    "oldMajor": 55,
+    "newMajor": 55,
+    "oldMembers": 1042,
+    "newMembers": 1045,
+    "removedMembers": [],
+    "addedMembers": [
+      [
+        "protected com.google.gson.JsonObject protocolListenAddressPayload(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO, java.lang.String, com.cloud.vm.NicVO, java.lang.Integer);",
+        "descriptor: (Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Ljava/lang/String;Lcom/cloud/vm/NicVO;Ljava/lang/Integer;)Lcom/google/gson/JsonObject;"
+      ],
+      [
+        "protected int protocolEndpointPrefix(com.cloud.vm.NicVO, java.lang.String);",
+        "descriptor: (Lcom/cloud/vm/NicVO;Ljava/lang/String;)I"
+      ],
+      [
+        "protected void validateRenderedEndpointBindings(org.apache.cloudstack.storage.dataservice.StorageServiceInstanceVO, com.google.gson.JsonObject, com.google.gson.JsonObject);",
+        "descriptor: (Lorg/apache/cloudstack/storage/dataservice/StorageServiceInstanceVO;Lcom/google/gson/JsonObject;Lcom/google/gson/JsonObject;)V"
+      ]
+    ],
+    "compatible": true
+  },
+  "deployment": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "f85b9758145339974bb2ea4bb585adcb0f3360b04fbbfc2fa868efc1edd7e5ea",
+    "newJarSha256": "cdb54f66fdc648f7bc308349c4cf7be365b4adf039bdbeea12f1937e8977809a",
+    "backup": "/var/backups/mold/issue909-252a9228a3b6-prefix-binding/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "service": "mold",
+    "changedClasses": {
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "4576782729ba316cf49cbe7f01e7b1b1bf30d6c61bfd863bfd28283071645dd7"
+    },
+    "unchangedEntriesVerified": 204663,
+    "active": "active",
+    "pid": 2720487
+  },
+  "upstreamCheckstyleBaseline": {
+    "upstreamBase": "248653b5892",
+    "violations": [
+      {
+        "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/DeleteCniConfigurationCmdTest.java",
+        "line": 19,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/DeleteCniConfigurationCmdTest.java",
+        "line": 20,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/RegisterCniConfigurationCmdTest.java",
+        "line": 19,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/RegisterCniConfigurationCmdTest.java",
+        "line": 20,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/network/CniMetadataJsonTest.java",
+        "line": 20,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": 19,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": 20,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": 21,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": 19,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": 20,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      },
+      {
+        "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": 21,
+        "rule": "AvoidStarImport",
+        "unchangedFromUpstream": true
+      }
+    ],
+    "changedJavaFilesStylePassed": true,
+    "baselineFilesChanged": false
+  },
+  "upstreamUiMergeTests": {
+    "suites": 3,
+    "tests": 24,
+    "result": "PASS",
+    "targetedAutogenLint": "PASS",
+    "localeUnion": {
+      "ui/public/locales/en.json": {
+        "featureDeltaAndUpstreamPreserved": true,
+        "keys": 9830
+      },
+      "ui/public/locales/ko_KR.json": {
+        "featureDeltaAndUpstreamPreserved": true,
+        "keys": 9795
+      }
+    }
+  },
+  "compiledProducer": {
+    "payloads": [
+      {
+        "listenIp": "10.10.13.227",
+        "primaryIp": "10.10.13.227",
+        "netmask": null,
+        "prefixlen": 16,
+        "networkCidr": "10.10.0.0/16",
+        "port": 2049
+      },
+      {
+        "listenIp": "10.10.13.227",
+        "primaryIp": "10.10.13.227",
+        "netmask": null,
+        "prefixlen": 16,
+        "networkCidr": "10.10.0.0/16",
+        "port": 445
+      },
+      {
+        "listenIp": "10.10.13.227",
+        "primaryIp": "10.10.13.227",
+        "netmask": null,
+        "prefixlen": 16,
+        "networkCidr": "10.10.0.0/16",
+        "port": 3260
+      },
+      {
+        "listenIp": "10.10.13.227",
+        "primaryIp": "10.10.13.227",
+        "netmask": null,
+        "prefixlen": 16,
+        "networkCidr": "10.10.0.0/16",
+        "port": 4420
+      }
+    ],
+    "producerClassSha256": "4576782729ba316cf49cbe7f01e7b1b1bf30d6c61bfd863bfd28283071645dd7"
+  },
+  "liveNativeReadOnlyProof": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "public": {
+      "bindingsValidated": true,
+      "endpoints": [
+        {
+          "active": true,
+          "interface": "eth0",
+          "listenIp": "10.10.13.227",
+          "macAddress": "02:0d:00:cc:00:2e",
+          "prefixlen": 16,
+          "primaryIp": "10.10.13.227"
+        }
+      ],
+      "sideEffects": false,
+      "success": true,
+      "actualNetworkUnchanged": true,
+      "nativeCliSha256": "0cc825385d4370962544d7ed27df23bce09c03577fbb324943dca8107c22663e"
+    }
+  },
+  "actualChromeUiReview": {
+    "httpStatus": 200,
+    "artifactId": "c1181cde-33d2-4209-9721-0dfc86308838",
+    "artifactSha256": "b5bf9eb84ec3c2de3056bd94d2f05187056e3f10c1fecdb402f6b03cff7057ef",
+    "createdTargetInstanceUuid": "7ce81c35-1189-46c7-955e-127b15205863",
+    "targetMode": "CREATE_NEW",
+    "createCount": 14,
+    "blockers": [],
+    "ipCidr": "10.10.13.227/16",
+    "templateId": "9d6703e2-5301-49dc-8068-4b3c7f8746d3",
+    "listenerAddressMappings": {
+      "0.0.0.0": "PRIMARY"
+    },
+    "volumeMappings": {
+      "0482a680-288c-4564-9ccf-32c3bcb79b2d": "0482a680-288c-4564-9ccf-32c3bcb79b2d",
+      "5a425723-d6c5-4d90-b510-1dd802e5c6bf": "5a425723-d6c5-4d90-b510-1dd802e5c6bf",
+      "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc": "9af4822e-8c02-47ba-b3a9-ed2bf8ca7dfc",
+      "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4": "9f7aec17-b7b8-4c0c-8ad2-d5f9d22258d4"
+    },
+    "tokenPresent": true,
+    "secretFieldsEmpty": true,
+    "confirmationEmpty": true,
+    "applyButtonVisible": true,
+    "planPostCount": 1,
+    "restoreApplyPostCount": 0,
+    "observedPostCommands": [
+      "planStorageServiceConfigRestore"
+    ]
+  },
+  "preservation": {
+    "success": true,
+    "sourceProtectedFilesUnchanged": 6,
+    "bootUnchanged": true,
+    "nativeRuntimeUnchanged": true,
+    "profileRevision": 2,
+    "initialNfsSourceUuid": "cc00c23d-c146-46f4-81be-fbec2b70951d",
+    "initialNfsSourceUnused": true,
+    "operationState": "ROLLED_BACK",
+    "frozenImportBaselineAndPlanUnchanged": true,
+    "sameVmData5ReadySparse": true,
+    "moldMacUnchanged": true,
+    "deploymentScope": "Backend class overlay only",
+    "restoreReapplied": false,
+    "newResourcesCreated": 0,
+    "nativeRuntimeUpgrades": 0
+  },
+  "dataReadOnlyProof": {
+    "filesPreserved": 6,
+    "rawRegionsPreserved": 4,
+    "filesystemUuidsPreserved": true,
+    "bootId": "edcacab3-18bf-4fd6-b385-7b05b3c7b225",
+    "dataWrites": 0
+  },
+  "uiAssetHashesUnchanged": {
+    "index.html": "7c6a5db4eacae50416277c7fbc915dc7577a16b3ff6b0d27a7302a06abdbc15e",
+    "config.json": "d3e285317289b4eb4034141b63e4604ffd014d8bc1385aa28a007a4317c397f5"
+  },
+  "limits": [
+    "No live restore apply in this turn",
+    "No client reconnect or new successful generation claimed",
+    "Native/Agent generic stderr and empty-JSON transport unchanged",
+    "Whole-repository Checkstyle remains blocked by 11 existing upstream star-import violations"
+  ],
+  "screenshots": {
+    "issue909-prefix-ready-top-20261019.png": "a00b55e25ba25a581b92f1880eff2e66271f2866193675512ac25d4deb135846",
+    "issue909-prefix-ready-bottom-20261019.png": "d6f29fd8daaa8e3bb123608bb5cc237873716cd655b14362ca8561955749f5bb"
+  }
+}

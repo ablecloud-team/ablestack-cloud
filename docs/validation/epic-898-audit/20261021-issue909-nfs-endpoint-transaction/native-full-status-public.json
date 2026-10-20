@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "2b74921653963d3125edd37916036c56cbc437c0",
+  "exitCode": 0,
+  "tests": 1214,
+  "hostAccountFilesUnchanged": true,
+  "sourceUnchanged": true,
+  "isolationOutput": "/tmp/storage-preparation-health-wire-0p52r2hx",
+  "startedEpoch": 1792507028.64033,
+  "completedEpoch": 1792507324.4986272,
+  "validatedForProductCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "nativeGitTreeExactMatch": true,
+  "skipped": 6
+}

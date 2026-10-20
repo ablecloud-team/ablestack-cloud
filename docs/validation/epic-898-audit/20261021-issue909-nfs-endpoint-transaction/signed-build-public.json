@@ -1,0 +1,32 @@
+{
+  "sourceCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "keyId": "epic898-909-6698df5424-nfs-endpoint-transaction-test",
+  "version": "4.23.0.0-epic898-909-6698df5424-nfs-endpoint-transaction-20261020",
+  "privateKeyFilesCreated": 0,
+  "privateDescriptorClosed": true,
+  "privateInputBufferWiped": true,
+  "signatureVerified": true,
+  "testOnly": true,
+  "files": {
+    "SHA256SUMS": {
+      "bytes": 324,
+      "sha256": "085ed7d47624483f4bd8fee90e4ebaa4bbccac1384809288857943dc9a302e8d"
+    },
+    "manifest.sig": {
+      "bytes": 64,
+      "sha256": "5a4730ccaf9cd47358d3acb164cb9855c6df0938372480e994d8165bb4c11438"
+    },
+    "manifest.json": {
+      "bytes": 1572,
+      "sha256": "54b1d6931162a2e7a3a37bb22bcd875aab6365450cdd2a267478c80a14208ec4"
+    },
+    "epic898-909-6698df5424-nfs-endpoint-transaction-test.pem": {
+      "bytes": 113,
+      "sha256": "db629be0f7a6f2fc1e7dfc8bd92d149ef57bcbafa0c873523bf5e29695349b12"
+    },
+    "ablestack-storage-runtime-4.23.0.0-epic898-909-6698df5424-nfs-endpoint-transaction-20261020.tar.gz": {
+      "bytes": 680257,
+      "sha256": "ad0913ecb9d94848074bd010d8a36538bf6c9bba930b6528f2b2bb56732fdec5"
+    }
+  }
+}

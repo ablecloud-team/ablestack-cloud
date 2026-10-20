@@ -1,0 +1,56 @@
+{
+  "kind": "INDEPENDENT_READONLY_OWNED_ALL4_PROFILE_PEER",
+  "atUtc": "2026-10-10T10:05:09.973485+00:00",
+  "result": "NO_ACTIONABLE_MISMATCH",
+  "candidateFiles": [
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.java",
+      "sha256": "d37d24d27d235fbca500600d2c2645d4e9c16ea42e18ec3f1976e2f36da2197c"
+    },
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/main/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfile.java",
+      "sha256": "ed2e86457a3bc61331a986e4606b9c0ad1bccceabd0086272bda2f34880d8ff3"
+    },
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationProfileTest.java",
+      "sha256": "ae77eddabb558ea69861b61d5889a92b349e782f0ad1aede8764395f8c2026cb"
+    },
+    {
+      "path": "/root/work/epic898-preparation/all4-owned-sparse-profile-prep/candidate/server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageRenderedValidationAdmissionTest.java",
+      "sha256": "e6a50146725a2d2e287421aef21e038189009d1aed3326f76d29c65dcab5533b"
+    }
+  ],
+  "patchSha256": "21fb5b5499eb9a3dee75da5c5e18c6abda8f12047da1dcf5f35f47cda859a7dd",
+  "candidateManifestSha256": "39b0bcd2c3c8e5cb00a3e7c2c2c426f9873893dcb4ca883ba719ca5ecc1f1f60",
+  "focusedProofSha256": "d3ed0ee512cff81f3ecfda8fb3259a17a2177b00e92b26d8e8a0200419b6ea8a",
+  "focusedTestsReported": 22,
+  "focusedElapsedSecondsReported": 4.363,
+  "peerTestRuns": 0,
+  "peerSourceEdits": 0,
+  "peerActualCalls": 0,
+  "normalRecipeExisting129": "/root/work/epic898-preparation/iscsi-acl-writer-scope-resolver-prep/normal-preparation/manager-actual-command-proof.json",
+  "normalRecipeProfileSuiteCount": 1,
+  "normalRecipeAdmissionSuiteCount": 0,
+  "normalRecipeAfterAdmissionUnique": 130,
+  "reviewedBoundaries": {
+    "NEW_KIND": "Original newDataWithoutBacking literaltrue admission remains; recent and retained-new data rules unchanged",
+    "OWNED_KIND": "Explicit OWNED_SPARSE_ALL4_VALIDATION plus ownedDisposableFixture literaltrue; old data remains booleanfalse, no forged NEW-origin claim",
+    "COMMON_ARTIFACT": "Protected immutable store refs/hash, exact same-instance/name/ROOT+DATA bindings, exclusions, expiry/source pin and handler/signed readback unchanged",
+    "NO_BACKING": "Manager fresh DATA DAO type/template-null/blank-chain/Ready/SPARSE-FAT/account-zone-attached/notRemoved/unique-set checks at configure, required-use and pre-CAS; false age alone never authorizes cloned backing",
+    "KIND_USE": "Stored kind must be known and equal verified artifact kind before fresh runtime/guest use; configure records verified artifact kind",
+    "CAS": "Old revision and complete previous profile deepEquals, artifact reread and DAO/binding reverify before profile persistence",
+    "CAPABILITY": "productionCapability=false set by normal configure; no global production capability, feature, legacy, consumer or permission override",
+    "CONTINUITY": "same binding8 shape, baselineImported disable prohibition and existing recovery rules preserved; kind retained by next",
+    "NULL_PROVISIONING": "Profile pre-DAO uses null-safe literalSPARSE/FAT check; Manager explicitnull check also present, fixed rejection rather than NPE",
+    "FIXTURES": "Actual configure/protected Store/DAO body and required per-use entry exercised; no admission override. Template/chain drift hidden from binding8, beforeCAS path/backing mutation, same-revision policy mutation, original exclusions and unknown/different kind all have semantic fixture coverage"
+  },
+  "lastImportOnlyChange": "Backend reports unused import removal and javap code/descriptor equality; no peer retest requested",
+  "originEvidenceNotPromoted": {
+    "initialCreatedReceipt": "e39ae3c30d25d6848b9ef228b20ac31efa016c80735793c687eab3d73672231d",
+    "initialReferenceProof": "cadbaaed763995292ae3d1a58b314fa62ba545b05cc285d86a72b347a25c9750",
+    "additionalCeaeeCreateJobRows": 0,
+    "additionalNewOriginClaimed": false
+  },
+  "actualProfileOrAll4AcceptanceClaimed": false,
+  "ui1275": "UNSTARTED"
+}

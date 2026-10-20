@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -37,7 +36,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class LeaveStorageServiceFromAdDomainCmd extends BaseAsyncCmd implements UserCmd {
+public class LeaveStorageServiceFromAdDomainCmd extends BaseStorageServiceAsyncCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -49,6 +48,13 @@ public class LeaveStorageServiceFromAdDomainCmd extends BaseAsyncCmd implements 
 
     @Parameter(name = "password", type = CommandType.STRING, description = "domain leave password. Not stored.")
     private String password;
+
+    @Parameter(name = "maintenancewindow", type = CommandType.BOOLEAN, description = "Explicit approval to stop owned SMB and winbind services during this identity change")
+    private Boolean maintenanceWindow;
+    @Parameter(name = "confirmation", type = CommandType.STRING, description = "Exact Storage Service instance name approving the maintenance window")
+    private String confirmation;
+    public Boolean getMaintenanceWindow() { return maintenanceWindow; }
+    public String getConfirmation() { return confirmation; }
 
     public Long getInstanceId() {
         return instanceId;
@@ -64,7 +70,7 @@ public class LeaveStorageServiceFromAdDomainCmd extends BaseAsyncCmd implements 
 
     @Override
     public long getEntityOwnerId() {
-        return 0;
+        return org.apache.cloudstack.context.CallContext.current().getCallingAccount().getId();
     }
 
     @Override

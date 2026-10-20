@@ -1,0 +1,186 @@
+{
+  "ui-acceptance-public.json": {
+    "sourceCommit": "9b41c7645b16d86039b61bb65ba44b97af86bc18",
+    "result": "UI_PREPARATION_FIX_PASSED_BUT_RESUME_BLOCKED_BY_ISCSI_AUTH_CONTRACT",
+    "fullRestoreExecuted": false,
+    "productFailureRetryCount": 0,
+    "apiPreparationBypass": false,
+    "macModified": false,
+    "deferredService": {
+      "sharedfilesystemid": "a52dbb5c-925e-45de-8bb4-f5c4fcd1438a",
+      "vmid": "caf20e42-5199-4bff-90d6-1b9e92514c7f",
+      "vmname": "i-2-95-VM",
+      "host": "10.10.13.2",
+      "root": "019ed59a-659d-4881-9e6b-85c137d1c0b4",
+      "data": [
+        "c63fc46d-cfc9-4821-8a39-19cabbd3eb8c",
+        "ad471070-e760-4cd3-bf46-60f1d16feaf5",
+        "3e499ff0-8247-40f9-aac5-295a4149a5b5"
+      ],
+      "allProvisioning": "SPARSE",
+      "preserved": true,
+      "runtimeBundleId": "56dea2de-7dcc-4017-9b72-8f38102e2fc8",
+      "runtimeVersion": "4.23.0.0-epic898-909-022bc883d9-source-import-20261020"
+    },
+    "uiPassed": [
+      "default fresh VM create -> BOOT wait -> NFS configure -> verify COMPLETE",
+      "deferred fresh VM create -> BOOT pending -> READY -> COMPLETE without protocol writes",
+      "explicit signed runtime selection -> PREFLIGHT_READY -> COMPLETE",
+      "NFS enable/export/ACL COMPLETE",
+      "SMB enable/new-volume/share/local ACL COMPLETE",
+      "iSCSI enable/new RAW SPARSE target COMPLETE"
+    ],
+    "failure": {
+      "action": "createstorageiscsiaclresponse",
+      "operationUuid": "d3076374-12bb-41fd-a368-60e91a95a1d8",
+      "revision": 9,
+      "state": "RECOVERY_REQUIRED",
+      "phase": "APPLYING",
+      "guard": "AUTH",
+      "category": "VALUE_ERROR",
+      "target": "iqn.2026-10.local.ablestack:issue909-prepared-iscsi",
+      "cause": "Native iscsi_auth_name(target=True) requires .local.storage: although UI/API permit custom IQN. First ACL causes planned_iscsi_lun_access to invoke that validation.",
+      "rollbackDiagnostic": "Recovery iSCSI primary has no exact original writer authority"
+    },
+    "notPerformed": [
+      "failed ACL retry/recovery",
+      "NVMe-oF setup",
+      "test-only approval",
+      "backup/restore",
+      "client I/O"
+    ]
+  },
+  "backend-tests-public.json": [
+    {
+      "name": "StorageServicePreparationStateTest",
+      "tests": 16,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StoragePreparationHealthWireContractTest",
+      "tests": 14,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StoragePreparationObservationTest",
+      "tests": 4,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StorageInitialPreparationAdmissionTest",
+      "tests": 2,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "name": "StorageConfigInitialBaselineFlowTest",
+      "tests": 8,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "production-result-public.json": {
+    "sourceCommit": "9b41c7645b16d86039b61bb65ba44b97af86bc18",
+    "command": [
+      "./node_modules/.bin/vue-cli-service",
+      "build",
+      "--dest",
+      "/root/work/epic898-preparation/issue909-20261017/report/ui-cold-health-fix-20261020/dist"
+    ],
+    "productionExit": 0,
+    "startedEpoch": 1792488854.96805,
+    "completedEpoch": 1792489423.7752867,
+    "configRestoredExact": true,
+    "sourceUnchanged": true,
+    "buildWorkers": 2
+  },
+  "native-validation-public.json": {
+    "nativeTests": 9,
+    "producerSamples": 14,
+    "isolationSuccess": true,
+    "noHostNativeExecution": true,
+    "hostAccountFilesUnchanged": true,
+    "proofDirectory": "/tmp/storage-preparation-health-wire-at5jy4kv"
+  },
+  "management-deployment-public.json": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/var/backups/mold/issue909-ui-cold-health-9b41c7645b16/cloudstack-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "cb1f96cbe3a4c134a93283bfa669df19e7c68c3c3fb5bbfa58fdcaf15716d6fb",
+    "newJarSha256": "ef0f7f9251cf51c94eb678d09fe80c169cabf227ce5c7479975e2865d52828db",
+    "addedClasses": [],
+    "changedClasses": {
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse.class": "16ad9240ebf4b2a31f060c294fc5e57068690858779b9a1a128fe91dbdc1fdbc",
+      "org/apache/cloudstack/api/response/StorageServicePreparationStatusResponse$Condition.class": "0bd1a1b01b19fb897243424b468c5cf29dab7abc90fad04e2f35cdc0fba1a997",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselinePublication.class": "764593225994c1fa81372bf36df80727848d0774eccb45ffd88f830cb1447773",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineVerification.class": "fb95830858a428588ad0b1a861d25c03b33868881023a6815ec8894260a9c513",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class": "b16dfaeb51dab7fcfe3bcbd6982ee27998afe73d5cab3a25c85ba5e5aa4088e0",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationInitialBaselineCommand.class": "abb900d9f238d17ce9f4161de1023b8361b902ad9701da3f26cc0821d0412c41",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$2.class": "c96dce1cd7b6f671fcc2c75122802db6e14d07465cd86794bda220f5dee29a83",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationTargetCommand.class": "c2e8613a4afb8bfdb7669c8718ab2f6b815acad05ca90d452b8ebb94ea084a5c",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$3.class": "8ee108d0db7572b26dfddd1d4dfd544f28da51e061d170b24588ff209f1ed0fb",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$ConfigurationCloneRestorePublication.class": "346324101c11d164e09bd7d8cff831ec3f8f714c7a5e2d7d916b402bbaef8621",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$6.class": "5feed5ea8a782c7cc9e61252eb4aa2fbd935fdd48543992b8afbf48ac430e62a",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$4.class": "d6fa1979feda800ec262ec73d6a03e21504ba92dd0c63dacf608434d37893ab2",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$7.class": "e960c1b991407ef85226bc60cb7bde2ba96e3ff330f5565d54e63d41235be364",
+      "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$5.class": "7444d3773a5e0e8e99f960f8443a0f8f7ff25bc340a7d30583e74bd0b7183b14",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState$Result.class": "167cc68e269b03848ccbbf1dc6691e4c5e3229a5a7ef6bdcd551083649ce94a2",
+      "org/apache/cloudstack/storage/dataservice/StorageServicePreparationState.class": "22c9f5fe27d9c56a16a3216d116c4619d9eca5c82bd64fb3dea17ffd2e2cc9ce"
+    },
+    "unchangedEntriesVerified": 204657,
+    "service": "mold",
+    "active": "active",
+    "pid": "2853006",
+    "sourceCommit": "9b41c7645b16d86039b61bb65ba44b97af86bc18"
+  },
+  "ui-deployment-public.json": {
+    "success": true,
+    "sourceCommit": "9b41c7645b16d86039b61bb65ba44b97af86bc18",
+    "indexSha256": "e079109aeaf85a4217bb16cd5aa6364fbd3d638b6d7a763c25d837d03f8bbfb2",
+    "oldIndexSha256": "73f389975459620995325425d305861c4bd5e0f36fa0f601c28200a409c7194f",
+    "backupDirectory": "/var/backups/mold/issue909-ui-assets-9b41c7645b16",
+    "addedAssets": 8,
+    "oldAssetsPreserved": 4434,
+    "protectedOtherFilesPreserved": 20,
+    "localeKeysUpdated": {
+      "en.json": 36,
+      "ko_KR.json": 36
+    },
+    "localeSha256": {
+      "locales/en.json": "b9312f52a11a3791102572d6d2111e73bce0cc2870184d4d8a8cd7ca58a0c01b",
+      "locales/ko_KR.json": "71f5c6bf0e1326f83c9395c230ed14c9177baa7c6696129d491d5459b97c7e1d"
+    },
+    "managementPid": "2853006",
+    "backendJarSha256": "ef0f7f9251cf51c94eb678d09fe80c169cabf227ce5c7479975e2865d52828db",
+    "serviceRestarted": false,
+    "completedEpoch": 1792489521.2589052
+  },
+  "iscsi-auth-readonly-diagnosis-public.json": {
+    "exitCode": 0,
+    "stderrBytes": 0,
+    "public": {
+      "readOnlyDiagnosis": true,
+      "cliSha256": "e49a54deeed660da8dde5668b0676a7c5cfcff8245428db9bb0b923ea1b0d400",
+      "embeddedTargetNamespaceRestrictionPresent": true,
+      "libraryTargetNamespaceRestrictionPresent": true,
+      "targetContainsAllowedMarker": false,
+      "persistedIscsiTargets": [
+        {
+          "targetName": "iqn.2026-10.local.ablestack:issue909-prepared-iscsi",
+          "lunOrNamespace": "0",
+          "activeAclCount": 0
+        }
+      ],
+      "configfsTargetExists": true,
+      "configfsClientAclExists": false
+    }
+  }
+}

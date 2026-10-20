@@ -99,6 +99,17 @@ public class StorageFileShareResponse extends BaseResponse {
     @Param(description = "file share configuration")
     private String config;
 
+    @SerializedName("volumerelativepath")
+    @Param(description = "directory relative to the managed backing volume root")
+    private String volumeRelativePath;
+
+    @SerializedName("backingpath")
+    @Param(description = "physical backing directory resolved by the Storage Service runtime")
+    private String backingPath;
+
+    public void setVolumeRelativePath(final String value) { this.volumeRelativePath = value; }
+    public void setBackingPath(final String value) { this.backingPath = value; }
+
     public void setId(final String id) {
         this.id = id;
     }

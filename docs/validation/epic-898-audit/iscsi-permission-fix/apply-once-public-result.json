@@ -1,0 +1,33 @@
+{
+  "kind": "MANAGEMENT_WHOLE_IQN_RO_OUTER_ONE_APPLY",
+  "observedAtUtc": "2026-10-10T06:36:59.077528+00:00",
+  "helperExitCode": 0,
+  "helperPublicResult": {
+    "success": true,
+    "javaSourceCommit": "ff1aa74eeda6fffba46c97d6f56c678cbdc2bf33",
+    "normalTests": 972,
+    "normalSelectors": 128,
+    "backup": "/root/epic898-whole-iqn-ro-ff1aa74e-backup-20261010-153548",
+    "beforeJarSha256": "935408703611ec4c53b455b9c453f53d4be3a94bc6d52efe222147cb9e5f4cc7",
+    "afterJarSha256": "ed3a6be2492af27d2c57072959e25db232050fecd7715154695244f6c5d424bf",
+    "beforePid": 1400221,
+    "afterPid": 1408330,
+    "changedClassCount": 1,
+    "newClassCount": 0,
+    "otherJarEntryContentsPreserved": true,
+    "otherLibraryFilesPreserved": true,
+    "runtimeFamilyPreserved": true,
+    "uiConfigWebInfAssetsPreserved": true,
+    "activationAt": "2026-10-10T15:36:58.972335+09:00",
+    "applicationReadinessVerified": false,
+    "guestInvocations": 0,
+    "df11ReconcileInvocations": 0,
+    "finalUi1275Started": false
+  },
+  "applyInvocations": 1,
+  "rawErrorStored": false,
+  "rawErrorPrinted": false,
+  "safeFailureClass": null,
+  "applicationReadinessVerified": false,
+  "finalUi1275Started": false
+}
