@@ -2552,6 +2552,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         response.setMessage("Current boot, native writer and DATA formatter readiness: "+getJsonString(observed,"reason"));
         response.setBootId(getJsonString(observed,"bootId"));response.setObservedAtMillis(getJsonLong(observed,"observedAtMillis"));
         response.setExpiresAtMillis(getJsonLong(observed,"expiresAtMillis"));response.setRuntimeCliSha256(getJsonString(observed,"runtimeCliSha256"));
+        response.setDiagnostics(getJsonString(observed,"diagnostics"));
         response.setConditions(List.of(new org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse.Condition(
                 "BOOT_WRITER_FORMATTER",Boolean.TRUE.equals(getJsonBoolean(observed,"ready")),getJsonString(observed,"reason"))));
         return response;
@@ -2560,17 +2561,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected JsonObject storagePreparationObservation(StorageServiceInstanceVO instance,String purpose,Long targetBundleId) {
         long started=System.currentTimeMillis();JsonObject value=new JsonObject();value.addProperty("ready",false);
         value.addProperty("status","OBSERVATION_UNAVAILABLE");value.addProperty("reason","NATIVE_OBSERVATION_UNAVAILABLE");
+        JsonObject before=null,after=null,health=null;String observation="VM_STATE",failureReason="NATIVE_OBSERVATION_UNAVAILABLE";
+        boolean failed=false;
         try {
             VMInstanceVO vm=instance.getVmId()==null?null:vmInstanceDao.findById(instance.getVmId());
             if(vm==null||vm.getState()!=com.cloud.vm.VirtualMachine.State.Running) {
                 value.addProperty("status","WAITING_VM");value.addProperty("reason","VM_NOT_RUNNING");return value;
             }
-            JsonObject before=nativeConfigurationGeneration(instance,null,"status");
-            StorageServiceGuestCommandResult healthResult=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
-                    instance.getVmId(),"health","",10,Collections.emptySet()));
-            JsonObject health=parseJsonObject(normalizeRuntimeResultJson(healthResult.getResultJson()));
-            JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),10);
-            JsonObject maintenance=rootGuest(instance,"operation maintenance status",new JsonObject(),10);
+            observation="GENERATION_BEFORE";before=nativeConfigurationGeneration(instance,null,"status");
+            observation="MAINTENANCE";JsonObject maintenance=rootGuest(instance,"operation maintenance status",new JsonObject(),10);
+            observation="DATABASE_WRITER";
             StorageServiceRuntimeUpgradeVO active=storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId());
             boolean ownPreflight="RUNTIME_UPGRADE".equals(purpose)&&active!=null
                     &&active.getState()==StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY
@@ -2583,9 +2583,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if("RUNNING".equals(row.getState())||unresolved)databaseIdle=false;
                 if(unresolved)databaseRecovery=true;
             }
-            boolean formatterIdle=true;
+            observation="DATA_FORMATTERS";boolean formatterIdle=true;
             try {requireNoPendingVolumeFormatter(instance);}catch(RuntimeException unavailable){formatterIdle=false;}
-            JsonObject after=nativeConfigurationGeneration(instance,null,"status");
+            // Health and idle are volatile: observe them after all per-DATA probes, inside the same BOOT fence.
+            observation="HEALTH";failureReason="HEALTH_RPC_OBSERVATION_FAILED";
+            StorageServiceGuestCommandResult healthResult=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                    instance.getVmId(),"health","",10,Collections.emptySet()));
+            if(healthResult==null||!healthResult.isSuccess())throw new CloudRuntimeException("Read-only health RPC did not complete");
+            failureReason="HEALTH_OBSERVATION_INVALID";
+            JsonElement parsed=com.google.gson.JsonParser.parseString(normalizeRuntimeResultJson(healthResult.getResultJson()));
+            if(!parsed.isJsonObject())throw new CloudRuntimeException("Read-only health response was not a JSON object");
+            health=parsed.getAsJsonObject();
+            observation="WRITER_IDLE";failureReason="NATIVE_OBSERVATION_UNAVAILABLE";
+            JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),10);
+            observation="GENERATION_AFTER";after=nativeConfigurationGeneration(instance,null,"status");
             StorageServicePreparationState.Result state=StorageServicePreparationState.evaluate(true,databaseIdle,formatterIdle,health,before,after,idle,maintenance,System.currentTimeMillis());
             value.addProperty("ready",state.ready);value.addProperty("status",state.status);value.addProperty("reason",state.reason);value.addProperty("bootId",state.bootId);
             if(databaseRecovery) {
@@ -2595,8 +2606,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 value.addProperty("ready",false);value.addProperty("status","OBSERVATION_UNAVAILABLE");value.addProperty("reason","OBSERVATION_WINDOW_EXPIRED");
             }
             return value;
-        } catch(RuntimeException unavailable) {return value;}
-        finally {long now=System.currentTimeMillis();value.addProperty("observedAtMillis",now);value.addProperty("expiresAtMillis",now+30000);}
+        } catch(RuntimeException unavailable) {
+            failed=true;value.addProperty("ready",false);value.addProperty("status","OBSERVATION_UNAVAILABLE");value.addProperty("reason",failureReason);
+            return value;
+        } finally {
+            long now=System.currentTimeMillis();value.addProperty("observedAtMillis",now);value.addProperty("expiresAtMillis",now+30000);
+            JsonObject diagnostics=StorageServicePreparationState.diagnostics(before,after,health,now);
+            diagnostics.addProperty("observationDurationMillis",Math.max(0,now-started));
+            if(failed)diagnostics.addProperty("failedObservation",observation);
+            value.addProperty("diagnostics",diagnostics.toString());
+        }
     }
 
     protected boolean initialPreparationRequired(StorageServiceInstanceVO instance,long instanceId) {

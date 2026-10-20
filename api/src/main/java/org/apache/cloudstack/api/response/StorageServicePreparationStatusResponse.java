@@ -33,6 +33,7 @@ public class StorageServicePreparationStatusResponse extends BaseResponse {
     @SerializedName("expiresatmillis") @Param(description="Advisory observation expiry epoch milliseconds") private long expiresAtMillis;
     @SerializedName("conditions") @Param(description="Readiness condition details") private List<Condition> conditions;
     @SerializedName("runtimeclisha256") @Param(description="Observed native CLI SHA256") private String runtimeCliSha256;
+    @SerializedName("diagnostics") @Param(description="Bounded public BOOT and health-origin comparison fields as JSON; never raw configuration or command output") private String diagnostics;
     public static class Condition {
         @SerializedName("name") @Param(description="Condition") private String name;
         @SerializedName("ready") @Param(description="Condition ready") private boolean ready;
@@ -45,4 +46,5 @@ public class StorageServicePreparationStatusResponse extends BaseResponse {
     public void setBootId(String v){bootId=v;} public void setObservedAtMillis(long v){observedAtMillis=v;}
     public void setExpiresAtMillis(long v){expiresAtMillis=v;} public void setConditions(List<Condition> v){conditions=v;}
     public void setRuntimeCliSha256(String v){runtimeCliSha256=v;}
+    public void setDiagnostics(String v){diagnostics=v;}
 }

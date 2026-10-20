@@ -52,6 +52,8 @@
           show-icon
           :message="$t(initialSetupMessageKey)"
           :description="initialPreparationReason || undefined" />
+        <p v-if="initialVmCreated && !initialServiceWriteStarted">{{ $t('message.storage.service.create.preparation.services.not.started') }}</p>
+        <storage-preparation-diagnostics :observation="initialPreparationFirstFailure || initialPreparationObservation" :first-failure="!!initialPreparationFirstFailure" />
         <p v-if="initialSetupStatus === 'ERROR'">{{ $t('message.storage.service.create.preparation.failure.help') }}</p>
         <p v-if="loading">{{ $t('message.storage.service.create.preparation.close.help') }}</p>
         <p v-if="initialSharedFsId">
@@ -1081,7 +1083,7 @@
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 import { validSharedFsGateway } from '@/utils/storageNetworkReadiness'
 import { storageReadDeadline } from '@/utils/storageRead'
-import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable } from '@/utils/storagePreparation'
+import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable, storagePreparationReasons, storagePreparationDiagnosticSnapshot } from '@/utils/storagePreparation'
 import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 
 import { ref, reactive, toRaw, h } from 'vue'
@@ -1089,6 +1091,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
+import StoragePreparationDiagnostics from '@/views/storage/StoragePreparationDiagnostics'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -1105,6 +1108,7 @@ export default {
   },
   components: {
     StorageAdMutationConsent,
+    StoragePreparationDiagnostics,
     OwnershipSelection,
     ResourceIcon,
     TooltipLabel,
@@ -1132,10 +1136,14 @@ export default {
       loading: false,
       creationSubmitted: false,
       initialSetupCancelled: false,
+      initialVmCreated: false,
+      initialServiceWriteStarted: false,
       initialSetupStatus: 'IDLE',
       initialSetupStep: 0,
       initialSharedFsId: '',
       initialPreparationReason: '',
+      initialPreparationObservation: null,
+      initialPreparationFirstFailure: null,
       initialSetupMessageKey: 'message.storage.service.create.preparation.creating',
       currentSetupSnapshot: null,
       zones: [],
@@ -1983,6 +1991,8 @@ export default {
     },
     cancelInitialSetup () {
       this.initialSetupCancelled = true
+      this.initialPreparationObservation = null
+      this.initialPreparationFirstFailure = null
       this.clearInitialCredentials(this.currentSetupSnapshot)
     },
     assertInitialSetupActive () {
@@ -2178,6 +2188,8 @@ export default {
       if (this.loading || this.creationSubmitted) return
       this.loading = true
       this.initialSetupCancelled = false
+      this.initialPreparationObservation = null
+      this.initialPreparationFirstFailure = null
       this.syncInitialNfsPath()
       return this.formRef.value.validate().then(async () => {
         this.assertInitialSetupActive()
@@ -2204,7 +2216,7 @@ export default {
           this.formRef.value.scrollToField(error.errorFields[0].name)
         } else if (this.creationSubmitted) {
           this.initialSetupStatus = 'ERROR'
-          this.initialSetupMessageKey = 'message.storage.service.create.preparation.failed'
+          this.initialSetupMessageKey = 'message.storage.service.create.preparation.creation.unconfirmed'
         } else if (error instanceof Error) this.$notifyError(error)
       }).finally(() => {
         this.loading = false
@@ -2217,6 +2229,7 @@ export default {
         this.assertInitialSetupActive()
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
         const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
+        this.initialVmCreated = true
         await this.configureInitialStorageServices(result, setup, notificationKey, preparation)
         this.assertInitialSetupActive()
         this.initialSetupStatus = 'COMPLETE'
@@ -2228,14 +2241,20 @@ export default {
           return
         }
         this.initialSetupStatus = 'ERROR'
-        this.initialSetupMessageKey = 'message.storage.service.create.preparation.failed'
-        this.notifyStorageServiceSetup(notificationKey, 'error', 'message.storage.service.setup.partial.failed', this.initialSetupFailureDescription(preparation), 0)
+        const message = this.initialServiceWriteStarted
+          ? 'message.storage.service.setup.partial.failed'
+          : (this.initialVmCreated ? 'message.storage.service.create.preparation.stopped.before.services' : 'message.storage.service.create.preparation.creation.unconfirmed')
+        this.initialSetupMessageKey = message
+        this.notifyStorageServiceSetup(notificationKey, 'error', message, this.initialSetupFailureDescription(preparation), 0)
       } finally {
         this.clearInitialCredentials(setup)
       }
     },
     initialSetupFailureDescription (preparation = {}) {
-      const description = [h('p', this.$t('message.storage.volume.setup.failed.summary'))]
+      const summary = this.initialServiceWriteStarted
+        ? 'message.storage.volume.setup.failed.summary'
+        : (this.initialVmCreated ? 'message.storage.service.create.preparation.services.not.started' : 'message.storage.service.create.preparation.creation.unconfirmed')
+      const description = [h('p', this.$t(summary))]
       if (this.initialPreparationReason) description.push(h('p', this.initialPreparationReason))
       if (typeof preparation.sharedFsId === 'string' && preparation.sharedFsId) {
         let href = '#/sharedfs/' + encodeURIComponent(preparation.sharedFsId) + '?tab=operations'
@@ -2287,6 +2306,9 @@ export default {
         this.initialSetupStep = 3
         this.initialSetupMessageKey = 'message.storage.service.setup.protocol.running'
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.protocol.running', setup.name, 0)
+        // After this boundary an unknown write result is terminal for this
+        // wizard. Preparation polling never repeats an accepted mutation.
+        this.initialServiceWriteStarted = true
         await this.enableSelectedProtocols(instance, setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resources.running', setup.name, 0)
         const fileSetup = await this.createInitialFileServices(instance, sharedfs, setup)
@@ -2317,8 +2339,11 @@ export default {
           if (error?.code !== 'STORAGE_INITIAL_SETUP_CANCELLED') this.initialPreparationReason = this.$t('message.storage.service.create.preparation.status.OBSERVATION_UNAVAILABLE')
           throw error
         }
-        const reason = typeof receipt.reason === 'string' && /^[A-Z][A-Z0-9_]{0,100}$/.test(receipt.reason) ? ' (' + receipt.reason + ')' : ''
-        this.initialPreparationReason = this.$t('message.storage.service.create.preparation.status.' + receipt.status) + reason
+        this.initialPreparationObservation = storagePreparationDiagnosticSnapshot(receipt)
+        if (!storagePreparationWaitable(receipt.status) && !this.initialPreparationFirstFailure) this.initialPreparationFirstFailure = this.initialPreparationObservation
+        this.initialPreparationReason = storagePreparationReasons.includes(receipt.reason)
+          ? this.$t('message.storage.service.preparation.reason.' + receipt.reason)
+          : this.$t('message.storage.service.create.preparation.status.' + receipt.status)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.create.preparation.waiting', this.initialPreparationReason, 0)
         if (readyAtSameBoot(previous, receipt)) {
           this.initialPreparationReason = ''

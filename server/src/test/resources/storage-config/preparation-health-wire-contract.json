@@ -1,0 +1,2644 @@
+{
+  "schemaVersion": 1,
+  "producer": {
+    "cli": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+    "cliSha256": "e49a54deeed660da8dde5668b0676a7c5cfcff8245428db9bb0b923ea1b0d400",
+    "monitor": "systemvm/debian/usr/local/bin/ablestack-storage-monitor",
+    "monitorSha256": "e1d0a62273c760e091481057e6178a01f9899dc2e39fee3ff200e1983de0780c",
+    "method": "packaged CLI, exact monitor cache writer and real BootCoordinator publish_cache",
+    "noProtocolMutation": true,
+    "controlledInputs": [
+      "previous BOOT cache identity",
+      "cache timestamp/JSON",
+      "BOOT journal JSON",
+      "Network observation is seeded only to exercise monitor health cache projection"
+    ],
+    "bootstrapCompatibility": {
+      "bootstrapCliSha256": "8e14f84ea70b81ffd54dced38a48e31ff1a7202537557c414dabf28f0c2a5197",
+      "liveOutputStatementExactEqual": true,
+      "liveOutputStatementSha256": "3502af746bd42602fdee4156ad0e34f963b55e002dcbbd0f7582709450000187",
+      "scope": "Live output statement matches installed bootstrap source capture; full bootstrap CLI not executed"
+    }
+  },
+  "samples": [
+    {
+      "name": "LIVE_COLD",
+      "health": {
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedEpoch": 1792487904.597818,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487905.189388,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "HEALTH_BOOT_METADATA_PENDING"
+      }
+    },
+    {
+      "name": "CURRENT_BOOT_NO_RECEIPT",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:25Z",
+        "generatedEpoch": 1792487905.2862728,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487905.1894188,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487905.8821979,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "BOOT_RECONCILE_STATUS_PENDING"
+      }
+    },
+    {
+      "name": "CURRENT_BOOT_RECONCILING",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.0004162000000178523,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "MOUNT_BACKING",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.9995819000001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "RECONCILING",
+          "updatedEpoch": 1792487905.8830144
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:25Z",
+        "generatedEpoch": 1792487905.9860568,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487905.8858132,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "reconciling",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487906.5666063,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "BOOT_RECONCILING"
+      }
+    },
+    {
+      "name": "CURRENT_BOOT_READY",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.6845517430000427,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.3154475570001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487906.5671484
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:26Z",
+        "generatedEpoch": 1792487906.6784854,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487906.567991,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487907.2577045,
+      "expected": {
+        "ready": true,
+        "status": "READY",
+        "reason": "CURRENT_BOOT_READY"
+      }
+    },
+    {
+      "name": "CURRENT_BOOT_READY_NETWORK_ERROR",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.6845517430000427,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.3154475570001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487906.5671484
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "errors": [
+          {
+            "code": "ADDRESS_MISMATCH",
+            "collector": "network"
+          }
+        ],
+        "generatedAt": "2026-10-20T09:18:27Z",
+        "generatedEpoch": 1792487907.3523192,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [
+            "ADDRESS_MISMATCH"
+          ],
+          "mode": "DHCP",
+          "observedEpoch": 1792487907.2577221,
+          "schemaVersion": 1,
+          "status": "ERROR",
+          "success": false
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "error",
+        "success": false,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487907.972703,
+      "expected": {
+        "ready": false,
+        "status": "OBSERVATION_UNAVAILABLE",
+        "reason": "HEALTH_OBSERVATION_FAILED"
+      },
+      "faultInput": "Only monitor network observation reports ADDRESS_MISMATCH; BOOT READY is real"
+    },
+    {
+      "name": "COORDINATOR_PROGRESS_ONLY_RECONCILING",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.00024939999991602235,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "MOUNT_BACKING",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.9997493,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "RECONCILING",
+          "updatedEpoch": 1792487908.0775118
+        },
+        "cached": true,
+        "collector": "boot-reconcile",
+        "generatedEpoch": 1792487908.0781898,
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487908.0767813,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "schemaVersion": 1,
+        "staleAfterSeconds": 30,
+        "status": "reconciling",
+        "success": true
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487908.6543245,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "BOOT_RECONCILING"
+      }
+    },
+    {
+      "name": "COORDINATOR_PROGRESS_ONLY_READY",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.5778806579999127,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.4221184419999,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487908.6551425
+        },
+        "cached": true,
+        "collector": "boot-reconcile",
+        "generatedEpoch": 1792487908.656273,
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487908.0767813,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "schemaVersion": 1,
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487909.2112985,
+      "expected": {
+        "ready": true,
+        "status": "READY",
+        "reason": "CURRENT_BOOT_READY"
+      }
+    },
+    {
+      "name": "COORDINATOR_READY_NETWORK_ERROR",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "detailedVerified": true,
+          "elapsedSeconds": 1.135318899999902,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 598.8646793999999,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487909.2125819
+        },
+        "cached": true,
+        "collector": "boot-reconcile",
+        "errors": [
+          {
+            "code": "ADDRESS_MISMATCH",
+            "collector": "network"
+          }
+        ],
+        "generatedEpoch": 1792487909.2137246,
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [
+            "ADDRESS_MISMATCH"
+          ],
+          "mode": "DHCP",
+          "observedEpoch": 1792487909.211316,
+          "schemaVersion": 1,
+          "status": "ERROR",
+          "success": false
+        },
+        "schemaVersion": 1,
+        "staleAfterSeconds": 30,
+        "status": "error",
+        "success": false
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487909.789301,
+      "expected": {
+        "ready": false,
+        "status": "OBSERVATION_UNAVAILABLE",
+        "reason": "HEALTH_OBSERVATION_FAILED"
+      },
+      "faultInput": "Only coordinator network observation reports ADDRESS_MISMATCH; BOOT READY is real"
+    },
+    {
+      "name": "GENERATION_BOOT_CHANGE",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.6845517430000427,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.3154475570001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487906.5671484
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:26Z",
+        "generatedEpoch": 1792487906.6784854,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487906.567991,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487910.3765001,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "BOOT_CHANGED_DURING_OBSERVATION"
+      },
+      "faultInput": "Only the earlier generation BOOT is seeded as the previous BOOT"
+    },
+    {
+      "name": "PREVIOUS_BOOT_CACHE",
+      "health": {
+        "bootId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.6845517430000427,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.3154475570001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487906.5671484
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:26Z",
+        "generatedEpoch": 1792487906.6784854,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487906.567991,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487910.9347382,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "HEALTH_CACHE_PREVIOUS_BOOT"
+      },
+      "faultInput": "Only a valid previous BOOT identity is seeded in the existing cache"
+    },
+    {
+      "name": "STALE_CACHE_LIVE_FALLBACK",
+      "health": {
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedEpoch": 1792487911.2009435,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487911.2009435,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 6
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487911.6838605,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "HEALTH_BOOT_METADATA_PENDING"
+      },
+      "faultInput": "Only the cache generatedEpoch is expired; CLI chooses live fallback"
+    },
+    {
+      "name": "MALFORMED_CACHE_LIVE_FALLBACK",
+      "health": {
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedEpoch": 1792487911.9644907,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487911.9644907,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 7
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487912.4709225,
+      "expected": {
+        "ready": false,
+        "status": "WAITING_BOOT",
+        "reason": "HEALTH_BOOT_METADATA_PENDING"
+      },
+      "faultInput": "Only cache JSON is broken; CLI chooses live fallback"
+    },
+    {
+      "name": "CURRENT_BOOT_RECEIPT_READ_ERROR",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcileReadError": true,
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:32Z",
+        "generatedEpoch": 1792487912.5696788,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487912.4712348,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487913.1781898,
+      "expected": {
+        "ready": false,
+        "status": "OBSERVATION_UNAVAILABLE",
+        "reason": "BOOT_OBSERVATION_INVALID"
+      },
+      "faultInput": "Only protected BOOT journal JSON is broken; monitor records read error"
+    },
+    {
+      "name": "EXPIRED_READY_OBSERVATION",
+      "health": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "bootReconcile": {
+          "attempt": 0,
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "deadlineSeconds": 600,
+          "desiredHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "detailedVerified": true,
+          "elapsedSeconds": 0.6845517430000427,
+          "heartbeatStaleAfterSeconds": 15,
+          "instanceUuid": null,
+          "kind": "STORAGE_BOOT_RECONCILE",
+          "lastFailure": null,
+          "phase": "SKIPPED",
+          "protocols": {
+            "ISCSI": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NFS": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "NVMEOF": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            },
+            "SMB": {
+              "applyState": "NOT_REQUIRED",
+              "completedProbeCount": 0,
+              "configured": false,
+              "detailVerificationKind": "NOT_REQUIRED",
+              "listenerReady": false,
+              "observationComplete": true,
+              "probeState": "NOT_REQUIRED",
+              "skippedAclCount": 0,
+              "totalProbeCount": 0,
+              "verified": true
+            }
+          },
+          "remainingSeconds": 599.3154475570001,
+          "runtimeReady": true,
+          "schemaVersion": 1,
+          "status": "READY",
+          "updatedEpoch": 1792487906.5671484
+        },
+        "cached": true,
+        "capabilities": {
+          "nvmeof": {
+            "configfsHostSupported": false,
+            "dhChapCtrlSupported": false,
+            "dhChapSupported": false,
+            "kernel": "6.18.54.1-microsoft-standard-WSL2",
+            "kernelTargetSupported": false,
+            "reason": "missing nvmet configfs root"
+          },
+          "smbNetworkAccessSupported": false,
+          "smbNetworkIpv6Supported": false
+        },
+        "collector": "health",
+        "commands": {
+          "exportfs": false,
+          "net": false,
+          "nvme": false,
+          "smbd": false,
+          "targetcli": false
+        },
+        "desiredState": {
+          "iscsiTargets": false,
+          "nfsQuotas": false,
+          "nvmeofSubsystems": false,
+          "smbDomain": false,
+          "smbDomainError": false,
+          "smbQuotas": false
+        },
+        "generatedAt": "2026-10-20T09:18:26Z",
+        "generatedEpoch": 1792487906.6784854,
+        "hostname": "health-wire-contract",
+        "identity": {
+          "smbDomain": {},
+          "smbDomainError": {}
+        },
+        "listenPorts": {
+          "iscsi": false,
+          "iscsiPorts": {
+            "3260": false
+          },
+          "nfs": false,
+          "nvmeof": true,
+          "nvmeofPorts": {},
+          "smb": false
+        },
+        "network": {
+          "addresses": []
+        },
+        "networkReadiness": {
+          "actual": {},
+          "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+          "expected": {
+            "dns": [],
+            "mode": "DHCP"
+          },
+          "kind": "SHAREDFS_NETWORK_READINESS",
+          "mismatches": [],
+          "mode": "DHCP",
+          "observedEpoch": 1792487906.567991,
+          "schemaVersion": 1,
+          "status": "OK",
+          "success": true
+        },
+        "nfsGanesha": {
+          "active": 0,
+          "configured": 0,
+          "endpoints": [],
+          "idMappingMode": "UNKNOWN",
+          "listening": false,
+          "protocolMode": "V4_ONLY",
+          "rpcbindActive": false,
+          "rpcbindRequired": false,
+          "status": "ok"
+        },
+        "observedEpoch": 1792487904.5978181,
+        "schemaVersion": 1,
+        "services": {
+          "iscsiTarget": "unknown",
+          "nfs": "unknown",
+          "nfsGanesha": "ok",
+          "nmbd": "unknown",
+          "qemuGuestAgent": "unknown",
+          "smbd": "unknown",
+          "winbind": "unknown"
+        },
+        "smbRuntime": {
+          "available": true,
+          "configured": 0,
+          "listening": true,
+          "runtimeEndpoints": []
+        },
+        "staleAfterSeconds": 30,
+        "status": "ok",
+        "success": true,
+        "uptimeSeconds": 0
+      },
+      "before": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "after": {
+        "bootId": "7baecbe6-ba81-4683-aef7-b6a427994874",
+        "configurationDesiredState": {
+          "desired-state/nfs-export-apply.json": null,
+          "desired-state/smb-share-apply.json": null,
+          "iscsi-targets.json": null,
+          "network-endpoints.json": null,
+          "nvmeof-subsystems.json": null,
+          "posix-directory-policies.json": null,
+          "sharedfs-network.json": null
+        },
+        "configurationSha256": "7965f08eca6408d4f75ff21d73bf38d1244512437c920215182782d3dee1d204",
+        "generation": {},
+        "generationStatus": "UNVERIFIED",
+        "generationSupported": true,
+        "pendingOperationUuid": null,
+        "runtimeRevision": 0,
+        "success": true
+      },
+      "idle": {
+        "success": true,
+        "status": "WRITER_IDLE",
+        "writerIdle": true,
+        "writerLockSupported": true,
+        "bootChildActive": false,
+        "bootRecoveryRequired": false
+      },
+      "maintenance": {
+        "bootHeld": false,
+        "maintenanceKind": null,
+        "maintenanceSupported": true,
+        "scope": null,
+        "serviceMaintenanceSupported": true,
+        "success": true
+      },
+      "evaluatedAtEpoch": 1792487937.6784854,
+      "expected": {
+        "ready": false,
+        "status": "OBSERVATION_UNAVAILABLE",
+        "reason": "HEALTH_OBSERVATION_STALE"
+      }
+    }
+  ]
+}

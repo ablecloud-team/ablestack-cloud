@@ -1,7 +1,7 @@
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements. See the NOTICE file
 // distributed with this work for additional information.
-import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable } from '@/utils/storagePreparation'
+import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable, readStoragePreparationDiagnostics, storagePreparationDiagnosticSnapshot } from '@/utils/storagePreparation'
 
 const expected = { sharedfilesystemid: 'fs-1', instanceid: 'instance-1', purpose: 'INITIAL_CONFIG' }
 const now = 100000
@@ -63,5 +63,37 @@ describe('Storage preparation receipt admission', () => {
       expect(readyAtSameBoot(first, { ...next, ...change }, now)).toBe(false)
     }
     expect(readyAtSameBoot({ ...first, expiresatmillis: now }, next, now)).toBe(false)
+  })
+})
+
+describe('Bounded public preparation diagnostics', () => {
+  const boot = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+  it('retains only the closed public schema and never stores raw health, configuration or authentication fields', () => {
+    const value = readStoragePreparation(envelope(receipt({
+      diagnostics: JSON.stringify({ nativeBootBefore: boot, nativeBootAfter: boot, healthOrigin: 'LIVE', healthSuccess: true, healthStatus: 'ok', bootProgressPresent: false, healthAgeMillis: 150, observationDurationMillis: 250, rawHealth: { password: 'synthetic-hidden-value' }, secret: 'synthetic-hidden-value', failedObservation: 'HEALTH' }),
+      rawHealth: { password: 'synthetic-hidden-value' },
+      message: 'synthetic-hidden-value'
+    })), expected, now)
+    expect(value.diagnostics).toEqual({ nativeBootBefore: boot, nativeBootAfter: boot, healthOrigin: 'LIVE', healthSuccess: true, healthStatus: 'ok', bootProgressPresent: false, healthAgeMillis: 150, observationDurationMillis: 250, failedObservation: 'HEALTH' })
+    expect(JSON.stringify(value)).not.toContain('synthetic-hidden-value')
+    expect(value.rawHealth).toBeUndefined()
+    expect(value.message).toBeUndefined()
+  })
+
+  it.each([null, [], 'broken JSON', '{"healthOrigin":"' + 'a'.repeat(8192) + '"}'])('discards optional malformed diagnostics without rejecting a valid preparation receipt %p', diagnostics => {
+    const value = readStoragePreparation(envelope(receipt({ diagnostics })), expected, now)
+    expect(value.ready).toBe(true)
+    expect(value.diagnostics).toEqual({})
+  })
+
+  it('drops wrong types and arbitrary diagnostic enum strings without retaining raw values', () => {
+    expect(readStoragePreparationDiagnostics({ nativeBootBefore: 'synthetic-hidden-value', healthOrigin: 'synthetic-hidden-value', healthSuccess: 'true', healthAgeMillis: {}, observationDurationMillis: -1, bootProgressPresent: [], healthStatus: { raw: 'synthetic-hidden-value' } })).toEqual({})
+  })
+
+  it('projects diagnostic snapshots separately from the API receipt and drops unknown reason text', () => {
+    const snapshot = storagePreparationDiagnosticSnapshot(receipt({ diagnostics: JSON.stringify({ healthOrigin: 'LIVE', raw: 'synthetic-hidden-value' }), reason: 'synthetic-hidden-value', raw: 'synthetic-hidden-value' }))
+    expect(snapshot.reason).toBe('UNKNOWN')
+    expect(snapshot.diagnostics).toEqual({ healthOrigin: 'LIVE' })
+    expect(JSON.stringify(snapshot)).not.toContain('synthetic-hidden-value')
   })
 })

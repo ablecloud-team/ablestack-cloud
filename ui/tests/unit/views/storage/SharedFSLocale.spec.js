@@ -20,6 +20,7 @@ import path from 'path'
 import { bootStatuses, bootPhases, bootVerificationKinds } from '@/utils/storageBootReconcile'
 import { networkMismatchCodes } from '@/utils/storageNetworkReadiness'
 import { nfsProbeSkipReasons } from '@/utils/storageNfsProbe'
+import { storagePreparationReasons } from '@/utils/storagePreparation'
 
 const uiRoot = path.resolve(__dirname, '../../../..')
 const sourceFiles = [
@@ -143,6 +144,28 @@ describe('#918 NFS local probe locale coverage', () => {
       'message.storage.service.nfs.probe.external.separate',
       'label.storage.service.nfs.applied.clients',
       'label.storage.service.nfs.local.verification'
+    ]
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
+  })
+})
+
+describe('Preparation observation presentation locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines the shared reason model and distinct checking states in %s', locale => {
+    const keys = [
+      ...storagePreparationReasons.map(reason => 'message.storage.service.preparation.reason.' + reason),
+      'message.storage.service.preparation.reason.UNKNOWN',
+      'label.storage.service.preparation.status.CHECKING',
+      'label.storage.service.preparation.status.CONFIRMING',
+      'message.storage.service.preparation.observation.expired',
+      'message.storage.service.preparation.last.observed',
+      'message.storage.service.preparation.update.required',
+      'message.storage.service.create.preparation.services.not.started',
+      'message.storage.service.create.preparation.stopped.before.services',
+      'message.storage.service.create.preparation.creation.unconfirmed',
+      'label.storage.service.preparation.diagnostics',
+      'message.storage.service.preparation.diagnostics.first.failure',
+      'message.storage.service.preparation.diagnostics.observation',
+      ...['nativeBootBefore', 'nativeBootAfter', 'healthBootId', 'bootProgressBootId', 'healthOrigin', 'healthStatus', 'networkReadinessStatus', 'bootProgressStatus', 'failedObservation', 'healthSuccess', 'bootProgressPresent', 'healthGeneratedEpoch', 'healthAgeMillis', 'observationDurationMillis'].map(field => 'label.storage.service.preparation.diagnostic.' + field)
     ]
     expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })

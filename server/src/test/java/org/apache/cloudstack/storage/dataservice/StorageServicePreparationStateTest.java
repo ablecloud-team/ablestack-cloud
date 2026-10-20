@@ -26,6 +26,7 @@ public class StorageServicePreparationStateTest {
             before.addProperty("success",true);before.addProperty("generationSupported",true);before.addProperty("bootId",BOOT);
             before.add("generation",new JsonObject());before.add("pendingOperationUuid",JsonNull.INSTANCE);before.addProperty("generationStatus","UNVERIFIED");
             after=before.deepCopy();health.addProperty("bootId",BOOT);health.addProperty("generatedEpoch",NOW/1000.0);
+            health.addProperty("success",true);health.addProperty("status","ok");health.addProperty("cached",true);
             boot.addProperty("bootId",BOOT);boot.addProperty("status","READY");boot.addProperty("phase","SKIPPED");
             boot.addProperty("runtimeReady",true);boot.addProperty("detailedVerified",false);health.add("bootReconcile",boot);
             idle.addProperty("success",true);idle.addProperty("status","WRITER_IDLE");idle.addProperty("writerIdle",true);
@@ -41,7 +42,7 @@ public class StorageServicePreparationStateTest {
         Assert.assertTrue("BOOT completion is not a comparison with subsequently changed configuration",f.evaluate().ready);
     }
     @Test public void runningVmDoesNotImplyReadyAndMissingBootReceiptStaysPending(){
-        Fixture f=new Fixture();f.health.remove("bootReconcile");Assert.assertEquals("BOOT_NOT_STARTED",f.evaluate().reason);
+        Fixture f=new Fixture();f.health.remove("bootReconcile");Assert.assertEquals("BOOT_RECONCILE_STATUS_PENDING",f.evaluate().reason);
         f.health.addProperty("bootReconcileReadError",true);Assert.assertEquals("OBSERVATION_UNAVAILABLE",f.evaluate().status);
         Assert.assertEquals("WAITING_VM",StorageServicePreparationState.evaluate(false,true,true,f.health,f.before,f.after,f.idle,f.maintenance,NOW).status);
     }
@@ -61,16 +62,20 @@ public class StorageServicePreparationStateTest {
         for(double age:new double[]{31,-6,Double.NaN,Double.POSITIVE_INFINITY}){
             Fixture f=new Fixture();f.health.addProperty("generatedEpoch",NOW/1000.0-age);Assert.assertFalse(f.evaluate().ready);
         }
-        for(String field:new String[]{"health","after","boot"}){
-            Fixture f=new Fixture();JsonObject v=field.equals("health")?f.health:field.equals("after")?f.after:f.boot;
-            v.addProperty("bootId","bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");Assert.assertEquals("BOOT_CHANGED_OR_STALE",f.evaluate().reason);
+        Fixture changed=new Fixture();changed.after.addProperty("bootId","bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+        Assert.assertEquals("BOOT_CHANGED_DURING_OBSERVATION",changed.evaluate().reason);
+        Assert.assertEquals("WAITING_BOOT",changed.evaluate().status);
+        Assert.assertEquals("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",changed.evaluate().bootId);
+        for(String field:new String[]{"health","boot"}){
+            Fixture f=new Fixture();JsonObject v=field.equals("health")?f.health:f.boot;
+            v.addProperty("bootId","bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");Assert.assertEquals("BOOT_OBSERVATION_INVALID",f.evaluate().reason);
         }
     }
     @Test public void incompleteOrForgedBootReadyAndStringHealthTimeNeverPass(){
         Fixture f=new Fixture();f.boot.addProperty("phase","WAIT_RUNTIME_READY");Assert.assertEquals("BOOT_READY_PROOF_INVALID",f.evaluate().reason);
         f=new Fixture();f.boot.remove("phase");Assert.assertEquals("BOOT_READY_PROOF_INVALID",f.evaluate().reason);
         f=new Fixture();f.health.addProperty("generatedEpoch",String.valueOf(NOW/1000.0));Assert.assertEquals("HEALTH_OBSERVATION_STALE",f.evaluate().reason);
-        f=new Fixture();f.health.addProperty("stale","false");Assert.assertEquals("HEALTH_OBSERVATION_STALE",f.evaluate().reason);
+        f=new Fixture();f.health.addProperty("stale","false");Assert.assertEquals("HEALTH_OBSERVATION_INVALID",f.evaluate().reason);
         f=new Fixture();f.boot.addProperty("runtimeReady","true");Assert.assertEquals("BOOT_READY_PROOF_INVALID",f.evaluate().reason);
     }
     @Test public void missingOrWrongTypedWriterProofIsUnavailable(){
@@ -102,5 +107,65 @@ public class StorageServicePreparationStateTest {
         }
         for(String state:new String[]{"RUNNING","COMPLETE","ROLLED_BACK","COMPLETE_NO_CONFIG_CHANGE"})
             Assert.assertFalse(state,StorageServicePreparationState.databaseRecoveryRequired(state,2,1));
+    }
+    @Test public void actualLiveShapeWaitsUntilCurrentBootCachePublishesWithoutChangingGeneration(){
+        Fixture f=new Fixture();f.health.remove("bootId");f.health.remove("bootReconcile");f.health.remove("cached");
+        String original=f.health.toString(),generation=f.before.toString();
+        Assert.assertEquals("HEALTH_BOOT_METADATA_PENDING",f.evaluate().reason);Assert.assertFalse(f.evaluate().ready);
+        Assert.assertEquals(original,f.health.toString());Assert.assertFalse(f.health.has("bootId"));Assert.assertEquals(generation,f.before.toString());
+        f.health.addProperty("bootId",BOOT);Assert.assertEquals("BOOT_RECONCILE_STATUS_PENDING",f.evaluate().reason);
+        f.health.add("bootReconcile",f.boot);f.health.addProperty("cached",true);Assert.assertTrue(f.evaluate().ready);
+        Assert.assertEquals("UNVERIFIED",f.after.get("generationStatus").getAsString());Assert.assertEquals(0,f.after.getAsJsonObject("generation").size());
+    }
+    @Test public void internallyConsistentPreviousBootCacheWaitsAndLiveForeignBootRemainsAnError(){
+        Fixture f=new Fixture();String previous="bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+        f.health.addProperty("bootId",previous);f.boot.addProperty("bootId",previous);
+        Assert.assertEquals("HEALTH_CACHE_PREVIOUS_BOOT",f.evaluate().reason);Assert.assertEquals("WAITING_BOOT",f.evaluate().status);
+        f.health.remove("cached");Assert.assertEquals("HEALTH_BOOT_OBSERVATION_INCONSISTENT",f.evaluate().reason);
+        Assert.assertEquals("OBSERVATION_UNAVAILABLE",f.evaluate().status);
+    }
+    @Test public void coldObservationDoesNotMaskHeldFormatterPendingGenerationOrInvalidWire(){
+        Fixture f=new Fixture();f.health.remove("bootId");f.health.remove("bootReconcile");f.health.remove("cached");
+        f.maintenance.addProperty("bootHeld",true);Assert.assertEquals("BOOT_MAINTENANCE_HELD",f.evaluate().reason);
+        f.maintenance.addProperty("bootHeld",false);
+        Assert.assertEquals("BLOCKED",StorageServicePreparationState.evaluate(true,true,false,f.health,f.before,f.after,f.idle,f.maintenance,NOW).status);
+        f.after.addProperty("pendingOperationUuid",BOOT);Assert.assertEquals("NATIVE_GENERATION_RECOVERY_REQUIRED",f.evaluate().reason);
+        f.after.add("pendingOperationUuid",JsonNull.INSTANCE);
+        f.health.addProperty("bootReconcileReadError",true);Assert.assertEquals("BOOT_OBSERVATION_INVALID",f.evaluate().reason);
+        f.health.remove("bootReconcileReadError");f.health.addProperty("success",false);f.health.addProperty("status","error");
+        Assert.assertEquals("HEALTH_OBSERVATION_FAILED",f.evaluate().reason);
+        f.health.addProperty("success",true);f.health.addProperty("status","ok");f.health.addProperty("cached","true");
+        Assert.assertEquals("HEALTH_OBSERVATION_INVALID",f.evaluate().reason);
+    }
+    @Test public void malformedMetadataAndPartialContradictoryBootReceiptAreNotStartupWaiting(){
+        for(JsonElement bad:new JsonElement[]{new JsonPrimitive(7),new JsonPrimitive("not-a-uuid"),new JsonObject()}){
+            Fixture f=new Fixture();f.health.add("bootId",bad);Assert.assertEquals("HEALTH_BOOT_OBSERVATION_INVALID",f.evaluate().reason);
+            f=new Fixture();f.health.add("bootReconcile",bad);Assert.assertEquals("BOOT_OBSERVATION_INVALID",f.evaluate().reason);
+        }
+        Fixture f=new Fixture();f.health.remove("bootId");Assert.assertEquals("BOOT_OBSERVATION_INVALID",f.evaluate().reason);
+        f=new Fixture();f.health.addProperty("success","true");Assert.assertEquals("HEALTH_OBSERVATION_INVALID",f.evaluate().reason);
+        f=new Fixture();f.health.remove("generatedEpoch");Assert.assertEquals("HEALTH_OBSERVATION_STALE",f.evaluate().reason);
+    }
+    @Test public void diagnosticsContainOnlyBoundedComparisonFieldsAndNeverRawHealthOrConfiguration(){
+        Fixture f=new Fixture();f.health.addProperty("password","must-not-escape");f.before.addProperty("secret","must-not-escape");
+        f.health.addProperty("bootId","must-not-escape");f.boot.addProperty("status","must-not-escape");
+        JsonObject d=StorageServicePreparationState.diagnostics(f.before,f.after,f.health,NOW);
+        Assert.assertEquals("CACHE",d.get("healthOrigin").getAsString());Assert.assertEquals("INVALID",d.get("healthBootId").getAsString());
+        Assert.assertEquals("INVALID",d.get("bootProgressStatus").getAsString());Assert.assertFalse(d.toString().contains("must-not-escape"));
+        Assert.assertFalse(d.has("configurationDesiredState"));Assert.assertEquals(0,d.get("healthAgeMillis").getAsLong());
+        f.health.remove("bootId");f.health.remove("cached");f.health.remove("bootReconcile");
+        d=StorageServicePreparationState.diagnostics(f.before,f.after,f.health,NOW);
+        Assert.assertEquals("LIVE",d.get("healthOrigin").getAsString());Assert.assertTrue(d.get("healthBootId").isJsonNull());
+    }
+    @Test public void explicitCollectorFailureCannotBecomeReadyOrNormalWaitingEvenWithReadyBootReceipt(){
+        Fixture f=new Fixture();f.health.addProperty("success",false);f.health.addProperty("status","error");
+        JsonObject network=new JsonObject();network.addProperty("status","ERROR");f.health.add("networkReadiness",network);
+        Assert.assertEquals("HEALTH_OBSERVATION_FAILED",f.evaluate().reason);Assert.assertEquals("OBSERVATION_UNAVAILABLE",f.evaluate().status);
+        JsonObject d=StorageServicePreparationState.diagnostics(f.before,f.after,f.health,NOW);
+        Assert.assertFalse(d.get("healthSuccess").getAsBoolean());Assert.assertEquals("error",d.get("healthStatus").getAsString());
+        Assert.assertEquals("ERROR",d.get("networkReadinessStatus").getAsString());
+        f.health.remove("bootId");f.health.remove("bootReconcile");Assert.assertEquals("HEALTH_OBSERVATION_FAILED",f.evaluate().reason);
+        f=new Fixture();f.health.addProperty("success",false);f.health.addProperty("status","error");f.boot.addProperty("status","FAILED");
+        Assert.assertEquals("BOOT_RECONCILE_FAILED",f.evaluate().reason);
     }
 }
