@@ -463,6 +463,15 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             final String fixed = "iscsi target apply".equals(command.getOperation()) ? fixedIscsiFailureDiagnostic(stdout) : null;
             return fixed == null ? masked : masked + " [" + fixed + "]";
         }
+        if ("nfs export apply".equals(command.getOperation())) {
+            final String fixed = fixedNfsFailureDiagnostic(stdout);
+            // Readiness envelopes have a closed public diagnostic. A stderr
+            // message must not replace that cause or expose private context.
+            if (fixed != null || hasNfsFailureEnvelope(stdout)) {
+                return "Storage Service command failed with exit code " + exitCode + ": "
+                        + (fixed == null ? "No guest diagnostic" : fixed);
+            }
+        }
         String diagnostic=stderr;
         if (diagnostic == null || diagnostic.trim().isEmpty()) {
             try {
@@ -476,6 +485,18 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             diagnostic = fixed == null ? "No guest diagnostic" : fixed;
         }
         return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
+    }
+
+    private boolean hasNfsFailureEnvelope(String stdout) {
+        if (stdout == null || stdout.length() > 1024 * 1024) return false;
+        try (JsonReader reader = new JsonReader(new StringReader(stdout))) {
+            reader.setLenient(false);reader.beginObject();
+            while (reader.hasNext()) {
+                if ("lastFailure".equals(reader.nextName())) return true;
+                reader.skipValue();
+            }
+        } catch (java.io.IOException | RuntimeException malformed) { /* Preserve legacy diagnostics without an envelope. */ }
+        return false;
     }
 
     private String fixedNfsFailureDiagnostic(String stdout) {
