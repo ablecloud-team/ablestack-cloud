@@ -15,6 +15,8 @@
 
 import json
 import os
+import stat
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -24,6 +26,37 @@ import uuid
 LIB=Path(__file__).resolve().parents[2]/"systemvm/debian/usr/local/lib/ablestack-storage";sys.path.insert(0,str(LIB))
 from local_sam_bootstrap import LocalSamBootstrap
 from samba_public_sid import SambaPublicSidMissing
+
+
+def require_verified_private_sandbox():
+    """Require the launcher's independent proof and current OS isolation, never a flag alone."""
+    output=os.environ.get("PREPARATION_HEALTH_WIRE_FIXTURE_OUTPUT")
+    if not output:raise AssertionError("Verified private Native test sandbox is required")
+    proof_path=Path(output).parent/"isolation-proof.json"
+    info=proof_path.lstat()
+    if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022 or info.st_nlink!=1:
+        raise AssertionError("Private sandbox proof is not a protected regular file")
+    proof=json.loads(proof_path.read_text())
+    if proof.get("success") is not True or proof.get("noHostNativeExecution") is not True:
+        raise AssertionError("Private sandbox proof is invalid")
+    namespaces=("mnt","pid","net","user","ipc","uts")
+    before=proof.get("parentNamespaces",{});inside=proof.get("sandboxNamespaces",{})
+    for name in namespaces:
+        current=os.readlink("/proc/self/ns/"+name)
+        if current!=inside.get(name) or current==before.get(name) or not before.get(name):
+            raise AssertionError("Private sandbox namespace identity is absent or changed")
+    repository=Path(__file__).resolve().parents[2]
+    for path in ("/",repository,"/usr","/proc","/sys"):
+        if not os.statvfs(path).f_flag&os.ST_RDONLY:
+            raise AssertionError("Native sandbox root/repository/proc/sys must be read-only")
+    mounts={}
+    for line in Path("/proc/self/mountinfo").read_text().splitlines():
+        left,right=line.split(" - ",1);mounts[left.split()[4]]=right.split()[0]
+    if any(mounts.get(path)!="tmpfs" for path in ("/etc","/var","/run","/tmp")):
+        raise AssertionError("Native sandbox OS directories are not private tmpfs")
+    status=dict(line.split(":",1)for line in Path("/proc/self/status").read_text().splitlines()if":"in line)
+    if any(int(status[name].strip(),16)!=0 for name in ("CapEff","CapPrm","CapBnd")):
+        raise AssertionError("Native fixture requires all process capabilities dropped")
 
 
 class StorageLocalSamBootstrapTest(unittest.TestCase):
@@ -77,9 +110,26 @@ class StorageLocalSamBootstrapTest(unittest.TestCase):
                                        ABLESTACK_STORAGE_LOG_FILE="/dev/null",ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR=str(self.root/"state")))
         self.assertNotEqual(0,result.returncode);self.assertIn("AD_LIFECYCLE_REJECTED",result.stdout)
         self.assertEqual(before,{str(path):path.read_bytes() for path in self.root.rglob("*") if path.is_file() and path.name!="writer"})
+    def test_private_cli_fixture_rejects_missing_or_same_namespace_sandbox_proof(self):
+        from unittest.mock import patch
+        with patch.dict(os.environ, {"PREPARATION_HEALTH_WIRE_FIXTURE_OUTPUT":""}):
+            with self.assertRaisesRegex(AssertionError,"sandbox is required"):
+                require_verified_private_sandbox()
+        current={name:os.readlink("/proc/self/ns/"+name)for name in ("mnt","pid","net","user","ipc","uts")}
+        forged=self.root/"isolation-proof.json"
+        forged.write_text(json.dumps({"success":True,"noHostNativeExecution":True,
+                                      "parentNamespaces":current,"sandboxNamespaces":current}))
+        forged.chmod(0o600)
+        with patch.dict(os.environ, {"PREPARATION_HEALTH_WIRE_FIXTURE_OUTPUT":str(self.root/"fixture.json")}):
+            with self.assertRaisesRegex(AssertionError,"namespace identity"):
+                require_verified_private_sandbox()
+
     def test_actual_cli_in_private_mount_namespace_explicitly_creates_synthetic_sid_then_preserves_it(self):
+        # The outer bwrap already supplies a private /var. Recheck its proof;
+        # retaining CAP_SYS_ADMIN merely to nest another mount namespace is forbidden.
+        require_verified_private_sandbox()
         # Normal CLI routing, actual FD9 flock and real libtdb. Only the net
-        # mutation binary is a synthetic fixture; no host Samba DB is changed.
+        # mutation binary is synthetic; host Samba DBs are never visible here.
         import textwrap
         root=self.root;varlib=root/"varlib";(varlib/"samba/private").mkdir(parents=True,mode=0o700)
         bins=root/"bin";bins.mkdir();testparm=bins/"testparm";testparm.write_text("#!/bin/sh\nprintf 'SERVER\\n'\n");testparm.chmod(0o755)
@@ -106,8 +156,6 @@ class StorageLocalSamBootstrapTest(unittest.TestCase):
             import json,os,subprocess,sys,uuid
             from pathlib import Path
             root=Path(sys.argv[1]);cli=sys.argv[2];lib=sys.argv[3]
-            subprocess.run(["mount","--make-rprivate","/"],check=True)
-            subprocess.run(["mount","--bind",str(root/"varlib"),"/var/lib"],check=True)
             sys.path.insert(0,lib)
             from config_generation import Generation
             config=root/"config";generation=root/"generation";generation.mkdir(mode=0o700)
@@ -131,8 +179,22 @@ class StorageLocalSamBootstrapTest(unittest.TestCase):
             assert json.loads((generation/"current.json").read_text())==current
             print(json.dumps({"created":True,"preserved":True,"canonicalUnchanged":True}))
             """))
-        result=subprocess.run(["unshare","--mount","--",sys.executable,str(worker),str(root),str(cli),str(LIB)],capture_output=True,text=True,timeout=45)
-        self.assertEqual(0,result.returncode,result.stdout+result.stderr);self.assertEqual({"created":True,"preserved":True,"canonicalUnchanged":True},json.loads(result.stdout))
+        # Preserve any earlier test's private Samba fixture, install only this
+        # test's private tree, then restore it even if actual CLI assertions fail.
+        samba=Path("/var/lib/samba");samba.parent.mkdir(parents=True,exist_ok=True)
+        backup=samba.parent/(".sam-bootstrap-fixture-"+uuid.uuid4().hex)
+        previous=samba.exists()or samba.is_symlink()
+        if previous:
+            self.assertFalse(samba.is_symlink());self.assertTrue(samba.is_dir());samba.rename(backup)
+        try:
+            (samba/"private").mkdir(parents=True,mode=0o700)
+            result=subprocess.run([sys.executable,str(worker),str(root),str(cli),str(LIB)],capture_output=True,text=True,timeout=45)
+            self.assertEqual(0,result.returncode,result.stdout+result.stderr)
+            self.assertEqual({"created":True,"preserved":True,"canonicalUnchanged":True},json.loads(result.stdout))
+        finally:
+            self.assertFalse(samba.is_symlink())
+            shutil.rmtree(samba)
+            if previous:backup.rename(samba)
 
     def test_joined_existing_target_is_preserve_only_and_missing_or_replaced_sid_is_never_created(self):
         self.sid="S-1-5-21-10-11-12";state={"instanceUuid":self.scope["instanceUuid"],"joinState":"JOINED","netbiosName":"SERVER","identityReceipt":{"machineSid":self.sid}}

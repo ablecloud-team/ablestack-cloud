@@ -259,6 +259,10 @@ public class StorageProtocolDefaultListenerTest {
         protected void applyIscsiDesiredState(StorageServiceInstanceVO instance, Map<Long, JsonObject> secrets) {
             applied++;
         }
+        @Override
+        protected void addProtocolEndpointNetworkMetadata(JsonObject endpoint, StorageServiceInstanceVO instance, String ip) {
+            // Network enrichment is covered separately; this fixture owns one loopback protocol endpoint.
+        }
     }
 
     private static class PermissionFixture {
@@ -269,17 +273,36 @@ public class StorageProtocolDefaultListenerTest {
         private final Map<Long, List<StorageAccessRuleVO>> rules = new java.util.HashMap<>();
         private final StorageBlockTargetVO first;
         private final StorageBlockTargetVO second;
-        private final String iqn = "iqn.2026-10.local.storage:permissions";
+        // The isolated configfs fixture owns this synthetic custom IQN and one controlled RAW device.
+        private final String iqn = "iqn.2026-10.local.ablestack:issue909-prepared-iscsi";
         private final String c1 = "iqn.2026-10.example.client:one";
         private final String c2 = "iqn.2026-10.example.client:two";
 
         PermissionFixture() {
             manager.instance = Mockito.mock(StorageServiceInstanceVO.class);
             Mockito.when(manager.instance.getId()).thenReturn(INSTANCE_ID);
+            Mockito.when(manager.instance.getUuid()).thenReturn("44444444-4444-4444-8444-444444444444");
+            String config="{\"backstoreType\":\"BLOCK\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[3260]}";
             first = new StorageBlockTargetVO(INSTANCE_ID, StorageServiceInstance.Protocol.ISCSI, iqn, "0", 1L,
-                    StorageServiceInstance.ResourceState.Ready, "{}");
+                    StorageServiceInstance.ResourceState.Ready, config);
             second = new StorageBlockTargetVO(INSTANCE_ID, StorageServiceInstance.Protocol.ISCSI, iqn, "1", 2L,
-                    StorageServiceInstance.ResourceState.Ready, "{}");
+                    StorageServiceInstance.ResourceState.Ready, config);
+            com.cloud.storage.dao.VolumeDao volumes=Mockito.mock(com.cloud.storage.dao.VolumeDao.class);
+            for(long id:new long[]{1L,2L}) {
+                VolumeVO volume=Mockito.mock(VolumeVO.class);
+                Mockito.when(volume.getId()).thenReturn(id);
+                Mockito.when(volume.getUuid()).thenReturn("abcdef22-2222-4222-8222-222222222222");
+                Mockito.when(volume.getName()).thenReturn("abcdef22222242228222");
+                Mockito.when(volume.getSize()).thenReturn(65536L);
+                Mockito.when(volume.getDeviceId()).thenReturn(null);
+                Mockito.when(volumes.findById(id)).thenReturn(volume);
+            }
+            ReflectionTestUtils.setField(manager,"volumeDao",volumes);
+            StorageServiceProtocolDao protocols=Mockito.mock(StorageServiceProtocolDao.class);
+            StorageServiceProtocolVO endpoint=new StorageServiceProtocolVO(INSTANCE_ID,StorageServiceInstance.Protocol.ISCSI,true,"127.0.0.1",3260);
+            endpoint.setState(StorageServiceInstance.ResourceState.Ready);
+            Mockito.when(protocols.listByInstanceIdAndProtocol(INSTANCE_ID,StorageServiceInstance.Protocol.ISCSI)).thenReturn(List.of(endpoint));
+            ReflectionTestUtils.setField(manager,"storageServiceProtocolDao",protocols);
             ReflectionTestUtils.setField(first, "id", 101L);
             ReflectionTestUtils.setField(second, "id", 102L);
             manager.targetRows.put(101L, first);
@@ -308,21 +331,20 @@ public class StorageProtocolDefaultListenerTest {
         PermissionFixture f = new PermissionFixture();
         f.add(201, 101, f.c1, StorageServiceInstance.Permission.READ_WRITE, StorageServiceInstance.ResourceState.Ready);
         f.add(202, 102, f.c2, StorageServiceInstance.Permission.READ_ONLY, StorageServiceInstance.ResourceState.Ready);
-        JsonArray values = new JsonArray();
-        for (StorageBlockTargetVO row : java.util.Arrays.asList(f.first, f.second)) {
-            JsonObject target = new JsonObject();
-            target.addProperty("uuid", row.getUuid());
-            target.addProperty("targetName", row.getTargetName());
-            target.addProperty("lunOrNamespace", row.getLunOrNamespace());
-            target.addProperty("volumeUuid", "abcdef22-2222-4222-8222-222222222222");
-            target.addProperty("volumeName", "abcdef22222242228222");
-            target.addProperty("volumeSizeBytes", 65536);
-            target.add("acls", f.manager.createIscsiTargetAclJson(row, null));
-            Assert.assertEquals(2, target.getAsJsonArray("acls").size());
-            values.add(target);
+        JsonObject request=f.manager.buildIscsiDesiredPayload(f.manager.instance,java.util.Collections.emptyMap());
+        Assert.assertEquals("44444444-4444-4444-8444-444444444444",request.get("instanceUuid").getAsString());
+        Assert.assertEquals(INSTANCE_ID,request.get("instanceId").getAsLong());
+        Assert.assertEquals(1,request.getAsJsonArray("listeners").size());
+        Assert.assertEquals("127.0.0.1",request.getAsJsonArray("listeners").get(0).getAsJsonObject().get("listenIp").getAsString());
+        Assert.assertEquals(2,request.getAsJsonArray("targets").size());
+        for(com.google.gson.JsonElement value:request.getAsJsonArray("targets")) {
+            JsonObject target=value.getAsJsonObject();
+            Assert.assertEquals(f.iqn,target.get("targetName").getAsString());
+            Assert.assertEquals("abcdef22-2222-4222-8222-222222222222",target.get("volumeUuid").getAsString());
+            Assert.assertEquals(65536,target.get("volumeSizeBytes").getAsLong());
+            Assert.assertEquals("BLOCK",target.get("backstoreType").getAsString());
+            Assert.assertEquals(2,target.getAsJsonArray("acls").size());
         }
-        JsonObject request = new JsonObject();
-        request.add("targets", values);
         Process process = new ProcessBuilder("python3", isolatedIscsiRunner().toString(), "--suite", "iscsi-manager-payload").start();
         try (java.io.OutputStream input = process.getOutputStream()) {
             input.write(request.toString().getBytes(StandardCharsets.UTF_8));
@@ -337,7 +359,7 @@ public class StorageProtocolDefaultListenerTest {
         Assert.assertEquals(0, process.exitValue());
         Assert.assertEquals(0, errors.length);
         JsonObject result = JsonParser.parseString(new String(output, StandardCharsets.UTF_8)).getAsJsonObject();
-        Assert.assertTrue(result.get("success").getAsBoolean());
+        Assert.assertTrue("Isolated manager permission fixture: "+result,result.get("success").getAsBoolean());
         Assert.assertEquals(4, result.getAsJsonArray("mappings").size());
         for (com.google.gson.JsonElement element : result.getAsJsonArray("mappings")) {
             JsonObject mapping = element.getAsJsonObject();

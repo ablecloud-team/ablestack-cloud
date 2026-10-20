@@ -33,7 +33,7 @@ class StorageIdentitySourceFenceTest(unittest.TestCase):
         self.accountfiles.start();self.addCleanup(self.accountfiles.stop)
         self.livefiles=patch.object(identity_capsule,"LIVE_TDB_FILES",{str(self.tdb)});self.livefiles.start();self.addCleanup(self.livefiles.stop)
     def test_real_open_samba_identity_holder_blocks_before_raw_tdb_or_account_read(self):
-        holder=subprocess.Popen([sys.executable,"-c","import sys; from pathlib import Path; Path('/proc/self/comm').write_text('smbd'); f=open(sys.argv[1],'rb'); print('READY',flush=True); sys.stdin.read(1)",str(self.tdb)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
+        holder=subprocess.Popen([sys.executable,"-c","import ctypes,sys; lib=ctypes.CDLL(None); assert lib.prctl(15,ctypes.c_char_p(b'smbd'),0,0,0)==0; f=open(sys.argv[1],'rb'); print('READY',flush=True); sys.stdin.read(1)",str(self.tdb)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True)
         try:
             self.assertEqual("READY",holder.stdout.readline().strip())
             with patch("identity_capsule.regular_file",side_effect=AssertionError("raw private bytes were read")):

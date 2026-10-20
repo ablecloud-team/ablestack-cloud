@@ -52,6 +52,8 @@ NAMESPACES = ("mnt", "pid", "net", "user", "ipc", "uts")
 SUITES = {
     "health": ("TestStoragePreparationHealthWire.py",),
     "native-all": ("TestStorage*.py",),
+    "harness-readiness": ("TestStorageIdentitySourceFence.py", "TestStorageAdIdentity.py",
+                          "TestStorageSmbCurrentRetention.py", "TestStorageLocalSamBootstrap.py"),
     "iscsi-auth": ("TestStorageIscsiAuth.py", "TestStorageIscsiLifecycle.py",
                    "TestStorageIscsiLunPermissions.py", "TestStorageInlineSources.py"),
     "iscsi-guard-consumer": ("TestStorageIscsiLifecycle.py",),
@@ -134,11 +136,25 @@ need(set(os.environ)=={"PWD","PATH","HOME","LANG","LC_ALL","PYTHONDONTWRITEBYTEC
 need(os.environ["PWD"]==str(root)and os.getcwd()==str(root),"OUTPUT_CWD_BINDING")
 need(os.environ["PREPARATION_HEALTH_WIRE_FIXTURE_OUTPUT"]==
      str(root/"preparation-health-wire-contract.json"),"FIXED_FIXTURE_OUTPUT")
+# Private synthetic account baseline only. Never copy/read host account contents.
+for name,content,mode in (
+        ("passwd","root:x:0:0:Synthetic sandbox root:/root:/bin/bash\n",0o644),
+        ("group","root:x:0:\n",0o644),
+        ("shadow","root:!:1::::::\n",0o600),
+        ("gshadow","root:!::\n",0o600)):
+    path=Path("/etc")/name
+    need(not path.exists()and not path.is_symlink(),"EMPTY_PRIVATE_ACCOUNT_"+name)
+    with path.open("x") as handle:handle.write(content)
+    path.chmod(mode)
+passed.append("SYNTHETIC_PRIVATE_ACCOUNT_BASELINE")
 (root/"isolation-proof.json").write_text(json.dumps(
-    {"success":True,"passedPostconditions":passed,"noHostNativeExecution":True},indent=2)+"\n")
+    {"success":True,"passedPostconditions":passed,"noHostNativeExecution":True,
+     "parentNamespaces":spec["parentNamespaces"],
+     "sandboxNamespaces":{name:os.readlink("/proc/self/ns/"+name)for name in spec["parentNamespaces"]},
+     "outputIdentity":spec["rootIdentity"]},indent=2)+"\n")
 tests=Path(spec["repository"],"systemvm/test")
-if spec["suite"] in ("iscsi-auth","native-all"):
-    program="import unittest,sys; loader=unittest.TestLoader(); suite=unittest.TestSuite(); "+\
+if spec["suite"] in ("iscsi-auth","native-all","harness-readiness"):
+    program="import unittest,sys; sys.path.insert(0,"+repr(spec["repository"])+"); loader=unittest.TestLoader(); suite=unittest.TestSuite(); "+\
             "; ".join("suite.addTests(loader.discover("+repr(str(tests))+",pattern="+repr(name)+"))"
                       for name in spec["tests"])+\
             "; result=unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
