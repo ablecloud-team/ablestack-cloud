@@ -1,0 +1,93 @@
+{
+  "outcome": "STOPPED_BEFORE_BACKUP_OR_RESTORE",
+  "productSourceCommit": "022bc883d90afeaa7e05b4db6ee8a0ec3dd86d3a",
+  "classification": "INITIAL_CREATION_UI_READINESS_SEQUENCE",
+  "oldWriterRecovery": {
+    "id": "05a393fa-a3f1-4f24-814f-afb3d9684235",
+    "state": "ROLLED_BACK",
+    "nativeMutation": false,
+    "dataCanaryPreserved": true
+  },
+  "previousVmRemoved": "88c1b618-38c7-474c-9b4b-8fa4284e9245",
+  "failedFreshFixture": {
+    "sharedFsId": "b6907128-1d9f-4b36-b5f4-cea7c4d8a66d",
+    "vmId": "565bd024-fe83-4c20-8b05-bc1b2885da0b",
+    "rootId": "39d4be33-4ecd-4368-86cd-b64f8a8a7a0d",
+    "dataId": "b7af6b0d-b109-4b5f-bc5c-7a3e19fd7132",
+    "provisioning": "SPARSE",
+    "mac": "02:0d:00:cc:00:30",
+    "macChangedByAgent": false
+  },
+  "timelineKst": [
+    {
+      "time": "16:29:15",
+      "event": "CREATE_VM_COMPLETE"
+    },
+    {
+      "time": "16:29:16",
+      "event": "UI_ENABLE_NFS_SUBMITTED"
+    },
+    {
+      "time": "16:29:20",
+      "event": "NATIVE_BOOT_RECONCILE_START"
+    },
+    {
+      "time": "16:29:21",
+      "event": "GUEST_GENERATION_BEGIN_CALLED"
+    },
+    {
+      "time": "16:29:22",
+      "event": "GUEST_WRITER_IDLE_CALLED"
+    },
+    {
+      "time": "16:29:23",
+      "event": "NATIVE_BOOT_RECONCILE_COMPLETE; MANAGER_RECEIVED_BUSY_EXIT_75"
+    },
+    {
+      "time": "16:29:25",
+      "event": "ENABLE_JOB_FAILED_CODE_530_BLOCKED"
+    }
+  ],
+  "failure": {
+    "id": "89ee1869-5189-4ef8-9371-c0f0f5e2a4a1",
+    "instanceid": "75c1b7e5-289a-4b0f-bf7d-c15ad1a65c7f",
+    "action": "enablestorageserviceprotocolresponse",
+    "state": "BLOCKED",
+    "phase": "BLOCKED",
+    "revision": 1,
+    "progress": 100,
+    "created": "2026-10-20T16:29:16+0900",
+    "heartbeat": "2026-10-20T16:29:25+0900",
+    "completed": "2026-10-20T16:29:25+0900",
+    "diagnostic": "failurePhase=PREPARED; Native BOOT child or recovery is active; rollback is deferred without changing VM/DATA"
+  },
+  "firstNativeFailure": {
+    "command": "operation generation begin",
+    "code": "STORAGE_WRITER_BUSY",
+    "exitCode": 75
+  },
+  "runtime": {
+    "actualBootstrapCliSha256": "8e14f84ea70b81ffd54dced38a48e31ff1a7202537557c414dabf28f0c2a5197",
+    "preparedTargetCliSha256": "e49a54deeed660da8dde5668b0676a7c5cfcff8245428db9bb0b923ea1b0d400",
+    "targetInstalledOnFailedVm": false,
+    "fixedSourceImportExercised": false
+  },
+  "uiObservation": {
+    "allInitialServicesDeselected": true,
+    "confirmationPreventedByValidation": true,
+    "message": "서비스를 하나 이상 선택해야 합니다.",
+    "additionalCreateSubmitted": false
+  },
+  "resourceRemoval": {
+    "failedVirginSharedFsVmRootRemovedViaApiBeforeUiOnlyCorrection": true,
+    "unusedDataStateAfterDestroy": "Destroy",
+    "physicalDataExpungeConfirmed": false,
+    "previousFourDataPreserved": true
+  },
+  "afterUserUiOnlyCorrection": {
+    "resourceOrServiceApiMutations": 0,
+    "onlyBrowserUiValidation": true,
+    "productCodeChanges": false,
+    "testRetry": false
+  }
+}
