@@ -111,6 +111,40 @@ public class StorageNfsPermissionEditGateTest {
     }
 
     @Test
+    public void successfulTransportCannotHideReadinessCountOrListenerFailureAndReportsTheClosedRuntimeCode() {
+        for (String result : java.util.List.of(
+                "{\"runtimeReady\":false,\"exports\":1,\"endpoints\":1}",
+                "{\"runtimeReady\":true,\"exports\":0,\"endpoints\":1}",
+                "{\"runtimeReady\":true,\"exports\":1,\"endpoints\":0}",
+                "{\"runtimeReady\":true,\"exports\":1,\"endpoints\":1,\"runtimeEndpoints\":[{\"listenIp\":\"192.0.2.1\",\"port\":2049,\"listening\":false}]}")) {
+            StorageServiceInstanceVO instance=nfsInstance();
+            StorageServiceGuestCommandDispatcher dispatcher=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+            StorageServiceManagerImpl target=nfsManager(instance,dispatcher);
+            JsonObject desired=nfsDesired(instance,"readiness");
+            desired.getAsJsonArray("exports").add(new JsonObject());
+            Mockito.doReturn(desired).when(target).buildNfsDesiredPayload(instance,null,false);
+            Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"internal-not-public",result));
+            CloudRuntimeException failure=Assert.assertThrows(CloudRuntimeException.class,()->target.applyNfsDesiredState(instance));
+            Assert.assertTrue(failure.getMessage(),failure.getMessage().startsWith("NFS_RUNTIME_NOT_READY: Failed to apply NFS desired state"));
+            Assert.assertFalse(failure.getMessage().contains("internal-not-public"));
+        }
+    }
+
+    @Test
+    public void sourceFailureKeepsItsPrimaryCodeInsteadOfBeingRelabeledAsRuntimeReadiness() {
+        StorageServiceInstanceVO instance=nfsInstance();
+        StorageServiceGuestCommandDispatcher dispatcher=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        StorageServiceManagerImpl target=nfsManager(instance,dispatcher);
+        Mockito.doReturn(nfsDesired(instance,"source")).when(target).buildNfsDesiredPayload(instance,null,false);
+        Mockito.when(dispatcher.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(false,"internal-not-public",
+                "{\"success\":false,\"lastFailure\":{\"code\":\"NFS_SOURCE_CHANGED\",\"phase\":\"VERIFY_SOURCE\"}}"));
+        CloudRuntimeException failure=Assert.assertThrows(CloudRuntimeException.class,()->target.applyNfsDesiredState(instance));
+        Assert.assertTrue(failure.getMessage().contains("NFS_SOURCE_CHANGED"));
+        Assert.assertFalse(failure.getMessage().contains("NFS_RUNTIME_NOT_READY"));
+        Assert.assertFalse(failure.getMessage().contains("internal-not-public"));
+    }
+
+    @Test
     public void nfsForeignWriterCannotDispatchAndUnscopedLegacyRequestCannotInventAnOperation() {
         StorageServiceInstanceVO instance = nfsInstance();
         StorageServiceGuestCommandDispatcher dispatcher = Mockito.mock(StorageServiceGuestCommandDispatcher.class);

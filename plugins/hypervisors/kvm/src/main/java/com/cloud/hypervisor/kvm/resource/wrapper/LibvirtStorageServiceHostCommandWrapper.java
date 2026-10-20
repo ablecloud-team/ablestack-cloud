@@ -513,13 +513,15 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                     "PROBE_TIMEOUT", "PROBE_OBSERVATION_FAILED", "CLEANUP_TIMEOUT", "CLEANUP_OBSERVATION_FAILED",
                     "CLEANUP_PENDING", "PROBE_CHECKPOINT_FAILED", "ENDPOINT_IDENTITY_CHANGED", "EXPORT_INVENTORY_NOT_READY",
                     "ENDPOINT_LISTENER_NOT_READY", "EXPORT_BINDING_MISMATCH",
-                    "NFS_RUNTIME_DEADLINE", "NFS_RUNTIME_NOT_READY", "RPC_REGISTRATION_NOT_READY", "NFS_BOOT_DETAIL_UNVERIFIED");
+                    "NFS_RUNTIME_DEADLINE", "NFS_RUNTIME_NOT_READY", "NFS_SOURCE_CHANGED", "RPC_REGISTRATION_NOT_READY", "NFS_BOOT_DETAIL_UNVERIFIED");
             if (!nfsDiagnosticText(failure, "protocol", false) || !"NFS".equals(failure.get("protocol").getAsString())
                     || !nfsDiagnosticText(failure, "phase", false)
-                    || !java.util.Set.of("WAIT_RUNTIME_READY", "PROBE_ENDPOINTS", "PROBE_EXPORTS").contains(failure.get("phase").getAsString())
+                    || !java.util.Set.of("WAIT_RUNTIME_READY", "PROBE_ENDPOINTS", "PROBE_EXPORTS", "VERIFY_SOURCE").contains(failure.get("phase").getAsString())
                     || !nfsDiagnosticText(failure, "code", false) || !codes.contains(failure.get("code").getAsString())
                     || !nfsDiagnosticText(failure, "endpointIp", true) || !nfsDiagnosticText(failure, "exportUuid", true)
                     || !nfsDiagnosticText(failure, "exportName", true) || !nfsDiagnosticText(failure, "protocolMode", true)) return null;
+            if ("NFS_SOURCE_CHANGED".equals(failure.get("code").getAsString())
+                    != "VERIFY_SOURCE".equals(failure.get("phase").getAsString())) return null;
             for (String name : new String[]{"timedOut", "retryable"}) {
                 if (!failure.get(name).isJsonPrimitive() || !failure.getAsJsonPrimitive(name).isBoolean()) return null;
             }

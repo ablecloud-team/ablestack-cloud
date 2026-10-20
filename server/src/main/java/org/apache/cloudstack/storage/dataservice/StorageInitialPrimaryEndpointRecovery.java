@@ -83,6 +83,37 @@ final class StorageInitialPrimaryEndpointRecovery {
                 && java.util.UUID.fromString(text(status,"bootId")).toString().equals(text(status,"bootId")));
     }
 
+    /** A historical NFS enable replaced only one existing primary endpoint's port. */
+    static void requireExistingPrimaryPortDrift(JsonObject frozen, JsonObject status, String primary) {
+        JsonObject source = frozen.getAsJsonObject("configurationDesiredState"), current = status.getAsJsonObject("configurationDesiredState");
+        need(source != null && current != null && source.keySet().equals(StorageRenderedDesiredState.PATHS) && current.keySet().equals(source.keySet()));
+        need(source.get("desired-state/nfs-export-apply.json").isJsonNull() && current.get("desired-state/nfs-export-apply.json").isJsonNull());
+        JsonObject before = source.getAsJsonObject("network-endpoints.json"), after = current.getAsJsonObject("network-endpoints.json");
+        need(before != null && after != null && before.has("endpoints") && before.get("endpoints").isJsonArray()
+                && after.has("endpoints") && after.get("endpoints").isJsonArray()
+                && before.getAsJsonArray("endpoints").size() == after.getAsJsonArray("endpoints").size());
+        JsonObject normalized = current.deepCopy();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        int changed = 0;
+        for (int i = 0; i < before.getAsJsonArray("endpoints").size(); i++) {
+            JsonObject old = before.getAsJsonArray("endpoints").get(i).getAsJsonObject();
+            JsonObject now = normalized.getAsJsonObject("network-endpoints.json").getAsJsonArray("endpoints").get(i).getAsJsonObject();
+            need(seen.add(text(old,"listenIp")));
+            if (StorageUnchangedVerifiedSourceRecovery.same(old,now)) continue;
+            need(primary.equals(text(old,"listenIp")) && primary.equals(text(now,"listenIp"))
+                    && primary.equals(text(old,"primaryIp")) && primary.equals(text(now,"primaryIp"))
+                    && number(old,"prefixlen") == number(now,"prefixlen") && number(old,"prefixlen") <= 32
+                    && number(old,"port") > 0 && number(old,"port") <= 65535 && number(old,"port") != 2049 && number(now,"port") == 2049);
+            now.add("port",old.get("port").deepCopy());
+            need(StorageUnchangedVerifiedSourceRecovery.same(old,now)); changed++;
+        }
+        need(changed == 1 && StorageUnchangedVerifiedSourceRecovery.same(source,normalized));
+        need(flag(status,"success",true) && flag(status,"generationSupported",true) && "PENDING".equals(text(status,"generationStatus"))
+                && StorageUnchangedVerifiedSourceRecovery.same(status.get("generation"),frozen.get("generation"))
+                && text(status,"configurationSha256").matches("[a-f0-9]{64}")
+                && java.util.UUID.fromString(text(status,"bootId")).toString().equals(text(status,"bootId")));
+    }
+
     static void requireNfsAbsent(JsonObject health,JsonObject inventory,double now) {
         for(JsonObject observation:new JsonObject[]{health,inventory})need(observation.has("generatedEpoch") && observation.get("generatedEpoch").isJsonPrimitive() && observation.get("generatedEpoch").getAsJsonPrimitive().isNumber());
         StorageRecoveryObservation.requireFresh(health,now);StorageRecoveryObservation.requireFresh(inventory,now);

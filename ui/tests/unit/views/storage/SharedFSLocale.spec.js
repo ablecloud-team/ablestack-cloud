@@ -33,6 +33,7 @@ const sourceFiles = [
   'src/views/storage/StorageOperationHistory.vue',
   'src/views/storage/StorageVolumePreparation.vue',
   'src/views/storage/StorageNetworkStatus.vue',
+  'src/views/storage/StorageProtocolAddressStatus.vue',
   'src/views/storage/StorageBootReconcileStatus.vue',
   'src/views/storage/StorageNfsProbeStatus.vue'
 ]
@@ -176,6 +177,21 @@ describe('iSCSI input and public failure locale coverage', () => {
     const keys = [
       ...['ISCSI_TARGET_IQN_INVALID', 'ISCSI_INITIATOR_IQN_INVALID', 'ISCSI_TARGET_LUN_INVALID', 'ISCSI_MAPPED_LUN_UNSUPPORTED', 'ISCSI_LISTENER_GROUP_REQUIRED', 'ISCSI_LISTENER_GROUP_INVALID', 'ISCSI_LISTENER_NOT_REGISTERED'].map(code => 'message.storage.service.iscsi.input.' + code),
       ...['target.name', 'initiator.name', 'target.lun', 'mapped.lun', 'ownership', 'credential', 'authentication', 'apply', 'verify', 'recovery.required', 'rolled.back'].map(code => 'message.storage.service.iscsi.failure.' + code)
+    ]
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
+  })
+})
+
+describe('Protocol address and SOURCE failure locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines current address evidence and each closed activation cause in %s', locale => {
+    const keys = [
+      ...['EMPTY', 'OBSERVED', 'NOT_OBSERVED', 'UNKNOWN', 'ERROR'].flatMap(status => ['label.storage.service.activation.address.' + status, 'message.storage.service.activation.address.' + status]),
+      ...['source', 'address', 'runtime', 'source.restore', 'unsupported', 'recovery.required', 'rolled.back'].map(cause => 'message.storage.service.activation.failure.' + cause),
+      'message.storage.service.activation.address.reuse',
+      'message.storage.service.activation.address.new',
+      'message.storage.service.activation.port.independent',
+      'label.storage.service.activation.port',
+      'label.storage.service.activation.address.observation'
     ]
     expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })

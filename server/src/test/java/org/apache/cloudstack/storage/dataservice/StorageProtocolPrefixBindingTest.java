@@ -79,7 +79,7 @@ public class StorageProtocolPrefixBindingTest {
             for(int port:new int[]{2049,445,3260,4420}){
                 JsonObject row=manager.payload(instance,nic,port);
                 Assert.assertEquals(Integer.parseInt(cidr.split("/")[1]),row.get("prefixlen").getAsInt());Assert.assertEquals(IP,row.get("primaryIp").getAsString());
-                Assert.assertEquals(cidr,row.get("networkCidr").getAsString());Assert.assertEquals(port,row.get("port").getAsInt());
+                Assert.assertEquals(cidr,row.get("networkCidr").getAsString());Assert.assertFalse(row.has("port"));
             }
         }
     }

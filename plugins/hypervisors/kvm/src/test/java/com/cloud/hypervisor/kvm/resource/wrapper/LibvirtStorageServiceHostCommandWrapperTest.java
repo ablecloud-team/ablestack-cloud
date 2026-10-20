@@ -856,6 +856,25 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         }
     }
 
+    @Test public void sourceMismatchIsReportedBeforeRuntimeAndNeverFallsBackToPrivateBody() throws Exception {
+        com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(actualNfsPublicFailure()).getAsJsonObject();
+        com.google.gson.JsonObject failure = value.getAsJsonObject("lastFailure");
+        failure.addProperty("code", "NFS_SOURCE_CHANGED");
+        failure.addProperty("phase", "VERIFY_SOURCE");
+        failure.addProperty("retryable", false);
+        String detail = wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "SYNTH_PRIVATE_STDERR");
+        Assert.assertTrue(detail, detail.contains("NFS phase=VERIFY_SOURCE; code=NFS_SOURCE_CHANGED"));
+        Assert.assertTrue(detail.contains("retryable=false"));
+        Assert.assertFalse(detail.contains("SYNTH_PRIVATE"));
+        failure.addProperty("phase", "WAIT_RUNTIME_READY");
+        Assert.assertTrue(wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "SYNTH_PRIVATE_STDERR")
+                .endsWith("No guest diagnostic"));
+        failure.addProperty("code", "NFS_RUNTIME_NOT_READY");
+        failure.addProperty("phase", "VERIFY_SOURCE");
+        Assert.assertTrue(wrapper.commandFailureDetails(nfsDiagnosticCommand(), 1, value.toString(), "SYNTH_PRIVATE_STDERR")
+                .endsWith("No guest diagnostic"));
+    }
+
     @Test public void nullableNativeNfsFailureContextKeepsUnknownContextUninvented() throws Exception {
         com.google.gson.JsonObject value = com.google.gson.JsonParser.parseString(actualNfsPublicFailure()).getAsJsonObject();
         com.google.gson.JsonObject failure = value.getAsJsonObject("lastFailure");

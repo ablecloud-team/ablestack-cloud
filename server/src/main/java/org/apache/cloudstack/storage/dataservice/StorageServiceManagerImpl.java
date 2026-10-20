@@ -296,6 +296,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             public void applyPrevious() {
                 configurationRecoverySource.set(frozenRecoveryConfiguration(instance, operation));
+                restorePreparedProtocolEndpoint(instance, operation);
                 restoreFailedInitialPrimaryEndpoint(instance, operation);
                 reconcileRecoveryNetwork(instance, operation);
                 restoreNativePosixOperation(null, instance, true);
@@ -410,7 +411,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             throw new CloudRuntimeException("Initial endpoint recovery requires its original administrator and failed writer");
         JsonObject source=frozen.getAsJsonObject("configurationDesiredState");
         JsonObject observed=nativeConfigurationGeneration(instance,null,"status"),current=observed.getAsJsonObject("configurationDesiredState");
-        if(source==null || current==null || !source.get("network-endpoints.json").isJsonNull())return;
+        if(source==null || current==null)return;
+        if(!source.get("network-endpoints.json").isJsonNull()) {
+            restoreLegacyNfsPrimaryPort(instance, operation, frozen, observed);
+            return;
+        }
         boolean endpointPresent=!current.get("network-endpoints.json").isJsonNull();
         if(!endpointPresent && !StorageInitialPrimaryEndpointRecovery.emptyEnabledReplayDrift(frozen,observed))return;
         String primary=configurationPrimaryAddress(instance);
@@ -458,6 +463,83 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if(!Boolean.TRUE.equals(getNativeBoolean(restored,"canonicalRestored")) || !getJsonString(frozen,"configurationSha256").equals(getJsonString(restored,"configurationSha256"))
                 || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid")))
             throw new CloudRuntimeException("Initial primary endpoint normalization did not restore exact SOURCE");
+    }
+
+    /**
+     * Compatibility for the historical pre-journal primary/NFS2049 enable only.
+     * Reuse its authenticated original intent and the existing frozen restore;
+     * no new guest command, bypass flag or general canonical-drift tolerance.
+     */
+    protected void restoreLegacyNfsPrimaryPort(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
+            JsonObject frozen, JsonObject observed) {
+        JsonObject previous = parseJsonObject(operation.getPreviousSnapshotJson());
+        JsonObject source = frozen.getAsJsonObject("configurationDesiredState"), current = observed.getAsJsonObject("configurationDesiredState");
+        if (hasPreparedProtocolEndpoint(operation) || source == null || current == null
+                || !source.get("desired-state/nfs-export-apply.json").isJsonNull()
+                || StorageUnchangedVerifiedSourceRecovery.same(source.get("network-endpoints.json"), current.get("network-endpoints.json"))) return;
+        if (!java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId()) || operation != storageWriterOperation.get()
+                || operation.getInstanceId()!=instance.getId() || operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                || !"enablestorageserviceprotocolresponse".equals(operation.getAction()) || !"RECOVERY_REQUIRED".equals(operation.getState())
+                || operation.getSnapshotJson()!=null || !operation.getUuid().equals(getJsonString(observed,"pendingOperationUuid")))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical endpoint recovery requires its original administrator and pending writer");
+        requireConfigurationAdministrator();
+        String primary = configurationPrimaryAddress(instance);
+        StorageInitialPrimaryEndpointRecovery.requireExistingPrimaryPortDrift(frozen, observed, primary);
+        StorageInitialPrimaryEndpointRecovery.authenticate(instance.getId(),primary,
+                getJsonString(parseJsonObject(operation.getResultJson()),"_requestFingerprint"),StorageServiceRequestFingerprint::of);
+        JsonObject declared = getJsonObject(source,"sharedfs-network.json");
+        String cidr = getJsonString(declared,"cidr");
+        if (!primary.equals(getJsonString(declared,"ipAddress")) || !com.cloud.utils.net.NetUtils.isValidIp4Cidr(cidr))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical primary lacks its frozen network identity");
+        JsonObject database = new JsonObject();
+        for (String field : Set.of("schemaVersion","instanceId","tables")) database.add(field,previous.get(field).deepCopy());
+        if (!StorageUnchangedVerifiedSourceRecovery.same(database,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical recovery DB SOURCE changed");
+        JsonObject endpoints = source.getAsJsonObject("network-endpoints.json");
+        JsonArray expected = rootNetworkBindings(instance,endpoints);
+        for (JsonElement entry : expected) {
+            JsonObject binding = entry.getAsJsonObject();
+            if (primary.equals(getJsonString(binding,"listenIp")) && (!StringUtils.equalsIgnoreCase(getJsonString(declared,"macAddress"),getJsonString(binding,"macAddress"))
+                    || getJsonInt(binding,"prefixlen",-1)!=Integer.parseInt(cidr.substring(cidr.indexOf('/')+1))))
+                throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical primary MAC or prefix changed");
+        }
+        JsonObject inspection = endpoints.deepCopy(); inspection.add("expectedBindings",expected);
+        JsonObject proof = rootGuest(instance,"network endpoints inspect",inspection,15);
+        if (!Boolean.TRUE.equals(getNativeBoolean(proof,"success")) || !Boolean.TRUE.equals(getNativeBoolean(proof,"bindingsValidated"))
+                || !Boolean.FALSE.equals(getNativeBoolean(proof,"sideEffects")) || !proof.has("endpoints")
+                || proof.getAsJsonArray("endpoints").size()!=expected.size())
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical address binding is unverified");
+        Map<String,JsonObject> actual = new HashMap<>();
+        for (JsonElement entry : proof.getAsJsonArray("endpoints")) {
+            JsonObject binding=entry.getAsJsonObject();if(actual.put(getJsonString(binding,"listenIp"),binding)!=null)
+                throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical address binding is ambiguous");
+        }
+        for (JsonElement entry : expected) {
+            JsonObject binding=entry.getAsJsonObject(), row=actual.get(getJsonString(binding,"listenIp"));
+            if (row==null || !Boolean.TRUE.equals(getNativeBoolean(row,"active")))
+                throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical address is not active");
+            for (String key : Set.of("listenIp","primaryIp","macAddress","prefixlen"))
+                if (!StorageUnchangedVerifiedSourceRecovery.same(binding.get(key),row.get(key)))
+                    throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical fresh NIC proof differs");
+        }
+        // Other protocol SOURCE semantics and opaque identity/credentials remain
+        // under their existing verification. NFS itself must still be absent.
+        verifyRecoveredStorageWriter(instance);
+        StorageInitialPrimaryEndpointRecovery.requireNfsAbsent(rootGuest(instance,"operation verify",new JsonObject(),30),
+                rootGuest(instance,"operation observe",new JsonObject(),30),System.currentTimeMillis()/1000.0);
+        JsonObject latest=nativeConfigurationGeneration(instance,null,"status");
+        for (String field : Set.of("generation","configurationSha256","bootId","runtimeRevision","pendingOperationUuid","configurationDesiredState"))
+            if (!StorageUnchangedVerifiedSourceRecovery.same(observed.get(field),latest.get(field)))
+                throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical SOURCE or BOOT changed during observation");
+        if (!StorageUnchangedVerifiedSourceRecovery.same(database,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical DB SOURCE changed before restore");
+        JsonObject request=operationReservationScope(instance,operation);
+        request.add("previousGeneration",frozen.get("generation").deepCopy());request.add("configurationDesiredState",source.deepCopy());
+        JsonObject restored=rootGuest(instance,"operation generation restore",request,30);
+        if (!Boolean.TRUE.equals(getNativeBoolean(restored,"canonicalRestored")) || !Boolean.FALSE.equals(getNativeBoolean(restored,"generationAdvanced"))
+                || !operation.getUuid().equals(getJsonString(restored,"pendingOperationUuid"))
+                || !frozen.get("configurationSha256").equals(restored.get("configurationSha256")))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: historical endpoint did not restore exact SOURCE");
     }
 
     /** Explicit recovery of an initial empty SOURCE when SERVICE failed before its native checkpoint. */
@@ -1532,7 +1614,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 ? dispatchPlainProtocolApply(instance, guest) : guestCommandDispatcher.dispatch(guest);
         JsonObject observed = parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
         if (!result.isSuccess() || !Boolean.TRUE.equals(getJsonBoolean(observed,"success"))) {
-            String fixed=null;
+            String fixed=Set.of("network endpoint apply","network endpoint publish","network endpoints source-restore").contains(command)
+                    ? protocolPreparationFailureDiagnostic(result.getResultJson()) : null;
             if ("operation generation render-import".equals(command)) {
                 fixed=renderedRuntimeFailureDiagnostic(result.getResultJson());
                 if (fixed!=null&&fixed.contains("phase=STAGE;"))fixed=null;
@@ -6809,6 +6892,49 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return candidate;
     }
 
+    /** Replace only a never-applied initial placeholder, never an operating wildcard. */
+    protected StorageServiceProtocolVO ordinaryInitialNfsEndpoint(StorageServiceInstanceVO instance,
+            EnableStorageServiceProtocolCmd command, StorageServiceInstance.Protocol protocol, int port, StorageServiceProtocolVO found) {
+        StorageServiceOperationVO writer = storageWriterOperation.get();
+        if (found != null || protocol != StorageServiceInstance.Protocol.NFS || isWildcardListenIp(command.getListenIp())
+                || port != 2049 || configurationBatch.get()!=null || renderedBatch.get()!=null
+                || !hasNativeConfigurationGeneration(writer)) return found;
+        JsonObject snapshot=parseJsonObject(writer.getPreviousSnapshotJson()), source=getJsonObject(snapshot,"nativeDesiredState");
+        if (source==null || !source.keySet().equals(StorageRenderedDesiredState.PATHS) || !source.get("desired-state/nfs-export-apply.json").isJsonNull()
+                || !storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS).isEmpty()) return found;
+        List<StorageServiceProtocolVO> rows=storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.NFS);
+        if(rows.size()!=1)return found;
+        StorageServiceProtocolVO row=rows.get(0);
+        if(row.getInstanceId()!=instance.getId() || row.getProtocol()!=protocol || row.getListenIp()!=null || !Integer.valueOf(2049).equals(row.getPort())
+                || !row.isEnabled() || row.getState()!=StorageServiceInstance.ResourceState.Ready || !configurationLegacyEmptyProtocolConfig(row.getConfigJson()))return found;
+        if(writer.getInstanceId()!=instance.getId() || !"enablestorageserviceprotocolresponse".equals(writer.getAction())
+                || !"RUNNING".equals(writer.getState()) || !"APPLYING".equals(writer.getPhase()))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: initial NFS placeholder is outside its original writer");
+        JsonObject original=new JsonObject();
+        for(String key:Set.of("schemaVersion","instanceId","tables")) {
+            if(!snapshot.has(key))throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: initial NFS placeholder has no frozen DB SOURCE");
+            original.add(key,snapshot.get(key).deepCopy());
+        }
+        if(!StorageUnchangedVerifiedSourceRecovery.same(original,parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: initial NFS placeholder changed after SOURCE capture");
+        JsonObject originalRow=null;
+        for(JsonElement entry:original.getAsJsonArray("tables")) {
+            JsonObject table=entry.getAsJsonObject();if(!"storage_service_protocol".equals(getJsonString(table,"table")))continue;
+            for(JsonElement value:table.getAsJsonArray("rows")) {
+                JsonObject candidate=value.getAsJsonObject();
+                if(getJsonLong(candidate,"id")==row.getId() && row.getUuid().equals(getJsonString(candidate,"uuid"))) {
+                    if(originalRow!=null)throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: initial NFS placeholder SOURCE is ambiguous");
+                    originalRow=candidate;
+                }
+            }
+        }
+        if(originalRow==null)throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: initial NFS placeholder is not in the frozen DB SOURCE");
+        JsonObject binding=new JsonObject();binding.add("scope",operationReservationScope(instance,writer));binding.addProperty("id",row.getId());
+        binding.addProperty("uuid",row.getUuid());binding.add("originalIntent",configurationProtocolIntent(row));binding.add("originalRow",originalRow.deepCopy());
+        snapshot.add("ordinaryInitialNfsReuse",binding);saveLocalCheckpointSnapshot(writer,snapshot);
+        return row;
+    }
+
     protected JsonObject configurationProtocolIntentSnapshot(StorageServiceInstanceVO instance) {
         JsonObject result=new JsonObject();Set<Long> ids=new HashSet<>();
         for (StorageServiceProtocolVO row:storageServiceProtocolDao.listByInstanceId(instance.getId())) {
@@ -7757,6 +7883,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         finally { endStorageWriterHeartbeat();renderedBatch.remove();configurationNativeNvmeReplayed.remove();configurationRecoverySource.remove();configurationRecoveryBindings.remove();adJoinRecoveryCredentials.remove(); }
                     }
                     public void preflight() {
+                        // The public check precedes writer acquisition. Recheck
+                        // under this writer before SOURCE capture/checkpoint and
+                        // before any target row, alias or deferred guest command.
+                        if (cmd instanceof EnableStorageServiceProtocolCmd && protocol==StorageServiceInstance.Protocol.NFS
+                                && !isWildcardListenIp(((EnableStorageServiceProtocolCmd)cmd).getListenIp()) && instance.getVmId()!=null
+                                && configurationBatch.get()==null && renderedBatch.get()==null)
+                            requireProtocolEndpointPreparationSupport(instance);
                         if(protocol==StorageServiceInstance.Protocol.NFS)requireNfsNamedPolicyCapability(instance);
                         StorageServiceOperationVO active = storageWriterOperation.get();
                         if (storageTemplateUpgradeDao.findActive(instanceId) != null) throw new CloudRuntimeException("A SystemVM ROOT template upgrade requires recovery or completion");
@@ -7858,6 +7991,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                         if(renderedBatch.get()!=null){RenderedBatch batch=renderedBatch.get();if(batch.receipt==null)batch=restoreRenderedBatch(batch.operation);renderedCoordinator(instance,batch).rollback(batch.receipt,batch.receipt.has("staged")?renderedRollbackRequest(instance,batch):operationReservationScope(instance,batch.operation));return;}
                         StorageServiceOperationVO recovering = storageWriterOperation.get();
                         configurationRecoverySource.set(frozenRecoveryConfiguration(instance, recovering));
+                        restorePreparedProtocolEndpoint(instance, recovering);
                         reconcileRecoveryNetwork(instance, recovering);
                         restoreNativePosixOperation(cmd, instance, true);
                         if (protocol != null) {
@@ -8473,6 +8607,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!operation.getUuid().equals(pending)) throw new CloudRuntimeException("Another native generation is pending");
         JsonObject frozen = configurationRecoverySource.get();
         if (frozen != null) {
+            // Address preparation belongs to this pending writer, before protocol
+            // SOURCE replay and before the final all-file semantic equality gate.
+            restorePreparedProtocolEndpoint(instance, operation);
             verifyRecoveredStorageWriter(instance);
             reconcileRecoveryNetwork(instance,operation);
             JsonObject live = nativeConfigurationGeneration(instance, null, "status");
@@ -8535,6 +8672,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     ? storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),protocol).isEmpty()
                     : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),protocol).isEmpty();
             if (!empty || !StorageCanonicalRecovery.emptyProtocolFile(protocol,comparable.get(path))) throw new CloudRuntimeException("A formerly absent protocol has active desired resources during recovery");
+            StorageServiceOperationVO operation=storageWriterOperation.get();
+            if (protocol==StorageServiceInstance.Protocol.NFS && hasPreparedProtocolEndpoint(operation)) {
+                JsonObject prepared=getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"protocolEndpointPreparation");
+                if (!prepared.has("expectedNfsDesiredState") || !prepared.get("expectedNfsDesiredState").equals(comparable.get(path)))
+                    throw new CloudRuntimeException("NFS_SOURCE_CHANGED: absent SOURCE differs from the exact submitted empty NFS target");
+            }
             comparable.add(path,com.google.gson.JsonNull.INSTANCE);
         }
         normalizeRecoveryNetworkPrimary(instance,source,comparable);
@@ -8779,7 +8922,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public StorageServiceProtocolResponse enableStorageServiceProtocol(final EnableStorageServiceProtocolCmd cmd) {
+        if (StorageServiceInstance.Protocol.NFS == parseProtocol(cmd.getProtocol()) && !isWildcardListenIp(cmd.getListenIp())
+                && configurationBatch.get()==null && renderedBatch.get()==null) {
+            StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+            if (instance.getVmId()!=null) requireProtocolEndpointPreparationSupport(instance);
+        }
         return executeDesiredChange(cmd, StorageServiceProtocolResponse.class, () -> doEnableStorageServiceProtocol(cmd));
+    }
+
+    protected void requireProtocolEndpointPreparationSupport(StorageServiceInstanceVO instance) {
+        JsonObject status=nativeConfigurationGeneration(instance,null,"status");
+        if (!Boolean.TRUE.equals(getNativeBoolean(status,"endpointPreparationSupported")))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_UNSUPPORTED: update the signed runtime before enabling a selected NFS address");
     }
 
     private StorageServiceProtocolResponse doEnableStorageServiceProtocol(final EnableStorageServiceProtocolCmd cmd) {
@@ -8790,6 +8944,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 findProtocolEndpoint(instance.getId(), protocol, cmd.getListenIp(), port) :
                 storageServiceProtocolDao.findByInstanceIdAndProtocol(instance.getId(), protocol);
         protocolVO=configurationInitialNfsEndpoint(instance,cmd,protocol,port,protocolVO);
+        protocolVO=ordinaryInitialNfsEndpoint(instance,cmd,protocol,port,protocolVO);
         final StorageServiceProtocolVO modeProtocol = protocol == StorageServiceInstance.Protocol.NFS ?
                 selectNfsModeProtocol(storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocol)) : protocolVO;
         final String protocolMode = resolveProtocolModeForEnable(protocol, modeProtocol, cmd.getProtocolMode());
@@ -8843,10 +8998,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         boolean registeredListenAddress = false;
         try {
             registeredListenAddress = registerProtocolListenAddress(instance, cmd.getListenIp(), listenNic);
-            ensureGuestProtocolListenAddress(instance, cmd.getListenIp(), listenNic, port);
+            prepareProtocolEndpoint(instance, protocol, cmd.getListenIp(), listenNic, port, registeredListenAddress);
             applyStorageServiceProtocolDesiredState(instance, protocol);
+            publishPreparedProtocolEndpoint(instance);
         } catch (final RuntimeException e) {
-            if (registeredListenAddress) {
+            // A staged writer owns both the guest alias and its exact DB alias ID.
+            // Restore that guest address before releasing the DB ownership record.
+            if (registeredListenAddress && !hasPreparedProtocolEndpoint(storageWriterOperation.get())) {
                 removeSecondaryListenAddress(instance, cmd.getListenIp());
             }
             rollbackProtocolEnable(protocolVO, created, previousEnabled, previousListenIp, previousPort, previousState);
@@ -11126,6 +11284,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
         requireNfsNamedPolicyCapability(instance);
         final JsonObject payload = buildNfsDesiredPayload(instance,removeListenIp,includeAllocatedResources).deepCopy();
+        rememberPreparedEndpointNfsTarget(instance, payload);
         final StorageServiceOperationVO writer = storageWriterOperation.get();
         if (writer != null) {
             if (writer.getInstanceId() != instance.getId()) throw new CloudRuntimeException("NFS writer targets a foreign instance");
@@ -11137,19 +11296,20 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
                 "nfs export apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
         if (!result.isSuccess()) {
-            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + result.getDetails());
+            String fixed = protocolPreparationFailureDiagnostic(result.getResultJson());
+            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: " + (fixed == null ? result.getDetails() : fixed));
         }
         final JsonObject resultJson = parseJsonObject(result.getResultJson());
         if (storageWriterOperation.get() != null) logger.info("Configuration NFS apply result for {}: requested={} exports={} endpoints={} ready={}",
                 instance.getUuid(), requestedExportCount, getJsonInt(resultJson, "exports", 0), getJsonInt(resultJson, "endpoints", 0), getJsonBoolean(resultJson, "runtimeReady"));
         if (resultJson.has("runtimeReady") && !resultJson.get("runtimeReady").getAsBoolean()) {
-            throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha did not report a listening endpoint");
+            throw new CloudRuntimeException("NFS_RUNTIME_NOT_READY: Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha did not report a listening endpoint");
         }
         if (requestedExportCount > 0) {
             final int appliedExportCount = getJsonInt(resultJson, "exports", 0);
             final int appliedEndpointCount = getJsonInt(resultJson, "endpoints", 0);
             if (appliedExportCount <= 0 || appliedEndpointCount <= 0) {
-                throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: expected " + requestedExportCount +
+                throw new CloudRuntimeException("NFS_RUNTIME_NOT_READY: Failed to apply NFS desired state on Storage Service System VM: expected " + requestedExportCount +
                         " export(s), but Ganesha runtime reported exports=" + appliedExportCount + ", endpoints=" + appliedEndpointCount);
             }
         }
@@ -11160,7 +11320,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     if (endpointJson.has("listening") && !endpointJson.get("listening").getAsBoolean()) {
                         final String endpointIp = endpointJson.has("listenIp") ? endpointJson.get("listenIp").getAsString() : "unknown";
                         final String endpointPort = endpointJson.has("port") ? endpointJson.get("port").getAsString() : "unknown";
-                        throw new CloudRuntimeException("Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha endpoint " +
+                        throw new CloudRuntimeException("NFS_RUNTIME_NOT_READY: Failed to apply NFS desired state on Storage Service System VM: nfs-ganesha endpoint " +
                                 endpointIp + ":" + endpointPort + " is not listening");
                     }
                 }
@@ -15539,6 +15699,169 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return reconciledNic;
     }
 
+    private boolean hasPreparedProtocolEndpoint(StorageServiceOperationVO operation) {
+        return operation != null && getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()), "protocolEndpointPreparation") != null;
+    }
+
+    private void saveProtocolEndpointPreparation(StorageServiceOperationVO operation, JsonObject intent) {
+        JsonObject snapshot = parseJsonObject(operation.getPreviousSnapshotJson());
+        snapshot.add("protocolEndpointPreparation", intent.deepCopy());
+        operation.setPreviousSnapshotJson(snapshot.toString());
+        if (!storageOperationDao.update(operation.getId(), operation))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: unable to persist the original address preparation");
+    }
+
+    /** Keep the canonical SOURCE unchanged until this exact NFS request succeeds. */
+    protected void prepareProtocolEndpoint(StorageServiceInstanceVO instance, StorageServiceInstance.Protocol protocol,
+            String listenIp, NicVO nic, Integer port, boolean registeredAlias) {
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (protocol != StorageServiceInstance.Protocol.NFS || renderedBatch.get() != null || !hasNativeConfigurationGeneration(operation)
+                || nic == null || isWildcardListenIp(listenIp) || instance.getVmId() == null) {
+            ensureGuestProtocolListenAddress(instance, listenIp, nic, port);
+            return;
+        }
+        if (operation.getInstanceId() != instance.getId() || !"enablestorageserviceprotocolresponse".equals(operation.getAction())
+                || !"RUNNING".equals(operation.getState()) || !"APPLYING".equals(operation.getPhase()) || hasPreparedProtocolEndpoint(operation))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address preparation is outside its original NFS writer");
+        JsonObject address = protocolListenAddressPayload(instance, listenIp, nic, port);
+        if (StringUtils.isBlank(nic.getMacAddress())) throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address NIC has no MAC");
+        address.addProperty("macAddress", nic.getMacAddress());
+        JsonObject intent = new JsonObject();
+        intent.add("scope", operationReservationScope(instance, operation));
+        intent.add("address", address.deepCopy());
+        intent.addProperty("nicId", nic.getId());
+        if (registeredAlias) {
+            NicSecondaryIpVO alias = nicSecondaryIpDao.findByIp4AddressAndNicId(listenIp, nic.getId());
+            if (alias == null || alias.getVmId() != instance.getVmId() || alias.getId() <= 0)
+                throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: newly registered alias ownership changed");
+            intent.addProperty("registeredAliasId", alias.getId());
+        }
+        // Persist intent before RPC: an unknown transport outcome is recovered,
+        // never retried as a fresh address creation or an unowned alias removal.
+        saveProtocolEndpointPreparation(operation, intent);
+        JsonObject request = address.deepCopy();
+        request.add("operationScope", intent.get("scope").deepCopy());
+        request.addProperty("deferCanonical", true);
+        JsonObject result = rootGuest(instance, "network endpoint apply", request, StorageServiceInstance.StorageServiceCommandTimeout.value());
+        requireProtocolEndpointReceipt(instance, operation, intent, result, "prepared");
+        if (!Boolean.FALSE.equals(getNativeBoolean(result, "canonicalChanged")))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: canonical SOURCE changed during address preparation");
+        intent.add("bootId", result.get("bootId").deepCopy());
+        intent.add("sourceConfigurationSha256", result.get("sourceConfigurationSha256").deepCopy());
+        saveProtocolEndpointPreparation(operation, intent);
+    }
+
+    private void requireProtocolEndpointReceipt(StorageServiceInstanceVO instance, StorageServiceOperationVO operation,
+            JsonObject intent, JsonObject receipt, String phase) {
+        String boot = getJsonString(receipt, "bootId"), source = getJsonString(receipt, "sourceConfigurationSha256");
+        if (operation != storageWriterOperation.get() || operation.getInstanceId() != instance.getId()
+                || !operationReservationScope(instance, operation).equals(intent.get("scope"))
+                || !intent.get("scope").equals(receipt.get("scope"))
+                || !Boolean.TRUE.equals(getNativeBoolean(receipt, "success")) || !Boolean.TRUE.equals(getNativeBoolean(receipt, phase))
+                || !nativeGenerationCanonicalUuid(boot) || source == null || !source.matches("[a-f0-9]{64}")
+                || intent.has("bootId") && !intent.get("bootId").equals(receipt.get("bootId"))
+                || intent.has("sourceConfigurationSha256") && !intent.get("sourceConfigurationSha256").equals(receipt.get("sourceConfigurationSha256")))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address receipt does not match its original writer and BOOT");
+        JsonObject previous = getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()),"nativeGeneration");
+        JsonObject generation = previous == null ? null : getJsonObject(previous,"previous");
+        if (generation != null && generation.size() != 0 && !source.equals(getJsonString(generation,"configurationSha256")))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address receipt SOURCE differs from its captured generation");
+        if (!"sourceRestored".equals(phase)) {
+            JsonObject address = intent.getAsJsonObject("address");
+            if (!receipt.has("endpoints") || !receipt.get("endpoints").isJsonArray() || receipt.getAsJsonArray("endpoints").size()==0
+                    || receipt.getAsJsonArray("endpoints").size()>1024)
+                throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address has no exact live binding receipt");
+            Set<String> seen = new HashSet<>();JsonObject actual = null;
+            for (JsonElement value : receipt.getAsJsonArray("endpoints")) {
+                JsonObject row = value.getAsJsonObject();String ip = getJsonString(row,"listenIp");
+                if (ip == null || !seen.add(ip)) throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address binding receipt is ambiguous");
+                if (ip.equals(getJsonString(address,"listenIp"))) actual = row;
+            }
+            if (actual == null || !StringUtils.equals(getJsonString(address,"listenIp"),getJsonString(actual,"listenIp"))
+                    || !StringUtils.equalsIgnoreCase(getJsonString(address,"macAddress"),getJsonString(actual,"macAddress"))
+                    || !address.get("prefixlen").equals(actual.get("prefixlen")) || !Boolean.TRUE.equals(getNativeBoolean(actual,"active"))
+                    || actual.has("primaryIp") && !address.get("primaryIp").equals(actual.get("primaryIp")))
+                throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: address is not active on its exact MAC and prefix");
+        }
+    }
+
+    private void rememberPreparedEndpointNfsTarget(StorageServiceInstanceVO instance, JsonObject payload) {
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (configurationRecoverySource.get() != null || !hasPreparedProtocolEndpoint(operation)) return;
+        JsonObject intent = getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()), "protocolEndpointPreparation");
+        if (operation.getInstanceId() != instance.getId() || intent.has("sourceRestored") || !intent.has("bootId"))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: NFS target is outside its prepared address");
+        intent.add("expectedNfsDesiredState", payload.deepCopy());
+        saveProtocolEndpointPreparation(operation, intent);
+    }
+
+    protected void publishPreparedProtocolEndpoint(StorageServiceInstanceVO instance) {
+        StorageServiceOperationVO operation = storageWriterOperation.get();
+        if (!hasPreparedProtocolEndpoint(operation)) return;
+        JsonObject intent = getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()), "protocolEndpointPreparation");
+        if (intent.has("sourceRestored") || !intent.has("expectedNfsDesiredState") || !intent.get("expectedNfsDesiredState").isJsonObject())
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: exact submitted NFS target is unavailable");
+        JsonObject request = new JsonObject();
+        request.add("operationScope", operationReservationScope(instance, operation));
+        request.add("expectedNfsDesiredState", intent.get("expectedNfsDesiredState").deepCopy());
+        JsonObject result = rootGuest(instance, "network endpoint publish", request, 30);
+        requireProtocolEndpointReceipt(instance, operation, intent, result, "published");
+        if (getNativeBoolean(result, "canonicalChanged") == null || getJsonString(result, "targetConfigurationSha256") == null
+                || !getJsonString(result, "targetConfigurationSha256").matches("[a-f0-9]{64}"))
+            throw new CloudRuntimeException("ENDPOINT_PREPARATION_FAILED: published address receipt is incomplete");
+        intent.addProperty("published", true);
+        saveProtocolEndpointPreparation(operation, intent);
+    }
+
+    /** Only this writer's protected address journal may restore its network SOURCE. */
+    protected void restorePreparedProtocolEndpoint(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if (!hasPreparedProtocolEndpoint(operation)) return;
+        JsonObject intent = getJsonObject(parseJsonObject(operation.getPreviousSnapshotJson()), "protocolEndpointPreparation");
+        if (Boolean.TRUE.equals(getNativeBoolean(intent, "sourceRestored"))) return;
+        JsonObject frozen = configurationRecoverySource.get();
+        if (operation != storageWriterOperation.get() || operation.getInstanceId() != instance.getId() || frozen == null
+                || !operationReservationScope(instance, operation).equals(intent.get("scope")))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: original pending SOURCE is unavailable");
+        JsonObject address = intent.getAsJsonObject("address");
+        NicVO nic = nicDao.listByVmId(instance.getVmId()).stream().filter(value -> value.getId() == getJsonLong(intent,"nicId")).findFirst().orElse(null);
+        if (nic == null || !StringUtils.equalsIgnoreCase(nic.getMacAddress(), getJsonString(address,"macAddress"))
+                || !StringUtils.equals(declaredProtocolPrimary(instance,nic),getJsonString(address,"primaryIp")))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: original NIC ownership changed");
+        NicSecondaryIpVO alias = nicSecondaryIpDao.findByIp4AddressAndNicId(getJsonString(address,"listenIp"),nic.getId());
+        if (intent.has("registeredAliasId") && alias != null && (alias.getId() != getJsonLong(intent,"registeredAliasId") || alias.getVmId() != instance.getVmId()))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: registered alias ownership changed");
+        JsonObject request = new JsonObject();
+        request.add("operationScope", operationReservationScope(instance, operation));
+        request.add("previousGeneration", frozen.get("generation").deepCopy());
+        request.add("configurationDesiredState", frozen.get("configurationDesiredState").deepCopy());
+        if (intent.has("expectedNfsDesiredState")) request.add("expectedNfsDesiredState",intent.get("expectedNfsDesiredState").deepCopy());
+        JsonObject result = rootGuest(instance, "network endpoints source-restore", request, 60);
+        requireProtocolEndpointReceipt(instance, operation, intent, result, "sourceRestored");
+        if (getNativeBoolean(result,"canonicalChanged") == null || !frozen.get("configurationSha256").equals(result.get("sourceConfigurationSha256")))
+            throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: restored address differs from frozen SOURCE");
+        // Native removes only its own newly added guest alias. Release the exact
+        // corresponding DB alias afterwards; existing aliases/primary are retained.
+        if (intent.has("registeredAliasId") && alias != null) {
+            NicSecondaryIpVO latest = nicSecondaryIpDao.findByIp4AddressAndNicId(getJsonString(address,"listenIp"),nic.getId());
+            if (latest == null || latest.getId() != alias.getId() || latest.getVmId() != instance.getVmId()
+                    || !nicSecondaryIpDao.remove(alias.getId()))
+                throw new CloudRuntimeException("ENDPOINT_SOURCE_RESTORE_FAILED: original DB alias could not be released");
+        }
+        intent.addProperty("sourceRestored", true);
+        saveProtocolEndpointPreparation(operation, intent);
+    }
+
+    protected String protocolPreparationFailureDiagnostic(String resultJson) {
+        try {
+            JsonObject result = parseJsonObject(normalizeRuntimeResultJson(resultJson));
+            JsonObject failure = getJsonObject(result, "lastFailure");
+            String code = failure == null ? getJsonString(result, "errorCode") : getJsonString(failure,"code");
+            if (Set.of("NFS_SOURCE_CHANGED","ENDPOINT_PREPARATION_FAILED","ENDPOINT_SOURCE_RESTORE_FAILED").contains(code))
+                return code;
+        } catch (RuntimeException malformed) { /* Never expose arbitrary native exception text. */ }
+        return null;
+    }
+
     protected void ensureGuestProtocolListenAddress(final StorageServiceInstanceVO instance, final String listenIp, final NicVO targetNic, final Integer port) {
         if (targetNic == null || StringUtils.isBlank(listenIp) || "0.0.0.0".equals(listenIp) || "::".equals(listenIp) || instance.getVmId() == null) {
             return;
@@ -15560,7 +15883,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         payload.addProperty("netmask", nic.getIPv4Netmask());
         payload.addProperty("prefixlen", protocolEndpointPrefix(nic, cidr));
         if (StringUtils.isNotBlank(cidr)) payload.addProperty("networkCidr", cidr);
-        if (port != null) payload.addProperty("port", port);
+        // Address ownership is shared by all protocols; listener ports belong
+        // to each protocol payload, never to the shared address cache.
         return payload;
     }
 

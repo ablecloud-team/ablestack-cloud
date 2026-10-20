@@ -158,6 +158,7 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
             java.lang.ThreadLocal<Long> explicit=(java.lang.ThreadLocal<Long>)org.springframework.test.util.ReflectionTestUtils.getField(this,"explicitUnchangedSourceRecovery");explicit.set(41L);
         }
         @Override protected void requireConfigurationAdministrator() { }
+        @Override protected void verifyReconciledStorageDesiredState(StorageServiceInstanceVO instance) { }
         @Override protected String configurationPrimaryAddress(StorageServiceInstanceVO instance) {return "10.10.13.223";}
         @Override protected String captureConfigurationSnapshot(long id) {return "{\"schemaVersion\":2,\"instanceId\":29,\"tables\":[]}";}
         @Override protected JsonObject nativeConfigurationGeneration(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action) {
@@ -177,10 +178,74 @@ public class StorageInitialPrimaryEndpointRecoveryTest {
             if("operation verify".equals(command)){JsonObject result=health();if(unknownNfs)result.getAsJsonObject("nfsGanesha").remove("active");result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);return result;}
             if("operation observe".equals(command)){JsonObject result=inventory();result.addProperty("generatedEpoch",System.currentTimeMillis()/1000.0);return result;}
             Assert.assertEquals("operation generation restore",command);restores++;Assert.assertEquals(frozen.get("configurationDesiredState"),payload.get("configurationDesiredState"));
-            JsonObject result=new JsonObject();result.addProperty("canonicalRestored",true);result.addProperty("configurationSha256","b".repeat(64));result.addProperty("pendingOperationUuid",operation.getUuid());return result;
+            JsonObject result=new JsonObject();result.addProperty("canonicalRestored",true);result.addProperty("generationAdvanced",false);result.addProperty("configurationSha256",frozen.has("configurationSha256")?frozen.get("configurationSha256").getAsString():"b".repeat(64));result.addProperty("pendingOperationUuid",operation.getUuid());return result;
         }
         public void close(){org.apache.cloudstack.context.CallContext.unregister();}
     }
+    private static JsonObject existingPortSource() {
+        JsonObject frozen=frozen(),source=frozen.getAsJsonObject("configurationDesiredState");
+        source.add("desired-state/nfs-export-apply.json",com.google.gson.JsonNull.INSTANCE);
+        source.add("network-endpoints.json",json("{\"endpoints\":[{\"listenIp\":\"10.10.13.223\",\"primaryIp\":\"10.10.13.223\",\"prefixlen\":16,\"port\":3260}]}"));
+        source.add("sharedfs-network.json",json("{\"ipAddress\":\"10.10.13.223\",\"cidr\":\"10.10.0.0/16\",\"macAddress\":\"02:00:00:00:00:78\"}"));
+        return frozen;
+    }
+
+    private static JsonObject existingPortCurrent(JsonObject frozen) {
+        JsonObject current=current(frozen);
+        current.add("configurationDesiredState",frozen.get("configurationDesiredState").deepCopy());
+        current.getAsJsonObject("configurationDesiredState").getAsJsonObject("network-endpoints.json").getAsJsonArray("endpoints").get(0).getAsJsonObject().addProperty("port",2049);
+        return current;
+    }
+
+    @Test public void historicalPortCompatibilityAcceptsOnlyOnePrimaryNfs2049DifferenceAndNoOtherFileChange() {
+        JsonObject frozen=existingPortSource();
+        StorageInitialPrimaryEndpointRecovery.requireExistingPrimaryPortDrift(frozen,existingPortCurrent(frozen),"10.10.13.223");
+        for(String fault:java.util.List.of("port","prefix","ip","extra","nfs","iscsi","same","generation")) {
+            JsonObject current=existingPortCurrent(frozen),source=current.getAsJsonObject("configurationDesiredState");
+            JsonObject row=source.getAsJsonObject("network-endpoints.json").getAsJsonArray("endpoints").get(0).getAsJsonObject();
+            if(fault.equals("port"))row.addProperty("port",2050);
+            if(fault.equals("prefix"))row.addProperty("prefixlen",24);
+            if(fault.equals("ip"))row.addProperty("listenIp","10.10.13.224");
+            if(fault.equals("extra"))row.addProperty("extra",true);
+            if(fault.equals("same"))row.addProperty("port",3260);
+            if(fault.equals("nfs"))source.add("desired-state/nfs-export-apply.json",json("{\"exports\":[]}"));
+            if(fault.equals("iscsi"))source.add("iscsi-targets.json",json("{\"targets\":[]}"));
+            if(fault.equals("generation"))current.add("generation",new JsonObject());
+            Assert.assertThrows(fault,RuntimeException.class,()->StorageInitialPrimaryEndpointRecovery.requireExistingPrimaryPortDrift(frozen,current,"10.10.13.223"));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void legacyPortManager(Manager manager) {
+        JsonObject frozen=existingPortSource();manager.frozen.add("configurationDesiredState",frozen.get("configurationDesiredState").deepCopy());
+        manager.frozen.addProperty("configurationSha256",StorageConfigurationVolumePlan.sha256(StorageConfigurationVolumePlan.canonical(manager.frozen.getAsJsonObject("configurationDesiredState"))));
+        manager.observed.add("configurationDesiredState",existingPortCurrent(manager.frozen).get("configurationDesiredState").deepCopy());
+        ((ThreadLocal<StorageServiceOperationVO>)org.springframework.test.util.ReflectionTestUtils.getField(manager,"storageWriterOperation")).set(manager.operation);
+        StorageServiceGuestCommandDispatcher guest=org.mockito.Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        org.mockito.Mockito.when(guest.dispatch(org.mockito.Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"","{\"success\":true,\"status\":\"ok\"}"));
+        org.springframework.test.util.ReflectionTestUtils.setField(manager,"guestCommandDispatcher",guest);
+    }
+
+    @Test public void historicalPrimaryPortRecoveryUsesOriginalHmacAndOnlyCommandsAvailableOnTheOldGuest() {
+        try(org.mockito.MockedStatic<StorageServiceRequestFingerprint> auth=org.mockito.Mockito.mockStatic(StorageServiceRequestFingerprint.class,org.mockito.Mockito.CALLS_REAL_METHODS)) {
+            auth.when(()->StorageServiceRequestFingerprint.of(org.mockito.Mockito.any(BaseCmd.class))).thenAnswer(call->StorageServiceRequestFingerprint.of(call.getArgument(0),"test-protected-key"));
+            try(Manager manager=new Manager()) {
+                legacyPortManager(manager);manager.restoreFailedInitialPrimaryEndpoint(manager.instance,manager.operation);
+                Assert.assertEquals(1,manager.restores);
+                Assert.assertEquals(java.util.List.of("network endpoints inspect","operation verify","operation observe","operation generation restore"),manager.commands);
+            }
+            for(String fault:java.util.List.of("boot","actor","fingerprint","runtime","database"))try(Manager manager=new Manager()) {
+                legacyPortManager(manager);
+                if(fault.equals("boot"))manager.race=true;
+                if(fault.equals("actor"))manager.operation.setCreatedBy(4);
+                if(fault.equals("fingerprint"))manager.operation.setResultJson("{\"_requestFingerprint\":\"API_INTENT_HMAC_V1:"+"0".repeat(64)+"\"}");
+                if(fault.equals("runtime"))manager.unknownNfs=true;
+                if(fault.equals("database"))manager.operation.setPreviousSnapshotJson("{\"schemaVersion\":2,\"instanceId\":29,\"tables\":[\"foreign\"]}");
+                Assert.assertThrows(fault,RuntimeException.class,()->manager.restoreFailedInitialPrimaryEndpoint(manager.instance,manager.operation));Assert.assertEquals(0,manager.restores);
+            }
+        }
+    }
+
     @Test public void explicitNormalRecoveryRestoresOnlyCanonicalSourceAndRaceNeverWrites() {
         try(org.mockito.MockedStatic<StorageServiceRequestFingerprint> auth=org.mockito.Mockito.mockStatic(StorageServiceRequestFingerprint.class,org.mockito.Mockito.CALLS_REAL_METHODS)) {
             auth.when(()->StorageServiceRequestFingerprint.of(org.mockito.Mockito.any(BaseCmd.class))).thenAnswer(call->StorageServiceRequestFingerprint.of(call.getArgument(0),"test-protected-key"));

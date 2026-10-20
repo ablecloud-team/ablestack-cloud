@@ -267,6 +267,20 @@ public class StorageCanonicalRecoveryRuntimeTest {
         @Override protected JsonArray buildBlockProtocolEndpointAliases(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol){
             JsonArray result=super.buildBlockProtocolEndpointAliases(instance,protocol);if(aliasDrift)result.get(0).getAsJsonObject().addProperty("effectiveListenIp","10.10.13.224");return result;
         }
+        @Override protected JsonObject buildBlockProtocolPayload(StorageServiceInstanceVO instance,StorageServiceInstance.Protocol protocol) {
+            // Exercise the historical representative shapes at the recovery
+            // adapter boundary. Production now selects explicit rows deterministically;
+            // changing the obsolete DAO.findOne mock no longer produces those inputs.
+            ThreadLocal<JsonObject> source=(ThreadLocal<JsonObject>)ReflectionTestUtils.getField(this,"configurationRecoverySource");
+            JsonObject frozen=source.get();source.remove();JsonObject payload;
+            try {payload=super.buildBlockProtocolPayload(instance,protocol);} finally {if(frozen!=null)source.set(frozen);}
+            if(selected!=null) {
+                payload.addProperty("listenIp",selected.getListenIp());
+                payload.addProperty("port",selected.getPort());
+            }
+            if(protocol==StorageServiceInstance.Protocol.ISCSI)preserveRecoveryIscsiPrimary(instance,payload);
+            return payload;
+        }
         JsonObject header(){return buildBlockProtocolPayload(instance,StorageServiceInstance.Protocol.ISCSI);}
     }
     @Test public void exactAuthenticatedIscsiReplayPreservesOriginalPrimaryDespiteRandomWildcardSelection() {

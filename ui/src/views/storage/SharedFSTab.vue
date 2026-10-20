@@ -1467,7 +1467,7 @@ wrapClassName="storage-service-action-modal"
           </a-form-item>
           <a-form-item required>
             <template #label>
-              <tooltip-label :title="$t('label.port')" :tooltip="forms.enableProtocol.protocol === 'NFS' ? $t('message.storage.service.nfs.port.help') : $t('message.storage.service.protocol.port.help')" />
+              <tooltip-label :title="$t('label.storage.service.activation.port')" :tooltip="forms.enableProtocol.protocol === 'NFS' ? $t('message.storage.service.nfs.port.help') : $t('message.storage.service.protocol.port.help')" />
             </template>
             <a-input-number
               v-model:value="forms.enableProtocol.port"
@@ -1476,6 +1476,13 @@ wrapClassName="storage-service-action-modal"
               :max="65535"
               :disabled="isEnableProtocolNfsDualMode" />
           </a-form-item>
+          <storage-protocol-address-status
+            :readiness="parsedHealth.networkReadiness"
+            :current-boot-id="parsedHealth.bootId || ''"
+            :ip="forms.enableProtocol.listenip"
+            :mode="forms.enableProtocol.listenipmode"
+            :stale="monitorCacheInfo.stale"
+            :read-failed="networkHealthReadFailed" />
           <a-alert
             v-if="enableProtocolListenerConflictMessage"
             type="warning"
@@ -2398,6 +2405,8 @@ import { iscsiTargetInput, defaultIscsiTargetIqn, isValidIscsiIqn, iscsiFailureP
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
+import StorageProtocolAddressStatus from '@/views/storage/StorageProtocolAddressStatus'
+import { protocolActivationFailurePresentation } from '@/utils/storageProtocolActivation'
 import StorageBootReconcileStatus from '@/views/storage/StorageBootReconcileStatus'
 import StoragePreparationStatus from '@/views/storage/StoragePreparationStatus'
 import StorageValidationPreparation from '@/views/storage/StorageValidationPreparation'
@@ -2664,6 +2673,7 @@ export default {
     StorageServiceRuntimeUpgrade,
     StorageVolumePreparation,
     StorageNetworkStatus,
+    StorageProtocolAddressStatus,
     StorageBootReconcileStatus,
     StoragePreparationStatus,
     StorageValidationPreparation,
@@ -5694,6 +5704,7 @@ export default {
       const scope = storageMutationScope(this); const modal = this.actionModal; const modalEpoch = this.storageModalEpoch || 0; const modalType = modal?.type
       const actionTab = this.currentTab; const actionWideLayout = this.protocolWideLayout
       const instance = { ...this.storageService.instance }; const parameters = this.cleanParams({ ...params })
+      const isNfsAction = /Nfs/i.test(api) || (api === 'enableStorageServiceProtocol' && parameters.protocol === 'NFS')
       const domain = this.storageService.domains?.find(row => row.joinstate === 'JOINED')
       const joined = !!domain || (this.isSmbAdConfigured === true && this.isSmbAdJoined === true)
       const active = {}; storageMutationActive.set(this, active)
@@ -5704,7 +5715,7 @@ export default {
         if (modal?.visible && this.actionModal === modal && modal.type === modalType && (this.storageModalEpoch || 0) === modalEpoch && (!secondary || !modal.error)) modal.error = message
         this.$message.error(message)
       }
-      let intent; let attempted = false; let terminal = false
+      let intent; let attempted = false; let terminal = false; let firstNfsFailure = null
       this.actionLoading[key] = true
       try {
         // Retry identity belongs to the original user request. Fresh AD approval
@@ -5754,9 +5765,12 @@ export default {
           })
           terminal = completed?.jobstatus === 1 || completed?.jobstatus === 2
           if (completed?.jobstatus !== 1) {
-            const failure = /Iscsi/i.test(api) && completed?.jobstatus === 2 ? iscsiFailurePresentation(completed) : null
+            const failure = completed?.jobstatus === 2
+              ? (isNfsAction ? protocolActivationFailurePresentation(completed) : (/Iscsi/i.test(api) ? iscsiFailurePresentation(completed) : null))
+              : null
+            if (isNfsAction) firstNfsFailure = failure
             const message = this.$t(failure?.messageKey || (completed?.jobstatus === 2 ? 'message.storage.config.failed' : 'message.job.result.unknown'))
-            report(message + (failure?.recoveryRequired ? ' ' + this.$t('message.storage.service.iscsi.failure.recovery.required') : (failure?.rolledBack ? ' ' + this.$t('message.storage.service.iscsi.failure.rolled.back') : '')))
+            report(message + (failure?.recoveryRequired ? ' ' + this.$t(failure?.recoveryMessageKey || (isNfsAction ? 'message.storage.service.activation.failure.recovery.required' : 'message.storage.service.iscsi.failure.recovery.required')) : (failure?.rolledBack ? ' ' + this.$t(isNfsAction ? 'message.storage.service.activation.failure.rolled.back' : 'message.storage.service.iscsi.failure.rolled.back') : '')))
             return false
           }
           if (joined && (!current() || this.storageService.instance.name !== instance.name)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
@@ -5765,8 +5779,9 @@ export default {
       } catch (error) {
         if (joined) report(this.$t(error?.message === 'AD_MUTATION_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
         else {
-          const failure = /Iscsi/i.test(api) ? iscsiFailurePresentation(error) : null
-          report(this.$t(failure?.messageKey || 'message.job.result.unknown') + (failure?.recoveryRequired ? ' ' + this.$t('message.storage.service.iscsi.failure.recovery.required') : (failure?.rolledBack ? ' ' + this.$t('message.storage.service.iscsi.failure.rolled.back') : '')))
+          const failure = isNfsAction ? protocolActivationFailurePresentation(error) : (/Iscsi/i.test(api) ? iscsiFailurePresentation(error) : null)
+          if (isNfsAction) firstNfsFailure = failure
+          report(this.$t(failure?.messageKey || 'message.job.result.unknown') + (failure?.recoveryRequired ? ' ' + this.$t(failure?.recoveryMessageKey || (isNfsAction ? 'message.storage.service.activation.failure.recovery.required' : 'message.storage.service.iscsi.failure.recovery.required')) : (failure?.rolledBack ? ' ' + this.$t(isNfsAction ? 'message.storage.service.activation.failure.rolled.back' : 'message.storage.service.iscsi.failure.rolled.back') : '')))
         }
         return false
       } finally {
@@ -5775,7 +5790,28 @@ export default {
         // before enabling a retry, without letting old work alter another resource.
         if (attempted && current()) {
           try { await this.refreshAfterStorageAction(key, actionTab, actionWideLayout) } catch (error) { report(this.$t('message.storage.service.read.partial'), true) }
-          if (current() && this.refreshStorageOperationHistory) this.refreshStorageOperationHistory(instance.id)
+          if (current() && this.refreshStorageOperationHistory) {
+            if (firstNfsFailure?.operationId) {
+              try {
+                const sequence = this.storageOperationReadSequence || 0
+                await this.refreshStorageOperationHistory(instance.id)
+                const gate = this.storageOperationGate
+                if (current() && gate?.status === 'READY' && gate.sequence > sequence &&
+                  gate.resourceId === scope.resourceId && gate.instanceId === instance.id && gate.security === scope.security) {
+                  const operation = (gate.rows || []).find(row => row.id === firstNfsFailure.operationId && row.instanceid === instance.id && row.state === 'RECOVERY_REQUIRED')
+                  const recovery = operation ? protocolActivationFailurePresentation({ errortext: operation.diagnostic }) : null
+                  if (operation && (recovery?.restoreFailed || firstNfsFailure.unsupported)) {
+                    report(this.$t(firstNfsFailure.messageKey || 'message.storage.config.failed') + ' ' + this.$t(recovery?.restoreFailed
+                      ? 'message.storage.service.activation.failure.source.restore'
+                      : 'message.storage.service.activation.failure.recovery.required'))
+                  }
+                }
+              } catch (_) {
+                // The original failure remains visible when the follow-up
+                // operation read is unavailable. Never guess a rollback code.
+              }
+            } else this.refreshStorageOperationHistory(instance.id)
+          }
         }
         if (joined && current()) this.cancelAdMutation()
         for (const field of Object.keys(parameters)) if (/password|secret|credential|dhchap(?:ctrl)?key|private|keytab/i.test(field)) parameters[field] = ''
