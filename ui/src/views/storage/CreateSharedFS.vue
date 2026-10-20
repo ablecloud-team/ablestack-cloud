@@ -1081,6 +1081,7 @@
 </template>
 <script>
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
+import { isValidIscsiIqn, isValidIscsiLun } from '@/utils/storageIscsi'
 import { validSharedFsGateway } from '@/utils/storageNetworkReadiness'
 import { storageReadDeadline } from '@/utils/storageRead'
 import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable, storagePreparationReasons, storagePreparationDiagnosticSnapshot } from '@/utils/storagePreparation'
@@ -1583,6 +1584,24 @@ export default {
             if (this.form.setupmode !== 'DEFERRED' && (!value || value.length === 0)) {
               return Promise.reject(this.$t('message.storage.service.select.one'))
             }
+            return Promise.resolve()
+          }
+        }],
+        iscsitargetname: [{
+          validator: async (rule, value) => {
+            if (this.isServiceSelected('ISCSI') && !isValidIscsiIqn(value)) return Promise.reject(this.$t('message.storage.service.iscsi.input.ISCSI_TARGET_IQN_INVALID'))
+            return Promise.resolve()
+          }
+        }],
+        iscsilun: [{
+          validator: async (rule, value) => {
+            if (this.isServiceSelected('ISCSI') && (!isValidIscsiLun(value) || (this.form.iscsiinitiator && Number(value) > 255))) return Promise.reject(this.$t(this.form.iscsiinitiator && Number(value) > 255 ? 'message.storage.service.iscsi.input.ISCSI_MAPPED_LUN_UNSUPPORTED' : 'message.storage.service.iscsi.input.ISCSI_TARGET_LUN_INVALID'))
+            return Promise.resolve()
+          }
+        }],
+        iscsiinitiator: [{
+          validator: async (rule, value) => {
+            if (this.isServiceSelected('ISCSI') && value && !isValidIscsiIqn(value)) return Promise.reject(this.$t('message.storage.service.iscsi.input.ISCSI_INITIATOR_IQN_INVALID'))
             return Promise.resolve()
           }
         }],

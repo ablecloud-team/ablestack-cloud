@@ -386,7 +386,7 @@ describe('injected forward mutation boundary', () => {
   })
 
   it('guards runtime and ROOT forward POST calls while the runtime rollback remains available', async () => {
-    const vm = { ...blocked(), resource: { id: 'fs-a' }, generation: 1, submitting: false, $notifyError: jest.fn(), $t: key => key }
+    const vm = { ...blocked(), resource: { id: 'fs-a' }, generation: 1, submitting: false, allowedApis: { upgradeStorageServiceRuntime: {}, rollbackStorageServiceRuntimeUpgrade: {} }, $notifyError: jest.fn(), $t: key => key }
     RuntimeUpgrade.methods.startAsync.call(vm, 'upgrade', 'upgradeStorageServiceRuntime', {})
     expect(postAPI).not.toHaveBeenCalled()
     expect(vm.$notifyError).toHaveBeenCalled()

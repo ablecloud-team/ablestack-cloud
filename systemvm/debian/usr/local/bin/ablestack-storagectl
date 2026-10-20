@@ -13979,6 +13979,8 @@ import json
 from pathlib import Path
 import re
 import stat
+import uuid
+from types import MappingProxyType
 
 
 def iscsi_auth_writer():
@@ -13999,26 +14001,164 @@ def iscsi_auth_writer():
         raise ValueError("iSCSI authentication writer is unavailable") from invalid
 
 
-def iscsi_auth_name(value,target=False):
-    if (not isinstance(value,str) or len(value)>223 or not re.fullmatch(r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+",value)
-            or (target and ".local.storage:" not in value)):
-        raise ValueError("iSCSI authentication has a foreign target or initiator")
+class IscsiAuthError(ValueError):
+    """Fixed public category only; neither identity nor credentials enter messages."""
+    CODES = frozenset(("TARGET_IQN_INVALID", "INITIATOR_IQN_INVALID", "OWNERSHIP_INVALID",
+                       "OWNERSHIP_MISMATCH", "AUTH_VALUE_INVALID"))
+    def __init__(self, code):
+        if code not in self.CODES:
+            raise ValueError("Invalid iSCSI authentication diagnostic category")
+        self.iscsi_auth_code = code
+        super().__init__("iSCSI authentication validation failed: " + code)
+
+
+def iscsi_auth_name(value, target=False):
+    # IQN grammar is shared with the API. A domain suffix is never ownership.
+    if (not isinstance(value, str) or len(value)>223 or not re.fullmatch(
+            r"iqn\.[0-9]{4}-[0-9]{2}\.[A-Za-z0-9.-]+:[A-Za-z0-9_.:-]+", value)):
+        raise IscsiAuthError("TARGET_IQN_INVALID" if target else "INITIATOR_IQN_INVALID")
     return value
+
+
+def iscsi_auth_uuid(value):
+    try:
+        return type(value) is str and str(uuid.UUID(value)) == value
+    except (ValueError, AttributeError):
+        return False
+
+
+class IscsiAuthOwnership:
+    """Immutable per-command canonical TARGET/SOURCE bindings, never name ownership.
+
+    The caller's writer-protected canonical payload already passed management/
+    generation authority. TARGET authorizes exact active ACL effects; SOURCE
+    additionally authorizes reading old vault keys so removals/edits can discard
+    them safely. A resource may be renamed, remapped or moved to another DATA
+    volume by the existing update API: neither snapshot is rewritten or merged
+    into permission to write an ACL absent from the exact TARGET snapshot.
+    """
+    __slots__ = ("_writer", "_bindings", "_grants", "_configs", "_vault")
+
+    def __setattr__(self, name, value):
+        raise AttributeError("iSCSI authentication ownership is immutable")
+
+    def __init__(self, payload, previous=None, writer=None):
+        check_writer = writer or iscsi_auth_writer
+        check_writer()
+        if not isinstance(payload, dict) or not iscsi_auth_uuid(payload.get("instanceUuid")):
+            raise IscsiAuthError("OWNERSHIP_INVALID")
+        instance = payload["instanceUuid"]
+        if previous is None:
+            previous = {}
+        grants, configs, vault, bindings = {}, {}, set(), {}
+        for source, value in ((False, payload), (True, previous)):
+            if (not isinstance(value, dict) or not isinstance(value.get("targets", []), list)
+                    or value.get("targets") and value.get("instanceUuid") != instance):
+                raise IscsiAuthError("OWNERSHIP_INVALID")
+            seen = set()
+            for row in value.get("targets", []):
+                if not isinstance(row, dict):
+                    raise IscsiAuthError("OWNERSHIP_INVALID")
+                identity, volume = row.get("uuid"), row.get("volumeUuid")
+                if (not iscsi_auth_uuid(identity) or identity in seen or not iscsi_auth_uuid(volume)
+                        or type(row.get("volumeSizeBytes")) is not int or row["volumeSizeBytes"] < 1
+                        or not isinstance(row.get("config", {}), dict)
+                        or str(row.get("backstoreType") or (row.get("config") or {}).get("backstoreType") or "BLOCK").upper() != "BLOCK"):
+                    raise IscsiAuthError("OWNERSHIP_INVALID")
+                seen.add(identity)
+                iqn = iscsi_auth_name(row.get("targetName"), True)
+                raw_lun = row.get("lunOrNamespace", "0")
+                if type(raw_lun) not in (int, str) or not re.fullmatch(r"[0-9]+", str(raw_lun)):
+                    raise IscsiAuthError("OWNERSHIP_INVALID")
+                lun = str(raw_lun).lstrip("0") or "0"
+                if len(lun)>5 or int(lun)>65535:
+                    raise IscsiAuthError("OWNERSHIP_INVALID")
+                binding_key = (source, iqn, lun)
+                binding = (identity, volume, row["volumeSizeBytes"])
+                if binding_key in bindings and bindings[binding_key] != binding:
+                    raise IscsiAuthError("OWNERSHIP_MISMATCH")
+                bindings[binding_key] = binding
+                acls = row.get("acls") or []
+                if not isinstance(acls, list):
+                    raise IscsiAuthError("OWNERSHIP_INVALID")
+                if row.get("state", "Ready") in ("Disabled", "Destroyed", "Error"):
+                    continue
+                for acl in acls:
+                    if not isinstance(acl, dict):
+                        raise IscsiAuthError("OWNERSHIP_INVALID")
+                    if acl.get("state", "Ready") in ("Disabled", "Destroyed", "Error"):
+                        continue
+                    initiator = iscsi_auth_name(acl.get("principal"))
+                    key = (iqn, initiator)
+                    vault.add(key)
+                    if source:
+                        continue
+                    config = acl.get("config") or {}
+                    if not isinstance(config, dict) or acl.get("permission") not in ("READ_ONLY", "READ_WRITE"):
+                        raise IscsiAuthError("OWNERSHIP_INVALID")
+                    if int(lun)>ISCSI_MAPPED_LUN_MAX:
+                        raise IscsiAuthError("OWNERSHIP_INVALID")
+                    signature = self.signature(config)
+                    if key in configs and configs[key] != signature:
+                        raise IscsiAuthError("OWNERSHIP_MISMATCH")
+                    configs[key] = signature
+                    protect = 1 if acl["permission"] == "READ_ONLY" else 0
+                    if lun in grants.setdefault(key, {}) and grants[key][lun] != protect:
+                        raise IscsiAuthError("OWNERSHIP_MISMATCH")
+                    grants[key][lun] = protect
+        object.__setattr__(self, "_writer", check_writer)
+        object.__setattr__(self, "_bindings", MappingProxyType(bindings))
+        object.__setattr__(self, "_grants", MappingProxyType(
+            {key: MappingProxyType(dict(value)) for key, value in grants.items()}))
+        object.__setattr__(self, "_configs", MappingProxyType(configs))
+        object.__setattr__(self, "_vault", frozenset(vault))
+
+    @staticmethod
+    def signature(config):
+        if not isinstance(config, dict):
+            raise IscsiAuthError("AUTH_VALUE_INVALID")
+        flags = (config.get("chapEnabled", False), config.get("mutualChapEnabled", False))
+        if any(type(flag) is not bool for flag in flags):
+            raise IscsiAuthError("AUTH_VALUE_INVALID")
+        for enabled, key in zip(flags, ("chapUsername", "mutualChapUsername")):
+            value = config.get(key)
+            if enabled and (type(value) is not str or not value.strip() or value.startswith("NULL")
+                            or len(value.encode())>255 or any(char in value for char in ("\0", "\r", "\n"))):
+                raise IscsiAuthError("AUTH_VALUE_INVALID")
+        return (flags[0], config.get("chapUsername") if flags[0] else None,
+                flags[1], config.get("mutualChapUsername") if flags[1] else None)
+
+    def authorize(self, target, initiator, config=None, expected=None, vault=False):
+        self._writer()
+        key = (iscsi_auth_name(target, True), iscsi_auth_name(initiator))
+        if key not in (self._vault if vault else self._grants):
+            raise IscsiAuthError("OWNERSHIP_MISMATCH")
+        if config is not None and self.signature(config) != self._configs.get(key):
+            raise IscsiAuthError("OWNERSHIP_MISMATCH")
+        if expected is not None and (not isinstance(expected,dict) or dict(expected) != dict(self._grants[key])):
+            raise IscsiAuthError("OWNERSHIP_MISMATCH")
+        return True
+
+
+def iscsi_auth_authorize(ownership, target, initiator, **kwargs):
+    if not isinstance(ownership, IscsiAuthOwnership):
+        raise IscsiAuthError("OWNERSHIP_INVALID")
+    return ownership.authorize(target, initiator, **kwargs)
 
 
 def iscsi_auth_values(config,values):
     if not isinstance(config,dict) or not isinstance(values,dict):
-        raise ValueError("iSCSI authentication inputs are not structured")
+        raise IscsiAuthError("AUTH_VALUE_INVALID")
     result={}
     for flag,user,password,secret in (("chapEnabled","userid","password","chapSecret"),("mutualChapEnabled","userid_mutual","password_mutual","mutualChapSecret")):
         enabled=config.get(flag,False)
-        if type(enabled) is not bool:raise ValueError("iSCSI authentication flags are invalid")
+        if type(enabled) is not bool:raise IscsiAuthError("AUTH_VALUE_INVALID")
         username=config.get("chapUsername" if flag=="chapEnabled" else "mutualChapUsername")
         for field,value in ((user,username),(password,values.get(secret))):
             if enabled:
                 if (not isinstance(value,str) or not value or not value.strip() or value.startswith("NULL")
                         or len(value.encode())>255 or any(char in value for char in ("\0","\r","\n"))):
-                    raise ValueError("iSCSI authentication value is invalid for the fixed kernel attribute")
+                    raise IscsiAuthError("AUTH_VALUE_INVALID")
                 result[field]=value.encode()
             else:result[field]=b"NULL"
     return result
@@ -14028,17 +14168,18 @@ def iscsi_auth_values(config,values):
 ISCSI_MAPPED_LUN_MAX = 255
 
 class ConfigfsIscsiAuth:
-    def __init__(self,root=None,writer=None,write=None):
+    def __init__(self,root=None,writer=None,write=None,ownership=None):
         self.root=Path(root or "/sys/kernel/config/target/iscsi")
         self.writer=writer or iscsi_auth_writer
         self.write=write or os.write
+        self.ownership=ownership
 
     @staticmethod
     def identity(info):
         return info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_gid
 
     def auth_directory(self,target,initiator):
-        iscsi_auth_name(target,True);iscsi_auth_name(initiator)
+        iscsi_auth_authorize(self.ownership,target,initiator)
         path=self.root;descriptor=None
         try:
             for component in (None,target,"tpgt_1","acls",initiator,"auth"):
@@ -14077,6 +14218,7 @@ class ConfigfsIscsiAuth:
             os.close(descriptor);raise
 
     def apply(self,target,initiator,config,secrets):
+        iscsi_auth_authorize(self.ownership,target,initiator,config=config)
         values=iscsi_auth_values(config,secrets);self.writer()
         directory,path=self.auth_directory(target,initiator);attributes={}
         try:
@@ -14101,7 +14243,7 @@ class ConfigfsIscsiAuth:
 
     def verify_lun_access(self,target,initiator,expected):
         """Read only the exact NodeACL mapped-LUN links and public protection bits."""
-        iscsi_auth_name(target,True);iscsi_auth_name(initiator);self.writer()
+        iscsi_auth_authorize(self.ownership,target,initiator,expected=expected);self.writer()
         if not isinstance(expected,dict) or any(not re.fullmatch(r"[0-9]+",str(lun))
                 or not 0<=int(lun)<=ISCSI_MAPPED_LUN_MAX or type(value)is not int or value not in (0,1) for lun,value in expected.items()):
             raise ValueError("iSCSI LUN permission plan is invalid")
@@ -14162,7 +14304,7 @@ class ConfigfsIscsiAuth:
 
 
 
-def iscsi_private_vault(path):
+def iscsi_private_vault(path,ownership=None):
     path=Path(path)
     try:info=path.lstat()
     except FileNotFoundError:return {}
@@ -14185,18 +14327,19 @@ def iscsi_private_vault(path):
     for binding,secrets in value.items():
         parts=binding.split("|")
         if len(parts)!=2:raise ValueError("iSCSI private vault resource binding is invalid")
-        iscsi_auth_name(parts[0],True);iscsi_auth_name(parts[1])
+        iscsi_auth_authorize(ownership,parts[0],parts[1],vault=True)
         if (not isinstance(secrets,dict) or not secrets or not set(secrets)<={"chapSecret","mutualChapSecret"}
                 or any(not isinstance(item,str) or not item or len(item.encode())>255 or any(char in item for char in ("\0","\r","\n")) for item in secrets.values())):
             raise ValueError("iSCSI private vault credential binding is invalid")
     return value
+
 # END EMBEDDED ISCSI AUTH
 
 ISCSI_DIAGNOSTIC_STAGES = {"CLEANUP", "TARGET_CREATE", "PORTAL_CREATE", "BACKSTORE_CREATE", "LUN_CREATE", "ACL_CREATE", "AUTH_POLICY"}
 ISCSI_DIAGNOSTIC_CATEGORIES = {"UNCLASSIFIED", "ATTRIBUTE_ERROR", "TYPE_ERROR", "IMPORT_ERROR", "PERMISSION_ERROR", "WWN_REJECTED", "CONFIGFS_ERROR", "TIMEOUT", "SPAWN_FAILURE"}
 first_iscsi_failure = None
 ISCSI_GUARD_STAGES = {"INPUT", "VAULT_STATE", "DEPENDENCY", "LISTENER", "DEVICE", "AUTH", "READINESS"}
-ISCSI_GUARD_CATEGORIES = {"VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}
+ISCSI_GUARD_CATEGORIES = {"TARGET_IQN_INVALID", "INITIATOR_IQN_INVALID", "OWNERSHIP_INVALID", "OWNERSHIP_MISMATCH", "AUTH_VALUE_INVALID", "VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}
 
 def targetcli_error_category(result):
     # Inspect only fixed vendor tokens in RAM; never return arbitrary text.
@@ -14262,7 +14405,9 @@ def iscsi_guard(stage, action, *args, **kwargs):
         if isinstance(failure, SystemExit) and failure.code in (None, 0):
             raise
         category = None
-        if isinstance(failure, subprocess.TimeoutExpired):
+        if getattr(failure,"iscsi_auth_code",None) in ISCSI_GUARD_CATEGORIES:
+            category = failure.iscsi_auth_code
+        elif isinstance(failure, subprocess.TimeoutExpired):
             category = "TIMEOUT"
         elif isinstance(failure, OSError):
             category = "OS_ERROR"
@@ -14295,7 +14440,7 @@ def load_iscsi_payload(path):
 
 
 
-def planned_iscsi_lun_access(value):
+def planned_iscsi_lun_access(value,ownership):
     result={}
     if value.get("enabled",True) is False:return result
     for target in value.get("targets") or []:
@@ -14312,6 +14457,7 @@ def planned_iscsi_lun_access(value):
         lun=str(int(canonical))
         for acl in active:
             initiator=iscsi_auth_name(acl.get("principal"))
+            iscsi_auth_authorize(ownership,iqn,initiator)
             permission=acl.get("permission")
             if permission not in ("READ_ONLY","READ_WRITE"):
                 raise ValueError("iSCSI mapped LUN permission is missing or unknown")
@@ -14324,7 +14470,6 @@ def planned_iscsi_lun_access(value):
 
 payload_path = sys.argv[1]
 payload = iscsi_guard("INPUT", load_iscsi_payload, payload_path)
-lun_access = iscsi_guard("AUTH", planned_iscsi_lun_access, payload)
 
 state_dir = "/etc/ablestack-storage"
 iscsi_guard("VAULT_STATE", os.makedirs, state_dir, exist_ok=True)
@@ -14339,10 +14484,13 @@ try:
 except Exception:
     previous_payload = {}
 
+auth_ownership = iscsi_guard("AUTH", IscsiAuthOwnership, payload, previous_payload)
+lun_access = iscsi_guard("AUTH", planned_iscsi_lun_access, payload, auth_ownership)
+
 SENSITIVE_KEYS = {"secrets", "chapSecret", "mutualChapSecret", "secret", "password"}
 
 def load_secret_store():
-    return iscsi_private_vault(secret_file)
+    return iscsi_private_vault(secret_file,auth_ownership)
 
 def write_secret_store(value):
     os.makedirs(secret_dir, mode=0o700, exist_ok=True)
@@ -14763,7 +14911,7 @@ def iscsi_acl_chap_signature(acl):
     ])
 
 def apply_iscsi_auth(iqn, initiator, acl_config, secrets):
-    ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)
+    ConfigfsIscsiAuth(ownership=auth_ownership).apply(iqn,initiator,acl_config,secrets)
 
 
 def merged_acls_for_targets(group_targets):
@@ -15411,7 +15559,7 @@ if command_exists("targetcli"):
                 for mapped_lun,protect in sorted(grants.items(),key=lambda pair:int(pair[0])):
                     require_targetcli(f"/iscsi/{iqn}/tpg1/acls/{initiator}","create",mapped_lun,mapped_lun,
                                       "write_protect="+str(protect),stage="ACL_CREATE")
-                iscsi_guard("AUTH",ConfigfsIscsiAuth().verify_lun_access,iqn,initiator,grants)
+                iscsi_guard("AUTH",ConfigfsIscsiAuth(ownership=auth_ownership).verify_lun_access,iqn,initiator,grants)
             require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}", stage="AUTH_POLICY")
     except BaseException:
         rollback_created(created_iqns, created_backstores)

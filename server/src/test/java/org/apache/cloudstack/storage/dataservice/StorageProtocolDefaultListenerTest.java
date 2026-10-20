@@ -141,15 +141,15 @@ public class StorageProtocolDefaultListenerTest {
     }
 
     @Test
-    public void existingCustomBlockRowsAreNotRewrittenWhenDefaultEndpointIsAdded() {
+    public void existingCustomBlockRowsAreReusedWithoutSynthesizingWildcardEndpoint() {
         for (StorageServiceInstance.Protocol protocol : new StorageServiceInstance.Protocol[]{
                 StorageServiceInstance.Protocol.ISCSI, StorageServiceInstance.Protocol.NVME_OF}) {
             Fixture fixture = new Fixture();int customPort = protocol == StorageServiceInstance.Protocol.ISCSI ? 3261 : 4421;
             StorageServiceProtocolVO custom = fixture.add(protocol, true, "127.0.0.9", customPort);
             fixture.manager.ensureProtocol(fixture.instance, protocol);
             Assert.assertEquals(customPort, custom.getPort().intValue());Assert.assertEquals("127.0.0.9", custom.getListenIp());
-            Assert.assertTrue(custom.isEnabled());Assert.assertEquals(1, fixture.inserts);
-            Assert.assertEquals(2, fixture.list(protocol).size());
+            Assert.assertTrue(custom.isEnabled());Assert.assertEquals(0, fixture.inserts);
+            Assert.assertEquals(1, fixture.list(protocol).size());
             Mockito.verify(fixture.dao, Mockito.never()).update(Mockito.anyLong(), Mockito.any());
         }
     }
@@ -181,6 +181,7 @@ public class StorageProtocolDefaultListenerTest {
     @Test
     public void wrongRequestedPortIsRejectedBeforeTargetPreparationAndPersistence() {
         Fixture fixture = new Fixture();CreateStorageIscsiTargetCmd cmd = Mockito.mock(CreateStorageIscsiTargetCmd.class);
+        Mockito.when(cmd.getTargetName()).thenReturn("iqn.2026-10.local.ablestack:valid-custom");
         Mockito.when(cmd.getInstanceId()).thenReturn(INSTANCE_ID);Mockito.when(cmd.getEndpointMode()).thenReturn("LISTENER_GROUP");
         Mockito.when(cmd.getListenerPorts()).thenReturn("3261");Mockito.when(cmd.getBackstoreType()).thenReturn("BLOCK");
         try {
@@ -193,32 +194,19 @@ public class StorageProtocolDefaultListenerTest {
         Mockito.verify(fixture.targets, Mockito.never()).persist(Mockito.any());
     }
 
-    private Path actualCli() {
-        String explicit = System.getProperty("cloudstack.storage.iscsi.listener.cli");
-        if (explicit != null) return new File(explicit).toPath();
-        Path directory = new File(System.getProperty("user.dir")).toPath().toAbsolutePath();
-        while (directory != null) {
-            Path candidate = directory.resolve("systemvm/debian/usr/local/bin/ablestack-storagectl");
-            if (Files.isRegularFile(candidate)) return candidate;
-            directory = directory.getParent();
+    private Path isolatedIscsiRunner() {
+        Path directory=new File(System.getProperty("user.dir")).toPath().toAbsolutePath();
+        while(directory!=null) {
+            Path runner=directory.resolve("systemvm/test/run-preparation-health-wire-isolated.py");
+            if(Files.isRegularFile(runner))return runner;
+            directory=directory.getParent();
         }
-        throw new AssertionError("Pinned native CLI is unavailable");
+        throw new AssertionError("Checked-in isolated Native test runner is unavailable");
     }
 
     private JsonObject actualNativeSelection(JsonObject payload, JsonObject target) throws Exception {
-        String script = String.join("\n", "import ast,json,sys", "from pathlib import Path",
-                "request=json.load(sys.stdin)", "text=Path(sys.argv[1]).read_text()",
-                "begin=text.index('apply_iscsi_targets() {');function=text[begin:text.index('apply_nvmeof_subsystems() {',begin)]",
-                "code=function[function.index(\"<<'PY'\\n\")+len(\"<<'PY'\\n\"):function.rindex('\\nPY')]",
-                "names={'configured_listeners','target_listener_ports','selected_listeners_for_target'}",
-                "nodes=[n for n in ast.parse(code).body if isinstance(n,ast.FunctionDef) and n.name in names]",
-                "assert len(nodes)==3", "scope={'payload':request['payload']}",
-                "exec(compile(ast.Module(body=nodes,type_ignores=[]),'<actual-c265-listener-selection>','exec'),scope)",
-                "try:", " selected=scope['selected_listeners_for_target'](request['target'],scope['configured_listeners']())",
-                " print(json.dumps({'accepted':True,'ports':[r['port']for r in selected]}))",
-                "except SystemExit:", " print(json.dumps({'accepted':False,'error':'LISTENER_GROUP_UNAVAILABLE'}))");
         JsonObject request = new JsonObject();request.add("payload", payload);request.add("target", target);
-        Process process = new ProcessBuilder("python3", "-c", script, actualCli().toString()).start();
+        Process process = new ProcessBuilder("python3", isolatedIscsiRunner().toString(), "--suite", "iscsi-manager-listener").start();
         try (java.io.OutputStream input = process.getOutputStream()) {
             input.write(request.toString().getBytes(StandardCharsets.UTF_8));
         }
@@ -335,10 +323,7 @@ public class StorageProtocolDefaultListenerTest {
         }
         JsonObject request = new JsonObject();
         request.add("targets", values);
-        String explicit = System.getProperty("cloudstack.storage.iscsi.permission.fixture");
-        Path fixture = explicit == null ? actualCli().getParent().getParent().getParent().getParent().getParent().resolve("test/TestStorageIscsiLunPermissions.py")
-                : new File(explicit).toPath();
-        Process process = new ProcessBuilder("python3", fixture.toString(), "--manager-payload").start();
+        Process process = new ProcessBuilder("python3", isolatedIscsiRunner().toString(), "--suite", "iscsi-manager-payload").start();
         try (java.io.OutputStream input = process.getOutputStream()) {
             input.write(request.toString().getBytes(StandardCharsets.UTF_8));
         }

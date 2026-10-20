@@ -86,6 +86,7 @@ async function oneWay (wrapper) {
 
 async function mutual (wrapper) {
   await oneWay(wrapper)
+  await field(wrapper, 'label.storage.service.allowed.initiator.iqn').setValue('iqn.2026-05.local.client:own')
   await field(wrapper, 'label.storage.service.mutual.chap.enabled').setValue(true)
   await field(wrapper, 'label.storage.service.mutual.chap.username').setValue('synthetic-target')
   await field(wrapper, 'label.storage.service.mutual.chap.secret').setValue('synthetic-target-secret')

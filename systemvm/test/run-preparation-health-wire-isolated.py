@@ -19,6 +19,7 @@
 
 Run from any directory:
   python3 systemvm/test/run-preparation-health-wire-isolated.py
+  python3 systemvm/test/run-preparation-health-wire-isolated.py --suite iscsi-auth
 
 Requires Linux, /usr/bin/bwrap with --bind-fd support, and permission to read
 /etc/{passwd,group,shadow,gshadow} for host integrity verification. The launcher
@@ -48,6 +49,15 @@ PYTHON = Path("/usr/bin/python3")
 PREFIX = "storage-preparation-health-wire-"
 ACCOUNT_FILES = ("/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow")
 NAMESPACES = ("mnt", "pid", "net", "user", "ipc", "uts")
+SUITES = {
+    "health": ("TestStoragePreparationHealthWire.py",),
+    "native-all": ("TestStorage*.py",),
+    "iscsi-auth": ("TestStorageIscsiAuth.py", "TestStorageIscsiLifecycle.py",
+                   "TestStorageIscsiLunPermissions.py", "TestStorageInlineSources.py"),
+    "iscsi-guard-consumer": ("TestStorageIscsiLifecycle.py",),
+    "iscsi-manager-payload": ("TestStorageIscsiLunPermissions.py",),
+    "iscsi-manager-listener": ("TestStorageIscsiLunPermissions.py",),
+}
 
 
 class Rejected(Exception):
@@ -126,8 +136,20 @@ need(os.environ["PREPARATION_HEALTH_WIRE_FIXTURE_OUTPUT"]==
      str(root/"preparation-health-wire-contract.json"),"FIXED_FIXTURE_OUTPUT")
 (root/"isolation-proof.json").write_text(json.dumps(
     {"success":True,"passedPostconditions":passed,"noHostNativeExecution":True},indent=2)+"\n")
-result=subprocess.run(["/usr/bin/python3","-B",str(Path(spec["repository"],
-    "systemvm/test/TestStoragePreparationHealthWire.py"))],check=False)
+tests=Path(spec["repository"],"systemvm/test")
+if spec["suite"] in ("iscsi-auth","native-all"):
+    program="import unittest,sys; loader=unittest.TestLoader(); suite=unittest.TestSuite(); "+\
+            "; ".join("suite.addTests(loader.discover("+repr(str(tests))+",pattern="+repr(name)+"))"
+                      for name in spec["tests"])+\
+            "; result=unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
+    command=["/usr/bin/python3","-B","-c",program]
+elif spec["suite"] in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener"):
+    flag={"iscsi-guard-consumer":"--guard-consumer-fixtures",
+          "iscsi-manager-payload":"--manager-payload","iscsi-manager-listener":"--manager-listener"}[spec["suite"]]
+    command=["/usr/bin/python3","-B",str(tests/spec["tests"][0]),flag]
+else:
+    command=["/usr/bin/python3","-B",str(tests/spec["tests"][0])]
+result=subprocess.run(command,check=False)
 for entry in root.iterdir():
     value=entry.lstat()
     need(stat.S_ISREG(value.st_mode)and not stat.S_ISLNK(value.st_mode)
@@ -136,11 +158,13 @@ raise SystemExit(result.returncode)
 """
 
 
-def launch(output):
+def launch(output,suite="health"):
     real_directory(REPOSITORY, "REAL_REPOSITORY_REQUIRED")
     require((REPOSITORY / "pom.xml").is_file(), "REPOSITORY_ANCHORS_REQUIRED")
-    test = REPOSITORY / "systemvm/test/TestStoragePreparationHealthWire.py"
-    require(test.is_file() and not test.is_symlink(), "FIXED_TEST_REQUIRED")
+    require(suite in SUITES,"FIXED_SUITE_REQUIRED")
+    for name in SUITES[suite]:
+        test = REPOSITORY / "systemvm/test" / ("TestStorageIscsiAuth.py" if suite=="native-all" else name)
+        require(test.is_file() and not test.is_symlink(), "FIXED_TEST_REQUIRED")
     protected_executable(BWRAP, "TRUSTED_BWRAP_REQUIRED")
     protected_executable(PYTHON.resolve(strict=True), "TRUSTED_PYTHON_REQUIRED")
     require(output.parent == Path("/tmp") and re.fullmatch(PREFIX + r"[A-Za-z0-9_-]+", output.name),
@@ -155,7 +179,7 @@ def launch(output):
         pinned = os.fstat(descriptor)
         require((pinned.st_dev, pinned.st_ino) == (info.st_dev, info.st_ino),
                 "OUTPUT_DIRECTORY_CHANGED")
-        spec = {"repository": str(REPOSITORY), "output": str(output),
+        spec = {"repository": str(REPOSITORY), "output": str(output), "suite":suite,"tests":SUITES[suite],
                 "rootIdentity": [info.st_dev, info.st_ino], "hostDevDevice": os.stat("/dev").st_dev,
                 "parentNamespaces": {name: os.readlink("/proc/self/ns/" + name) for name in NAMESPACES}}
         argv = [str(BWRAP), "--die-with-parent", "--new-session", "--unshare-all", "--unshare-user",
@@ -172,7 +196,7 @@ def launch(output):
                 str(PYTHON), "-I", "-B", "-c", INSIDE_GUARD, json.dumps(spec, separators=(",", ":"))]
         try:
             result = subprocess.run(argv, pass_fds=(descriptor,), close_fds=True,
-                                    capture_output=True, text=True, timeout=180,
+                                    capture_output=True, text=True, timeout=600 if suite=="native-all" else 180,
                                     env={"PATH": "/usr/bin:/bin"})
             if result.stdout:
                 print(result.stdout, end="")
@@ -184,8 +208,9 @@ def launch(output):
             (output / "host-account-integrity.json").write_text(json.dumps(
                 {"unchanged": unchanged, "paths": list(ACCOUNT_FILES)}, indent=2) + "\n")
             require(unchanged, "HOST_ACCOUNT_FILES_CHANGED")
-        print(json.dumps({"exitCode": code, "hostAccountFilesUnchanged": True,
-                          "output": str(output), "repositoryModified": False}))
+        if suite not in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener"):
+            print(json.dumps({"exitCode": code, "hostAccountFilesUnchanged": True,
+                              "output": str(output), "repositoryModified": False}))
         return code
     finally:
         os.close(descriptor)
@@ -195,6 +220,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path,
                         help="New private /tmp/storage-preparation-health-wire-* path; must not exist")
+    parser.add_argument("--suite",choices=sorted(SUITES),default="health")
     args = parser.parse_args()
     try:
         if args.output_dir is None:
@@ -205,7 +231,7 @@ def main():
                     and re.fullmatch(PREFIX + r"[A-Za-z0-9_-]+", output.name),
                     "EXACT_PRIVATE_OUTPUT_PATH_REQUIRED")
             output.mkdir(mode=0o700, exist_ok=False)
-        return launch(output)
+        return launch(output,args.suite)
     except BaseException as failure:
         code = str(failure) if isinstance(failure, Rejected) else "HEALTH_WIRE_SANDBOX_LAUNCH_FAILED"
         print(json.dumps({"success": False, "errorCode": code,

@@ -2000,11 +2000,11 @@ wrapClassName="storage-service-action-modal"
           </a-row>
         </div>
         <div v-if="actionModal.type === 'iscsiTarget' || actionModal.type === 'editIscsiTarget'" class="storage-action-form storage-action-form--vertical">
-          <a-form-item required>
+          <a-form-item required :validate-status="iscsiTargetInputErrors.targetname ? 'error' : undefined" :help="iscsiTargetInputErrors.targetname ? $t('message.storage.service.iscsi.input.' + iscsiTargetInputErrors.targetname) : undefined">
             <template #label><tooltip-label :title="$t('label.storage.service.target.iqn')" :tooltip="$t('message.storage.service.target.iqn.help')" /></template>
             <a-input v-model:value="forms.iscsiTarget.targetname" />
           </a-form-item>
-          <a-form-item required>
+          <a-form-item required :validate-status="iscsiTargetInputErrors.lun ? 'error' : undefined" :help="iscsiTargetInputErrors.lun ? $t('message.storage.service.iscsi.input.' + iscsiTargetInputErrors.lun) : undefined">
             <template #label><tooltip-label :title="$t('label.storage.service.lun')" :tooltip="$t('message.storage.service.lun.help')" /></template>
             <a-input v-model:value="forms.iscsiTarget.lun" />
           </a-form-item>
@@ -2044,15 +2044,18 @@ wrapClassName="storage-service-action-modal"
           <a-alert class="storage-action-alert" type="info" show-icon :message="$t('message.storage.service.iscsi.block.only.help')" />
           <section class="storage-action-section">
             <div class="storage-action-section__title">{{ $t('label.storage.service.iscsi.listener.groups') }}</div>
-            <a-form-item required>
+            <a-form-item required :validate-status="iscsiTargetInputErrors.listenerports ? 'error' : undefined" :help="iscsiTargetInputErrors.listenerports ? $t('message.storage.service.iscsi.input.' + iscsiTargetInputErrors.listenerports) : undefined">
               <template #label><tooltip-label :title="$t('label.storage.service.iscsi.listener.group')" :tooltip="$t('message.storage.service.iscsi.listener.group.help')" /></template>
               <a-select v-model:value="forms.iscsiTarget.listenerports" mode="multiple" show-search optionFilterProp="label">
                 <a-select-option v-for="group in iscsiListenerGroupOptions" :key="group.value" :value="group.value" :label="group.label">{{ group.label }}</a-select-option>
               </a-select>
             </a-form-item>
             <div class="storage-action-summary-box storage-action-summary-box--compact">
+              <div class="storage-action-summary-row"><span>{{ $t('label.storage.service.iscsi.listener.scope') }}</span><span>{{ iscsiListenerGroupScope(forms.iscsiTarget.listenerports) }}</span></div>
               <div class="storage-action-summary-row"><span>{{ $t('label.storage.service.accessible.endpoints') }}</span><code>{{ formatIscsiListenerGroupEndpoints(forms.iscsiTarget.listenerports) }}</code></div>
             </div>
+            <div class="field-hint">{{ $t('message.storage.service.iscsi.listener.scope.help') }}</div>
+            <a-alert v-if="!iscsiListenerGroupOptions.length" class="storage-action-alert" type="warning" show-icon :message="$t('message.storage.service.iscsi.listener.register.first')" />
           </section>
         </div>
         <div v-if="actionModal.type === 'iscsiAcl' || actionModal.type === 'editIscsiAcl'" class="storage-action-form storage-action-form--vertical">
@@ -2391,6 +2394,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import SmbNetworkAccess from '@/views/storage/SmbNetworkAccess'
 import SmbCreationOptions from '@/views/storage/SmbCreationOptions'
 import { supportsStorageFormatting, diskProvisioningLabel } from '@/utils/storageDiskProvisioning'
+import { iscsiTargetInput, defaultIscsiTargetIqn, isValidIscsiIqn, iscsiFailurePresentation, iscsiGroupHasAcl, iscsiMappedGroupSupported } from '@/utils/storageIscsi'
 import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
@@ -2781,6 +2785,7 @@ export default {
         { value: 'GiB', label: 'GiB', multiplier: 1024 * 1024 * 1024 },
         { value: 'TiB', label: 'TiB', multiplier: 1024 * 1024 * 1024 * 1024 }
       ],
+      iscsiTargetInputErrors: {},
       forms: {
         nfsServiceSettings: { idmappingmode: 'NAME_DOMAIN' },
         enableProtocol: {
@@ -2903,7 +2908,7 @@ export default {
           newvolumesize: null,
           backingpath: '',
           endpointmode: 'LISTENER_GROUP',
-          listenerports: [3260]
+          listenerports: []
         },
         iscsiAcl: {
           targetid: '',
@@ -3373,23 +3378,10 @@ export default {
       }))
     },
     iscsiListenerGroupOptions () {
-      const ports = new Set([3260])
-      const addPorts = value => this.normalizeListenerPorts(value).forEach(port => ports.add(port))
-      const addConfigPorts = config => {
-        if (!config || typeof config !== 'object') return
-        addPorts(config.listenerGroupPorts ?? config.listenergroupports ?? config.listenerPorts ?? config.listenerports)
-      }
-      const protocols = this.storageService.protocols || []
-      protocols.forEach(protocol => {
-        if (String(protocol.protocol || protocol.name || '').toUpperCase() === 'ISCSI') {
-          addPorts(protocol?.port ?? protocol?.listenPort ?? protocol?.listenport ?? protocol?.endpointPort)
-          addConfigPorts(this.parseStorageConfig(protocol.config))
-        }
-      })
-      this.storageService.iscsiTargets.forEach(target => addConfigPorts(this.parseStorageConfig(target.config)))
-      return Array.from(ports).sort((a, b) => a - b).map(port => ({
+      const ports = new Set(this.protocolListenerEntries('ISCSI').map(entry => entry.port))
+      return Array.from(ports).filter(Number.isInteger).sort((a, b) => a - b).map(port => ({
         value: port,
-        label: `${this.$t('label.port')} ${port} / ${this.formatIscsiListenerGroupEndpoints([port])}`
+        label: this.$t('label.port') + ' ' + port + ' / ' + this.iscsiListenerGroupScope([port]) + ' / ' + this.formatIscsiListenerGroupEndpoints([port])
       }))
     },
     nvmeListenerGroupOptions () {
@@ -5707,9 +5699,9 @@ export default {
       const active = {}; storageMutationActive.set(this, active)
       this.storageMutationPending = true
       const current = () => storageMutationScopeMatches(this, scope)
-      const report = message => {
+      const report = (message, secondary = false) => {
         if (!current()) return
-        if (modal?.visible && this.actionModal === modal && modal.type === modalType && (this.storageModalEpoch || 0) === modalEpoch) modal.error = message
+        if (modal?.visible && this.actionModal === modal && modal.type === modalType && (this.storageModalEpoch || 0) === modalEpoch && (!secondary || !modal.error)) modal.error = message
         this.$message.error(message)
       }
       let intent; let attempted = false; let terminal = false
@@ -5762,7 +5754,9 @@ export default {
           })
           terminal = completed?.jobstatus === 1 || completed?.jobstatus === 2
           if (completed?.jobstatus !== 1) {
-            report(this.$t(completed?.jobstatus === 2 ? 'message.storage.config.failed' : 'message.job.result.unknown'))
+            const failure = /Iscsi/i.test(api) && completed?.jobstatus === 2 ? iscsiFailurePresentation(completed) : null
+            const message = this.$t(failure?.messageKey || (completed?.jobstatus === 2 ? 'message.storage.config.failed' : 'message.job.result.unknown'))
+            report(message + (failure?.recoveryRequired ? ' ' + this.$t('message.storage.service.iscsi.failure.recovery.required') : (failure?.rolledBack ? ' ' + this.$t('message.storage.service.iscsi.failure.rolled.back') : '')))
             return false
           }
           if (joined && (!current() || this.storageService.instance.name !== instance.name)) throw new Error('AD_SERVICE_APPROVAL_REQUIRED')
@@ -5770,14 +5764,17 @@ export default {
         return current()
       } catch (error) {
         if (joined) report(this.$t(error?.message === 'AD_MUTATION_API_UNSUPPORTED' ? 'message.storage.service.ad.maintenance.unsupported' : error?.message === 'AD_SERVICE_APPROVAL_REQUIRED' ? 'message.storage.service.ad.maintenance.required' : 'message.storage.service.ad.receipt.unverified'))
-        else report(this.$t('message.job.result.unknown'))
+        else {
+          const failure = /Iscsi/i.test(api) ? iscsiFailurePresentation(error) : null
+          report(this.$t(failure?.messageKey || 'message.job.result.unknown') + (failure?.recoveryRequired ? ' ' + this.$t('message.storage.service.iscsi.failure.recovery.required') : (failure?.rolledBack ? ' ' + this.$t('message.storage.service.iscsi.failure.rolled.back') : '')))
+        }
         return false
       } finally {
         if (intent && (terminal || (!attempted && intent.created))) intent.intents.delete(intent.fingerprint)
         // A failed or uncertain writer can still have changed service state. Re-read it
         // before enabling a retry, without letting old work alter another resource.
         if (attempted && current()) {
-          try { await this.refreshAfterStorageAction(key, actionTab, actionWideLayout) } catch (error) { report(this.$t('message.storage.service.read.partial')) }
+          try { await this.refreshAfterStorageAction(key, actionTab, actionWideLayout) } catch (error) { report(this.$t('message.storage.service.read.partial'), true) }
           if (current() && this.refreshStorageOperationHistory) this.refreshStorageOperationHistory(instance.id)
         }
         if (joined && current()) this.cancelAdMutation()
@@ -6691,7 +6688,7 @@ export default {
       normalized.forEach(port => {
         const matching = entries.filter(item => Number(item.port) === Number(port))
         if (!matching.length) {
-          this.serviceEndpoints.forEach(ip => add(`${ip}:${port}`))
+          if (String(protocolName).toUpperCase() !== 'ISCSI') this.serviceEndpoints.forEach(ip => add(`${ip}:${port}`))
           return
         }
         matching.forEach(item => {
@@ -7175,7 +7172,19 @@ export default {
     },
     defaultIscsiListenerPort () {
       const options = this.iscsiListenerGroupOptions || []
-      return options.length ? options[0].value : 3260
+      return options.length ? options[0].value : null
+    },
+    iscsiListenerGroupScope (ports) {
+      const selected = this.normalizeListenerPorts(ports)
+      if (!selected.length) return '—'
+      const entries = this.protocolListenerEntries('ISCSI')
+      return selected.map(port => {
+        const matching = entries.filter(entry => entry.port === port)
+        if (!matching.length) return this.$t('message.storage.service.iscsi.listener.register.first')
+        return matching.some(entry => this.isWildcardListenIp(entry.listenIp))
+          ? this.$t('label.storage.service.iscsi.listener.scope.all')
+          : this.$t('label.storage.service.iscsi.listener.scope.specific') + ': ' + [...new Set(matching.map(entry => entry.listenIp))].join(', ')
+      }).join(' / ')
     },
     formatIscsiListenerGroupEndpoints (ports) {
       const normalized = this.normalizeListenerPorts(ports)
@@ -7263,9 +7272,11 @@ export default {
       }
     },
     resetIscsiTargetForm () {
+      this.iscsiTargetInputErrors = {}
+      const defaultPort = this.defaultIscsiListenerPort()
       this.forms.iscsiTarget = {
         id: '',
-        targetname: `iqn.2026-05.local.storage:${this.resource.name || 'target'}-${Date.now().toString().slice(-4)}`,
+        targetname: defaultIscsiTargetIqn(this.resource.name, Date.now().toString().slice(-4)),
         lun: '0',
         volumeid: this.defaultCurrentIscsiBlockVolumeId(),
         volumemode: this.currentIscsiBlockVolumes.length ? 'CURRENT' : 'EXISTING',
@@ -7275,10 +7286,11 @@ export default {
         newvolumesize: null,
         backingpath: '',
         endpointmode: 'LISTENER_GROUP',
-        listenerports: [this.defaultIscsiListenerPort()]
+        listenerports: defaultPort ? [defaultPort] : []
       }
     },
     populateIscsiTargetForm (record) {
+      this.iscsiTargetInputErrors = {}
       const raw = record?.raw || record || {}
       const config = this.parseStorageConfig(raw.config)
       this.forms.iscsiTarget = {
@@ -8322,30 +8334,30 @@ export default {
         this.actionLoading.adStatus = false
       }
     },
-    async prepareIscsiTargetVolume () {
+    async prepareIscsiTargetVolume (form = this.forms.iscsiTarget) {
       const retryVolume = storagePreparedVolumeForRetry(this, 'iscsiTarget')
       if (retryVolume) return retryVolume
-      if (this.forms.iscsiTarget.volumemode === 'CURRENT' || this.forms.iscsiTarget.volumemode === 'EXISTING') {
-        if (!this.forms.iscsiTarget.volumeid) {
-          this.$message.error(this.$t(this.forms.iscsiTarget.volumemode === 'CURRENT' ? 'message.storage.service.current.volume.required' : 'message.storage.service.existing.volume.required'))
+      if (form.volumemode === 'CURRENT' || form.volumemode === 'EXISTING') {
+        if (!form.volumeid) {
+          this.$message.error(this.$t(form.volumemode === 'CURRENT' ? 'message.storage.service.current.volume.required' : 'message.storage.service.existing.volume.required'))
           return false
         }
-        return this.forms.iscsiTarget.volumeid
+        return form.volumeid
       }
       if (this.storageMutationBlocked) return false
-      if (!this.forms.iscsiTarget.storageid) {
-        this.forms.iscsiTarget.storageid = this.defaultIscsiNewVolumeStorageId()
+      if (!form.storageid) {
+        form.storageid = this.defaultIscsiNewVolumeStorageId()
       }
-      if (!this.forms.iscsiTarget.diskofferingid || !this.forms.iscsiTarget.storageid || !this.forms.iscsiTarget.newvolumesize) {
+      if (!form.diskofferingid || !form.storageid || !form.newvolumesize) {
         this.$message.error(this.$t('message.storage.service.new.volume.required'))
         return false
       }
       const params = {
-        name: this.forms.iscsiTarget.newvolumename || `${this.forms.iscsiTarget.targetname || 'iscsi'}-volume`,
+        name: form.newvolumename || `${form.targetname || 'iscsi'}-volume`,
         zoneid: this.resource.zoneid,
-        diskofferingid: this.forms.iscsiTarget.diskofferingid,
-        storageid: this.forms.iscsiTarget.storageid,
-        size: this.forms.iscsiTarget.newvolumesize
+        diskofferingid: form.diskofferingid,
+        storageid: form.storageid,
+        size: form.newvolumesize
       }
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
@@ -8359,34 +8371,46 @@ export default {
       await this.waitVolumeAttachable(id)
       return id
     },
+    validateIscsiTargetForm () {
+      const form = this.forms.iscsiTarget
+      const mapped = iscsiGroupHasAcl(this.storageService.iscsiTargets || [], this.storageService.iscsiAcls || [], form.targetname, form.id)
+      const result = iscsiTargetInput(form, this.iscsiListenerGroupOptions.map(option => option.value), mapped)
+      if (mapped && result.valid) {
+        const prospectiveId = form.id || 'pending-new-target'
+        const targets = (this.storageService.iscsiTargets || []).filter(target => String(target.id || target.uuid) !== String(form.id))
+        targets.push({ id: prospectiveId, targetname: form.targetname, lunornamespace: form.lun, state: 'Ready' })
+        if (!iscsiMappedGroupSupported(targets, prospectiveId)) {
+          result.valid = false; result.errors.lun = 'ISCSI_MAPPED_LUN_UNSUPPORTED'
+        }
+      }
+      this.iscsiTargetInputErrors = result.errors
+      if (!result.valid) this.$message.error(this.$t('message.storage.service.iscsi.input.' + Object.values(result.errors)[0]))
+      return result
+    },
     async createIscsiTarget () {
-      const volumeId = await this.prepareIscsiTargetVolume()
-      if (volumeId === false) {
-        return Promise.resolve(false)
-      }
-      const listenerPorts = this.selectedIscsiListenerPorts()
-      if (!listenerPorts.length) {
-        this.$message.error(this.$t('message.storage.service.iscsi.listener.group.required'))
-        return Promise.resolve(false)
-      }
+      const validation = this.validateIscsiTargetForm()
+      if (!validation.valid) return false
+      const scope = storageMutationScope(this)
+      const epoch = this.storageModalEpoch || 0
+      const form = { ...this.forms.iscsiTarget, listenerports: [...validation.ports] }
+      const instanceId = this.storageService.instance.id
+      const volumeId = await this.prepareIscsiTargetVolume(form)
+      if (volumeId === false || !storageMutationScopeMatches(this, scope) || (this.storageModalEpoch || 0) !== epoch) return false
       return this.runStorageAction('iscsiTarget', 'createStorageIscsiTarget', {
-        instanceid: this.storageService.instance.id,
-        targetname: this.forms.iscsiTarget.targetname,
-        lun: this.forms.iscsiTarget.lun,
+        instanceid: instanceId,
+        targetname: form.targetname,
+        lun: form.lun,
         volumeid: volumeId,
-        backingpath: this.forms.iscsiTarget.backingpath,
+        backingpath: form.backingpath,
         endpointmode: 'LISTENER_GROUP',
-        listenerports: listenerPorts.join(','),
-        cleanupvolumeonfailure: this.forms.iscsiTarget.volumemode === 'NEW' && !!volumeId
+        listenerports: validation.ports.join(','),
+        cleanupvolumeonfailure: form.volumemode === 'NEW' && !!volumeId
       }, this.$t('label.storage.service.create.iscsi.target'))
     },
     updateIscsiTarget () {
+      const validation = this.validateIscsiTargetForm()
+      if (!validation.valid) return Promise.resolve(false)
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
-      const listenerPorts = this.selectedIscsiListenerPorts()
-      if (!listenerPorts.length) {
-        this.$message.error(this.$t('message.storage.service.iscsi.listener.group.required'))
-        return Promise.resolve(false)
-      }
       return this.runStorageAction('editIscsiTarget', 'updateStorageIscsiTarget', {
         id: context.id || this.forms.iscsiTarget.id,
         targetname: this.forms.iscsiTarget.targetname,
@@ -8394,7 +8418,7 @@ export default {
         volumeid: this.forms.iscsiTarget.volumeid,
         backingpath: this.forms.iscsiTarget.backingpath,
         endpointmode: 'LISTENER_GROUP',
-        listenerports: listenerPorts.join(',')
+        listenerports: validation.ports.join(',')
       }, this.$t('label.storage.service.update.iscsi.target'))
     },
     async prepareNvmeNamespaceVolume () {
@@ -8482,10 +8506,24 @@ export default {
       }
       return true
     },
-    createIscsiAcl () {
-      if (!this.validateIscsiChapForm()) {
-        return Promise.resolve(false)
+    validateIscsiAclIdentity () {
+      if (!this.storageService.iscsiTargets.some(target => String(target.id || target.uuid) === String(this.forms.iscsiAcl.targetid))) {
+        this.$message.error(this.$t('message.storage.service.iscsi.target.required'))
+        return false
       }
+      if (!iscsiMappedGroupSupported(this.storageService.iscsiTargets, this.forms.iscsiAcl.targetid)) {
+        this.$message.error(this.$t('message.storage.service.iscsi.input.ISCSI_MAPPED_LUN_UNSUPPORTED'))
+        return false
+      }
+      if (!isValidIscsiIqn(this.forms.iscsiAcl.initiatoriqn)) {
+        this.$message.error(this.$t('message.storage.service.iscsi.input.ISCSI_INITIATOR_IQN_INVALID'))
+        return false
+      }
+      return true
+    },
+    createIscsiAcl () {
+      if (!this.validateIscsiChapForm()) return Promise.resolve(false)
+      if (!this.validateIscsiAclIdentity()) return Promise.resolve(false)
       const result = this.runStorageAction('iscsiAcl', 'createStorageIscsiAcl', {
         targetid: this.forms.iscsiAcl.targetid,
         initiatoriqn: this.forms.iscsiAcl.initiatoriqn,
@@ -8502,9 +8540,8 @@ export default {
       return result
     },
     updateIscsiAcl () {
-      if (!this.validateIscsiChapForm()) {
-        return Promise.resolve(false)
-      }
+      if (!this.validateIscsiChapForm()) return Promise.resolve(false)
+      if (!this.validateIscsiAclIdentity()) return Promise.resolve(false)
       const context = this.actionModal.context?.raw || this.actionModal.context || {}
       const result = this.runStorageAction('editIscsiAcl', 'updateStorageIscsiAcl', {
         id: context.id || this.forms.iscsiAcl.id,

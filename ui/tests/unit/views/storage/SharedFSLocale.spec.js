@@ -170,3 +170,13 @@ describe('Preparation observation presentation locale coverage', () => {
     expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
   })
 })
+
+describe('iSCSI input and public failure locale coverage', () => {
+  it.each(Object.keys(localeFiles))('defines every iSCSI pre-allocation and terminal failure message in %s', locale => {
+    const keys = [
+      ...['ISCSI_TARGET_IQN_INVALID', 'ISCSI_INITIATOR_IQN_INVALID', 'ISCSI_TARGET_LUN_INVALID', 'ISCSI_MAPPED_LUN_UNSUPPORTED', 'ISCSI_LISTENER_GROUP_REQUIRED', 'ISCSI_LISTENER_GROUP_INVALID', 'ISCSI_LISTENER_NOT_REGISTERED'].map(code => 'message.storage.service.iscsi.input.' + code),
+      ...['target.name', 'initiator.name', 'target.lun', 'mapped.lun', 'ownership', 'credential', 'authentication', 'apply', 'verify', 'recovery.required', 'rolled.back'].map(code => 'message.storage.service.iscsi.failure.' + code)
+    ]
+    expect(keys.filter(key => !localeMessages[locale][key] || localeMessages[locale][key] === key)).toEqual([])
+  })
+})

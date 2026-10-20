@@ -1004,7 +1004,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
     public void testClosedGuardPhasesAndCategoriesKeepExactNullCodeContract() {
         final StorageServiceHostCommand command = iscsiSensitiveCommand("iscsi target apply");
         for (String phase : new String[]{"INPUT", "VAULT_STATE", "DEPENDENCY", "LISTENER", "DEVICE", "AUTH", "READINESS"}) {
-            for (String category : new String[]{"VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}) {
+            for (String category : new String[]{"TARGET_IQN_INVALID", "INITIATOR_IQN_INVALID", "OWNERSHIP_INVALID", "OWNERSHIP_MISMATCH", "AUTH_VALUE_INVALID", "VALUE_ERROR", "TYPE_ERROR", "RUNTIME_ERROR", "OS_ERROR", "TIMEOUT", "SYSTEM_EXIT", "LOOKUP_ERROR", "ATTRIBUTE_ERROR", "ASSERTION_ERROR"}) {
                 String value = fixedIscsiGuardFailure().replace("\"DEVICE\"", "\"" + phase + "\"")
                         .replace("\"SYSTEM_EXIT\"", "\"" + category + "\"");
                 Assert.assertTrue(wrapper.commandFailureDetails(command, 1, value, "SYNTHETIC_PRIVATE_CREDENTIAL")
@@ -1051,7 +1051,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         if (explicit != null) return java.nio.file.Paths.get(explicit);
         java.nio.file.Path directory = java.nio.file.Paths.get(System.getProperty("user.dir")).toAbsolutePath();
         while (directory != null) {
-            java.nio.file.Path candidate = directory.resolve("systemvm/test/TestStorageIscsiLifecycle.py");
+            java.nio.file.Path candidate = directory.resolve("systemvm/test/run-preparation-health-wire-isolated.py");
             if (java.nio.file.Files.isRegularFile(candidate)) return candidate;
             directory = directory.getParent();
         }
@@ -1060,7 +1060,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
 
     @Test
     public void testActualPythonProducerFlowsThroughCompiledGuestAnswerConsumer() throws Exception {
-        final Process process = new ProcessBuilder("python3", iscsiGuardProducerFixture().toString(), "--guard-consumer-fixtures").start();
+        final Process process = new ProcessBuilder("python3", iscsiGuardProducerFixture().toString(), "--suite", "iscsi-guard-consumer").start();
         Assert.assertTrue("Actual producer fixture exceeded its bounded deadline", process.waitFor(30, java.util.concurrent.TimeUnit.SECONDS));
         final byte[] bytes = process.getInputStream().readAllBytes();
         final byte[] errors = process.getErrorStream().readAllBytes();
@@ -1068,7 +1068,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertEquals("Actual producer fixture emitted unexpected stderr", 0, errors.length);
         final com.google.gson.JsonArray fixtures = new com.google.gson.JsonParser()
                 .parse(new String(bytes, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonArray();
-        Assert.assertEquals(11, fixtures.size());
+        Assert.assertEquals(16, fixtures.size());
         final java.util.Set<String> observed = new java.util.HashSet<>();
         for (com.google.gson.JsonElement element : fixtures) {
             final com.google.gson.JsonObject fixture = element.getAsJsonObject();
@@ -1099,7 +1099,7 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
                 Assert.assertTrue(answer.getDetails().contains("targetcli-first".equals(scenario) ? "ISCSI stage=LUN_CREATE" : "ISCSI guard="));
             }
         }
-        Assert.assertEquals(java.util.Set.of("early-input", "early-vault", "mid-device-cleanup", "readiness", "auth", "lookup", "attribute", "assertion", "targetcli-first", "unknown", "unknown-mid"), observed);
+        Assert.assertEquals(java.util.Set.of("target-iqn-invalid", "initiator-iqn-invalid", "ownership-invalid", "ownership-mismatch", "auth-value-invalid", "early-input", "early-vault", "mid-device-cleanup", "readiness", "auth", "lookup", "attribute", "assertion", "targetcli-first", "unknown", "unknown-mid"), observed);
     }
 
 }

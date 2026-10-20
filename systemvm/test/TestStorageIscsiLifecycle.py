@@ -197,6 +197,22 @@ sys.exit(1)
 
 
 
+@contextlib.contextmanager
+def isolated_iscsi_writer(root):
+    lock=root/"writer.lock";fd=os.open(lock,os.O_RDWR|os.O_CREAT,0o600)
+    try:saved=os.dup(9)
+    except OSError:saved=None
+    if fd!=9:os.dup2(fd,9);os.close(fd)
+    fcntl.flock(9,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    try:
+        with mock.patch.dict(os.environ,{"ABLESTACK_STORAGE_WRITER_LOCK_FD":"9",
+                "ABLESTACK_STORAGE_WRITER_LOCK_FILE":str(lock)}):
+            yield
+    finally:
+        if saved is None:os.close(9)
+        else:os.dup2(saved,9);os.close(saved)
+
+
 class IscsiGuardEntryFixture:
     """Run the actual apply heredoc with disposable files/external adapters."""
     SECRET = "SYNTHETIC_PRIVATE_GUARD_TOKEN"
@@ -206,13 +222,24 @@ class IscsiGuardEntryFixture:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary);state = root / "state";state.mkdir(mode=0o700)
             raw = root / "raw";raw.write_bytes(b"\0" * 65536)
-            payload = {"enabled": True, "listeners": [{"listenIp": "127.0.0.1", "port": 3260}],
+            payload = {"instanceUuid":"44444444-4444-4444-8444-444444444444","enabled": True, "listeners": [{"listenIp": "127.0.0.1", "port": 3260}],
                        "targets": [{"uuid": "11111111-1111-4111-8111-111111111111", "targetName": "iqn.2026-05.local.storage:fixture",
                                     "volumeName": "abcdef22222242228222", "volumeUuid": "abcdef22-2222-4222-8222-222222222222",
                                     "lunOrNamespace": "0", "volumeSizeBytes": 65536, "acls": []}]}
             if scenario == "disabled-null":
                 payload["enabled"]=False;payload["targets"][0]["state"]="Disabled";payload["targets"][0]["acls"]=None
             if scenario == "auth":payload["targets"][0]["acls"]=[{"principal":"iqn.2026-05.example.client:fixture","permission":"READ_WRITE","config":{},"state":"Ready"}]
+            if scenario in ("target-iqn-invalid","initiator-iqn-invalid","ownership-invalid","ownership-mismatch","auth-value-invalid"):
+                payload["targets"][0]["acls"]=[{"principal":"iqn.2026-05.example.client:fixture","permission":"READ_WRITE","config":{}}]
+                if scenario=="target-iqn-invalid":payload["targets"][0]["targetName"]="malformed"
+                elif scenario=="initiator-iqn-invalid":payload["targets"][0]["acls"][0]["principal"]="../foreign"
+                elif scenario=="ownership-invalid":payload["targets"][0]["volumeUuid"]="invalid"
+                elif scenario=="auth-value-invalid":payload["targets"][0]["acls"][0]["config"]["chapEnabled"]="true"
+                else:
+                    other=copy.deepcopy(payload["targets"][0])
+                    other["uuid"]="55555555-5555-4555-8555-555555555555";other["lunOrNamespace"]="1"
+                    other["acls"][0]["config"]={"chapEnabled":True,"chapUsername":"fixture-user"}
+                    payload["targets"].append(other)
             path = root / "payload.json";path.write_text(json.dumps(payload))
             if scenario == "early-input": path.write_text('{"' + self.SECRET)
             if scenario == "early-vault":
@@ -272,7 +299,7 @@ class IscsiGuardEntryFixture:
                     return self.generic_visit(node)
             tree=FixtureAdapters().visit(tree);ast.fix_missing_locations(tree)
             output=io.StringIO();error=None
-            with mock.patch.object(sys,"argv",["fixture",str(path)]),mock.patch.object(subprocess,"run",side_effect=run),mock.patch("time.sleep",lambda seconds:None),contextlib.redirect_stdout(output):
+            with isolated_iscsi_writer(root),mock.patch.object(sys,"argv",["fixture",str(path)]),mock.patch.object(subprocess,"run",side_effect=run),mock.patch("time.sleep",lambda seconds:None),contextlib.redirect_stdout(output):
                 try:exec(compile(tree,"<actual-iscsi-guard-entry>","exec"),{})
                 except BaseException as failure:error=failure
             return {"stdout":output.getvalue(),"failure":error,"calls":calls}
@@ -280,7 +307,7 @@ class IscsiGuardEntryFixture:
 
 class StorageIscsiGuardDiagnosticTest(unittest.TestCase):
     def test_early_and_mid_and_late_actual_call_sites_produce_one_safe_hint(self):
-        for scenario,stage,category in (("early-input","INPUT","VALUE_ERROR"),("early-vault","VAULT_STATE","VALUE_ERROR"),
+        for scenario,stage,category in (("target-iqn-invalid","AUTH","TARGET_IQN_INVALID"),("initiator-iqn-invalid","AUTH","INITIATOR_IQN_INVALID"),("ownership-invalid","AUTH","OWNERSHIP_INVALID"),("ownership-mismatch","AUTH","OWNERSHIP_MISMATCH"),("auth-value-invalid","AUTH","AUTH_VALUE_INVALID"),("early-input","INPUT","VALUE_ERROR"),("early-vault","VAULT_STATE","VALUE_ERROR"),
                 ("dependency","DEPENDENCY","SYSTEM_EXIT"),("mid-device","DEVICE","SYSTEM_EXIT"),("readiness","READINESS","SYSTEM_EXIT"),("auth","AUTH","VALUE_ERROR"),("lookup","DEPENDENCY","LOOKUP_ERROR"),("attribute","DEPENDENCY","ATTRIBUTE_ERROR"),("assertion","DEPENDENCY","ASSERTION_ERROR")):
             with self.subTest(scenario=scenario):
                 result=IscsiGuardEntryFixture().run(scenario)
@@ -868,7 +895,7 @@ class StorageIscsiSourceWwnTest(unittest.TestCase):
 
 def compiled_consumer_fixtures():
     rows=[]
-    for scenario in ("early-input","early-vault","mid-device-cleanup","readiness","auth","lookup","attribute","assertion","targetcli-first","unknown","unknown-mid"):
+    for scenario in ("target-iqn-invalid","initiator-iqn-invalid","ownership-invalid","ownership-mismatch","auth-value-invalid","early-input","early-vault","mid-device-cleanup","readiness","auth","lookup","attribute","assertion","targetcli-first","unknown","unknown-mid"):
         result=IscsiGuardEntryFixture().run(scenario)
         if result["failure"] is None:raise AssertionError("Fixture did not fail")
         rows.append({"scenario":scenario,"stdout":result["stdout"],"exitCode":1})

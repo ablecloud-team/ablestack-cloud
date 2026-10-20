@@ -4,7 +4,7 @@ import ast,contextlib,io,json,os,fcntl,shutil,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from unittest import mock
 CLI=Path(__file__).resolve().parents[1]/"debian/usr/local/bin/ablestack-storagectl"
-IQN="iqn.2026-10.local.storage:permissions"
+IQN="iqn.2026-10.local.ablestack:issue909-prepared-iscsi"
 C1="iqn.2026-10.example.client:one"
 C2="iqn.2026-10.example.client:two"
 def target(lun,acls):
@@ -12,11 +12,11 @@ def target(lun,acls):
 def grant(principal,permission="READ_ONLY",state="Ready"):
  return {"principal":principal,"permission":permission,"state":state,"config":{}}
 class Fixture:
- def run(self,targets,wrong=False,replace_node=False,replace_link=False,extra_lun=False):
+ def run(self,targets,wrong=False,replace_node=False,replace_link=False,extra_lun=False,enabled=True):
   with tempfile.TemporaryDirectory() as td:
    root=Path(td);state=root/"state";state.mkdir(mode=0o700);fs=root/"configfs/iscsi";fs.mkdir(parents=True)
    raw=root/"raw";raw.write_bytes(b"\0"*65536)
-   packet=root/"payload.json";packet.write_text(json.dumps({"enabled":True,"listeners":[{"listenIp":"127.0.0.1","port":3260}],"targets":targets}))
+   packet=root/"payload.json";packet.write_text(json.dumps({"instanceUuid":"44444444-4444-4444-8444-444444444444","enabled":enabled,"listeners":[{"listenIp":"127.0.0.1","port":3260}],"targets":targets}))
    text=CLI.read_text();begin=text.index("apply_iscsi_targets() {");body=text[begin:text.index("apply_nvmeof_subsystems() {",begin)]
    code=body[body.index("<<'PY'\n")+len("<<'PY'\n"):body.rindex("\nPY")]
    tree=ast.parse(code)
@@ -95,6 +95,13 @@ class Fixture:
     if fd!=9:os.close(fd)
    return {"stdout":output.getvalue(),"failure":failure,"calls":calls,"mappings":mappings,"rollback":bool(rollback),"statePublished":(state/"iscsi-targets.json").exists()}
 class StorageIscsiLunPermissionsTest(unittest.TestCase):
+ def test_empty_and_deactivated_canonical_payloads_do_not_require_active_auth_grants(self):
+  disabled=target(0,[grant(C1)]);disabled["state"]="Disabled"
+  for rows,enabled in (([],True),([disabled],False),([disabled],True)):
+   with self.subTest(enabled=enabled,rows=len(rows)):
+    result=Fixture().run(rows,enabled=enabled)
+    self.assertIsNone(result["failure"]);self.assertEqual({},result["mappings"])
+    self.assertIs(json.loads(result["stdout"])["success"],True)
  def test_same_initiator_ro_and_rw_are_per_lun(self):
   r=Fixture().run([target(0,[grant(C1)]),target(1,[grant(C1,"READ_WRITE")])])
   self.assertIsNone(r["failure"]);self.assertEqual({(C1,"0"):1,(C1,"1"):0},r["mappings"])
@@ -133,8 +140,23 @@ class StorageIscsiLunPermissionsTest(unittest.TestCase):
   self.assertIsNone(r["failure"])
   r=Fixture().run([target(256,[grant(C1)])])
   self.assertIsInstance(r["failure"],SystemExit);self.assertEqual([],r["calls"]);self.assertFalse(r["statePublished"])
+def manager_listener_fixture():
+ request=json.load(sys.stdin);text=CLI.read_text()
+ begin=text.index("apply_iscsi_targets() {");function=text[begin:text.index("apply_nvmeof_subsystems() {",begin)]
+ code=function[function.index("<<'PY'\n")+len("<<'PY'\n"):function.rindex("\nPY")]
+ names={"configured_listeners","target_listener_ports","selected_listeners_for_target"}
+ nodes=[node for node in ast.parse(code).body if isinstance(node,ast.FunctionDef) and node.name in names]
+ assert len(nodes)==3
+ scope={"payload":request["payload"]}
+ exec(compile(ast.Module(body=nodes,type_ignores=[]),"<actual-iscsi-listener-selection>","exec"),scope)
+ try:
+  selected=scope["selected_listeners_for_target"](request["target"],scope["configured_listeners"]())
+  print(json.dumps({"accepted":True,"ports":[row["port"] for row in selected]}))
+ except SystemExit:
+  print(json.dumps({"accepted":False,"error":"LISTENER_GROUP_UNAVAILABLE"}))
 if __name__=="__main__":
  if "--manager-payload" in sys.argv:
   packet=json.load(sys.stdin);result=Fixture().run(packet["targets"])
   print(json.dumps({"success":result["failure"] is None,"mappings":[{"principal":p,"lun":l,"writeProtect":v} for (p,l),v in sorted(result["mappings"].items())],"rollback":result["rollback"]}))
+ elif "--manager-listener" in sys.argv:manager_listener_fixture()
  else:unittest.main()

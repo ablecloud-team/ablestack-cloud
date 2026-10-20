@@ -216,7 +216,7 @@ class StorageInlineSourcesTest(unittest.TestCase):
         block=source[source.index("apply_iscsi_targets() {"):source.index("apply_nvmeof_subsystems() {")]
         self.assertNotIn('f"password={password}"',block);self.assertNotIn('f"mutual_password={mutual_password}"',block)
         self.assertNotIn('run_targetcli("saveconfig")',block)
-        self.assertIn('ConfigfsIscsiAuth().apply(iqn,initiator,acl_config,secrets)',block)
+        self.assertIn('ConfigfsIscsiAuth(ownership=auth_ownership).apply(iqn,initiator,acl_config,secrets)',block)
         ast.parse(actual)
 
     def test_signed_service_cipher_producer_body_is_exact_without_caller_publication_rpc(self):

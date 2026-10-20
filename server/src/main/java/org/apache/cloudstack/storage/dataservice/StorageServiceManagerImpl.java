@@ -326,6 +326,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     protected JsonObject applyRestoredSourceProtocols(StorageServiceInstanceVO instance, StorageServiceOperationVO operation) {
+        if(Set.of("createstorageiscsiaclresponse","updatestorageiscsiaclresponse","deletestorageiscsiaclresponse").contains(operation.getAction())
+                &&configurationRecoverySource.get()!=null) {
+            // The same original ACL recovery never needs to restart unchanged file services.
+            // buildIscsiDesiredPayload validates its private explicit scope and protected LOCAL SOURCE.
+            applyIscsiDesiredState(instance);return null;
+        }
         JsonObject nfsSource = restoredCheckpointNfsSourceProof(instance, operation);
         for (StorageServiceInstance.Protocol protocol : StorageServiceInstance.Protocol.values()) {
             if (protocol == StorageServiceInstance.Protocol.NFS && nfsSource != null) continue;
@@ -10584,13 +10590,43 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRuntimeResponse(instance, "nvmeof prepare", result.isSuccess(), status, result.getDetails(), result.getResultJson());
     }
 
+    private boolean iscsiTargetHasActiveAcl(StorageBlockTargetVO target) {
+        return storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET,target.getId()).stream()
+                .anyMatch(rule->rule.getPrincipalType()==StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN&&isActiveIscsiGrantState(rule.getState()));
+    }
+    protected void requireIscsiTargetLunAdmission(StorageServiceInstanceVO instance,String name,String lun,StorageBlockTargetVO current) {
+        StorageIscsiNamePolicy.targetLun(lun);
+        boolean mapped=current!=null&&iscsiTargetHasActiveAcl(current);
+        for(StorageBlockTargetVO row:storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.ISCSI)) {
+            if(row.getInstanceId()!=instance.getId()||row.getProtocol()!=StorageServiceInstance.Protocol.ISCSI)
+                throw new InvalidParameterValueException("iSCSI target group ownership is unavailable");
+            if(name.equals(row.getTargetName())&&isActiveIscsiGrantState(row.getState())&&iscsiTargetHasActiveAcl(row))mapped=true;
+        }
+        if(mapped)StorageIscsiNamePolicy.mappedLun(lun);
+    }
+    protected void requireIscsiAclNameAdmission(StorageServiceInstanceVO instance,StorageBlockTargetVO target,String principal) {
+        if(target.getInstanceId()!=instance.getId()||target.getProtocol()!=StorageServiceInstance.Protocol.ISCSI)
+            throw new InvalidParameterValueException("iSCSI ACL target ownership is unavailable");
+        StorageIscsiNamePolicy.target(target.getTargetName());StorageIscsiNamePolicy.initiator(principal);
+        for(StorageBlockTargetVO row:listBlockTargetGroup(target))if(isActiveIscsiGrantState(row.getState())) {
+            if(row.getInstanceId()!=instance.getId()||row.getProtocol()!=StorageServiceInstance.Protocol.ISCSI||!target.getTargetName().equals(row.getTargetName()))
+                throw new InvalidParameterValueException("iSCSI ACL target group ownership is unavailable");
+            StorageIscsiNamePolicy.mappedLun(row.getLunOrNamespace());
+        }
+    }
+
     @Override
     public StorageBlockTargetResponse createStorageIscsiTarget(final CreateStorageIscsiTargetCmd cmd) {
+        StorageIscsiNamePolicy.target(cmd.getTargetName());StorageIscsiNamePolicy.targetLun(cmd.getLun());
+        StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        requireIscsiTargetLunAdmission(instance,cmd.getTargetName(),cmd.getLun(),null);
+        validateIscsiEndpointPolicy(cmd.getEndpointMode(),cmd.getListenerPorts());validateIscsiListenerPortsExist(instance,cmd.getListenerPorts());
         return executeDesiredChange(cmd, StorageBlockTargetResponse.class, () -> doCreateStorageIscsiTarget(cmd));
     }
 
     private StorageBlockTargetResponse doCreateStorageIscsiTarget(final CreateStorageIscsiTargetCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        StorageIscsiNamePolicy.target(cmd.getTargetName());requireIscsiTargetLunAdmission(instance,cmd.getTargetName(),cmd.getLun(),null);
         validateStorageServiceBackingVolume(instance, cmd.getVolumeId(), "iSCSI target");
         validateIscsiBlockOnlyBackstore(cmd.getBackstoreType());
         validateIscsiBackingVolumeAvailable(instance, cmd.getVolumeId(), null);
@@ -10599,7 +10635,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         ensureProtocol(instance, StorageServiceInstance.Protocol.ISCSI);
         prepareIscsiBackingVolume(instance, cmd.getVolumeId());
         StorageBlockTargetVO target = new StorageBlockTargetVO(instance.getId(), StorageServiceInstance.Protocol.ISCSI, cmd.getTargetName(),
-                StringUtils.defaultIfBlank(cmd.getLun(), "0"), cmd.getVolumeId(), StorageServiceInstance.ResourceState.Creating,
+                StorageIscsiNamePolicy.targetLun(cmd.getLun()), cmd.getVolumeId(), StorageServiceInstance.ResourceState.Creating,
                 buildIscsiTargetConfigJson(null, cmd.getBackingPath(), cmd.getBackstoreType(), cmd.getLunSizeBytes(), cmd.getEndpointMode(), cmd.getListenerPorts()));
         target = storageBlockTargetDao.persist(target);
         try {
@@ -10615,17 +10651,28 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public StorageBlockTargetResponse updateStorageIscsiTarget(final UpdateStorageIscsiTargetCmd cmd) {
+        if(cmd.getTargetName()!=null)StorageIscsiNamePolicy.target(cmd.getTargetName());
+        if(cmd.getLun()!=null)StorageIscsiNamePolicy.targetLun(cmd.getLun());
+        StorageBlockTargetVO target=requireBlockTarget(cmd.getId(),StorageServiceInstance.Protocol.ISCSI);
+        StorageServiceInstanceVO instance=requireInstance(target.getInstanceId());
+        String name=cmd.getTargetName()==null?target.getTargetName():cmd.getTargetName();
+        StorageIscsiNamePolicy.target(name);
+        requireIscsiTargetLunAdmission(instance,name,cmd.getLun()==null?target.getLunOrNamespace():cmd.getLun(),target);
+        validateIscsiEndpointPolicy(cmd.getEndpointMode(),cmd.getListenerPorts());validateIscsiListenerPortsExist(instance,cmd.getListenerPorts());
         return executeDesiredChange(cmd, StorageBlockTargetResponse.class, () -> doUpdateStorageIscsiTarget(cmd));
     }
 
     private StorageBlockTargetResponse doUpdateStorageIscsiTarget(final UpdateStorageIscsiTargetCmd cmd) {
         final StorageBlockTargetVO target = requireBlockTarget(cmd.getId(), StorageServiceInstance.Protocol.ISCSI);
         final StorageServiceInstanceVO instance = requireInstance(target.getInstanceId());
+        String reviewedName=cmd.getTargetName()==null?target.getTargetName():cmd.getTargetName();
+        StorageIscsiNamePolicy.target(reviewedName);
+        requireIscsiTargetLunAdmission(instance,reviewedName,cmd.getLun()==null?target.getLunOrNamespace():cmd.getLun(),target);
         if (cmd.getTargetName() != null) {
             target.setTargetName(cmd.getTargetName());
         }
         if (cmd.getLun() != null) {
-            target.setLunOrNamespace(cmd.getLun());
+            target.setLunOrNamespace(StorageIscsiNamePolicy.targetLun(cmd.getLun()));
         }
         if (cmd.getVolumeId() != null) {
             validateStorageServiceBackingVolume(instance, cmd.getVolumeId(), "iSCSI target");
@@ -10684,12 +10731,18 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public StorageAccessRuleResponse createStorageIscsiAcl(final CreateStorageIscsiAclCmd cmd) {
+        StorageIscsiNamePolicy.initiator(cmd.getInitiatorIqn());
+        StorageBlockTargetVO target=requireBlockTarget(cmd.getTargetId(),StorageServiceInstance.Protocol.ISCSI);
+        StorageServiceInstanceVO instance=requireInstance(target.getInstanceId());
+        requireIscsiAclNameAdmission(instance,target,cmd.getInitiatorIqn());
+        validateIscsiChapCredentialRequest(cmd.getChapEnabled(),cmd.getChapUsername(),cmd.getChapSecret(),cmd.getMutualChapEnabled(),cmd.getMutualChapUsername(),cmd.getMutualChapSecret());
         return executeDesiredChange(cmd, StorageAccessRuleResponse.class, () -> doCreateStorageIscsiAcl(cmd));
     }
 
     private StorageAccessRuleResponse doCreateStorageIscsiAcl(final CreateStorageIscsiAclCmd cmd) {
         final StorageBlockTargetVO target = requireBlockTarget(cmd.getTargetId(), StorageServiceInstance.Protocol.ISCSI);
         final StorageServiceInstanceVO instance = requireInstance(target.getInstanceId());
+        requireIscsiAclNameAdmission(instance,target,cmd.getInitiatorIqn());
         final StorageServiceInstance.Permission permission = parseBlockPermission(cmd.getPermission());
         validateIscsiChapCredentialRequest(cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getChapSecret(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(), cmd.getMutualChapSecret());
         final String configJson = buildIscsiAclConfigJson(null, cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(),
@@ -10708,6 +10761,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
 
     @Override
     public StorageAccessRuleResponse updateStorageIscsiAcl(final UpdateStorageIscsiAclCmd cmd) {
+        if(cmd.getInitiatorIqn()!=null)StorageIscsiNamePolicy.initiator(cmd.getInitiatorIqn());
+        StorageAccessRuleVO rule=requireBlockAcl(cmd.getId(),StorageServiceInstance.Protocol.ISCSI);
+        StorageBlockTargetVO target=requireBlockTarget(rule.getResourceId(),StorageServiceInstance.Protocol.ISCSI);
+        StorageServiceInstanceVO instance=requireInstance(target.getInstanceId());
+        requireIscsiAclNameAdmission(instance,target,cmd.getInitiatorIqn()==null?rule.getPrincipal():cmd.getInitiatorIqn());
+        validateIscsiChapCredentialRequest(cmd.getChapEnabled(),cmd.getChapUsername(),cmd.getChapSecret(),cmd.getMutualChapEnabled(),cmd.getMutualChapUsername(),cmd.getMutualChapSecret());
         return executeDesiredChange(cmd, StorageAccessRuleResponse.class, () -> doUpdateStorageIscsiAcl(cmd));
     }
 
@@ -10716,6 +10775,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final StorageBlockTargetVO target = requireBlockTarget(rule.getResourceId(), StorageServiceInstance.Protocol.ISCSI);
         final StorageServiceInstanceVO instance = requireInstance(target.getInstanceId());
         final String requestedPrincipal = cmd.getInitiatorIqn() == null ? rule.getPrincipal() : cmd.getInitiatorIqn();
+        requireIscsiAclNameAdmission(instance,target,requestedPrincipal);
         final StorageServiceInstance.Permission requestedPermission = cmd.getPermission() == null
                 ? rule.getPermission() : parseBlockPermission(cmd.getPermission());
         validateIscsiChapCredentialRequest(cmd.getChapEnabled(), cmd.getChapUsername(), cmd.getChapSecret(), cmd.getMutualChapEnabled(), cmd.getMutualChapUsername(), cmd.getMutualChapSecret());
@@ -11694,15 +11754,64 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
 
         final JsonObject payload = buildIscsiDesiredPayload(instance,chapSecrets);
+        StorageServiceOperationVO writer=storageWriterOperation.get();
+        boolean sourceReplay=configurationRecoverySource.get()!=null&&writer!=null
+                &&Set.of("createstorageiscsiaclresponse","updatestorageiscsiaclresponse","deletestorageiscsiaclresponse").contains(writer.getAction());
         final StorageServiceGuestCommandResult result = dispatchPlainProtocolApply(instance, new StorageServiceGuestCommand(instance.getVmId(),
-                "iscsi target apply", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
+                "iscsi target apply", sourceReplay?RUNTIME_RESULT_GSON.toJson(payload):GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
                 new HashSet<>(Arrays.asList("chapSecret", "mutualChapSecret"))));
         if (!result.isSuccess()) {
             throw new CloudRuntimeException("Failed to apply iSCSI desired state on Storage Service System VM: " + result.getDetails());
         }
     }
 
+    /** An ordinary ACL rollback replays its already authenticated LOCAL SOURCE, never a newly selected representative. */
+    protected JsonObject ordinaryIscsiAclRollbackPayload(StorageServiceInstanceVO instance,Map<Long,JsonObject> chapSecrets) {
+        JsonObject frozen=configurationRecoverySource.get();StorageServiceOperationVO operation=storageWriterOperation.get();
+        if(frozen==null||operation==null||!Set.of("createstorageiscsiaclresponse","updatestorageiscsiaclresponse","deletestorageiscsiaclresponse").contains(operation.getAction()))return null;
+        requireLocalSourceWriter(instance,operation);
+        boolean automatic="RUNNING".equals(operation.getState())&&"ROLLING_BACK".equals(operation.getPhase())&&operation.getProgress()==85;
+        boolean explicit=Set.of("RUNNING","RECOVERY_REQUIRED").contains(operation.getState())
+                &&"RECOVERING_INTERRUPTED_WRITER".equals(operation.getPhase())&&operation.getProgress()==85
+                &&java.util.Objects.equals(explicitUnchangedSourceRecovery.get(),operation.getId());
+        if(explicit)requireConfigurationAdministrator();
+        if((!automatic&&!explicit)||operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                ||configurationBatch.get()!=null||renderedBatch.get()!=null||serviceMaintenanceOperation.get()!=null
+                ||configurationCloneRestoreMaintenance.get()!=null||configurationCloneInitialBaseline.get()!=null
+                ||protectedIdentityConfiguration.get()!=null||chapSecrets!=null&&!chapSecrets.isEmpty())
+            throw new CloudRuntimeException("Ordinary iSCSI ACL rollback is outside its original LOCAL SOURCE writer");
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),original=new JsonObject();
+        for(String key:List.of("schemaVersion","instanceId","tables"))original.add(key,snapshot.get(key).deepCopy());
+        if(!original.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId())))||snapshot.has("renderedGeneration")
+                ||snapshot.has("adServiceSource")||snapshot.has("sourceRootScope"))
+            throw new CloudRuntimeException("Ordinary iSCSI ACL rollback DB SOURCE changed");
+        JsonObject intent=getJsonObject(snapshot,"localCheckpointIntent"),reference=getJsonObject(snapshot,"nativeIdentityCapsule");
+        if(intent==null||reference==null)throw new CloudRuntimeException("Ordinary iSCSI ACL rollback lacks its original LOCAL checkpoint");
+        JsonObject context=intent.getAsJsonObject("context");
+        StorageLocalSourceIdentityProof.requireContext(operationReservationScope(instance,operation),context,intent.getAsJsonObject("source"));
+        if(!operation.getUuid().equals(getJsonString(reference,"operationUuid"))
+                ||!StorageLocalSourceIdentityProof.scope(context).equals(reference.get("sourceLocalScope"))
+                ||!frozen.get("configurationDesiredState").equals(intent.getAsJsonObject("source").get("configurationDesiredState")))
+            throw new CloudRuntimeException("Ordinary iSCSI ACL rollback frozen SOURCE changed");
+        // These are the same opaque import/auth receipts already verified by ensureRollbackSafe.
+        StorageLocalSourceIdentityProof.imported(context,intent.getAsJsonObject("restored"));
+        StorageLocalSourceIdentityProof.authReplayed(context,StorageLocalSourceIdentityProof.reference(reference.getAsJsonObject("sourceLocalIdentityCheckpoint")),
+                requireLocalSourceAuthReplayDomains(intent),intent.getAsJsonObject("authReplayed"));
+        JsonObject observed=nativeConfigurationGeneration(instance,null,"status");
+        requireLocalNvmeSourceGeneration(instance,operation,context,frozen,observed);
+        if(!frozen.get("configurationDesiredState").equals(observed.get("configurationDesiredState"))
+                ||!frozen.get("configurationSha256").equals(observed.get("configurationSha256")))
+            throw new CloudRuntimeException("Ordinary iSCSI ACL rollback current SOURCE changed before replay");
+        JsonObject payload=getJsonObject(frozen.getAsJsonObject("configurationDesiredState"),"iscsi-targets.json");
+        if(payload==null||!instance.getUuid().equals(getJsonString(payload,"instanceUuid"))
+                ||!Long.valueOf(instance.getId()).equals(getJsonLong(payload,"instanceId"))||!payload.has("targets")||!payload.get("targets").isJsonArray())
+            throw new CloudRuntimeException("Ordinary iSCSI ACL rollback payload does not belong to its instance");
+        return payload.deepCopy();
+    }
+
     protected JsonObject buildIscsiDesiredPayload(final StorageServiceInstanceVO instance, final Map<Long, JsonObject> chapSecrets) {
+        JsonObject original=ordinaryIscsiAclRollbackPayload(instance,chapSecrets);
+        if(original!=null)return original;
         final JsonObject payload = buildBlockProtocolPayload(instance, StorageServiceInstance.Protocol.ISCSI);
         final JsonArray targets = new JsonArray();
         for (final StorageBlockTargetVO target : storageBlockTargetDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.ISCSI)) {
@@ -12298,7 +12407,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject payload = new JsonObject();
         payload.addProperty("instanceUuid", instance.getUuid());
         payload.addProperty("instanceId", instance.getId());
-        final StorageServiceProtocolVO protocol = storageServiceProtocolDao.findByInstanceIdAndProtocol(instance.getId(), protocolType);
+        final StorageServiceProtocolVO protocol = StorageServiceProtocolSelection.representative(instance.getId(),protocolType,
+                storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocolType));
         payload.addProperty("enabled", protocol == null || protocol.isEnabled());
         if (protocol != null) {
             payload.addProperty("listenIp", protocol.getListenIp());
@@ -12395,7 +12505,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected JsonArray buildBlockProtocolListeners(final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocolType) {
         final JsonArray listeners = new JsonArray();
         final HashSet<String> seen = new HashSet<>();
-        final List<StorageServiceProtocolVO> protocols = storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocolType);
+        final List<StorageServiceProtocolVO> protocols = StorageServiceProtocolSelection.ordered(instance.getId(),protocolType,
+                storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocolType));
         final HashSet<Integer> wildcardPorts = new HashSet<>();
         for (final StorageServiceProtocolVO protocol : protocols) {
             if (protocol == null || !protocol.isEnabled()) {
@@ -12439,7 +12550,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected JsonArray buildBlockProtocolEndpointAliases(final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocolType) {
         final JsonArray aliases = new JsonArray();
         final HashSet<String> seen = new HashSet<>();
-        final List<StorageServiceProtocolVO> protocols = storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(), protocolType);
+        final List<StorageServiceProtocolVO> protocols = StorageServiceProtocolSelection.ordered(instance.getId(),protocolType,
+                storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocolType));
         final Map<Integer, String> wildcardByPort = new HashMap<>();
         for (final StorageServiceProtocolVO protocol : protocols) {
             if (protocol == null || !protocol.isEnabled()) {
@@ -15578,6 +15690,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             }
             throw new InvalidParameterValueException("Configuration batch requires an applied enabled " + protocolType.name() + " listener");
         }
+        List<StorageServiceProtocolVO> endpoints=StorageServiceProtocolSelection.ordered(instance.getId(),protocolType,
+                storageServiceProtocolDao.listByInstanceIdAndProtocol(instance.getId(),protocolType));
+        if(endpoints.stream().anyMatch(StorageServiceProtocolSelection::usable))return;
         ensureDefaultProtocol(instance, protocolType);
     }
 
