@@ -257,32 +257,45 @@ describe('initial AD per-action explicit consent lifecycle', () => {
 })
 
 describe('interactive Create terminal and dispose boundary', () => {
+  function lifecycle (values) {
+    const vm = { form: {}, ...values }
+    for (const name of ['assertInitialSetupActive', 'cancelInitialSetup', 'clearInitialCredentials', 'clearInitialAdCredentials', 'clearInitialBlockSecrets']) vm[name] = CreateSharedFS.methods[name]
+    return vm
+  }
   it('does not POST any later AD setup command after the creation view was closed', async () => {
     postAPI.mockReset()
-    const vm = { initialAdInteractive: true, initialAdDisposed: true, $t: key => key }
+    const vm = lifecycle({ initialAdInteractive: true, initialAdDisposed: true, $t: key => key })
     await expect(CreateSharedFS.methods.runStorageServiceSetup.call(vm, 'enableStorageServiceProtocol', {})).rejects.toThrow()
     expect(postAPI).not.toHaveBeenCalled()
   })
 
-  it('preserves the ordinary background setup after a non-AD view closes', async () => {
+  it('stops ordinary non-AD setup as well when the visible creation view closes', async () => {
     postAPI.mockReset().mockResolvedValue({ enablestorageserviceprotocolresponse: { success: true } })
-    const vm = { initialAdInteractive: false, initialAdDisposed: true, $t: key => key, $store: { getters: { apis: { enableStorageServiceProtocol: {} } } }, cleanParams: values => values }
+    const vm = lifecycle({ initialAdInteractive: false, initialAdDisposed: true, $t: key => key, $store: { getters: { apis: { enableStorageServiceProtocol: {} } } }, cleanParams: values => values })
+    await expect(CreateSharedFS.methods.runStorageServiceSetup.call(vm, 'enableStorageServiceProtocol', { instanceid: id })).rejects.toMatchObject({ code: 'STORAGE_INITIAL_SETUP_CANCELLED' })
+    expect(postAPI).not.toHaveBeenCalled()
+  })
+
+  it('retains ordinary setup only while its creation view is active', async () => {
+    postAPI.mockReset().mockResolvedValue({ enablestorageserviceprotocolresponse: { success: true } })
+    const vm = lifecycle({ initialAdInteractive: false, initialAdDisposed: false, $t: key => key, $store: { getters: { apis: { enableStorageServiceProtocol: {} } } }, cleanParams: values => values })
     await CreateSharedFS.methods.runStorageServiceSetup.call(vm, 'enableStorageServiceProtocol', { instanceid: id })
     expect(postAPI).toHaveBeenCalledTimes(1)
   })
 
-  it('close cancels a pending grant and discards AD input references while normal close remains unchanged', () => {
+  it('close cancels subsequent setup and clears credentials while preserving AD grant cancellation', () => {
     for (const interactive of [false, true]) {
-      const vm = { initialAdInteractive: interactive, initialAdDisposed: false, cancelAdMutation: jest.fn(), clearInitialAdCredentials: jest.fn(), $emit: jest.fn() }
+      const vm = lifecycle({ initialAdInteractive: interactive, initialAdDisposed: false, cancelAdMutation: jest.fn(), $emit: jest.fn() })
       CreateSharedFS.methods.closeModal.call(vm)
       expect(vm.$emit).toHaveBeenCalledWith('close-action')
       expect(vm.cancelAdMutation).toHaveBeenCalledTimes(interactive ? 1 : 0)
       expect(vm.initialAdDisposed).toBe(interactive)
+      expect(vm.initialSetupCancelled).toBe(true)
     }
   })
 
   it('dispose settles the pending approval promise and leaves no orphan grant', async () => {
-    const vm = { adMutationConsent: { visible: false }, cancelAdMutation: CreateSharedFS.methods.cancelAdMutation, serviceOfferingRequestToken: 0, templateRequestToken: 0 }
+    const vm = lifecycle({ adMutationConsent: { visible: false }, cancelAdMutation: CreateSharedFS.methods.cancelAdMutation, serviceOfferingRequestToken: 0, templateRequestToken: 0 })
     const pending = CreateSharedFS.methods.requestAdMutationApproval.call(vm, instance(), 'action', 'scope')
     CreateSharedFS.beforeUnmount.call(vm)
     expect(await pending).toBeNull(); expect(vm.initialAdDisposed).toBe(true); expect(vm.adMutationConsent.resolve).toBeNull()

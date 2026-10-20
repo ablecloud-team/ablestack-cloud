@@ -23,6 +23,11 @@
         show-icon
         :message="$t('message.storage.service.runtime.upgrade.impact')" />
 
+      <storage-preparation-status
+        :shared-file-system-id="resource.id"
+        purpose="RUNTIME_UPGRADE"
+        :target-bundle-id="selectedBundleId || ''"
+        :active="true" />
       <section class="runtime-upgrade-section">
         <div class="runtime-upgrade-section__title">{{ $t('label.storage.service.runtime.current') }}</div>
         <a-descriptions bordered size="small" :column="1">
@@ -60,14 +65,25 @@
             </template>
             <a-select
               v-model:value="selectedBundleId"
-              :disabled="submitting || bundles.length === 0"
+              show-search
+              option-filter-prop="label"
+              :disabled="submitting || loading || bundles.length === 0"
               :placeholder="$t('message.storage.service.runtime.bundle.select')">
-              <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id">
-                {{ bundle.version }} · {{ bundle.serviceimpact }} · ABI {{ bundle.runtimeabiversion }}
+              <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id" :label="bundleLabel(bundle)" :disabled="bundle.state !== 'AVAILABLE'">
+                {{ bundleLabel(bundle) }}
               </a-select-option>
             </a-select>
           </a-form-item>
         </a-form>
+        <a-alert type="info" show-icon :message="$t('message.storage.service.runtime.bundle.selection.explicit')" />
+        <a-descriptions v-if="selectedBundle" bordered size="small" :column="1" class="runtime-upgrade-inline-alert">
+          <a-descriptions-item :label="$t('label.version')">{{ selectedBundle.version }}</a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.service.runtime.bundle.selection.signature')">
+            <a-tag :color="selectedBundleVerified ? 'green' : 'red'">{{ $t(selectedBundleVerified ? 'label.storage.service.runtime.bundle.selection.verified' : 'label.storage.service.runtime.bundle.selection.unverified') }}</a-tag>
+            {{ selectedBundle.signingkeyid || '—' }}
+          </a-descriptions-item>
+          <a-descriptions-item :label="$t('label.storage.service.runtime.bundle.selection.sha256')"><code class="runtime-upgrade-value">{{ selectedBundle.sha256 || '—' }}</code></a-descriptions-item>
+        </a-descriptions>
         <storage-runtime-compatibility v-if="selectedBundleId" :manifest="selectedBundleVerification.manifest || {}" :verified="selectedBundleVerification.verified === true" :observation="consumerObservation" />
         <a-empty
           v-if="!loading && bundles.length === 0"
@@ -146,11 +162,14 @@ import { storageMutationGateMixin, requireStorageMutationAllowed } from '@/utils
 import { getAPI, postAPI } from '@/api'
 import StorageRuntimeCompatibility from '@/views/storage/StorageRuntimeCompatibility'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
+import StoragePreparationStatus from '@/views/storage/StoragePreparationStatus'
+
+const securityScope = vm => JSON.stringify([vm.$store?.getters?.userInfo?.id, vm.$store?.getters?.userInfo?.roletype, vm.$store?.getters?.project?.id, vm.$store?.state?.user?.token])
 
 export default {
   mixins: [storageMutationGateMixin],
   name: 'StorageServiceRuntimeUpgrade',
-  components: { TooltipLabel, StorageRuntimeCompatibility },
+  components: { TooltipLabel, StorageRuntimeCompatibility, StoragePreparationStatus },
   props: {
     resource: { type: Object, required: true }
   },
@@ -167,6 +186,10 @@ export default {
     }
   },
   computed: {
+    operationSecurityScope () { return securityScope(this) },
+    allowedApis () { return this.$store?.getters?.apis || {} },
+    selectedBundle () { return this.bundles.find(bundle => bundle.id === this.selectedBundleId) || null },
+    selectedBundleVerified () { return this.selectedBundle?.state === 'AVAILABLE' && this.selectedBundleVerification.verified === true },
     consumerObservation () {
       try {
         const value = this.capability.consumerobservation
@@ -175,21 +198,21 @@ export default {
       } catch (error) { return {} }
     },
     selectedBundleVerification () {
-      try { return JSON.parse(this.bundles.find(bundle => bundle.id === this.selectedBundleId)?.catalog || '{}').verification || {} } catch (error) { return {} }
+      try { return JSON.parse(this.selectedBundle?.catalog || '{}').verification || {} } catch (error) { return {} }
     },
     latestUpgrade () {
       return this.upgrades.length > 0 ? this.upgrades[0] : null
     },
     canPreflight () {
-      return !this.loading && !this.submitting && !!this.selectedBundleId &&
+      return !this.loading && !this.submitting && this.selectedBundle?.state === 'AVAILABLE' && 'preflightStorageServiceRuntimeUpgrade' in this.allowedApis &&
         (!this.latestUpgrade || !['RUNNING', 'PREFLIGHT_READY'].includes(this.latestUpgrade.state))
     },
     canUpgrade () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY' && this.latestUpgrade.bundleid === this.selectedBundleId
+      return !this.loading && !this.submitting && this.selectedBundle?.state === 'AVAILABLE' &&
+        'upgradeStorageServiceRuntime' in this.allowedApis && this.latestUpgrade?.state === 'PREFLIGHT_READY' && this.latestUpgrade.bundleid === this.selectedBundleId
     },
     canRollback () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' &&
-        !!this.capability.previousversion
+      return !this.loading && !this.submitting && 'rollbackStorageServiceRuntimeUpgrade' in this.allowedApis && this.latestUpgrade?.state === 'COMPLETE' && !!this.capability.previousversion
     },
     historyColumns () {
       return [
@@ -205,17 +228,20 @@ export default {
     this.fetchData()
   },
   watch: {
-    'resource.id' () {
-      this.generation++; this.loading = false; this.submitting = false; this.activeAction = ''
-      this.capability = {}; this.bundles = []; this.upgrades = []; this.selectedBundleId = undefined
-      this.fetchData()
-    }
+    'resource.id' () { this.invalidate(); this.fetchData() },
+    operationSecurityScope () { this.invalidate(); if (this.$store?.state?.user?.token) this.fetchData() }
   },
   beforeUnmount () { this.generation++ },
   methods: {
+    invalidate () {
+      this.generation++; this.loading = false; this.submitting = false; this.activeAction = ''
+      this.capability = {}; this.bundles = []; this.upgrades = []; this.selectedBundleId = undefined
+    },
+    bundleLabel (bundle) { return [bundle.version, bundle.serviceimpact, 'ABI ' + bundle.runtimeabiversion, bundle.state].filter(Boolean).join(' · ') },
     async fetchData () {
       if (this.loading) return
-      const token = ++this.generation; const resourceId = this.resource.id
+      const token = ++this.generation; const resourceId = this.resource.id; const security = securityScope(this)
+      const current = () => token === this.generation && resourceId === this.resource.id && security === securityScope(this)
       this.loading = true
       try {
         const responses = await Promise.all([
@@ -223,22 +249,21 @@ export default {
           getAPI('listStorageServiceRuntimeBundles', { listall: true }, { timeout: 15000, preserveOnFailure: true }),
           getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: resourceId, listall: true }, { timeout: 15000, preserveOnFailure: true })
         ])
-        if (token !== this.generation || resourceId !== this.resource.id) return
+        if (!current()) return
         this.capability = responses[0].getstorageserviceruntimeupgradecapabilitiesresponse?.storageserviceruntimecapability || {}
         this.bundles = responses[1].liststorageserviceruntimebundlesresponse?.storageserviceruntimebundle || []
         this.upgrades = (responses[2].liststorageserviceruntimeupgradesresponse?.storageserviceruntimeupgrade || [])
           .sort((left, right) => String(right.started || '').localeCompare(String(left.started || '')))
-        if (!this.selectedBundleId && this.bundles.length > 0) {
-          this.selectedBundleId = this.upgrades[0]?.state === 'PREFLIGHT_READY' && this.bundles.some(bundle => bundle.id === this.upgrades[0].bundleid)
-            ? this.upgrades[0].bundleid : this.bundles.find(bundle => bundle.state === 'AVAILABLE')?.id
-        }
+        // Operators choose the exact target; catalog ordering never chooses a runtime.
+        if (this.selectedBundleId && !this.bundles.some(bundle => bundle.id === this.selectedBundleId && bundle.state === 'AVAILABLE')) this.selectedBundleId = undefined
       } catch (error) {
-        if (token === this.generation && resourceId === this.resource.id) this.$notifyError(error)
+        if (current()) this.$notifyError(error)
       } finally {
-        if (token === this.generation) this.loading = false
+        if (current()) this.loading = false
       }
     },
     runPreflight () {
+      if (!this.canPreflight) return
       this.startAsync('preflight', 'preflightStorageServiceRuntimeUpgrade', {
         sharedfilesystemid: this.resource.id,
         bundleid: this.selectedBundleId
@@ -249,13 +274,14 @@ export default {
       this.startAsync('upgrade', 'upgradeStorageServiceRuntime', { upgradeid: this.latestUpgrade.id })
     },
     runRollback () {
+      if (!this.canRollback) return
       this.startAsync('rollback', 'rollbackStorageServiceRuntimeUpgrade', { upgradeid: this.latestUpgrade.id })
     },
     startAsync (action, api, params) {
-      if (this.submitting) return
+      if (this.submitting || !(api in this.allowedApis)) return
       try { requireStorageMutationAllowed(this, api) } catch (error) { this.$notifyError(error); return false }
-      const token = this.generation; const resourceId = this.resource.id
-      const current = () => token === this.generation && resourceId === this.resource.id
+      const token = this.generation; const resourceId = this.resource.id; const security = securityScope(this)
+      const current = () => token === this.generation && resourceId === this.resource.id && security === securityScope(this)
       this.submitting = true
       this.activeAction = action
       postAPI(api, params).then(response => {

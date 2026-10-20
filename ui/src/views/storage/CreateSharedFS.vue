@@ -16,10 +16,10 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <a-spin :spinning="loading && !creationSubmitted">
     <div class="sharedfs-create-dialog">
     <a-collapse
-      v-if="!isNormalUserOrProject"
+      v-if="!isNormalUserOrProject && !creationSubmitted"
       class="sharedfs-create-owner"
       :bordered="false"
       :defaultActiveKey="[]">
@@ -37,12 +37,29 @@
       v-ctrl-enter="handleSubmit"
      >
       <a-alert
+        v-if="!creationSubmitted"
         class="section-alert"
         type="info"
         show-icon
         :message="$t('message.storage.service.create.dialog.summary')" />
 
-      <div class="sharedfs-create-layout">
+      <section v-if="creationSubmitted" class="sharedfs-create-progress" aria-live="polite">
+        <a-steps :current="initialSetupStep" :status="initialSetupStatus === 'ERROR' ? 'error' : (loading ? 'process' : 'finish')" direction="vertical" size="small">
+          <a-step v-for="step in initialSetupSteps" :key="step" :title="$t(step)" />
+        </a-steps>
+        <a-alert
+          :type="initialSetupStatus === 'ERROR' ? 'error' : (initialSetupStatus === 'COMPLETE' ? 'success' : 'info')"
+          show-icon
+          :message="$t(initialSetupMessageKey)"
+          :description="initialPreparationReason || undefined" />
+        <p v-if="initialSetupStatus === 'ERROR'">{{ $t('message.storage.service.create.preparation.failure.help') }}</p>
+        <p v-if="loading">{{ $t('message.storage.service.create.preparation.close.help') }}</p>
+        <p v-if="initialSharedFsId">
+          <a :href="initialResourceLink('operations')" @click="closeModal">{{ $t('label.storage.volume.preparation.open') }}</a>
+        </p>
+      </section>
+
+      <div v-if="!creationSubmitted" class="sharedfs-create-layout">
         <aside class="sharedfs-create-summary">
           <section class="summary-panel">
             <div class="summary-panel__title">{{ $t('label.storage.service.section.review') }}</div>
@@ -53,6 +70,8 @@
               <span v-if="selectedServices.length === 0" class="summary-panel__empty">{{ $t('label.none') }}</span>
             </div>
             <dl class="review-list">
+              <dt>{{ $t('label.storage.service.create.preparation.mode') }}</dt>
+              <dd>{{ $t(form.setupmode === 'DEFERRED' ? 'label.storage.service.create.preparation.deferred' : 'label.storage.service.create.preparation.with.services') }}</dd>
               <dt>{{ $t('label.storage.service.sharedfs.name') }}</dt>
               <dd>{{ form.name || '-' }}</dd>
               <dt>{{ $t('label.zoneid') }}</dt>
@@ -477,7 +496,14 @@
         </a-collapse-panel>
 
         <a-collapse-panel key="services" :header="$t('label.storage.service.section.services')">
-          <a-form-item name="services" required>
+          <a-form-item name="setupmode" :label="$t('label.storage.service.create.preparation.mode')">
+            <a-radio-group v-model:value="form.setupmode">
+              <a-radio value="WITH_SERVICES">{{ $t('label.storage.service.create.preparation.with.services') }}</a-radio>
+              <a-radio value="DEFERRED">{{ $t('label.storage.service.create.preparation.deferred') }}</a-radio>
+            </a-radio-group>
+            <div class="field-hint">{{ $t(form.setupmode === 'DEFERRED' ? 'message.storage.service.create.preparation.deferred.help' : 'message.storage.service.create.preparation.with.services.help') }}</div>
+          </a-form-item>
+          <a-form-item v-if="form.setupmode !== 'DEFERRED'" name="services" required>
             <template #label>
               <tooltip-label :title="$t('label.storage.service.initial.services')" :tooltip="$t('message.storage.service.initial.services.help')" />
             </template>
@@ -1042,8 +1068,9 @@
       </div>
 
       <div :span="24" class="action-button">
-        <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button @click="closeModal">{{ $t(creationSubmitted ? 'label.close' : 'label.cancel') }}</a-button>
+        <a-button v-if="!creationSubmitted" type="primary" ref="submit" :loading="loading" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button v-else-if="initialSharedFsId && !loading" type="primary" @click="openInitialResource">{{ $t(form.setupmode === 'DEFERRED' && initialSetupStatus === 'COMPLETE' ? 'label.storage.service.create.preparation.open.runtime' : 'label.storage.volume.preparation.open') }}</a-button>
       </div>
     </a-form>
     </div>
@@ -1054,6 +1081,7 @@
 import { supportsStorageFormatting } from '@/utils/storageDiskProvisioning'
 import { validSharedFsGateway } from '@/utils/storageNetworkReadiness'
 import { storageReadDeadline } from '@/utils/storageRead'
+import { readStoragePreparation, readyAtSameBoot, storagePreparationWaitable } from '@/utils/storagePreparation'
 import { requireAdServiceApproval, readJoinedAdReceipt, supportsAdMaintenanceApi, supportsAdMutationApi, adMutationScope, requireAdMutationApproval, requestAdMutationApproval, approveAdMutation, cancelAdMutation } from '@/utils/storageAdIdentity'
 
 import { ref, reactive, toRaw, h } from 'vue'
@@ -1102,6 +1130,14 @@ export default {
         projectName: store.getters.project?.name
       },
       loading: false,
+      creationSubmitted: false,
+      initialSetupCancelled: false,
+      initialSetupStatus: 'IDLE',
+      initialSetupStep: 0,
+      initialSharedFsId: '',
+      initialPreparationReason: '',
+      initialSetupMessageKey: 'message.storage.service.create.preparation.creating',
+      currentSetupSnapshot: null,
       zones: [],
       zoneLoading: false,
       configLoading: false,
@@ -1159,6 +1195,15 @@ export default {
     }
   },
   computed: {
+    initialSetupSteps () {
+      const steps = [
+        'label.storage.service.create.preparation.step.vm',
+        'label.storage.service.create.preparation.step.boot',
+        'label.storage.service.create.preparation.step.runtime'
+      ]
+      if (this.form.setupmode !== 'DEFERRED') steps.push('label.storage.service.create.preparation.step.services', 'label.storage.service.create.preparation.step.verify')
+      return steps
+    },
     isNormalUserOrProject () {
       return ['User'].includes(this.$store.getters.userInfo.roletype) || store.getters.project?.id
     },
@@ -1181,7 +1226,7 @@ export default {
         .join(', ') || this.$t('label.none')
     },
     selectedServices () {
-      return this.serviceOptions.filter(service => this.form.services?.includes(service.value))
+      return this.form.setupmode === 'DEFERRED' ? [] : this.serviceOptions.filter(service => this.form.services?.includes(service.value))
     },
     ownerPanelHeader () {
       return `${this.$t('label.owner.type')} (${this.ownerSummary})`
@@ -1354,6 +1399,7 @@ export default {
   },
   watch: {
     form: { deep: true, handler () { this.cancelAdMutation() } },
+    'form.setupmode' () { this.changeInitialSetupMode() },
     'form.name' (name, previousName) {
       this.syncInitialNfsPath(previousName ? `${previousName}-nfs` : '')
     },
@@ -1386,7 +1432,7 @@ export default {
       }
     }
   },
-  beforeUnmount () { this.initialAdDisposed = true; cancelAdMutation.call(this); this.serviceOfferingRequestToken++; this.templateRequestToken++ },
+  beforeUnmount () { this.cancelInitialSetup(); this.initialAdDisposed = true; cancelAdMutation.call(this); this.serviceOfferingRequestToken++; this.templateRequestToken++ },
   methods: {
     requestAdMutationApproval,
     approveAdMutation,
@@ -1417,6 +1463,7 @@ export default {
         gateway: '',
         dns1: '',
         dns2: '',
+        setupmode: 'WITH_SERVICES',
         services: ['NFS'],
         nfsname: '',
         nfspath: '',
@@ -1525,7 +1572,7 @@ export default {
         }],
         services: [{
           validator: async (rule, value) => {
-            if (!value || value.length === 0) {
+            if (this.form.setupmode !== 'DEFERRED' && (!value || value.length === 0)) {
               return Promise.reject(this.$t('message.storage.service.select.one'))
             }
             return Promise.resolve()
@@ -1603,10 +1650,10 @@ export default {
       return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
     },
     isServiceSelected (service) {
-      return (this.form.services || []).includes(service)
+      return this.form.setupmode !== 'DEFERRED' && (this.form.services || []).includes(service)
     },
     isSetupServiceSelected (setup, service) {
-      return (setup?.services || []).includes(service)
+      return setup?.setupmode !== 'DEFERRED' && (setup?.services || []).includes(service)
     },
     validateFileSharePath (value) {
       if (!value) {
@@ -1920,8 +1967,42 @@ export default {
         this.volumeLoading = false
       })
     },
+    clearInitialCredentials (snapshot) {
+      this.clearInitialBlockSecrets(snapshot)
+      this.clearInitialAdCredentials(snapshot)
+      for (const field of ['smblocalpassword', 'smblocalpasswordconfirm']) {
+        if (this.form) this.form[field] = ''
+        if (snapshot) snapshot[field] = ''
+      }
+    },
+    changeInitialSetupMode () {
+      this.clearInitialCredentials()
+      this.cancelAdMutation()
+      this.form.services = this.form.setupmode === 'DEFERRED' ? [] : ['NFS']
+      if (this.formRef?.value?.clearValidate) this.formRef.value.clearValidate(['services'])
+    },
+    cancelInitialSetup () {
+      this.initialSetupCancelled = true
+      this.clearInitialCredentials(this.currentSetupSnapshot)
+    },
+    assertInitialSetupActive () {
+      if (this.initialSetupCancelled || this.initialAdDisposed) {
+        const error = new Error('STORAGE_INITIAL_SETUP_CANCELLED')
+        error.code = 'STORAGE_INITIAL_SETUP_CANCELLED'
+        throw error
+      }
+    },
+    initialResourceLink (tab = 'operations') {
+      return '#/sharedfs/' + encodeURIComponent(this.initialSharedFsId) + '?tab=' + tab
+    },
+    openInitialResource () {
+      const tab = this.form.setupmode === 'DEFERRED' && this.initialSetupStatus === 'COMPLETE' ? 'upgrades' : 'operations'
+      this.$router.push(this.initialResourceLink(tab).slice(1))
+      this.closeModal()
+    },
     closeModal () {
-      if (this.initialAdInteractive) { this.initialAdDisposed = true; this.cancelAdMutation(); this.clearInitialAdCredentials() }
+      this.cancelInitialSetup()
+      if (this.initialAdInteractive) { this.initialAdDisposed = true; this.cancelAdMutation() }
       this.$emit('close-action')
     },
     formatVolumeOption (volume) {
@@ -2093,81 +2174,69 @@ export default {
       return this.cleanParams(data)
     },
     handleSubmit (e) {
-      if (e && e.preventDefault) {
-        e.preventDefault()
-      }
-      if (this.loading) return
+      if (e && e.preventDefault) e.preventDefault()
+      if (this.loading || this.creationSubmitted) return
+      this.loading = true
+      this.initialSetupCancelled = false
       this.syncInitialNfsPath()
-      this.formRef.value.validate().then(async () => {
-        const formRaw = toRaw(this.form)
-        const values = this.handleRemoveFields(formRaw)
-
+      return this.formRef.value.validate().then(async () => {
+        this.assertInitialSetupActive()
+        const values = this.handleRemoveFields(toRaw(this.form))
         const data = this.buildCreateSharedFsRequest(values)
         this.assertNewRootOffering(data.serviceofferingid)
-        const missingApis = this.missingStorageServiceSetupApis()
-        if (missingApis.length > 0) {
-          this.$notification.error({
-            message: this.$t('message.storage.service.setup.api.missing'),
-            description: missingApis.join(', ')
-          })
-          return
-        }
-        const setupSnapshot = this.buildStorageServiceSetupSnapshot(values)
-        if (this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD') this.requireInitialAdApi()
-        this.initialAdInteractive = this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD'
-        this.loading = true
-        postAPI('createSharedFileSystem', data).then(response => {
-          const jobId = response.createsharedfilesystemresponse?.jobid
-          if (!jobId) {
-            throw new Error(this.$t('message.create.sharedfs.failed'))
-          }
-          const notificationKey = `storage-service-setup-${jobId}`
-          this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.accepted', setupSnapshot.name, 0)
-          if (this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD') {
-            this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey).finally(() => { this.cancelAdMutation(); this.loading = false; if (!this.initialAdDisposed) this.closeModal() })
-          } else {
-            this.loading = false
-            this.closeModal()
-            this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
-          }
-        }).catch(error => {
-          this.clearInitialBlockSecrets(setupSnapshot)
-          this.clearInitialAdCredentials(setupSnapshot)
-          this.$notifyError(error)
-        }).finally(() => {
-          if (!(this.isSetupServiceSelected(setupSnapshot, 'SMB') && setupSnapshot.smbidentitymode === 'AD')) this.loading = false
-        })
-      }).catch((error) => {
-        this.clearInitialAdCredentials()
+        const setup = this.buildStorageServiceSetupSnapshot(values)
+        this.assertStorageServiceSetupApis(setup)
+        this.initialAdInteractive = this.isSetupServiceSelected(setup, 'SMB') && setup.smbidentitymode === 'AD'
+        this.currentSetupSnapshot = setup
+        this.creationSubmitted = true
+        this.initialSetupStatus = 'RUNNING'
+        this.initialSetupMessageKey = 'message.storage.service.create.preparation.creating'
+        const response = await postAPI('createSharedFileSystem', data)
+        const jobId = response.createsharedfilesystemresponse?.jobid
+        if (!jobId) throw new Error(this.$t('message.create.sharedfs.failed'))
+        this.assertInitialSetupActive()
+        const notificationKey = 'storage-service-setup-' + jobId
+        await this.runInitialStorageServiceSetup(jobId, setup, notificationKey)
+      }).catch(error => {
+        this.clearInitialCredentials(this.currentSetupSnapshot)
+        if (error?.code === 'STORAGE_INITIAL_SETUP_CANCELLED' || this.initialSetupCancelled || this.initialAdDisposed) return
         if (error?.errorFields?.[0]?.name) {
           this.formRef.value.scrollToField(error.errorFields[0].name)
-        } else if (error instanceof Error) {
-          this.$notifyError(error)
-        }
+        } else if (this.creationSubmitted) {
+          this.initialSetupStatus = 'ERROR'
+          this.initialSetupMessageKey = 'message.storage.service.create.preparation.failed'
+        } else if (error instanceof Error) this.$notifyError(error)
+      }).finally(() => {
+        this.loading = false
+        this.currentSetupSnapshot = null
       })
     },
     async runInitialStorageServiceSetup (jobId, setup, notificationKey) {
       const preparation = {}
       try {
-        if (this.initialAdInteractive && this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+        this.assertInitialSetupActive()
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
         const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
         await this.configureInitialStorageServices(result, setup, notificationKey, preparation)
+        this.assertInitialSetupActive()
+        this.initialSetupStatus = 'COMPLETE'
+        this.initialSetupStep = this.initialSetupSteps.length - 1
+        this.initialSetupMessageKey = setup.setupmode === 'DEFERRED' ? 'message.storage.service.create.preparation.deferred.ready' : 'message.storage.service.setup.success'
       } catch (error) {
-        this.notifyStorageServiceSetup(
-          notificationKey,
-          'error',
-          'message.storage.service.setup.partial.failed',
-          this.initialSetupFailureDescription(preparation),
-          0
-        )
+        if (error?.code === 'STORAGE_INITIAL_SETUP_CANCELLED' || this.initialSetupCancelled || this.initialAdDisposed) {
+          this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.create.preparation.close.help', this.initialSetupFailureDescription(preparation), 0)
+          return
+        }
+        this.initialSetupStatus = 'ERROR'
+        this.initialSetupMessageKey = 'message.storage.service.create.preparation.failed'
+        this.notifyStorageServiceSetup(notificationKey, 'error', 'message.storage.service.setup.partial.failed', this.initialSetupFailureDescription(preparation), 0)
       } finally {
-        this.clearInitialBlockSecrets(setup)
-        this.clearInitialAdCredentials(setup)
+        this.clearInitialCredentials(setup)
       }
     },
     initialSetupFailureDescription (preparation = {}) {
       const description = [h('p', this.$t('message.storage.volume.setup.failed.summary'))]
+      if (this.initialPreparationReason) description.push(h('p', this.initialPreparationReason))
       if (typeof preparation.sharedFsId === 'string' && preparation.sharedFsId) {
         let href = '#/sharedfs/' + encodeURIComponent(preparation.sharedFsId) + '?tab=operations'
         if (typeof preparation.volumeId === 'string' && preparation.volumeId) href += '&volumeid=' + encodeURIComponent(preparation.volumeId)
@@ -2185,16 +2254,24 @@ export default {
       })
     },
     async configureInitialStorageServices (result, setup, notificationKey, preparation = {}) {
-      if (!setup?.services || setup.services.length === 0) {
-        return
-      }
       try {
+        this.assertInitialSetupActive()
         this.assertStorageServiceSetupApis(setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resolve.running', setup.name, 0)
         const sharedfs = await this.resolveCreatedSharedFileSystem(result)
         preparation.sharedFsId = sharedfs.id
+        this.initialSharedFsId = sharedfs.id
         preparation.volumeId = setup.useexistingvolume ? setup.existingvolumeid : (sharedfs.volumeid || sharedfs.volumeId)
         if (setup.useexistingvolume) setup = { ...setup, importmode: 'MOUNT_EXISTING', filesystem: sharedfs.filesystem || setup.filesystem }
+        this.initialSetupStep = 1
+        this.initialSetupMessageKey = 'message.storage.service.create.preparation.waiting'
+        await this.waitForInitialPreparation(sharedfs, notificationKey)
+        this.assertInitialSetupActive()
+        this.initialSetupStep = 2
+        if (setup.setupmode === 'DEFERRED') {
+          this.notifyStorageServiceSetup(notificationKey, 'success', 'message.storage.service.create.preparation.deferred.ready', setup.name)
+          return
+        }
         const instance = await this.findStorageServiceInstance(sharedfs, setup)
         if (!instance) {
           throw new Error(this.$t('message.storage.service.setup.instance.not.found'))
@@ -2203,22 +2280,62 @@ export default {
           (!(sharedfs.virtualmachineid || sharedfs.virtualMachineId) || instance.virtualmachineid !== (sharedfs.virtualmachineid || sharedfs.virtualMachineId))) {
           throw new Error(this.$t('message.storage.service.authentication.unknown.help'))
         }
+        this.assertInitialSetupActive()
+        // The instance lookup can outlive the preparation receipt. Observe again
+        // immediately before the first protocol mutation.
+        await this.waitForInitialPreparation(sharedfs, notificationKey)
+        this.initialSetupStep = 3
+        this.initialSetupMessageKey = 'message.storage.service.setup.protocol.running'
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.protocol.running', setup.name, 0)
         await this.enableSelectedProtocols(instance, setup)
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.resources.running', setup.name, 0)
         const fileSetup = await this.createInitialFileServices(instance, sharedfs, setup)
         const blockSetup = await this.createInitialBlockServices(instance, sharedfs, setup)
+        this.initialSetupStep = 4
+        this.initialSetupMessageKey = 'message.storage.service.setup.verify.running'
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.verify.running', setup.name, 0)
         await this.verifyInitialStorageServiceSetup(instance, { ...fileSetup, ...blockSetup }, setup)
         this.notifyStorageServiceSetup(notificationKey, 'success', 'message.storage.service.setup.success', setup.name)
       } finally {
-        this.clearInitialBlockSecrets(setup)
-        this.form.smbadpassword = ''
-        this.form.smblocalpassword = ''
-        this.form.smblocalpasswordconfirm = ''
-        if (setup) setup.smbadpassword = ''
+        this.clearInitialCredentials(setup)
         this.parentFetchData()
       }
+    },
+    async waitForInitialPreparation (sharedfs, notificationKey) {
+      const expected = { sharedfilesystemid: sharedfs.id, purpose: 'INITIAL_CONFIG' }
+      let previous = null
+      const deadline = Date.now() + 240000
+      for (let attempt = 0; attempt < 120 && Date.now() < deadline; attempt++) {
+        this.assertInitialSetupActive()
+        let receipt
+        try {
+          const response = await storageReadDeadline(getAPI('getStorageServicePreparationStatus', expected, { preserveOnFailure: true, timeout: 60000 }), 60000)
+          this.assertInitialSetupActive()
+          receipt = readStoragePreparation(response, expected)
+        } catch (error) {
+          this.assertInitialSetupActive()
+          if (error?.code !== 'STORAGE_INITIAL_SETUP_CANCELLED') this.initialPreparationReason = this.$t('message.storage.service.create.preparation.status.OBSERVATION_UNAVAILABLE')
+          throw error
+        }
+        const reason = typeof receipt.reason === 'string' && /^[A-Z][A-Z0-9_]{0,100}$/.test(receipt.reason) ? ' (' + receipt.reason + ')' : ''
+        this.initialPreparationReason = this.$t('message.storage.service.create.preparation.status.' + receipt.status) + reason
+        this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.create.preparation.waiting', this.initialPreparationReason, 0)
+        if (readyAtSameBoot(previous, receipt)) {
+          this.initialPreparationReason = ''
+          return receipt
+        }
+        if (!storagePreparationWaitable(receipt.status)) {
+          const error = new Error('STORAGE_PREPARATION_' + receipt.status)
+          error.code = 'STORAGE_PREPARATION_' + receipt.status
+          throw error
+        }
+        previous = receipt.ready ? receipt : null
+        await this.delay(2000)
+      }
+      this.initialPreparationReason = this.$t('message.storage.service.create.preparation.timeout')
+      const error = new Error('STORAGE_PREPARATION_TIMEOUT')
+      error.code = 'STORAGE_PREPARATION_TIMEOUT'
+      throw error
     },
     buildStorageServiceSetupSnapshot (values) {
       const rawForm = toRaw(this.form)
@@ -2226,7 +2343,7 @@ export default {
         ...values,
         ...rawForm
       }
-      snapshot.services = [...(snapshot.services || [])]
+      snapshot.services = snapshot.setupmode === 'DEFERRED' ? [] : [...(snapshot.services || [])]
       snapshot.useexistingvolume = !!snapshot.useexistingvolume
       return snapshot
     },
@@ -2292,7 +2409,9 @@ export default {
         zoneid: setup.zoneid
       }
       for (let attempt = 0; attempt < 40; attempt++) {
+        this.assertInitialSetupActive()
         const json = await getAPI('listStorageServiceInstances', params)
+        this.assertInitialSetupActive()
         const response = json.liststorageserviceinstancesresponse || {}
         const rawItems = this.firstListValue(response, ['storageserviceinstance', 'storageserviceinstances'])
         const items = this.normalizeApiItems(rawItems)
@@ -2602,7 +2721,7 @@ export default {
       })
     },
     async runStorageServiceSetup (api, params) {
-      if (this.initialAdInteractive && this.initialAdDisposed) throw new Error(this.$t('message.storage.service.ad.maintenance.required'))
+      this.assertInitialSetupActive()
       if (!(api in this.$store.getters.apis)) {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api }))
       }
@@ -2619,7 +2738,9 @@ export default {
     },
     async pollStorageServiceSetupJob (jobId, api, maxAttempts = 120) {
       for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        this.assertInitialSetupActive()
         const json = await getAPI('queryAsyncJobResult', { jobId })
+        this.assertInitialSetupActive()
         const result = json.queryasyncjobresultresponse
         if (result?.jobstatus === 1) {
           return result.jobresult || result
@@ -2635,7 +2756,11 @@ export default {
       return new Promise(resolve => window.setTimeout(resolve, milliseconds))
     },
     missingStorageServiceSetupApis (setup = this.form) {
-      const required = new Set(['listSharedFileSystems', 'listStorageServiceInstances', 'enableStorageServiceProtocol'])
+      const required = new Set(['listSharedFileSystems', 'getStorageServicePreparationStatus'])
+      if (setup.setupmode !== 'DEFERRED') {
+        required.add('listStorageServiceInstances')
+        required.add('enableStorageServiceProtocol')
+      }
       if (this.isSetupServiceSelected(setup, 'NFS')) {
         required.add('createStorageNfsExport')
         required.add('listStorageNfsExports')
@@ -2902,6 +3027,14 @@ export default {
   @media (min-width: 760px) {
     width: min(92vw, 1120px);
   }
+}
+
+.sharedfs-create-progress {
+  flex: 1 1 auto;
+  min-height: 300px;
+  overflow: auto;
+  padding: 16px;
+  :deep(.ant-alert) { margin: 16px 0; }
 }
 
 .sharedfs-create-owner {

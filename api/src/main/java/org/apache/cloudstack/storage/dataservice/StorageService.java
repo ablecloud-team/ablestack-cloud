@@ -97,6 +97,9 @@ import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
     StorageServiceRuntimeResponse applyStorageServiceApprovedMaintenance(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd cmd);
+    org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse getStorageServicePreparationStatus(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServicePreparationStatusCmd cmd);
+    StorageServiceRuntimeResponse getStorageRenderedValidationPreparation(org.apache.cloudstack.api.command.admin.storage.dataservice.GetStorageRenderedValidationPreparationCmd cmd);
+    StorageServiceRuntimeResponse prepareStorageRenderedValidationProfile(org.apache.cloudstack.api.command.admin.storage.dataservice.PrepareStorageRenderedValidationProfileCmd cmd);
     StorageServiceRuntimeResponse configureStorageRenderedValidationProfile(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageRenderedValidationProfileCmd cmd);
     StorageServiceRuntimeResponse getStorageNfsCapabilities(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd cmd);
     /** Called only by an already serialized lifecycle writer, never by readonly preflight. */

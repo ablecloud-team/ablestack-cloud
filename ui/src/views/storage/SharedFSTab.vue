@@ -71,7 +71,9 @@ class="storage-service__alert"
       </a-tab-pane>
 
       <a-tab-pane v-if="hasStorageServiceApi" :tab="$t('label.storage.tab.operations')" key="operations">
+        <storage-preparation-status v-if="storageService.instance" :shared-file-system-id="dataResource.id" :instance-id="storageService.instance.id" purpose="INITIAL_CONFIG" :active="currentTab === 'operations'" :scope-key="$route.fullPath" />
         <storage-boot-reconcile-status v-if="storageService.instance" :instance-id="storageService.instance.id" :active="currentTab === 'operations'" :scope-key="$route.fullPath" />
+        <storage-validation-preparation v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" :active="currentTab === 'operations'" :scope-key="$route.fullPath" @operation-updated="refreshStorageOperationHistory" />
         <storage-control-policy v-if="storageService.instance" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" @operation-updated="refreshStorageOperationHistory" />
         <storage-operation-history ref="storageOperationHistory" @read-started="storageOperationHistoryStarted" @read-complete="storageOperationHistoryLoaded" v-if="storageService.instance && 'listStorageServiceOperations' in $store.getters.apis" :instance-id="storageService.instance.id" :instance-name="storageService.instance.name || dataResource.name || ''" />
         <storage-volume-preparation v-if="storageService.instance && 'getStorageServiceVolumePreparation' in $store.getters.apis" :instance-id="storageService.instance.id" :volumes="currentBackingVolumes" :active="currentTab === 'operations'" :initial-volume-id="typeof $route.query.volumeid === 'string' ? $route.query.volumeid : ''" @operation-updated="refreshStorageOperationHistory" />
@@ -2393,6 +2395,8 @@ import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeU
 import StorageVolumePreparation from '@/views/storage/StorageVolumePreparation'
 import StorageNetworkStatus from '@/views/storage/StorageNetworkStatus'
 import StorageBootReconcileStatus from '@/views/storage/StorageBootReconcileStatus'
+import StoragePreparationStatus from '@/views/storage/StoragePreparationStatus'
+import StorageValidationPreparation from '@/views/storage/StorageValidationPreparation'
 import StorageNfsProbeStatus from '@/views/storage/StorageNfsProbeStatus'
 import StorageAdMutationConsent from '@/views/storage/StorageAdMutationConsent'
 import StorageSmbIdentityRepair from '@/views/storage/StorageSmbIdentityRepair'
@@ -2657,6 +2661,8 @@ export default {
     StorageVolumePreparation,
     StorageNetworkStatus,
     StorageBootReconcileStatus,
+    StoragePreparationStatus,
+    StorageValidationPreparation,
     StorageNfsProbeStatus,
     StorageSmbIdentityRepair,
     StorageAdMutationConsent,

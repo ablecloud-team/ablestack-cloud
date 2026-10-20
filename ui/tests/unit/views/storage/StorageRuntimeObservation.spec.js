@@ -60,7 +60,7 @@ describe('Verified runtime consumer observations', () => {
     expect(vm.$notifyError).not.toHaveBeenCalled()
   })
   it('activates only the bundle that completed the displayed preflight', () => {
-    const vm = { loading: false, submitting: false, latestUpgrade: { id: 'reviewed', state: 'PREFLIGHT_READY', bundleid: 'bundle-a' }, selectedBundleId: 'bundle-b', startAsync: jest.fn() }
+    const vm = { loading: false, submitting: false, selectedBundle: { state: 'AVAILABLE' }, allowedApis: { upgradeStorageServiceRuntime: {} }, latestUpgrade: { id: 'reviewed', state: 'PREFLIGHT_READY', bundleid: 'bundle-a' }, selectedBundleId: 'bundle-b', startAsync: jest.fn() }
     vm.canUpgrade = Upgrade.computed.canUpgrade.call(vm)
     expect(vm.canUpgrade).toBe(false)
     Upgrade.methods.runUpgrade.call(vm)
@@ -73,7 +73,7 @@ describe('Verified runtime consumer observations', () => {
   it('does not attach an old service mutation response to a new service', async () => {
     let complete
     postAPI.mockImplementation(() => new Promise(resolve => { complete = resolve }))
-    const vm = { generation: 0, submitting: false, resource: { id: 'old' }, $pollJob: jest.fn(), $t: key => key, $notifyError: jest.fn() }
+    const vm = { generation: 0, submitting: false, allowedApis: { upgradeStorageServiceRuntime: {} }, resource: { id: 'old' }, $pollJob: jest.fn(), $t: key => key, $notifyError: jest.fn() }
     Upgrade.methods.startAsync.call(vm, 'upgrade', 'upgradeStorageServiceRuntime', { upgradeid: 'old-upgrade' })
     vm.generation++; vm.resource = { id: 'new' }
     complete({ upgradestorageserviceruntimeresponse: { jobid: 'old-job' } })

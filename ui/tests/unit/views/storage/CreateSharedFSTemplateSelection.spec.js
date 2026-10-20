@@ -21,6 +21,9 @@ jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 
 const system = (extra = {}) => ({ id: 'system-a', name: 'system', templatetype: 'SYSTEM', isready: true, isdynamicallyscalable: true, hypervisor: 'KVM', arch: 'x86_64', zoneid: 'zone-a', ...extra })
 const context = () => ({
+  cancelInitialSetup: jest.fn(),
+  assertInitialSetupActive: jest.fn(),
+  clearInitialCredentials: jest.fn(),
   selectedZone: { id: 'zone-a' },
   owner: { domainid: 'domain-a', account: 'admin' },
   $store: { getters: { userInfo: { roletype: 'Admin' }, apis: { listTemplates: {} } } },

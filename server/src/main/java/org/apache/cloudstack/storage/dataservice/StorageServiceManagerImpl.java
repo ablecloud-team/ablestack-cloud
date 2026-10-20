@@ -2517,6 +2517,204 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         return createRuntimeResponse(instance,"NFS capabilities",true,"OBSERVED","Fresh installed NFS capability proof",result.toString());
     }
 
+    @Override
+    public org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse getStorageServicePreparationStatus(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServicePreparationStatusCmd cmd) {
+        if ((cmd.getInstanceId()==null)==(cmd.getSharedFileSystemId()==null))
+            throw new InvalidParameterValueException("Select exactly one Shared FileSystem or Storage Service instance");
+        String purpose=cmd.getPurpose();
+        if (!Set.of("INITIAL_CONFIG","RUNTIME_UPGRADE","CONFIG_RESTORE").contains(purpose))
+            throw new InvalidParameterValueException("Unsupported preparation purpose");
+        List<StorageServiceInstanceVO> instances=resolveRuntimeInstances(cmd.getInstanceId(),cmd.getSharedFileSystemId());
+        if(instances.size()!=1) {
+            SharedFSVO shared=cmd.getSharedFileSystemId()==null?null:sharedFSDao.findById(cmd.getSharedFileSystemId());
+            if(shared==null)throw new InvalidParameterValueException("Shared FileSystem Storage Service is unavailable");
+            storageAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(),
+                    org.apache.cloudstack.acl.SecurityChecker.AccessType.OperateEntry,false,shared);
+            org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse waiting=new org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse();
+            long now=System.currentTimeMillis();waiting.setSharedFilesystemId(shared.getUuid());waiting.setPurpose(purpose);waiting.setReady(false);
+            waiting.setStatus("WAITING_VM");waiting.setReason("INSTANCE_NOT_ATTACHED");waiting.setMessage("Waiting for the Shared FileSystem service VM");
+            waiting.setObservedAtMillis(now);waiting.setExpiresAtMillis(now+30000);waiting.setConditions(Collections.emptyList());return waiting;
+        }
+        StorageServiceInstanceVO instance=instances.get(0);
+        JsonObject observed=storagePreparationObservation(instance,purpose,cmd.getTargetBundleId());
+        if(cmd.getTargetBundleId()!=null) {
+            if(!"RUNTIME_UPGRADE".equals(purpose))throw new InvalidParameterValueException("Runtime target is only valid for runtime preparation");
+            StorageServiceRuntimeBundleVO target=storageRuntimeBundleDao.findById(cmd.getTargetBundleId());
+            if(target==null||target.getState()!=StorageServiceRuntimeBundleVO.State.AVAILABLE) {
+                observed.addProperty("ready",false);observed.addProperty("status","BLOCKED");observed.addProperty("reason","TARGET_RUNTIME_UNAVAILABLE");
+            }
+        }
+        org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse response=new org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse();
+        response.setId(instance.getUuid());SharedFSVO shared=sharedFSDao.findByVm(instance.getVmId());if(shared!=null)response.setSharedFilesystemId(shared.getUuid());
+        response.setPurpose(purpose);response.setReady(Boolean.TRUE.equals(getJsonBoolean(observed,"ready")));
+        response.setStatus(getJsonString(observed,"status"));response.setReason(getJsonString(observed,"reason"));
+        response.setMessage("Current boot, native writer and DATA formatter readiness: "+getJsonString(observed,"reason"));
+        response.setBootId(getJsonString(observed,"bootId"));response.setObservedAtMillis(getJsonLong(observed,"observedAtMillis"));
+        response.setExpiresAtMillis(getJsonLong(observed,"expiresAtMillis"));response.setRuntimeCliSha256(getJsonString(observed,"runtimeCliSha256"));
+        response.setConditions(List.of(new org.apache.cloudstack.api.response.StorageServicePreparationStatusResponse.Condition(
+                "BOOT_WRITER_FORMATTER",Boolean.TRUE.equals(getJsonBoolean(observed,"ready")),getJsonString(observed,"reason"))));
+        return response;
+    }
+
+    protected JsonObject storagePreparationObservation(StorageServiceInstanceVO instance,String purpose,Long targetBundleId) {
+        long started=System.currentTimeMillis();JsonObject value=new JsonObject();value.addProperty("ready",false);
+        value.addProperty("status","OBSERVATION_UNAVAILABLE");value.addProperty("reason","NATIVE_OBSERVATION_UNAVAILABLE");
+        try {
+            VMInstanceVO vm=instance.getVmId()==null?null:vmInstanceDao.findById(instance.getVmId());
+            if(vm==null||vm.getState()!=com.cloud.vm.VirtualMachine.State.Running) {
+                value.addProperty("status","WAITING_VM");value.addProperty("reason","VM_NOT_RUNNING");return value;
+            }
+            JsonObject before=nativeConfigurationGeneration(instance,null,"status");
+            StorageServiceGuestCommandResult healthResult=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                    instance.getVmId(),"health","",10,Collections.emptySet()));
+            JsonObject health=parseJsonObject(normalizeRuntimeResultJson(healthResult.getResultJson()));
+            JsonObject idle=rootGuest(instance,"operation writer-idle",new JsonObject(),10);
+            JsonObject maintenance=rootGuest(instance,"operation maintenance status",new JsonObject(),10);
+            StorageServiceRuntimeUpgradeVO active=storageRuntimeUpgradeDao.findActiveByInstanceId(instance.getId());
+            boolean ownPreflight="RUNTIME_UPGRADE".equals(purpose)&&active!=null
+                    &&active.getState()==StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY
+                    &&java.util.Objects.equals(targetBundleId,active.getBundleId())
+                    &&java.util.Objects.equals(active.getCreatedBy(),org.apache.cloudstack.context.CallContext.current().getCallingUserId());
+            boolean databaseIdle=storageTemplateUpgradeDao.findActive(instance.getId())==null&&(active==null||ownPreflight);
+            long committed=rootDesiredRevision(instance.getId());boolean databaseRecovery=false;
+            for(StorageServiceOperationSummary row:operationSummaries(instance.getId())) {
+                boolean unresolved=StorageServicePreparationState.databaseRecoveryRequired(row.getState(),row.getRevision(),committed);
+                if("RUNNING".equals(row.getState())||unresolved)databaseIdle=false;
+                if(unresolved)databaseRecovery=true;
+            }
+            boolean formatterIdle=true;
+            try {requireNoPendingVolumeFormatter(instance);}catch(RuntimeException unavailable){formatterIdle=false;}
+            JsonObject after=nativeConfigurationGeneration(instance,null,"status");
+            StorageServicePreparationState.Result state=StorageServicePreparationState.evaluate(true,databaseIdle,formatterIdle,health,before,after,idle,maintenance,System.currentTimeMillis());
+            value.addProperty("ready",state.ready);value.addProperty("status",state.status);value.addProperty("reason",state.reason);value.addProperty("bootId",state.bootId);
+            if(databaseRecovery) {
+                value.addProperty("ready",false);value.addProperty("status","BLOCKED");value.addProperty("reason","CONFIGURATION_RECOVERY_REQUIRED");
+            }
+            if(System.currentTimeMillis()-started>30000) {
+                value.addProperty("ready",false);value.addProperty("status","OBSERVATION_UNAVAILABLE");value.addProperty("reason","OBSERVATION_WINDOW_EXPIRED");
+            }
+            return value;
+        } catch(RuntimeException unavailable) {return value;}
+        finally {long now=System.currentTimeMillis();value.addProperty("observedAtMillis",now);value.addProperty("expiresAtMillis",now+30000);}
+    }
+
+    protected boolean initialPreparationRequired(StorageServiceInstanceVO instance,long instanceId) {
+        // This private context exists only after exact clone-baseline authority and held-SOURCE witness validation.
+        // It is never derived from a caller parameter; an approved restore must keep its deliberate BOOT hold.
+        return instance.getVmId()!=null&&rootDesiredRevision(instanceId)==0&&protectedIdentityConfiguration.get()==null
+                &&serviceMaintenanceOperation.get()==null&&configurationCloneRestoreMaintenance.get()==null&&configurationCloneInitialBaseline.get()==null;
+    }
+
+    protected void requireInitialPreparationReady(StorageServiceInstanceVO instance) {
+        if(instance.getVmId()==null)return;
+        JsonObject observed=storagePreparationObservation(instance,"INITIAL_CONFIG",null);
+        if(!Boolean.TRUE.equals(getJsonBoolean(observed,"ready")))throw new CloudRuntimeException(
+                "Storage Service preparation is not ready ("+getJsonString(observed,"reason")+"); inspect current boot readiness before submitting a new change");
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse getStorageRenderedValidationPreparation(
+            org.apache.cloudstack.api.command.admin.storage.dataservice.GetStorageRenderedValidationPreparationCmd cmd) {
+        requireConfigurationAdministrator();StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        JsonObject preview=renderedValidationPreparation(instance);
+        return createRuntimeResponse(instance,"rendered validation preparation",true,
+                Boolean.TRUE.equals(getJsonBoolean(preview,"eligible"))?"ELIGIBLE":"INELIGIBLE",
+                "Explicit disposable TEST fixture preparation; production capability remains false",preview.toString());
+    }
+
+    protected JsonObject renderedValidationPreparation(StorageServiceInstanceVO instance) {
+        JsonObject result=new JsonObject();JsonArray blockers=new JsonArray();long now=System.currentTimeMillis();
+        result.addProperty("instanceUuid",instance.getUuid());result.addProperty("instanceName",instance.getName());
+        result.addProperty("productionCapability",false);result.add("expiresAtMillis",com.google.gson.JsonNull.INSTANCE);
+        JsonObject policy=instanceControlPolicy(instance),profile=getJsonObject(policy,"renderedValidationProfile");
+        long revision=profile==null?0:getJsonLong(profile,"revision")==null?0:getJsonLong(profile,"revision");
+        result.addProperty("profileRevision",revision);result.addProperty("enabled",profile!=null&&Boolean.TRUE.equals(getJsonBoolean(profile,"enabled")));
+        if(profile!=null&&Boolean.TRUE.equals(getJsonBoolean(profile,"enabled"))) {
+            try {
+                JsonObject approved=parseJsonObject(new String(renderedValidationStore().read(getJsonString(profile,"artifactUuid"),getJsonString(profile,"artifactSha256")),java.nio.charset.StandardCharsets.UTF_8));
+                if(!instance.getUuid().equals(getJsonString(approved,"instanceUuid"))||getJsonLong(approved,"expiresAtMillis")==null)throw new CloudRuntimeException("profile changed");
+                result.add("expiresAtMillis",approved.get("expiresAtMillis").deepCopy());result.addProperty("artifactUuid",getJsonString(profile,"artifactUuid"));
+            } catch(RuntimeException invalid) {blockers.add("PROFILE_ARTIFACT_UNAVAILABLE");}
+        }
+        String stage="EXPLICIT_ISSUE909_TEST_FIXTURE_REQUIRED";
+        try {
+            if(!instance.getName().startsWith("issue909-"))throw new CloudRuntimeException("NOT_EXPLICIT_ISSUE909_TEST_FIXTURE");
+            stage="NEW_OWNED_FIXTURE_VM_REQUIRED";
+            VMInstanceVO vm=instance.getVmId()==null?null:vmInstanceDao.findById(instance.getVmId());
+            SharedFSVO shared=vm==null?null:sharedFSDao.findByVm(vm.getId());
+            if(vm==null||shared==null||vm.getCreated()==null||vm.getCreated().getTime()<now-24L*60*60*1000
+                    ||vm.getAccountId()!=instance.getAccountId()||!Long.valueOf(instance.getDataCenterId()).equals(shared.getDataCenterId()))
+                throw new CloudRuntimeException("NEW_OWNED_FIXTURE_VM_REQUIRED");
+            result.addProperty("vmUuid",vm.getUuid());result.addProperty("sharedFileSystemUuid",shared.getUuid());
+            stage="CURRENT_BOOT_PREPARATION_REQUIRED";requireInitialPreparationReady(instance);
+            stage="NEW_SPARSE_DATA4_BINDINGS_REQUIRED";JsonObject binding=renderedValidationBindings(instance);
+            StorageRenderedValidationUiFixture.requireNewData(binding,vm.getCreated().getTime(),now);
+            List<VolumeVO> fixtureVolumes=new ArrayList<>(volumeDao.findByInstanceAndType(vm.getId(),com.cloud.storage.Volume.Type.ROOT));
+            fixtureVolumes.addAll(volumeDao.findByInstanceAndType(vm.getId(),com.cloud.storage.Volume.Type.DATADISK));
+            for(VolumeVO disk:fixtureVolumes)if(disk.getCreated()==null||disk.getCreated().getTime()<vm.getCreated().getTime()-60000
+                    ||disk.getCreated().getTime()>now+5000)throw new CloudRuntimeException("Fixture disk predates its new VM");
+            stage="SIGNED_INSTALLED_RUNTIME_REQUIRED";
+            result.add("bindings",binding.deepCopy());
+            StorageServiceRuntimeBundleVO bundle=instance.getCurrentRuntimeBundleId()==null?null:storageRuntimeBundleDao.findById(instance.getCurrentRuntimeBundleId());
+            if(bundle==null)throw new CloudRuntimeException("SIGNED_INSTALLED_RUNTIME_REQUIRED");
+            stage="SIGNED_RUNTIME_SOURCE_PIN_REQUIRED";
+            JsonObject verified=runtimeUpgradeManager.verifyAvailableBundle(bundle.getId());
+            JsonObject manifest=getJsonObject(verified,"manifest");
+            if(manifest==null)throw new CloudRuntimeException("SIGNED_RUNTIME_MANIFEST_REQUIRED");
+            String source=getJsonString(manifest,"buildCommit"),cli=null;
+            if(source==null||!source.matches("[a-f0-9]{40}"))throw new CloudRuntimeException("SIGNED_RUNTIME_SOURCE_COMMIT_REQUIRED");
+            for(JsonElement file:manifest.getAsJsonArray("files"))if("ablestack-storagectl".equals(getJsonString(file.getAsJsonObject(),"path"))) {
+                if(cli!=null)throw new CloudRuntimeException("SIGNED_RUNTIME_CLI_AMBIGUOUS");cli=getJsonString(file.getAsJsonObject(),"sha256");
+            }
+            stage="SIGNED_RUNTIME_ACTUAL_READBACK_REQUIRED";
+            JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),cli);
+            stage="INSTALLED_RENDERED_HANDLER_REQUIRED";StorageRenderedValidationProfile.requireHandler(rootGuest(instance,"operation generation render-status",new JsonObject(),15));
+            stage="PROTECTED_ORIGINAL_EXCLUSION_SET_REQUIRED";JsonArray excluded=new JsonArray();storageServiceInstanceDao.listAll().stream().filter(other->other.getId()!=instance.getId()).map(StorageServiceInstanceVO::getUuid).sorted().forEach(excluded::add);
+            if(excluded.size()<7)throw new CloudRuntimeException("PROTECTED_ORIGINAL_EXCLUSION_SET_REQUIRED");
+            result.addProperty("sourceCommit",source);result.addProperty("expectedCliSha256",cli);result.add("runtimeProof",runtime);
+            result.add("excludedInstanceUuids",excluded);result.addProperty("kind","NEW_SPARSE_ALL4_VALIDATION");
+            JsonObject scope=new JsonObject();scope.addProperty("actorId",org.apache.cloudstack.context.CallContext.current().getCallingUserId());
+            for(String key:List.of("instanceUuid","instanceName","vmUuid","sharedFileSystemUuid","bindings","sourceCommit","expectedCliSha256","excludedInstanceUuids","profileRevision"))scope.add(key,result.get(key).deepCopy());
+            for(String key:List.of("runtimePin","sourceRootBinding","hostBinding","transactionId"))scope.add(key,runtime.get(key).deepCopy());
+            result.addProperty("previewToken",StorageConfigArchive.sha256(scope.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch(RuntimeException denied) {
+            blockers.add(stage);
+        }
+        result.add("blockers",blockers);result.addProperty("eligible",blockers.size()==0);
+        long completed=System.currentTimeMillis();result.addProperty("observedAtMillis",completed);result.addProperty("previewExpiresAtMillis",completed+300000);
+        return result;
+    }
+
+    @Override
+    public StorageServiceRuntimeResponse prepareStorageRenderedValidationProfile(
+            org.apache.cloudstack.api.command.admin.storage.dataservice.PrepareStorageRenderedValidationProfileCmd cmd) {
+        requireConfigurationAdministrator();StorageServiceInstanceVO instance=requireInstance(cmd.getInstanceId());
+        if(!instance.getName().equals(cmd.getConfirmation())||cmd.getExpectedProfileRevision()==null
+                ||cmd.getExpiresInHours()<1||cmd.getExpiresInHours()>24)throw new InvalidParameterValueException("Exact TEST fixture confirmation, revision and one-day expiry are required");
+        JsonObject preview=renderedValidationPreparation(instance);
+        if(!Boolean.TRUE.equals(getJsonBoolean(preview,"eligible"))||!java.util.Objects.equals(cmd.getPreviewToken(),getJsonString(preview,"previewToken"))
+                ||!cmd.getExpectedProfileRevision().equals(getJsonLong(preview,"profileRevision")))throw new InvalidParameterValueException("Reviewed TEST fixture scope changed or is ineligible; refresh its preview");
+        JsonObject artifact=new JsonObject();artifact.addProperty("schemaVersion",1);artifact.addProperty("kind","NEW_SPARSE_ALL4_VALIDATION");
+        for(String key:List.of("instanceUuid","instanceName","bindings","sourceCommit","expectedCliSha256","excludedInstanceUuids"))artifact.add(key,preview.get(key).deepCopy());
+        artifact.addProperty("newDisposableFixture",true);artifact.addProperty("originalDataExcluded",true);artifact.addProperty("productionCapability",false);
+        artifact.addProperty("uiPrepared",true);artifact.add("runtimePin",preview.getAsJsonObject("runtimeProof").get("runtimePin").deepCopy());
+        long expiry=System.currentTimeMillis()+cmd.getExpiresInHours()*60L*60*1000;artifact.addProperty("expiresAtMillis",expiry);
+        requireRenderedValidationArtifact(instance,artifact);final String id=java.util.UUID.randomUUID().toString();byte[] bytes=artifact.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        final String sha=StorageConfigArchive.sha256(bytes);renderedValidationStore().write(id,bytes);
+        configureStorageRenderedValidationProfile(new org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageRenderedValidationProfileCmd() {
+            @Override public Long getInstanceId(){return instance.getId();}
+            @Override public Boolean getEnabled(){return true;}
+            @Override public Long getExpectedProfileRevision(){return cmd.getExpectedProfileRevision();}
+            @Override public String getConfirmation(){return cmd.getConfirmation();}
+            @Override public String getArtifactUuid(){return id;}
+            @Override public String getArtifactSha256(){return sha;}
+        });
+        preview.addProperty("enabled",true);preview.addProperty("profileRevision",cmd.getExpectedProfileRevision()+1);preview.addProperty("expiresAtMillis",expiry);
+        preview.addProperty("artifactUuid",id);preview.addProperty("artifactSha256",sha);
+        return createRuntimeResponse(instance,"rendered validation preparation",true,"CONFIGURED","Reviewed TEST fixture approved; production capability remains false",preview.toString());
+    }
+
     private StorageConfigArtifactStore renderedValidationStore() {
         return new StorageConfigArtifactStore(java.nio.file.Path.of(System.getProperty("cloudstack.storage.rendered.validation.path","/var/lib/cloudstack-management/storage-rendered-validation")));
     }
@@ -2525,6 +2723,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         JsonObject binding=rootResourceBinding(instance);JsonObject disks=new JsonObject();JsonObject policy=instanceControlPolicy(instance);JsonObject profile=policy.has("renderedValidationProfile")?policy.getAsJsonObject("renderedValidationProfile"):null;
         JsonObject provenance=profile!=null&&profile.has("fixtureProvenance")&&profile.get("fixtureProvenance").isJsonObject()?profile.getAsJsonObject("fixtureProvenance").getAsJsonObject("volumes"):null;
         List<VolumeVO> attached=new ArrayList<>(volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.ROOT));attached.addAll(volumeDao.findByInstanceAndType(instance.getVmId(),com.cloud.storage.Volume.Type.DATADISK));
+        attached.sort(java.util.Comparator.comparing(VolumeVO::getUuid));
         for(VolumeVO volume:attached) {
             JsonObject row=new JsonObject();row.addProperty("type",volume.getVolumeType().name());row.addProperty("sizeBytes",volume.getSize());row.addProperty("poolId",volume.getPoolId());row.addProperty("path",volume.getPath());
             row.addProperty("provisioningType",volume.getProvisioningType()==null?null:volume.getProvisioningType().name());row.addProperty("attachedToFixture",java.util.Objects.equals(volume.getInstanceId(),instance.getVmId()));
@@ -2598,6 +2797,12 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     java.util.Set<String> excluded=new HashSet<>();for(JsonElement id:artifact.getAsJsonArray("excludedInstanceUuids"))excluded.add(id.getAsString());
                     for(StorageServiceInstanceVO other:storageServiceInstanceDao.listAll())if(other.getId()!=instance.getId()&&!excluded.contains(other.getUuid()))throw new CloudRuntimeException("Protected validation artifact must exclude every other existing instance");
                     JsonObject runtime=runtimeUpgradeManager.freshSignedRuntimeValidationProof(instance.getId(),getJsonString(artifact,"expectedCliSha256"));
+                    if(Boolean.TRUE.equals(getJsonBoolean(artifact,"uiPrepared"))) {
+                        if(!runtime.get("runtimePin").equals(artifact.get("runtimePin")))throw new CloudRuntimeException("Reviewed TEST fixture runtime pin changed before approval");
+                        JsonObject verified=runtimeUpgradeManager.verifyAvailableBundle(instance.getCurrentRuntimeBundleId());
+                        if(!java.util.Objects.equals(getJsonString(artifact,"sourceCommit"),getJsonString(verified.getAsJsonObject("manifest"),"buildCommit")))
+                            throw new CloudRuntimeException("Reviewed TEST fixture signed source commit changed before approval");
+                    }
                     JsonObject nativeStatus=rootGuest(instance,"operation generation render-status",new JsonObject(),15);
                     StorageRenderedValidationProfile.requireHandler(nativeStatus);
                     if(Boolean.TRUE.equals(getJsonBoolean(nativeStatus,"bootHeld"))){if(recovery==null)throw new CloudRuntimeException("Rendered held writer requires exact scoped recovery authorization");RenderedBatch batch=restoreRenderedBatch(recovery);StorageRenderedRecoveryState.observe(operationReservationScope(instance,recovery),batch.receipt,nativeConfigurationGeneration(instance,null,"status"),nativeStatus);}
@@ -6990,6 +7195,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         commands.add(JoinStorageServiceToAdDomainCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceOperationControlCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageNfsCapabilitiesCmd.class);
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServicePreparationStatusCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.GetStorageRenderedValidationPreparationCmd.class);
+        commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.PrepareStorageRenderedValidationProfileCmd.class);
         commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ConfigureStorageRenderedValidationProfileCmd.class);
         commands.add(org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceControlPolicyCmd.class);
@@ -7474,6 +7682,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if (batch.instanceId != instanceId) throw new InvalidParameterValueException("Configuration command targets a different service");
             return change.get();
         }
+        if(initialPreparationRequired(instance,instanceId))requireInitialPreparationReady(instance);
         String idempotency = null; Long revision = null;
         if (cmd instanceof org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd) {
             org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceAsyncCmd scoped =

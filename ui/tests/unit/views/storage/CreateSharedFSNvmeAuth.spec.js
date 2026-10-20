@@ -36,9 +36,11 @@ const context = () => {
     extractCreatedId: () => 'subsystem-a',
     runStorageServiceSetup: jest.fn().mockResolvedValue({ id: 'instance-a', success: true }),
     notifyStorageServiceSetup: jest.fn(),
-    parentFetchData: jest.fn()
+    parentFetchData: jest.fn(),
+    assertInitialSetupActive: jest.fn(),
+    waitForInitialPreparation: jest.fn().mockResolvedValue({ ready: true })
   }
-  for (const name of ['initialSetupFailureDescription', 'initialNvmeAuthRequest', 'requireInitialNvmeAuthCapabilities', 'normalizeApiItems', 'parseRuntimeResultJson', 'clearInitialBlockSecrets', 'clearInitialAdCredentials', 'clearInitialNvmeAuth', 'parseStorageServiceItemConfig', 'isNvmeSubsystemItem']) vm[name] = methods[name]
+  for (const name of ['clearInitialCredentials', 'initialSetupFailureDescription', 'initialNvmeAuthRequest', 'requireInitialNvmeAuthCapabilities', 'normalizeApiItems', 'parseRuntimeResultJson', 'clearInitialBlockSecrets', 'clearInitialAdCredentials', 'clearInitialNvmeAuth', 'parseStorageServiceItemConfig', 'isNvmeSubsystemItem']) vm[name] = methods[name]
   return vm
 }
 const create = (vm, setup) => methods.createInitialBlockServices.call(vm, instance(), {}, setup)
