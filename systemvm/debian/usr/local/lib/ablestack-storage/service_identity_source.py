@@ -28,6 +28,7 @@ from root_source_identity_checkpoint import RootSourceIdentityCheckpoint,root_pu
 from root_source_recovery import RootSourceRecovery
 from samba_public_sid import samba_public_sid
 from template_maintenance import Maintenance
+from native_render_runtime import PROTOCOL_FILES
 
 
 def service_identity_scope(request):
@@ -52,8 +53,34 @@ def service_identity_writer():
 
 
 class ServicePublicIdentity(RootSourceIdentityCheckpoint):
-    def __init__(self,*args,sid_reader=None,**kwargs):
+    def __init__(self,*args,sid_reader=None,sam_root=None,**kwargs):
         super().__init__(*args,**kwargs);self.sid_reader=sid_reader or samba_public_sid
+        self.sam_root=Path(sam_root or "/var/lib/samba")
+
+    def absent_local_sam(self):
+        # Observe absence without opening a database, reading a private row or creating a SID.
+        # The closest existing protected parent is descriptor-bound; symlinks fail closed.
+        result={"schemaVersion":1,"kind":"ABSENT_LOCAL_SAM","databases":[]}
+        for relative in ("private/passdb.tdb","private/secrets.tdb","winbindd_idmap.tdb"):
+            target=self.sam_root/relative;parent=target.parent;missing=[target.name]
+            while True:
+                try:info=parent.lstat();break
+                except FileNotFoundError:missing.insert(0,parent.name);parent=parent.parent
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.geteuid() or info.st_mode&0o022:
+                raise ValueError("SERVICE absent SAM parent is not protected")
+            descriptor=os.open(parent,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+            try:
+                held=os.fstat(descriptor);fields=("st_dev","st_ino","st_uid","st_gid","st_mode")
+                if any(getattr(info,key)!=getattr(held,key) for key in fields):raise ValueError("SERVICE absent SAM parent changed")
+                try:os.stat(missing[0],dir_fd=descriptor,follow_symlinks=False)
+                except FileNotFoundError:pass
+                else:return None
+                named=parent.lstat()
+                if any(getattr(named,key)!=getattr(held,key) for key in fields):raise ValueError("SERVICE absent SAM parent changed after observation")
+                result["databases"].append({"path":relative,"missing":missing,"parent":str(parent),
+                    "device":held.st_dev,"inode":held.st_ino,"uid":held.st_uid,"gid":held.st_gid,"mode":stat.S_IMODE(held.st_mode)})
+            finally:os.close(descriptor)
+        return result
 
     def local_sid(self):
         name=self.command(["testparm","-s","--parameter-name=netbios name"]).upper()
@@ -63,7 +90,11 @@ class ServicePublicIdentity(RootSourceIdentityCheckpoint):
     def freeze(self,scope,actual):
         raw,binding=self.public_file(self.configuration/"smb-domain.json",True)
         state=credential_json(raw) if raw is not None else {};metadata=None;machine_binding=None
-        local_sid=self.local_sid()
+        joined=str(state.get("joinState") or state.get("state") or "").upper()=="JOINED"
+        # SMB/AD and any existing SAM keep their existing strict public-SID proof.
+        identity_owner=any(row["unit"].startswith("ablestack-storage-smb@") or row["unit"]=="ablestack-storage-winbind.service" for row in self.owners())
+        absent=self.absent_local_sam() if actual["configurationDesiredState"].get(PROTOCOL_FILES["SMB"]) is None and not joined and not identity_owner else None
+        local_sid=None if absent is not None else self.local_sid()
         if str(state.get("joinState") or state.get("state") or "").upper()=="JOINED":
             expected={key:scope[key] for key in ("instanceUuid","operationUuid","revision")}
             observed=self.runtime.command(("identity","domain","inspect"),expected)
@@ -80,19 +111,26 @@ class ServicePublicIdentity(RootSourceIdentityCheckpoint):
         result={"schemaVersion":1,"publicAdIdentity":metadata,"publicAdPreStopSha256":root_public_sha(metadata) if metadata is not None else None,
                 "publicLocalMachineSid":local_sid,"domainFileBinding":binding,"machineFileBinding":machine_binding,
                 "sourcePosixPolicies":self.posix(actual["configurationDesiredState"],scope["instanceUuid"])}
+        if absent is not None:result["absentLocalSam"]=absent
         no_rendered_secrets(result);return result
 
     def unchanged(self,scope,actual,frozen):
         fields={"schemaVersion","publicAdIdentity","publicAdPreStopSha256","publicLocalMachineSid","domainFileBinding","machineFileBinding","sourcePosixPolicies"}
-        if not isinstance(frozen,dict) or set(frozen)!=fields or type(frozen["schemaVersion"]) is not int or frozen["schemaVersion"]!=1:
+        if not isinstance(frozen,dict) or set(frozen)-{"absentLocalSam"}!=fields or type(frozen["schemaVersion"]) is not int or frozen["schemaVersion"]!=1:
             raise ValueError("SERVICE PRESTOP identity shape differs")
         _,domain=self.public_file(self.configuration/"smb-domain.json",True)
         if domain!=frozen["domainFileBinding"]:raise ValueError("SERVICE PRESTOP public AD state changed")
         if frozen["machineFileBinding"] is not None:
             _,machine=self.public_file(self.configuration/"ad-machine.conf",exact_mode=0o600)
             if machine!=frozen["machineFileBinding"]:raise ValueError("SERVICE PRESTOP machine configuration changed")
-        if (self.local_sid()!=frozen["publicLocalMachineSid"]
-                or frozen["publicAdPreStopSha256"]!=(root_public_sha(frozen["publicAdIdentity"]) if frozen["publicAdIdentity"] is not None else None)
+        absent=frozen.get("absentLocalSam")
+        if absent is not None:
+            if (frozen["publicLocalMachineSid"] is not None or frozen["publicAdIdentity"] is not None
+                    or actual["configurationDesiredState"].get(PROTOCOL_FILES["SMB"]) is not None
+                    or self.absent_local_sam()!=absent):
+                raise ValueError("SERVICE absent local SAM authority changed")
+        elif self.local_sid()!=frozen["publicLocalMachineSid"]:raise ValueError("SERVICE PRESTOP local SID changed")
+        if (frozen["publicAdPreStopSha256"]!=(root_public_sha(frozen["publicAdIdentity"]) if frozen["publicAdIdentity"] is not None else None)
                 or frozen["sourcePosixPolicies"]!=self.posix(actual["configurationDesiredState"],scope["instanceUuid"])):
             raise ValueError("SERVICE PRESTOP public SID/POSIX authority changed")
         if frozen["publicAdIdentity"] is not None:root_source_validate_ad_identity(frozen["publicAdIdentity"])
@@ -159,6 +197,7 @@ class ServiceIdentitySource:
                "sourceConfigurationSha256":saved["sourceConfigurationSha256"],"sourceRenderedManifestSha256":saved["sourceRendered"]["manifestSha256"],
                "canonicalDesiredStateChanged":False,"bootId":saved["bootId"],"publicAdPreStopCaptured":frozen["publicAdIdentity"] is not None,
                "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"publicLocalMachineSid":frozen["publicLocalMachineSid"]}
+        if frozen.get("absentLocalSam") is not None:value["localSamAbsentSha256"]=root_public_sha(frozen["absentLocalSam"])
         if saved.get("sourceStoppedReceipt") is not None:
             value.update(serviceSourceStoppedVerified=True,stoppedReceiptSha256=root_public_sha(saved["sourceStoppedReceipt"]))
         return value
@@ -193,6 +232,17 @@ class ServiceIdentitySource:
             raise ValueError("SERVICE PRESTOP owner PID/start/configuration changed")
         return {**self.receipt(scope,saved),"quiesceAuthorized":True,"sideEffects":False}
 
+    def unheld_verify(self,request):
+        scope,saved,actual=self.validate(request)
+        marker=self.runtime.command(("operation","maintenance","status"))
+        if (marker.get("bootHeld") is not False or saved["phase"]!="CAPTURED" or saved.get("sourceStoppedReceipt") is not None
+                or self.identity.owners()!=saved["sourceOwners"]):
+            raise ValueError("Unheld SERVICE source no longer has its exact original running owners")
+        verified=self.driver.verify(self.store.pointer())
+        if set(verified)!=set(DOMAINS) or any(verified[domain] is not True for domain in DOMAINS):
+            raise ValueError("Unheld SERVICE original source failed fresh all-four runtime readback")
+        return {**self.receipt(scope,saved),"sourceUnchangedVerified":True,"runtimeVerified":True,"unheldSourceVerified":True,"sideEffects":False}
+
     def stopped(self,request):
         scope,saved,actual=self.validate(request,True)
         journal=Maintenance(root=self.root).read(self.root/"service-maintenance.json");owners=saved["sourceOwners"]
@@ -211,6 +261,7 @@ class ServiceIdentitySource:
                  "publicAdPreStopSha256":frozen["publicAdPreStopSha256"],"publicLocalMachineSid":frozen["publicLocalMachineSid"],
                  "owners":owners,"holderObservationScope":ROOT_IDENTITY_HOLDER_SCOPE,"knownIdentityDatabaseHolders":0,
                  "bootId":saved["bootId"]}
+        if frozen.get("absentLocalSam") is not None:receipt["localSamAbsentSha256"]=root_public_sha(frozen["absentLocalSam"])
         previous=saved.get("sourceStoppedReceipt")
         if previous is not None and previous!=receipt:raise ValueError("SERVICE protected stopped receipt changed")
         if previous is None:

@@ -90,6 +90,13 @@ class RenderedGuestFixture:
         self.service=self.service_module.ServiceMaintenance(self.maintenance,self.cli,
             run=self.service_os_run,command=self.command)
         self.initialize_local_os()
+        self.service_identity_module=importlib.import_module("service_identity_source")
+        self.root_identity_checkpoint_module=importlib.import_module("root_source_identity_checkpoint")
+        public=self.service_identity_module.ServicePublicIdentity(self.driver.runtime,configuration=self.generation.config,
+            run=self.service_identity_os_run,process_root=self.osroot/"proc",sam_root=self.osroot/"var/lib/samba",
+            sid_reader=lambda name:self.samba_account_state()["machineSid"])
+        public.process_root=self.service_path(self.osroot/"proc")
+        self.driver.service_identity=self.service_identity_module.ServiceIdentitySource(self.driver,root=self.maintenance.root,identity=public)
         self.handler=self.identity_module.SmbIdentity(self.cli)
         self.handler.configuration=self.generation.config
         self.handler.generations=self.generation.root
@@ -154,6 +161,7 @@ class RenderedGuestFixture:
         return self.raw_regular_file(str(mapped),maximum)
     def smb_os_run(self,arguments):
         args=list(arguments);state=self.os_state();smb=state["domains"].get("SMB",{})
+        if args==["testparm","-s","--parameter-name=netbios name"]:return self.samba_account_state()["netbiosName"]+"\n"
         if len(args)==3 and args[:2]==["testparm","-s"]:
             path=self.original_path(args[2])
             require(path.parent==self.osroot/"etc/samba"and path.name.startswith(".local-source-smb-"),
@@ -199,7 +207,7 @@ class RenderedGuestFixture:
             require(path.is_file()and not path.is_symlink()and stat.S_IMODE(path.stat().st_mode)==0o600
                 and path.read_bytes()==expected,"OS_SAM_DATABASE_AND_PUBLIC_IDENTITY_DIFFER")
         return accounts
-    def apply_samba_accounts(self,payload,manifest):
+    def apply_samba_accounts(self,payload,manifest,retain_existing=False):
         # This is a stateful OS account/Samba boundary, not a TDB implementation.
         # No SID, database or account exists before a real signed runtime request
         # supplies and binds its LOCAL credential after baseline/SOURCE capture.
@@ -209,6 +217,10 @@ class RenderedGuestFixture:
             for acl in share.get("acls",[]):
                 if not (acl.get("config")or{}).get("localAccount"):continue
                 principal=acl.get("principal");password=acl.get("password")
+                if password is None and retain_existing:
+                    old=self.samba_account_state();matches=[row for row in old["users"] if row["principal"]==principal and row["resourceUuid"]==acl["uuid"]]
+                    require(len(matches)==1 and old["scope"]["instanceUuid"]==manifest["scope"]["instanceUuid"],"OS_SOURCE_SAM_RETENTION_BINDING")
+                    users[principal]=copy.deepcopy(matches[0]);continue
                 require(isinstance(principal,str)and re.fullmatch("[a-z_][a-z0-9_-]{0,31}",principal)
                     and principal not in("root","nobody")and isinstance(password,str)and bool(password),"OS_LOCAL_ACCOUNT_CREDENTIAL_BINDING")
                 digest=hashlib.sha256(password.encode()).hexdigest()
@@ -221,7 +233,12 @@ class RenderedGuestFixture:
         sid="S-1-5-21-"+"-".join(str(int(seed[n:n+8],16))for n in(0,8,16))
         account={"kind":"SYNTHETIC_OS_SAM_V1","scope":manifest["scope"],"machineSid":sid,
             "netbiosName":payload.get("netbiosName")or"FIXTURE","users":list(users.values())}
-        require(old is None or old==account,"OS_SAM_ALREADY_OWNED_BY_DIFFERENT_APPLY")
+        if old is not None:
+            require(old["scope"]["instanceUuid"]==account["scope"]["instanceUuid"]
+                and old["machineSid"]==account["machineSid"] and old["netbiosName"]==account["netbiosName"]
+                and old["users"]==account["users"],"OS_SAM_ALREADY_OWNED_BY_DIFFERENT_APPLY")
+            account=old # Same identity and credentials preserve the exact original synthetic OS bytes.
+
         private=self.osroot/"var/lib/samba/private";private.mkdir(parents=True,exist_ok=True,mode=0o700)
         for name in("passdb.tdb","secrets.tdb"):
             path=private/name
@@ -393,6 +410,7 @@ class RenderedGuestFixture:
                 (self.source_module,"LOCAL_SOURCE_NVME_ROOT",self.driver.runtime.nvme_root),
                 (self.source_module.SmbSourceCheckpoint,"__init__",source_constructor),
                 (self.service_module,"Path",self.service_path),
+                (self.root_identity_checkpoint_module,"Path",self.mapped_path),
                 (os.path,"exists",mapped_exists),(os.path,"lexists",mapped_lexists),
                 (os.path,"realpath",mapped_realpath),(os,"readlink",mapped_readlink),
                 (os,"open",open_fd),
@@ -444,6 +462,10 @@ class RenderedGuestFixture:
                                 ("/etc/ganesha/ablestack-storage/"+row["file"]).encode())
                 return raw
         return View(self.mapped_path(value))
+    def service_identity_os_run(self,arguments,**kwargs):
+        args=list(arguments)
+        output=self.smb_os_run(args) if args[:1]==["testparm"] else self.service_os_run(args)
+        return types.SimpleNamespace(returncode=0,stdout=output,stderr="")
     def service_os_run(self,arguments,timeout=15,pass_fds=()):
         args=list(arguments);state=self.os_state()
         owners=[]
@@ -452,10 +474,14 @@ class RenderedGuestFixture:
                 unit=row.get("unit")or(prefix+row["file"].removesuffix(".conf")+".service")
                 owners.append((domain,unit,row))
         if args[:2]==["systemctl","list-units"]:
-            require(args[2:7]==["--state=active","--type=service","--no-legend","--plain",
-                "ablestack-storage-ganesha@*.service"],"SERVICE_OS_UNIT_QUERY_SCHEMA")
-            return "".join(unit+" loaded active running Fixture\n"for _,unit,_ in owners)
-        if args[:2]==["systemctl","show"]and args[-2:]==["--property=MainPID,ActiveState,SubState","--no-pager"]:
+            from fnmatch import fnmatchcase
+            nfs={"ablestack-storage-ganesha@*.service","nfs-ganesha.service","nfs-server.service","nfs-kernel-server.service"}
+            smb={"ablestack-storage-smb@*.service","ablestack-storage-winbind.service","smbd.service","nmbd.service","winbind.service"}
+            patterns=args[6:];selected=set(patterns)
+            require(args[2:6]==["--state=active","--type=service","--no-legend","--plain"]
+                and len(patterns)==len(selected) and selected in (nfs,smb,nfs|smb,nfs|smb|{"samba.service"}),"SERVICE_OS_UNIT_QUERY_SCHEMA")
+            return "".join(unit+" loaded active running Fixture\n"for _,unit,_ in owners if any(fnmatchcase(unit,pattern)for pattern in patterns))
+        if args[:2]==["systemctl","show"]and args[-2:] in (["--property=MainPID,ActiveState,SubState","--no-pager"],["--property=MainPID,ActiveState","--no-pager"]):
             row=next((row for _,unit,row in owners if unit==args[2]),None)
             return "MainPID="+str(row["pid"]if row else 0)+"\nActiveState="+("active"if row else"inactive")+"\nSubState="+("running"if row else"dead")+"\n"
         if args[:2]==["systemctl","stop"]and len(args)==3:
@@ -464,6 +490,7 @@ class RenderedGuestFixture:
             domain,unit,row=matches[0];proc=self.osroot/"proc"/str(row["pid"])
             require(proc.parent==self.osroot/"proc"and(proc/"cgroup").read_text().strip()=="0::/system.slice/"+unit,
                 "SERVICE_OS_STOP_CHANGED_PROCESS")
+            state["domains"][domain].setdefault("stoppedEndpoints",[]).append(copy.deepcopy(row))
             state["domains"][domain]["endpoints"]=[x for x in state["domains"][domain]["endpoints"]if x!=row]
             shutil.rmtree(proc);self.write_state(state)
             self.effects.append({"kind":"STATEFUL_OS_SERVICE_STOP","unit":unit,"pid":row["pid"],"privateFilesTouched":False})
@@ -720,14 +747,23 @@ class RenderedGuestFixture:
         endpoints=state["domains"].get("NVMEOF",{}).get("endpoints",[])
         result["nvmeofRuntime"]["listening"]=bool(endpoints)and all(self.tcp_fixture((x["listenIp"]if x["listenIp"]!="0.0.0.0"else"127.0.0.1",x["port"]))for x in endpoints)
         return result
-    def empty_source_nvme_products(self,payload):
-        # Only this fixture's verified-empty SOURCE is modeled. Both public
-        # identity capture and cleanup ownership remain the real Native code.
+    def empty_source_nvme_products(self,payload,allow_active_source=False):
+        # Public identity capture and cleanup ownership remain the real Native code.
+        # Active repeat coverage additionally requires the exact original live binding.
         activation=self.store.read_journal()
         source=self.store.generations/activation["previousOperationUuid"]
         self.store.inspect(source)
-        require(json.loads((source/"desired-state.json").read_text())["nvmeof-subsystems.json"]is None,
-                "OS_ONLY_EMPTY_NVME_SOURCE_SUPPORTED")
+        source_desired=json.loads((source/"desired-state.json").read_text())["nvmeof-subsystems.json"]
+        if source_desired is not None:
+            require(allow_active_source,"OS_ONLY_EMPTY_NVME_SOURCE_SUPPORTED")
+            manifest=self.store.inspect(source);generation=self.generation.status()["generation"]
+            require(all(manifest["scope"][key]==generation[key] for key in ("instanceUuid","operationUuid","revision"))
+                and manifest["configurationSha256"]==generation["configurationSha256"],"OS_ACTIVE_NVME_SOURCE_SCOPE_CHANGED")
+            source_bindings=self.nvme_identity_module.nvme_identity_bindings(source_desired,generation["instanceUuid"])
+            target_bindings=self.nvme_identity_module.nvme_identity_bindings(payload,generation["instanceUuid"])
+            require(source_bindings==target_bindings,"OS_ACTIVE_NVME_SOURCE_BINDINGS_CHANGED")
+            self.driver.runtime.verify(source,("NVMEOF",))
+
         def probe(binding,device):
             row=self.root_data({"volumes":[{"volumeUuid":binding["volumeUuid"],
                 "sizeBytes":binding["sizeBytes"],"kind":"RAW_DATA"}]})["volumes"][0]
@@ -856,38 +892,56 @@ class RenderedGuestFixture:
                              "manifestSha256":activation["previousSha256"],"nativeGenerationPromoted":False})
         return {"success":True,"fixtureServiceEffect":True,"runtimeGenerationWritten":False}
 
+    def retained_os_link(self,path,target):
+        if path.exists() or path.is_symlink():
+            require(path.is_symlink() and path.resolve(strict=True)==target.resolve(strict=True),"OS_EXISTING_LINK_IS_FOREIGN")
+        else:path.symlink_to(target)
+
     def kernel_apply(self,domain,payload,replay,replay_from):
         require(replay is not None and replay_from is not None,"OS_REPLAY_IMMUTABLE_PATHS_REQUIRED")
         replay=Path(replay);replay_from=Path(replay_from)
         manifest=self.store.inspect(replay);from_manifest=self.store.inspect(replay_from)
         journal=self.store.read_journal()
-        require(journal and journal["phase"]in("ACTIVATING","ROLLING_BACK"),
-                "OS_REPLAY_NOT_OWNED_ACTIVATION")
-        rollback=journal["phase"]=="ROLLING_BACK"
-        target,source=(from_manifest,manifest)if rollback else(manifest,from_manifest)
-        target_path,source_path=(replay_from,replay)if rollback else(replay,replay_from)
-        require(target["scope"]==journal["scope"]
-                and target["manifestSha256"]==journal["targetSha256"]
-                and source["manifestSha256"]==journal["previousSha256"]
-                and source["scope"]["operationUuid"]==journal["previousOperationUuid"]
-                and source["scope"]["instanceUuid"]==target["scope"]["instanceUuid"]
-                and type(source["scope"]["revision"])is int and type(target["scope"]["revision"])is int
-                and source["scope"]["revision"]<target["scope"]["revision"]
-                and target["previousRenderedSha256"]==source["manifestSha256"]
-                and target_path==self.store.generations/target["scope"]["operationUuid"]
-                and source_path==self.store.generations/source["scope"]["operationUuid"]
-                and self.store.pointer()==replay,"OS_REPLAY_NOT_OWNED_ACTIVATION")
+        source_resume=not journal or journal["phase"] not in ("ACTIVATING","ROLLING_BACK")
+        if source_resume:
+            checkpoint=self.maintenance.read(self.maintenance.root/"service-maintenance.json")
+            marker=self.maintenance.status();proof=json.loads(self.mapped_path("/run/ablestack-storage/rendered-authorization/writer.json").read_text())
+            require(domain in ("NFS","SMB") and replay==replay_from==self.store.pointer()
+                and checkpoint["sourceResumePhase"]=="REPLAYING" and domain in checkpoint["sourceResumeDomains"]
+                and checkpoint["sourceRendered"]==manifest==from_manifest and checkpoint["sourceActivation"]==journal
+                and checkpoint["sourceGeneration"]==self.generation.status()["generation"] and self.generation.status()["pendingOperationUuid"]is None
+                and marker["bootHeld"]is True and marker["maintenanceKind"]=="SERVICE" and marker["scope"]==checkpoint["scope"]
+                and proof["mode"]=="SERVICE_SOURCE_RESTORE" and proof["maintenanceScope"]==checkpoint["scope"]
+                and proof["sourceManifestSha256"]==manifest["manifestSha256"],"OS_REPLAY_NOT_OWNED_SERVICE_SOURCE_RESTORE")
+            rollback=False
+        else:
+            require(journal and journal["phase"]in("ACTIVATING","ROLLING_BACK"),
+                    "OS_REPLAY_NOT_OWNED_ACTIVATION")
+            rollback=journal["phase"]=="ROLLING_BACK"
+            target,source=(from_manifest,manifest)if rollback else(manifest,from_manifest)
+            target_path,source_path=(replay_from,replay)if rollback else(replay,replay_from)
+            require(target["scope"]==journal["scope"]
+                    and target["manifestSha256"]==journal["targetSha256"]
+                    and source["manifestSha256"]==journal["previousSha256"]
+                    and source["scope"]["operationUuid"]==journal["previousOperationUuid"]
+                    and source["scope"]["instanceUuid"]==target["scope"]["instanceUuid"]
+                    and type(source["scope"]["revision"])is int and type(target["scope"]["revision"])is int
+                    and source["scope"]["revision"]<target["scope"]["revision"]
+                    and target["previousRenderedSha256"]==source["manifestSha256"]
+                    and target_path==self.store.generations/target["scope"]["operationUuid"]
+                    and source_path==self.store.generations/source["scope"]["operationUuid"]
+                    and self.store.pointer()==replay,"OS_REPLAY_NOT_OWNED_ACTIVATION")
         expected=self.driver.runtime.payload(replay,domain,rollback)
         require(payload==expected,"OS_REPLAY_REQUEST_DIFFERS_FROM_REAL_IMMUTABLE_PAYLOAD")
         if rollback and json.loads((replay/"desired-state.json").read_text())[
                 self.runtime_module.PROTOCOL_FILES[domain]]is None:
             return self.cleanup_empty_rendered_source(domain,payload,replay,replay_from)
         state=self.os_state();record={"manifestSha256":manifest["manifestSha256"],"endpoints":[]}
-        if domain=="NVMEOF":cleanup,identity=self.empty_source_nvme_products(payload)
+        if domain=="NVMEOF":cleanup,identity=self.empty_source_nvme_products(payload,allow_active_source=True)
         if domain=="NFS":
             data=json.loads((replay/"nfs/manifest.json").read_text())
             old=state["domains"].get(domain,{})
-            owned={r["file"]for r in old.get("endpoints",[])}
+            owned={r["file"]for r in [*old.get("endpoints",[]),*old.get("stoppedEndpoints",[])]}
             require({p.name for p in self.driver.nfs_config_root.iterdir()}<=owned,"OS_FOREIGN_NFS_CONFIG")
             for name in owned:(self.driver.nfs_config_root/name).unlink(missing_ok=True)
             for index,endpoint in enumerate(data["endpoints"]):
@@ -907,7 +961,7 @@ class RenderedGuestFixture:
                 record["endpoints"].append({"listenIp":endpoint["listenIp"],"port":endpoint["port"],
                     "file":name,"pid":pid,"exports":policy["exports"]})
         elif domain=="SMB":
-            self.apply_samba_accounts(payload,manifest)
+            self.apply_samba_accounts(payload,manifest,retain_existing=source_resume)
             data=json.loads((replay/"smb/manifest.json").read_text())
             source=replay/"smb/smb.conf";target=self.osroot/"etc/samba/smb.conf"
             target.write_bytes(source.read_bytes());target.chmod(0o600)
@@ -921,24 +975,30 @@ class RenderedGuestFixture:
         else:
             data=json.loads((replay/("block/iscsi-plan.json"if domain=="ISCSI"else"block/nvmeof-plan.json")).read_text())
             root=self.driver.runtime.iscsi_root if domain=="ISCSI"else self.driver.runtime.nvme_root/"subsystems"
-            require(not any(root.iterdir()),"OS_BLOCK_REPLAY_EXPECTS_INITIAL_EMPTY_NAMESPACE")
+            if any(root.iterdir()):
+                previous_plan=json.loads((replay_from/("block/iscsi-plan.json"if domain=="ISCSI"else"block/nvmeof-plan.json")).read_text())
+                require({path.name for path in root.iterdir()}=={row["targetName"] for row in previous_plan["targets"]}
+                    =={row["targetName"] for row in data["targets"]},"OS_BLOCK_RECONCILE_FOREIGN_OR_CHANGED_RESOURCE_SET")
+                # Physical configfs and backing identities must agree before the explicit OS model reconciles them.
+                self.driver.runtime.verify(replay_from,(domain,))
+
             for target in data["targets"]:
-                base=root/target["targetName"];base.mkdir(mode=0o700)
+                base=root/target["targetName"];base.mkdir(mode=0o700,exist_ok=True)
                 if domain=="ISCSI":
                     require(all(not a["config"].get("chapEnabled")and not a["config"].get("mutualChapEnabled")for a in target["acls"]),
                             "OS_AUTHENTICATED_ISCSI_NOT_IMPLEMENTED")
                     tpgt=base/"tpgt_1"
-                    for part in("acls","np","lun","attrib"):(tpgt/part).mkdir(parents=True,mode=0o700)
+                    for part in("acls","np","lun","attrib"):(tpgt/part).mkdir(parents=True,mode=0o700,exist_ok=True)
                     (tpgt/"attrib/authentication").write_text("0\n")
-                    for endpoint in target["listeners"]:(tpgt/"np"/(endpoint["listenIp"]+":"+str(endpoint["port"]))).mkdir(mode=0o700)
+                    for endpoint in target["listeners"]:(tpgt/"np"/(endpoint["listenIp"]+":"+str(endpoint["port"]))).mkdir(mode=0o700,exist_ok=True)
                     for acl in target["acls"]:
-                        auth=tpgt/"acls"/acl["principal"]/"auth";auth.mkdir(parents=True,mode=0o700)
+                        auth=tpgt/"acls"/acl["principal"]/"auth";auth.mkdir(parents=True,mode=0o700,exist_ok=True)
                         for name in("userid","userid_mutual","password","password_mutual"):(auth/name).write_text("")
                     for backing in target["backstores"]:
-                        lun=tpgt/"lun"/("lun_"+str(backing["number"]));lun.mkdir(mode=0o700)
+                        lun=tpgt/"lun"/("lun_"+str(backing["number"]));lun.mkdir(mode=0o700,exist_ok=True)
                         storage=self.osroot/"sys/kernel/config/target/core/iblock_0"/("ablestack-"+target["uuid"])
-                        storage.mkdir(parents=True,mode=0o700);(storage/"udev_path").write_text(backing["devicePath"])
-                        (lun/"backstore").symlink_to(storage)
+                        storage.mkdir(parents=True,mode=0o700,exist_ok=True);(storage/"udev_path").write_text(backing["devicePath"])
+                        self.retained_os_link(lun/"backstore",storage)
                 else:
                     require(all(not a["config"].get("dhChapEnabled")and not a["config"].get("dhChapCtrlEnabled")for a in target["acls"]),
                             "OS_AUTHENTICATED_NVME_NOT_IMPLEMENTED")
@@ -946,14 +1006,14 @@ class RenderedGuestFixture:
                     (base/"attr_model").write_text("SYNTHETIC_OS_NVMET")
                     identity.restore_subsystem(next(row for row in payload["subsystems"]if row["targetName"]==target["targetName"]))
                     (base/"attr_allow_any_host").write_text("1\n"if target["allowAnyHost"]else"0\n")
-                    for part in("allowed_hosts","namespaces"):(base/part).mkdir(mode=0o700)
+                    for part in("allowed_hosts","namespaces"):(base/part).mkdir(mode=0o700,exist_ok=True)
                     for acl in target["acls"]:
                         host=self.driver.runtime.nvme_root/"hosts"/acl["principal"];created=not host.exists()
                         host.mkdir(exist_ok=True,mode=0o700)
                         if created:cleanup.created_host(acl["principal"])
-                        (base/"allowed_hosts"/acl["principal"]).symlink_to(host)
+                        self.retained_os_link(base/"allowed_hosts"/acl["principal"],host)
                     for backing in target["backstores"]:
-                        namespace=base/"namespaces"/str(backing["number"]);namespace.mkdir(mode=0o700)
+                        namespace=base/"namespaces"/str(backing["number"]);namespace.mkdir(mode=0o700,exist_ok=True)
                         (namespace/"enable").write_text("0\n");(namespace/"device_path").write_text(backing["devicePath"])
                         (namespace/"device_uuid").write_text(backing["volumeUuid"])
                         (namespace/"device_nguid").write_text(backing["volumeUuid"])
@@ -968,12 +1028,12 @@ class RenderedGuestFixture:
                         if matched:require(len(matched)==1,"OS_NVME_DUPLICATE_PORT");port=matched[0]
                         else:
                             key=next(str(n)for n in range(1,4096)if not(ports/str(n)).exists())
-                            port=ports/key;port.mkdir(mode=0o700);(port/"subsystems").mkdir(mode=0o700)
+                            port=ports/key;port.mkdir(mode=0o700,exist_ok=True);(port/"subsystems").mkdir(mode=0o700,exist_ok=True)
                             for field,value in (("addr_trtype","tcp"),("addr_adrfam","ipv4"),
                                     ("addr_traddr",endpoint["listenIp"]),("addr_trsvcid",str(endpoint["port"]))):
                                 (port/field).write_text(value)
                             cleanup.created_port(key,(endpoint["listenIp"],endpoint["port"]))
-                        (port/"subsystems"/target["targetName"]).symlink_to(base)
+                        self.retained_os_link(port/"subsystems"/target["targetName"],base)
                 for endpoint in target["listeners"]:
                     if endpoint not in record["endpoints"]:record["endpoints"].append(copy.deepcopy(endpoint))
         if domain=="NVMEOF":
@@ -1032,8 +1092,23 @@ class RenderedGuestFixture:
                  ("iscsi","target","apply"):"ISCSI",("nvmeof","subsystem","apply"):"NVMEOF"}
         if command==("nvmeof","subsystem","apply","/dev/stdin"):
             require(not kwargs,"OS_DIRECT_NVME_CLEANUP_HAS_RENDERED_KWARGS")
-            return self.cleanup_missing_replay(payload)
-        if command in applies:return self.kernel_apply(applies[command],payload,kwargs.get("replay"),kwargs.get("replay_from"))
+            try:return self.cleanup_missing_replay(payload)
+            except Exception as error:
+                message=str(error).replace("fixture-secret","[SYNTHETIC_CREDENTIAL_REDACTED]")[:512]
+                if "PRIVATE KEY" in message or "ciphertext" in message or "wrappedKey" in message:message="PRIVATE_SYNTHETIC_DETAIL_REDACTED"
+                self.effects.append({"kind":"OS_RUNTIME_FAILURE","protocol":"NVMEOF","boundary":"EMPTY_SOURCE_CLEANUP","exceptionClass":type(error).__name__,"syntheticMessage":message,
+                    "safeLocations":[{"file":self.original_path(frame.filename).name,"function":frame.name,"line":frame.lineno}
+                        for frame in traceback.extract_tb(error.__traceback__)]})
+                raise
+        if command in applies:
+            try:return self.kernel_apply(applies[command],payload,kwargs.get("replay"),kwargs.get("replay_from"))
+            except Exception as error:
+                message=str(error).replace("fixture-secret","[SYNTHETIC_CREDENTIAL_REDACTED]")[:512]
+                if "PRIVATE KEY" in message or "ciphertext" in message or "wrappedKey" in message:message="PRIVATE_SYNTHETIC_DETAIL_REDACTED"
+                self.effects.append({"kind":"OS_RUNTIME_FAILURE","protocol":applies[command],"exceptionClass":type(error).__name__,"syntheticMessage":message,
+                    "safeLocations":[{"file":self.original_path(frame.filename).name,"function":frame.name,"line":frame.lineno}
+                        for frame in traceback.extract_tb(error.__traceback__)]})
+                raise
         if command==("network","endpoints","reconcile"):
             canonical=self.generation.files()["network-endpoints.json"]or{"endpoints":[]}
             proof=self.network_inspect({**canonical,"expectedBindings":payload["expectedBindings"]})
@@ -1104,21 +1179,33 @@ class RenderedGuestFixture:
         # The existing CLI generic export branch, restricted to this exact
         # non-AD, no-managed-principals SOURCE request. No LOCAL/SERVICE receipt
         # is invented and no machine SID/SAM is initialized for collection.
-        require(type(request)is dict and set(request)=={"instanceUuid","operationUuid","publicKey","names","nvmeHosts"}
-                and request["names"]==[]and request["nvmeHosts"]==[],"EXACT_EMPTY_GENERIC_EXPORT_REQUEST_REQUIRED")
+        service_scope=None
+        if "maintenanceUuid" in request:
+            require(set(request)=={"instanceUuid","operationUuid","maintenanceUuid","revision","publicKey","names","nvmeHosts","sourceConfigurationSha256","includePosixPolicyReceipts"},"EXACT_SERVICE_EXPORT_REQUEST_REQUIRED")
+            service_scope={key:request[key] for key in ("instanceUuid","operationUuid","maintenanceUuid","revision")}
+        else:
+            require(type(request)is dict and set(request)=={"instanceUuid","operationUuid","publicKey","names","nvmeHosts"}
+                    and request["names"]==[]and request["nvmeHosts"]==[],"EXACT_EMPTY_GENERIC_EXPORT_REQUEST_REQUIRED")
         scope=str(request.get("instanceUuid")or"")+":"+str(request.get("operationUuid")or"")
         require(re.fullmatch(r"[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}",scope),"Identity capsule request scope is invalid")
         domain_path=self.mapped_path("/etc/ablestack-storage/smb-domain.json")
         domain=json.loads(domain_path.read_text())if domain_path.exists()else{}
         require(str(domain.get("joinState")or domain.get("state")or"").upper()!="JOINED",
                 "Joined AD RAW export requires typed SERVICE or ROOT AFTERSTOP source authority")
-        payload=self.capsule_module.collect(request["names"],request["nvmeHosts"])
+        source=self.driver.execute("render-service-identity-export-source",service_scope) if service_scope else None
+        if source is not None:
+            require(source["sourceConfigurationSha256"]==request["sourceConfigurationSha256"],"SERVICE_EXPORT_SOURCE_CHANGED")
+            payload=self.capsule_module.collect(request["names"],request["nvmeHosts"],ad_identity=source["adIdentity"],posix_policies=source["posixPolicies"])
+            payload["sourceConfigurationSha256"]=source["sourceConfigurationSha256"]
+            require(source==self.driver.execute("render-service-identity-export-source",service_scope),"SERVICE_EXPORT_STOPPED_SOURCE_CHANGED")
+        else:payload=self.capsule_module.collect(request["names"],request["nvmeHosts"])
         self.capsule_module.validate_payload(payload)
         capsule=self.capsule_module.encrypt(payload,request["publicKey"],scope)
-        return {"success":True,"capsule":capsule,"rootIdentityReference":None,"serviceIdentityCheckpoint":None}
+        reference=importlib.import_module("service_identity_cipher").ServiceIdentityCipher(self.maintenance.root).retain(request,capsule,source) if source else None
+        return {"success":True,"capsule":capsule,"rootIdentityReference":None,"serviceIdentityCheckpoint":reference}
 
     def execute(self, action, request=None):
-        require(action in ("render-status","render-import","render-stage","export-identity","export-local-source","local-source-status",
+        require(action in ("render-status","render-import","render-stage","render-service-capture-source","render-service-source-unheld-verify","render-service-identity-export-source","export-identity","export-local-source","local-source-status",
                                     "service-enter","service-status","service-release","reservation-status","render-activate","render-finalize","render-rollback","render-maintenance-resume-source","render-maintenance-verify","observe","inventory","verify","health","writer-idle"),
                 "RENDERED_ACTION_NOT_IMPLEMENTED")
         previous=dict(os.environ)
@@ -1146,21 +1233,29 @@ class RenderedGuestFixture:
                     return module.ResourceReservation(self.case/"resource-reservation",self.generation.root,
                         boot_id=self.generation.status()["bootId"],maintenance=self.maintenance.marker).status()
                 if action in ("service-enter","service-release"):
-                    with self.actual_writer_lock():
+                    with self.local_os_boundary(),self.actual_writer_lock():
                         return self.service.enter(request) if action=="service-enter" else self.service.release(request)
                 if action=="export-identity":
-                    with self.local_os_boundary():return self.export_generic_identity(request)
+                    with self.local_os_boundary(),self.actual_writer_lock():return self.export_generic_identity(request)
                 if action in ("export-local-source","local-source-status"):
                     with self.local_os_boundary():
                         if action=="local-source-status":return self.local.status(request)
                         with self.actual_writer_lock():return self.local.export(request)
                 if action=="render-rollback":
                     with self.local_os_boundary(),self.actual_writer_lock():return self.driver.execute(action,request)
-                if action in ("render-stage","render-activate","render-finalize","render-maintenance-resume-source"):
+                if action in ("render-stage","render-activate","render-finalize","render-maintenance-resume-source","render-service-capture-source","render-service-source-unheld-verify","render-service-identity-export-source"):
                     with self.local_os_boundary(),self.actual_writer_lock():return self.driver.execute(action,request)
                 return self.driver.execute(action,request)
         except Exception as error:
-            self.effects.append({"kind":"SAFE_REAL_ENGINE_EXCEPTION","exceptionClass":type(error).__name__,
+            contexts=[];current=error.__context__;seen={id(error)}
+            while current is not None and id(current) not in seen and len(contexts)<6:
+                seen.add(id(current));message=str(current).replace("fixture-secret","[SYNTHETIC_CREDENTIAL_REDACTED]")[:512]
+                if "PRIVATE KEY" in message or "ciphertext" in message or "wrappedKey" in message:message="PRIVATE_SYNTHETIC_DETAIL_REDACTED"
+                contexts.append({"exceptionClass":type(current).__name__,"syntheticMessage":message,
+                    "safeLocations":[{"file":self.original_path(frame.filename).name,"function":frame.name,"line":frame.lineno}
+                        for frame in traceback.extract_tb(current.__traceback__)]})
+                current=current.__context__
+            self.effects.append({"kind":"SAFE_REAL_ENGINE_EXCEPTION","exceptionClass":type(error).__name__,"contexts":contexts,
                 "safeLocations":[{"file":self.original_path(frame.filename).name,"function":frame.name,"line":frame.lineno}
                     for frame in traceback.extract_tb(error.__traceback__)]})
             raise

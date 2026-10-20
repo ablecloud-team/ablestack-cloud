@@ -166,6 +166,33 @@ public final class StorageConfigDomainRestore {
             StorageConfigCommandBinding.bind(command.type, parameters);
         }
     }
+    private void retainKeptCredentials(StorageServiceInstanceVO instance, JsonObject plan, Map<String, Long> mapped,
+            Map<String, JsonObject> owners, Map<String, String> kinds, JsonObject credentials) {
+        Set<Long> retained = new java.util.HashSet<>();
+        for (JsonElement item : plan.getAsJsonArray("keep")) {
+            JsonObject change = item.getAsJsonObject();
+            if (!"access-rules".equals(text(change, "kind"))) continue;
+            JsonObject desired = change.getAsJsonObject("desired");String source = text(desired, "uuid");
+            if (source == null || !credentials.has(source)) continue;
+            if (!source.equals(text(change, "sourceUuid")) || !"KEEP".equals(text(change, "action"))
+                    || text(change, "targetUuid") == null || mapped.get(source) == null || !retained.add(mapped.get(source)))
+                throw new InvalidParameterValueException("Retained configuration credential ACL mapping is ambiguous");
+            String ownerSource = text(desired, "resourceUuid");JsonObject resource = owners.get(ownerSource);
+            if (resource == null || ownerSource == null || !ownerSource.equals(text(resource, "uuid")) || mapped.get(ownerSource) == null)
+                throw new InvalidParameterValueException("Retained configuration credential owner mapping is unavailable");
+            String protocol = text(resource, "protocol"), principalType = text(desired, "principal_type");
+            boolean file = "SMB".equals(protocol) && "LOCAL_USER".equals(principalType)
+                    && "FILE_SHARE".equals(text(desired, "resource_type")) && "file-shares".equals(kinds.get(ownerSource));
+            boolean block = ("ISCSI".equals(protocol) && "ISCSI_INITIATOR_IQN".equals(principalType)
+                    || "NVME_OF".equals(protocol) && "NVME_HOST_NQN".equals(principalType))
+                    && "BLOCK_TARGET".equals(text(desired, "resource_type")) && "block-targets".equals(kinds.get(ownerSource));
+            if ((!file && !block) || !credentials.get(source).isJsonObject())
+                throw new InvalidParameterValueException("Retained configuration credential resource type is unsupported");
+            manager.retainConfigurationRestoreCredentials(instance, mapped.get(source), mapped.get(ownerSource), protocol,
+                    desired.deepCopy(), credentials.getAsJsonObject(source).deepCopy());
+        }
+    }
+
     public void apply(StorageServiceInstanceVO instance, JsonObject plan, JsonObject credentials) {
         if (plan.getAsJsonArray("blockers").size() > 0 || !instance.getUuid().equals(text(plan, "targetInstanceUuid"))) {
             throw new InvalidParameterValueException("Configuration restore plan is blocked or changed scope");
@@ -177,11 +204,11 @@ public final class StorageConfigDomainRestore {
         validateBindings(plan);
         JsonObject protocolBefore=manager.configurationProtocolIntentSnapshot(instance);
         Map<String, Long> currentIds = manager.configurationResourceIds(instance.getId());
-        Map<String, Long> mapped = new HashMap<>();Map<String, JsonObject> owners = new HashMap<>();
+        Map<String, Long> mapped = new HashMap<>();Map<String, JsonObject> owners = new HashMap<>();Map<String, String> kinds = new HashMap<>();
         JsonArray changes = new JsonArray();
         for (String action : new String[] {"keep", "update", "create"}) for (JsonElement item : plan.getAsJsonArray(action)) {
             JsonObject change = item.getAsJsonObject();changes.add(change);JsonObject desired = change.getAsJsonObject("desired");
-            owners.put(text(change, "sourceUuid"), desired);
+            owners.put(text(change, "sourceUuid"), desired);kinds.put(text(change, "sourceUuid"), text(change, "kind"));
             String target = text(change, "targetUuid");if (target != null) {
                 Long id = currentIds.get(target);if (id == null) throw new InvalidParameterValueException("Mapped configuration resource disappeared");
                 mapped.put(text(change, "sourceUuid"), id);
@@ -217,6 +244,7 @@ public final class StorageConfigDomainRestore {
                     if (prepared.add(mappedVolume + ":" + relative)) manager.prepareConfigurationDirectory(instance, mappedVolume, relative);
                 }
             }
+            retainKeptCredentials(instance, plan, mapped, owners, kinds, credentials);
             for (String kind : new String[] {"protocols", "posix-directory-policies", "file-shares", "block-targets", "access-rules"}) {
                 java.util.List<JsonElement> ordered = new java.util.ArrayList<>();
                 for (JsonElement item : changes) ordered.add(item);

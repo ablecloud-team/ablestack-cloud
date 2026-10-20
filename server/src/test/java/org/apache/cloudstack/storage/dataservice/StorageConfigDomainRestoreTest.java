@@ -98,6 +98,126 @@ public class StorageConfigDomainRestoreTest {
         StorageServiceManagerImpl manager=Mockito.mock(StorageServiceManagerImpl.class);StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);Mockito.when(instance.getUuid()).thenReturn("11111111-1111-1111-1111-111111111111");JsonObject plan=authenticatedPlan(),acl=new JsonObject(),change=new JsonObject();acl.addProperty("uuid","44444444-4444-4444-4444-444444444444");acl.addProperty("principal_type","LOCAL_USER");acl.addProperty("principal","alice");change.addProperty("kind","access-rules");change.add("desired",acl);plan.getAsJsonArray("create").add(change);JsonObject credentials=new JsonObject(),password=new JsonObject();password.addProperty("password","synthetic-forbidden");credentials.add(acl.get("uuid").getAsString(),password);
         Assert.assertThrows(InvalidParameterValueException.class,()->new StorageConfigDomainRestore(manager).apply(instance,plan,credentials));Mockito.verifyNoInteractions(manager);
     }
+    private static final String RETAINED_INSTANCE = "11111111-1111-4111-8111-111111111111";
+    private static final String RETAINED_SOURCE_OWNER = "22222222-2222-4222-8222-222222222222";
+    private static final String RETAINED_SOURCE_RULE = "33333333-3333-4333-8333-333333333333";
+    private static final String RETAINED_TARGET_OWNER = "44444444-4444-4444-8444-444444444444";
+    private static final String RETAINED_TARGET_RULE = "55555555-5555-4555-8555-555555555555";
+
+    private JsonObject retainedCredentialPlan(String protocol) {
+        JsonObject result = new JsonObject();
+        for (String action : new String[] {"create", "update", "keep", "preserve", "blockers"}) result.add(action, new JsonArray());
+        result.addProperty("targetInstanceUuid", RETAINED_INSTANCE);result.addProperty("targetMode", "RESTORE_EXISTING");
+        result.add("volumeMappings", new JsonObject());
+        JsonObject resource = new JsonObject();resource.addProperty("uuid", RETAINED_SOURCE_OWNER);resource.addProperty("protocol", protocol);
+        JsonObject owner = new JsonObject();owner.addProperty("kind", "SMB".equals(protocol) ? "file-shares" : "block-targets");
+        owner.addProperty("sourceUuid", RETAINED_SOURCE_OWNER);owner.addProperty("targetUuid", RETAINED_TARGET_OWNER);
+        owner.addProperty("action", "KEEP");owner.add("desired", resource);result.getAsJsonArray("keep").add(owner);
+        JsonObject rule = new JsonObject();rule.addProperty("uuid", RETAINED_SOURCE_RULE);rule.addProperty("resourceUuid", RETAINED_SOURCE_OWNER);
+        rule.addProperty("resource_type", "SMB".equals(protocol) ? "FILE_SHARE" : "BLOCK_TARGET");
+        rule.addProperty("principal_type", "SMB".equals(protocol) ? "LOCAL_USER" : "ISCSI".equals(protocol) ? "ISCSI_INITIATOR_IQN" : "NVME_HOST_NQN");
+        rule.addProperty("principal", "SMB".equals(protocol) ? "alice" : "ISCSI".equals(protocol) ? "iqn.2026-10.local.test:client" : "nqn.2026-10.local.test:client");
+        rule.addProperty("permission", "READ_WRITE");rule.addProperty("state", "Ready");JsonObject config = new JsonObject();
+        if ("SMB".equals(protocol)) config.addProperty("localAccount", true);
+        else if ("ISCSI".equals(protocol)) {config.addProperty("chapEnabled", true);config.addProperty("chapUsername", "alice");}
+        else config.addProperty("dhChapEnabled", true);
+        rule.add("config", config);
+        JsonObject change = new JsonObject();change.addProperty("kind", "access-rules");change.addProperty("action", "KEEP");
+        change.addProperty("sourceUuid", RETAINED_SOURCE_RULE);change.addProperty("targetUuid", RETAINED_TARGET_RULE);change.add("desired", rule);
+        result.getAsJsonArray("keep").add(change);return result;
+    }
+
+    private JsonObject retainedCredentialValues(String protocol) {
+        JsonObject values = new JsonObject(), credentials = new JsonObject();
+        values.addProperty("SMB".equals(protocol) ? "password" : "ISCSI".equals(protocol) ? "chapsecret" : "dhchapkey", "synthetic-retained-input");
+        credentials.add(RETAINED_SOURCE_RULE, values);return credentials;
+    }
+
+    private StorageServiceManagerImpl retainedCredentialManager() {
+        StorageServiceManagerImpl manager = Mockito.mock(StorageServiceManagerImpl.class);
+        Mockito.when(manager.configurationResourceIds(7L)).thenReturn(java.util.Map.of(RETAINED_TARGET_OWNER, 10L, RETAINED_TARGET_RULE, 20L));
+        return manager;
+    }
+
+    private StorageServiceInstanceVO retainedCredentialInstance() {
+        StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getId()).thenReturn(7L);Mockito.when(instance.getUuid()).thenReturn(RETAINED_INSTANCE);return instance;
+    }
+
+    @Test public void keptLocalChapAndDhchapCredentialsReachTheirMappedTransientAclWithoutCrud() {
+        for (String protocol : new String[] {"SMB", "ISCSI", "NVME_OF"}) {
+            StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+            JsonObject plan = retainedCredentialPlan(protocol), credentials = retainedCredentialValues(protocol);
+            JsonObject originalPlan = plan.deepCopy(), originalCredentials = credentials.deepCopy();
+            JsonObject desired = plan.getAsJsonArray("keep").get(1).getAsJsonObject().getAsJsonObject("desired");
+            new StorageConfigDomainRestore(manager).apply(instance, plan, credentials);
+            org.mockito.InOrder order = Mockito.inOrder(manager);
+            order.verify(manager).beginConfigurationBatch(7L);
+            order.verify(manager).retainConfigurationRestoreCredentials(instance, 20L, 10L, protocol, desired, credentials.getAsJsonObject(RETAINED_SOURCE_RULE));
+            order.verify(manager).finishConfigurationBatch(instance);
+            Mockito.verify(manager, Mockito.never()).invokeConfigurationDomainCommand(Mockito.any(), Mockito.anyString());
+            Assert.assertEquals(originalPlan, plan);Assert.assertEquals(originalCredentials, credentials);
+        }
+    }
+
+    @Test public void keptCredentialTransferSkipsRulesWithoutReenteredInputs() {
+        StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+        new StorageConfigDomainRestore(manager).apply(instance, retainedCredentialPlan("SMB"), new JsonObject());
+        Mockito.verify(manager, Mockito.never()).retainConfigurationRestoreCredentials(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify(manager).finishConfigurationBatch(instance);
+    }
+
+    @Test public void keptCredentialSourceOwnerAndResourceTypeMismatchAbortBeforeCredentialTransfer() {
+        for (String fault : new String[] {"source", "owner", "kind", "principal", "resourceType", "action", "input"}) {
+            StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+            JsonObject plan = retainedCredentialPlan("SMB"), credentials = retainedCredentialValues("SMB");
+            JsonObject owner = plan.getAsJsonArray("keep").get(0).getAsJsonObject(), change = plan.getAsJsonArray("keep").get(1).getAsJsonObject();
+            JsonObject desired = change.getAsJsonObject("desired");
+            if ("source".equals(fault)) change.addProperty("sourceUuid", "66666666-6666-4666-8666-666666666666");
+            if ("owner".equals(fault)) desired.addProperty("resourceUuid", "66666666-6666-4666-8666-666666666666");
+            if ("kind".equals(fault)) owner.addProperty("kind", "protocols");
+            if ("principal".equals(fault)) desired.addProperty("principal_type", "AD_USER");
+            if ("resourceType".equals(fault)) desired.addProperty("resource_type", "BLOCK_TARGET");
+            if ("action".equals(fault)) change.addProperty("action", "UPDATE");
+            if ("input".equals(fault)) credentials.addProperty(RETAINED_SOURCE_RULE, "synthetic-wrong-type");
+            Assert.assertThrows(InvalidParameterValueException.class, () -> new StorageConfigDomainRestore(manager).apply(instance, plan, credentials));
+            Mockito.verify(manager, Mockito.never()).retainConfigurationRestoreCredentials(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(), Mockito.any(), Mockito.any());
+            Mockito.verify(manager, Mockito.never()).finishConfigurationBatch(Mockito.any());
+            Mockito.verify(manager, Mockito.never()).invokeConfigurationDomainCommand(Mockito.any(), Mockito.anyString());
+            Mockito.verify(manager).abortConfigurationBatch();
+        }
+    }
+
+    @Test public void twoReviewedSourceCredentialsCannotOverwriteTheSameTargetAcl() {
+        StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+        JsonObject plan = retainedCredentialPlan("SMB"), credentials = retainedCredentialValues("SMB");
+        String other = "66666666-6666-4666-8666-666666666666";
+        JsonObject duplicate = plan.getAsJsonArray("keep").get(1).getAsJsonObject().deepCopy();
+        duplicate.addProperty("sourceUuid", other);duplicate.getAsJsonObject("desired").addProperty("uuid", other);
+        plan.getAsJsonArray("keep").add(duplicate);credentials.add(other, credentials.getAsJsonObject(RETAINED_SOURCE_RULE).deepCopy());
+        Assert.assertThrows(InvalidParameterValueException.class, () -> new StorageConfigDomainRestore(manager).apply(instance, plan, credentials));
+        Mockito.verify(manager, Mockito.times(1)).retainConfigurationRestoreCredentials(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.verify(manager, Mockito.never()).finishConfigurationBatch(Mockito.any());Mockito.verify(manager).abortConfigurationBatch();
+        Mockito.verify(manager, Mockito.never()).invokeConfigurationDomainCommand(Mockito.any(), Mockito.anyString());
+    }
+
+    @Test public void keptCredentialFailureAbortsWithoutFinishingOrChangingTheReviewedPlan() {
+        StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+        JsonObject plan = retainedCredentialPlan("ISCSI"), credentials = retainedCredentialValues("ISCSI"), original = plan.deepCopy();
+        Mockito.doThrow(new InvalidParameterValueException("Current authentication policy differs"))
+                .when(manager).retainConfigurationRestoreCredentials(Mockito.any(), Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Assert.assertThrows(InvalidParameterValueException.class, () -> new StorageConfigDomainRestore(manager).apply(instance, plan, credentials));
+        Mockito.verify(manager, Mockito.never()).finishConfigurationBatch(Mockito.any());Mockito.verify(manager).abortConfigurationBatch();
+        Assert.assertEquals(original, plan);
+    }
+
+    @Test public void encryptedSourceKeepStillRejectsLocalCredentialReplacementBeforeAnyManagerEffect() {
+        StorageServiceManagerImpl manager = retainedCredentialManager();StorageServiceInstanceVO instance = retainedCredentialInstance();
+        JsonObject plan = retainedCredentialPlan("SMB");plan.add("adIdentitySourceDescriptor", new JsonObject());
+        Assert.assertThrows(InvalidParameterValueException.class, () -> new StorageConfigDomainRestore(manager).apply(instance, plan, retainedCredentialValues("SMB")));
+        Mockito.verifyNoInteractions(manager);
+    }
+
     private static class ConsentManager extends StorageServiceManagerImpl {
         @Override protected void requireStorageAdIdentityFeatures(StorageServiceInstanceVO instance) { }
     }

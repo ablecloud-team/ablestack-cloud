@@ -289,7 +289,7 @@ class ServiceMaintenance:
         if journal is not None and status["bootHeld"] and journal.get("scope")!=status["scope"]:raise ValueError("SERVICE journal scope differs from its boot hold")
         return {**status,"serviceMaintenanceSupported":True,"drainSupported":False,"phase":journal.get("phase") if journal and status["bootHeld"] else None,
                 "stoppedUnits":journal.get("stoppedUnits",[]) if journal and status["bootHeld"] else [],
-                **({key:journal[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid","bootId") if key in journal} if journal and status["bootHeld"] else {})}
+                **({key:journal[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid","bootId","localSamAbsentSha256") if key in journal} if journal and status["bootHeld"] else {})}
 
     def enter(self,request):
         desired=self.fence(request);status=self.maintenance.status()
@@ -340,6 +340,7 @@ class ServiceMaintenance:
                 if stopped.get("scope")!=desired or stopped.get("serviceSourceStoppedVerified") is not True or not re.fullmatch("[0-9a-f]{64}",str(stopped.get("stoppedReceiptSha256"))):
                     raise ValueError("SERVICE identity source lacks its protected AFTERSTOP receipt")
                 journal.update({key:stopped[key] for key in ("serviceSourceStoppedVerified","stoppedReceiptSha256","sourceGeneration","sourceConfigurationSha256","publicAdPreStopSha256","publicLocalMachineSid","bootId")})
+                if "localSamAbsentSha256" in stopped:journal["localSamAbsentSha256"]=stopped["localSamAbsentSha256"]
                 self.maintenance.write(self.journal,journal)
             return self.status(request)
         except Exception:

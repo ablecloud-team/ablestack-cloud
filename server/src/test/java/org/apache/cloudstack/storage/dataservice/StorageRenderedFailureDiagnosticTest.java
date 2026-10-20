@@ -141,6 +141,37 @@ public class StorageRenderedFailureDiagnosticTest {
             + "[runtimeSchemaVersion=1; protocol=GENERATION; phase=TRANSPORT; code=NATIVE_CHILD_INPUT_UNAVAILABLE]", error.getMessage());
         Assert.assertFalse(error.getMessage().contains(PRIVATE));Assert.assertNull(error.getCause());
     }
+    @Test public void closedStageFailuresAreAcceptedOnlyForTheGenerationStageAction() {
+        for(String code:java.util.List.of("STAGE_INPUT_INVALID","STAGE_CREDENTIAL_BINDING_FAILED","STAGE_RENDER_FAILED",
+                "STAGE_SOURCE_SCOPE_MISMATCH","STAGE_SOURCE_VERIFY_FAILED","STAGE_SOURCE_IDENTITY_FAILED","STAGE_CANDIDATE_VALIDATION_FAILED")) {
+            String body=runtimeFailure("GENERATION",code,"STAGE");
+            Assert.assertTrue(rejected(body,PRIVATE).contains("protocol=GENERATION; phase=STAGE; code="+code));
+            Assert.assertEquals("Rendered generation stage failed; inspect its scoped recovery receipt",rejected(runtimeFailure("SMB",code,"STAGE"),PRIVATE));
+            CloudRuntimeException other=Assert.assertThrows(CloudRuntimeException.class,()->runtime(false,body,PRIVATE,"activate").render("activate",new JsonObject()));
+            Assert.assertEquals("Rendered generation activate failed; inspect its scoped recovery receipt",other.getMessage());
+        }
+    }
+
+    @Test public void safeStageDiagnosticIsPersistedOnlyInsideItsOriginalWriterScope() {
+        StorageServiceManagerImpl manager=new StorageServiceManagerImpl();StorageServiceInstanceVO instance=Mockito.mock(StorageServiceInstanceVO.class);
+        Mockito.when(instance.getId()).thenReturn(7L);Mockito.when(instance.getUuid()).thenReturn("11111111-1111-4111-8111-111111111111");Mockito.when(instance.getVmId()).thenReturn(42L);
+        StorageServiceOperationVO operation=new StorageServiceOperationVO();ReflectionTestUtils.setField(operation,"id",9L);operation.setInstanceId(7);operation.setRevision(3);
+        operation.setPreviousSnapshotJson("{}");operation.setResultJson("{\"_requestFingerprint\":\"original-intent\"}");
+        var dao=Mockito.mock(org.apache.cloudstack.storage.dataservice.dao.StorageServiceOperationDao.class);Mockito.when(dao.update(Mockito.eq(9L),Mockito.any())).thenReturn(true);
+        ReflectionTestUtils.setField(manager,"storageOperationDao",dao);
+        @SuppressWarnings("unchecked") ThreadLocal<StorageServiceOperationVO> writer=(ThreadLocal<StorageServiceOperationVO>)ReflectionTestUtils.getField(manager,"storageWriterOperation");writer.set(operation);
+        ReflectionTestUtils.setField(manager,"guestCommandDispatcher",(StorageServiceGuestCommandDispatcher)command->new StorageServiceGuestCommandResult(false,PRIVATE,runtimeFailure("GENERATION","STAGE_SOURCE_VERIFY_FAILED","STAGE")));
+        var runtime=manager.renderedRuntime(instance,new StorageServiceManagerImpl.RenderedBatch(operation,new JsonObject(),new JsonObject(),null));
+        Assert.assertThrows(CloudRuntimeException.class,()->runtime.render("stage",new JsonObject()));
+        JsonObject result=com.google.gson.JsonParser.parseString(operation.getResultJson()).getAsJsonObject();
+        Assert.assertEquals("original-intent",result.get("_requestFingerprint").getAsString());
+        JsonObject saved=result.getAsJsonObject("_renderedFailureDiagnostic");Assert.assertEquals("stage",saved.get("action").getAsString());
+        Assert.assertEquals(operation.getUuid(),saved.getAsJsonObject("scope").get("operationUuid").getAsString());
+        Assert.assertEquals(3,saved.getAsJsonObject("scope").get("revision").getAsLong());
+        Assert.assertTrue(saved.get("diagnostic").getAsString().contains("STAGE_SOURCE_VERIFY_FAILED"));Assert.assertFalse(operation.getResultJson().contains(PRIVATE));
+        writer.remove();Mockito.verify(dao).update(9L,operation);
+    }
+
     @Test public void malformedRuntimeFailuresRemainGenericWithoutPrivateFallback() {
         for (String value : rejectedRuntimeFailures()) {
             Assert.assertEquals("Rendered generation stage failed; inspect its scoped recovery receipt", rejected(value, PRIVATE));

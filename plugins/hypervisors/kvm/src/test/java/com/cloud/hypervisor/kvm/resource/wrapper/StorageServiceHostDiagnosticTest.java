@@ -145,4 +145,26 @@ public class StorageServiceHostDiagnosticTest {
         Assert.assertEquals("Sensitive Storage Service command failed with exit code 1; secret-bearing output omitted",
             wrapper.commandFailureDetails(command, 1, runtimeFailure("NFS", "NFS_ALIAS_UNMOUNT_FAILED", "CLEANUP"), PRIVATE));
     }
+    @Test public void stagingFailuresKeepClosedCodesOnlyForTheStageCommand() {
+        StorageServiceHostCommand stage = new StorageServiceHostCommand("fixture", "operation generation render-stage",
+            PRIVATE, 30, Collections.singleton("transientCredentials"));
+        StorageServiceHostCommand activate = new StorageServiceHostCommand("fixture", "operation generation render-activate",
+            PRIVATE, 30, Collections.singleton("transientCredentials"));
+        for (String code : new String[]{"STAGE_INPUT_INVALID", "STAGE_CREDENTIAL_BINDING_FAILED", "STAGE_RENDER_FAILED",
+                "STAGE_SOURCE_SCOPE_MISMATCH", "STAGE_SOURCE_VERIFY_FAILED", "STAGE_SOURCE_IDENTITY_FAILED",
+                "STAGE_CANDIDATE_VALIDATION_FAILED"}) {
+            String value = runtimeFailure("GENERATION", code, "STAGE");
+            String message = wrapper.commandFailureDetails(stage, 1, value, PRIVATE);
+            Assert.assertTrue(message, message.contains("protocol=GENERATION; phase=STAGE; code=" + code));
+            Assert.assertFalse(message.contains(PRIVATE));
+            Assert.assertFalse(wrapper.commandFailureDetails(activate, 1, value, PRIVATE).contains("runtimeSchemaVersion="));
+            Assert.assertFalse(wrapper.commandFailureDetails(stage, 1, runtimeFailure("SMB", code, "STAGE"), PRIVATE).contains("runtimeSchemaVersion="));
+            Assert.assertFalse(wrapper.commandFailureDetails(stage, 1, runtimeFailure("GENERATION", code, "VERIFY"), PRIVATE).contains("runtimeSchemaVersion="));
+        }
+        com.google.gson.JsonObject forged = com.google.gson.JsonParser.parseString(
+            runtimeFailure("GENERATION", "STAGE_SOURCE_VERIFY_FAILED", "STAGE")).getAsJsonObject();
+        forged.getAsJsonObject("runtimeDiagnostic").addProperty("private", PRIVATE);
+        Assert.assertFalse(wrapper.commandFailureDetails(stage, 1, forged.toString(), PRIVATE).contains("runtimeSchemaVersion="));
+    }
+
 }

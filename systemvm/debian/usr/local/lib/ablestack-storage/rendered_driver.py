@@ -28,13 +28,13 @@ import subprocess
 import shutil
 import uuid
 
-from rendered_generation import DOMAINS, DESIRED_PATHS, RenderedGeneration, no_rendered_secrets, rendered_read, rendered_json, rendered_directory, rendered_write, rendered_fsync
+from rendered_generation import DOMAINS, DESIRED_PATHS, RenderedGeneration, no_rendered_secrets, rendered_read, rendered_json, rendered_directory, rendered_write, rendered_fsync, NativeRuntimeFailure, native_runtime_diagnostic
 from native_renderers import render_nfs_candidate, render_smb_candidate, render_block_candidate
-from native_render_validation import validate_nfs_candidate, validate_smb_candidate
+from native_render_validation import validate_nfs_candidate, validate_smb_candidate, native_validation_diagnostic
 from native_render_runtime import NativeRenderedRuntime, PROTOCOL_FILES
 from rendered_prerequisites import RenderedPrerequisites
 from ganesha_dbus import GaneshaDbus
-from rendered_credentials import credential_json, credential_bindings, credential_recovery_key, credential_target_inputs
+from rendered_credentials import credential_json, credential_scope, credential_bindings, credential_recovery_key, credential_target_inputs
 from root_source_recovery import RootSourceRecovery
 from service_identity_source import ServiceIdentitySource
 from service_identity_cipher import ServiceIdentityCipher,service_cipher_scope,service_cipher_digest
@@ -697,7 +697,84 @@ class RenderedDriver:
         controller=ServiceMaintenance(Maintenance(generation=lambda:self.generation()),runtime.cli)
         return RootIdentityTarget(self,controller,winbind=bridge)
 
+    def held_service_file_resume(self,request,source):
+        scope=self.store.scope(request);journal=self.store.read_journal()
+        if journal and journal.get("scope")==scope and journal.get("phase") not in ("COMPLETE","ROLLED_BACK"):
+            # A partial/verified target cannot be re-observed as stopped SOURCE.
+            # activate() validates and reuses the originally pinned domain set.
+            return None
+        if journal and journal.get("scope")==scope and journal.get("phase")=="COMPLETE":return None
+        files=ServiceIdentityCipher()
+        if not (files.source_path(scope).exists() or files.source_path(scope).is_symlink()):return None
+        marker=self.runtime.command(("operation","maintenance","status"))
+        service_scope=service_cipher_scope(marker.get("scope"))
+        checkpoint=self.recovery_key(request)
+        authenticated=files.authorize({**request,"checkpointPublicKey":checkpoint["publicKey"]},
+            source,marker,self.root_source.canonical_bytes())
+        if authenticated!=checkpoint:raise ValueError("SERVICE stopped replay differs from its staged original source cipher")
+        stopped=self.service_identity.stopped(service_scope)
+        native=files.source(service_scope);receipt=native["sourceStoppedReceipt"]
+        digest=service_cipher_digest(receipt)
+        if stopped.get("stoppedReceiptSha256")!=digest:
+            raise ValueError("SERVICE stopped replay receipt changed before activation")
+        domains={ServiceMaintenance.unit_domain(owner["unit"]) for owner in receipt["owners"]}
+        return {"schemaVersion":1,"scope":scope,"bootId":native["bootId"],
+            "sourceRenderedManifestSha256":native["sourceRendered"]["manifestSha256"],
+            "sourceConfigurationSha256":native["sourceConfigurationSha256"],
+            "stoppedReceiptSha256":digest,"stoppedDomains":[domain for domain in ("NFS","SMB") if domain in domains]}
+
+    def record_stage_failure(self, request, error):
+        # A failed RPC cannot create an arbitrary diagnostic namespace. Record
+        # only a matching prepared native writer and its still-current source.
+        # No exception text, request bytes, keys, account names or paths persist.
+        try:
+            scope=credential_scope({key:request[key] for key in ("instanceUuid","operationUuid","revision")})
+            source=self.stage_source
+            if (not isinstance(source,dict) or source.get("generationStatus")!="PENDING"
+                    or source.get("pendingOperationUuid")!=scope["operationUuid"]
+                    or source.get("generation")!=request.get("previousGeneration")):return
+            current=self.store.inspect(self.store.pointer())
+            if (current is None or current.get("scope")!={key:source["generation"][key] for key in ("instanceUuid","operationUuid","revision")}
+                    or current.get("configurationSha256")!=source.get("configurationSha256")
+                    or current["scope"]["instanceUuid"]!=scope["instanceUuid"]):return
+            rendered_directory(self.store.root)
+            directory=self.store.root/"stage-failures";rendered_directory(directory,True)
+            receipt={"schemaVersion":1,"kind":"RENDERED_STAGE_FAILURE","scope":scope}
+            runtime_diagnostic=native_runtime_diagnostic(error)
+            validation_diagnostic=native_validation_diagnostic(error)
+            if runtime_diagnostic is not None:receipt["runtimeDiagnostic"]=runtime_diagnostic
+            if validation_diagnostic is not None:receipt["diagnostic"]=validation_diagnostic
+            if len(receipt)==3:return
+            path=directory/(scope["operationUuid"]+".json")
+            # Preserve the original failure even if the same writer is called
+            # again. A link publishes once without replacing a racing receipt.
+            if path.exists() or path.is_symlink():return
+            descriptor,temporary=tempfile.mkstemp(prefix=".stage-failure-",dir=directory)
+            try:
+                os.fchmod(descriptor,0o600)
+                with os.fdopen(descriptor,"w") as handle:
+                    json.dump(receipt,handle,sort_keys=True,separators=(",",":"),allow_nan=False)
+                    handle.flush();os.fsync(handle.fileno())
+                os.link(temporary,path,follow_symlinks=False);rendered_fsync(directory)
+            finally:
+                if os.path.exists(temporary):os.unlink(temporary)
+        except Exception:
+            # Optional failure evidence must never mask the original rejection,
+            # advance a generation or release an unverified service boot hold.
+            return
+
     def execute(self, action, request=None, unit=None):
+        if action!="render-stage":return self._execute(action,request,unit)
+        self.stage_failure_code="STAGE_INPUT_INVALID";self.stage_source=None
+        try:
+            return self._execute(action,request,unit)
+        except Exception as error:
+            if native_runtime_diagnostic(error) is None and native_validation_diagnostic(error) is None:
+                error=NativeRuntimeFailure("GENERATION",self.stage_failure_code)
+            self.record_stage_failure(request,error)
+            raise error from None
+
+    def _execute(self, action, request=None, unit=None):
         if action=="render-ad-join-inverse-guard":return self.ad_join_inverse_source_guard(request)
         if action in ("render-root-capture-target","render-root-quiesce-target","render-root-target-stopped","render-root-identity-export-target","render-root-target-key-guard","render-root-target-cached-cipher","render-root-resume-target"):
             target=self.root_target_identity_handler(request)
@@ -732,6 +809,7 @@ class RenderedDriver:
         if action == "render-status": return {**self.store.status(),"rootSourceIdentityCheckpointSupported":True,"retainedRootRestoreSupported":True,"serviceIdentityCheckpointSupported":True,"localSourceIdentityCheckpointSupported":callable(SmbSourceCheckpoint.export)}
         if action=="render-service-capture-source":return self.service_identity.capture(request)
         if action=="render-service-source-quiesce-guard":return self.service_identity.guard(request)
+        if action=="render-service-source-unheld-verify":return self.service_identity.unheld_verify(request)
         if action=="render-service-source-stopped":return self.service_identity.stopped(request)
         if action=="render-service-identity-export-source":return self.service_identity.export_source(request)
         if action=="render-root-capture-source":return self.root_source.capture(request)
@@ -865,11 +943,15 @@ class RenderedDriver:
         retained=self.retained_authority(request,for_stage=action=="render-stage")
         if retained is not None and action=="render-rollback":raise ValueError("Retained ROOT historical rollback is prohibited; restore its captured latest ROOT")
         source = self.generation()
+        if action=="render-stage":self.stage_source=source
         if action in ("render-import", "render-stage"):
             if retained is not None and action=="render-import":raise ValueError("Retained ROOT cannot borrow fresh/legacy rendered import")
-            if action=="render-stage":credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,retained["latestConfigurationSha256"] if retained is not None else source["configurationSha256"])
+            if action=="render-stage":
+                self.stage_failure_code="STAGE_CREDENTIAL_BINDING_FAILED"
+                credential_bindings(self.desired(request),request.get("credentialRefs") or {},scope,retained["latestConfigurationSha256"] if retained is not None else source["configurationSha256"])
             if action=="render-import" and request.get("initialRootBaseline") is not True:
                 request={**request,"credentialRefs":self.baseline_credential_refs(request,source)}
+            if action=="render-stage":self.stage_failure_code="STAGE_RENDER_FAILED"
             files = self.render(request)
             if action == "render-import":
                 if request.get("initialRootBaseline") is True:
@@ -906,6 +988,7 @@ class RenderedDriver:
                 self.store.publish_pointer(target)
                 rendered_json(self.store.journal, {"scope": scope, "phase": "COMPLETE", "targetSha256": manifest["manifestSha256"], "previousSha256": None, "changedDomains": [], "baselineImported": True})
                 return self.store.status()
+            self.stage_failure_code="STAGE_SOURCE_SCOPE_MISMATCH"
             initial=self.store.read_journal() or {}
             root_initial=initial.get("initialRootScope")
             if root_initial:
@@ -940,14 +1023,18 @@ class RenderedDriver:
                 # The old source is proved by fresh PRESTOP all-four capture,
                 # exact AFTERSTOP journal and the native BEFOREJOIN cipher.
                 # Do not re-observe a joined target identity as the old source.
+                self.stage_failure_code="STAGE_SOURCE_IDENTITY_FAILED"
                 marker=self.runtime.command(("operation","maintenance","status"))
                 service_cipher.authorize(request,source,marker,self.root_source.canonical_bytes())
             elif retained is None and self.imported_root_authority(request) is None:
+                self.stage_failure_code="STAGE_SOURCE_VERIFY_FAILED"
                 healthy = self.verify(self.store.pointer())
                 if not all(healthy[domain] is True for domain in DOMAINS):raise ValueError("Source runtime lost agreement before durable rendered staging")
             elif retained is not None and (request.get("previousGeneration")!=retained["retainedGeneration"] or request.get("expectedCurrentRenderedSha256")!=retained["retainedRenderedSha256"] or pending.get("previous")!=retained["retainedGeneration"]):
                 raise ValueError("Retained ROOT pending.previous/old pointer differs from its protected baseline")
+            self.stage_failure_code="STAGE_SOURCE_IDENTITY_FAILED"
             checkpoint = self.checkpoint(request, source)
+            self.stage_failure_code="STAGE_CANDIDATE_VALIDATION_FAILED"
             manifest = self.store.stage(request, files, self.validate)
             return {"success": True, "phase": "STAGED", "scope": scope, "renderedManifestSha256": manifest["manifestSha256"], "configurationSha256": manifest["configurationSha256"],
                     "sourceConfigurationSha256":source["configurationSha256"],"identityCheckpointSourceConfigurationSha256":checkpoint["sourceConfigurationSha256"],
@@ -990,8 +1077,12 @@ class RenderedDriver:
                 return self.store.rollback(request, replay, self.verify, self.persist_desired, prerequisites)
             target = self.store.inspect(self.store.generations / scope["operationUuid"])
             current = self.store.inspect(self.store.pointer())
-            changed = [domain for domain in DOMAINS if target["domainSha256"][domain] != current["domainSha256"][domain]]
+            resume=self.held_service_file_resume(request,source)
+            stopped=resume["stoppedDomains"] if resume is not None else []
+            changed = [domain for domain in DOMAINS if target["domainSha256"][domain] != current["domainSha256"][domain] or domain in stopped]
             self.runtime.require_drained(changed)
+            if resume is not None:
+                return self.store.activate(request,replay,self.verify,self.persist_desired,prerequisites,service_source_resume=resume)
             return self.store.activate(request, replay, self.verify, self.persist_desired, prerequisites)
         finally:
             if proof is not None:proof.unlink(missing_ok=True);rendered_fsync(proof.parent)

@@ -1005,6 +1005,72 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (configurationBatch.get() != null) throw new CloudRuntimeException("A configuration batch is already active");
         requireConfigurationAdministrator();configurationBatch.set(new ConfigurationBatch(instanceId));
     }
+    /** Re-entered secrets are private activation input even when the reviewed ACL is KEEP. */
+    protected void retainConfigurationRestoreCredentials(StorageServiceInstanceVO instance,long targetRuleId,long targetOwnerId,
+            String protocol,JsonObject reviewedDesired,JsonObject credentialValues) {
+        ConfigurationBatch batch=configurationBatch.get();StorageAccessRuleVO rule=storageAccessRuleDao.findById(targetRuleId);
+        if(batch==null||batch.instanceId!=instance.getId()||rule==null||rule.getResourceId()!=targetOwnerId
+                ||!rule.getState().name().equals(getJsonString(reviewedDesired,"state"))
+                ||!Set.of(StorageServiceInstance.ResourceState.Ready,StorageServiceInstance.ResourceState.Allocated).contains(rule.getState())
+                ||!rule.getResourceType().name().equals(getJsonString(reviewedDesired,"resource_type"))
+                ||!rule.getPrincipalType().name().equals(getJsonString(reviewedDesired,"principal_type"))
+                ||!rule.getPrincipal().equals(getJsonString(reviewedDesired,"principal"))
+                ||!rule.getPermission().name().equals(getJsonString(reviewedDesired,"permission")))
+            throw new InvalidParameterValueException("Retained credential ACL no longer matches its reviewed owned resource");
+        JsonObject expected=getJsonObject(reviewedDesired,"config"),actual=parseJsonObject(rule.getConfigJson());
+        if(expected==null||credentialValues==null||credentialValues.size()==0)
+            throw new InvalidParameterValueException("Retained credential ACL input is unavailable");
+        Set<String> allowed,settings;
+        if("SMB".equals(protocol)) {
+            StorageFileShareVO owner=storageFileShareDao.findById(targetOwnerId);
+            if(rule.getResourceType()!=StorageServiceInstance.AccessResourceType.FILE_SHARE||owner==null||owner.getInstanceId()!=instance.getId()
+                    ||owner.getProtocol()!=StorageServiceInstance.Protocol.SMB||!Set.of(StorageServiceInstance.ResourceState.Ready,StorageServiceInstance.ResourceState.Allocated).contains(owner.getState())
+                    ||rule.getPrincipalType()!=StorageServiceInstance.PrincipalType.LOCAL_USER)
+                throw new InvalidParameterValueException("Retained SMB credential owner is unavailable");
+            allowed=Set.of("password");settings=Set.of("localAccount");
+            if(!Boolean.TRUE.equals(getJsonBoolean(expected,"localAccount")))throw new InvalidParameterValueException("Retained SMB account is not local");
+        } else {
+            StorageBlockTargetVO owner=storageBlockTargetDao.findById(targetOwnerId);
+            StorageServiceInstance.Protocol ownerProtocol="ISCSI".equals(protocol)?StorageServiceInstance.Protocol.ISCSI:
+                    "NVME_OF".equals(protocol)?StorageServiceInstance.Protocol.NVME_OF:null;
+            if(rule.getResourceType()!=StorageServiceInstance.AccessResourceType.BLOCK_TARGET||owner==null||owner.getInstanceId()!=instance.getId()
+                    ||ownerProtocol==null||owner.getProtocol()!=ownerProtocol||!Set.of(StorageServiceInstance.ResourceState.Ready,StorageServiceInstance.ResourceState.Allocated).contains(owner.getState())
+                    ||rule.getPrincipalType()!=(ownerProtocol==StorageServiceInstance.Protocol.ISCSI?StorageServiceInstance.PrincipalType.ISCSI_INITIATOR_IQN:StorageServiceInstance.PrincipalType.NVME_HOST_NQN))
+                throw new InvalidParameterValueException("Retained block credential owner is unavailable");
+            allowed=ownerProtocol==StorageServiceInstance.Protocol.ISCSI?Set.of("chapsecret","mutualchapsecret"):Set.of("dhchapkey","dhchapctrlkey");
+            settings=ownerProtocol==StorageServiceInstance.Protocol.ISCSI?Set.of("chapEnabled","chapUsername","mutualChapEnabled","mutualChapUsername"):Set.of("dhChapEnabled","dhChapCtrlEnabled");
+        }
+        for(String setting:settings) {
+            if(!java.util.Objects.equals(expected.get(setting),actual.get(setting)))
+                throw new InvalidParameterValueException("Retained credential authentication settings changed after review");
+            if((setting.endsWith("Enabled")||"localAccount".equals(setting))&&expected.has(setting)
+                    &&(!expected.get(setting).isJsonPrimitive()||!expected.get(setting).getAsJsonPrimitive().isBoolean()))
+                throw new InvalidParameterValueException("Retained credential authentication flags must be literal booleans");
+            if(setting.endsWith("Username")&&expected.has(setting)&&!expected.get(setting).isJsonNull()
+                    &&(!expected.get(setting).isJsonPrimitive()||!expected.get(setting).getAsJsonPrimitive().isString()))
+                throw new InvalidParameterValueException("Retained credential authentication usernames must be literal strings");
+        }
+        for(Map.Entry<String,JsonElement> value:credentialValues.entrySet())
+            if(!allowed.contains(value.getKey())||!value.getValue().isJsonPrimitive()||!value.getValue().getAsJsonPrimitive().isString()
+                    ||StringUtils.isBlank(value.getValue().getAsString())||value.getValue().getAsString().length()>4096
+                    ||value.getValue().getAsString().chars().anyMatch(c->c==0||c=='\r'||c=='\n'))
+                throw new InvalidParameterValueException("Unexpected or malformed retained configuration credential field");
+        if("SMB".equals(protocol))batch.smbCredentials.putAll(buildSecretMap(targetRuleId,getJsonString(credentialValues,"password")));
+        else if("ISCSI".equals(protocol)) {
+            validateIscsiChapCredentialRequest(getJsonBoolean(actual,"chapEnabled"),getJsonString(actual,"chapUsername"),getJsonString(credentialValues,"chapsecret"),
+                    getJsonBoolean(actual,"mutualChapEnabled"),getJsonString(actual,"mutualChapUsername"),getJsonString(credentialValues,"mutualchapsecret"));
+            if(credentialValues.has("chapsecret")&&!Boolean.TRUE.equals(getJsonBoolean(actual,"chapEnabled"))
+                    ||credentialValues.has("mutualchapsecret")&&!Boolean.TRUE.equals(getJsonBoolean(actual,"mutualChapEnabled")))
+                throw new InvalidParameterValueException("Retained iSCSI credential has no enabled authentication policy");
+            batch.iscsiCredentials.putAll(buildChapSecretMap(targetRuleId,getJsonString(credentialValues,"chapsecret"),getJsonString(credentialValues,"mutualchapsecret")));
+        } else {
+            for(String[] field:new String[][]{{"dhchapkey","dhChapEnabled"},{"dhchapctrlkey","dhChapCtrlEnabled"}})
+                if(credentialValues.has(field[0])!=Boolean.TRUE.equals(getJsonBoolean(actual,field[1])))
+                    throw new InvalidParameterValueException("Retained NVMe credential differs from its enabled authentication policy");
+            batch.nvmeCredentials.putAll(buildNvmeOfSecretMap(targetRuleId,getJsonString(credentialValues,"dhchapkey"),getJsonString(credentialValues,"dhchapctrlkey")));
+        }
+    }
+
     protected void finishConfigurationBatch(StorageServiceInstanceVO instance) {
         ConfigurationBatch batch = configurationBatch.get();
         if (batch == null || batch.instanceId != instance.getId()) throw new CloudRuntimeException("Configuration batch scope changed");
@@ -2624,6 +2690,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         java.util.Map<String, String> phases = java.util.Map.ofEntries(
             java.util.Map.entry("NATIVE_CHILD_TIMEOUT", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_OUTPUT_INVALID", "TRANSPORT"),
             java.util.Map.entry("NATIVE_CHILD_FAILED", "TRANSPORT"), java.util.Map.entry("NATIVE_CHILD_INPUT_UNAVAILABLE", "TRANSPORT"),
+            java.util.Map.entry("STAGE_INPUT_INVALID", "STAGE"), java.util.Map.entry("STAGE_CREDENTIAL_BINDING_FAILED", "STAGE"),
+            java.util.Map.entry("STAGE_RENDER_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_SCOPE_MISMATCH", "STAGE"),
+            java.util.Map.entry("STAGE_SOURCE_VERIFY_FAILED", "STAGE"), java.util.Map.entry("STAGE_SOURCE_IDENTITY_FAILED", "STAGE"),
+            java.util.Map.entry("STAGE_CANDIDATE_VALIDATION_FAILED", "STAGE"),
             java.util.Map.entry("RUNTIME_PREPARE_FAILED", "PREPARE"),
             java.util.Map.entry("RUNTIME_APPLY_FAILED", "APPLY"), java.util.Map.entry("RUNTIME_VERIFY_FAILED", "VERIFY"),
             java.util.Map.entry("RUNTIME_ROLLBACK_FAILED", "ROLLBACK"), java.util.Map.entry("ENDPOINT_LISTENER_ADDRESS_MISMATCH", "VERIFY"),
@@ -2659,7 +2729,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                     || !java.util.Objects.equals(phases.get(diagnostic.get("code")), diagnostic.get("phase"))) return null;
             String code = diagnostic.get("code"), protocol = diagnostic.get("protocol");
             if ((code.startsWith("NFS_") || "ENDPOINT_LISTENER_ADDRESS_MISMATCH".equals(code)) && !"NFS".equals(protocol)) return null;
-            if (("RUNTIME_PREPARE_FAILED".equals(code) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)) && !"GENERATION".equals(protocol)) return null;
+            if ((code.startsWith("STAGE_") || "RUNTIME_PREPARE_FAILED".equals(code) || "NATIVE_CHILD_INPUT_UNAVAILABLE".equals(code)) && !"GENERATION".equals(protocol)) return null;
             return "runtimeSchemaVersion=1; protocol=" + protocol + "; phase=" + diagnostic.get("phase") + "; code=" + code;
         } catch (java.io.IOException | RuntimeException unavailable) {return null;}
     }
@@ -2697,6 +2767,17 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         } catch(java.io.IOException | RuntimeException unavailable) {return null;}
     }
 
+    /** Persists only text synthesized by the closed diagnostic parsers, bound to the exact writer. */
+    protected void saveRenderedFailureDiagnostic(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,String action,String fixed) {
+        if(operation.getId()<=0||operation.getInstanceId()!=instance.getId()||storageWriterOperation.get()!=operation
+                ||!Set.of("stage","activate","rollback","finalize").contains(action))return;
+        JsonObject receipt=new JsonObject();receipt.addProperty("schemaVersion",1);
+        receipt.add("scope",operationReservationScope(instance,operation));receipt.addProperty("action",action);
+        receipt.addProperty("diagnostic",fixed);JsonObject result=parseJsonObject(operation.getResultJson());
+        result.add("_renderedFailureDiagnostic",receipt);operation.setResultJson(result.toString());
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Rendered safe failure diagnostic could not be persisted");
+    }
+
     protected StorageRenderedGenerationCoordinator.Runtime renderedRuntime(StorageServiceInstanceVO instance,RenderedBatch batch) {
         return new StorageRenderedGenerationCoordinator.Runtime() {
             public JsonObject render(String action,JsonObject request) {
@@ -2705,6 +2786,8 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 if(!result.isSuccess()) {
                     String fixed=renderedRuntimeFailureDiagnostic(result.getResultJson());
                     if (fixed == null) fixed=renderedValidationFailureDiagnostic(result.getResultJson());
+                    if(fixed!=null&&fixed.contains("phase=STAGE;")&&!"stage".equals(action))fixed=null;
+                    if(fixed!=null)saveRenderedFailureDiagnostic(instance,batch.operation,action,fixed);
                     throw new CloudRuntimeException("Rendered generation "+action+" failed; inspect its scoped recovery receipt"+(fixed==null?"":" ["+fixed+"]"));
                 }
                 JsonObject response=parseJsonObject(normalizeRuntimeResultJson(result.getResultJson()));
@@ -2847,6 +2930,64 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         RenderedBatch restored=restoreRenderedBatch(original);renderedBatch.set(restored);return restored;
     }
 
+    /** A failed enter fence never stopped this captured SOURCE; only its original administrator may abort it. */
+    protected boolean recoverCapturedUnheldServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        if(!"SERVICE_MAINTENANCE".equals(operation.getAction())||!snapshot.has("adServiceSource")
+                ||snapshot.has("adServiceStopped")||snapshot.has("approvedServiceMaintenanceHeld"))return false;
+        requireConfigurationAdministrator();
+        if(!java.util.Objects.equals(explicitInitialUnheldServiceRecovery.get(),operation.getId())
+                ||operation.getCreatedBy()!=org.apache.cloudstack.context.CallContext.current().getCallingUserId()
+                ||!"RECOVERY_REQUIRED".equals(operation.getState())||!"RECOVERY_REQUIRED".equals(operation.getPhase())
+                ||operation.getProgress()!=0||operation.getSnapshotJson()!=null||operation.getInstanceId()!=instance.getId())
+            throw new CloudRuntimeException("Captured unheld SOURCE recovery requires its exact original explicit administrator");
+        JsonObject saved=getJsonObject(snapshot,"renderedGeneration"),captured=getJsonObject(snapshot,"adServiceSource");
+        JsonObject scope=serviceMaintenanceScope(instance,operation),source=saved==null?null:getJsonObject(saved,"source");
+        if(source==null||!"PREPARED".equals(getJsonString(saved,"phase"))||saved.has("receipt")
+                ||snapshot.has("nativeIdentityCapsule")||snapshot.has("adServiceCipherCheckpoint")
+                ||!Boolean.FALSE.equals(getNativeBoolean(captured,"publicAdPreStopCaptured"))
+                ||!scope.equals(captured.get("scope"))||!Boolean.TRUE.equals(getNativeBoolean(captured,"sourceCaptured"))
+                ||!source.get("generation").equals(captured.get("sourceGeneration"))
+                ||!source.get("configurationSha256").equals(captured.get("sourceConfigurationSha256"))
+                ||getJsonLong(source.getAsJsonObject("generation"),"revision")==null
+                ||getJsonLong(source.getAsJsonObject("generation"),"revision")+1!=operation.getRevision())
+            throw new CloudRuntimeException("Captured unheld SOURCE lost its immutable original prepared checkpoint");
+        JsonObject database=new JsonObject();for(String field:List.of("schemaVersion","instanceId","tables"))database.add(field,snapshot.get(field).deepCopy());
+        if(!database.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+            throw new CloudRuntimeException("Captured unheld SOURCE database changed before its native abort");
+        // Read and authenticate the original encrypted rendered key; never generate or replace it.
+        restoreRenderedBatch(operation);beginStorageWriterHeartbeat(operation);
+        try {
+            JsonObject proof=requireCapturedUnheldSourceProof(instance,operation,captured),result=parseJsonObject(operation.getResultJson());
+            String key="_capturedUnheldServiceSourceRecovery";
+            if(result.has(key)&&!proof.equals(result.get(key)))throw new CloudRuntimeException("Captured unheld SOURCE recovery intent changed");
+            if(!result.has(key)) {
+                result.add(key,proof.deepCopy());operation.setResultJson(result.toString());
+                if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Captured unheld SOURCE recovery intent could not be persisted");
+            }
+            JsonObject nativeState=nativeConfigurationGeneration(instance,null,"status");String pending=getJsonString(nativeState,"pendingOperationUuid");
+            if(pending!=null&&!operation.getUuid().equals(pending))throw new CloudRuntimeException("Foreign native writer blocks captured unheld SOURCE recovery");
+            if(pending!=null)nativeConfigurationGeneration(instance,operation,"rollback");
+            if(!proof.equals(requireCapturedUnheldSourceProof(instance,operation,captured))
+                    ||getJsonString(nativeConfigurationGeneration(instance,null,"status"),"pendingOperationUuid")!=null
+                    ||!database.equals(parseJsonObject(captureConfigurationSnapshot(instance.getId()))))
+                throw new CloudRuntimeException("Captured unheld SOURCE changed after its own native abort");
+            releaseOperationResourceReservation(instance,operation);
+            operation.setDiagnostic("Explicit original administrator aborted its unheld writer; captured SOURCE and all four protocols verified without replay");
+            completeOperationFinalization(operation,"ROLLED_BACK");return true;
+        } finally {endStorageWriterHeartbeat();}
+    }
+
+    private JsonObject requireCapturedUnheldSourceProof(StorageServiceInstanceVO instance,StorageServiceOperationVO operation,JsonObject captured) {
+        JsonObject proof=rootGuest(instance,"operation generation render-service-source-unheld-verify",serviceMaintenanceScope(instance,operation),120);
+        if(!Boolean.TRUE.equals(getNativeBoolean(proof,"success"))||!Boolean.TRUE.equals(getNativeBoolean(proof,"sourceUnchangedVerified"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(proof,"runtimeVerified"))||!Boolean.TRUE.equals(getNativeBoolean(proof,"unheldSourceVerified"))
+                ||!Boolean.FALSE.equals(getNativeBoolean(proof,"sideEffects")))throw new CloudRuntimeException("Captured unheld SOURCE lacks its exact fresh read-only runtime proof");
+        for(Map.Entry<String,JsonElement> field:captured.entrySet())if(!field.getValue().equals(proof.get(field.getKey())))
+            throw new CloudRuntimeException("Captured unheld SOURCE Native proof differs from its immutable original capture");
+        return proof;
+    }
+
     /** An inactive SERVICE journal is never recovery authority and is not modified by this initial SOURCE abort. */
     protected boolean recoverInitialUnheldServiceSource(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
@@ -2987,6 +3128,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void recoverRenderedStorageWriter(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         if(Boolean.TRUE.equals(getNativeBoolean(parseJsonObject(operation.getResultJson()),"_leaseCleanupSource"))
                 && recoverOperationFinalization(instance,operation))return;
+        if (recoverCapturedUnheldServiceSource(instance,operation)) return;
         if (recoverInitialUnheldServiceSource(instance,operation)) return;
         if (recoverReleasedInitialServiceSource(instance,operation)) return;
         JsonObject bootstrap=parseJsonObject(operation.getPreviousSnapshotJson());if(bootstrap.has("adSamBootstrapAttempted")&&!bootstrap.has("adSamBootstrapReceipt"))throw new CloudRuntimeException("Unresolved local SAM initialization requires its owned reconciliation before generic native rollback");
@@ -3121,8 +3263,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 try {
                     StorageServiceOperationControlVO control=startOperationControl(instance,operation);
                     if(control!=null){JsonObject policy=parseJsonObject(control.getPolicyJson());JsonObject requirements=policy.getAsJsonObject("requirements");requirements.addProperty("requireSessionDrain",false);policy.addProperty("drainRequired",false);policy.addProperty("drainSupported",false);policy.addProperty("downtimeBoundary","APPROVED_SERVICE_MAINTENANCE");control.setPolicyJson(policy.toString());storageOperationControlDao.update(control.getId(),control);acquireOperationResourceReservation(instance,operation);}
-                    JsonObject before=nativeConfigurationGeneration(instance,null,"status");prepareRenderedBatch(instance,operation,before);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());JsonObject nativeCheckpoint=nativeConfigurationGeneration(instance,operation,"begin");snapshot.add("nativeGeneration",nativeCheckpoint);snapshot.add("nativeDesiredState",before.get("configurationDesiredState"));operation.setPreviousSnapshotJson(snapshot.toString());storageOperationDao.update(operation.getId(),operation);
-                    JsonObject held=rootGuest(instance,"operation maintenance service-enter",serviceMaintenanceScope(instance,operation),60);if(!"SERVICE".equals(getJsonString(held,"maintenanceKind")) || !Boolean.TRUE.equals(getJsonBoolean(held,"bootHeld")) || !serviceMaintenanceScope(instance,operation).equals(held.get("scope")))throw new CloudRuntimeException("Service acceptors were not held under the exact approved operation");JsonObject enteredSnapshot=parseJsonObject(operation.getPreviousSnapshotJson());enteredSnapshot.add("approvedServiceMaintenanceHeld",held.deepCopy());operation.setPreviousSnapshotJson(enteredSnapshot.toString());operation.setPhase("HELD");if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Approved SERVICE held receipt could not be persisted");
+                    // LOCAL and AD maintenance share the same all-four PRESTOP, exact AFTERSTOP and
+                    // protected SOURCE checkpoint. A stopped SOURCE must never be verified as running.
+                    prepareApprovedServiceCheckpoint(instance,operation);
                     org.apache.cloudstack.api.response.StorageServiceConfigArtifactResponse restored=storageServiceConfiguration(cmd);JsonObject result=parseJsonObject(operation.getResultJson());result.add("_response",new com.google.gson.Gson().toJsonTree(restored));operation.setResultJson(result.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Reviewed maintenance response could not be persisted");return createRuntimeResponse(instance,"approved service maintenance",true,"COMPLETE","Reviewed all-protocol configuration applied during approved downtime",new com.google.gson.Gson().toJson(restored));
                 } catch(RuntimeException failed) {operation.setState("RECOVERY_REQUIRED");operation.setPhase("RECOVERY_REQUIRED");operation.setDiagnostic("Approved service maintenance requires its scoped recovery");storageOperationDao.update(operation.getId(),operation);throw failed;}
                 finally {renderedBatch.remove();serviceMaintenanceOperation.remove();endStorageWriterHeartbeat();}
@@ -4298,6 +4441,11 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void checkpointConfigurationIdentity(StorageServiceInstanceVO instance,JsonObject rootScope,String sourceSha) {
         StorageServiceOperationVO operation = storageWriterOperation.get();
         if (operation == null || operation.getPreviousSnapshotJson() == null) throw new CloudRuntimeException("Configuration operation snapshot is unavailable");
+        // The approved SERVICE checkpoint was already captured AFTERSTOP with the rendered
+        // generation key. Domain restore must not replace that SOURCE with a new random key.
+        if(rootScope==null&&parseJsonObject(operation.getPreviousSnapshotJson()).has("adServiceCipherCheckpoint")) {
+            requireServiceSourceIdentityCheckpoint(instance,operation);return;
+        }
         if (rootScope == null && parseJsonObject(operation.getPreviousSnapshotJson()).has("localCheckpointIntent")) {
             requireLocalSourcePublishedReference(instance, operation);return;
         }
@@ -4323,6 +4471,34 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         snapshot.add("nativeIdentityCapsule", reference);
         operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(), operation))throw new CloudRuntimeException("Encrypted identity capsule reference could not be persisted");
     }
+    protected void requireServiceSourceIdentityCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson()),reference=getJsonObject(snapshot,"nativeIdentityCapsule");
+        JsonObject captured=getJsonObject(snapshot,"adServiceSource"),stopped=getJsonObject(snapshot,"adServiceStopped");
+        JsonObject scope=serviceMaintenanceScope(instance,operation);RenderedBatch batch=renderedBatch.get();
+        String sourceSha=captured==null?null:getJsonString(captured,"sourceConfigurationSha256");
+        String keyId=java.util.UUID.nameUUIDFromBytes(("identity-key:"+operation.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        if(storageWriterOperation.get()!=operation||batch==null||batch.operation!=operation||reference==null||captured==null||stopped==null
+                ||!scope.equals(captured.get("scope"))||!scope.equals(stopped.get("scope"))||!scope.equals(reference.get("sourceMaintenanceScope"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(stopped,"serviceSourceStoppedVerified"))
+                ||!operation.getUuid().equals(getJsonString(reference,"operationUuid"))||!keyId.equals(getJsonString(reference,"keyId"))
+                ||!java.util.Objects.equals(sourceSha,getJsonString(reference,"sourceConfigurationSha256"))
+                ||!java.util.Objects.equals(captured.get("sourceGeneration"),stopped.get("sourceGeneration"))
+                ||!java.util.Objects.equals(captured.get("sourceGeneration"),batch.source.get("generation"))
+                ||!java.util.Objects.equals(captured.get("sourceConfigurationSha256"),stopped.get("sourceConfigurationSha256"))
+                ||!java.util.Objects.equals(captured.get("sourceConfigurationSha256"),batch.source.get("configurationSha256"))
+                ||!java.util.Objects.equals(captured.get("bootId"),stopped.get("bootId"))
+                ||!java.util.Objects.equals(captured.get("publicLocalMachineSid"),stopped.get("publicLocalMachineSid"))
+                ||!java.util.Objects.equals(captured.get("localSamAbsentSha256"),stopped.get("localSamAbsentSha256")))
+            throw new CloudRuntimeException("SERVICE encrypted SOURCE checkpoint lost its original writer or source binding");
+        StorageConfigArtifactStore store=localSourceIdentityStore();
+        byte[] bytes=store.read(operation.getUuid(),getJsonString(reference,"capsuleSha256"));
+        JsonObject capsule=parseJsonObject(new String(bytes,java.nio.charset.StandardCharsets.UTF_8));
+        JsonObject proof=StorageAdIdentityProof.serviceCipherCheckpoint(getJsonObject(reference,"sourceServiceIdentityCheckpoint"),capsule,scope,sourceSha);
+        if(!proof.equals(snapshot.get("adServiceCipherCheckpoint"))
+                ||!java.util.Arrays.equals(batch.key.getPublic().getEncoded(),restoredRenderedKey(store.read(keyId,getJsonString(reference,"keySha256"))).getPublic().getEncoded()))
+            throw new CloudRuntimeException("SERVICE encrypted SOURCE checkpoint or rendered wrapping key changed");
+    }
+
     protected void restoreConfigurationIdentity(StorageServiceInstanceVO instance, JsonObject reference) {
         if (reference.has("sourceLocalScope")) {restoreLocalSourceIdentity(instance, reference);return;}
         String operationUuid = getJsonString(reference, "operationUuid");
@@ -10873,19 +11049,29 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adSamBootstrapReceipt",proof);operation.setPreviousSnapshotJson(snapshot.toString());
         if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Initial local SAM bootstrap receipt could not be persisted");
     }
+    private boolean validServiceSourceLocalIdentity(JsonObject captured,JsonObject before) {
+        String sid=getJsonString(captured,"publicLocalMachineSid");
+        if(sid!=null)return sid.matches("S-1-5-21-[0-9]+-[0-9]+-[0-9]+")&&!captured.has("localSamAbsentSha256");
+        JsonObject desired=getJsonObject(before,"configurationDesiredState");String path=StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB);
+        return captured.has("publicLocalMachineSid")&&captured.get("publicLocalMachineSid").isJsonNull()
+                &&Boolean.FALSE.equals(getNativeBoolean(captured,"publicAdPreStopCaptured"))
+                &&desired!=null&&(!desired.has(path)||desired.get(path).isJsonNull())
+                &&StringUtils.defaultString(getJsonString(captured,"localSamAbsentSha256")).matches("[a-f0-9]{64}");
+    }
+
     protected void prepareAdServiceCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
         requiredRenderedValidationProfile(instance);requireNoPendingVolumeFormatter(instance);JsonObject before=nativeConfigurationGeneration(instance,null,"status");if(!"IN_SYNC".equals(getJsonString(before,"generationStatus"))||getJsonString(before,"pendingOperationUuid")!=null)throw new CloudRuntimeException("AD service source generation is not settled");
         if(protectedAdSemanticSource.get()!=null){new StorageServiceConfiguration(this,storageConfigArtifactDao,storageOperationDao).retainAdSemanticSourceUsage(protectedAdSemanticSource.get(),instance,operation);JsonObject sourceReference=parseJsonObject(operation.getPreviousSnapshotJson());sourceReference.add("adSemanticOriginalSourceDescriptor",protectedAdSemanticSource.get().get("descriptor").deepCopy());sourceReference.add("adSemanticOriginalSourceReference",protectedAdSemanticSource.get().get("reference").deepCopy());operation.setPreviousSnapshotJson(sourceReference.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Original semantic identity recovery reference could not be persisted before effects");}
         prepareInitialAdLocalSam(instance,operation,before);
         prepareRenderedBatch(instance,operation,before);if(renderedBatch.get()==null)throw new CloudRuntimeException("AD service requires a scoped four-protocol source baseline");JsonObject scope=serviceMaintenanceScope(instance,operation),captured=rootGuest(instance,"operation generation render-service-capture-source",scope,120);
         if(!Boolean.TRUE.equals(getNativeBoolean(captured,"success"))||!Boolean.TRUE.equals(getNativeBoolean(captured,"sourceCaptured"))||!scope.equals(captured.get("scope"))||!before.get("generation").equals(captured.get("sourceGeneration"))||!getJsonString(before,"configurationSha256").equals(getJsonString(captured,"sourceConfigurationSha256"))||!Boolean.FALSE.equals(getNativeBoolean(captured,"canonicalDesiredStateChanged")))throw new CloudRuntimeException("AD service source was not captured before native pending and stop");
-        Boolean adCaptured=getNativeBoolean(captured,"publicAdPreStopCaptured");JsonElement publicAdSha=captured.get("publicAdPreStopSha256");if(getJsonString(captured,"bootId")==null||!getJsonString(captured,"bootId").matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")||adCaptured==null||publicAdSha==null||adCaptured&&(getJsonString(captured,"publicAdPreStopSha256")==null||!getJsonString(captured,"publicAdPreStopSha256").matches("[a-f0-9]{64}"))||!adCaptured&&!publicAdSha.isJsonNull()||getJsonString(captured,"publicLocalMachineSid")==null||!getJsonString(captured,"publicLocalMachineSid").matches("S-1-5-21-[0-9]+-[0-9]+-[0-9]+")||!getJsonString(renderedBatch.get().previousManifest,"manifestSha256").equals(getJsonString(captured,"sourceRenderedManifestSha256")))throw new CloudRuntimeException("AD SERVICE source public identity or rendered baseline proof is invalid");
+        Boolean adCaptured=getNativeBoolean(captured,"publicAdPreStopCaptured");JsonElement publicAdSha=captured.get("publicAdPreStopSha256");if(getJsonString(captured,"bootId")==null||!getJsonString(captured,"bootId").matches("[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}")||adCaptured==null||publicAdSha==null||adCaptured&&(getJsonString(captured,"publicAdPreStopSha256")==null||!getJsonString(captured,"publicAdPreStopSha256").matches("[a-f0-9]{64}"))||!adCaptured&&!publicAdSha.isJsonNull()||!validServiceSourceLocalIdentity(captured,before)||!getJsonString(renderedBatch.get().previousManifest,"manifestSha256").equals(getJsonString(captured,"sourceRenderedManifestSha256")))throw new CloudRuntimeException("AD SERVICE source public identity or rendered baseline proof is invalid");
         JsonObject bootstrapSnapshot=parseJsonObject(operation.getPreviousSnapshotJson());
         if(bootstrapSnapshot.has("adSamBootstrapReceipt")&&!getJsonString(bootstrapSnapshot.getAsJsonObject("adSamBootstrapReceipt"),"localMachineSid").equals(getJsonString(captured,"publicLocalMachineSid")))throw new CloudRuntimeException("Captured SERVICE source changed the bootstrapped local SAM identity");
         JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceSource",captured);snapshot.add("nativeDesiredState",before.get("configurationDesiredState").deepCopy());snapshot.add("nativeGeneration",nativeConfigurationGeneration(instance,operation,"begin"));operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD service source checkpoint could not be persisted");
         snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceMaintenanceScope",scope);snapshot.addProperty("adServiceEnterAttempted",true);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD SERVICE enter intent could not be recorded before effects");
         JsonObject held=rootGuest(instance,"operation maintenance service-enter",scope,120);
-        if(!Boolean.TRUE.equals(getNativeBoolean(held,"success"))||!Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))||!Boolean.TRUE.equals(getNativeBoolean(held,"serviceSourceStoppedVerified"))||!scope.equals(held.get("scope"))||!captured.get("sourceGeneration").equals(held.get("sourceGeneration"))||!getJsonString(captured,"sourceConfigurationSha256").equals(getJsonString(held,"sourceConfigurationSha256"))||!"SERVICE".equals(getJsonString(held,"maintenanceKind"))||!getJsonString(captured,"bootId").equals(getJsonString(held,"bootId"))||!java.util.Objects.equals(captured.get("publicAdPreStopSha256"),held.get("publicAdPreStopSha256"))||!getJsonString(captured,"publicLocalMachineSid").equals(getJsonString(held,"publicLocalMachineSid"))||getJsonString(held,"stoppedReceiptSha256")==null||!getJsonString(held,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("AD service private identity holders were not stopped under their exact protected source");
+        if(!Boolean.TRUE.equals(getNativeBoolean(held,"success"))||!Boolean.TRUE.equals(getNativeBoolean(held,"bootHeld"))||!Boolean.TRUE.equals(getNativeBoolean(held,"serviceSourceStoppedVerified"))||!scope.equals(held.get("scope"))||!captured.get("sourceGeneration").equals(held.get("sourceGeneration"))||!getJsonString(captured,"sourceConfigurationSha256").equals(getJsonString(held,"sourceConfigurationSha256"))||!"SERVICE".equals(getJsonString(held,"maintenanceKind"))||!getJsonString(captured,"bootId").equals(getJsonString(held,"bootId"))||!java.util.Objects.equals(captured.get("publicAdPreStopSha256"),held.get("publicAdPreStopSha256"))||!java.util.Objects.equals(captured.get("publicLocalMachineSid"),held.get("publicLocalMachineSid"))||!java.util.Objects.equals(captured.get("localSamAbsentSha256"),held.get("localSamAbsentSha256"))||getJsonString(held,"stoppedReceiptSha256")==null||!getJsonString(held,"stoppedReceiptSha256").matches("[a-f0-9]{64}"))throw new CloudRuntimeException("AD service private identity holders were not stopped under their exact protected source");
         snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("adServiceMaintenanceScope",scope);snapshot.add("adServiceStopped",held);operation.setPreviousSnapshotJson(snapshot.toString());if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("AD service stopped identity receipt could not be saved");checkpointConfigurationIdentity(instance,scope,getJsonString(before,"configurationSha256"));
         if(Boolean.TRUE.equals(adCaptured)) {
             JsonObject metadata=rootGuest(instance,"operation generation render-service-identity-export-source",scope,30);
@@ -10895,6 +11081,35 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             if(!"joinStorageServiceToAdDomain".equalsIgnoreCase(operation.getAction())&&!"leaveStorageServiceFromAdDomain".equalsIgnoreCase(operation.getAction())&&protectedAdSemanticSource.get()==null)retainAdServiceSourceIdentity(instance,operation,false);
         }
     }
+    /** Reuses the existing protected SERVICE protocol for approved LOCAL restores as well as AD. */
+    protected void prepareApprovedServiceCheckpoint(StorageServiceInstanceVO instance,StorageServiceOperationVO operation) {
+        JsonObject before=nativeConfigurationGeneration(instance,null,"status");
+        JsonObject desired=getJsonObject(before,"configurationDesiredState");
+        boolean active=desired!=null&&StorageRenderedDesiredState.PROTOCOL_PATHS.values().stream()
+                .anyMatch(path->desired.has(path)&&!desired.get(path).isJsonNull());
+        if(!active) {
+            prepareRenderedBatch(instance,operation,before);JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+            snapshot.add("nativeGeneration",nativeConfigurationGeneration(instance,operation,"begin"));
+            snapshot.add("nativeDesiredState",before.get("configurationDesiredState"));operation.setPreviousSnapshotJson(snapshot.toString());
+            if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Approved empty SOURCE checkpoint could not be persisted");
+            JsonObject held=rootGuest(instance,"operation maintenance service-enter",serviceMaintenanceScope(instance,operation),60);
+            if(!"SERVICE".equals(getJsonString(held,"maintenanceKind"))||!Boolean.TRUE.equals(getJsonBoolean(held,"bootHeld"))
+                    ||!serviceMaintenanceScope(instance,operation).equals(held.get("scope")))throw new CloudRuntimeException("Service acceptors were not held under the exact approved operation");
+            snapshot=parseJsonObject(operation.getPreviousSnapshotJson());snapshot.add("approvedServiceMaintenanceHeld",held.deepCopy());
+            operation.setPreviousSnapshotJson(snapshot.toString());operation.setPhase("HELD");
+            if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Approved SERVICE held receipt could not be persisted");return;
+        }
+        prepareAdServiceCheckpoint(instance,operation);
+        JsonObject snapshot=parseJsonObject(operation.getPreviousSnapshotJson());
+        JsonObject held=getJsonObject(snapshot,"adServiceStopped");
+        if(held==null||!serviceMaintenanceScope(instance,operation).equals(held.get("scope"))
+                ||!Boolean.TRUE.equals(getNativeBoolean(held,"serviceSourceStoppedVerified")))
+            throw new CloudRuntimeException("Approved SERVICE lacks its verified stopped SOURCE checkpoint");
+        snapshot.add("approvedServiceMaintenanceHeld",held.deepCopy());operation.setPreviousSnapshotJson(snapshot.toString());
+        operation.setPhase("HELD");
+        if(!storageOperationDao.update(operation.getId(),operation))throw new CloudRuntimeException("Approved SERVICE held receipt could not be persisted");
+    }
+
     protected void requireAdLifecycleApproval(StorageServiceInstanceVO instance,Boolean maintenance,String confirmation) {if(!Boolean.TRUE.equals(maintenance)||!instance.getName().equals(confirmation))throw new InvalidParameterValueException("AD identity change requires explicit interrupted-session approval and exact instance name");requireStorageAdIdentityFeatures(instance);}
     protected void requireNoAdPrincipalReferences(StorageServiceInstanceVO instance) {
         for(StorageFileShareVO share:storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(),StorageServiceInstance.Protocol.SMB))for(StorageAccessRuleVO acl:storageAccessRuleDao.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE,share.getId()))if(acl.getState()!=StorageServiceInstance.ResourceState.Destroyed&&(acl.getPrincipalType()==StorageServiceInstance.PrincipalType.AD_USER||acl.getPrincipalType()==StorageServiceInstance.PrincipalType.AD_GROUP))throw new InvalidParameterValueException("AD leave requires removing domain principal share bindings first");

@@ -140,6 +140,106 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(3,fixture.nativeActions().stream().filter("begin"::equals).count());
     }
 
+    @Test public void nfsOnlySourceWithoutSamCompletesPrestopCipherAndSecondRestoreWithoutCreatingSambaIdentity()throws Exception {
+        primaryMappedFixture();fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.installNfsOnlyImport();fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("nfs-only-first"));
+        JsonObject source=fixture.generation("operation generation status",null);
+        Assert.assertTrue(source.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.SMB)).isJsonNull());
+        Assert.assertFalse(Files.exists(fixture.nativeCase.resolve("rendered-os-fixture/var/lib/samba/private/secrets.tdb")));
+        var response=fixture.manager.applyStorageServiceApprovedMaintenance(fixture.activeApprovedCommand("nfs-only-second"));
+        Assert.assertTrue(fixture.obj(new com.google.gson.Gson().toJson(response)).get("success").getAsBoolean());
+        JsonObject current=fixture.generation("operation generation status",null);Assert.assertEquals(3,current.get("runtimeRevision").getAsLong());
+        StorageServiceOperationVO operation=fixture.operationRows.values().stream().filter(row->"SERVICE_MAINTENANCE".equals(row.getAction())&&row.getRevision()==3).findFirst().orElseThrow();
+        JsonObject snapshot=fixture.obj(operation.getPreviousSnapshotJson()),captured=snapshot.getAsJsonObject("adServiceSource"),stopped=snapshot.getAsJsonObject("adServiceStopped");
+        Assert.assertTrue(captured.get("publicLocalMachineSid").isJsonNull());Assert.assertTrue(captured.get("localSamAbsentSha256").getAsString().matches("[a-f0-9]{64}"));
+        Assert.assertEquals(captured.get("localSamAbsentSha256"),stopped.get("localSamAbsentSha256"));
+        Assert.assertTrue(stopped.get("serviceSourceStoppedVerified").getAsBoolean());Assert.assertTrue(snapshot.has("adServiceCipherCheckpoint"));
+        Assert.assertFalse(Files.exists(fixture.nativeCase.resolve("rendered-os-fixture/var/lib/samba/private/secrets.tdb")));
+        Assert.assertFalse(Files.exists(fixture.nativeCase.resolve("rendered-os-fixture/var/lib/samba/private/passdb.tdb")));
+        Assert.assertEquals("COMPLETE",operation.getState());
+        JsonObject observed=fixture.generation("operation observe",new JsonObject());
+        for(String domain:java.util.List.of("NFS","SMB","ISCSI","NVMEOF"))Assert.assertTrue(observed.getAsJsonObject("realRenderedProtocolVerification").get(domain).getAsBoolean());
+    }
+
+    @Test public void activeFourProtocolSourceRestoresAgainThroughProtectedPrestopStoppedCipherAndKeptInputs()throws Exception {
+        primaryMappedFixture();
+        fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("active-source-first"));
+        String disks=new com.google.gson.Gson().toJson(fixture.volumeRows);
+        JsonObject source=fixture.generation("operation generation status",null);
+        for(String domain:java.util.List.of("NFS","SMB","ISCSI","NVME_OF"))
+            Assert.assertFalse(source.getAsJsonObject("configurationDesiredState").get(StorageRenderedDesiredState.PROTOCOL_PATHS.get(StorageServiceInstance.Protocol.valueOf(domain))).isJsonNull());
+        for(int expectedRevision=3;expectedRevision<=4;expectedRevision++) {
+            var command=fixture.activeApprovedCommand("active-source-repeat-"+expectedRevision);
+            JsonObject plan=fixture.obj(fixture.artifactRows.get(901L).getMetadataJson()).getAsJsonObject("plan");
+            Assert.assertEquals(0,plan.getAsJsonArray("create").size());Assert.assertEquals(0,plan.getAsJsonArray("preserve").size());
+            Assert.assertTrue("Actual KEEP credentials must pass through the active-source controller",plan.getAsJsonArray("keep").size()>=10);
+            JsonObject reply=fixture.obj(new com.google.gson.Gson().toJson(fixture.manager.applyStorageServiceApprovedMaintenance(command)));
+            Assert.assertTrue(reply.get("success").getAsBoolean());Assert.assertEquals("COMPLETE",reply.get("status").getAsString());
+            JsonObject current=fixture.generation("operation generation status",null);
+            Assert.assertEquals(expectedRevision,current.get("runtimeRevision").getAsLong());Assert.assertEquals("IN_SYNC",current.get("generationStatus").getAsString());
+            Assert.assertTrue(current.get("pendingOperationUuid").isJsonNull());
+            StorageServiceOperationVO operation=fixture.operationRows.values().stream()
+                .filter(row->"SERVICE_MAINTENANCE".equals(row.getAction())&&row.getRevision()==current.get("runtimeRevision").getAsLong()).findFirst().orElseThrow();
+            JsonObject snapshot=fixture.obj(operation.getPreviousSnapshotJson());
+            Assert.assertEquals(source.get("generation"),snapshot.getAsJsonObject("adServiceSource").get("sourceGeneration"));
+            Assert.assertTrue(snapshot.getAsJsonObject("adServiceStopped").get("serviceSourceStoppedVerified").getAsBoolean());
+            Assert.assertEquals(snapshot.get("adServiceStopped"),snapshot.get("approvedServiceMaintenanceHeld"));
+            Assert.assertEquals(snapshot.get("adServiceCipherCheckpoint"),snapshot.getAsJsonObject("nativeIdentityCapsule").get("sourceServiceIdentityCheckpoint"));
+            Assert.assertTrue(snapshot.getAsJsonObject("renderedGeneration").has("targetInputRef"));
+            Assert.assertFalse(operation.getPreviousSnapshotJson().contains("fixture-secret"));
+            Assert.assertEquals(disks,new com.google.gson.Gson().toJson(fixture.volumeRows));source=current;
+        }
+        Assert.assertEquals(2,fixture.nativeActions().stream().filter("render-service-capture-source"::equals).count());
+    }
+
+    @Test public void activeSourceEnterFenceFailureExplicitlyAbortsOnlyItsOwnPendingWithoutRestartingServices()throws Exception {
+        primaryMappedFixture();fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("active-source-before-fence"));
+        JsonObject original=fixture.generation("operation generation status",null),identity=fixture.localPublicFingerprint();String database=fixture.database.snapshot(80L);
+        var command=fixture.activeApprovedCommand("active-source-enter-fence");fixture.rejectServiceEnterBeforeHoldOnce=true;
+        Assert.assertEquals("Fixture rejected formatter lock fence before SERVICE hold",Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+            ()->fixture.manager.applyStorageServiceApprovedMaintenance(command)).getMessage());
+        StorageServiceOperationVO failed=fixture.operationRows.values().stream().filter(row->"SERVICE_MAINTENANCE".equals(row.getAction())&&row.getRevision()==3).findFirst().orElseThrow();
+        Assert.assertFalse(fixture.obj(failed.getPreviousSnapshotJson()).has("approvedServiceMaintenanceHeld"));
+        Assert.assertTrue(fixture.obj(failed.getPreviousSnapshotJson()).has("adServiceSource"));
+        Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,()->fixture.manager.recoverRenderedStorageWriter(fixture.instanceRows.get(80L),failed));
+        JsonObject args=new JsonObject();args.addProperty("operationid",failed.getId());
+        var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,args);
+        fixture.manager.reconcileStorageServiceOperation(reconcile);
+        Assert.assertEquals("ROLLED_BACK",fixture.operationRows.get(failed.getId()).getState());
+        JsonObject after=fixture.generation("operation generation status",null);Assert.assertEquals(original.get("generation"),after.get("generation"));Assert.assertTrue(after.get("pendingOperationUuid").isJsonNull());
+        Assert.assertEquals(database,fixture.database.snapshot(80L));Assert.assertEquals(identity,fixture.localPublicFingerprint());
+        Assert.assertEquals(0,fixture.nativeActions().stream().filter("render-maintenance-resume-source"::equals).count());
+        Assert.assertEquals(1,fixture.nativeActions().stream().filter("render-activate"::equals).count());
+        Assert.assertEquals(1,fixture.nativeActions().stream().filter("rollback"::equals).count());
+    }
+
+    @Test public void activeFourProtocolStageFailureExplicitlyResumesItsVerifiedOriginalSource()throws Exception {
+        primaryMappedFixture();fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
+        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("active-source-before-failure"));
+        JsonObject original=fixture.generation("operation generation status",null);String database=fixture.database.snapshot(80L);
+        var command=fixture.activeApprovedCommand("active-source-stage-failure");fixture.rejectStageOnce=true;
+        Assert.assertEquals("Fixture transport rejected stage before activation",Assert.assertThrows(com.cloud.utils.exception.CloudRuntimeException.class,
+            ()->fixture.manager.applyStorageServiceApprovedMaintenance(command)).getMessage());
+        StorageServiceOperationVO failed=fixture.operationRows.values().stream().filter(row->"SERVICE_MAINTENANCE".equals(row.getAction())&&row.getRevision()==3).findFirst().orElseThrow();
+        Assert.assertEquals("RECOVERY_REQUIRED",failed.getState());Assert.assertTrue(fixture.obj(failed.getPreviousSnapshotJson()).has("adServiceCipherCheckpoint"));
+        JsonObject args=new JsonObject();args.addProperty("operationid",failed.getId());
+        var reconcile=(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.ReconcileStorageServiceOperationCmd.class,args);
+        fixture.manager.reconcileStorageServiceOperation(reconcile);
+        Assert.assertEquals("ROLLED_BACK",fixture.operationRows.get(failed.getId()).getState());
+        JsonObject current=fixture.generation("operation generation status",null);Assert.assertEquals(original.get("generation"),current.get("generation"));
+        Assert.assertEquals(database,fixture.database.snapshot(80L));Assert.assertEquals("IN_SYNC",current.get("generationStatus").getAsString());
+        Assert.assertTrue(current.get("pendingOperationUuid").isJsonNull());
+        JsonObject observed=fixture.generation("operation observe",new JsonObject());
+        for(String domain:java.util.List.of("NFS","SMB","ISCSI","NVMEOF"))Assert.assertTrue(observed.getAsJsonObject("realRenderedProtocolVerification").get(domain).getAsBoolean());
+        Assert.assertEquals(1,fixture.nativeActions().stream().filter("render-maintenance-resume-source"::equals).count());
+    }
+
     @Test public void checkpointlessApprovedServiceClosesTheSameVerifiedInitialSourceThenRestoresNormally()throws Exception {
         fixture.manager.prepareConfigurationCloneInitialBaseline(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
         fixture.manager.authorizeConfigurationCloneProfile(fixture.instanceRows.get(80L),fixture.artifactRows.get(900L),fixture.executionPlan());
@@ -674,6 +774,7 @@ public class StorageConfigRestoreWholeFlowTest {
             JsonObject requested=obj(body);Assert.assertEquals("NAME_DOMAIN",requested.get("idMappingMode").getAsString());
             return fresh(obj("{\"idMappingMode\":\"NAME_DOMAIN\"}"));
         }
+        if(command.equals("operation generation render-service-capture-source")||command.equals("operation generation render-service-source-unheld-verify")||command.equals("operation generation render-service-identity-export-source"))return generation(command,obj(body));
         if(command.equals("identity capsule capabilities")||command.equals("identity capsule export-local-source")||command.equals("identity capsule export")||command.equals("smb identity local-source-status")||command.equals("operation generation render-status"))return generation(command,body==null||body.isBlank()?new JsonObject():obj(body));
         return super.guest(command,body);
     }
@@ -699,7 +800,29 @@ public class StorageConfigRestoreWholeFlowTest {
         return actual;
     }
 
-    org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd existingApprovedCommand(String key)throws Exception {
+    void installNfsOnlyImport()throws Exception {
+        var entries=new java.util.LinkedHashMap<>(StorageConfigArchive.validate(store.read(ARTIFACT,archiveSha)));
+        JsonObject manifest=obj(new String(entries.remove("manifest.json"),StandardCharsets.UTF_8));entries.remove("SHA256SUMS");manifest.remove("checksums");
+        java.util.Set<String> shares=new java.util.HashSet<>();
+        for(String kind:java.util.List.of("protocols","file-shares")) {
+            JsonArray filtered=new JsonArray();for(JsonElement item:com.google.gson.JsonParser.parseString(new String(entries.get("desired/"+kind+".json"),StandardCharsets.UTF_8)).getAsJsonArray())
+                if("NFS".equals(item.getAsJsonObject().get("protocol").getAsString())){filtered.add(item);if("file-shares".equals(kind))shares.add(item.getAsJsonObject().get("uuid").getAsString());}
+            entries.put("desired/"+kind+".json",filtered.toString().getBytes(StandardCharsets.UTF_8));
+        }
+        JsonArray acls=new JsonArray();for(JsonElement item:com.google.gson.JsonParser.parseString(new String(entries.get("desired/access-rules.json"),StandardCharsets.UTF_8)).getAsJsonArray())
+            if(shares.contains(item.getAsJsonObject().get("resourceUuid").getAsString()))acls.add(item);
+        entries.put("desired/access-rules.json",acls.toString().getBytes(StandardCharsets.UTF_8));
+        for(String kind:java.util.List.of("block-targets","identity-domain"))entries.put("desired/"+kind+".json","[]".getBytes(StandardCharsets.UTF_8));
+        byte[] archive=StorageConfigArchive.create(entries,manifest);String imported=id(1901);StorageConfigArtifactVO row=copy(artifactRows.get(900L),StorageConfigArtifactVO.class);
+        set(row,"id",901L);set(row,"uuid",imported);row.setInstanceId(80);row.setState("ARCHIVE_VALIDATED");row.setMetadataJson("{}");row.setSha256(StorageConfigArchive.sha256(archive));row.setSize(archive.length);
+        artifactRows.put(901L,row);store.write(imported,archive);
+        Mockito.when(artifacts.lockRow(901L,true)).thenAnswer(c->copy(artifactRows.get(901L),StorageConfigArtifactVO.class));
+        Mockito.when(artifacts.update(Mockito.eq(901L),Mockito.any())).thenAnswer(c->{artifactRows.put(901L,copy(c.getArgument(1),StorageConfigArtifactVO.class));return true;});
+    }
+
+    org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd existingApprovedCommand(String key)throws Exception {return existingApprovedCommand(key,false);}
+    org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd activeApprovedCommand(String key)throws Exception {return existingApprovedCommand(key,true);}
+    org.apache.cloudstack.api.command.admin.storage.dataservice.ApplyStorageServiceApprovedMaintenanceCmd existingApprovedCommand(String key,boolean active)throws Exception {
         String imported=id(1901);
         if(!artifactRows.containsKey(901L)){
             StorageConfigArtifactVO row=copy(artifactRows.get(900L),StorageConfigArtifactVO.class);set(row,"id",901L);set(row,"uuid",imported);
@@ -709,24 +832,70 @@ public class StorageConfigRestoreWholeFlowTest {
         }
         JsonObject mapping=new JsonObject(),volumes=new JsonObject(),listeners=new JsonObject();
         for(var item:sourceToTarget.entrySet())volumes.addProperty(item.getKey(),item.getValue());mapping.add("volumes",volumes);
-        listeners.addProperty("10.10.13.223","PRIMARY");if(primaryNfsFourProtocols)listeners.addProperty("0.0.0.0","PRIMARY");mapping.add("listenerAddresses",listeners);
-        JsonObject currentProtocols=manager.configurationProtocolIntentSnapshot(instanceRows.get(80L)),protocols=new JsonObject();
+        StorageConfigArtifactVO importedArtifact=artifactRows.get(901L);
+        var sourceResources=StorageConfigRestorePlan.resources(StorageConfigArchive.validate(store.read(importedArtifact.getUuid(),importedArtifact.getSha256())));
+        for(JsonElement item:sourceResources.get("protocols")) {
+            JsonObject row=item.getAsJsonObject();JsonElement address=row.get("listen_ip");
+            if(address!=null&&!address.isJsonNull())listeners.addProperty(address.getAsString(),"0.0.0.0".equals(address.getAsString())?"0.0.0.0":"PRIMARY");
+        }
+        mapping.add("listenerAddresses",listeners);
+        JsonObject protocols=new JsonObject();
+        if(active) {
+            String snapshot=manager.captureConfigurationSnapshot(80L);
+            var actual=StorageConfigRestorePlan.resources(StorageConfigSemantic.export(snapshot,manager.configurationInstanceMetadata(instanceRows.get(80L)),manager.configurationVolumeMetadata(instanceRows.get(80L),snapshot)));
+            var importedRow=artifactRows.get(901L);var archived=StorageConfigRestorePlan.resources(StorageConfigArchive.validate(store.read(importedRow.getUuid(),importedRow.getSha256())));
+            for(String kind:java.util.List.of("protocols","posix-directory-policies","file-shares","block-targets","access-rules","identity-domain")) {
+                JsonObject selected=new JsonObject();
+                for(JsonElement value:archived.get(kind)) {
+                    JsonObject desired=value.getAsJsonObject();java.util.List<JsonObject> candidates=new java.util.ArrayList<>();
+                    for(JsonElement entry:actual.get(kind)) {
+                        JsonObject candidate=entry.getAsJsonObject();boolean matches=true;
+                        String[] identity="protocols".equals(kind)?new String[]{"protocol","port"}:
+                            "file-shares".equals(kind)?new String[]{"protocol","name"}:"block-targets".equals(kind)?new String[]{"protocol","target_name","lun_or_namespace"}:
+                            "access-rules".equals(kind)?new String[]{"resource_type","principal_type","principal"}:"posix-directory-policies".equals(kind)?new String[]{"relative_path"}:new String[]{"domain_name"};
+                        for(String field:identity)if(!java.util.Objects.equals(desired.get(field),candidate.get(field)))matches=false;
+                        if("protocols".equals(kind)) {
+                            JsonObject bound=desired.deepCopy();String address=bound.has("listen_ip")&&!bound.get("listen_ip").isJsonNull()?bound.get("listen_ip").getAsString():"0.0.0.0";
+                            if(listeners.has(address)) {String selectedAddress=listeners.get(address).getAsString();bound.addProperty("listen_ip","PRIMARY".equals(selectedAddress)?manager.configurationPrimaryAddress(instanceRows.get(80L)):selectedAddress);}
+                            if(!StorageConfigRestorePlan.protocolTuple(bound).equals(StorageConfigRestorePlan.protocolTuple(candidate)))matches=false;
+                        }
+                        if(desired.has("volumeUuid")) {
+                            String targetVolume=sourceToTarget.get(desired.get("volumeUuid").getAsString());
+                            if(targetVolume==null||!candidate.has("volumeUuid")||!targetVolume.equals(candidate.get("volumeUuid").getAsString()))matches=false;
+                        }
+                        if("access-rules".equals(kind)) {
+                            String ownerKind="FILE_SHARE".equals(desired.get("resource_type").getAsString())?"file-shares":"block-targets";
+                            JsonObject ownerMapping=mapping.getAsJsonObject(ownerKind);String sourceOwner=desired.get("resourceUuid").getAsString();
+                            if(ownerMapping==null||!ownerMapping.has(sourceOwner)||!ownerMapping.get(sourceOwner).equals(candidate.get("resourceUuid"))
+                                    ||!java.util.Objects.equals(desired.get("permission"),candidate.get("permission")))matches=false;
+                        }
+                        if("block-targets".equals(kind)&&!java.util.Objects.equals(desired.getAsJsonObject("config").get("type"),candidate.getAsJsonObject("config").get("type")))matches=false;
+                        if(matches)candidates.add(candidate);
+                    }
+                    Assert.assertEquals(kind+" has no unique actual owned match",1,candidates.size());selected.addProperty(desired.get("uuid").getAsString(),candidates.get(0).get("uuid").getAsString());
+                }
+                mapping.add(kind,selected);if("protocols".equals(kind))protocols=selected;
+            }
+        } else {
+        JsonObject currentProtocols=manager.configurationProtocolIntentSnapshot(instanceRows.get(80L));
         Assert.assertEquals(1,currentProtocols.size());String defaultUuid=currentProtocols.keySet().iterator().next();
         JsonObject constructor=currentProtocols.getAsJsonObject(defaultUuid);Assert.assertEquals("NFS",constructor.get("protocol").getAsString());
         Assert.assertEquals("0.0.0.0",constructor.get("listenIp").getAsString());Assert.assertEquals(2049,constructor.get("port").getAsInt());
         for(JsonElement entry:StorageConfigRestorePlan.resources(StorageConfigArchive.validate(store.read(ARTIFACT,archiveSha))).get("protocols")) {
             JsonObject source=entry.getAsJsonObject();
-            if("NFS".equals(source.get("protocol").getAsString())&&(!source.has("listen_ip")||source.get("listen_ip").isJsonNull())&&source.get("port").getAsInt()==2049)
+            if("NFS".equals(source.get("protocol").getAsString())&&(!source.has("listen_ip")||source.get("listen_ip").isJsonNull()||"0.0.0.0".equals(source.get("listen_ip").getAsString()))&&source.get("port").getAsInt()==2049)
                 protocols.addProperty(source.get("uuid").getAsString(),defaultUuid);
         }
         Assert.assertEquals(1,protocols.size());mapping.add("protocols",protocols);
+        }
         JsonObject parameters=new JsonObject();parameters.addProperty("instanceid",80);parameters.addProperty("artifactid",901);parameters.addProperty("targetmode","RESTORE_EXISTING");parameters.addProperty("mapping",mapping.toString());
         var review=(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceConfigRestoreCmd)StorageConfigCommandBinding.bind(org.apache.cloudstack.api.command.user.storage.dataservice.PlanStorageServiceConfigRestoreCmd.class,parameters);
-        JsonObject result=obj(new com.google.gson.Gson().toJson(manager.storageServiceConfiguration(review)));String token=obj(result.get("result").getAsString()).get("planToken").getAsString();
+        JsonObject result=obj(new com.google.gson.Gson().toJson(manager.storageServiceConfiguration(review))),publicPlan=obj(result.get("result").getAsString());
+        Assert.assertTrue("Reviewed fixture plan must be executable: "+publicPlan,publicPlan.has("planToken"));String token=publicPlan.get("planToken").getAsString();
         JsonObject reviewed=obj(artifactRows.get(901L).getMetadataJson()).getAsJsonObject("plan"),credentials=new JsonObject();
         Assert.assertEquals("RESTORE_EXISTING",reviewed.get("targetMode").getAsString());Assert.assertEquals(0,reviewed.getAsJsonArray("blockers").size());
         Assert.assertEquals(protocols,reviewed.getAsJsonObject("resourceMappings").get("protocols"));
-        for(JsonElement entry:reviewed.getAsJsonArray("preserve"))Assert.assertNotEquals("protocols",entry.getAsJsonObject().get("kind").getAsString());
+        if(!active)for(JsonElement entry:reviewed.getAsJsonArray("preserve"))Assert.assertNotEquals("protocols",entry.getAsJsonObject().get("kind").getAsString());
         for(JsonElement item:reviewed.getAsJsonArray("requiredCredentials")){
             JsonObject rule=item.getAsJsonObject(),values=new JsonObject();for(JsonElement field:rule.getAsJsonArray("fields"))values.addProperty(field.getAsString(),"fixture-secret");credentials.add(rule.get("ruleUuid").getAsString(),values);
         }

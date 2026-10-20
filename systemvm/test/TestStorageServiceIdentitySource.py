@@ -91,6 +91,33 @@ class StorageServiceIdentitySourceTest(unittest.TestCase):
         state={"state":"JOINED","machineConfigurationSha256":hashlib.sha256(machine.encode()).hexdigest()}
         rendered_json(self.config/"smb-domain.json",state)
         self.active.append({"unit":"ablestack-storage-winbind.service","pid":101,"startTicks":"24","configurationPath":"/etc/ablestack-storage/ad-machine.conf","listenerEndpoints":[]})
+    def test_captured_unheld_source_verifies_same_owners_before_and_after_own_pending_abort_without_replay(self):
+        captured=self.source.capture(self.scope);record=self.source.path(self.scope).read_bytes()
+        self.actual.update(generationStatus="PENDING",pendingOperationUuid=self.operation)
+        before=self.source.unheld_verify(self.scope)
+        self.actual.update(generationStatus="IN_SYNC",pendingOperationUuid=None)
+        after=self.source.unheld_verify(self.scope)
+        self.assertEqual(before,after);self.assertTrue(after["unheldSourceVerified"])
+        self.assertFalse(after["sideEffects"]);self.assertEqual(record,self.source.path(self.scope).read_bytes())
+        for key,value in captured.items():self.assertEqual(value,after[key])
+
+    def test_unheld_verification_rejects_changed_owner_foreign_pending_and_live_protocol_failure(self):
+        self.source.capture(self.scope);original=copy.deepcopy(self.active)
+        self.active[0]["startTicks"]="999"
+        with self.assertRaises(ValueError):self.source.unheld_verify(self.scope)
+        self.active=original;self.actual.update(generationStatus="PENDING",pendingOperationUuid=str(uuid.uuid4()))
+        with self.assertRaises(ValueError):self.source.unheld_verify(self.scope)
+        self.actual.update(generationStatus="IN_SYNC",pendingOperationUuid=None)
+        self.driver.verify=lambda path:{"NFS":False,"SMB":True,"ISCSI":True,"NVMEOF":True}
+        with self.assertRaises(ValueError):self.source.unheld_verify(self.scope)
+
+    def test_stopped_source_cannot_be_reclassified_as_unheld_or_borrow_an_inactive_marker(self):
+        self.source.capture(self.scope);self.journal();self.source.stopped(self.scope)
+        with self.assertRaises(ValueError):self.source.unheld_verify(self.scope)
+        original=self.runtime.command
+        self.runtime.command=lambda args,payload=None:{"bootHeld":False} if args==("operation","maintenance","status") else original(args,payload)
+        with self.assertRaises(ValueError):self.source.unheld_verify(self.scope)
+
     def test_afterstop_shared_journal_uses_existing_maintenance_reader_under_parent_0755(self):
         self.source.capture(self.scope);self.journal()
         self.source.stopped(self.scope)

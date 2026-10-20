@@ -47,6 +47,13 @@ RUNTIME_CODE_PHASES = {
     "NATIVE_CHILD_FAILED": "TRANSPORT",
     "NATIVE_CHILD_INPUT_UNAVAILABLE": "TRANSPORT",
     "RUNTIME_PREPARE_FAILED": "PREPARE",
+    "STAGE_INPUT_INVALID": "STAGE",
+    "STAGE_CREDENTIAL_BINDING_FAILED": "STAGE",
+    "STAGE_RENDER_FAILED": "STAGE",
+    "STAGE_SOURCE_SCOPE_MISMATCH": "STAGE",
+    "STAGE_SOURCE_VERIFY_FAILED": "STAGE",
+    "STAGE_SOURCE_IDENTITY_FAILED": "STAGE",
+    "STAGE_CANDIDATE_VALIDATION_FAILED": "STAGE",
     "RUNTIME_APPLY_FAILED": "APPLY",
     "RUNTIME_VERIFY_FAILED": "VERIFY",
     "RUNTIME_ROLLBACK_FAILED": "ROLLBACK",
@@ -65,7 +72,7 @@ def sanitized_runtime_diagnostic(value):
         return None
     if (value["code"].startswith("NFS_") or value["code"] == "ENDPOINT_LISTENER_ADDRESS_MISMATCH") and value["protocol"] != "NFS":
         return None
-    if value["code"] in ("RUNTIME_PREPARE_FAILED", "NATIVE_CHILD_INPUT_UNAVAILABLE") and value["protocol"] != "GENERATION":
+    if (value["code"].startswith("STAGE_") or value["code"] in ("RUNTIME_PREPARE_FAILED", "NATIVE_CHILD_INPUT_UNAVAILABLE")) and value["protocol"] != "GENERATION":
         return None
     return dict(value)
 
@@ -300,7 +307,27 @@ class RenderedGeneration:
             raise ValueError("Rendered activation scope changed")
         return journal
 
-    def activate(self, request, replay, verify, persist_desired=None, prerequisites=None):
+    def service_source_resume(self, value, scope, source):
+        # This is a fixed in-process adapter argument, never an RPC field.
+        # Only file acceptors stopped by the authenticated SERVICE source may
+        # supplement content changes; block targets are not restart candidates.
+        if value is None:return None
+        fields={"schemaVersion","scope","bootId","sourceRenderedManifestSha256",
+                "sourceConfigurationSha256","stoppedReceiptSha256","stoppedDomains"}
+        if (type(value) is not dict or set(value)!=fields or type(value["schemaVersion"]) is not int or value["schemaVersion"]!=1
+                or value.get("scope")!=scope or type(value.get("bootId")) is not str
+                or str(uuid.UUID(value["bootId"]))!=value["bootId"]
+                or any(type(value.get(name)) is not str or not re.fullmatch(r"[0-9a-f]{64}",value[name])
+                       for name in ("sourceRenderedManifestSha256","sourceConfigurationSha256","stoppedReceiptSha256"))
+                or source is None or value["sourceRenderedManifestSha256"]!=source["manifestSha256"]
+                or value["sourceConfigurationSha256"]!=source["configurationSha256"]
+                or source["scope"]["instanceUuid"]!=scope["instanceUuid"]
+                or type(value["stoppedDomains"]) is not list
+                or value["stoppedDomains"]!=[domain for domain in ("NFS","SMB") if domain in value["stoppedDomains"]]):
+            raise ValueError("SERVICE stopped-domain replay proof differs from its exact source")
+        return json.loads(json.dumps(value,sort_keys=True))
+
+    def activate(self, request, replay, verify, persist_desired=None, prerequisites=None, service_source_resume=None):
         scope = self.scope(request); target = self.generations / scope["operationUuid"]
         manifest = self.inspect(target); journal = self.read_journal()
         if request.get("renderedManifestSha256", manifest["manifestSha256"]) != manifest["manifestSha256"]:
@@ -317,13 +344,27 @@ class RenderedGeneration:
             journal = self.scoped_activation(request)
             if journal["targetSha256"] != manifest["manifestSha256"] or (current or {}).get("manifestSha256") not in (journal["targetSha256"], journal["previousSha256"]):
                 raise ValueError("Interrupted rendered activation pointer differs from its pinned scope")
+            saved_resume=journal.get("serviceSourceResume")
+            if saved_resume is not None:
+                previous=self.inspect(self.generations/str(uuid.UUID(journal["previousOperationUuid"])))
+                if previous["manifestSha256"]!=journal["previousSha256"]:
+                    raise ValueError("SERVICE resumed source pointer changed")
+                saved_resume=self.service_source_resume(saved_resume,scope,previous)
+                expected=[domain for domain in DOMAINS if manifest["domainSha256"][domain]!=previous["domainSha256"][domain] or domain in saved_resume["stoppedDomains"]]
+                if journal["changedDomains"]!=expected or service_source_resume is not None and service_source_resume!=saved_resume:
+                    raise ValueError("SERVICE stopped-domain replay receipt changed")
+            elif service_source_resume is not None:
+                raise ValueError("Interrupted activation cannot acquire new SERVICE replay domains")
         else:
             if manifest["previousRenderedSha256"] != (current or {}).get("manifestSha256"):
                 raise ValueError("Rendered pointer changed before activation")
-            changed = [domain for domain in DOMAINS if manifest["domainSha256"][domain] != (current or {}).get("domainSha256", {}).get(domain)]
+            resume=self.service_source_resume(service_source_resume,scope,current)
+            stopped=resume["stoppedDomains"] if resume is not None else []
+            changed = [domain for domain in DOMAINS if manifest["domainSha256"][domain] != (current or {}).get("domainSha256", {}).get(domain) or domain in stopped]
             journal = {"scope": scope, "phase": "ACTIVATING", "targetSha256": manifest["manifestSha256"],
                        "previousSha256": (current or {}).get("manifestSha256"), "previousOperationUuid": (current or {}).get("scope", {}).get("operationUuid"),
                        "changedDomains": changed, "startedDomains": [], "appliedDomains": [], "startedEpoch": time.time()}
+            if resume is not None:journal["serviceSourceResume"]=resume
             rendered_json(self.journal, journal)
         failure_protocol = "GENERATION"
         failure_code = "RUNTIME_PREPARE_FAILED"
