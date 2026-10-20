@@ -463,14 +463,12 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             final String fixed = "iscsi target apply".equals(command.getOperation()) ? fixedIscsiFailureDiagnostic(stdout) : null;
             return fixed == null ? masked : masked + " [" + fixed + "]";
         }
-        if ("nfs export apply".equals(command.getOperation())) {
+        if ("nfs export apply".equals(command.getOperation()) && hasNfsSourceFailureEnvelope(stdout)) {
             final String fixed = fixedNfsFailureDiagnostic(stdout);
-            // Readiness envelopes have a closed public diagnostic. A stderr
-            // message must not replace that cause or expose private context.
-            if (fixed != null || hasNfsFailureEnvelope(stdout)) {
-                return "Storage Service command failed with exit code " + exitCode + ": "
-                        + (fixed == null ? "No guest diagnostic" : fixed);
-            }
+            // SOURCE verification has a closed public cause. Do not replace
+            // it with stderr, including when its phase/code pair is invalid.
+            return "Storage Service command failed with exit code " + exitCode + ": "
+                    + (fixed == null ? "No guest diagnostic" : fixed);
         }
         String diagnostic=stderr;
         if (diagnostic == null || diagnostic.trim().isEmpty()) {
@@ -487,16 +485,17 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         return "Storage Service command failed with exit code " + exitCode + ": " + diagnostic.substring(0,Math.min(diagnostic.length(),2048));
     }
 
-    private boolean hasNfsFailureEnvelope(String stdout) {
+    private boolean hasNfsSourceFailureEnvelope(String stdout) {
         if (stdout == null || stdout.length() > 1024 * 1024) return false;
-        try (JsonReader reader = new JsonReader(new StringReader(stdout))) {
-            reader.setLenient(false);reader.beginObject();
-            while (reader.hasNext()) {
-                if ("lastFailure".equals(reader.nextName())) return true;
-                reader.skipValue();
-            }
-        } catch (java.io.IOException | RuntimeException malformed) { /* Preserve legacy diagnostics without an envelope. */ }
-        return false;
+        try {
+            JsonObject result = new JsonParser().parse(stdout).getAsJsonObject();
+            JsonObject failure = result.getAsJsonObject("lastFailure");
+            if (failure == null) return false;
+            return failure.has("code") && failure.get("code").isJsonPrimitive()
+                    && "NFS_SOURCE_CHANGED".equals(failure.get("code").getAsString())
+                    || failure.has("phase") && failure.get("phase").isJsonPrimitive()
+                    && "VERIFY_SOURCE".equals(failure.get("phase").getAsString());
+        } catch (RuntimeException malformed) { return false; }
     }
 
     private String fixedNfsFailureDiagnostic(String stdout) {
