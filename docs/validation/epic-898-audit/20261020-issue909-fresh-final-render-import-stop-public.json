@@ -1,0 +1,160 @@
+{
+  "issue": 909,
+  "epic": 898,
+  "productCommit": "4ccfd963794b9a8416a6ae04a9ced902452d28ab",
+  "baseUpstreamSynced": true,
+  "freshVm": {
+    "sharedFsId": "1c15a521-1795-4e74-b008-62ecb32782b9",
+    "instanceId": "fbf32877-7746-4787-9f70-151b48d8f709",
+    "vmId": "88c1b618-38c7-474c-9b4b-8fa4284e9245",
+    "vmName": "i-2-91-VM",
+    "rootId": "2bba615a-dc2d-496b-8b2b-b3d7553a939c",
+    "bootId": "f622a75b-64fa-4a31-bcd6-3a870f5acf8f",
+    "created": "2026-10-20T12:37:17+0900",
+    "ip": "10.10.13.228",
+    "mac": "02:0d:00:cc:00:2f",
+    "allDisksSparse": true
+  },
+  "actualDownloadedBackup": {
+    "backupId": "8be554e3-f10c-466b-9ab4-79551074d020",
+    "backupBytes": 9989,
+    "backupSha256": "8795acf01fa2955ed06f7c46db5149b897bb054e3ad73232254d109f3d1c532b",
+    "backupRevision": 12
+  },
+  "beforeRestoreChecks": {
+    "fourProtocolsConcurrentIoPassed": true,
+    "uiNfsSmbReadOnlyChangePassed": true,
+    "nfsSmbWriteDeniedAfterChange": true,
+    "allNativeDataPreservedBeforeRestore": true
+  },
+  "initialPreflightOmission": {
+    "initialJobId": "043541a2-7bfb-4032-be64-3a4dd3f9ea12",
+    "classification": "TEST_PREFLIGHT_PROFILE_OMITTED",
+    "notProductRestoreExecutionFailure": true,
+    "nativeWriterCreated": false,
+    "nativeRevisionBeforeAndAfter": 14,
+    "nativeDataIdentityUnchanged": true,
+    "profilePreparedByExistingSupportedApi": true,
+    "retryOfUnchangedFailedState": false,
+    "codeChange": false
+  },
+  "correctedProfile": {
+    "revision": 1,
+    "kind": "NEW_SPARSE_ALL4_VALIDATION",
+    "productionCapability": false,
+    "excludedOtherInstances": 15
+  },
+  "actualRestoreFailure": {
+    "stage": "ACTUAL_APPROVED_MAINTENANCE_RESTORE",
+    "jobId": "ee6c499e-2a83-47e2-87d4-56655bf427e8",
+    "jobResult": {
+      "errorcode": 530,
+      "errortext": "ROOT runtime step failed: operation generation render-import"
+    },
+    "operation": {
+      "id": "05a393fa-a3f1-4f24-814f-afb3d9684235",
+      "instanceid": "fbf32877-7746-4787-9f70-151b48d8f709",
+      "action": "SERVICE_MAINTENANCE",
+      "state": "RECOVERY_REQUIRED",
+      "phase": "RECOVERY_REQUIRED",
+      "revision": 15,
+      "progress": 0,
+      "created": "2026-10-20T15:29:58+0900",
+      "heartbeat": "2026-10-20T15:29:58+0900",
+      "diagnostic": "Approved service maintenance requires its scoped recovery"
+    },
+    "noRetry": true,
+    "observedAtEpoch": 1792477812.4199119
+  },
+  "readOnlyDiagnosis": {
+    "nativeImportOrStageOrActivationExecuted": false,
+    "managedFilesWritten": false,
+    "stage": "PURE_RENDER_IN_RAM",
+    "exceptionType": "ValueError",
+    "reason": "Block listener group is invalid",
+    "frames": [
+      {
+        "file": "<string>",
+        "function": "<module>",
+        "line": 18
+      },
+      {
+        "file": "rendered_driver.py",
+        "function": "render",
+        "line": 249
+      },
+      {
+        "file": "native_renderers.py",
+        "function": "render_block_candidate",
+        "line": 228
+      }
+    ],
+    "renderedRootStillAbsent": true
+  },
+  "sourceBlockListenerRepresentations": [
+    {
+      "protocol": "ISCSI",
+      "resourceUuid": "9e08fcfd-c218-4796-af44-e1031f9cd0cb",
+      "listenerPorts": "3260",
+      "listenerPortsType": "str",
+      "validatedConfigListenerGroupPorts": [
+        3260
+      ]
+    },
+    {
+      "protocol": "NVME_OF",
+      "resourceUuid": "4af81443-3ee4-4277-a99b-7e7e4b71de51",
+      "listenerPorts": "4420",
+      "listenerPortsType": "str",
+      "validatedConfigListenerGroupPorts": [
+        4420
+      ]
+    }
+  ],
+  "currentEffects": {
+    "nativeGeneration": {
+      "configurationSha256": "bf9b91926b2a2503a42ac05f5f2dfaeaacca96226515d5a479e9b34247a65cad",
+      "instanceUuid": "fbf32877-7746-4787-9f70-151b48d8f709",
+      "operationUuid": "93c3940c-122f-461a-82a5-8e63390ba16c",
+      "revision": 14,
+      "verifiedAt": 1792477081.2858403
+    },
+    "nativePendingOperationUuid": null,
+    "nativeStatus": "IN_SYNC",
+    "renderedPointer": null,
+    "renderedHeld": false,
+    "maintenanceHeld": false,
+    "listenerStates": {
+      "iscsi": true,
+      "iscsiPorts": {
+        "3260": true
+      },
+      "nfs": true,
+      "nvmeof": true,
+      "nvmeofPorts": {
+        "4420": {
+          "configured": true,
+          "linked": true,
+          "listening": true,
+          "state": "LISTENING"
+        }
+      },
+      "smb": true
+    },
+    "allFileRawDataAndIdentityUnchanged": true,
+    "sourceReadOnlyChangesRemain": true,
+    "moldWriterRecoveryRequired": true,
+    "noFurtherRestoreOrReconcileOrResourceCleanupPerformed": true
+  },
+  "remaining": [
+    "SOURCE listener representation compatibility and import diagnostic fix",
+    "scoped recovery of original pre-import failed writer",
+    "fresh VM and ROOT before next restoration test",
+    "same-service full UI restore with API/UI/four clients/data preservation",
+    "CREATE_NEW existing DATA4 acceptance",
+    "CREATE_NEW all-new SPARSE DATA4 acceptance",
+    "test-owned resource cleanup and final closure review"
+  ],
+  "issueClosed": false,
+  "additionalProductCodeChanges": false
+}
