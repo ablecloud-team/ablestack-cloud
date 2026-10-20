@@ -1,0 +1,50 @@
+{
+  "10.10.13.1": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/root/issue909-nfs-endpoint-transaction-6698df542462/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "88da4035ff5a75f442b4e27038d9d73efc181d1d9cbf12cdf2a2556091da1389",
+    "newJarSha256": "6dbe55f9a1977ee5982798ecf73da69e96aac08d640f090a4e89f13b17bb3848",
+    "addedClasses": [],
+    "changedClasses": {
+      "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "bd5f28aaa74624c3d7b98a538d9e380006d0e32150a01891fe859306d477d313"
+    },
+    "unchangedEntriesVerified": 514,
+    "service": "mold-agent",
+    "active": "active",
+    "pid": "4151082",
+    "sourceCommit": "6698df542462cc714f793da192d03b01d3008351"
+  },
+  "10.10.13.2": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/root/issue909-nfs-endpoint-transaction-6698df542462/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "9476ef63bb0cd69433b18299ae372881c00d4f1d566be422d52a5fe7a4907ec8",
+    "newJarSha256": "0fa262345e03d673e5ee3554a399fc47e0c1d18ed0194c9b124c0dda162dbff8",
+    "addedClasses": [],
+    "changedClasses": {
+      "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "bd5f28aaa74624c3d7b98a538d9e380006d0e32150a01891fe859306d477d313"
+    },
+    "unchangedEntriesVerified": 514,
+    "service": "mold-agent",
+    "active": "active",
+    "pid": "3504496",
+    "sourceCommit": "6698df542462cc714f793da192d03b01d3008351"
+  },
+  "10.10.13.3": {
+    "success": true,
+    "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "backup": "/root/issue909-nfs-endpoint-transaction-6698df542462/cloud-plugin-hypervisor-kvm-4.23.0.0-Mold.Europa-202610011115.jar",
+    "oldJarSha256": "25a390911a9a54a97e2664c143bae62f67e311a2abe10762d4c260ce151da862",
+    "newJarSha256": "f39aca2b2531d3603175bb4ceb93d4e378e55ce9d97da8c890b6e3c6045fbcf3",
+    "addedClasses": [],
+    "changedClasses": {
+      "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "bd5f28aaa74624c3d7b98a538d9e380006d0e32150a01891fe859306d477d313"
+    },
+    "unchangedEntriesVerified": 506,
+    "service": "mold-agent",
+    "active": "active",
+    "pid": "2251672",
+    "sourceCommit": "6698df542462cc714f793da192d03b01d3008351"
+  }
+}

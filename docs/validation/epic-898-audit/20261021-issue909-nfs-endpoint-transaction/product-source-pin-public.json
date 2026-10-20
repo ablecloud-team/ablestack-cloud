@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "nativeExecutionCommit": "2b74921653963d3125edd37916036c56cbc437c0",
+  "nativeCliSha256": "516e4eee9269e2b2ccb695c523b0d31b65612cc95d4d377a0422c77ef282ca98",
+  "uiArtifactSourceCommit": "a607138400bb2c6b52859702c5a3e1796337b2e5",
+  "uiProductTreeExactMatch": true,
+  "validatedForProductCommit": "6698df542462cc714f793da192d03b01d3008351"
+}

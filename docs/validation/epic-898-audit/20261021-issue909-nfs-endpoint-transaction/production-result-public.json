@@ -1,0 +1,20 @@
+{
+  "sourceCommit": "a607138400bb2c6b52859702c5a3e1796337b2e5",
+  "command": [
+    "./node_modules/.bin/vue-cli-service",
+    "build",
+    "--dest",
+    "/root/work/epic898-preparation/issue909-20261017/report/nfs-endpoint-transaction-fix-20261020/dist"
+  ],
+  "productionExit": 0,
+  "startedEpoch": 1792507366.0695798,
+  "completedEpoch": 1792508024.6318014,
+  "configRestoredExact": true,
+  "sourceUnchanged": false,
+  "buildWorkers": 2,
+  "uiProductSourcesUnchanged": true,
+  "wholeRepositoryHeadChangedDuringBuild": true,
+  "validatedForProductCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "uiProductTreeExactMatch": true,
+  "provenanceNote": "Server and test-only commits changed HEAD while UI compiled; the UI product source tree is exactly unchanged from artifactSourceCommit. Original build metadata retained separately."
+}

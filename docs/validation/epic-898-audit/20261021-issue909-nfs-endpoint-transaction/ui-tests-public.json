@@ -1,0 +1,64 @@
+{
+  "status": "UI_SOURCE_REFROZEN",
+  "baseHead": "3cae4b5745d",
+  "validation": {
+    "suites": 10,
+    "tests": 227,
+    "failures": 0,
+    "lint": "PASS",
+    "diffCheck": "PASS",
+    "nodeHeapMiB": 3072,
+    "coverage": false,
+    "testLog": "/root/work/epic898-preparation/issue909-20261017/report/ui-nfs-address-source-fix-20261020/tests-refreeze.log",
+    "lintLog": "/root/work/epic898-preparation/issue909-20261017/report/ui-nfs-address-source-fix-20261020/unsupported-state-lint.log"
+  },
+  "changes": [
+    "Existing address reuse and new-address preparation are described separately from each protocol listener port",
+    "Only fresh same-BOOT validated networkReadiness with the selected actual IP displays observed; configuration/NIC choice alone never establishes guest readiness",
+    "Address evidence expires after 30 seconds using a local UI timer with no background API requests",
+    "Existing enableStorageServiceProtocol remains one mutation API request; no UI network-prepare/publish/source-restore API or flags added",
+    "Closed NFS_SOURCE_CHANGED at VERIFY_SOURCE, ENDPOINT_PREPARATION_FAILED, NFS_RUNTIME_NOT_READY and ENDPOINT_SOURCE_RESTORE_FAILED causes are distinct",
+    "ENDPOINT_PREPARATION_UNSUPPORTED preserves signed runtime upgrade guidance; prewriter errors infer no rollback, while an exact admitted operation terminal state or fresh same-operation RECOVERY_REQUIRED remains visible and gated",
+    "Original job cause remains primary; rollback code comes only from the latest same-operation, same-instance, same-resource, same-security operation diagnostic",
+    "Actual rollback failure uses RECOVERY_REQUIRED; historical completed BLOCKED handling remains unchanged",
+    "BOOT display/schema and final UI layout standardization issue 1275 are unchanged"
+  ],
+  "connectedModalTest": {
+    "productionFlow": "Vue modal confirmation -> submitActionModal -> enableProtocol -> runStorageAction -> single POST -> jobstatus2 NFS_SOURCE_CHANGED/VERIFY_SOURCE -> latest matching operation diagnostic ENDPOINT_SOURCE_RESTORE_FAILED -> primary cause retained -> RECOVERY_REQUIRED gate -> confirmation disabled -> repeated button click creates no second POST",
+    "negativeChecks": [
+      "Unrelated operation diagnostic ignored",
+      "Stale operation read ignored",
+      "Private error payload never displayed",
+      "Pending duplicate confirmations serialized",
+      "Unsupported runtime job and HTTP errors do not imply rollback or automatically retry",
+      "Unsupported recheck after admission preserves actual RECOVERY_REQUIRED or ROLLED_BACK; fresh exact same-operation recovery overrides a prior BLOCKED job label without a second POST"
+    ]
+  },
+  "newFiles": [
+    "ui/src/utils/storageProtocolActivation.js",
+    "ui/src/views/storage/StorageProtocolAddressStatus.vue",
+    "ui/tests/unit/views/storage/StorageProtocolActivation.spec.js"
+  ],
+  "sha256": {
+    "ui/src/utils/storageProtocolActivation.js": "696b55503f93312ec18a7c963a61a0891e907a8897e46c5abf6f72278382e105",
+    "ui/src/views/storage/StorageProtocolAddressStatus.vue": "6b1d3ac0d1b6b5706b4cd1ca005a0d277aabc2092cc82fe58f6fc5b94238746e",
+    "ui/src/views/storage/SharedFSTab.vue": "ef23df57be853e1bd6a249206ccb8179338afebc7b7f3d73bd08240677488b9a",
+    "ui/public/locales/en.json": "ae8207fe7f8cd32d133bf73b82b919e862099fd4952f7e24341a704de1ece9a1",
+    "ui/public/locales/ko_KR.json": "c22bc1b68ef5d41d9b836be424a2ba7141d0ef5c82192c44473e074c68ce2236",
+    "ui/tests/unit/views/storage/StorageProtocolActivation.spec.js": "7f3fc702dc593561b98287f61cd0f0e611f105ca68c04e5d27b655b4e6c2046f",
+    "ui/tests/unit/views/storage/SharedFSLocale.spec.js": "f13f9abc88aa0f0e8daeb26d85271ed27b9bc52fbb04404b00a47362790e2ca0"
+  },
+  "notPerformed": [
+    "Git commit/push",
+    "Module build",
+    "Deployment",
+    "Remote API or QGA",
+    "Actual browser acceptance",
+    "Full backup or restore validation"
+  ],
+  "refreezeChangeScope": [
+    "ui/src/utils/storageProtocolActivation.js",
+    "ui/src/views/storage/SharedFSTab.vue",
+    "ui/tests/unit/views/storage/StorageProtocolActivation.spec.js"
+  ]
+}

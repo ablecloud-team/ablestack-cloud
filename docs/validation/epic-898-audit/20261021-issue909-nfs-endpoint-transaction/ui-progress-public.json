@@ -1,0 +1,67 @@
+{
+  "status": "DEPLOYED_PARTIAL_UI_VERIFICATION",
+  "restoreValidationReady": false,
+  "sourceCommit": "6698df542462cc714f793da192d03b01d3008351",
+  "old": {
+    "service": "dc8651a9-54bc-4827-8f98-9b01e58c618d",
+    "operation": "65122422-8243-412d-aecc-fc95c9483729",
+    "revision": 5,
+    "uiRecoveryResult": "INTERRUPTED_WRITER_ROLLED_BACK",
+    "nativeRuntimeUnchangedDuringRecovery": true,
+    "bootUnchangedDuringRecovery": true,
+    "vm": "8c1af5e2-00b3-443d-ae21-745e7166ba97",
+    "root": "17dff81e-d10e-42d6-b14b-255b84b0247d",
+    "data": [
+      "402cb9a7-0bc8-40cd-b45e-220680ddcb15",
+      "3f1f97c4-6fb7-4fbc-948c-9a17e40a3f00"
+    ],
+    "uiCleanupCompleted": true
+  },
+  "new": {
+    "service": "47bf4f3b-7ed9-474e-9275-fe6d7fa57efa",
+    "name": "issue909-nfs-transaction-ready-20261021",
+    "vm": "69c7b3ae-01f1-4a61-add7-6c613f303f69",
+    "instanceName": "i-2-98-VM",
+    "host": "10.10.13.2",
+    "boot": "4f903de4-c766-41c7-870e-723524cdc242",
+    "root": "e630e465-ad7d-4df6-bb0a-972bfae86ab5",
+    "rootProvisioning": "SPARSE",
+    "baseData": "442e59f8-0a5f-4985-b484-79486a958501",
+    "baseDataGiB": 8,
+    "baseDataProvisioning": "SPARSE",
+    "iscsiData": "de8d01b3-c041-4fd3-90d3-a3dadc5a5904",
+    "iscsiDataGiB": 2,
+    "iscsiDataProvisioning": "SPARSE",
+    "ip": "10.10.13.228",
+    "mac": "02:0d:00:cc:00:36",
+    "manualMacChanges": 0,
+    "runtimeBundle": "9bc3a6eb-6535-41b5-98fb-c9d179c3373e",
+    "runtimeUiState": "COMPLETE",
+    "iscsiListenerUiState": "READY",
+    "iscsiTargetUiState": "Ready",
+    "iscsiAclUiState": "Ready",
+    "iscsiTarget": "iqn.2026-10.local.ablestack:issue909-nfs-transaction-iscsi",
+    "chap": true,
+    "nfsEnableSubmitted": false,
+    "smbConfigured": false,
+    "nvmeConfigured": false
+  },
+  "client": {
+    "vm": "94533085-d833-47eb-bb58-0747cbd294b7",
+    "ip": "10.10.254.188",
+    "mac": "02:0d:00:cc:00:35",
+    "manualMacChanges": 0,
+    "iscsiIqn": "iqn.1993-08.org.debian:01:3dc4c8697ca",
+    "nvmeHostNqn": "nqn.2014-08.org.nvmexpress:uuid:94533085-d833-47eb-bb58-0747cbd294b7",
+    "discoveryUiConsoleVerified": true,
+    "newServicePingTransmitted": 5,
+    "newServicePingReceived": 5,
+    "chapLoginResult": "UNCONFIRMED_AFTER_INPUT_TOOL_TIMEOUT",
+    "dataIoVerified": false
+  },
+  "blocker": {
+    "kind": "COMPUTER_USE_POLICY_STOP_FOR_CURRENT_TURN",
+    "reason": "Windows Computer Use could not determine current browser URL with sufficient confidence to enforce policy",
+    "productNfsFailureObserved": false
+  }
+}
