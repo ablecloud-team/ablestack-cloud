@@ -408,6 +408,7 @@ public class StorageConfigCloneTemplatePinTest {
             Assert.assertThrows(InvalidParameterValueException.class, this::applyReviewed);
             Assert.assertEquals(0, manager.bindCalls);
             Assert.assertEquals("FAILED", saved().get("restoreState").getAsString());
+            Assert.assertEquals("CONFIG_RESTORE_FAILED", saved().get("errorCode").getAsString());
             Assert.assertEquals(target.getUuid(), saved().get("createdTargetInstanceUuid").getAsString());
             Assert.assertEquals(id(56), saved().getAsJsonObject("createdTargetTemplateBinding").get("rootVolumeUuid").getAsString());
         }

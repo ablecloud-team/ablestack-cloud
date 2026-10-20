@@ -917,8 +917,7 @@ public final class StorageServiceConfiguration {
             else if(createNew)manager.executeConfigurationCloneRestore(target,row,reviewed,request.getBaseCmd(),StorageServiceConfigArtifactResponse.class,change);
             else manager.executeDesiredChange(manager.configurationTargetCommand(target.getId(),request.getBaseCmd()),StorageServiceConfigArtifactResponse.class,change);
             // Native probe, exact desired/runtime verification and LKG promotion have all returned.
-            metadata.addProperty("restoreState", "COMPLETE");metadata.addProperty("restoredAt", System.currentTimeMillis());
-            updateRestoredArtifact(row, metadata);return response(compactRow(row), row.getUuid());
+            completeRestore(row, metadata);return response(compactRow(row), row.getUuid());
         } catch (RuntimeException failure) {
             metadata.addProperty("restoreState", metadata.has("createdTargetInstanceUuid") && !metadata.has("createdTargetTemplateBinding")
                     ? "TARGET_TEMPLATE_BINDING_RECOVERY_REQUIRED" : "FAILED");
@@ -927,6 +926,12 @@ public final class StorageServiceConfiguration {
             throw failure;
         }
     }
+    private void completeRestore(StorageConfigArtifactVO artifact, JsonObject metadata) {
+        // Only verified completion clears the current error; failed operation history remains intact.
+        metadata.remove("errorCode");metadata.addProperty("restoreState", "COMPLETE");
+        metadata.addProperty("restoredAt", System.currentTimeMillis());updateRestoredArtifact(artifact, metadata);
+    }
+
     private static final class ClonePublicationCompletion implements Runnable {
         private final StorageServiceConfiguration configuration;private final StorageConfigArtifactVO artifact;private final JsonObject metadata;
         ClonePublicationCompletion(StorageServiceConfiguration value,StorageConfigArtifactVO row,JsonObject current) {configuration=value;artifact=row;metadata=current;}
@@ -934,8 +939,7 @@ public final class StorageServiceConfiguration {
             JsonObject recovered=new JsonObject();recovered.add("operation",metadata.get("cloneRestoreOperation").deepCopy());
             if (metadata.has("errorCode")) recovered.add("previousErrorCode",metadata.get("errorCode").deepCopy());
             recovered.addProperty("recoveredAt",System.currentTimeMillis());metadata.add("clonePublicationRecovery",recovered);
-            metadata.remove("errorCode");metadata.addProperty("restoreState","COMPLETE");metadata.addProperty("restoredAt",System.currentTimeMillis());
-            configuration.updateRestoredArtifact(artifact,metadata);
+            configuration.completeRestore(artifact,metadata);
         }
     }
 

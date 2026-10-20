@@ -116,8 +116,26 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(source.get("generation"),fixture.generation("operation generation status",null).get("generation"));
         Assert.assertEquals(fixture.initialDatabaseSnapshot,fixture.database.snapshot(80L));Assert.assertEquals(identity,fixture.localPublicFingerprint());
         Assert.assertEquals(lkg,fixture.initialLkgIdentity());Assert.assertEquals(disks,new com.google.gson.Gson().toJson(fixture.volumeRows));fixture.assertEmptySourceRuntime();
-        fixture.manager.applyStorageServiceApprovedMaintenance(fixture.existingApprovedCommand("approved-existing-after-rollback"));
+        String failedHistory=new com.google.gson.Gson().toJson(fixture.operationRows.get(failed.getId()));
+        var retry=fixture.existingApprovedCommand("approved-existing-after-rollback");
+        JsonObject retryMetadata=fixture.obj(fixture.artifactRows.get(901L).getMetadataJson());
+        Assert.assertEquals("FAILED",retryMetadata.get("restoreState").getAsString());
+        Assert.assertEquals("CONFIG_RESTORE_FAILED",retryMetadata.get("errorCode").getAsString());
+        var response=fixture.manager.applyStorageServiceApprovedMaintenance(retry);
+        JsonObject runtime=fixture.obj(new com.google.gson.Gson().toJson(response));
+        Assert.assertTrue(runtime.get("success").getAsBoolean());Assert.assertEquals("COMPLETE",runtime.get("status").getAsString());
+        JsonObject artifactResponse=fixture.obj(runtime.get("resultjson").getAsString());
+        assertCompletedArtifactResponse(artifactResponse);
+        Assert.assertEquals(failedHistory,new com.google.gson.Gson().toJson(fixture.operationRows.get(failed.getId())));
         assertCompletedRestore(disks,901L);Assert.assertEquals(creator,fixture.artifactRows.get(900L).getMetadataJson());
+        StorageConfigRequest imports=Mockito.mock(StorageConfigRequest.class);
+        Mockito.when(imports.getConfigAction()).thenReturn("IMPORTS");Mockito.when(imports.getInstanceId()).thenReturn(80L);
+        JsonObject listed=fixture.obj(new com.google.gson.Gson().toJson(fixture.configuration.execute(imports)));
+        JsonArray rows=fixture.obj(listed.get("result").getAsString()).getAsJsonArray("artifacts");
+        JsonObject imported=java.util.stream.StreamSupport.stream(rows.spliterator(),false).map(JsonElement::getAsJsonObject)
+                .filter(row->fixture.artifactRows.get(901L).getUuid().equals(row.get("id").getAsString())).findFirst().orElseThrow();
+        Assert.assertEquals("COMPLETE",imported.getAsJsonObject("metadata").get("restoreState").getAsString());
+        Assert.assertFalse(imported.getAsJsonObject("metadata").has("errorCode"));
         Assert.assertTrue(fixture.operationRows.values().stream().anyMatch(v->"SERVICE_MAINTENANCE".equals(v.getAction())&&"COMPLETE".equals(v.getState())));
         Assert.assertEquals(3,fixture.nativeActions().stream().filter("begin"::equals).count());
     }
@@ -354,6 +372,7 @@ public class StorageConfigRestoreWholeFlowTest {
         Assert.assertEquals(1,fixture.nativeActions().stream().filter("render-activate"::equals).count());
         JsonObject metadata=fixture.obj(fixture.artifactRows.get(900L).getMetadataJson());
         Assert.assertEquals("COMPLETE",metadata.get("restoreState").getAsString());
+        Assert.assertFalse(metadata.has("errorCode"));
         Assert.assertEquals("CONFIG_RESTORE_FAILED",metadata.getAsJsonObject("clonePublicationRecovery").get("previousErrorCode").getAsString());
         Assert.assertEquals(metadata.get("cloneRestoreOperation"),metadata.getAsJsonObject("clonePublicationRecovery").get("operation"));
     }
@@ -408,8 +427,15 @@ public class StorageConfigRestoreWholeFlowTest {
 
     private void requireCompletedRestore()throws Exception {
         String disks=new com.google.gson.Gson().toJson(fixture.volumeRows);
-        fixture.manager.storageServiceConfiguration(fixture.reviewedCommand());
+        var response=fixture.manager.storageServiceConfiguration(fixture.reviewedCommand());
+        assertCompletedArtifactResponse(fixture.obj(new com.google.gson.Gson().toJson(response)));
         assertCompletedRestore(disks);
+    }
+
+    private void assertCompletedArtifactResponse(JsonObject response) {
+        JsonObject metadata=fixture.obj(response.get("result").getAsString()).getAsJsonObject("metadata");
+        Assert.assertEquals("COMPLETE",metadata.get("restoreState").getAsString());
+        Assert.assertFalse("A successful restore must not return a previous attempt's failure",metadata.has("errorCode"));
     }
 
     private void assertCompletedRestore(String disks)throws Exception {assertCompletedRestore(disks,900L);}
@@ -442,6 +468,7 @@ public class StorageConfigRestoreWholeFlowTest {
         JsonObject heldScope=scope.deepCopy();heldScope.add("maintenanceUuid",scope.get("operationUuid"));
         Assert.assertFalse(fixture.generation("operation maintenance service-status",heldScope).get("bootHeld").getAsBoolean());
         Assert.assertEquals("COMPLETE",fixture.obj(fixture.artifactRows.get(artifactId).getMetadataJson()).get("restoreState").getAsString());
+        Assert.assertFalse(fixture.obj(fixture.artifactRows.get(artifactId).getMetadataJson()).has("errorCode"));
         Assert.assertEquals(fixture.primaryNfsFourProtocols?14:16,fixture.database.rows.values().stream().mapToInt(java.util.Map::size).sum());
         Assert.assertEquals(fixture.primaryNfsFourProtocols?4:6,fixture.database.rows.get("storage_service_protocol").size());
         JsonObject originalDefault=fixture.obj(fixture.initialDatabaseSnapshot).getAsJsonArray("tables").get(0).getAsJsonObject().getAsJsonArray("rows").get(0).getAsJsonObject();
