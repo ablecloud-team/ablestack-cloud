@@ -170,7 +170,7 @@ class Generation:
         current = read_json(self.current) or {}
         pending = read_json(self.pending)
         digest = self.digest()
-        return {"success": True, "generationSupported": True, "runtimeRevision": current.get("revision", 0),
+        return {"success": True, "generationSupported": True, "endpointPreparationSupported": True, "runtimeRevision": current.get("revision", 0),
                 "generation": current, "pendingOperationUuid": pending.get("operationUuid") if pending else None,
                 "generationStatus": "PENDING" if pending else ("IN_SYNC" if current and current.get("configurationSha256") == digest else "UNVERIFIED"),
                 "configurationSha256": digest, "configurationDesiredState": self.files(),
@@ -454,7 +454,7 @@ class Generation:
             atomic_json(self.root / (request["operationUuid"] + ".json"),
                         {**pending, "desired": self.files()})
             atomic_json(self.pending, pending)
-            return {"success": True, "generationSupported": True, "runtimeRevision": request["revision"],
+            return {"success": True, "generationSupported": True, "endpointPreparationSupported": True, "runtimeRevision": request["revision"],
                     "phase": "VERIFIED", "configurationSha256": pending["configurationSha256"]}
         if action == "commit":
             if pending["phase"] != "VERIFIED" or pending["configurationSha256"] != self.digest():
@@ -463,7 +463,7 @@ class Generation:
             atomic_json(self.current, current)
             pending["phase"] = "COMMITTED"
             atomic_json(self.pending, pending)
-            return {"success": True, "generationSupported": True, "runtimeRevision": request["revision"], "phase": "COMMITTED"}
+            return {"success": True, "generationSupported": True, "endpointPreparationSupported": True, "runtimeRevision": request["revision"], "phase": "COMMITTED"}
         if action == "finish":
             current = read_json(self.current) or {}
             if pending["phase"] != "COMMITTED" or current.get("operationUuid") != request["operationUuid"]:

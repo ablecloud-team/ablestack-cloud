@@ -51,7 +51,10 @@ ACCOUNT_FILES = ("/etc/passwd", "/etc/group", "/etc/shadow", "/etc/gshadow")
 NAMESPACES = ("mnt", "pid", "net", "user", "ipc", "uts")
 SUITES = {
     "health": ("TestStoragePreparationHealthWire.py",),
+    "nfs-manager-endpoint": ("TestStorageNetworkEndpointTransaction.py",),
     "native-all": ("TestStorage*.py",),
+    "nfs-endpoint": ("TestStorageNetworkEndpointTransaction.py","TestStorageNetworkRootBinding.py",
+                     "TestStorageNfsAclIsolation.py","TestStorageInlineSources.py"),
     "harness-readiness": ("TestStorageIdentitySourceFence.py", "TestStorageAdIdentity.py",
                           "TestStorageSmbCurrentRetention.py", "TestStorageLocalSamBootstrap.py"),
     "iscsi-auth": ("TestStorageIscsiAuth.py", "TestStorageIscsiLifecycle.py",
@@ -153,15 +156,16 @@ passed.append("SYNTHETIC_PRIVATE_ACCOUNT_BASELINE")
      "sandboxNamespaces":{name:os.readlink("/proc/self/ns/"+name)for name in spec["parentNamespaces"]},
      "outputIdentity":spec["rootIdentity"]},indent=2)+"\n")
 tests=Path(spec["repository"],"systemvm/test")
-if spec["suite"] in ("iscsi-auth","native-all","harness-readiness"):
+if spec["suite"] in ("iscsi-auth","native-all","harness-readiness","nfs-endpoint"):
     program="import unittest,sys; sys.path.insert(0,"+repr(spec["repository"])+"); loader=unittest.TestLoader(); suite=unittest.TestSuite(); "+\
             "; ".join("suite.addTests(loader.discover("+repr(str(tests))+",pattern="+repr(name)+"))"
                       for name in spec["tests"])+\
             "; result=unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
     command=["/usr/bin/python3","-B","-c",program]
-elif spec["suite"] in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener"):
+elif spec["suite"] in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener","nfs-manager-endpoint"):
     flag={"iscsi-guard-consumer":"--guard-consumer-fixtures",
-          "iscsi-manager-payload":"--manager-payload","iscsi-manager-listener":"--manager-listener"}[spec["suite"]]
+          "iscsi-manager-payload":"--manager-payload","iscsi-manager-listener":"--manager-listener",
+          "nfs-manager-endpoint":"--manager-endpoint"}[spec["suite"]]
     command=["/usr/bin/python3","-B",str(tests/spec["tests"][0]),flag]
 else:
     command=["/usr/bin/python3","-B",str(tests/spec["tests"][0])]
@@ -224,7 +228,7 @@ def launch(output,suite="health"):
             (output / "host-account-integrity.json").write_text(json.dumps(
                 {"unchanged": unchanged, "paths": list(ACCOUNT_FILES)}, indent=2) + "\n")
             require(unchanged, "HOST_ACCOUNT_FILES_CHANGED")
-        if suite not in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener"):
+        if suite not in ("iscsi-guard-consumer","iscsi-manager-payload","iscsi-manager-listener","nfs-manager-endpoint"):
             print(json.dumps({"exitCode": code, "hostAccountFilesUnchanged": True,
                               "output": str(output), "repositoryModified": False}))
         return code

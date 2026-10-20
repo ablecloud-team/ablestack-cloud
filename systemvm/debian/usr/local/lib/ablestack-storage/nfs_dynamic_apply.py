@@ -25,7 +25,7 @@ import tempfile
 import time
 import uuid as nfs_dynamic_uuid
 from ganesha_dbus import GaneshaDbus
-from nfs_readiness import NfsEndpointReadiness, NfsProbeRunner
+from nfs_readiness import NfsEndpointReadiness, NfsProbeRunner, NfsReadinessError
 from native_renderers import render_nfs_candidate
 from config_generation import redact as nfs_dynamic_redact
 
@@ -160,7 +160,9 @@ class NfsLegacyDynamicApply:
             self.rollback()
             self.discard()
         elif digest!=self.before:
-            raise ValueError("NFS dynamic current seven-file SOURCE differs")
+            failure=NfsReadinessError("NFS_SOURCE_CHANGED")
+            failure.public.update(phase="VERIFY_SOURCE",retryable=False)
+            raise failure
         previous_path=self.root/previous["operationUuid"]
         if previous_path!=self.path and previous_path.exists():
             self.protected_directory(previous_path)

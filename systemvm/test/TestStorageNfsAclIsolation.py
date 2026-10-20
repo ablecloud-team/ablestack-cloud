@@ -503,6 +503,57 @@ class NormalNfsDynamicWriterTest(unittest.TestCase):
         self.assertEqual(self.g.status()["generation"]["operationUuid"],self.source_scope["operationUuid"])
         self.assertEqual(recovery.record["beforeSha256"],recovery.record["targetDesiredSha256"])
 
+    def test_actual_dynamic_checkpoint_survives_address_publish_interruption_and_exact_source_restore(self):
+        from network_endpoint_transaction import NetworkEndpointTransaction
+        from config_generation import read_json
+        address={"listenIp":"192.0.2.11","primaryIp":"192.0.2.10","prefixlen":24,"macAddress":"02:00:00:00:00:01"}
+        receipt=self.root/"address-receipt.json"
+        def raw(path):
+            path=Path(path)
+            return path.read_bytes()if path.exists()else None
+        def publish_receipt(network):self.atomic(receipt,{"network":network})
+        tx=NetworkEndpointTransaction(self.g,read_bytes=raw,verify=lambda rows:None,receipt_path=receipt,
+            receipt_plan=lambda network:{"network":network},receipt_publish=publish_receipt,
+            restore_addresses=lambda rows:None,dynamic_root=self.writer.root)
+        request={"operationScope":self.scope}
+        with patch.dict(os.environ,{"ABLESTACK_STORAGE_TEMPLATE_MAINTENANCE_DIR":str(self.root/"maintenance"),
+                                    "ABLESTACK_STORAGE_RENDERED_GENERATIONS":str(self.root/"rendered")}):
+            tx.begin(request);tx.prepared(request,{"endpoints":[address]},[address],[address])
+            original_bus=copy.deepcopy(self.bus.endpoints)
+            candidates=self.publish_target();self.apply_candidates(candidates);self.writer.verified()
+            nfs=canonical_nfs_redact({key:value for key,value in self.payload.items()if key!="operationScope"})
+            self.atomic(self.g.config/self.kind.NFS,nfs)
+            before_address_publish=self.g.digest()
+            checkpoint=self.writer.path/"checkpoint.json"
+            self.assertEqual(before_address_publish,read_json(checkpoint)["targetDesiredSha256"])
+            sync=tx.sync_dynamic_checkpoint
+            def interrupted(before,after):
+                sync(before,after)
+                raise OSError("Synthetic interruption after the real dynamic checkpoint write")
+            tx.sync_dynamic_checkpoint=interrupted
+            with self.assertRaises(OSError):tx.publish({**request,"expectedNfsDesiredState":nfs})
+            self.assertEqual("PUBLISHING",read_json(tx.path)["phase"])
+            self.assertEqual(self.g.digest(),read_json(checkpoint)["targetDesiredSha256"])
+            tx.sync_dynamic_checkpoint=sync
+            # Explicit original-writer restore consumes the known receipt and restores the pre-publish target hash.
+            tx.restore({**request,"previousGeneration":tx.pending["previous"],"configurationDesiredState":tx.source})
+            self.assertEqual(before_address_publish,read_json(checkpoint)["targetDesiredSha256"])
+            source=copy.deepcopy(self.source);source["operationScope"]=self.scope
+            self.new_writer().prepare(source)
+            self.assertEqual(original_bus,self.bus.endpoints)
+            self.g.execute("restore",{**self.scope,"previousGeneration":tx.pending["previous"],
+                                      "configurationDesiredState":tx.source})
+            self.assertEqual(tx.pending["beforeSha256"],self.g.digest())
+
+    def test_unplanned_seven_file_drift_has_exact_source_failure_code_not_runtime_readiness(self):
+        from nfs_readiness import NfsReadinessError
+        self.atomic(self.g.config/"network-endpoints.json",{"endpoints":[{"listenIp":"192.0.2.10","port":2049}]})
+        with self.assertRaises(NfsReadinessError) as failure:self.writer.prepare(self.payload)
+        self.assertEqual("NFS_SOURCE_CHANGED",failure.exception.public["code"])
+        self.assertEqual("VERIFY_SOURCE",failure.exception.public["phase"])
+        self.assertFalse(failure.exception.public["retryable"])
+        self.assertFalse(self.writer.active)
+
     def test_normal_pending_api_writer_reaches_dynamic_without_rendered_optin(self):
         candidates=self.publish_target()
         self.assertTrue(self.writer.active);self.assertEqual(1,len(candidates))
