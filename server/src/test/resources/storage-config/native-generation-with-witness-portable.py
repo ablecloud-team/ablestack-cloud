@@ -29,7 +29,7 @@ import time
 
 AUDIT_ROOT = Path("/root/work/epic898-preparation/issue909-20261017/audit/20261018-flow-convergence")
 MODULE = Path("/root/work/ablestack-cloud/systemvm/debian/usr/local/lib/ablestack-storage/config_generation.py")
-MODULE_SHA256 = "01f3d84d5e655be77039b1d3f6423aa27e07ebce395a0d636e58c8f7b6c155ab"
+MODULE_SHA256 = "9c26f1b0c26af57ed4662bca15f30a76cfb6a2ce1095482172a70f8d6244b65a"
 ACTIONS = frozenset(("status", "begin", "verify", "commit", "finish", "frozen", "frozen-initial", "clone-initial-inspect"))
 MAX_INPUT = 65536
 

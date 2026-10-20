@@ -15715,7 +15715,10 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     protected void prepareProtocolEndpoint(StorageServiceInstanceVO instance, StorageServiceInstance.Protocol protocol,
             String listenIp, NicVO nic, Integer port, boolean registeredAlias) {
         StorageServiceOperationVO operation = storageWriterOperation.get();
-        if (protocol != StorageServiceInstance.Protocol.NFS || renderedBatch.get() != null || !hasNativeConfigurationGeneration(operation)
+        ConfigurationBatch batch = configurationBatch.get();
+        if (batch != null && batch.instanceId != instance.getId())
+            throw new InvalidParameterValueException("Configuration command targets a different service");
+        if (protocol != StorageServiceInstance.Protocol.NFS || renderedBatch.get() != null || batch != null || !hasNativeConfigurationGeneration(operation)
                 || nic == null || isWildcardListenIp(listenIp) || instance.getVmId() == null) {
             ensureGuestProtocolListenAddress(instance, listenIp, nic, port);
             return;

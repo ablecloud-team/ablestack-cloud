@@ -224,6 +224,43 @@ public class StorageProtocolEndpointPreparationTest {
         }
     }
 
+    @Test @SuppressWarnings("unchecked")
+    public void configurationBatchOnlyKeepsItsExistingAddressPathWithoutBorrowingOrdinaryNfsPreparation() {
+        Manager m=new Manager();m.operation.setAction("applystorageserviceconfigrestoreresponse");
+        ThreadLocal<StorageServiceManagerImpl.ConfigurationBatch> context=(ThreadLocal<StorageServiceManagerImpl.ConfigurationBatch>)
+                ReflectionTestUtils.getField(m,"configurationBatch");
+        context.set(new StorageServiceManagerImpl.ConfigurationBatch(29));
+        Assert.assertNull(((ThreadLocal<?>)ReflectionTestUtils.getField(m,"renderedBatch")).get());
+        StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        Mockito.when(guest.dispatch(Mockito.any())).thenReturn(new StorageServiceGuestCommandResult(true,"","{\"success\":true}"));
+        ReflectionTestUtils.setField(m,"guestCommandDispatcher",guest);
+        try {
+            m.prepareProtocolEndpoint(m.instance,StorageServiceInstance.Protocol.NFS,IP,m.nic,2049,false);
+            org.mockito.ArgumentCaptor<StorageServiceGuestCommand> sent=org.mockito.ArgumentCaptor.forClass(StorageServiceGuestCommand.class);
+            Mockito.verify(guest).dispatch(sent.capture());
+            Assert.assertEquals("network endpoint apply",sent.getValue().getOperation());
+            JsonObject payload=json(sent.getValue().getPayload());
+            Assert.assertFalse(payload.has("deferCanonical"));Assert.assertFalse(payload.has("operationScope"));Assert.assertFalse(payload.has("port"));
+            Assert.assertTrue(m.events.isEmpty());Assert.assertFalse(json(m.operation.getPreviousSnapshotJson()).has("protocolEndpointPreparation"));
+        } finally {context.remove();}
+    }
+
+    @Test @SuppressWarnings("unchecked")
+    public void foreignBatchAndUnqualifiedOrdinaryRestoreCannotBorrowTheInternalAddressException() {
+        Manager m=new Manager();m.operation.setAction("applystorageserviceconfigrestoreresponse");
+        ThreadLocal<StorageServiceManagerImpl.ConfigurationBatch> context=(ThreadLocal<StorageServiceManagerImpl.ConfigurationBatch>)
+                ReflectionTestUtils.getField(m,"configurationBatch");
+        StorageServiceGuestCommandDispatcher guest=Mockito.mock(StorageServiceGuestCommandDispatcher.class);
+        ReflectionTestUtils.setField(m,"guestCommandDispatcher",guest);
+        context.set(new StorageServiceManagerImpl.ConfigurationBatch(30));
+        try {Assert.assertThrows(com.cloud.exception.InvalidParameterValueException.class,
+                ()->m.prepareProtocolEndpoint(m.instance,StorageServiceInstance.Protocol.NFS,IP,m.nic,2049,false));}
+        finally {context.remove();}
+        Assert.assertThrows(CloudRuntimeException.class,()->m.prepareProtocolEndpoint(m.instance,StorageServiceInstance.Protocol.NFS,IP,m.nic,2049,false));
+        Mockito.verifyNoInteractions(guest);Assert.assertTrue(m.events.isEmpty());
+        Assert.assertFalse(json(m.operation.getPreviousSnapshotJson()).has("protocolEndpointPreparation"));
+    }
+
     @Test public void oldGuestWriterWithoutPreparationMarkerNeverReceivesNewCommands() {
         Manager m=new Manager();m.recovery();m.restorePreparedProtocolEndpoint(m.instance,m.operation);Assert.assertTrue(m.events.isEmpty());
     }

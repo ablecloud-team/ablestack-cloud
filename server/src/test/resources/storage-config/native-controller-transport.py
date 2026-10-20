@@ -27,7 +27,7 @@ import stat
 import sys
 import time
 
-MODULE_SHA256 = "01f3d84d5e655be77039b1d3f6423aa27e07ebce395a0d636e58c8f7b6c155ab"
+MODULE_SHA256 = "9c26f1b0c26af57ed4662bca15f30a76cfb6a2ce1095482172a70f8d6244b65a"
 ACTIONS = frozenset(("status", "begin", "verify", "commit", "finish", "restore", "rollback", "frozen", "frozen-initial", "clone-initial-inspect", "render-import", "render-status", "render-stage", "render-activate", "render-finalize", "render-rollback", "render-maintenance-resume-source", "render-service-capture-source", "render-service-source-unheld-verify", "render-service-identity-export-source", "service-enter", "service-status", "service-release", "reservation-status", "observe", "inventory", "verify-health", "health", "writer-idle", "identity-capabilities", "export-identity", "export-local-source", "local-source-status"))
 MAX_INPUT = 65536
 
