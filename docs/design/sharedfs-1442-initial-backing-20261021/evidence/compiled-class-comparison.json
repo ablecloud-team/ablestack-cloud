@@ -1,0 +1,26 @@
+[
+  {
+    "class": "org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class",
+    "localCompiledClassSha256": "756663e2e2ea8c3cec8b22850b8b5da63c2d385b321b80cc9ea64c1d9926fa62",
+    "deployedSha256": "756663e2e2ea8c3cec8b22850b8b5da63c2d385b321b80cc9ea64c1d9926fa62",
+    "matches": true
+  },
+  {
+    "class": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+    "localCompiledClassSha256": "bfd2d3b102c58d802c7043099993c7940bdb74256cea70ecc6364a5b78cbafc6",
+    "deployedSha256": "bfd2d3b102c58d802c7043099993c7940bdb74256cea70ecc6364a5b78cbafc6",
+    "matches": true
+  },
+  {
+    "class": "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class",
+    "localCompiledClassSha256": "266e6762ed6688cd5949084d86ed93556be3839e2b12d59cc7030e29deb9db3e",
+    "deployedSha256": "266e6762ed6688cd5949084d86ed93556be3839e2b12d59cc7030e29deb9db3e",
+    "matches": true
+  },
+  {
+    "class": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+    "localCompiledClassSha256": "6b6e3fc7b02566cf3bba72c4c359c019a9c165ebdbe621d9dd65e16d1b558ffe",
+    "deployedSha256": "6b6e3fc7b02566cf3bba72c4c359c019a9c165ebdbe621d9dd65e16d1b558ffe",
+    "matches": true
+  }
+]
