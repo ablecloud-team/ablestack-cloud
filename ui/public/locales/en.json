@@ -9225,5 +9225,12 @@
   "message.affinity.policy.non.strict.anti": "Prefer separate hosts. The same host may be used when the preference cannot be met.",
   "message.affinity.policy.strict.anti": "Place group VMs on separate hosts. Placement fails when the requirement cannot be met.",
   "label.affinitygroupid": "Affinity group",
-  "message.affinity.value.unavailable": "This information is unavailable for the current permissions or resource state."
+  "message.affinity.value.unavailable": "This information is unavailable for the current permissions or resource state.",
+  "message.storage.service.read.loading": "Loading service information. Other tabs remain available.",
+  "message.storage.service.read.partial": "Some service information could not be refreshed. Previously loaded information is retained.",
+  "message.storage.service.read.timeout": "The read exceeded 30 seconds.",
+  "message.storage.service.read.forbidden": "You do not have permission to read this information.",
+  "message.storage.service.read.failed": "The service information could not be read.",
+  "message.storage.service.read.network": "The server could not be reached.",
+  "message.storage.service.read.last.success": "Last complete update: {time}"
 }
