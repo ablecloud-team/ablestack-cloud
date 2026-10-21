@@ -1,4 +1,5 @@
 {
+  "message.sharedfs.initial.corrupt": "The creation journal is invalid. Continue and mount are blocked. Cancel may release a reservation only when no VM was allocated.",
   "label.cni.variables.extract": "Extract variables",
   "label.cni.variables.preview": "Preview substitutions",
   "label.cni.variables.apply": "Apply selected variables",

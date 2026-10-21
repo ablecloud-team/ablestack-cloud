@@ -155,4 +155,42 @@ public class SharedFSCreationFlowTest {
         verify(volumeApiService).detachVolumeViaDestroyVM(7L,10L);
         verifyNoMoreInteractions(volumeApiService);
     }
+
+    @Test public void unallocatedCorruptReservationCanBeCancelledWithoutResourceDeletion() throws Exception {
+        journal.set("{\"version\":1,");
+        service.continueCreation(1L, "CANCEL_PREPARATION");
+        assertTrue(SharedFSCreationContext.read(journal.get()).cancelled);
+        assertEquals("CANCELLED", SharedFSCreationContext.read(journal.get()).phase);
+        verify(fs).setVolumeId(null);
+        verifyNoInteractions(volumeApiService, storageService);
+        verify(life, never()).cleanupImportedSharedFSVm(any());
+        verify(life, never()).deleteSharedFS(any());
+    }
+
+    @Test public void corruptReservationWithAnUnboundPlannedVmIsProtected() throws Exception {
+        journal.set("{\"version\":1,");
+        when(userVmDao.findByUuid(anyString())).thenReturn(mock(UserVmVO.class));
+        try { service.continueCreation(1L, "CANCEL_PREPARATION");fail("Planned VM must block cancellation"); }
+        catch (com.cloud.exception.InvalidParameterValueException expected) { }
+        verify(fs, never()).setVolumeId(null);
+        verifyNoInteractions(volumeApiService, storageService);
+    }
+
+    @Test public void corruptReservationWithAttachedDataIsProtected() throws Exception {
+        journal.set("{\"version\":1,");attached.set(99L);
+        try { service.continueCreation(1L, "CANCEL_PREPARATION");fail("Attached DATA must block cancellation"); }
+        catch (com.cloud.exception.InvalidParameterValueException expected) { }
+        verify(fs, never()).setVolumeId(null);
+        verifyNoInteractions(volumeApiService, storageService);
+    }
+
+    @Test public void corruptJournalCannotContinueAllocation() throws Exception {
+        journal.set("{\"version\":1,");
+        try { service.continueCreation(1L, "CONTINUE");fail("Corrupt journal must not allocate"); }
+        catch (com.cloud.exception.InvalidParameterValueException expected) {
+            assertTrue(expected.getMessage().contains(SharedFSCreationContext.INVALID_JOURNAL));
+        }
+        verify(life, never()).allocateInitialSharedFSVm(any(),any(),anyMap(),anyString());
+        verifyNoInteractions(volumeApiService, storageService);
+    }
 }

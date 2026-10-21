@@ -48,7 +48,7 @@
           <div>{{ pendingCreationLabel }} · {{ $t('label.filesystem') }}: {{ pendingCreation.observedfilesystem || $t('label.sharedfs.initial.unobserved') }}</div>
           <a-space wrap style="margin-top: 8px">
             <a-button type="primary" :loading="loading" @click="continuePendingCreation('CONTINUE')">{{ $t('label.sharedfs.initial.observe') }}</a-button>
-            <a-button :disabled="loading" @click="continuePendingCreation('MOUNT_EXISTING')">{{ $t('label.sharedfs.initial.mount') }}</a-button>
+            <a-button :disabled="loading || pendingCreation.phase === 'CORRUPT'" @click="continuePendingCreation('MOUNT_EXISTING')">{{ $t('label.sharedfs.initial.mount') }}</a-button>
             <a-button :disabled="loading" @click="continuePendingCreation('CANCEL_PREPARATION')">{{ $t('label.sharedfs.initial.cancel') }}</a-button>
           </a-space>
         </template>
@@ -1320,6 +1320,7 @@ export default {
       const phase = this.pendingCreation?.phase
       if (phase === 'INSPECTED') return this.$t('message.sharedfs.initial.inspected')
       if (phase === 'CANCELLED') return this.$t('label.sharedfs.initial.cancel')
+      if (phase === 'CORRUPT') return this.$t('message.sharedfs.initial.corrupt')
       return this.$t('message.sharedfs.initial.pending')
     },
     importModeLabel () {
@@ -1837,6 +1838,10 @@ export default {
         pending.phase = fs.creationstage
         pending.observedfilesystem = fs.observedfilesystem
         this.savePendingCreation(pending)
+        if (fs.creationstage === 'CORRUPT' && action !== 'CANCEL_PREPARATION') {
+          this.$notification.warning({ message: this.$t('message.sharedfs.initial.corrupt') })
+          return
+        }
         if (action === 'CONTINUE' && fs.state === 'Allocated' && fs.creationstage !== 'INSPECTED' && fs.creationjobid) {
           this.closeModal()
           await this.runInitialStorageServiceSetup(fs.creationjobid, pending.setup, 'storage-service-setup-' + fs.creationjobid)

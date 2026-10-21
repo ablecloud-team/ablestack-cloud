@@ -84,4 +84,26 @@ public class SharedFSCreationContextTest {
         assertNull(SharedFSCreationContext.normalizeKey(null));
     }
     @Test(expected=InvalidParameterValueException.class) public void malformedRequestKeyRejected() { SharedFSCreationContext.normalizeKey("0-0-0-0-0"); }
+
+    @Test(expected=SharedFSCreationContext.InvalidJournalException.class)
+    public void truncatedJournalIsExplicitlyInvalid() { SharedFSCreationContext.read("{\"version\":1,"); }
+
+    @Test public void jsonLargerThanOldDefaultSurvivesRead() {
+        SharedFSCreationContext c = SharedFSCreationContext.from(cmd(true, "AUTO"));
+        c.mountPath = "/srv/" + "보존".repeat(500);
+        assertTrue(c.json().length() > 255);
+        assertEquals(c.mountPath, SharedFSCreationContext.read(c.json()).mountPath);
+    }
+
+    @Test(expected=InvalidParameterValueException.class)
+    public void utf8ByteLimitIsCheckedBeforeSerialization() {
+        SharedFSCreationContext c = SharedFSCreationContext.from(cmd(true, "AUTO"));
+        c.mountPath = "한".repeat(22000);
+        c.json();
+    }
+
+    @Test(expected=InvalidParameterValueException.class)
+    public void rawVoWriteCannotBypassUtf8Limit() {
+        SharedFSCreationContext.validateSize("한".repeat(21846));
+    }
 }
