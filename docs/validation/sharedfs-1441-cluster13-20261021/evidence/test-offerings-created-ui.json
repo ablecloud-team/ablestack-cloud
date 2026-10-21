@@ -1,0 +1,45 @@
+[
+  {
+    "id": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+    "name": "epic1438-1441-fixed-20261021",
+    "state": "Active",
+    "cpunumber": 2,
+    "cpuspeed": 2000,
+    "memory": 4096,
+    "provisioningtype": "sparse",
+    "diskofferingid": "df2c1607-58de-42c7-be4b-c950ed62e071",
+    "offerha": true,
+    "dynamicscalingenabled": false,
+    "iscustomized": false,
+    "diskofferingname": "epic1438-1441-fixed-20261021"
+  },
+  {
+    "id": "610b811a-6674-4f1d-a16f-55681e50a6de",
+    "name": "epic1438-1441-free-20261021",
+    "state": "Active",
+    "provisioningtype": "sparse",
+    "diskofferingid": "a250168d-a33a-498a-bfd2-528908b4da8f",
+    "offerha": true,
+    "dynamicscalingenabled": false,
+    "iscustomized": true,
+    "diskofferingname": "epic1438-1441-free-20261021"
+  },
+  {
+    "id": "0a3cccb9-62ed-4fa6-a3e9-d3f1dcb7bd00",
+    "name": "epic1438-1441-range-20261021",
+    "state": "Active",
+    "cpuspeed": 2000,
+    "provisioningtype": "sparse",
+    "diskofferingid": "cd54d518-d71e-4403-b6c6-37a75d6f4425",
+    "offerha": true,
+    "dynamicscalingenabled": true,
+    "iscustomized": true,
+    "serviceofferingdetails": {
+      "maxcpunumber": "4",
+      "mincpunumber": "2",
+      "minmemory": "1024",
+      "maxmemory": "8192"
+    },
+    "diskofferingname": "epic1438-1441-range-20261021"
+  }
+]

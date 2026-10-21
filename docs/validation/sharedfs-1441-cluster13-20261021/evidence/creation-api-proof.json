@@ -1,0 +1,103 @@
+[
+  {
+    "command": "createSharedFileSystem",
+    "method": "POST",
+    "params": {
+      "command": "createSharedFileSystem",
+      "response": "json",
+      "name": "epic1438-1441-fixed-sfs-20261021-01",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+      "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+      "size": "20",
+      "filesystem": "XFS",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "networkmode": "STATIC",
+      "ipcidr": "10.10.13.242/16",
+      "gateway": "10.10.0.1"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "recorded": true,
+    "reply": {
+      "id": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+      "jobid": "81786a49-242c-4ba5-af90-3ceda0dd642b"
+    },
+    "completion": {
+      "jobid": "81786a49-242c-4ba5-af90-3ceda0dd642b",
+      "jobstatus": 1
+    }
+  },
+  {
+    "command": "createSharedFileSystem",
+    "method": "POST",
+    "params": {
+      "command": "createSharedFileSystem",
+      "response": "json",
+      "name": "epic1438-1441-free-sfs-20261021-01",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "serviceofferingid": "610b811a-6674-4f1d-a16f-55681e50a6de",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+      "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+      "size": "20",
+      "filesystem": "XFS",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "networkmode": "STATIC",
+      "ipcidr": "10.10.13.243/16",
+      "gateway": "10.10.0.1",
+      "cpunumber": "3",
+      "memory": "6144",
+      "cpuspeed": "2500"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "recorded": true,
+    "reply": {
+      "id": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+      "jobid": "1cf13cd3-18d6-4466-ab2b-59f5d375d35c"
+    },
+    "completion": {
+      "jobid": "1cf13cd3-18d6-4466-ab2b-59f5d375d35c",
+      "jobstatus": 1
+    }
+  },
+  {
+    "command": "createSharedFileSystem",
+    "method": "POST",
+    "params": {
+      "command": "createSharedFileSystem",
+      "response": "json",
+      "name": "epic1438-1441-range-sfs-20261021-01",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "serviceofferingid": "0a3cccb9-62ed-4fa6-a3e9-d3f1dcb7bd00",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+      "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+      "size": "20",
+      "filesystem": "XFS",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "networkmode": "STATIC",
+      "ipcidr": "10.10.13.244/16",
+      "gateway": "10.10.0.1",
+      "cpunumber": "4",
+      "memory": "8192"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "recorded": true,
+    "reply": {
+      "id": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+      "jobid": "1c0c09b4-f1d0-4d2b-b1c5-e8681a085521"
+    },
+    "completion": {
+      "jobid": "1c0c09b4-f1d0-4d2b-b1c5-e8681a085521",
+      "jobstatus": 1
+    }
+  }
+]

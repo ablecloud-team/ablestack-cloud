@@ -1,0 +1,100 @@
+{
+  "issue": 1441,
+  "epic": 1438,
+  "status": "scoped acceptance complete, ready for issue closure",
+  "implementation_commits": [
+    "9877c171cdd9db64976a4d589e08928235a5945b",
+    "001ca8c0bd883972dd441f993d305848cb4ae4c7",
+    "51d70541f110d88ec8cecff2270cfecbd4c66d9a"
+  ],
+  "backend_tests": 65,
+  "ui_tests": 26,
+  "backend_modules": 34,
+  "backend_source": "001ca8c0bd883972dd441f993d305848cb4ae4c7",
+  "ui_source": "51d70541f110d88ec8cecff2270cfecbd4c66d9a",
+  "deployed_jar_sha256": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "ui": {
+    "bundle_sha256": "2627ba272779a8f457df5032a2a783192aebb71934f9cb2395587f4db20b87f5",
+    "files_verified": 899,
+    "before": {
+      "config_realpath": "/etc/cloudstack/management/config.json",
+      "config_sha256": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+      "systemvm_inode": 201337502,
+      "index_sha256": "d4c2c7b384f7ca9c79d964e946c5c0b994cd29dc79dfe79c5aacc8efde1061c3"
+    },
+    "after": {
+      "config_realpath": "/etc/cloudstack/management/config.json",
+      "config_sha256": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+      "systemvm_inode": 201337502,
+      "index_sha256": "e4a47cba8d2d7739f28bb6f177b08e2cd1868fa8a06e1a17b89d98d81a3c59cd"
+    },
+    "backup": "/var/tmp/epic1441-51d70541f110-ui-rollback/ui-static.tgz"
+  },
+  "new_sharedfs": 3,
+  "new_vms": 3,
+  "new_sparse_qcow2_volumes": 6,
+  "actual_creation_requests": [
+    {
+      "name": "epic1438-1441-fixed-sfs-20261021-01",
+      "jobid": "81786a49-242c-4ba5-af90-3ceda0dd642b",
+      "status": 1,
+      "custom": {}
+    },
+    {
+      "name": "epic1438-1441-free-sfs-20261021-01",
+      "jobid": "1cf13cd3-18d6-4466-ab2b-59f5d375d35c",
+      "status": 1,
+      "custom": {
+        "cpunumber": "3",
+        "cpuspeed": "2500",
+        "memory": "6144"
+      }
+    },
+    {
+      "name": "epic1438-1441-range-sfs-20261021-01",
+      "jobid": "1c0c09b4-f1d0-4d2b-b1c5-e8681a085521",
+      "status": 1,
+      "custom": {
+        "cpunumber": "4",
+        "memory": "8192"
+      }
+    }
+  ],
+  "partial_custom_live": "CPU/RAM variable with fixed speed; RAM-only covered by actual AntD and server tests",
+  "input_guard_cases": [
+    {
+      "case": "range CPU above max after blur",
+      "input": "5",
+      "confirmEnabled": false,
+      "text": "CPU 코어\n허용 범위: 2 ~ 4\nCPU 코어은(는) 2 ~ 4 범위의 정수여야 합니다."
+    },
+    {
+      "case": "fraction after blur",
+      "input": "3.5",
+      "confirmEnabled": false
+    },
+    {
+      "case": "missing CPU",
+      "input": "",
+      "confirmEnabled": false
+    },
+    {
+      "case": "valid upper bounds",
+      "cpu": "4",
+      "memory": "8192",
+      "fixedSpeed": "2000",
+      "fixedSpeedEnabled": false,
+      "confirmEnabled": true
+    }
+  ],
+  "known_test_navigation_cancellation": "First fixed case was navigated before last initial service GET; creation job, VM and volumes succeeded. No hidden API retry.",
+  "not_tested": [
+    "NFS ACL/client I/O",
+    "backup/restore",
+    "online scaling",
+    "ARM VM",
+    "full release CI",
+    "whole UI regression"
+  ],
+  "next_issue": 1442
+}

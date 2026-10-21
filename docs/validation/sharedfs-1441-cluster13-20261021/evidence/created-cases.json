@@ -1,0 +1,58 @@
+[
+  {
+    "kind": "fixed",
+    "name": "epic1438-1441-fixed-sfs-20261021-01",
+    "sharedfsId": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+    "vmId": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+    "dataVolumeId": "3af8261e-6877-4479-8815-0b64a1b50910",
+    "offeringId": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+    "expected": {
+      "cpunumber": 2,
+      "cpuspeed": 2000,
+      "memory": 4096
+    },
+    "runtimeIp": "10.10.13.242",
+    "rootVolumeId": "95047027-fe5e-4ec4-8fb2-1ed7d41bd3ec",
+    "host": "10.10.13.3",
+    "domain": "i-2-105-VM"
+  },
+  {
+    "mode": "free",
+    "name": "epic1438-1441-free-sfs-20261021-01",
+    "sharedFSId": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+    "vmId": "92d99386-9157-4abe-b427-98829770a15d",
+    "domain": "i-2-106-VM",
+    "host": "10.10.13.1",
+    "serviceOfferingId": "610b811a-6674-4f1d-a16f-55681e50a6de",
+    "cpu": 3,
+    "speedMHz": 2500,
+    "memoryMiB": 6144,
+    "dynamicScaling": false,
+    "rootVolumeId": "4b9e59dc-ecef-497b-9f06-1a95044fdceb",
+    "dataVolumeId": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+    "runtimeIP": "10.10.13.243",
+    "cloudIP": "10.10.254.197",
+    "rootDataPolicy": "sparse",
+    "initialServicesCompleted": true
+  },
+  {
+    "mode": "range-partial",
+    "name": "epic1438-1441-range-sfs-20261021-01",
+    "sharedFSId": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+    "vmId": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+    "domain": "i-2-107-VM",
+    "host": "10.10.13.2",
+    "serviceOfferingId": "0a3cccb9-62ed-4fa6-a3e9-d3f1dcb7bd00",
+    "cpu": 4,
+    "speedMHz": 2000,
+    "memoryMiB": 8192,
+    "dynamicScaling": false,
+    "offeringDynamicScaling": true,
+    "rootVolumeId": "47d100b7-44ef-4bb4-a5ec-9f64329eb73d",
+    "dataVolumeId": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+    "runtimeIP": "10.10.13.244",
+    "cloudIP": "10.10.254.198",
+    "rootDataPolicy": "sparse",
+    "initialServicesCompleted": true
+  }
+]

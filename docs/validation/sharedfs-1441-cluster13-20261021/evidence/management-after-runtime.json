@@ -1,0 +1,32 @@
+{
+  "active_jar_fds": [
+    {
+      "fd": "10",
+      "current_inode": true
+    }
+  ],
+  "state": {
+    "MainPID": "3003800",
+    "ActiveState": "active"
+  },
+  "classpath": "/usr/share/cloudstack-management/lib/*:/etc/cloudstack/management:/usr/share/cloudstack-common:/usr/share/cloudstack-management/setup:/usr/share/cloudstack-management:/usr/share/cloudstack-mysql-ha/lib/*",
+  "jar_sha256": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "providers": {
+    "org/apache/cloudstack/storage/sharedfs/lifecycle/StorageVmSharedFSLifeCycle.class": [
+      "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar"
+    ],
+    "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": [
+      "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar"
+    ],
+    "org/apache/cloudstack/storage/sharedfs/SharedFSLifeCycle.class": [
+      "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar"
+    ],
+    "org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class": [
+      "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar"
+    ]
+  },
+  "free_bytes": 33542967296,
+  "config_realpath": "/etc/cloudstack/management/config.json",
+  "config_sha256": "71c175523a2e251faf574bd5d977c37e81d21c9cc0b8a98dfb1642c6b8a448d7",
+  "systemvm_inode": 201337502
+}
