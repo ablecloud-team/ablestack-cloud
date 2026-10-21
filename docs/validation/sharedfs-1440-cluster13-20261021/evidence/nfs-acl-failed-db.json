@@ -1,0 +1,17 @@
+{
+  "read_only_transaction": true,
+  "protected_configuration_unchanged": true,
+  "rows": [
+    {
+      "id": "426",
+      "uuid": "3976239f-27a0-4e84-bf1c-95e9c6ffc8a4",
+      "resource_type": "FILE_SHARE",
+      "resource_id": "385",
+      "principal_type": "CIDR",
+      "principal": "10.10.254.192/32",
+      "permission": "READ_WRITE",
+      "state": "Updating",
+      "config_json": "{\"readOnly\":false,\"rootSquash\":false,\"allSquash\":false,\"sync\":true,\"secure\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049]}"
+    }
+  ]
+}
