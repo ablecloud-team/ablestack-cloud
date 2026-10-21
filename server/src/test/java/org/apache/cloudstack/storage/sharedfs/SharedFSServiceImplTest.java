@@ -197,6 +197,7 @@ public class SharedFSServiceImplTest {
 
     private CreateSharedFSCmd getMockCreateSharedFSCmd() {
         CreateSharedFSCmd cmd = mock(CreateSharedFSCmd.class);
+        when(cmd.getVolumeId()).thenReturn(null);
         when(cmd.getEntityOwnerId()).thenReturn(s_ownerId);
         when(cmd.getZoneId()).thenReturn(s_zoneId);
         when(cmd.getDiskOfferingId()).thenReturn(s_diskOfferingId);

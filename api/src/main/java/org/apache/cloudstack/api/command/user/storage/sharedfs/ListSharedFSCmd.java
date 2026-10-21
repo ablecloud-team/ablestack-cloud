@@ -46,6 +46,9 @@ public class ListSharedFSCmd extends BaseListRetrieveOnlyResourceCountCmd implem
 
     @Inject
     SharedFSService sharedFSService;
+    @Parameter(name = "requestid", type = CommandType.STRING, description = "Initial creation request UUID")
+    private String requestId;
+    public String getRequestId() { return requestId; }
 
     /////////////////////////////////////////////////////
     //////////////// API parameters /////////////////////

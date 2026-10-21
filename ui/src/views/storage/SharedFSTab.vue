@@ -2258,6 +2258,7 @@ import NicsTab from '@/views/network/NicsTab.vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
+import { backingFilesystem } from '@/utils/sharedFsBacking'
 import {
   DeleteOutlined,
   DisconnectOutlined,
@@ -6666,6 +6667,7 @@ export default {
       return this.normalizeEndpointIps(this.forms.nfsExport.listenips)
     },
     nfsExportImportMode () {
+      if (this.resource?.backingmode === 'EXISTING' && this.forms.nfsExport.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.nfsExport.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }
@@ -6675,6 +6677,7 @@ export default {
       return 'FORMAT_IF_EMPTY'
     },
     smbShareImportMode () {
+      if (this.resource?.backingmode === 'EXISTING' && this.forms.smbShare.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.smbShare.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }
@@ -6959,7 +6962,7 @@ export default {
         diskofferingid: '',
         storageid: this.defaultNewVolumeStorageId(),
         newvolumesize: null,
-        filesystem: 'xfs',
+        filesystem: backingFilesystem(this.resource, this.currentBackingVolumeFilesystem?.(this.volume)),
         relativepath: '',
         createdirectory: true,
         quotaamount: null,
@@ -6980,6 +6983,9 @@ export default {
         sync: true,
         secure: false
       })
+      if (this.resource?.backingmode === 'EXISTING') {
+        Object.assign(this.forms.nfsExport, { anonuid: null, anongid: null, owneruid: null, ownergid: null, mode: null })
+      }
     },
     resetNfsAclForm () {
       Object.assign(this.forms.nfsAcl, {
@@ -7021,7 +7027,7 @@ export default {
         diskofferingid: '',
         storageid: this.defaultSmbNewVolumeStorageId(),
         newvolumesize: null,
-        filesystem: 'xfs',
+        filesystem: backingFilesystem(this.resource, this.currentBackingVolumeFilesystem?.(this.volume)),
         quotaamount: null,
         quotaunit: 'GiB',
         readonly: false,
@@ -8193,6 +8199,7 @@ export default {
       return next
     },
     applyNfsWritableDefaults () {
+      if (this.resource?.backingmode === 'EXISTING' && this.forms.nfsExport.volumemode === 'CURRENT') return
       if (this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
         return
       }

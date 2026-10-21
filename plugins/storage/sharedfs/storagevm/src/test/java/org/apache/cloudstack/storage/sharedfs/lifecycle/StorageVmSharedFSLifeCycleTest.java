@@ -500,4 +500,22 @@ public class StorageVmSharedFSLifeCycleTest {
         boolean result = lifeCycle.reDeploySharedFS(sharedFS);
         Assert.assertEquals(result, true);
     }
+    @Test
+    public void initialVmAllocationReobservesOwnedUuidAfterResponseLoss() throws Exception {
+        SharedFS fs = mock(SharedFS.class);when(fs.getAccountId()).thenReturn(1L);when(fs.getDataCenterId()).thenReturn(2L);
+        UserVmVO vm=mock(UserVmVO.class);when(vm.getId()).thenReturn(9L);when(vm.getAccountId()).thenReturn(1L);
+        when(vm.getDataCenterId()).thenReturn(2L);when(vm.getUserVmType()).thenReturn(UserVmManager.SHAREDFSVM);
+        when(userVmDao.findByUuid("planned-uuid")).thenReturn(vm);
+        Assert.assertEquals(Long.valueOf(9L),lifeCycle.allocateInitialSharedFSVm(fs,3L,java.util.Map.of(),"planned-uuid"));
+        org.mockito.Mockito.verifyNoInteractions(userVmService);
+    }
+
+    @Test(expected=CloudRuntimeException.class)
+    public void initialVmAllocationRejectsOtherOwnerWithoutAdoption() throws Exception {
+        SharedFS fs=mock(SharedFS.class);when(fs.getAccountId()).thenReturn(1L);when(fs.getDataCenterId()).thenReturn(2L);
+        UserVmVO vm=mock(UserVmVO.class);when(vm.getAccountId()).thenReturn(99L);
+        when(userVmDao.findByUuid("planned-uuid")).thenReturn(vm);
+        lifeCycle.allocateInitialSharedFSVm(fs,3L,java.util.Map.of(),"planned-uuid");
+    }
+
 }

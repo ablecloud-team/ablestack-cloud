@@ -10220,5 +10220,16 @@
   "label.sharedfs.offering.mode.ranged": "Constrained custom",
   "message.sharedfs.offering.selection.required": "Select an eligible compute offering and complete its resource values.",
   "message.sharedfs.offering.reason.systemvm_arch_unavailable": "No ready SystemVM template matches the zone architecture.",
-  "message.sharedfs.offering.reason.required": "Enter {field}."
+  "message.sharedfs.offering.reason.required": "Enter {field}.",
+  "message.sharedfs.initial.pending": "An initial request is pending. Observe and continue the same request. Credentials are not stored.",
+  "message.sharedfs.initial.api.required": "The initial creation observation API is unavailable. Align management and UI versions.",
+  "message.sharedfs.initial.inspected": "Existing volume inspection completed. The service is not ready; continue mounting the same request in the creation dialog.",
+  "label.sharedfs.initial.mount": "Continue mounting existing filesystem",
+  "label.sharedfs.initial.cancel": "Cancel initial preparation",
+  "label.sharedfs.initial.unobserved": "Not observed; no assumed format",
+  "label.sharedfs.initial.observe": "Observe / continue request",
+  "label.sharedfs.initial.expected.fs": "Optional expected filesystem",
+  "message.sharedfs.initial.not.found": "The resource is not yet visible. Observe the result using the same request key.",
+  "message.sharedfs.initial.resource.conflict": "The initial share with this name uses a different backing volume or path.",
+  "label.sharedfs.initial.auto": "Observe automatically (default)"
 }

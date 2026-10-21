@@ -274,7 +274,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     private UserVm deploySharedFSVM(Long zoneId, Account owner, List<Long> networkIds, String name, Long serviceOfferingId, Long diskOfferingId,
-            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Map<String, String> customValues) throws OperationTimedoutException,
+            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Map<String, String> customValues, String plannedVmUuid, boolean start) throws OperationTimedoutException,
             ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         ServiceOffering serviceOffering = serviceOfferingDao.findById(serviceOfferingId);
         DataCenter zone = dataCenterDao.findById(zoneId);
@@ -286,7 +286,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             throw new CloudRuntimeException(String.format("No supported hypervisor found for zone %s.", zone.toString()));
         }
 
-        String hostName = getStorageVmName(name);
+        String hostName = plannedVmUuid == null ? getStorageVmName(name) : "sharedfs-" + plannedVmUuid;
         Network.IpAddresses addrs = new Network.IpAddresses(networkMode == SharedFS.NetworkMode.STATIC ? requestedIp : null, null);
         Map<String, String> customParameterMap = new HashMap<>(customValues);
         if (minIops != null) {
@@ -320,10 +320,10 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                 vm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, hostName, hostName,
                         diskOfferingId, size, null, null, Hypervisor.HypervisorType.None, BaseCmd.HTTPMethod.POST, base64UserData,
                         null, null, keypairs, null, addrs, null, null, null,
-                        customParameterMap, null, null, null, null,
+                        customParameterMap, plannedVmUuid, null, null, null,
                         true, UserVmManager.SHAREDFSVM, null, null, null, null);
                 vmContext.setEventResourceId(vm.getId());
-                userVmService.startVirtualMachine(vm, null);
+                if (start) userVmService.startVirtualMachine(vm, null);
             } catch (InsufficientCapacityException ex) {
                 if (vm != null) {
                     expungeVm(vm.getId());
@@ -379,7 +379,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
         UserVm vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(), sharedFS.getServiceOfferingId(), diskOfferingId,
-                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress(), customValues);
+                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress(), customValues, null, true);
 
         List<VolumeVO> volumes = volumeDao.findByInstance(vm.getId());
         VolumeVO dataVol = null;
@@ -405,6 +405,34 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         return deploySharedFS(sharedFS, networkId, diskOfferingId, null, size, minIops, maxIops);
+    }
+
+    @Override
+    public Long allocateInitialSharedFSVm(SharedFS sharedFS, Long networkId, Map<String, String> compute, String vmUuid)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        UserVmVO existing = userVmDao.findByUuid(vmUuid);
+        if (existing != null) {
+            if (existing.getRemoved() != null || existing.getAccountId() != sharedFS.getAccountId()
+                    || existing.getDataCenterId() != sharedFS.getDataCenterId()
+                    || !UserVmManager.SHAREDFSVM.equals(existing.getUserVmType()))
+                throw new CloudRuntimeException("Planned SharedFS VM UUID belongs to a different allocation");
+            return existing.getId();
+        }
+        Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext context = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        UserVm vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(),
+                sharedFS.getServiceOfferingId(), context.existing ? null : context.diskOfferingId, sharedFS.getFsType(),
+                context.existing ? null : context.size, context.minIops, context.maxIops,
+                sharedFS.getNetworkMode(), sharedFS.getIpAddress(), compute, vmUuid, false);
+        return vm.getId();
+    }
+
+    @Override
+    public void cleanupImportedSharedFSVm(SharedFS sharedFS) {
+        if (sharedFS.getVmId() == null) return;
+        if (volumeDao.findByInstance(sharedFS.getVmId()).stream().anyMatch(v -> v.getVolumeType() != Volume.Type.ROOT))
+            throw new CloudRuntimeException("Existing DATA must be detached before cleaning up the owned SharedFS VM");
+        expungeVm(sharedFS.getVmId());
     }
 
     @Override
@@ -437,6 +465,9 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean deleteSharedFS(SharedFS sharedFS) {
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        if (c != null && c.existing && !c.cancelled)
+            throw new CloudRuntimeException("Imported DATA is protected; cancel initial preparation before deleting the allocation");
         Long vmId = sharedFS.getVmId();
         Long volumeId = sharedFS.getVolumeId();
         if (vmId != null) {
@@ -459,6 +490,8 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean reDeploySharedFS(SharedFS sharedFS) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        if (c != null && c.existing) throw new CloudRuntimeException("Cleanup redeploy is unavailable for imported backing DATA");
         UserVm vm =  virtualMachineManager.restoreVirtualMachine(sharedFS.getVmId(), null, null, true, null);
         return (vm != null);
     }

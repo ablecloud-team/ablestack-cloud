@@ -68,7 +68,7 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     String SharedFSPath = "/export";
 
     enum FileSystemType {
-        EXT4, XFS
+        EXT4, XFS, AUTO
     }
 
     enum Protocol {
@@ -119,6 +119,7 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
         }
 
         static {
+            s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Error, Event.CreationResumeRequested, Allocated, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Allocated, Event.OperationFailed, Error, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Allocated, Event.OperationSucceeded, Ready, null));
             s_fsm.addTransition(new StateMachine2.Transition<State, Event>(Error, Event.DestroyRequested, Destroyed, null));
@@ -138,6 +139,7 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     }
 
     enum Event {
+        CreationResumeRequested,
         StopRequested,
         StartRequested,
         DestroyRequested,
@@ -150,6 +152,10 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
     static String getSharedFSPath() {
         return SharedFSPath;
     }
+
+    default String getCreationRequestId() { return null; }
+
+    default String getCreationContext() { return null; }
 
     long getId();
 
