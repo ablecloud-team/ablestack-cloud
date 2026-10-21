@@ -140,6 +140,23 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
             description = "the service offering to use for the shared filesystem instance hosting the data. The offering should be HA enabled and the cpu count and memory size should be greater than equal to sharedfsvm.min.cpu.count and sharedfsvm.min.ram.size respectively")
     private Long serviceOfferingId;
 
+    @Parameter(name = ApiConstants.CPU_NUMBER, type = CommandType.INTEGER, description = "CPU count for a customizable compute field.")
+    private Integer cpuNumber;
+
+    @Parameter(name = ApiConstants.CPU_SPEED, type = CommandType.INTEGER, description = "CPU speed in MHz for a customizable compute field.")
+    private Integer cpuSpeed;
+
+    @Parameter(name = ApiConstants.MEMORY, type = CommandType.INTEGER, description = "RAM in MiB for a customizable compute field.")
+    private Integer memory;
+
+    public java.util.Map<String, String> getCustomComputeParameters() {
+        java.util.Map<String, String> values = new java.util.LinkedHashMap<>();
+        if (cpuNumber != null) values.put("cpuNumber", cpuNumber.toString());
+        if (cpuSpeed != null) values.put("cpuSpeed", cpuSpeed.toString());
+        if (memory != null) values.put("memory", memory.toString());
+        return values;
+    }
+
     @Parameter(name = ApiConstants.FILESYSTEM,
             type = CommandType.STRING,
             required = true,
