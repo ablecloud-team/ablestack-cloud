@@ -6983,9 +6983,6 @@ export default {
         sync: true,
         secure: false
       })
-      if (this.resource?.backingmode === 'EXISTING') {
-        Object.assign(this.forms.nfsExport, { anonuid: null, anongid: null, owneruid: null, ownergid: null, mode: null })
-      }
     },
     resetNfsAclForm () {
       Object.assign(this.forms.nfsAcl, {
@@ -8191,6 +8188,7 @@ export default {
       if (!readOnly && rootSquash) {
         if (next.anonUid === undefined && next.anonuid === undefined) next.anonUid = 65534
         if (next.anonGid === undefined && next.anongid === undefined) next.anonGid = 65534
+        if (next.posixPolicy === 'PRESERVE_EXISTING_INITIAL') return next
         if (next.ownerUid === undefined && next.owneruid === undefined) next.ownerUid = next.anonUid ?? next.anonuid ?? 65534
         if (next.ownerGid === undefined && next.ownergid === undefined) next.ownerGid = next.anonGid ?? next.anongid ?? 65534
         if (!next.mode) next.mode = '0775'
@@ -8199,7 +8197,9 @@ export default {
       return next
     },
     applyNfsWritableDefaults () {
-      if (this.resource?.backingmode === 'EXISTING' && this.forms.nfsExport.volumemode === 'CURRENT') return
+      const record = this.actionModal?.context?.raw || this.actionModal?.context || {}
+      const config = this.parseStorageConfig(record.config || record.configjson || record.configJson)
+      if (config.posixPolicy === 'PRESERVE_EXISTING_INITIAL') return
       if (this.forms.nfsExport.readonly || !this.forms.nfsExport.rootsquash) {
         return
       }

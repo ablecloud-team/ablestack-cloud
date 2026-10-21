@@ -126,6 +126,12 @@ public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
             description = "defer applying the NFS desired state until a later API call completes the initial export policy")
     private Boolean deferApply;
 
+    @Parameter(name = "initialcreationrequestid", type = CommandType.STRING,
+            description = "Original SharedFS creation UUID, only for its initial NFS export on an imported primary volume")
+    private String initialCreationRequestId;
+
+    public String getInitialCreationRequestId() { return initialCreationRequestId; }
+
     public Long getInstanceId() {
         return instanceId;
     }

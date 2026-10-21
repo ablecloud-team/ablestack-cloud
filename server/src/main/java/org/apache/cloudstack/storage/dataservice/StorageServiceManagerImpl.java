@@ -595,10 +595,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateNfsExportName(cmd.getName());
         validateNfsExportPath(path, cmd.getName());
         validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "NFS export");
+        final boolean preserveInitialPosix = preserveInitialImportedNfsPosix(instance, cmd);
         String configJson = buildNfsConfigJson(null, cmd.getReadOnly(), cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                 cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode(), cmd.getRecursivePermission(), cmd.getSync(), cmd.getSecure(),
-                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, !isImportedPrimary(instance, cmd.getVolumeId()));
+                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, !preserveInitialPosix);
         configJson = buildFileShareDirectoryConfigJson(configJson, requestedVolume, cmd.getImportMode(), cmd.getCreateDirectory());
+        if (preserveInitialPosix) {
+            JsonObject preserved = parseJsonObject(configJson);
+            preserved.addProperty("posixPolicy", "PRESERVE_EXISTING_INITIAL");
+            configJson = GSON.toJson(preserved);
+        }
         validateJsonObjectConfigOrThrow(configJson, "NFS export " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
@@ -608,6 +614,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         storageFileShareDao.update(share.getId(), share);
         try {
             prepareFileShareBackingVolume(instance, share, cmd.getImportMode());
+            if (preserveInitialPosix) requireInitialPosixPreservationRuntime(share);
             if (Boolean.TRUE.equals(cmd.getDeferApply())) {
                 share.setState(StorageServiceInstance.ResourceState.Allocated);
             } else {
@@ -2807,6 +2814,33 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+    protected boolean preserveInitialImportedNfsPosix(StorageServiceInstanceVO instance, CreateStorageNfsExportCmd cmd) {
+        if (cmd.getInitialCreationRequestId() == null) return false;
+        final String key = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.normalizeKey(cmd.getInitialCreationRequestId());
+        final SharedFSVO fs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
+        if (fs == null || fs.getState() != SharedFS.State.Ready || !key.equals(fs.getCreationRequestId()))
+            throw new InvalidParameterValueException("Initial NFS setup requires the original Ready SharedFS creation request");
+        final org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c =
+                org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(fs.getCreationContext());
+        if (c == null || !c.existing || c.cancelled || !"READY".equals(c.phase)
+                || !java.util.Objects.equals(c.volumeId, cmd.getVolumeId())
+                || !"MOUNT_EXISTING".equalsIgnoreCase(cmd.getImportMode()))
+            throw new InvalidParameterValueException("Initial POSIX preservation is restricted to the imported primary volume");
+        if (!storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS).isEmpty())
+            throw new InvalidParameterValueException("The initial NFS export is already configured; observe the existing export");
+        if (cmd.getOwnerUid() != null || cmd.getOwnerGid() != null || StringUtils.isNotBlank(cmd.getMode())
+                || Boolean.TRUE.equals(cmd.getRecursivePermission()))
+            throw new InvalidParameterValueException("Initial imported NFS setup cannot initialize POSIX ownership or mode");
+        return true;
+    }
+
+    protected void requireInitialPosixPreservationRuntime(StorageFileShareVO share) {
+        JsonObject config = parseJsonObject(share.getConfigJson());
+        JsonObject inspection = getJsonObject(config, "lastInspection");
+        if (inspection == null || !getBoolean(inspection, "supportsInitialPosixPreservation", false))
+            throw new InvalidParameterValueException("SystemVM runtime must support initial POSIX preservation before applying this export");
+    }
+
     protected boolean isImportedPrimary(StorageServiceInstanceVO instance, Long volumeId) {
         if (volumeId == null || instance.getVmId() == null) return false;
         SharedFSVO fs = sharedFSDao.findByVm(instance.getVmId());
@@ -4185,6 +4219,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!config.has("anonGid")) {
             config.addProperty("anonGid", NFS_ANONYMOUS_GID);
         }
+        if ("PRESERVE_EXISTING_INITIAL".equals(getJsonString(config, "posixPolicy"))) return;
         if (!config.has("ownerUid")) {
             config.addProperty("ownerUid", getInt(config, "anonUid", NFS_ANONYMOUS_UID));
         }

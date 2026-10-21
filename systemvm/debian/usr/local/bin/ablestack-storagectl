@@ -2938,6 +2938,7 @@ print(json.dumps({
     "serial": resolved_device.get("serial"),
     "filesystem": filesystem,
     "filesystemSupported": filesystem in supported_filesystems,
+    "supportsInitialPosixPreservation": True,
     "fsUuid": fs_uuid,
     "filesystemUuid": fs_uuid,
     "observedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -3428,6 +3429,8 @@ def effective_nfs_export_config(config):
         result["anonUid"] = 65534
     if result.get("anonGid") in (None, ""):
         result["anonGid"] = 65534
+    if result.get("posixPolicy") == "PRESERVE_EXISTING_INITIAL":
+        return result
     if result.get("ownerUid") in (None, ""):
         result["ownerUid"] = result.get("anonUid")
     if result.get("ownerGid") in (None, ""):
