@@ -6,6 +6,7 @@
 // Unless required by law or agreed in writing, software is distributed
 // on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND.
 import { backingRequest, backingFilesystem, publicCreationSetup, creationRequestId } from '@/utils/sharedFsBacking'
+import storageConfig from '@/config/section/storage'
 import Create from '@/views/storage/CreateSharedFS'
 import SharedFSTab from '@/views/storage/SharedFSTab'
 import { getAPI } from '@/api'
@@ -69,5 +70,17 @@ describe('SharedFS initial backing contract', () => {
     expect(context.runStorageServiceSetup).not.toHaveBeenCalled()
     expect(context.$notifyError).not.toHaveBeenCalled()
     expect(context.loading).toBe(false)
+  })
+
+  it('exposes corrupt reservation cancellation only before a VM exists', () => {
+    const section = storageConfig.children.find(x => x.name === 'sharedfs')
+    const action = section.actions.find(x => x.api === 'resumeSharedFileSystemCreation')
+    const record = { id: 'failed-fs', state: 'Allocated', creationstage: 'CORRUPT', creationrequestid: 'original-key' }
+    expect(action.show(record)).toBe(true)
+    expect(action.mapping.requestid.value(record)).toBe('original-key')
+    expect(action.mapping.action.value()).toBe('CANCEL_PREPARATION')
+    expect(action.show({ ...record, virtualmachineid: 'existing-vm' })).toBe(false)
+    expect(action.show({ ...record, state: 'Ready' })).toBe(false)
+    expect(action.show({ ...record, creationstage: 'INSPECTED' })).toBe(false)
   })
 })
