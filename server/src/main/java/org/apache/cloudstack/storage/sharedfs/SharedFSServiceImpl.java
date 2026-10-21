@@ -38,6 +38,11 @@ import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
 import com.cloud.configuration.ConfigurationManager;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.service.ServiceOfferingVO;
+import org.apache.cloudstack.api.response.ServiceOfferingResponse;
+import org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse;
+import org.apache.cloudstack.api.command.user.storage.sharedfs.ListSharedFSServiceOfferingsCmd;
 import com.cloud.dc.DataCenter;
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.exception.InsufficientCapacityException;
@@ -146,6 +151,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
     @Inject
     private DataCenterDao dataCenterDao;
+
+    @Inject
+    private ServiceOfferingDao serviceOfferingDao;
 
     @Inject
     private ConfigurationManager configMgr;
@@ -266,6 +274,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(ListSharedFSProvidersCmd.class);
             cmdList.add(CreateSharedFSCmd.class);
             cmdList.add(ListSharedFSCmd.class);
+            cmdList.add(ListSharedFSServiceOfferingsCmd.class);
             cmdList.add(UpdateSharedFSCmd.class);
             cmdList.add(DestroySharedFSCmd.class);
             cmdList.add(RestartSharedFSCmd.class);
@@ -277,6 +286,26 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(ExpungeSharedFSCmd.class);
         }
         return cmdList;
+    }
+
+    @Override
+    public ListResponse<SharedFSServiceOfferingResponse> listCreationServiceOfferings(Long zoneId,
+            ListResponse<ServiceOfferingResponse> visible) {
+        DataCenter zone = validateAndGetZone(zoneId);
+        SharedFSLifeCycle lifeCycle = getSharedFSProvider(SharedFSProvider.SharedFSProviderType.SHAREDFSVM.toString()).getSharedFSLifeCycle();
+        List<SharedFSServiceOfferingResponse> rows = new ArrayList<>();
+        if (visible.getResponses() != null) {
+            for (ServiceOfferingResponse offering : visible.getResponses()) {
+                ServiceOfferingVO current = serviceOfferingDao.findByUuid(offering.getId());
+                if (current != null) {
+                    rows.add(new SharedFSServiceOfferingResponse(offering,
+                            lifeCycle.getCreationOfferingEligibility(zone, current.getId())));
+                }
+            }
+        }
+        ListResponse<SharedFSServiceOfferingResponse> response = new ListResponse<>();
+        response.setResponses(rows, visible.getCount());
+        return response;
     }
 
     private DataCenter validateAndGetZone(Long zoneId) {
@@ -455,7 +484,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         SharedFSProvider provider = getSharedFSProvider(cmd.getSharedFSProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
-        lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId());
+        lifeCycle.checkCreationPrerequisites(zone, cmd.getServiceOfferingId(), cmd.getCustomComputeParameters());
 
         NetworkVO networkVO = networkDao.findById(cmd.getNetworkId());
         if (networkVO == null) {
@@ -508,7 +537,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
-            result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
+            Map<String, String> compute = lifeCycle.checkCreationPrerequisites(validateAndGetZone(cmd.getZoneId()),
+                    cmd.getServiceOfferingId(), cmd.getCustomComputeParameters());
+            result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops, compute);
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
             sharedFSDao.update(sharedFS.getId(), sharedFS);
