@@ -9840,5 +9840,12 @@
   "label.clone.batch.action.RESUME": "준비된 디스크에서 계속",
   "label.clone.batch.action.START": "기존 VM 시작",
   "label.clone.batch.action.NONE": "해당 없음",
-  "message.clone.batch.recapture": "다시 생성하는 대상은 재시도 시점의 원본으로 복제합니다. 준비된 대상은 기존 디스크를 계속 사용하며, 시작 재시도는 같은 VM을 사용합니다."
+  "message.clone.batch.recapture": "다시 생성하는 대상은 재시도 시점의 원본으로 복제합니다. 준비된 대상은 기존 디스크를 계속 사용하며, 시작 재시도는 같은 VM을 사용합니다.",
+  "message.storage.service.read.loading": "서비스 정보를 조회 중입니다. 다른 탭은 계속 사용할 수 있습니다.",
+  "message.storage.service.read.timeout": "조회 대기 시간 30초를 초과했습니다.",
+  "message.storage.service.read.forbidden": "이 정보를 조회할 권한이 없습니다.",
+  "message.storage.service.read.failed": "서비스 정보를 조회하지 못했습니다.",
+  "message.storage.service.read.partial": "일부 서비스 정보를 업데이트하지 못했습니다. 기존에 조회한 정보는 유지됩니다.",
+  "message.storage.service.read.network": "서버에 연결하지 못했습니다.",
+  "message.storage.service.read.last.success": "마지막 전체 업데이트: {time}"
 }

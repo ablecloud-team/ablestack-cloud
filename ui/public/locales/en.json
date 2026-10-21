@@ -9875,5 +9875,12 @@
   "label.clone.batch.action.RESUME": "Continue with prepared disks",
   "label.clone.batch.action.START": "Start existing VM",
   "label.clone.batch.action.NONE": "None",
-  "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM."
+  "message.clone.batch.recapture": "Recreated targets capture the source at retry time. Prepared targets keep their existing disks; start retries use the same VM.",
+  "message.storage.service.read.loading": "Loading service information. Other tabs remain available.",
+  "message.storage.service.read.failed": "The service information could not be read.",
+  "message.storage.service.read.last.success": "Last complete update: {time}",
+  "message.storage.service.read.timeout": "The read exceeded 30 seconds.",
+  "message.storage.service.read.forbidden": "You do not have permission to read this information.",
+  "message.storage.service.read.partial": "Some service information could not be refreshed. Previously loaded information is retained.",
+  "message.storage.service.read.network": "The server could not be reached."
 }
