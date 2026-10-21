@@ -116,6 +116,16 @@ public class SharedFSOfferingEligibilityTest {
     }
 
     @Test
+    public void relaxedSharedFsConfigurationStillKeepsTheVmResourceFloor() {
+        SharedFSOfferingEligibility result = new SharedFSOfferingEligibility(offering(null, null, 2000),
+                Collections.emptyMap(), 0, 0, 0, 0);
+        assertEquals(1, result.getConstraints().get("cpunumber").getMin());
+        assertEquals(32, result.getConstraints().get("memory").getMin());
+        assertThrows(InvalidParameterValueException.class,
+                () -> result.validateCustomValues(Map.of("cpuNumber", "0", "memory", "32")));
+    }
+
+    @Test
     public void structuredReasonsAndCatalogFieldsAreSerialized() {
         SharedFSOfferingEligibility result = eligibility(offering(null, null, 2000), Collections.emptyMap());
         result.reject("ROOT_POLICY_THIN", "serviceofferingid");

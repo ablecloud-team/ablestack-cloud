@@ -77,14 +77,14 @@ public final class SharedFSOfferingEligibility {
 
     public SharedFSOfferingEligibility(ServiceOffering offering, Map<String, String> details,
             int minCpu, int minRam, int maxCpu, int maxRam) {
-        requirements.put("mincpu", minCpu);
-        requirements.put("minmemory", minRam);
+        requirements.put("mincpu", Math.max(1, minCpu));
+        requirements.put("minmemory", Math.max(32, minRam));
         requirements.put("ha", true);
         requirements.put("dynamicscalingrequired", false);
         if (!offering.isOfferHA()) {
             reject("HA_REQUIRED", "offerha");
         }
-        addConstraint("cpunumber", offering.getCpu(), minCpu, upper(maxCpu), details, "mincpunumber", "maxcpunumber");
+        addConstraint("cpunumber", offering.getCpu(), Math.max(1, minCpu), upper(maxCpu), details, "mincpunumber", "maxcpunumber");
         addConstraint("memory", offering.getRamSize(), Math.max(32, minRam), upper(maxRam), details, "minmemory", "maxmemory");
         // A fixed zero MHz is the existing unlimited CPU-speed contract. Custom speed must be positive.
         addConstraint("cpuspeed", offering.getSpeed(), offering.getSpeed() == null ? 1 : 0,
