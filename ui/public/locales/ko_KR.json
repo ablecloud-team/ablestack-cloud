@@ -9353,5 +9353,16 @@
   "message.sharedfs.offering.reason.custom_values_invalid": "커스텀 자원 값이 현재 오퍼링 제한을 만족하지 않습니다.",
   "message.sharedfs.offering.reason.parameter_unsupported": "허용하지 않는 커스텀 자원 인자가 포함되어 있습니다.",
   "message.sharedfs.offering.reason.selection_required": "사용 가능한 컴퓨트 오퍼링을 선택하십시오.",
-  "message.sharedfs.offering.reason.unknown": "공유 파일 시스템 생성에 사용할 수 없는 오퍼링입니다."
+  "message.sharedfs.offering.reason.unknown": "공유 파일 시스템 생성에 사용할 수 없는 오퍼링입니다.",
+  "label.sharedfs.initial.observe": "요청 상태 확인·이어하기",
+  "label.sharedfs.initial.mount": "기존 파일시스템 마운트 이어하기",
+  "label.sharedfs.initial.cancel": "초기 준비 취소",
+  "label.sharedfs.initial.unobserved": "관측 전 · 기본값으로 추정하지 않음",
+  "label.sharedfs.initial.expected.fs": "선택적 기대 파일시스템",
+  "label.sharedfs.initial.auto": "자동 관측 (기본)",
+  "message.sharedfs.initial.pending": "미완료 초기 요청이 있습니다. 같은 요청의 상태를 확인하고 이어가세요. 인증정보는 저장하지 않습니다.",
+  "message.sharedfs.initial.not.found": "이 요청의 자원을 아직 찾을 수 없습니다. 요청 상태 확인으로 같은 키의 결과를 조회하세요.",
+  "message.sharedfs.initial.resource.conflict": "이름이 같은 초기 공유의 볼륨 또는 경로가 요청과 다릅니다. 자동으로 재사용하지 않습니다.",
+  "message.sharedfs.initial.api.required": "초기 요청의 안전한 재조회 API가 없습니다. 관리 서버와 UI 버전을 확인하세요.",
+  "message.sharedfs.initial.inspected": "기존 볼륨 검사를 완료했습니다. 공유 준비는 아직 완료되지 않았습니다. 생성 화면에서 같은 요청의 마운트를 이어가세요."
 }

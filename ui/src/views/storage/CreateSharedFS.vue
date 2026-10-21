@@ -42,6 +42,17 @@
         show-icon
         :message="$t('message.storage.service.create.dialog.summary')" />
 
+      <a-alert v-if="pendingCreation" class="section-alert" type="info" show-icon :message="$t('message.sharedfs.initial.pending')">
+        <template #description>
+          <div>{{ pendingCreation.request.name }} · {{ pendingCreation.request.requestid }}</div>
+          <div>{{ pendingCreationLabel }} · {{ $t('label.filesystem') }}: {{ pendingCreation.observedfilesystem || $t('label.sharedfs.initial.unobserved') }}</div>
+          <a-space wrap style="margin-top: 8px">
+            <a-button type="primary" :loading="loading" @click="continuePendingCreation('CONTINUE')">{{ $t('label.sharedfs.initial.observe') }}</a-button>
+            <a-button :disabled="loading" @click="continuePendingCreation('MOUNT_EXISTING')">{{ $t('label.sharedfs.initial.mount') }}</a-button>
+            <a-button :disabled="loading" @click="continuePendingCreation('CANCEL_PREPARATION')">{{ $t('label.sharedfs.initial.cancel') }}</a-button>
+          </a-space>
+        </template>
+      </a-alert>
       <div class="sharedfs-create-layout">
         <aside class="sharedfs-create-summary">
           <section class="summary-panel">
@@ -60,7 +71,7 @@
               <dt>{{ $t('label.networkid') }}</dt>
               <dd>{{ selectedNetworkName }}</dd>
               <dt>{{ $t('label.filesystem') }}</dt>
-              <dd>{{ form.filesystem || '-' }}</dd>
+              <dd>{{ form.useexistingvolume ? $t('label.sharedfs.initial.unobserved') : (form.filesystem || '-') }}</dd>
               <dt>{{ $t('label.storage.service.smb.identity.mode') }}</dt>
               <dd>{{ isServiceSelected('SMB') ? smbIdentityModeLabel : '-' }}</dd>
               <dt>{{ $t('label.storage.service.existing.volume') }}</dt>
@@ -278,7 +289,7 @@
               </section>
             </a-col>
             <a-col :xs="24" :md="12">
-              <a-form-item ref="filesystem" name="filesystem">
+              <a-form-item v-if="!form.useexistingvolume" ref="filesystem" name="filesystem">
                 <template #label>
                   <tooltip-label :title="$t('label.filesystem')" :tooltip="apiParams.filesystem.description"/>
                 </template>
@@ -371,6 +382,17 @@ show-icon
                   </a-select>
                   <div class="field-hint">{{ $t('message.storage.service.existing.volume.only.unattached') }}</div>
                 </a-form-item>
+                <a-form-item :label="$t('label.diskofferingid')"><a-input :value="selectedExistingVolume?.diskofferingname || selectedExistingVolume?.diskofferingid || '-'" disabled /></a-form-item>
+                <a-form-item :label="$t('label.storage.service.primary.storage')"><a-input :value="selectedExistingVolume?.storage || selectedExistingVolume?.storageid || '-'" disabled /></a-form-item>
+                <a-form-item :label="$t('label.provisioningtype')"><a-input :value="selectedExistingVolume?.provisioningtype || '-'" disabled /></a-form-item>
+                <a-form-item :label="$t('label.filesystem')"><a-input :value="$t('label.sharedfs.initial.unobserved')" disabled /></a-form-item>
+                <a-form-item :label="$t('label.sharedfs.initial.expected.fs')" name="existingfilesystem">
+                  <a-select v-model:value="form.existingfilesystem">
+                    <a-select-option value="AUTO">{{ $t('label.sharedfs.initial.auto') }}</a-select-option>
+                    <a-select-option value="XFS">XFS</a-select-option>
+                    <a-select-option value="EXT4">EXT4</a-select-option>
+                  </a-select>
+                </a-form-item>
                 <a-form-item :label="$t('label.storage.service.selected.volume.size')">
                   <a-input :value="selectedExistingVolumeSizeLabel" disabled />
                 </a-form-item>
@@ -381,7 +403,7 @@ show-icon
                   <a-select v-model:value="form.importmode">
                     <a-select-option value="INSPECT_ONLY">{{ $t('label.storage.service.import.inspect') }}</a-select-option>
                     <a-select-option value="MOUNT_EXISTING">{{ $t('label.storage.service.import.mount') }}</a-select-option>
-                    <a-select-option value="FORMAT_NEW">{{ $t('label.storage.service.import.format') }}</a-select-option>
+
                   </a-select>
                 </a-form-item>
                 <a-alert
@@ -1017,7 +1039,7 @@ show-icon
 
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" :disabled="serviceofferingLoading || !!serviceofferingError || !computeOfferingReady" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button type="primary" ref="submit" :disabled="!!pendingCreation || serviceofferingLoading || !!serviceofferingError || !computeOfferingReady" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
     </div>
@@ -1032,6 +1054,7 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
+import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/sharedFsBacking'
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
 import { computeFields, computeInputErrors, customComputeParams, computeReasonText, offeringFailureText } from '@/utils/sharedFsOffering'
 
@@ -1066,6 +1089,9 @@ export default {
         projectid: store.getters.project?.id,
         projectName: store.getters.project?.name
       },
+      creationRequestId: creationRequestId(),
+      pendingCreation: null,
+      volumeGeneration: 0,
       loading: false,
       zones: [],
       zoneLoading: false,
@@ -1290,6 +1316,12 @@ export default {
       }
       return value => labels[String(value || 'V4_ONLY').toUpperCase()] || String(value || '-')
     },
+    pendingCreationLabel () {
+      const phase = this.pendingCreation?.phase
+      if (phase === 'INSPECTED') return this.$t('message.sharedfs.initial.inspected')
+      if (phase === 'CANCELLED') return this.$t('label.sharedfs.initial.cancel')
+      return this.$t('message.sharedfs.initial.pending')
+    },
     importModeLabel () {
       const labels = {
         INSPECT_ONLY: this.$t('label.storage.service.import.inspect'),
@@ -1306,8 +1338,10 @@ export default {
     this.initForm()
     this.fetchData()
     this.form.filesystem = 'XFS'
+    this.pendingCreation = this.readPendingCreation()
   },
   watch: {
+    owner: { deep: true, handler () { this.pendingCreation = this.readPendingCreation() } },
     'form.name' (name, previousName) {
       this.syncInitialNfsPath(previousName ? `${previousName}-nfs` : '')
     },
@@ -1404,7 +1438,8 @@ export default {
         cpunumber: null,
         cpuspeed: null,
         memory: null,
-        importmode: 'INSPECT_ONLY',
+        importmode: 'MOUNT_EXISTING',
+        existingfilesystem: 'AUTO',
         resizeallowed: true
       })
       this.rules = reactive({
@@ -1420,7 +1455,7 @@ export default {
             }
           }
         }],
-        diskofferingid: [{ required: true, message: this.$t('label.required') }],
+        diskofferingid: [{ validator: async (r, value) => { if (!this.form.useexistingvolume && !value) throw new Error(this.$t('label.required')) } }],
         storageid: [{
           validator: async (rule, value) => {
             if (!this.form.useexistingvolume && !value) {
@@ -1429,7 +1464,7 @@ export default {
             return Promise.resolve()
           }
         }],
-        size: [{ required: true, message: this.$t('message.error.custom.disk.size') }],
+        size: [{ validator: async (r, value) => { if (!this.form.useexistingvolume && this.customDiskOffering && !value) throw new Error(this.$t('message.error.custom.disk.size')) } }],
         existingvolumeid: [{
           validator: async (rule, value) => {
             if (this.form.useexistingvolume && !value) {
@@ -1770,12 +1805,90 @@ export default {
         this.networkLoading = false
       })
     },
+    pendingStorageKey () {
+      return 'sharedfs.initial.' + [this.owner.domainid || '', this.owner.account || '', this.owner.projectid || ''].join('|')
+    },
+    readPendingCreation () {
+      try { return JSON.parse(sessionStorage.getItem(this.pendingStorageKey()) || 'null') } catch (e) { return null }
+    },
+    savePendingCreation (value) {
+      this.pendingCreation = value
+      if (value) sessionStorage.setItem(this.pendingStorageKey(), JSON.stringify(value))
+      else sessionStorage.removeItem(this.pendingStorageKey())
+    },
+    async continuePendingCreation (action = 'CONTINUE') {
+      const pending = this.pendingCreation
+      if (!pending || this.loading) return
+      this.loading = true
+      try {
+        const found = await getAPI('listSharedFileSystems', { requestid: pending.request.requestid, listall: true, ...this.owner })
+        const fs = (found.listsharedfilesystemsresponse?.sharedfs || [])[0]
+        if (!fs) {
+          if (action !== 'CONTINUE') throw new Error(this.$t('message.sharedfs.initial.not.found'))
+          const created = await postAPI('createSharedFileSystem', pending.request)
+          pending.jobid = created.createsharedfilesystemresponse?.jobid
+          this.savePendingCreation(pending)
+          if (!pending.jobid) throw new Error(this.$t('message.create.sharedfs.failed'))
+          this.closeModal()
+          await this.runInitialStorageServiceSetup(pending.jobid, pending.setup, 'storage-service-setup-' + pending.jobid)
+          return
+        }
+        pending.entityid = fs.id
+        pending.phase = fs.creationstage
+        pending.observedfilesystem = fs.observedfilesystem
+        this.savePendingCreation(pending)
+        if (action === 'CONTINUE' && fs.state === 'Allocated' && fs.creationstage !== 'INSPECTED' && fs.creationjobid) {
+          this.closeModal()
+          await this.runInitialStorageServiceSetup(fs.creationjobid, pending.setup, 'storage-service-setup-' + fs.creationjobid)
+          return
+        }
+        if (action === 'CANCEL_PREPARATION') {
+          await this.runStorageServiceSetup('resumeSharedFileSystemCreation', { id: fs.id, requestid: pending.request.requestid, action })
+          this.savePendingCreation(null)
+          this.parentFetchData()
+          return
+        }
+        if (fs.state === 'Ready') {
+          const setup = {
+            ...pending.setup,
+            filesystem: fs.observedfilesystem || fs.filesystem,
+            smblocalpassword: this.form.smblocalpassword,
+            smblocalpasswordconfirm: this.form.smblocalpasswordconfirm,
+            smbadpassword: this.form.smbadpassword
+          }
+          await this.configureInitialStorageServices({ sharedfs: fs }, setup, 'storage-service-setup-' + pending.request.requestid)
+          this.savePendingCreation(null)
+          this.closeModal()
+          return
+        }
+        const reply = await postAPI('resumeSharedFileSystemCreation', { id: fs.id, requestid: pending.request.requestid, action })
+        const jobid = reply.resumesharedfilesystemcreationresponse?.jobid
+        if (!jobid) throw new Error(this.$t('message.create.sharedfs.failed'))
+        this.closeModal()
+        await this.runInitialStorageServiceSetup(jobid, {
+          ...pending.setup,
+          smblocalpassword: this.form.smblocalpassword,
+          smblocalpasswordconfirm: this.form.smblocalpasswordconfirm,
+          smbadpassword: this.form.smbadpassword
+        }, 'storage-service-setup-' + jobid)
+      } catch (e) { this.$notifyError(e) } finally { this.loading = false }
+    },
+    async observeInitialFileShare (api, listApi, objectName, params) {
+      const json = await getAPI(listApi, { instanceid: params.instanceid })
+      const items = json[listApi.toLowerCase() + 'response']?.[objectName] || []
+      const existing = items.find(x => x.name === params.name)
+      if (!existing) return this.runStorageServiceSetup(api, params)
+      if (String(existing.volumeid) !== String(params.volumeid) || existing.path !== params.path) {
+        throw new Error(this.$t('message.sharedfs.initial.resource.conflict'))
+      }
+      return { [objectName]: existing }
+    },
     handleExistingVolumeToggle (enabled) {
       if (enabled) {
         this.fetchAvailableVolumes()
       }
     },
-    fetchAvailableVolumes () {
+    async fetchAvailableVolumes () {
       if (!('listVolumes' in this.$store.getters.apis) || !this.selectedZone) {
         this.availableVolumes = []
         this.form.existingvolumeid = ''
@@ -1793,20 +1906,24 @@ export default {
       } else {
         params.account = this.owner.account
       }
-      getAPI('listVolumes', params).then(json => {
-        const volumes = json.listvolumesresponse.volume || []
-        this.availableVolumes = volumes.filter(volume => {
-          return volume.type === 'DATADISK' &&
-            volume.state === 'Ready' &&
-            !volume.virtualmachineid &&
-            !volume.vmname
-        })
-        if (!this.availableVolumes.some(volume => volume.id === this.form.existingvolumeid)) {
-          this.form.existingvolumeid = ''
+      const generation = ++this.volumeGeneration
+      this.availableVolumes = []
+      try {
+        const volumes = []
+        for (let page = 1; ; page++) {
+          const json = await getAPI('listVolumes', { ...params, page, pagesize: 500 })
+          if (generation !== this.volumeGeneration) return
+          const response = json.listvolumesresponse || {}
+          const batch = response.volume || []
+          const fresh = batch.filter(x => !volumes.some(v => v.id === x.id))
+          volumes.push(...fresh)
+          if (!fresh.length || batch.length < 500 || volumes.length >= Number(response.count || Infinity)) break
         }
-      }).finally(() => {
-        this.volumeLoading = false
-      })
+        this.availableVolumes = volumes.filter(v => v.type === 'DATADISK' && v.state === 'Ready' && !v.virtualmachineid && !v.vmname)
+        if (!this.availableVolumes.some(v => v.id === this.form.existingvolumeid)) this.form.existingvolumeid = ''
+      } catch (error) {
+        if (generation === this.volumeGeneration) { this.availableVolumes = []; this.form.existingvolumeid = ''; this.$notifyError(error) }
+      } finally { if (generation === this.volumeGeneration) this.volumeLoading = false }
     },
     closeModal () {
       this.$emit('close-action')
@@ -1936,13 +2053,12 @@ export default {
         description: values.description,
         zoneid: values.zoneid,
         serviceofferingid: values.serviceofferingid,
-        diskofferingid: values.diskofferingid,
+        ...backingRequest({ ...values, ...(this.form?.useexistingvolume ? this.form : {}), size: this.createSharedFsSize(values) }, this.creationRequestId),
         networkid: values.networkid,
-        size: this.createSharedFsSize(values),
-        filesystem: values.filesystem,
+
         domainid: this.owner.domainid
       }
-      if (this.isCustomizedDiskIOps && this.hasFormValue(values.miniops) && this.hasFormValue(values.maxiops)) {
+      if (!this.form?.useexistingvolume && this.isCustomizedDiskIOps && this.hasFormValue(values.miniops) && this.hasFormValue(values.maxiops)) {
         data.miniops = Number(values.miniops)
         data.maxiops = Number(values.maxiops)
       }
@@ -1951,7 +2067,7 @@ export default {
       } else {
         data.account = this.owner.account
       }
-      if (values.storageid) {
+      if (!this.form?.useexistingvolume && values.storageid) {
         data.storageid = values.storageid
       }
       data.networkmode = this.isStaticNetwork ? 'STATIC' : 'DHCP'
@@ -1971,6 +2087,10 @@ export default {
         e.preventDefault()
       }
       if (this.loading || this.serviceofferingLoading || this.serviceofferingError || !this.computeOfferingReady) return
+      if (!('resumeSharedFileSystemCreation' in this.$store.getters.apis)) {
+        this.$notifyError(new Error(this.$t('message.sharedfs.initial.api.required')))
+        return
+      }
       this.syncInitialNfsPath()
       this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
@@ -1986,18 +2106,22 @@ export default {
           return
         }
         const setupSnapshot = this.buildStorageServiceSetupSnapshot(values)
+        this.savePendingCreation({ request: data, setup: publicCreationSetup(setupSnapshot), phase: 'SUBMITTED' })
         this.loading = true
         postAPI('createSharedFileSystem', data).then(response => {
           const jobId = response.createsharedfilesystemresponse?.jobid
           if (!jobId) {
             throw new Error(this.$t('message.create.sharedfs.failed'))
           }
+          this.savePendingCreation({ ...this.pendingCreation, jobid: jobId })
           const notificationKey = `storage-service-setup-${jobId}`
           this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.accepted', setupSnapshot.name, 0)
           this.loading = false
           this.closeModal()
           this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
         }).catch(error => {
+          const response = error?.response?.data || error?.data || {}
+          if (Object.values(response).some(x => Number(x?.errorcode) === 431) || Number(error?.errorcode) === 431) this.savePendingCreation(null)
           const reason = offeringFailureText(this.$t, error)
           if (reason) {
             this.$notification.error({ message: this.$t('message.sharedfs.offering.selection.required'), description: reason })
@@ -2017,7 +2141,18 @@ export default {
       try {
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
         const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
-        await this.configureInitialStorageServices(result, setup, notificationKey)
+        const fs = await this.resolveCreatedSharedFileSystem(result)
+        this.savePendingCreation({ ...(this.pendingCreation || this.readPendingCreation()), entityid: fs.id, phase: fs.creationstage, observedfilesystem: fs.observedfilesystem })
+        if (setup.useexistingvolume) {
+          setup.filesystem = fs.observedfilesystem || fs.filesystem
+          if (fs.state !== 'Ready') {
+            this.notifyStorageServiceSetup(notificationKey, 'info', 'message.sharedfs.initial.inspected', setup.name, 0)
+            this.parentFetchData()
+            return
+          }
+        }
+        await this.configureInitialStorageServices({ sharedfs: fs }, setup, notificationKey)
+        this.savePendingCreation(null)
       } catch (error) {
         this.notifyStorageServiceSetup(
           notificationKey,
@@ -2189,23 +2324,23 @@ export default {
       if (this.isSetupServiceSelected(snapshot, 'NFS')) {
         const nfsName = snapshot.nfsname || snapshot.name + '-nfs'
         const nfsPath = snapshot.nfspath || `/export/${nfsName}`
-        const exportResponse = await this.runStorageServiceSetup('createStorageNfsExport', {
+        const exportResponse = await this.observeInitialFileShare('createStorageNfsExport', 'listStorageNfsExports', 'storagenfsexport', {
           instanceid: instance.id,
           name: nfsName,
           path: nfsPath,
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
-          importmode: 'FORMAT_IF_EMPTY',
+          importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : 'FORMAT_IF_EMPTY',
           createdirectory: true,
           quotabytes: this.toCapacityBytes(snapshot.nfsquotaamount, snapshot.nfsquotaunit),
           protocolmode: snapshot.nfsprotocolmode || 'V4_ONLY',
           readonly: snapshot.nfspermission === 'READ_ONLY',
           rootsquash: snapshot.nfsrootsquash,
-          anonuid: snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
-          anongid: snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
-          owneruid: snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
-          ownergid: snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
-          mode: snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : '0775',
+          anonuid: snapshot.useexistingvolume || snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
+          anongid: snapshot.useexistingvolume || snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
+          owneruid: snapshot.useexistingvolume || snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
+          ownergid: snapshot.useexistingvolume || snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : 65534,
+          mode: snapshot.useexistingvolume || snapshot.nfspermission === 'READ_ONLY' || !snapshot.nfsrootsquash ? null : '0775',
           recursivepermission: false,
           sync: snapshot.nfssync,
           secure: snapshot.nfssecure,
@@ -2228,16 +2363,14 @@ export default {
           })
           setup.nfsAclId = this.extractCreatedId(aclResponse, 'storageaccessrule')
         }
-        if (snapshot.useexistingvolume && snapshot.existingvolumeid) {
-          await this.attachInitialVolume(exportResponse, snapshot)
-        }
       }
       if (this.isSetupServiceSelected(snapshot, 'SMB')) {
         const initialSmbAcl = this.initialSmbAclParams(snapshot)
-        const shareResponse = await this.runStorageServiceSetup('createStorageSmbShare', {
+        const shareResponse = await this.observeInitialFileShare('createStorageSmbShare', 'listStorageSmbShares', 'storagesmbshare', {
           instanceid: instance.id,
           name: snapshot.smbname || snapshot.name + '-smb',
           path: snapshot.smbpath,
+          importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : undefined,
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
           quotabytes: this.toCapacityBytes(snapshot.smbquotaamount, snapshot.smbquotaunit),
@@ -2260,9 +2393,6 @@ export default {
             organizationalunit: snapshot.smbadou,
             workgroup: snapshot.smbadworkgroup || this.deriveAdWorkgroup(snapshot.smbaddomain)
           })
-        }
-        if (snapshot.useexistingvolume && snapshot.existingvolumeid) {
-          await this.attachInitialVolume(shareResponse, snapshot)
         }
       }
       return setup
@@ -2421,9 +2551,7 @@ export default {
           required.add('listStorageNvmeOfHostAcls')
         }
       }
-      if (setup.useexistingvolume && setup.existingvolumeid && (this.isSetupServiceSelected(setup, 'NFS') || this.isSetupServiceSelected(setup, 'SMB'))) {
-        required.add('attachStorageVolumeToFileShare')
-      }
+
       return Array.from(required).filter(api => !(api in this.$store.getters.apis))
     },
     assertStorageServiceSetupApis (setup = this.form) {
@@ -2584,11 +2712,10 @@ export default {
       return clean
     },
     createSharedFsSize (values) {
-      if (!this.form.useexistingvolume) {
+      if (!this.form?.useexistingvolume) {
         return values.size
       }
-      const selectedSize = Number(this.selectedExistingVolume?.size || 0)
-      return selectedSize > 0 ? Math.ceil(selectedSize / (1024 * 1024 * 1024)) : values.size
+      return undefined
     },
     initialBackingVolumeId (sharedfs, snapshot = this.form) {
       if (snapshot.useexistingvolume && snapshot.existingvolumeid) {

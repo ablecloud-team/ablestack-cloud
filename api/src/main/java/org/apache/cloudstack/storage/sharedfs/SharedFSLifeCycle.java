@@ -41,6 +41,13 @@ public interface SharedFSLifeCycle {
 
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
+    default Long allocateInitialSharedFSVm(SharedFS sharedFS, Long networkId, Map<String, String> compute, String vmUuid)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider does not support existing backing volumes");
+    }
+
+    default void cleanupImportedSharedFSVm(SharedFS sharedFS) { throw new UnsupportedOperationException(); }
+
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 
     boolean stopSharedFS(SharedFS sharedFS, Boolean forced);
