@@ -1,0 +1,433 @@
+[
+  {
+    "label": "xfs-before-submit",
+    "truncated": true
+  },
+  {
+    "label": "xfs-before-submit",
+    "command": "listSharedFileSystems",
+    "method": "GET",
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSharedFileSystems",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "listsharedfilesystemsresponse": {
+        "count": 6,
+        "sharedfs": [
+          {
+            "id": "7268de5b-2f68-4a0c-93c1-499a462a13c3",
+            "name": "epic1438-basic-nfs-20261021-01",
+            "description": "Epic 1438 기본 NFS 생성 확인: 신규 VM/ROOT/DATA, NFS만 활성화, SPARSE 디스크",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "8a2ef0b9-9663-47b5-b3ab-ea4c58d7f706",
+            "vmstate": "Running",
+            "volumename": "sharedfs-DATA-101",
+            "volumeid": "3767e512-c324-4389-a6dc-d371a391be64",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+            "serviceofferingname": "epic898-sharedfs-sparse-2C4GB",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.230/16",
+            "ipaddress": "10.10.13.230",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "dns1": "8.8.8.8",
+            "nic": [
+              {
+                "id": "0b132f6d-05d7-4072-a625-cba162aebd0d",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.195"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          },
+          {
+            "id": "e2d9ea22-2809-4ca0-ae7e-87ab4dce5e24",
+            "name": "epic1438-1439-nfs-20261021-01",
+            "description": "#1439 UI 회귀: 신규 VM/ROOT/DATA, SPARSE, 기본 NFS 단독",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+            "vmstate": "Running",
+            "volumename": "sharedfs-DATA-102",
+            "volumeid": "8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+            "serviceofferingname": "epic898-sharedfs-sparse-2C4GB",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.231/16",
+            "ipaddress": "10.10.13.231",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "dns1": "8.8.8.8",
+            "nic": [
+              {
+                "id": "5746ffc5-144a-4895-8d8a-c1a5971f1b1d",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.190"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          },
+          {
+            "id": "d9d58c22-50c4-4b38-8d46-33081c812f34",
+            "name": "epic1438-1440-nfs-20261021-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+            "vmstate": "Running",
+            "volumename": "epic1438-1440-nfs-data-20261021-01",
+            "volumeid": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+            "serviceofferingname": "epic898-sharedfs-sparse-2C4GB",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.240/16",
+            "ipaddress": "10.10.13.240",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "ec25d5d2-84ed-418c-aec0-abcc202d42df",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.190"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          },
+          {
+            "id": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+            "name": "epic1438-1441-fixed-sfs-20261021-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+            "vmstate": "Running",
+            "volumename": "sharedfs-DATA-105",
+            "volumeid": "3af8261e-6877-4479-8815-0b64a1b50910",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+            "serviceofferingname": "epic1438-1441-fixed-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.242/16",
+            "ipaddress": "10.10.13.242",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "13dffa83-90ee-437d-b3d3-364e80ccee06",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.196"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          },
+          {
+            "id": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+            "name": "epic1438-1441-free-sfs-20261021-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "92d99386-9157-4abe-b427-98829770a15d",
+            "vmstate": "Running",
+            "volumename": "sharedfs-DATA-106",
+            "volumeid": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "610b811a-6674-4f1d-a16f-55681e50a6de",
+            "serviceofferingname": "epic1438-1441-free-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.243/16",
+            "ipaddress": "10.10.13.243",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "25c08cfb-158c-4602-a6cd-16f726c7cc2b",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.197"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          },
+          {
+            "id": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+            "name": "epic1438-1441-range-sfs-20261021-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+            "vmstate": "Running",
+            "volumename": "sharedfs-DATA-107",
+            "volumeid": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "0a3cccb9-62ed-4fa6-a3e9-d3f1dcb7bd00",
+            "serviceofferingname": "epic1438-1441-range-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.244/16",
+            "ipaddress": "10.10.13.244",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "a3b4ffad-2176-4109-bd0c-6e4907328a49",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.198"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "xfs-create-in-progress",
+    "command": "createSharedFileSystem",
+    "method": "POST",
+    "request": {
+      "command": "createSharedFileSystem",
+      "response": "json",
+      "name": "epic1438-1442-existing-xfs-sfs-20261021-01",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+      "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "importmode": "MOUNT_EXISTING",
+      "filesystem": "AUTO",
+      "requestid": "1d57fe5e-ea94-48fa-9d7c-4a04c2dca9ae",
+      "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "networkmode": "STATIC",
+      "ipcidr": "10.10.13.245/16",
+      "gateway": "10.10.0.1",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "createsharedfilesystemresponse": {
+        "id": "64305194-2694-4e90-9bb2-afe487891342",
+        "jobid": "bb904c34-ddc7-4adb-8c60-050596de8e02"
+      }
+    }
+  },
+  {
+    "label": "xfs-create-in-progress",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "bb904c34-ddc7-4adb-8c60-050596de8e02",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "java.io.EOFException: End of input at line 1 column 256 path $.originalSize"
+        },
+        "jobinstancetype": "SharedFS",
+        "created": "2026-10-21T23:02:41+0900",
+        "completed": "2026-10-21T23:02:41+0900",
+        "jobid": "bb904c34-ddc7-4adb-8c60-050596de8e02",
+        "jobstatus": 2
+      }
+    }
+  },
+  {
+    "label": "xfs-first-product-failure-stop",
+    "command": "listSharedFileSystems",
+    "method": "GET",
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSharedFileSystems",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 530,
+    "response": {
+      "listsharedfilesystemsresponse": {
+        "uuidList": [],
+        "errorcode": 530,
+        "cserrorcode": 9999,
+        "errortext": "java.io.EOFException: End of input at line 1 column 256 path $.originalSize"
+      }
+    }
+  },
+  {
+    "label": "xfs-first-product-failure-stop",
+    "command": "listSharedFileSystems",
+    "method": "GET",
+    "request": {
+      "listall": "true",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSharedFileSystems",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 530,
+    "response": {
+      "listsharedfilesystemsresponse": {
+        "uuidList": [],
+        "errorcode": 530,
+        "cserrorcode": 9999,
+        "errortext": "java.io.EOFException: End of input at line 1 column 256 path $.originalSize"
+      }
+    }
+  }
+]

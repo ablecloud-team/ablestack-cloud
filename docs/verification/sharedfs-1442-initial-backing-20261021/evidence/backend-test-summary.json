@@ -1,0 +1,77 @@
+{
+  "suites": [
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingCatalogCmdTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.301"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibilityTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.38"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationContextTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.491"
+    },
+    {
+      "name": "com.cloud.upgrade.dao.EuropaSharedFSCreationUpgradeTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.883"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServiceInitialBackingTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.62"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.361"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "1.933"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+      "tests": "36",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.395"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "7.382"
+    }
+  ],
+  "totalTests": 97
+}
