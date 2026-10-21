@@ -50,4 +50,24 @@ describe('SharedFS initial backing contract', () => {
     expect(context.runStorageServiceSetup).not.toHaveBeenCalled()
     await expect(Create.methods.observeInitialFileShare.call(context, 'createStorageNfsExport', 'listStorageNfsExports', 'storagenfsexport', { ...params, volumeid: 'different' })).rejects.toThrow()
   })
+
+  it('observes corrupt preparation without starting another creation or mount', async () => {
+    getAPI.mockResolvedValue({ listsharedfilesystemsresponse: { sharedfs: [{ id: 'failed-fs', state: 'Allocated', creationstage: 'CORRUPT' }] } })
+    const context = {
+      pendingCreation: { request: { name: 'failed', requestid: 'key' }, setup: {} },
+      loading: false,
+      owner: {},
+      $t: x => x,
+      savePendingCreation: jest.fn(),
+      runStorageServiceSetup: jest.fn(),
+      $notification: { warning: jest.fn() },
+      $notifyError: jest.fn()
+    }
+    await Create.methods.continuePendingCreation.call(context, 'CONTINUE')
+    expect(context.savePendingCreation).toHaveBeenCalledWith(expect.objectContaining({ phase: 'CORRUPT', entityid: 'failed-fs' }))
+    expect(context.$notification.warning).toHaveBeenCalled()
+    expect(context.runStorageServiceSetup).not.toHaveBeenCalled()
+    expect(context.$notifyError).not.toHaveBeenCalled()
+    expect(context.loading).toBe(false)
+  })
 })

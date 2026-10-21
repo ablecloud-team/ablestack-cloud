@@ -32,6 +32,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -124,12 +125,16 @@ public class SharedFSVO implements SharedFS {
 
     @Column(name = "creation_request_id")
     private String creationRequestId;
-    @Column(name = "creation_context")
+    @Lob
+    @Column(name = "creation_context", length = SharedFSCreationContext.MAX_JSON_BYTES, columnDefinition = "TEXT")
     private String creationContext;
     @Override public String getCreationRequestId() { return creationRequestId; }
     public void setCreationRequestId(String value) { creationRequestId = value; }
     @Override public String getCreationContext() { return creationContext; }
-    public void setCreationContext(String value) { creationContext = value; }
+    public void setCreationContext(String value) {
+        SharedFSCreationContext.validateSize(value);
+        creationContext = value;
+    }
 
     public SharedFSVO() {
     }

@@ -28,6 +28,18 @@ import com.google.gson.Gson;
 /** Server-owned, credential-free initial allocation journal. Not a general operation log. */
 public final class SharedFSCreationContext {
     private static final Gson GSON = new Gson();
+    public static final int MAX_JSON_BYTES = 65535;
+    public static final String INVALID_JOURNAL = "CREATION_JOURNAL_INVALID";
+
+    public static final class InvalidJournalException extends IllegalStateException {
+        public InvalidJournalException(Throwable cause) { super(INVALID_JOURNAL, cause); }
+    }
+
+    public static void validateSize(String value) {
+        if (value != null && value.getBytes(StandardCharsets.UTF_8).length > MAX_JSON_BYTES) {
+            throw new InvalidParameterValueException("CREATION_JOURNAL_TOO_LARGE: TEXT byte limit exceeded");
+        }
+    }
     public int version = 1;
     public boolean existing;
     public String fingerprint;
@@ -58,12 +70,21 @@ public final class SharedFSCreationContext {
 
     public static SharedFSCreationContext read(String value) {
         if (value == null || value.isBlank()) return null;
-        SharedFSCreationContext c = GSON.fromJson(value, SharedFSCreationContext.class);
-        if (c == null || c.version != 1) throw new IllegalStateException("Unsupported SharedFS creation journal");
-        return c;
+        try {
+            validateSize(value);
+            SharedFSCreationContext c = GSON.fromJson(value, SharedFSCreationContext.class);
+            if (c == null || c.version != 1) throw new IllegalStateException("Unsupported creation journal");
+            return c;
+        } catch (RuntimeException e) {
+            throw new InvalidJournalException(e);
+        }
     }
 
-    public String json() { return GSON.toJson(this); }
+    public String json() {
+        String value = GSON.toJson(this);
+        validateSize(value);
+        return value;
+    }
 
     public static String normalizeKey(String key) {
         if (key == null) return null;

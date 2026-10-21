@@ -10231,5 +10231,6 @@
   "label.sharedfs.initial.expected.fs": "Optional expected filesystem",
   "message.sharedfs.initial.not.found": "The resource is not yet visible. Observe the result using the same request key.",
   "message.sharedfs.initial.resource.conflict": "The initial share with this name uses a different backing volume or path.",
-  "label.sharedfs.initial.auto": "Observe automatically (default)"
+  "label.sharedfs.initial.auto": "Observe automatically (default)",
+  "message.sharedfs.initial.corrupt": "The creation journal is invalid. Continue and mount are blocked. Cancel may release a reservation only when no VM was allocated."
 }
