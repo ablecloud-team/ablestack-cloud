@@ -1,0 +1,13 @@
+{
+  "wrapperClasses": [
+    {
+      "jar": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+      "classSha256": "f8156a04ef6c65dda5099a09a6e0db0845cf62505b9e0089d54ef665574dabf1",
+      "hasGenericOperationRegex": true,
+      "hasStoragectlPath": true,
+      "hasTimeoutMessage": true
+    }
+  ],
+  "poolDf": "Filesystem                      1B-blocks         Used     Available Use% Mounted on\n/dev/mapper/vg_glue-lv_glue 4079912058880 287161098240 3792750960640   8% /mnt/glue-gfs\n",
+  "matchesCurrentCompiledClass": true
+}
