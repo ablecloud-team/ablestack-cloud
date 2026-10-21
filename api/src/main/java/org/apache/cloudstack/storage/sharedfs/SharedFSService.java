@@ -39,6 +39,9 @@ public interface SharedFSService {
 
     List<SharedFSProvider> getSharedFSProviders();
 
+    ListResponse<org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse> listCreationServiceOfferings(
+            Long zoneId, ListResponse<org.apache.cloudstack.api.response.ServiceOfferingResponse> visible);
+
     boolean stateTransitTo(SharedFS sharedFS, SharedFS.Event event);
 
     void setSharedFSProviders(List<SharedFSProvider> sharedFSProviders);

@@ -296,6 +296,7 @@
                 <a-select
                   v-model:value="form.serviceofferingid"
                   :loading="serviceofferingLoading"
+                  @change="handleComputeOfferingChange"
                   :placeholder="$t('label.serviceofferingid')"
                   showSearch
                   optionFilterProp="label"
@@ -304,11 +305,36 @@
                     v-for="(serviceoffering, index) in serviceofferings"
                     :value="serviceoffering.id"
                     :key="index"
+                    :disabled="!serviceoffering.eligibility?.selectable"
+                    :title="computeOfferingDescription(serviceoffering)"
                     :label="serviceoffering.displaytext || serviceoffering.name">
-                    {{ serviceoffering.displaytext || serviceoffering.name }}
+                    <div class="sharedfs-offering-option">
+                      <strong>{{ serviceoffering.displaytext || serviceoffering.name }}</strong>
+                      <small>{{ computeOfferingDescription(serviceoffering) }}</small>
+                    </div>
                   </a-select-option>
                 </a-select>
+                <div class="field-hint" v-if="offeringRequirements">{{ offeringRequirements }}</div>
+                <a-alert v-if="serviceofferingError" type="warning" show-icon :message="serviceofferingError" />
+                <a-alert
+v-else-if="!serviceofferingLoading && !serviceofferings.some(x => x.eligibility?.selectable)"
+                  type="warning"
+show-icon
+:message="$t('message.sharedfs.offering.none')">
+                  <template #description>
+                    <router-link v-if="canManageComputeOfferings" to="/computeoffering" target="_blank">
+                      {{ $t('label.sharedfs.offering.manage') }}
+                    </router-link>
+                    <span v-else>{{ $t('message.sharedfs.offering.contact.admin') }}</span>
+                  </template>
+                </a-alert>
               </a-form-item>
+            </a-col>
+            <a-col :span="24">
+              <SharedFSOfferingInputs
+:eligibility="selectedComputeEligibility"
+:values="form"
+                @update="updateComputeValue" />
             </a-col>
           </a-row>
         </a-collapse-panel>
@@ -991,7 +1017,7 @@
 
       <div :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button type="primary" ref="submit" :disabled="serviceofferingLoading || !!serviceofferingError || !computeOfferingReady" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
     </div>
@@ -1006,6 +1032,8 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
+import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
+import { computeFields, computeInputErrors, customComputeParams, computeReasonText, offeringFailureText } from '@/utils/sharedFsOffering'
 
 export default {
   name: 'CreateSharedFS',
@@ -1018,6 +1046,7 @@ export default {
   },
   components: {
     OwnershipSelection,
+    SharedFSOfferingInputs,
     ResourceIcon,
     TooltipLabel
   },
@@ -1049,6 +1078,8 @@ export default {
       storagePoolLoading: false,
       serviceofferings: [],
       serviceofferingLoading: false,
+      serviceofferingError: '',
+      serviceofferingGeneration: 0,
       diskofferings: [],
       diskofferingLoading: false,
       customDiskOffering: false,
@@ -1084,6 +1115,19 @@ export default {
     }
   },
   computed: {
+    selectedComputeEligibility () {
+      return this.serviceofferings.find(x => x.id === this.form.serviceofferingid)?.eligibility
+    },
+    computeOfferingReady () {
+      return computeInputErrors(this.selectedComputeEligibility, this.form).length === 0
+    },
+    canManageComputeOfferings () {
+      return 'createServiceOffering' in this.$store.getters.apis || 'cloneServiceOffering' in this.$store.getters.apis
+    },
+    offeringRequirements () {
+      const requirements = this.serviceofferings[0]?.eligibility?.requirements
+      return requirements ? this.$t('message.sharedfs.offering.requirements', requirements) : ''
+    },
     isNormalUserOrProject () {
       return ['User'].includes(this.$store.getters.userInfo.roletype) || store.getters.project?.id
     },
@@ -1357,6 +1401,9 @@ export default {
         existingvolumeid: '',
         miniops: null,
         maxiops: null,
+        cpunumber: null,
+        cpuspeed: null,
+        memory: null,
         importmode: 'INSPECT_ONLY',
         resizeallowed: true
       })
@@ -1366,7 +1413,13 @@ export default {
         networkid: [{ required: true, message: this.$t('label.required') }],
         networkmode: [{ required: true, message: this.$t('label.required') }],
         ipcidr: [{ validator: this.validateStaticIpCidr }],
-        serviceofferingid: [{ required: true, message: this.$t('label.required') }],
+        serviceofferingid: [{
+          validator: async () => {
+            if (!this.selectedComputeEligibility?.selectable) {
+              throw new Error(this.$t('message.sharedfs.offering.selection.required'))
+            }
+          }
+        }],
         diskofferingid: [{ required: true, message: this.$t('label.required') }],
         storageid: [{
           validator: async (rule, value) => {
@@ -1543,6 +1596,11 @@ export default {
       }
     },
     fetchData () {
+      this.serviceofferingGeneration++
+      this.serviceofferings = []
+      this.serviceofferingLoading = true
+      this.form.serviceofferingid = ''
+      computeFields.forEach(field => { this.form[field] = null })
       this.minCpu = store.getters.features.sharedfsvmmincpucount
       this.minMemory = store.getters.features.sharedfsvmminramsize
       this.fetchZones()
@@ -1576,32 +1634,75 @@ export default {
       this.fetchNetworks()
       this.fetchAvailableVolumes()
     },
-    fetchServiceOfferings () {
+    async fetchServiceOfferings () {
+      const generation = ++this.serviceofferingGeneration
+      const previous = this.form.serviceofferingid
       this.serviceofferingLoading = true
+      this.serviceofferingError = ''
       this.serviceofferings = []
-      var params = {
-        zoneid: this.selectedZone.id,
-        listall: true,
-        domainid: this.owner.domainid
-      }
-      if (this.owner.projectid) {
-        params.projectid = this.owner.projectid
-      } else {
-        params.account = this.owner.account
-      }
-      getAPI('listServiceOfferings', params).then(json => {
-        var items = json.listserviceofferingsresponse.serviceoffering || []
-        if (items != null) {
-          for (var i = 0; i < items.length; i++) {
-            if (items[i].iscustomized === false && items[i].offerha === true &&
-                items[i].cpunumber >= this.minCpu && items[i].memory >= this.minMemory) {
-              this.serviceofferings.push(items[i])
-            }
-          }
+      this.form.serviceofferingid = ''
+      computeFields.forEach(field => { this.form[field] = null })
+      const params = { zoneid: this.selectedZone.id, listall: true, domainid: this.owner.domainid, pagesize: 500 }
+      if (this.owner.projectid) params.projectid = this.owner.projectid
+      else params.account = this.owner.account
+      try {
+        if (!('listSharedFileSystemServiceOfferings' in this.$store.getters.apis)) {
+          throw new Error('version')
         }
-        this.form.serviceofferingid = this.serviceofferings[0]?.id || ''
-      }).finally(() => {
-        this.serviceofferingLoading = false
+        const rows = []
+        let page = 1
+        let count
+        do {
+          const json = await getAPI('listSharedFileSystemServiceOfferings', { ...params, page })
+          if (generation !== this.serviceofferingGeneration) return
+          const response = json.listsharedfilesystemserviceofferingsresponse
+          if (!response) throw new Error('catalog')
+          const items = response?.sharedfilesystemserviceoffering || []
+          count = response?.count ?? items.length
+          if (items.length === 0) break
+          const previousCount = rows.length
+          const seen = new Set(rows.map(row => row.id))
+          rows.push(...items.filter(row => !seen.has(row.offering?.id)).map(row => ({ ...row.offering, eligibility: row.eligibility })))
+          if (rows.length === previousCount) throw new Error('catalog')
+          page++
+        } while (rows.length < count)
+        if (generation !== this.serviceofferingGeneration) return
+        this.serviceofferings = rows
+        const chosen = rows.find(x => x.id === previous && x.eligibility?.selectable) ||
+          rows.find(x => x.eligibility?.selectable)
+        this.form.serviceofferingid = chosen?.id || ''
+        this.handleComputeOfferingChange(this.form.serviceofferingid)
+      } catch (error) {
+        if (generation === this.serviceofferingGeneration) {
+          this.serviceofferings = []
+          this.form.serviceofferingid = ''
+          this.serviceofferingError = this.$t(error.message === 'version'
+            ? 'message.sharedfs.offering.api.required' : 'message.sharedfs.offering.load.failed')
+        }
+      } finally {
+        if (generation === this.serviceofferingGeneration) this.serviceofferingLoading = false
+      }
+    },
+    handleComputeOfferingChange () {
+      computeFields.forEach(field => {
+        const constraint = this.selectedComputeEligibility?.constraints?.[field]
+        this.form[field] = constraint?.custom && field !== 'cpuspeed' ? constraint.min : null
+      })
+      if (this.formRef.value && this.formRef.value.clearValidate) {
+        this.formRef.value.clearValidate([...computeFields, 'serviceofferingid'])
+      }
+    },
+    updateComputeValue (field, value) {
+      if (computeFields.includes(field)) this.form[field] = value
+    },
+    computeOfferingDescription (offering) {
+      const eligibility = offering.eligibility
+      if (!eligibility?.selectable) {
+        return (eligibility?.reasons || []).map(x => computeReasonText(this.$t, x)).join('; ')
+      }
+      return this.$t('message.sharedfs.offering.suitable', {
+        mode: this.$t('label.sharedfs.offering.mode.' + eligibility.mode),
+        policy: eligibility.root?.policy || '-'
       })
     },
     fetchDiskOfferings () {
@@ -1862,13 +1963,14 @@ export default {
         })
         if (values.dns2) data.dns2 = values.dns2
       }
+      Object.assign(data, customComputeParams(this.selectedComputeEligibility, this.form || values))
       return this.cleanParams(data)
     },
     handleSubmit (e) {
       if (e && e.preventDefault) {
         e.preventDefault()
       }
-      if (this.loading) return
+      if (this.loading || this.serviceofferingLoading || this.serviceofferingError || !this.computeOfferingReady) return
       this.syncInitialNfsPath()
       this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
@@ -1896,7 +1998,12 @@ export default {
           this.closeModal()
           this.runInitialStorageServiceSetup(jobId, setupSnapshot, notificationKey)
         }).catch(error => {
-          this.$notifyError(error)
+          const reason = offeringFailureText(this.$t, error)
+          if (reason) {
+            this.$notification.error({ message: this.$t('message.sharedfs.offering.selection.required'), description: reason })
+          } else {
+            this.$notifyError(error)
+          }
         }).finally(() => {
           this.loading = false
         })
@@ -1916,7 +2023,7 @@ export default {
           notificationKey,
           'error',
           'message.storage.service.setup.partial.failed',
-          error?.message || setup.name,
+          offeringFailureText(this.$t, error) || error?.message || setup.name,
           0
         )
       }
@@ -2965,6 +3072,13 @@ export default {
   padding: 12px 0 0;
   border-top: 1px solid rgba(127, 127, 127, 0.24);
   background: inherit;
+}
+
+.sharedfs-offering-option small {
+  display: block;
+  white-space: normal;
+  line-height: 1.4;
+  margin-top: 2px;
 }
 
 @media (max-width: 900px) {
