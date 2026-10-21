@@ -15,10 +15,9 @@ language governing permissions and limitations under the License. -->
   <a-row :gutter="12" v-if="eligibility?.inputrequired">
     <a-col v-for="field in fields" :key="field" :xs="24" :md="8">
       <a-form-item :name="field" :label="$t(labels[field])" :required="constraint(field).custom" :rules="fieldRules(field)">
+        <!-- Keep the raw typed value for validation; AntD min/max otherwise retains a prior valid value. -->
         <a-input-number
           :value="constraint(field).custom ? values[field] : constraint(field).value"
-          :min="constraint(field).min"
-          :max="constraint(field).max"
           :disabled="!constraint(field).custom"
           style="width: 100%"
           @update:value="value => $emit('update', field, value)" />
