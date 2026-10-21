@@ -9912,5 +9912,16 @@
   "message.sharedfs.offering.reason.range_invalid": "{field}: the offering contains an invalid resource limit.",
   "message.sharedfs.offering.none": "No eligible compute offering is available.",
   "label.sharedfs.offering.manage": "Manage compute offerings",
-  "message.sharedfs.offering.reason.selection_required": "Select an eligible compute offering."
+  "message.sharedfs.offering.reason.selection_required": "Select an eligible compute offering.",
+  "label.sharedfs.initial.observe": "Observe / continue request",
+  "message.sharedfs.initial.resource.conflict": "The initial share with this name uses a different backing volume or path.",
+  "label.sharedfs.initial.cancel": "Cancel initial preparation",
+  "message.sharedfs.initial.inspected": "Existing volume inspection completed. The service is not ready; continue mounting the same request in the creation dialog.",
+  "label.sharedfs.initial.auto": "Observe automatically (default)",
+  "message.sharedfs.initial.api.required": "The initial creation observation API is unavailable. Align management and UI versions.",
+  "message.sharedfs.initial.not.found": "The resource is not yet visible. Observe the result using the same request key.",
+  "label.sharedfs.initial.expected.fs": "Optional expected filesystem",
+  "label.sharedfs.initial.unobserved": "Not observed; no assumed format",
+  "message.sharedfs.initial.pending": "An initial request is pending. Observe and continue the same request. Credentials are not stored.",
+  "label.sharedfs.initial.mount": "Continue mounting existing filesystem"
 }

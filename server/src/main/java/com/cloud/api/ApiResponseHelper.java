@@ -5749,7 +5749,9 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
     @Override
     public SharedFSResponse createSharedFSResponse(ResponseView view, SharedFS sharedFS) {
         SharedFSJoinVO sharedFSView = ApiDBUtils.newSharedFSView(sharedFS);
-        return ApiDBUtils.newSharedFSResponse(view, sharedFSView);
+        SharedFSResponse response = ApiDBUtils.newSharedFSResponse(view, sharedFSView);
+        response.setCreation(sharedFS);
+        return response;
     }
 protected Map<String, ResourceIcon> getResourceIconsUsingOsCategory(List<TemplateResponse> responses) {
         Set<Long> guestOsCategoryIds = responses.stream().map(TemplateResponse::getOsTypeCategoryId).collect(Collectors.toSet());

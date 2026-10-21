@@ -122,6 +122,15 @@ public class SharedFSVO implements SharedFS {
     @Column(name = GenericDao.REMOVED_COLUMN)
     protected Date removed;
 
+    @Column(name = "creation_request_id")
+    private String creationRequestId;
+    @Column(name = "creation_context")
+    private String creationContext;
+    @Override public String getCreationRequestId() { return creationRequestId; }
+    public void setCreationRequestId(String value) { creationRequestId = value; }
+    @Override public String getCreationContext() { return creationContext; }
+    public void setCreationContext(String value) { creationContext = value; }
+
     public SharedFSVO() {
     }
 
@@ -236,6 +245,8 @@ public class SharedFSVO implements SharedFS {
     public FileSystemType getFsType() {
         return fsType;
     }
+
+    public void setFsType(FileSystemType value) { fsType = value; }
 
     @Override
     public Long getServiceOfferingId() {

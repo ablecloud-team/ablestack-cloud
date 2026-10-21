@@ -116,6 +116,21 @@ public class SharedFSDaoImpl extends GenericDaoBase<SharedFSVO, Long> implements
     }
 
     @Override
+    public SharedFSVO findByCreationRequest(long accountId, String requestId) {
+        SearchCriteria<SharedFSVO> sc = createSearchCriteria();
+        sc.addAnd("accountId", SearchCriteria.Op.EQ, accountId);
+        sc.addAnd("creationRequestId", SearchCriteria.Op.EQ, requestId);
+        return findOneBy(sc);
+    }
+
+    @Override
+    public List<SharedFSVO> listByBackingVolume(long volumeId) {
+        SearchCriteria<SharedFSVO> sc = createSearchCriteria();
+        sc.addAnd("volumeId", SearchCriteria.Op.EQ, volumeId);
+        return listBy(sc);
+    }
+
+    @Override
     public SharedFSVO findByVm(long vmId) {
         SearchBuilder<SharedFSVO> sb = createSearchBuilder();
         sb.and("vmId", sb.entity().getVmId(), SearchCriteria.Op.EQ);
