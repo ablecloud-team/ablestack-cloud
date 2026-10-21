@@ -1,0 +1,107 @@
+[
+  {
+    "label": "before-metadata",
+    "at": "2026-10-21T09:01:20.908Z",
+    "volume": {
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "sharedfs-DATA-103",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "DATADISK",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "deviceid": 1,
+      "deleteprotection": false,
+      "provisioningtype": "sparse",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+    }
+  },
+  {
+    "label": "after-name-only",
+    "at": "2026-10-21T09:12:18.338Z",
+    "volume": {
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "sharedfs-DATA-103",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "DATADISK",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "deviceid": 1,
+      "deleteprotection": false,
+      "provisioningtype": "sparse",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+    },
+    "superseded": true,
+    "reason": "Editor preflight listVolumes was selected; refreshed UI uses listVolumesMetrics."
+  },
+  {
+    "label": "after-name-only-corrected",
+    "at": "2026-10-21T09:13:36.260Z",
+    "sourceCommand": "listVolumesMetrics",
+    "volume": {
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "epic1438-1440-nfs-data-20261021-01",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "DATADISK",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "deviceid": 1,
+      "deleteprotection": false,
+      "provisioningtype": "sparse",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+    }
+  },
+  {
+    "label": "after-protection-on",
+    "at": "2026-10-21T09:15:37.759Z",
+    "sourceCommand": "listVolumesMetrics",
+    "volume": {
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "epic1438-1440-nfs-data-20261021-01",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "DATADISK",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "deviceid": 1,
+      "deleteprotection": true,
+      "provisioningtype": "sparse",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+    }
+  },
+  {
+    "label": "after-protection-off",
+    "at": "2026-10-21T09:21:09.257Z",
+    "sourceCommand": "listVolumesMetrics",
+    "volume": {
+      "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "name": "epic1438-1440-nfs-data-20261021-01",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "state": "Ready",
+      "size": 21474836480,
+      "type": "DATADISK",
+      "account": "admin",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "deviceid": 1,
+      "deleteprotection": false,
+      "provisioningtype": "sparse",
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+    }
+  }
+]
