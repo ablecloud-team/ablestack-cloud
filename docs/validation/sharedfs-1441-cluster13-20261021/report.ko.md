@@ -31,7 +31,7 @@ UI는 권한 내 적합/부적합 후보와 이유를 표시하고, 재조회 �
 - Node20/기존 Webpack4 빌드에는 legacy OpenSSL provider를 사용했다. 의존성 버전은 바꾸지 않았다. public/config.json은 빌드 후 원문 바이트로 복구했다.
 - Checkstyle/RAT 및 전체 Release CI, 전체 UI 회귀·다른 프로토콜 인수는 실행하지 않았다. 위 65/26을 저장소 전체 통과 수치로 확대하지 않는다.
 
-[backend 시험](evidence/backend-test-summary.json) · [최종 UI 빌드](evidence/ui-build-final-result.json) · [최종 UI 시험](evidence/ui-tests-final.log)
+[backend 시험](evidence/backend-test-summary.json) · [최종 UI 빌드](evidence/ui-build-final-result.json) · [최종 UI 시험](evidence/ui-tests-final.txt)
 
 ## 배포 무결성
 
