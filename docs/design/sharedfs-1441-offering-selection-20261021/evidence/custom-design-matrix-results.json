@@ -1,0 +1,1525 @@
+[
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "fixed-preserved",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {},
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "free-catalog-selectable",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuNumber": "4",
+        "cpuSpeed": "2000",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpunumber": 4,
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "free-complete",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {},
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {},
+      "reasons": [
+        "CPU_REQUIRED",
+        "MEMORY_REQUIRED",
+        "SPEED_REQUIRED"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-missing-inputs",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuSpeed": "2000",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "reasons": [
+        "CPU_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-cpu-below",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "cpuspeed": 2000
+      },
+      "guestParameters": {
+        "cpuNumber": "4",
+        "cpuSpeed": "2000"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpunumber": 4,
+        "cpuspeed": 2000
+      },
+      "reasons": [
+        "MEMORY_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-memory-below",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuSpeed": "2000",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "reasons": [
+        "CPU_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-cpu-fraction",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuNumber": "4",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpunumber": 4,
+        "memory": 8192
+      },
+      "reasons": [
+        "SPEED_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-speed-zero",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuNumber": "4",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpunumber": 4,
+        "memory": 8192
+      },
+      "reasons": [
+        "SPEED_REQUIRED"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "free-speed-missing",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "cpuSpeed": "2000",
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 4,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "reasons": [
+        "CPU_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "global-cpu-cap",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "cpuspeed": 2000
+      },
+      "guestParameters": {
+        "cpuNumber": "4",
+        "cpuSpeed": "2000"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 4096,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {
+        "cpunumber": 4,
+        "cpuspeed": 2000
+      },
+      "reasons": [
+        "MEMORY_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "global-memory-cap",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "range-catalog-selectable",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 2048
+      },
+      "guestParameters": {
+        "cpuNumber": "2",
+        "memory": "2048"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {
+        "cpunumber": 2,
+        "memory": 2048
+      },
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "range-min",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 8,
+        "cpuspeed": 2000,
+        "memory": 16384
+      },
+      "guestParameters": {
+        "cpuNumber": "8",
+        "memory": "16384"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {
+        "cpunumber": 8,
+        "memory": 16384
+      },
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "range-max",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {
+        "memory": "4096"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {
+        "memory": 4096
+      },
+      "reasons": [
+        "CPU_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "range-cpu-over",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 4,
+        "cpuspeed": 2000
+      },
+      "guestParameters": {
+        "cpuNumber": "4"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {
+        "cpunumber": 4
+      },
+      "reasons": [
+        "MEMORY_OUT_OF_RANGE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "range-memory-over",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 16
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {},
+      "reasons": [
+        "CPU_RANGE_EMPTY"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "range-no-overlap",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 3,
+        "cpuspeed": 2000,
+        "memory": 2048
+      },
+      "guestParameters": {
+        "cpuNumber": "3",
+        "memory": "2048"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 8,
+          "min": 3
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 16384,
+          "min": 2048
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {
+        "cpunumber": 3,
+        "memory": 2048
+      },
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "range-lower-intersection",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2,
+          "min": 5
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "ranged",
+      "params": {},
+      "reasons": [
+        "CPU_RANGE_EMPTY"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "range-bad-metadata",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 8192
+      },
+      "guestParameters": {
+        "memory": "8192"
+      },
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "free",
+      "params": {
+        "memory": 8192
+      },
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "partial-memory-custom",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "CPU_FIXED_OVERRIDE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "fixed-override-rejected",
+    "pass": true,
+    "phase": "request"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 1,
+          "min": 1
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "CPU_RANGE_EMPTY"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "fixed-cpu-low",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {},
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {},
+      "reasons": [
+        "HA_REQUIRED"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "ha-preserved",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {},
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {},
+      "reasons": [
+        "ROOT_POLICY_THIN"
+      ],
+      "rootPolicy": "thin",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "thin-denied",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {},
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1024
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": false,
+          "max": 2147483647,
+          "min": 1
+        }
+      },
+      "mode": "free",
+      "params": {},
+      "reasons": [
+        "ROOT_POLICY_UNKNOWN"
+      ],
+      "rootPolicy": "",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "unknown-policy-denied",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "fat",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "fat-supported",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "ROOT_POLICY_UNKNOWN"
+      ],
+      "rootPolicy": "",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "unknown-contract",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "ROOT_POLICY_THIN"
+      ],
+      "rootPolicy": "off",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "explicit-off-denied",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "metadata",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "explicit-metadata-intent",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "arch-amd64-alias",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "arch-x86-64-alias",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "arch-arm-alias",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "SYSTEMVM_ARCH_UNAVAILABLE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "arch-mismatch",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [],
+      "rootPolicy": "sparse",
+      "selectable": true,
+      "valid": true
+    },
+    "expectedValid": true,
+    "name": "dynamic-scaling-not-required",
+    "pass": true,
+    "phase": "catalog"
+  },
+  {
+    "actual": {
+      "dynamicScalingRequired": false,
+      "effective": {
+        "cpunumber": 2,
+        "cpuspeed": 2000,
+        "memory": 4096
+      },
+      "guestParameters": {},
+      "inputs": {
+        "cpu": {
+          "field": "cpunumber",
+          "fixed": true,
+          "max": 2,
+          "min": 2
+        },
+        "memory": {
+          "field": "memory",
+          "fixed": true,
+          "max": 4096,
+          "min": 4096
+        },
+        "speed": {
+          "field": "cpuspeed",
+          "fixed": true,
+          "max": 2000,
+          "min": 2000
+        }
+      },
+      "mode": "fixed",
+      "params": {},
+      "reasons": [
+        "SYSTEMVM_ARCH_UNAVAILABLE"
+      ],
+      "rootPolicy": "sparse",
+      "selectable": false,
+      "valid": false
+    },
+    "expectedValid": false,
+    "name": "unknown-arch-denied",
+    "pass": true,
+    "phase": "catalog"
+  }
+]
