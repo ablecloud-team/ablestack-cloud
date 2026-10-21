@@ -1,0 +1,8 @@
+{
+  "sharedfsAndSelectedVolumeCheckpointIdentical": true,
+  "sharedfsCount": 6,
+  "existingVolumeStillUnattached": true,
+  "protectedManagementKeyAndDbPropertiesUnchanged": true,
+  "productWorktreeStatusBeforeDesignDocs": "",
+  "codeDeploymentPerformed": false
+}

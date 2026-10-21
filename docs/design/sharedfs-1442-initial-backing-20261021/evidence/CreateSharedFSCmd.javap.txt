@@ -1,0 +1,1559 @@
+Classfile /root/work/epic1438-preparation/20261021/issue1442-design/deployed-classes/org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.class
+  Last modified Oct 21, 2026; size 14098 bytes
+  SHA-256 checksum 756663e2e2ea8c3cec8b22850b8b5da63c2d385b321b80cc9ea64c1d9926fa62
+  Compiled from "CreateSharedFSCmd.java"
+public class org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd extends org.apache.cloudstack.api.BaseAsyncCreateCmd implements org.apache.cloudstack.api.command.user.UserCmd
+  minor version: 0
+  major version: 55
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #11                         // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd
+  super_class: #2                         // org/apache/cloudstack/api/BaseAsyncCreateCmd
+  interfaces: 1, fields: 24, methods: 31, attributes: 4
+Constant pool:
+    #1 = Methodref          #2.#3         // org/apache/cloudstack/api/BaseAsyncCreateCmd."<init>":()V
+    #2 = Class              #4            // org/apache/cloudstack/api/BaseAsyncCreateCmd
+    #3 = NameAndType        #5:#6         // "<init>":()V
+    #4 = Utf8               org/apache/cloudstack/api/BaseAsyncCreateCmd
+    #5 = Utf8               <init>
+    #6 = Utf8               ()V
+    #7 = Class              #8            // java/util/LinkedHashMap
+    #8 = Utf8               java/util/LinkedHashMap
+    #9 = Methodref          #7.#3         // java/util/LinkedHashMap."<init>":()V
+   #10 = Fieldref           #11.#12       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.cpuNumber:Ljava/lang/Integer;
+   #11 = Class              #13           // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd
+   #12 = NameAndType        #14:#15       // cpuNumber:Ljava/lang/Integer;
+   #13 = Utf8               org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd
+   #14 = Utf8               cpuNumber
+   #15 = Utf8               Ljava/lang/Integer;
+   #16 = String             #14           // cpuNumber
+   #17 = Methodref          #18.#19       // java/lang/Integer.toString:()Ljava/lang/String;
+   #18 = Class              #20           // java/lang/Integer
+   #19 = NameAndType        #21:#22       // toString:()Ljava/lang/String;
+   #20 = Utf8               java/lang/Integer
+   #21 = Utf8               toString
+   #22 = Utf8               ()Ljava/lang/String;
+   #23 = InterfaceMethodref #24.#25       // java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #24 = Class              #26           // java/util/Map
+   #25 = NameAndType        #27:#28       // put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #26 = Utf8               java/util/Map
+   #27 = Utf8               put
+   #28 = Utf8               (Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+   #29 = Fieldref           #11.#30       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.cpuSpeed:Ljava/lang/Integer;
+   #30 = NameAndType        #31:#15       // cpuSpeed:Ljava/lang/Integer;
+   #31 = Utf8               cpuSpeed
+   #32 = String             #31           // cpuSpeed
+   #33 = Fieldref           #11.#34       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.memory:Ljava/lang/Integer;
+   #34 = NameAndType        #35:#15       // memory:Ljava/lang/Integer;
+   #35 = Utf8               memory
+   #36 = String             #35           // memory
+   #37 = Fieldref           #11.#38       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.name:Ljava/lang/String;
+   #38 = NameAndType        #39:#40       // name:Ljava/lang/String;
+   #39 = Utf8               name
+   #40 = Utf8               Ljava/lang/String;
+   #41 = Fieldref           #11.#42       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.projectId:Ljava/lang/Long;
+   #42 = NameAndType        #43:#44       // projectId:Ljava/lang/Long;
+   #43 = Utf8               projectId
+   #44 = Utf8               Ljava/lang/Long;
+   #45 = Fieldref           #11.#46       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.domainId:Ljava/lang/Long;
+   #46 = NameAndType        #47:#44       // domainId:Ljava/lang/Long;
+   #47 = Utf8               domainId
+   #48 = Fieldref           #11.#49       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.accountName:Ljava/lang/String;
+   #49 = NameAndType        #50:#40       // accountName:Ljava/lang/String;
+   #50 = Utf8               accountName
+   #51 = Fieldref           #11.#52       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.description:Ljava/lang/String;
+   #52 = NameAndType        #53:#40       // description:Ljava/lang/String;
+   #53 = Utf8               description
+   #54 = Fieldref           #11.#55       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.size:Ljava/lang/Long;
+   #55 = NameAndType        #56:#44       // size:Ljava/lang/Long;
+   #56 = Utf8               size
+   #57 = Fieldref           #11.#58       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.zoneId:Ljava/lang/Long;
+   #58 = NameAndType        #59:#44       // zoneId:Ljava/lang/Long;
+   #59 = Utf8               zoneId
+   #60 = Fieldref           #11.#61       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.diskOfferingId:Ljava/lang/Long;
+   #61 = NameAndType        #62:#44       // diskOfferingId:Ljava/lang/Long;
+   #62 = Utf8               diskOfferingId
+   #63 = Fieldref           #11.#64       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.storageId:Ljava/lang/Long;
+   #64 = NameAndType        #65:#44       // storageId:Ljava/lang/Long;
+   #65 = Utf8               storageId
+   #66 = Fieldref           #11.#67       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.serviceOfferingId:Ljava/lang/Long;
+   #67 = NameAndType        #68:#44       // serviceOfferingId:Ljava/lang/Long;
+   #68 = Utf8               serviceOfferingId
+   #69 = Fieldref           #11.#70       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.maxIops:Ljava/lang/Long;
+   #70 = NameAndType        #71:#44       // maxIops:Ljava/lang/Long;
+   #71 = Utf8               maxIops
+   #72 = Fieldref           #11.#73       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.minIops:Ljava/lang/Long;
+   #73 = NameAndType        #74:#44       // minIops:Ljava/lang/Long;
+   #74 = Utf8               minIops
+   #75 = Fieldref           #11.#76       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.fsFormat:Ljava/lang/String;
+   #76 = NameAndType        #77:#40       // fsFormat:Ljava/lang/String;
+   #77 = Utf8               fsFormat
+   #78 = Fieldref           #11.#79       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.networkId:Ljava/lang/Long;
+   #79 = NameAndType        #80:#44       // networkId:Ljava/lang/Long;
+   #80 = Utf8               networkId
+   #81 = Fieldref           #11.#82       // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.networkMode:Ljava/lang/String;
+   #82 = NameAndType        #83:#40       // networkMode:Ljava/lang/String;
+   #83 = Utf8               networkMode
+   #84 = Fieldref           #85.#86       // org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.DHCP:Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+   #85 = Class              #87           // org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode
+   #86 = NameAndType        #88:#89       // DHCP:Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+   #87 = Utf8               org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode
+   #88 = Utf8               DHCP
+   #89 = Utf8               Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+   #90 = Methodref          #91.#92       // java/lang/String.trim:()Ljava/lang/String;
+   #91 = Class              #93           // java/lang/String
+   #92 = NameAndType        #94:#22       // trim:()Ljava/lang/String;
+   #93 = Utf8               java/lang/String
+   #94 = Utf8               trim
+   #95 = Methodref          #91.#96       // java/lang/String.toUpperCase:()Ljava/lang/String;
+   #96 = NameAndType        #97:#22       // toUpperCase:()Ljava/lang/String;
+   #97 = Utf8               toUpperCase
+   #98 = Methodref          #85.#99       // org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.valueOf:(Ljava/lang/String;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+   #99 = NameAndType        #100:#101     // valueOf:(Ljava/lang/String;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+  #100 = Utf8               valueOf
+  #101 = Utf8               (Ljava/lang/String;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+  #102 = Class              #103          // java/lang/IllegalArgumentException
+  #103 = Utf8               java/lang/IllegalArgumentException
+  #104 = Class              #105          // org/apache/cloudstack/api/ServerApiException
+  #105 = Utf8               org/apache/cloudstack/api/ServerApiException
+  #106 = Fieldref           #107.#108     // org/apache/cloudstack/api/ApiErrorCode.PARAM_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #107 = Class              #109          // org/apache/cloudstack/api/ApiErrorCode
+  #108 = NameAndType        #110:#111     // PARAM_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #109 = Utf8               org/apache/cloudstack/api/ApiErrorCode
+  #110 = Utf8               PARAM_ERROR
+  #111 = Utf8               Lorg/apache/cloudstack/api/ApiErrorCode;
+  #112 = String             #113          // Invalid network mode. Supported values are DHCP and STATIC.
+  #113 = Utf8               Invalid network mode. Supported values are DHCP and STATIC.
+  #114 = Methodref          #104.#115     // org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+  #115 = NameAndType        #5:#116       // "<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+  #116 = Utf8               (Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+  #117 = Fieldref           #11.#118      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.ipCidr:Ljava/lang/String;
+  #118 = NameAndType        #119:#40      // ipCidr:Ljava/lang/String;
+  #119 = Utf8               ipCidr
+  #120 = Fieldref           #11.#121      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.gateway:Ljava/lang/String;
+  #121 = NameAndType        #122:#40      // gateway:Ljava/lang/String;
+  #122 = Utf8               gateway
+  #123 = Fieldref           #11.#124      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.dns1:Ljava/lang/String;
+  #124 = NameAndType        #125:#40      // dns1:Ljava/lang/String;
+  #125 = Utf8               dns1
+  #126 = Fieldref           #11.#127      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.dns2:Ljava/lang/String;
+  #127 = NameAndType        #128:#40      // dns2:Ljava/lang/String;
+  #128 = Utf8               dns2
+  #129 = Fieldref           #11.#130      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.sharedFSProviderName:Ljava/lang/String;
+  #130 = NameAndType        #131:#40      // sharedFSProviderName:Ljava/lang/String;
+  #131 = Utf8               sharedFSProviderName
+  #132 = Fieldref           #133.#134     // org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType.SHAREDFSVM:Lorg/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType;
+  #133 = Class              #135          // org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType
+  #134 = NameAndType        #136:#137     // SHAREDFSVM:Lorg/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType;
+  #135 = Utf8               org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType
+  #136 = Utf8               SHAREDFSVM
+  #137 = Utf8               Lorg/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType;
+  #138 = Methodref          #133.#19      // org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType.toString:()Ljava/lang/String;
+  #139 = Fieldref           #140.#141     // org/apache/cloudstack/api/ApiCommandResourceType.SharedFS:Lorg/apache/cloudstack/api/ApiCommandResourceType;
+  #140 = Class              #142          // org/apache/cloudstack/api/ApiCommandResourceType
+  #141 = NameAndType        #143:#144     // SharedFS:Lorg/apache/cloudstack/api/ApiCommandResourceType;
+  #142 = Utf8               org/apache/cloudstack/api/ApiCommandResourceType
+  #143 = Utf8               SharedFS
+  #144 = Utf8               Lorg/apache/cloudstack/api/ApiCommandResourceType;
+  #145 = Methodref          #11.#146      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.getEntityId:()Ljava/lang/Long;
+  #146 = NameAndType        #147:#148     // getEntityId:()Ljava/lang/Long;
+  #147 = Utf8               getEntityId
+  #148 = Utf8               ()Ljava/lang/Long;
+  #149 = Fieldref           #11.#150      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd._accountService:Lcom/cloud/user/AccountService;
+  #150 = NameAndType        #151:#152     // _accountService:Lcom/cloud/user/AccountService;
+  #151 = Utf8               _accountService
+  #152 = Utf8               Lcom/cloud/user/AccountService;
+  #153 = InterfaceMethodref #154.#155     // com/cloud/user/AccountService.finalizeAccountId:(Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Z)Ljava/lang/Long;
+  #154 = Class              #156          // com/cloud/user/AccountService
+  #155 = NameAndType        #157:#158     // finalizeAccountId:(Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Z)Ljava/lang/Long;
+  #156 = Utf8               com/cloud/user/AccountService
+  #157 = Utf8               finalizeAccountId
+  #158 = Utf8               (Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Z)Ljava/lang/Long;
+  #159 = Methodref          #160.#161     // org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+  #160 = Class              #162          // org/apache/cloudstack/context/CallContext
+  #161 = NameAndType        #163:#164     // current:()Lorg/apache/cloudstack/context/CallContext;
+  #162 = Utf8               org/apache/cloudstack/context/CallContext
+  #163 = Utf8               current
+  #164 = Utf8               ()Lorg/apache/cloudstack/context/CallContext;
+  #165 = Methodref          #160.#166     // org/apache/cloudstack/context/CallContext.getCallingAccount:()Lcom/cloud/user/Account;
+  #166 = NameAndType        #167:#168     // getCallingAccount:()Lcom/cloud/user/Account;
+  #167 = Utf8               getCallingAccount
+  #168 = Utf8               ()Lcom/cloud/user/Account;
+  #169 = InterfaceMethodref #170.#171     // com/cloud/user/Account.getId:()J
+  #170 = Class              #172          // com/cloud/user/Account
+  #171 = NameAndType        #173:#174     // getId:()J
+  #172 = Utf8               com/cloud/user/Account
+  #173 = Utf8               getId
+  #174 = Utf8               ()J
+  #175 = Methodref          #176.#177     // java/lang/Long.longValue:()J
+  #176 = Class              #178          // java/lang/Long
+  #177 = NameAndType        #179:#174     // longValue:()J
+  #178 = Utf8               java/lang/Long
+  #179 = Utf8               longValue
+  #180 = Class              #181          // com/cloud/event/EventTypes
+  #181 = Utf8               com/cloud/event/EventTypes
+  #182 = String             #183          // SHAREDFS.CREATE
+  #183 = Utf8               SHAREDFS.CREATE
+  #184 = InvokeDynamic      #0:#185       // #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #185 = NameAndType        #186:#187     // makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #186 = Utf8               makeConcatWithConstants
+  #187 = Utf8               (Ljava/lang/String;)Ljava/lang/String;
+  #188 = Methodref          #189.#190     // java/lang/Exception.getMessage:()Ljava/lang/String;
+  #189 = Class              #191          // java/lang/Exception
+  #190 = NameAndType        #192:#22      // getMessage:()Ljava/lang/String;
+  #191 = Utf8               java/lang/Exception
+  #192 = Utf8               getMessage
+  #193 = InvokeDynamic      #1:#185       // #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #194 = InvokeDynamic      #2:#185       // #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #195 = Fieldref           #11.#196      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.sharedFSService:Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+  #196 = NameAndType        #197:#198     // sharedFSService:Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+  #197 = Utf8               sharedFSService
+  #198 = Utf8               Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+  #199 = InterfaceMethodref #200.#201     // org/apache/cloudstack/storage/sharedfs/SharedFSService.allocSharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #200 = Class              #202          // org/apache/cloudstack/storage/sharedfs/SharedFSService
+  #201 = NameAndType        #203:#204     // allocSharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #202 = Utf8               org/apache/cloudstack/storage/sharedfs/SharedFSService
+  #203 = Utf8               allocSharedFS
+  #204 = Utf8               (Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #205 = InterfaceMethodref #206.#171     // org/apache/cloudstack/storage/sharedfs/SharedFS.getId:()J
+  #206 = Class              #207          // org/apache/cloudstack/storage/sharedfs/SharedFS
+  #207 = Utf8               org/apache/cloudstack/storage/sharedfs/SharedFS
+  #208 = Methodref          #176.#209     // java/lang/Long.valueOf:(J)Ljava/lang/Long;
+  #209 = NameAndType        #100:#210     // valueOf:(J)Ljava/lang/Long;
+  #210 = Utf8               (J)Ljava/lang/Long;
+  #211 = Methodref          #11.#212      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.setEntityId:(Ljava/lang/Long;)V
+  #212 = NameAndType        #213:#214     // setEntityId:(Ljava/lang/Long;)V
+  #213 = Utf8               setEntityId
+  #214 = Utf8               (Ljava/lang/Long;)V
+  #215 = InterfaceMethodref #206.#216     // org/apache/cloudstack/storage/sharedfs/SharedFS.getUuid:()Ljava/lang/String;
+  #216 = NameAndType        #217:#22      // getUuid:()Ljava/lang/String;
+  #217 = Utf8               getUuid
+  #218 = Methodref          #11.#219      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.setEntityUuid:(Ljava/lang/String;)V
+  #219 = NameAndType        #220:#221     // setEntityUuid:(Ljava/lang/String;)V
+  #220 = Utf8               setEntityUuid
+  #221 = Utf8               (Ljava/lang/String;)V
+  #222 = Fieldref           #107.#223     // org/apache/cloudstack/api/ApiErrorCode.INTERNAL_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #223 = NameAndType        #224:#111     // INTERNAL_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #224 = Utf8               INTERNAL_ERROR
+  #225 = String             #226          // Failed to create Shared FileSystem
+  #226 = Utf8               Failed to create Shared FileSystem
+  #227 = InterfaceMethodref #200.#228     // org/apache/cloudstack/storage/sharedfs/SharedFSService.deploySharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #228 = NameAndType        #229:#204     // deploySharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #229 = Utf8               deploySharedFS
+  #230 = Class              #231          // com/cloud/exception/ResourceUnavailableException
+  #231 = Utf8               com/cloud/exception/ResourceUnavailableException
+  #232 = Fieldref           #11.#233      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.logger:Lorg/apache/logging/log4j/Logger;
+  #233 = NameAndType        #234:#235     // logger:Lorg/apache/logging/log4j/Logger;
+  #234 = Utf8               logger
+  #235 = Utf8               Lorg/apache/logging/log4j/Logger;
+  #236 = String             #237          // Shared FileSystem start exception:
+  #237 = Utf8               Shared FileSystem start exception:
+  #238 = InterfaceMethodref #239.#240     // org/apache/logging/log4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+  #239 = Class              #241          // org/apache/logging/log4j/Logger
+  #240 = NameAndType        #242:#243     // warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+  #241 = Utf8               org/apache/logging/log4j/Logger
+  #242 = Utf8               warn
+  #243 = Utf8               (Ljava/lang/String;Ljava/lang/Throwable;)V
+  #244 = Fieldref           #107.#245     // org/apache/cloudstack/api/ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #245 = NameAndType        #246:#111     // RESOURCE_UNAVAILABLE_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #246 = Utf8               RESOURCE_UNAVAILABLE_ERROR
+  #247 = Methodref          #11.#248      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.getStartExceptionMsg:(Ljava/lang/Exception;)Ljava/lang/String;
+  #248 = NameAndType        #249:#250     // getStartExceptionMsg:(Ljava/lang/Exception;)Ljava/lang/String;
+  #249 = Utf8               getStartExceptionMsg
+  #250 = Utf8               (Ljava/lang/Exception;)Ljava/lang/String;
+  #251 = Class              #252          // com/cloud/exception/ConcurrentOperationException
+  #252 = Utf8               com/cloud/exception/ConcurrentOperationException
+  #253 = Class              #254          // com/cloud/exception/InsufficientCapacityException
+  #254 = Utf8               com/cloud/exception/InsufficientCapacityException
+  #255 = Fieldref           #107.#256     // org/apache/cloudstack/api/ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #256 = NameAndType        #257:#111     // INSUFFICIENT_CAPACITY_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+  #257 = Utf8               INSUFFICIENT_CAPACITY_ERROR
+  #258 = Class              #259          // com/cloud/exception/ResourceAllocationException
+  #259 = Utf8               com/cloud/exception/ResourceAllocationException
+  #260 = Methodref          #258.#190     // com/cloud/exception/ResourceAllocationException.getMessage:()Ljava/lang/String;
+  #261 = Class              #262          // com/cloud/exception/OperationTimedoutException
+  #262 = Utf8               com/cloud/exception/OperationTimedoutException
+  #263 = Class              #264          // com/cloud/utils/exception/CloudRuntimeException
+  #264 = Utf8               com/cloud/utils/exception/CloudRuntimeException
+  #265 = Methodref          #261.#190     // com/cloud/exception/OperationTimedoutException.getMessage:()Ljava/lang/String;
+  #266 = InvokeDynamic      #3:#185       // #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+  #267 = Methodref          #263.#268     // com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+  #268 = NameAndType        #5:#221       // "<init>":(Ljava/lang/String;)V
+  #269 = Methodref          #11.#270      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.getResponseView:()Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #270 = NameAndType        #271:#272     // getResponseView:()Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #271 = Utf8               getResponseView
+  #272 = Utf8               ()Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #273 = InterfaceMethodref #154.#274     // com/cloud/user/AccountService.isRootAdmin:(Ljava/lang/Long;)Z
+  #274 = NameAndType        #275:#276     // isRootAdmin:(Ljava/lang/Long;)Z
+  #275 = Utf8               isRootAdmin
+  #276 = Utf8               (Ljava/lang/Long;)Z
+  #277 = Fieldref           #278.#279     // org/apache/cloudstack/api/ResponseObject$ResponseView.Full:Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #278 = Class              #280          // org/apache/cloudstack/api/ResponseObject$ResponseView
+  #279 = NameAndType        #281:#282     // Full:Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #280 = Utf8               org/apache/cloudstack/api/ResponseObject$ResponseView
+  #281 = Utf8               Full
+  #282 = Utf8               Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+  #283 = Fieldref           #11.#284      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd._responseGenerator:Lorg/apache/cloudstack/api/ResponseGenerator;
+  #284 = NameAndType        #285:#286     // _responseGenerator:Lorg/apache/cloudstack/api/ResponseGenerator;
+  #285 = Utf8               _responseGenerator
+  #286 = Utf8               Lorg/apache/cloudstack/api/ResponseGenerator;
+  #287 = InterfaceMethodref #288.#289     // org/apache/cloudstack/api/ResponseGenerator.createSharedFSResponse:(Lorg/apache/cloudstack/api/ResponseObject$ResponseView;Lorg/apache/cloudstack/storage/sharedfs/SharedFS;)Lorg/apache/cloudstack/api/response/SharedFSResponse;
+  #288 = Class              #290          // org/apache/cloudstack/api/ResponseGenerator
+  #289 = NameAndType        #291:#292     // createSharedFSResponse:(Lorg/apache/cloudstack/api/ResponseObject$ResponseView;Lorg/apache/cloudstack/storage/sharedfs/SharedFS;)Lorg/apache/cloudstack/api/response/SharedFSResponse;
+  #290 = Utf8               org/apache/cloudstack/api/ResponseGenerator
+  #291 = Utf8               createSharedFSResponse
+  #292 = Utf8               (Lorg/apache/cloudstack/api/ResponseObject$ResponseView;Lorg/apache/cloudstack/storage/sharedfs/SharedFS;)Lorg/apache/cloudstack/api/response/SharedFSResponse;
+  #293 = Methodref          #294.#295     // java/lang/Class.getSimpleName:()Ljava/lang/String;
+  #294 = Class              #296          // java/lang/Class
+  #295 = NameAndType        #297:#22      // getSimpleName:()Ljava/lang/String;
+  #296 = Utf8               java/lang/Class
+  #297 = Utf8               getSimpleName
+  #298 = Methodref          #91.#299      // java/lang/String.toLowerCase:()Ljava/lang/String;
+  #299 = NameAndType        #300:#22      // toLowerCase:()Ljava/lang/String;
+  #300 = Utf8               toLowerCase
+  #301 = Methodref          #302.#303     // org/apache/cloudstack/api/response/SharedFSResponse.setObjectName:(Ljava/lang/String;)V
+  #302 = Class              #304          // org/apache/cloudstack/api/response/SharedFSResponse
+  #303 = NameAndType        #305:#221     // setObjectName:(Ljava/lang/String;)V
+  #304 = Utf8               org/apache/cloudstack/api/response/SharedFSResponse
+  #305 = Utf8               setObjectName
+  #306 = Methodref          #11.#307      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.getCommandName:()Ljava/lang/String;
+  #307 = NameAndType        #308:#22      // getCommandName:()Ljava/lang/String;
+  #308 = Utf8               getCommandName
+  #309 = Methodref          #302.#310     // org/apache/cloudstack/api/response/SharedFSResponse.setResponseName:(Ljava/lang/String;)V
+  #310 = NameAndType        #311:#221     // setResponseName:(Ljava/lang/String;)V
+  #311 = Utf8               setResponseName
+  #312 = Methodref          #11.#313      // org/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd.setResponseObject:(Ljava/lang/Object;)V
+  #313 = NameAndType        #314:#315     // setResponseObject:(Ljava/lang/Object;)V
+  #314 = Utf8               setResponseObject
+  #315 = Utf8               (Ljava/lang/Object;)V
+  #316 = String             #317          // Failed to start Shared FileSystem
+  #317 = Utf8               Failed to start Shared FileSystem
+  #318 = Class              #319          // org/apache/cloudstack/api/command/user/UserCmd
+  #319 = Utf8               org/apache/cloudstack/api/command/user/UserCmd
+  #320 = Utf8               RuntimeVisibleAnnotations
+  #321 = Utf8               Ljavax/inject/Inject;
+  #322 = Utf8               Lorg/apache/cloudstack/api/Parameter;
+  #323 = Utf8               type
+  #324 = Utf8               Lorg/apache/cloudstack/api/BaseCmd$CommandType;
+  #325 = Utf8               STRING
+  #326 = Utf8               required
+  #327 = Integer            1
+  #328 = Utf8               the name of the shared filesystem.
+  #329 = Utf8               account
+  #330 = Utf8               the account associated with the shared filesystem. Must be used with the domainId parameter.
+  #331 = Utf8               domainid
+  #332 = Utf8               UUID
+  #333 = Utf8               entityType
+  #334 = Utf8               Lorg/apache/cloudstack/api/response/DomainResponse;
+  #335 = Utf8               the domain ID associated with the shared filesystem. If used with the account parameter returns the shared filesystem associated with the account for the specified domain.If account is NOT provided then the shared filesystem will be assigned to the caller account and domain.
+  #336 = Utf8               projectid
+  #337 = Utf8               Lorg/apache/cloudstack/api/response/ProjectResponse;
+  #338 = Utf8               the project associated with the shared filesystem. Mutually exclusive with account parameter
+  #339 = Utf8               the description for the shared filesystem.
+  #340 = Utf8               LONG
+  #341 = Utf8               the size of the shared filesystem in GiB
+  #342 = Utf8               zoneid
+  #343 = Utf8               Lorg/apache/cloudstack/api/response/ZoneResponse;
+  #344 = Utf8               the zone id.
+  #345 = Utf8               diskofferingid
+  #346 = Utf8               Lorg/apache/cloudstack/api/response/DiskOfferingResponse;
+  #347 = Utf8               the disk offering to use for the underlying storage. This will define the size and other specifications like encryption and qos for the shared filesystem.
+  #348 = Utf8               storageid
+  #349 = Utf8               Lorg/apache/cloudstack/api/response/StoragePoolResponse;
+  #350 = Utf8               the primary storage selected for the initial shared filesystem backing volume.
+  #351 = Utf8               miniops
+  #352 = Utf8               min iops
+  #353 = Utf8               maxiops
+  #354 = Utf8               max iops
+  #355 = Utf8               serviceofferingid
+  #356 = Utf8               Lorg/apache/cloudstack/api/response/ServiceOfferingResponse;
+  #357 = Utf8               the service offering to use for the shared filesystem instance hosting the data. The offering should be HA enabled and the cpu count and memory size should be greater than equal to sharedfsvm.min.cpu.count and sharedfsvm.min.ram.size respectively
+  #358 = Utf8               cpunumber
+  #359 = Utf8               INTEGER
+  #360 = Utf8               CPU count for a customizable compute field.
+  #361 = Utf8               cpuspeed
+  #362 = Utf8               CPU speed in MHz for a customizable compute field.
+  #363 = Utf8               RAM in MiB for a customizable compute field.
+  #364 = Utf8               filesystem
+  #365 = Utf8               the filesystem format (XFS / EXT4) which will be installed on the shared filesystem.
+  #366 = Utf8               provider
+  #367 = Utf8               the provider to be used for the shared filesystem. The list of providers can be fetched by using the listSharedFileSystemProviders API.
+  #368 = Utf8               networkid
+  #369 = Utf8               Lorg/apache/cloudstack/api/response/NetworkResponse;
+  #370 = Utf8               network to attach the shared filesystem to
+  #371 = Utf8               networkmode
+  #372 = Utf8               network addressing mode for an L2 SharedFS network: DHCP or STATIC
+  #373 = Utf8               ipcidr
+  #374 = Utf8               static IPv4 address and prefix for the SharedFS VM, for example 10.10.1.211/24
+  #375 = Utf8               optional static IPv4 default gateway
+  #376 = Utf8               optional primary IPv4 DNS server
+  #377 = Utf8               optional secondary IPv4 DNS server
+  #378 = Utf8               Code
+  #379 = Utf8               LineNumberTable
+  #380 = Utf8               LocalVariableTable
+  #381 = Utf8               this
+  #382 = Utf8               Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+  #383 = Utf8               getCustomComputeParameters
+  #384 = Utf8               ()Ljava/util/Map;
+  #385 = Utf8               values
+  #386 = Utf8               Ljava/util/Map;
+  #387 = Utf8               LocalVariableTypeTable
+  #388 = Utf8               Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+  #389 = Utf8               StackMapTable
+  #390 = Utf8               Signature
+  #391 = Utf8               ()Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+  #392 = Utf8               getName
+  #393 = Utf8               getProjectId
+  #394 = Utf8               getDomainId
+  #395 = Utf8               getAccountName
+  #396 = Utf8               getDescription
+  #397 = Utf8               getSize
+  #398 = Utf8               getZoneId
+  #399 = Utf8               getDiskOfferingId
+  #400 = Utf8               getStorageId
+  #401 = Utf8               getServiceOfferingId
+  #402 = Utf8               getMaxIops
+  #403 = Utf8               getMinIops
+  #404 = Utf8               getFsFormat
+  #405 = Utf8               getNetworkId
+  #406 = Utf8               getNetworkMode
+  #407 = Utf8               ()Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+  #408 = Utf8               e
+  #409 = Utf8               Ljava/lang/IllegalArgumentException;
+  #410 = Utf8               getIpCidr
+  #411 = Utf8               getGateway
+  #412 = Utf8               getDns1
+  #413 = Utf8               getDns2
+  #414 = Utf8               getSharedFSProviderName
+  #415 = Utf8               getApiResourceType
+  #416 = Utf8               ()Lorg/apache/cloudstack/api/ApiCommandResourceType;
+  #417 = Utf8               getApiResourceId
+  #418 = Utf8               getEntityOwnerId
+  #419 = Utf8               accountId
+  #420 = Utf8               getEventType
+  #421 = Utf8               getEventDescription
+  #422 = Utf8               getCreateExceptionMsg
+  #423 = Utf8               ex
+  #424 = Utf8               Ljava/lang/Exception;
+  #425 = Utf8               create
+  #426 = Utf8               sharedFS
+  #427 = Utf8               Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+  #428 = Utf8               execute
+  #429 = Utf8               Lcom/cloud/exception/ResourceUnavailableException;
+  #430 = Utf8               Lcom/cloud/exception/ConcurrentOperationException;
+  #431 = Utf8               Lcom/cloud/exception/InsufficientCapacityException;
+  #432 = Utf8               Lcom/cloud/exception/ResourceAllocationException;
+  #433 = Utf8               Lcom/cloud/exception/OperationTimedoutException;
+  #434 = Utf8               respView
+  #435 = Utf8               caller
+  #436 = Utf8               Lcom/cloud/user/Account;
+  #437 = Utf8               response
+  #438 = Utf8               Lorg/apache/cloudstack/api/response/SharedFSResponse;
+  #439 = Utf8               SourceFile
+  #440 = Utf8               CreateSharedFSCmd.java
+  #441 = Utf8               Lorg/apache/cloudstack/api/APICommand;
+  #442 = Utf8               createSharedFileSystem
+  #443 = Utf8               responseObject
+  #444 = Utf8               Create a new Shared File System of specified size and disk offering, attached to the given network
+  #445 = Utf8               responseView
+  #446 = Utf8               Restricted
+  #447 = Utf8               requestHasSensitiveInfo
+  #448 = Integer            0
+  #449 = Utf8               since
+  #450 = Utf8               4.20.0
+  #451 = Utf8               authorized
+  #452 = Utf8               Lorg/apache/cloudstack/acl/RoleType;
+  #453 = Utf8               Admin
+  #454 = Utf8               ResourceAdmin
+  #455 = Utf8               DomainAdmin
+  #456 = Utf8               User
+  #457 = Utf8               BootstrapMethods
+  #458 = MethodHandle       6:#459        // REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #459 = Methodref          #460.#461     // java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #460 = Class              #462          // java/lang/invoke/StringConcatFactory
+  #461 = NameAndType        #186:#463     // makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #462 = Utf8               java/lang/invoke/StringConcatFactory
+  #463 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+  #464 = String             #465          // Creating shared filesystem \u0001
+  #465 = Utf8               Creating shared filesystem \u0001
+  #466 = String             #467          // Shared FileSystem create failed with exception\u0001
+  #467 = Utf8               Shared FileSystem create failed with exception\u0001
+  #468 = String             #469          // Shared FileSystem start failed with exception: \u0001
+  #469 = Utf8               Shared FileSystem start failed with exception: \u0001
+  #470 = String             #471          // Shared FileSystem start timed out due to \u0001
+  #471 = Utf8               Shared FileSystem start timed out due to \u0001
+  #472 = Utf8               InnerClasses
+  #473 = Utf8               NetworkMode
+  #474 = Class              #475          // org/apache/cloudstack/storage/sharedfs/SharedFSProvider
+  #475 = Utf8               org/apache/cloudstack/storage/sharedfs/SharedFSProvider
+  #476 = Utf8               SharedFSProviderType
+  #477 = Class              #478          // org/apache/cloudstack/api/ResponseObject
+  #478 = Utf8               org/apache/cloudstack/api/ResponseObject
+  #479 = Utf8               ResponseView
+  #480 = Class              #481          // org/apache/cloudstack/api/BaseCmd$CommandType
+  #481 = Utf8               org/apache/cloudstack/api/BaseCmd$CommandType
+  #482 = Class              #483          // org/apache/cloudstack/api/BaseCmd
+  #483 = Utf8               org/apache/cloudstack/api/BaseCmd
+  #484 = Utf8               CommandType
+  #485 = Class              #486          // java/lang/invoke/MethodHandles$Lookup
+  #486 = Utf8               java/lang/invoke/MethodHandles$Lookup
+  #487 = Class              #488          // java/lang/invoke/MethodHandles
+  #488 = Utf8               java/lang/invoke/MethodHandles
+  #489 = Utf8               Lookup
+{
+  org.apache.cloudstack.storage.sharedfs.SharedFSService sharedFSService;
+    descriptor: Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+    flags: (0x0000)
+    RuntimeVisibleAnnotations:
+      0: #321()
+        javax.inject.Inject
+
+  private java.lang.String name;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#39,#323=e#324.#325,#326=Z#327,#53=s#328)
+        org.apache.cloudstack.api.Parameter(
+          name="name"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          required=true
+          description="the name of the shared filesystem."
+        )
+
+  private java.lang.String accountName;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#329,#323=e#324.#325,#53=s#330)
+        org.apache.cloudstack.api.Parameter(
+          name="account"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="the account associated with the shared filesystem. Must be used with the domainId parameter."
+        )
+
+  private java.lang.Long domainId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#331,#323=e#324.#332,#333=[c#334],#53=s#335)
+        org.apache.cloudstack.api.Parameter(
+          name="domainid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          entityType=[class Lorg/apache/cloudstack/api/response/DomainResponse;]
+          description="the domain ID associated with the shared filesystem. If used with the account parameter returns the shared filesystem associated with the account for the specified domain.If account is NOT provided then the shared filesystem will be assigned to the caller account and domain."
+        )
+
+  private java.lang.Long projectId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#336,#323=e#324.#332,#333=[c#337],#53=s#338)
+        org.apache.cloudstack.api.Parameter(
+          name="projectid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          entityType=[class Lorg/apache/cloudstack/api/response/ProjectResponse;]
+          description="the project associated with the shared filesystem. Mutually exclusive with account parameter"
+        )
+
+  private java.lang.String description;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#53,#323=e#324.#325,#53=s#339)
+        org.apache.cloudstack.api.Parameter(
+          name="description"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="the description for the shared filesystem."
+        )
+
+  private java.lang.Long size;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#56,#323=e#324.#340,#53=s#341)
+        org.apache.cloudstack.api.Parameter(
+          name="size"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.LONG
+          description="the size of the shared filesystem in GiB"
+        )
+
+  private java.lang.Long zoneId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#342,#323=e#324.#332,#326=Z#327,#333=[c#343],#53=s#344)
+        org.apache.cloudstack.api.Parameter(
+          name="zoneid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          required=true
+          entityType=[class Lorg/apache/cloudstack/api/response/ZoneResponse;]
+          description="the zone id."
+        )
+
+  private java.lang.Long diskOfferingId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#345,#323=e#324.#332,#326=Z#327,#333=[c#346],#53=s#347)
+        org.apache.cloudstack.api.Parameter(
+          name="diskofferingid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          required=true
+          entityType=[class Lorg/apache/cloudstack/api/response/DiskOfferingResponse;]
+          description="the disk offering to use for the underlying storage. This will define the size and other specifications like encryption and qos for the shared filesystem."
+        )
+
+  private java.lang.Long storageId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#348,#323=e#324.#332,#333=[c#349],#53=s#350)
+        org.apache.cloudstack.api.Parameter(
+          name="storageid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          entityType=[class Lorg/apache/cloudstack/api/response/StoragePoolResponse;]
+          description="the primary storage selected for the initial shared filesystem backing volume."
+        )
+
+  private java.lang.Long minIops;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#351,#323=e#324.#340,#53=s#352)
+        org.apache.cloudstack.api.Parameter(
+          name="miniops"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.LONG
+          description="min iops"
+        )
+
+  private java.lang.Long maxIops;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#353,#323=e#324.#340,#53=s#354)
+        org.apache.cloudstack.api.Parameter(
+          name="maxiops"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.LONG
+          description="max iops"
+        )
+
+  private java.lang.Long serviceOfferingId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#355,#323=e#324.#332,#326=Z#327,#333=[c#356],#53=s#357)
+        org.apache.cloudstack.api.Parameter(
+          name="serviceofferingid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          required=true
+          entityType=[class Lorg/apache/cloudstack/api/response/ServiceOfferingResponse;]
+          description="the service offering to use for the shared filesystem instance hosting the data. The offering should be HA enabled and the cpu count and memory size should be greater than equal to sharedfsvm.min.cpu.count and sharedfsvm.min.ram.size respectively"
+        )
+
+  private java.lang.Integer cpuNumber;
+    descriptor: Ljava/lang/Integer;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#358,#323=e#324.#359,#53=s#360)
+        org.apache.cloudstack.api.Parameter(
+          name="cpunumber"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.INTEGER
+          description="CPU count for a customizable compute field."
+        )
+
+  private java.lang.Integer cpuSpeed;
+    descriptor: Ljava/lang/Integer;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#361,#323=e#324.#359,#53=s#362)
+        org.apache.cloudstack.api.Parameter(
+          name="cpuspeed"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.INTEGER
+          description="CPU speed in MHz for a customizable compute field."
+        )
+
+  private java.lang.Integer memory;
+    descriptor: Ljava/lang/Integer;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#35,#323=e#324.#359,#53=s#363)
+        org.apache.cloudstack.api.Parameter(
+          name="memory"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.INTEGER
+          description="RAM in MiB for a customizable compute field."
+        )
+
+  private java.lang.String fsFormat;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#364,#323=e#324.#325,#326=Z#327,#53=s#365)
+        org.apache.cloudstack.api.Parameter(
+          name="filesystem"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          required=true
+          description="the filesystem format (XFS / EXT4) which will be installed on the shared filesystem."
+        )
+
+  private java.lang.String sharedFSProviderName;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#366,#323=e#324.#325,#53=s#367)
+        org.apache.cloudstack.api.Parameter(
+          name="provider"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="the provider to be used for the shared filesystem. The list of providers can be fetched by using the listSharedFileSystemProviders API."
+        )
+
+  private java.lang.Long networkId;
+    descriptor: Ljava/lang/Long;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#368,#323=e#324.#332,#326=Z#327,#333=[c#369],#53=s#370)
+        org.apache.cloudstack.api.Parameter(
+          name="networkid"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.UUID
+          required=true
+          entityType=[class Lorg/apache/cloudstack/api/response/NetworkResponse;]
+          description="network to attach the shared filesystem to"
+        )
+
+  private java.lang.String networkMode;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#371,#323=e#324.#325,#53=s#372)
+        org.apache.cloudstack.api.Parameter(
+          name="networkmode"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="network addressing mode for an L2 SharedFS network: DHCP or STATIC"
+        )
+
+  private java.lang.String ipCidr;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#373,#323=e#324.#325,#53=s#374)
+        org.apache.cloudstack.api.Parameter(
+          name="ipcidr"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="static IPv4 address and prefix for the SharedFS VM, for example 10.10.1.211/24"
+        )
+
+  private java.lang.String gateway;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#122,#323=e#324.#325,#53=s#375)
+        org.apache.cloudstack.api.Parameter(
+          name="gateway"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="optional static IPv4 default gateway"
+        )
+
+  private java.lang.String dns1;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#125,#323=e#324.#325,#53=s#376)
+        org.apache.cloudstack.api.Parameter(
+          name="dns1"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="optional primary IPv4 DNS server"
+        )
+
+  private java.lang.String dns2;
+    descriptor: Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    RuntimeVisibleAnnotations:
+      0: #322(#39=s#128,#323=e#324.#325,#53=s#377)
+        org.apache.cloudstack.api.Parameter(
+          name="dns2"
+          type=Lorg/apache/cloudstack/api/BaseCmd$CommandType;.STRING
+          description="optional secondary IPv4 DNS server"
+        )
+
+  public org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method org/apache/cloudstack/api/BaseAsyncCreateCmd."<init>":()V
+         4: return
+      LineNumberTable:
+        line 62: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.util.Map<java.lang.String, java.lang.String> getCustomComputeParameters();
+    descriptor: ()Ljava/util/Map;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=3, locals=2, args_size=1
+         0: new           #7                  // class java/util/LinkedHashMap
+         3: dup
+         4: invokespecial #9                  // Method java/util/LinkedHashMap."<init>":()V
+         7: astore_1
+         8: aload_0
+         9: getfield      #10                 // Field cpuNumber:Ljava/lang/Integer;
+        12: ifnull        31
+        15: aload_1
+        16: ldc           #16                 // String cpuNumber
+        18: aload_0
+        19: getfield      #10                 // Field cpuNumber:Ljava/lang/Integer;
+        22: invokevirtual #17                 // Method java/lang/Integer.toString:()Ljava/lang/String;
+        25: invokeinterface #23,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        30: pop
+        31: aload_0
+        32: getfield      #29                 // Field cpuSpeed:Ljava/lang/Integer;
+        35: ifnull        54
+        38: aload_1
+        39: ldc           #32                 // String cpuSpeed
+        41: aload_0
+        42: getfield      #29                 // Field cpuSpeed:Ljava/lang/Integer;
+        45: invokevirtual #17                 // Method java/lang/Integer.toString:()Ljava/lang/String;
+        48: invokeinterface #23,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        53: pop
+        54: aload_0
+        55: getfield      #33                 // Field memory:Ljava/lang/Integer;
+        58: ifnull        77
+        61: aload_1
+        62: ldc           #36                 // String memory
+        64: aload_0
+        65: getfield      #33                 // Field memory:Ljava/lang/Integer;
+        68: invokevirtual #17                 // Method java/lang/Integer.toString:()Ljava/lang/String;
+        71: invokeinterface #23,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        76: pop
+        77: aload_1
+        78: areturn
+      LineNumberTable:
+        line 153: 0
+        line 154: 8
+        line 155: 31
+        line 156: 54
+        line 157: 77
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      79     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+            8      71     1 values   Ljava/util/Map;
+      LocalVariableTypeTable:
+        Start  Length  Slot  Name   Signature
+            8      71     1 values   Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+      StackMapTable: number_of_entries = 3
+        frame_type = 252 /* append */
+          offset_delta = 31
+          locals = [ class java/util/Map ]
+        frame_type = 22 /* same */
+        frame_type = 22 /* same */
+    Signature: #391                         // ()Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;
+
+  public java.lang.String getName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #37                 // Field name:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 208: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getProjectId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #41                 // Field projectId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 213: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getDomainId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #45                 // Field domainId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 217: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getAccountName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #48                 // Field accountName:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 221: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getDescription();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #51                 // Field description:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 224: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getSize();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #54                 // Field size:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 228: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getZoneId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #57                 // Field zoneId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 232: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getDiskOfferingId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #60                 // Field diskOfferingId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 236: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getStorageId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #63                 // Field storageId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 240: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getServiceOfferingId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #66                 // Field serviceOfferingId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 244: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getMaxIops();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #69                 // Field maxIops:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 248: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getMinIops();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #72                 // Field minIops:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 252: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getFsFormat();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #75                 // Field fsFormat:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 256: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getNetworkId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #78                 // Field networkId:Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 260: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public org.apache.cloudstack.storage.sharedfs.SharedFS$NetworkMode getNetworkMode();
+    descriptor: ()Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=4, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #81                 // Field networkMode:Ljava/lang/String;
+         4: ifnonnull     11
+         7: getstatic     #84                 // Field org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.DHCP:Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+        10: areturn
+        11: aload_0
+        12: getfield      #81                 // Field networkMode:Ljava/lang/String;
+        15: invokevirtual #90                 // Method java/lang/String.trim:()Ljava/lang/String;
+        18: invokevirtual #95                 // Method java/lang/String.toUpperCase:()Ljava/lang/String;
+        21: invokestatic  #98                 // Method org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.valueOf:(Ljava/lang/String;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+        24: areturn
+        25: astore_1
+        26: new           #104                // class org/apache/cloudstack/api/ServerApiException
+        29: dup
+        30: getstatic     #106                // Field org/apache/cloudstack/api/ApiErrorCode.PARAM_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+        33: ldc           #112                // String Invalid network mode. Supported values are DHCP and STATIC.
+        35: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+        38: athrow
+      Exception table:
+         from    to  target type
+            11    24    25   Class java/lang/IllegalArgumentException
+      LineNumberTable:
+        line 264: 0
+        line 265: 7
+        line 268: 11
+        line 269: 25
+        line 270: 26
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           26      13     1     e   Ljava/lang/IllegalArgumentException;
+            0      39     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+      StackMapTable: number_of_entries = 2
+        frame_type = 11 /* same */
+        frame_type = 77 /* same_locals_1_stack_item */
+          stack = [ class java/lang/IllegalArgumentException ]
+
+  public java.lang.String getIpCidr();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #117                // Field ipCidr:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 275: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getGateway();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #120                // Field gateway:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 279: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getDns1();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #123                // Field dns1:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 283: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getDns2();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #126                // Field dns2:Ljava/lang/String;
+         4: areturn
+      LineNumberTable:
+        line 287: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getSharedFSProviderName();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #129                // Field sharedFSProviderName:Ljava/lang/String;
+         4: ifnull        12
+         7: aload_0
+         8: getfield      #129                // Field sharedFSProviderName:Ljava/lang/String;
+        11: areturn
+        12: getstatic     #132                // Field org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType.SHAREDFSVM:Lorg/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType;
+        15: invokevirtual #138                // Method org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType.toString:()Ljava/lang/String;
+        18: areturn
+      LineNumberTable:
+        line 291: 0
+        line 292: 7
+        line 294: 12
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      19     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+      StackMapTable: number_of_entries = 1
+        frame_type = 12 /* same */
+
+  public org.apache.cloudstack.api.ApiCommandResourceType getApiResourceType();
+    descriptor: ()Lorg/apache/cloudstack/api/ApiCommandResourceType;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: getstatic     #139                // Field org/apache/cloudstack/api/ApiCommandResourceType.SharedFS:Lorg/apache/cloudstack/api/ApiCommandResourceType;
+         3: areturn
+      LineNumberTable:
+        line 304: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       4     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.Long getApiResourceId();
+    descriptor: ()Ljava/lang/Long;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokevirtual #145                // Method getEntityId:()Ljava/lang/Long;
+         4: areturn
+      LineNumberTable:
+        line 309: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public long getEntityOwnerId();
+    descriptor: ()J
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=5, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #149                // Field _accountService:Lcom/cloud/user/AccountService;
+         4: aload_0
+         5: getfield      #48                 // Field accountName:Ljava/lang/String;
+         8: aload_0
+         9: getfield      #45                 // Field domainId:Ljava/lang/Long;
+        12: aload_0
+        13: getfield      #41                 // Field projectId:Ljava/lang/Long;
+        16: iconst_1
+        17: invokeinterface #153,  5          // InterfaceMethod com/cloud/user/AccountService.finalizeAccountId:(Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Z)Ljava/lang/Long;
+        22: astore_1
+        23: aload_1
+        24: ifnonnull     39
+        27: invokestatic  #159                // Method org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+        30: invokevirtual #165                // Method org/apache/cloudstack/context/CallContext.getCallingAccount:()Lcom/cloud/user/Account;
+        33: invokeinterface #169,  1          // InterfaceMethod com/cloud/user/Account.getId:()J
+        38: lreturn
+        39: aload_1
+        40: invokevirtual #175                // Method java/lang/Long.longValue:()J
+        43: lreturn
+      LineNumberTable:
+        line 313: 0
+        line 314: 23
+        line 315: 27
+        line 317: 39
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      44     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+           23      21     1 accountId   Ljava/lang/Long;
+      StackMapTable: number_of_entries = 1
+        frame_type = 252 /* append */
+          offset_delta = 39
+          locals = [ class java/lang/Long ]
+
+  public java.lang.String getEventType();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: ldc           #182                // String SHAREDFS.CREATE
+         2: areturn
+      LineNumberTable:
+        line 322: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       3     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  public java.lang.String getEventDescription();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: getfield      #37                 // Field name:Ljava/lang/String;
+         4: invokedynamic #184,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+      LineNumberTable:
+        line 327: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+
+  private java.lang.String getCreateExceptionMsg(java.lang.Exception);
+    descriptor: (Ljava/lang/Exception;)Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: aload_1
+         1: invokevirtual #188                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+         4: invokedynamic #193,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+      LineNumberTable:
+        line 331: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+            0      10     1    ex   Ljava/lang/Exception;
+
+  private java.lang.String getStartExceptionMsg(java.lang.Exception);
+    descriptor: (Ljava/lang/Exception;)Ljava/lang/String;
+    flags: (0x0002) ACC_PRIVATE
+    Code:
+      stack=1, locals=2, args_size=2
+         0: aload_1
+         1: invokevirtual #188                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+         4: invokedynamic #194,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+      LineNumberTable:
+        line 335: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+            0      10     1    ex   Ljava/lang/Exception;
+
+  public void create();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=4, locals=2, args_size=1
+         0: aload_0
+         1: getfield      #195                // Field sharedFSService:Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+         4: aload_0
+         5: invokeinterface #199,  2          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFSService.allocSharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+        10: astore_1
+        11: aload_1
+        12: ifnull        41
+        15: aload_0
+        16: aload_1
+        17: invokeinterface #205,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getId:()J
+        22: invokestatic  #208                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+        25: invokevirtual #211                // Method setEntityId:(Ljava/lang/Long;)V
+        28: aload_0
+        29: aload_1
+        30: invokeinterface #215,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getUuid:()Ljava/lang/String;
+        35: invokevirtual #218                // Method setEntityUuid:(Ljava/lang/String;)V
+        38: goto          54
+        41: new           #104                // class org/apache/cloudstack/api/ServerApiException
+        44: dup
+        45: getstatic     #222                // Field org/apache/cloudstack/api/ApiErrorCode.INTERNAL_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+        48: ldc           #225                // String Failed to create Shared FileSystem
+        50: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+        53: athrow
+        54: return
+      LineNumberTable:
+        line 340: 0
+        line 341: 11
+        line 342: 15
+        line 343: 28
+        line 345: 41
+        line 347: 54
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      55     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+           11      44     1 sharedFS   Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+      StackMapTable: number_of_entries = 2
+        frame_type = 252 /* append */
+          offset_delta = 41
+          locals = [ class org/apache/cloudstack/storage/sharedfs/SharedFS ]
+        frame_type = 12 /* same */
+
+  public void execute();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=5, locals=5, args_size=1
+         0: aload_0
+         1: getfield      #195                // Field sharedFSService:Lorg/apache/cloudstack/storage/sharedfs/SharedFSService;
+         4: aload_0
+         5: invokeinterface #227,  2          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFSService.deploySharedFS:(Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;)Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+        10: astore_1
+        11: goto          147
+        14: astore_2
+        15: aload_0
+        16: getfield      #232                // Field logger:Lorg/apache/logging/log4j/Logger;
+        19: ldc           #236                // String Shared FileSystem start exception:
+        21: aload_2
+        22: invokeinterface #238,  3          // InterfaceMethod org/apache/logging/log4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+        27: new           #104                // class org/apache/cloudstack/api/ServerApiException
+        30: dup
+        31: getstatic     #244                // Field org/apache/cloudstack/api/ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+        34: aload_0
+        35: aload_2
+        36: invokevirtual #247                // Method getStartExceptionMsg:(Ljava/lang/Exception;)Ljava/lang/String;
+        39: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+        42: athrow
+        43: astore_2
+        44: aload_0
+        45: getfield      #232                // Field logger:Lorg/apache/logging/log4j/Logger;
+        48: ldc           #236                // String Shared FileSystem start exception:
+        50: aload_2
+        51: invokeinterface #238,  3          // InterfaceMethod org/apache/logging/log4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+        56: new           #104                // class org/apache/cloudstack/api/ServerApiException
+        59: dup
+        60: getstatic     #222                // Field org/apache/cloudstack/api/ApiErrorCode.INTERNAL_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+        63: aload_0
+        64: aload_2
+        65: invokevirtual #247                // Method getStartExceptionMsg:(Ljava/lang/Exception;)Ljava/lang/String;
+        68: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+        71: athrow
+        72: astore_2
+        73: aload_0
+        74: getfield      #232                // Field logger:Lorg/apache/logging/log4j/Logger;
+        77: ldc           #236                // String Shared FileSystem start exception:
+        79: aload_2
+        80: invokeinterface #238,  3          // InterfaceMethod org/apache/logging/log4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+        85: new           #104                // class org/apache/cloudstack/api/ServerApiException
+        88: dup
+        89: getstatic     #255                // Field org/apache/cloudstack/api/ApiErrorCode.INSUFFICIENT_CAPACITY_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+        92: aload_0
+        93: aload_2
+        94: invokevirtual #247                // Method getStartExceptionMsg:(Ljava/lang/Exception;)Ljava/lang/String;
+        97: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+       100: athrow
+       101: astore_2
+       102: aload_0
+       103: getfield      #232                // Field logger:Lorg/apache/logging/log4j/Logger;
+       106: ldc           #236                // String Shared FileSystem start exception:
+       108: aload_2
+       109: invokeinterface #238,  3          // InterfaceMethod org/apache/logging/log4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Throwable;)V
+       114: new           #104                // class org/apache/cloudstack/api/ServerApiException
+       117: dup
+       118: getstatic     #244                // Field org/apache/cloudstack/api/ApiErrorCode.RESOURCE_UNAVAILABLE_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+       121: aload_2
+       122: invokevirtual #260                // Method com/cloud/exception/ResourceAllocationException.getMessage:()Ljava/lang/String;
+       125: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+       128: athrow
+       129: astore_2
+       130: new           #263                // class com/cloud/utils/exception/CloudRuntimeException
+       133: dup
+       134: aload_2
+       135: invokevirtual #265                // Method com/cloud/exception/OperationTimedoutException.getMessage:()Ljava/lang/String;
+       138: invokedynamic #266,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       143: invokespecial #267                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+       146: athrow
+       147: aload_1
+       148: ifnull        232
+       151: aload_0
+       152: invokevirtual #269                // Method getResponseView:()Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+       155: astore_2
+       156: invokestatic  #159                // Method org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+       159: invokevirtual #165                // Method org/apache/cloudstack/context/CallContext.getCallingAccount:()Lcom/cloud/user/Account;
+       162: astore_3
+       163: aload_0
+       164: getfield      #149                // Field _accountService:Lcom/cloud/user/AccountService;
+       167: aload_3
+       168: invokeinterface #169,  1          // InterfaceMethod com/cloud/user/Account.getId:()J
+       173: invokestatic  #208                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+       176: invokeinterface #273,  2          // InterfaceMethod com/cloud/user/AccountService.isRootAdmin:(Ljava/lang/Long;)Z
+       181: ifeq          188
+       184: getstatic     #277                // Field org/apache/cloudstack/api/ResponseObject$ResponseView.Full:Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+       187: astore_2
+       188: aload_0
+       189: getfield      #283                // Field _responseGenerator:Lorg/apache/cloudstack/api/ResponseGenerator;
+       192: aload_2
+       193: aload_1
+       194: invokeinterface #287,  3          // InterfaceMethod org/apache/cloudstack/api/ResponseGenerator.createSharedFSResponse:(Lorg/apache/cloudstack/api/ResponseObject$ResponseView;Lorg/apache/cloudstack/storage/sharedfs/SharedFS;)Lorg/apache/cloudstack/api/response/SharedFSResponse;
+       199: astore        4
+       201: aload         4
+       203: ldc           #206                // class org/apache/cloudstack/storage/sharedfs/SharedFS
+       205: invokevirtual #293                // Method java/lang/Class.getSimpleName:()Ljava/lang/String;
+       208: invokevirtual #298                // Method java/lang/String.toLowerCase:()Ljava/lang/String;
+       211: invokevirtual #301                // Method org/apache/cloudstack/api/response/SharedFSResponse.setObjectName:(Ljava/lang/String;)V
+       214: aload         4
+       216: aload_0
+       217: invokevirtual #306                // Method getCommandName:()Ljava/lang/String;
+       220: invokevirtual #309                // Method org/apache/cloudstack/api/response/SharedFSResponse.setResponseName:(Ljava/lang/String;)V
+       223: aload_0
+       224: aload         4
+       226: invokevirtual #312                // Method setResponseObject:(Ljava/lang/Object;)V
+       229: goto          246
+       232: new           #104                // class org/apache/cloudstack/api/ServerApiException
+       235: dup
+       236: getstatic     #222                // Field org/apache/cloudstack/api/ApiErrorCode.INTERNAL_ERROR:Lorg/apache/cloudstack/api/ApiErrorCode;
+       239: ldc_w         #316                // String Failed to start Shared FileSystem
+       242: invokespecial #114                // Method org/apache/cloudstack/api/ServerApiException."<init>":(Lorg/apache/cloudstack/api/ApiErrorCode;Ljava/lang/String;)V
+       245: athrow
+       246: return
+      Exception table:
+         from    to  target type
+             0    11    14   Class com/cloud/exception/ResourceUnavailableException
+             0    11    43   Class com/cloud/exception/ConcurrentOperationException
+             0    11    72   Class com/cloud/exception/InsufficientCapacityException
+             0    11   101   Class com/cloud/exception/ResourceAllocationException
+             0    11   129   Class com/cloud/exception/OperationTimedoutException
+      LineNumberTable:
+        line 353: 0
+        line 368: 11
+        line 354: 14
+        line 355: 15
+        line 356: 27
+        line 357: 43
+        line 358: 44
+        line 359: 56
+        line 360: 72
+        line 361: 73
+        line 362: 85
+        line 363: 101
+        line 364: 102
+        line 365: 114
+        line 366: 129
+        line 367: 130
+        line 370: 147
+        line 371: 151
+        line 372: 156
+        line 373: 163
+        line 374: 184
+        line 376: 188
+        line 377: 201
+        line 378: 214
+        line 379: 223
+        line 380: 229
+        line 381: 232
+        line 383: 246
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           11       3     1 sharedFS   Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+           15      28     2    ex   Lcom/cloud/exception/ResourceUnavailableException;
+           44      28     2    ex   Lcom/cloud/exception/ConcurrentOperationException;
+           73      28     2    ex   Lcom/cloud/exception/InsufficientCapacityException;
+          102      27     2    ex   Lcom/cloud/exception/ResourceAllocationException;
+          130      17     2    ex   Lcom/cloud/exception/OperationTimedoutException;
+          156      73     2 respView   Lorg/apache/cloudstack/api/ResponseObject$ResponseView;
+          163      66     3 caller   Lcom/cloud/user/Account;
+          201      28     4 response   Lorg/apache/cloudstack/api/response/SharedFSResponse;
+            0     247     0  this   Lorg/apache/cloudstack/api/command/user/storage/sharedfs/CreateSharedFSCmd;
+          147     100     1 sharedFS   Lorg/apache/cloudstack/storage/sharedfs/SharedFS;
+      StackMapTable: number_of_entries = 9
+        frame_type = 78 /* same_locals_1_stack_item */
+          stack = [ class com/cloud/exception/ResourceUnavailableException ]
+        frame_type = 92 /* same_locals_1_stack_item */
+          stack = [ class com/cloud/exception/ConcurrentOperationException ]
+        frame_type = 92 /* same_locals_1_stack_item */
+          stack = [ class com/cloud/exception/InsufficientCapacityException ]
+        frame_type = 92 /* same_locals_1_stack_item */
+          stack = [ class com/cloud/exception/ResourceAllocationException ]
+        frame_type = 91 /* same_locals_1_stack_item */
+          stack = [ class com/cloud/exception/OperationTimedoutException ]
+        frame_type = 252 /* append */
+          offset_delta = 17
+          locals = [ class org/apache/cloudstack/storage/sharedfs/SharedFS ]
+        frame_type = 253 /* append */
+          offset_delta = 40
+          locals = [ class org/apache/cloudstack/api/ResponseObject$ResponseView, class com/cloud/user/Account ]
+        frame_type = 249 /* chop */
+          offset_delta = 43
+        frame_type = 13 /* same */
+}
+SourceFile: "CreateSharedFSCmd.java"
+RuntimeVisibleAnnotations:
+  0: #441(#39=s#442,#443=c#438,#53=s#444,#445=e#282.#446,#333=[c#427],#447=Z#448,#449=s#450,#451=[e#452.#453,e#452.#454,e#452.#455,e#452.#456])
+    org.apache.cloudstack.api.APICommand(
+      name="createSharedFileSystem"
+      responseObject=class Lorg/apache/cloudstack/api/response/SharedFSResponse;
+      description="Create a new Shared File System of specified size and disk offering, attached to the given network"
+      responseView=Lorg/apache/cloudstack/api/ResponseObject$ResponseView;.Restricted
+      entityType=[class Lorg/apache/cloudstack/storage/sharedfs/SharedFS;]
+      requestHasSensitiveInfo=false
+      since="4.20.0"
+      authorized=[Lorg/apache/cloudstack/acl/RoleType;.Admin,Lorg/apache/cloudstack/acl/RoleType;.ResourceAdmin,Lorg/apache/cloudstack/acl/RoleType;.DomainAdmin,Lorg/apache/cloudstack/acl/RoleType;.User]
+    )
+BootstrapMethods:
+  0: #458 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #464 Creating shared filesystem \u0001
+  1: #458 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #466 Shared FileSystem create failed with exception\u0001
+  2: #458 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #468 Shared FileSystem start failed with exception: \u0001
+  3: #458 REF_invokeStatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #470 Shared FileSystem start timed out due to \u0001
+InnerClasses:
+  public static final #473= #85 of #206;  // NetworkMode=class org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode of class org/apache/cloudstack/storage/sharedfs/SharedFS
+  public static final #476= #133 of #474; // SharedFSProviderType=class org/apache/cloudstack/storage/sharedfs/SharedFSProvider$SharedFSProviderType of class org/apache/cloudstack/storage/sharedfs/SharedFSProvider
+  public static final #479= #278 of #477; // ResponseView=class org/apache/cloudstack/api/ResponseObject$ResponseView of class org/apache/cloudstack/api/ResponseObject
+  public static final #484= #480 of #482; // CommandType=class org/apache/cloudstack/api/BaseCmd$CommandType of class org/apache/cloudstack/api/BaseCmd
+  public static final #489= #485 of #487; // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles
