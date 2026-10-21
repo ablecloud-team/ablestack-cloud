@@ -18,8 +18,22 @@
 -->
 
 <template>
-  <a-spin :spinning="storageService.initialLoading">
-    <p v-if="listRefreshFailed" role="status">{{ $t('message.list.refresh.stale') }}</p>
+  <div>
+    <a-alert
+      v-if="storageReadPending.length || Object.keys(storageReadErrors).length"
+      class="storage-service__alert"
+      :type="Object.keys(storageReadErrors).length ? 'warning' : 'info'"
+      show-icon
+      role="status"
+      :message="storageReadStatus"
+      :description="storageReadDescription">
+      <template #action>
+        <a-button :loading="storageService.refreshing" @click="fetchStorageServiceData">
+          <template #icon><ReloadOutlined /></template>
+          {{ $t('label.refresh') }}
+        </a-button>
+      </template>
+    </a-alert>
     <a-tabs
       :tabPosition="resourceTabPosition"
       class="storage-service-tabs"
@@ -31,7 +45,7 @@
         <div v-if="hasStorageServiceApi" class="storage-service storage-service--overview">
           <h3 class="storage-service__section-title">{{ $t('label.storage.service.overview') }}</h3>
           <a-alert
-            v-if="!storageService.instance && !storageService.loading"
+            v-if="storageService.loaded && !storageService.instance && !storageReadErrors.instance"
             class="storage-service__alert"
             type="warning"
             show-icon
@@ -2228,7 +2242,7 @@ wrapClassName="storage-service-action-modal"
         </div>
       </div>
     </a-modal>
-  </a-spin>
+  </div>
 </template>
 <script>
 import { listRefreshMixin } from '@/utils/listRefreshMixin'
@@ -2473,7 +2487,7 @@ export default {
     ReloadOutlined,
     SafetyCertificateOutlined
   },
-  mixins: [listRefreshMixin(['fetchStorageServiceData'], { interval: 60000, active: vm => vm.hasStorageServiceApi }), mixinDevice],
+  mixins: [listRefreshMixin(['fetchStorageServiceData'], { interval: 60000, active: vm => vm.hasStorageServiceApi, requestScope: vm => vm.storageReadScope }), mixinDevice],
   props: {
     resource: {
       type: Object,
@@ -2522,6 +2536,9 @@ export default {
         backingVolumes: []
       },
       storageRefreshGeneration: 0,
+      storageReadPending: [],
+      storageReadErrors: {},
+      storageReadUpdated: null,
       diskOfferings: [],
       diskOfferingLoading: false,
       actionModal: {
@@ -2748,6 +2765,45 @@ export default {
     }
   },
   computed: {
+    storageReadScope () {
+      return JSON.stringify([this.resource.id, this.resource.virtualmachineid, this.resource.zoneid,
+        this.$store.getters.project?.id, this.$store.getters.userInfo?.id])
+    },
+    storageReadStatus () {
+      return this.$t(Object.keys(this.storageReadErrors).length
+        ? 'message.storage.service.read.partial' : 'message.storage.service.read.loading')
+    },
+    storageReadDescription () {
+      const labels = {
+        instance: 'label.storage.service.overview',
+        health: 'label.storage.service.status.summary',
+        protocols: 'label.protocol',
+        domains: 'label.storage.service.ad.domain',
+        nfsExports: 'label.storage.service.nfs.export',
+        smbShares: 'label.storage.service.smb.share',
+        iscsiTargets: 'label.storage.service.iscsi.target',
+        nvme: 'NVMe-oF',
+        nfsAcls: 'label.storage.service.nfs.acl',
+        smbAcls: 'label.storage.service.smb.acl',
+        iscsiAcls: 'label.storage.service.iscsi.acl',
+        backingVolumes: 'label.volumes',
+        vm: 'label.virtualmachine',
+        volume: 'label.volume'
+      }
+      const reasons = {
+        timeout: 'message.storage.service.read.timeout',
+        forbidden: 'message.storage.service.read.forbidden',
+        failed: 'message.storage.service.read.failed',
+        network: 'message.storage.service.read.network'
+      }
+      const errors = Object.entries(this.storageReadErrors).map(([section, kind]) =>
+        (section === 'nvme' ? 'NVMe-oF' : this.$t(labels[section])) + ': ' +
+        this.$t(reasons[kind]))
+      if (this.storageReadUpdated && errors.length) {
+        errors.push(this.$t('message.storage.service.read.last.success', { time: new Date(this.storageReadUpdated).toLocaleString() }))
+      }
+      return errors.join(' / ')
+    },
     hasStorageServiceApi () {
       return 'listStorageServiceInstances' in this.$store.getters.apis
     },
@@ -4462,15 +4518,22 @@ export default {
     }
   },
   created () {
-    const self = this
     this.dataResource = this.resource
     this.initStorageDefaults()
     this.fetchData()
-    window.addEventListener('popstate', function () {
-      self.setCurrentTab()
-    })
+    this.storagePopstate = () => this.setCurrentTab()
+    window.addEventListener('popstate', this.storagePopstate)
+  },
+  beforeUnmount () {
+    this.cancelStorageRead()
+    if (this._vmRead) this._vmRead.abort()
+    if (this._volumeRead) this._volumeRead.abort()
+    window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+    storageReadScope () {
+      this.fetchStorageServiceData()
+    },
     resource: {
       deep: true,
       handler (newData, oldData) {
@@ -4682,39 +4745,46 @@ export default {
       }
       this.$router.replace({ path: this.$route.path, query }).catch(() => {})
     },
-    fetchInstances () {
-      if (!this.resource.virtualmachineid) {
-        return
-      }
+    async fetchInstances () {
+      if (!this.resource.virtualmachineid) return
+      if (this._vmRead) this._vmRead.abort()
+      const controller = new AbortController()
+      this._vmRead = controller
+      const scope = this.storageReadScope
       this.instanceLoading = true
-      var params = {
-        id: this.resource.virtualmachineid,
-        listall: true
-      }
-      if (this.$store.getters.listAllProjects) {
-        params.projectid = '-1'
-      }
-      getAPI('listVirtualMachines', params).then(json => {
+      const params = { id: this.resource.virtualmachineid, listall: true }
+      if (this.$store.getters.listAllProjects) params.projectid = '-1'
+      try {
+        const json = await getAPI('listVirtualMachines', params, { timeout: 30000, preserveOnFailure: true, signal: controller.signal })
+        if (this.listRefreshDisposed || controller.signal.aborted || scope !== this.storageReadScope) return
         this.virtualmachines = json.listvirtualmachinesresponse.virtualmachine || []
         this.vm = this.virtualmachines[0] || {}
-      })
-      this.instanceLoading = false
+        delete this.storageReadErrors.vm
+      } catch (error) {
+        if (!controller.signal.aborted && scope === this.storageReadScope) this.storageReadErrors.vm = this.storageReadErrorKind(error)
+      } finally {
+        if (this._vmRead === controller) this.instanceLoading = false
+      }
     },
-    fetchVolumes () {
-      if (!this.resource.volumeid) {
-        return
-      }
+    async fetchVolumes () {
+      if (!this.resource.volumeid) return
+      if (this._volumeRead) this._volumeRead.abort()
+      const controller = new AbortController()
+      this._volumeRead = controller
+      const scope = this.storageReadScope
       this.volumeLoading = true
-      var params = {
-        id: this.resource.volumeid,
-        listsystemvms: 'true',
-        listall: true
-      }
-      getAPI('listVolumes', params).then(json => {
+      try {
+        const json = await getAPI('listVolumes', { id: this.resource.volumeid, listsystemvms: 'true', listall: true },
+          { timeout: 30000, preserveOnFailure: true, signal: controller.signal })
+        if (this.listRefreshDisposed || controller.signal.aborted || scope !== this.storageReadScope) return
         this.volumes = json.listvolumesresponse.volume || []
         this.volume = this.volumes[0] || {}
-      })
-      this.volumeLoading = false
+        delete this.storageReadErrors.volume
+      } catch (error) {
+        if (!controller.signal.aborted && scope === this.storageReadScope) this.storageReadErrors.volume = this.storageReadErrorKind(error)
+      } finally {
+        if (this._volumeRead === controller) this.volumeLoading = false
+      }
     },
     fetchData () {
       this.fetchInstances()
@@ -4807,96 +4877,143 @@ export default {
       }
       return ports[protocol] || null
     },
+    storageReadErrorKind (error) {
+      if (error?.code === 'ECONNABORTED' || error?.code === 'ETIMEDOUT') return 'timeout'
+      if (error?.response?.status === 403 || error?.response?.status === 401) return 'forbidden'
+      return error?.response ? 'failed' : 'network'
+    },
+    cancelStorageRead () {
+      const owner = this._storageRead
+      if (!owner) return
+      this._storageRead = null
+      owner.request.pending = false
+      owner.request.failed = true
+      owner.controller.abort()
+      clearTimeout(owner.timer)
+      this.storageService.loading = false
+      this.storageService.initialLoading = false
+      this.storageService.refreshing = false
+      this.storageReadPending = []
+    },
     async fetchStorageServiceData () {
-      if (!this.hasStorageServiceApi || this.storageService.loading) {
-        return
-      }
+      if (!this.hasStorageServiceApi) return
+      this.cancelStorageRead()
       const request = this.listRequestToken('fetchStorageServiceData')
-      const initialLoad = !this.storageService.loaded
+      const scope = this.storageReadScope
+      if (this._storageDataScope !== scope) {
+        this.clearStorageServiceRuntime()
+        this.storageService.instance = null
+        this.storageService.loaded = false
+        this.storageReadErrors = {}
+        this.storageReadUpdated = null
+        this._storageDataScope = scope
+      }
+      const owner = { request, controller: new AbortController(), timer: null }
+      this._storageRead = owner
+      const generation = ++this.storageRefreshGeneration
+      const current = () => this._storageRead === owner &&
+        generation === this.storageRefreshGeneration &&
+        this.isListRequestCurrent('fetchStorageServiceData', request)
+      const options = { timeout: 30000, preserveOnFailure: true, signal: owner.controller.signal }
       this.storageService.loading = true
-      this.storageService.initialLoading = initialLoad
-      this.storageService.refreshing = !initialLoad
-      const refreshGeneration = ++this.storageRefreshGeneration
-      try {
-        const params = {
-          zoneid: this.resource.zoneid,
-          listall: true
-        }
-        const instances = await this.listApi('listStorageServiceInstances', params, 'storageserviceinstance')
-        if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
-        const instance = instances.find(item => item.virtualmachineid === this.resource.virtualmachineid) || null
-        if (!instance) {
-          Object.assign(this.storageService, {
-            instance: null,
-            health: [],
-            inventory: [],
-            protocols: [],
-            sessions: [],
-            domains: [],
-            nfsExports: [],
-            smbShares: [],
-            iscsiTargets: [],
-            nvmeSubsystems: [],
-            nvmeNamespaces: [],
-            nfsAcls: [],
-            smbAcls: [],
-            iscsiAcls: [],
-            nvmeHostAcls: [],
-            backingVolumes: [],
-            loaded: true
-          })
-          return
-        }
-        const results = await Promise.all([
-          this.listApi('listStorageServiceHealth', { instanceid: instance.id }, 'storageserviceruntime'),
-          this.listApi('listStorageServiceProtocols', { instanceid: instance.id }, 'storageserviceprotocol'),
-          this.listApi('listStorageServiceDomainStatus', { instanceid: instance.id }, 'storageidentitydomain'),
-          this.listApi('listStorageNfsExports', { instanceid: instance.id }, 'storagenfsexport'),
-          this.listApi('listStorageSmbShares', { instanceid: instance.id }, 'storagesmbshare'),
-          this.listApi('listStorageIscsiTargets', { instanceid: instance.id }, 'storageiscsitarget'),
-          this.fetchNvmeStorageSnapshot(instance.id)
-        ])
-        if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
-          return
-        }
-        const [health, protocols, domains, nfsExports, smbShares, iscsiTargets, nvmeSnapshot] = results
-        const accessRules = await this.loadAccessRules(instance.id, nfsExports, smbShares, iscsiTargets, nvmeSnapshot.nvmeSubsystems, nvmeSnapshot.nvmeHostAcls)
-        const backingVolumes = await this.loadBackingVolumes({
-          instance,
-          nfsExports,
-          smbShares,
-          iscsiTargets,
-          nvmeNamespaces: nvmeSnapshot.nvmeNamespaces
-        })
-        if (refreshGeneration !== this.storageRefreshGeneration || !this.isListRequestCurrent('fetchStorageServiceData', request)) {
-          return
-        }
-        Object.assign(this.storageService, {
-          instance,
-          health,
-          protocols,
-          domains,
-          nfsExports,
-          smbShares,
-          iscsiTargets,
-          inventory: nvmeSnapshot.inventory,
-          sessions: nvmeSnapshot.sessions,
-          nvmeSubsystems: nvmeSnapshot.nvmeSubsystems,
-          nvmeNamespaces: nvmeSnapshot.nvmeNamespaces,
-          ...accessRules,
-          backingVolumes,
-          loaded: true
-        })
-      } catch (error) {
-        if (!this.isListRequestCurrent('fetchStorageServiceData', request)) return
+      this.storageService.initialLoading = !this.storageService.loaded
+      this.storageService.refreshing = this.storageService.loaded
+      this.storageReadPending = ['instance']
+      // One deadline covers the complete read, including dependent ACL/volume reads.
+      owner.timer = setTimeout(() => {
+        if (!current()) return
+        this.storageReadPending.forEach(section => { this.storageReadErrors[section] = 'timeout' })
         request.failed = true
         this.listRefreshFailed = true
-        if (initialLoad) this.$notifyError(error)
+        this.cancelStorageRead()
+      }, 30000)
+      const section = async (key, load, apply) => {
+        if (!current()) return
+        this.storageReadPending = [...this.storageReadPending, key]
+        try {
+          const value = await load()
+          if (!current()) return
+          apply(value)
+          delete this.storageReadErrors[key]
+        } catch (error) {
+          if (!current()) return
+          this.storageReadErrors[key] = this.storageReadErrorKind(error)
+          request.failed = true
+          this.listRefreshFailed = true
+        } finally {
+          if (current()) this.storageReadPending = this.storageReadPending.filter(item => item !== key)
+        }
+      }
+      try {
+        const vmId = this.resource.virtualmachineid
+        const instances = await this.listApi('listStorageServiceInstances',
+          { zoneid: this.resource.zoneid, listall: true }, 'storageserviceinstance', options)
+        if (!current()) return
+        const instance = instances.find(item => item.virtualmachineid === vmId) || null
+        this.storageService.instance = instance
+        delete this.storageReadErrors.instance
+        this.storageReadPending = []
+        if (!instance) {
+          this.clearStorageServiceRuntime()
+          this.storageService.loaded = true
+          this.storageReadUpdated = Date.now()
+          return
+        }
+        const collections = [
+          ['protocols', 'listStorageServiceProtocols', 'storageserviceprotocol'],
+          ['health', 'listStorageServiceHealth', 'storageserviceruntime'],
+          ['nfsExports', 'listStorageNfsExports', 'storagenfsexport'],
+          ['smbShares', 'listStorageSmbShares', 'storagesmbshare'],
+          ['iscsiTargets', 'listStorageIscsiTargets', 'storageiscsitarget'],
+          ['domains', 'listStorageServiceDomainStatus', 'storageidentitydomain']
+        ]
+        const tasks = Object.fromEntries(collections.map(([key, api, objectName]) => [key, section(key,
+          () => this.listApi(api, { instanceid: instance.id }, objectName, options),
+          value => { this.storageService[key] = value })]))
+        const aclTasks = [
+          ['nfsExports', 'nfsAcls', 'NFS'],
+          ['smbShares', 'smbAcls', 'SMB'],
+          ['iscsiTargets', 'iscsiAcls', 'ISCSI']
+        ].map(async ([collection, key, protocol]) => {
+          await tasks[collection]
+          if (!current() || this.storageReadErrors[collection]) return
+          return section(key, () => this.loadAccessRules(instance.id,
+            this.storageService.nfsExports, this.storageService.smbShares,
+            this.storageService.iscsiTargets, [], [],
+            { ...options, aclProtocols: [protocol] }),
+          rules => { this.storageService[key] = rules[key] })
+        })
+        await Promise.all([
+          ...Object.values(tasks), ...aclTasks,
+          section('nvme', () => this.fetchNvmeStorageSnapshot(instance.id, options), snapshot => {
+            this.applyNvmeStorageSnapshot(snapshot, generation)
+          }),
+          section('backingVolumes', () => this.loadBackingVolumes({
+            instance,
+            nfsExports: this.storageService.nfsExports,
+            smbShares: this.storageService.smbShares,
+            iscsiTargets: this.storageService.iscsiTargets,
+            nvmeNamespaces: this.storageService.nvmeNamespaces,
+            readOptions: options
+          }), value => { this.storageService.backingVolumes = value })
+        ])
+        if (!current()) return
+        this.storageService.loaded = true
+        if (!Object.keys(this.storageReadErrors).length) this.storageReadUpdated = Date.now()
+      } catch (error) {
+        if (!current()) return
+        this.storageReadErrors.instance = this.storageReadErrorKind(error)
+        request.failed = true
+        this.listRefreshFailed = true
       } finally {
-        if (this.isListRequestCurrent('fetchStorageServiceData', request)) {
+        clearTimeout(owner.timer)
+        // A stale result cannot commit data, but its owner must always settle.
+        if (this._storageRead === owner) {
+          this._storageRead = null
           this.storageService.loading = false
           this.storageService.initialLoading = false
           this.storageService.refreshing = false
+          this.storageReadPending = []
         }
       }
     },
@@ -4923,14 +5040,14 @@ export default {
     async fetchCollection (api, key, objectName) {
       this.storageService[key] = await this.listApi(api, { instanceid: this.storageService.instance.id }, objectName)
     },
-    async fetchNvmeStorageSnapshot (instanceId) {
+    async fetchNvmeStorageSnapshot (instanceId, readOptions = {}) {
       const [inventory, sessions, nvmeSubsystems, nvmeNamespaces] = await Promise.all([
-        this.listApi('listStorageServiceInventory', { instanceid: instanceId }, 'storageserviceruntime'),
-        this.listApi('listStorageServiceSessions', { instanceid: instanceId }, 'storageserviceruntime'),
-        this.listApi('listStorageNvmeOfSubsystems', { instanceid: instanceId }, 'storagenvmeofsubsystem'),
-        this.listApi('listStorageNvmeOfNamespaces', { instanceid: instanceId }, 'storagenvmeofnamespace')
+        this.listApi('listStorageServiceInventory', { instanceid: instanceId }, 'storageserviceruntime', readOptions),
+        this.listApi('listStorageServiceSessions', { instanceid: instanceId }, 'storageserviceruntime', readOptions),
+        this.listApi('listStorageNvmeOfSubsystems', { instanceid: instanceId }, 'storagenvmeofsubsystem', readOptions),
+        this.listApi('listStorageNvmeOfNamespaces', { instanceid: instanceId }, 'storagenvmeofnamespace', readOptions)
       ])
-      const nvmeHostAclLists = await Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule')))
+      const nvmeHostAclLists = await Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule', readOptions)))
       return {
         inventory,
         sessions,
@@ -4960,13 +5077,14 @@ export default {
         prefetchedNvmeHostAcls)
       Object.assign(this.storageService, rules)
     },
-    async loadAccessRules (instanceId, nfsExports, smbShares, iscsiTargets, nvmeSubsystems, prefetchedNvmeHostAcls = null) {
+    async loadAccessRules (instanceId, nfsExports, smbShares, iscsiTargets, nvmeSubsystems, prefetchedNvmeHostAcls = null, readOptions = {}) {
+      const enabled = protocol => !readOptions.aclProtocols || readOptions.aclProtocols.includes(protocol)
       const [nfsAcls, smbAcls, iscsiAcls, nvmeHostAcls] = await Promise.all([
-        this.listApi('listStorageNfsAcls', { instanceid: instanceId }, 'storageaccessrule'),
-        Promise.all(smbShares.map(share => this.listApi('listStorageSmbAcls', { shareid: share.id }, 'storageaccessrule'))),
-        Promise.all(iscsiTargets.map(target => this.listApi('listStorageIscsiAcls', { targetid: target.id }, 'storageaccessrule'))),
+        enabled('NFS') ? this.listApi('listStorageNfsAcls', { instanceid: instanceId }, 'storageaccessrule', readOptions) : [],
+        Promise.all((enabled('SMB') ? smbShares : []).map(share => this.listApi('listStorageSmbAcls', { shareid: share.id }, 'storageaccessrule', readOptions))),
+        Promise.all((enabled('ISCSI') ? iscsiTargets : []).map(target => this.listApi('listStorageIscsiAcls', { targetid: target.id }, 'storageaccessrule', readOptions))),
         prefetchedNvmeHostAcls === null
-          ? Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule'))).then(items => items.flat())
+          ? Promise.all(nvmeSubsystems.map(target => this.listApi('listStorageNvmeOfHostAcls', { subsystemid: target.id }, 'storageaccessrule', readOptions))).then(items => items.flat())
           : Promise.resolve(prefetchedNvmeHostAcls)
       ])
       const iscsiAclMap = new Map()
@@ -5010,7 +5128,7 @@ export default {
         nvmeNamespaces: this.storageService.nvmeNamespaces
       })
     },
-    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces }) {
+    async loadBackingVolumes ({ instance, nfsExports, smbShares, iscsiTargets, nvmeNamespaces, readOptions = {} }) {
       if (!('listVolumes' in this.$store.getters.apis)) {
         return []
       }
@@ -5045,14 +5163,14 @@ export default {
         id,
         listall: true,
         listsystemvms: true
-      }, 'volume'))
+      }, 'volume', readOptions))
       const vmId = this.resource.virtualmachineid || this.vm.id || instance?.virtualmachineid
       if (vmId) {
         volumeRequests.push(this.listApi('listVolumes', {
           virtualmachineid: vmId,
           listall: true,
           listsystemvms: true
-        }, 'volume'))
+        }, 'volume', readOptions))
       }
       const volumeLists = await Promise.all(volumeRequests)
       const seen = new Set()
@@ -5064,13 +5182,13 @@ export default {
         return true
       })
     },
-    async listApi (api, params, objectName) {
+    async listApi (api, params, objectName, readOptions = {}) {
       const apiMap = this.$store.getters.apis || {}
       const storageReadApi = api.startsWith('listStorage') || api === 'listVolumes'
       if (!(api in apiMap) && !storageReadApi) {
         return []
       }
-      const json = await getAPI(api, params)
+      const json = await getAPI(api, params, readOptions)
       const response = json[api.toLowerCase() + 'response'] || {}
       const items = response[objectName] || Object.values(response).find(value => Array.isArray(value)) || []
       return Array.isArray(items) ? items : [items]
@@ -5281,6 +5399,8 @@ export default {
       this.protocolWideLayout = !!actionWideLayout
       this.preserveCurrentProtocolRoute()
       this.emitWideLayout()
+      this.cancelStorageRead()
+      this.storageRefreshGeneration += 1
       this.storageService.refreshing = true
       try {
         const nvmeActions = ['nvmePrepare', 'nvmeSubsystem', 'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']

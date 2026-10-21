@@ -10183,5 +10183,12 @@
   "label.bucket.quota.context": "Quota capacity check",
   "label.bytes": "bytes",
   "label.bucket.protection.supported": "Support",
-  "label.bucket.protection.reference": "Protection guidance"
+  "label.bucket.protection.reference": "Protection guidance",
+  "message.storage.service.read.timeout": "The read exceeded 30 seconds.",
+  "message.storage.service.read.partial": "Some service information could not be refreshed. Previously loaded information is retained.",
+  "message.storage.service.read.forbidden": "You do not have permission to read this information.",
+  "message.storage.service.read.network": "The server could not be reached.",
+  "message.storage.service.read.loading": "Loading service information. Other tabs remain available.",
+  "message.storage.service.read.last.success": "Last complete update: {time}",
+  "message.storage.service.read.failed": "The service information could not be read."
 }
