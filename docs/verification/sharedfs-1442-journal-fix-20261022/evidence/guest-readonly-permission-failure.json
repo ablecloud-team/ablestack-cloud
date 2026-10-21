@@ -1,0 +1,28 @@
+{
+  "domain": "i-2-109-VM",
+  "uuid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+  "disks": [
+    {
+      "type": "disk",
+      "source": {
+        "file": "/mnt/glue-gfs/ae63d90a-7996-4f8d-80e0-b9b92b852f99",
+        "index": "3"
+      },
+      "serial": "ae63d90a79964f8d80e0"
+    },
+    {
+      "type": "disk",
+      "source": {
+        "file": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+        "index": "4"
+      },
+      "serial": "124a8aa718d647cbbc7a"
+    }
+  ],
+  "readOnlyDiagnostic": true,
+  "guest": {
+    "out-data": "65534:65534 775 /srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\n1234:2345 640 /srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs/preserve.txt\n3b0777f7260fc9201959b3317c620d98bc146e47801292928d2211749838d76b  /srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs/preserve.txt\nc48dea1de2a4637292a26185af18a0bcd8aa6a1105a41269e92df371c107ca27  /usr/local/bin/ablestack-storagectl\n/dev/sdb /srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6 xfs f6b2849b-3c7c-4bf2-9789-0df8a519028b\n",
+    "err-data": ""
+  },
+  "exitcode": 0
+}
