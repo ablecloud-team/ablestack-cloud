@@ -2336,6 +2336,7 @@ export default {
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
           importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : 'FORMAT_IF_EMPTY',
+          initialcreationrequestid: snapshot.useexistingvolume ? sharedfs.creationrequestid : undefined,
           createdirectory: true,
           quotabytes: this.toCapacityBytes(snapshot.nfsquotaamount, snapshot.nfsquotaunit),
           protocolmode: snapshot.nfsprotocolmode || 'V4_ONLY',
