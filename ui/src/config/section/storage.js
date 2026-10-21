@@ -765,6 +765,22 @@ export default {
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateSharedFS.vue')))
         },
         {
+          api: 'resumeSharedFileSystemCreation',
+          icon: 'close-circle-outlined',
+          label: 'label.sharedfs.initial.cancel',
+          message: 'message.sharedfs.initial.corrupt',
+          dataView: true,
+          popup: true,
+          args: [],
+          mapping: {
+            id: { value: record => record.id },
+            requestid: { value: record => record.creationrequestid },
+            action: { value: () => 'CANCEL_PREPARATION' }
+          },
+          show: record => record.creationstage === 'CORRUPT' && !!record.creationrequestid &&
+            !record.virtualmachineid && ['Allocated', 'Error'].includes(record.state)
+        },
+        {
           api: 'updateSharedFileSystem',
           icon: 'edit-outlined',
           docHelp: 'adminguide/storage.html#lifecycle-operations',
