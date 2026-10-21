@@ -1,0 +1,40 @@
+{
+  "source": "ui/src/views/storage/CreateSharedFS.vue",
+  "cases": [
+    {
+      "case": "all_pending_default_poll",
+      "requests": 120,
+      "nominalWaitMs": 240000,
+      "result": "message.storage.service.setup.job.timeout"
+    },
+    {
+      "case": "guest_timeout_job_failure",
+      "result": "subprocess.TimeoutExpired: Command mkfs.xfs timed out after 20 seconds",
+      "structuredPhase": false
+    },
+    {
+      "case": "hypothetical_new_preparing_current_ui_continues",
+      "input": {
+        "id": "fixture",
+        "state": "Allocated",
+        "creationstage": "VOLUME_PREPARING",
+        "observedfilesystem": "ext4"
+      },
+      "configureCalls": 1,
+      "pendingCleared": true,
+      "productionApiCalled": false
+    },
+    {
+      "case": "existing_inspected_does_not_configure",
+      "input": {
+        "id": "fixture",
+        "state": "Allocated",
+        "creationstage": "INSPECTED",
+        "observedfilesystem": "ext4"
+      },
+      "configureCalls": 0,
+      "pendingCleared": false,
+      "productionApiCalled": false
+    }
+  ]
+}

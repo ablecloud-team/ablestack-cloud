@@ -1,0 +1,19 @@
+{
+  "before": {
+    "bodyClient": 533,
+    "bodyOverflow": "auto",
+    "bodyScroll": 559,
+    "footerBottom": 708,
+    "footerTop": 643,
+    "headerTop": 54,
+    "primaryBackground": "rgb(9, 105, 218)"
+  },
+  "after": {
+    "bodyScrollTop": 0,
+    "footerTop": 643,
+    "headerTop": 54
+  },
+  "vue": "3.2.37",
+  "antd": "3.2.20",
+  "actualComponent": "ui/src/components/view/MoldDialog.vue"
+}
