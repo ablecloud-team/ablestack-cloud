@@ -1,0 +1,38 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runTestsByPath tests/unit/views/storage/SharedFSOffering.spec.js tests/unit/views/storage/CreateSharedFS.spec.js tests/unit/views/storage/SharedFSLocale.spec.js --runInBand
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/storage/SharedFSOffering.spec.js (6.457s)
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "AFormItem" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "AInputNumber" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "ARow" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "ACol" has already been registered in target app.
+
+PASS tests/unit/views/storage/CreateSharedFS.spec.js
+PASS tests/unit/views/storage/SharedFSLocale.spec.js
+
+=============================== Coverage summary ===============================
+Statements   : 1.16% ( 899/77515 )
+Branches     : 0.2% ( 138/68604 )
+Functions    : 0.17% ( 34/20297 )
+Lines        : 1.27% ( 880/69073 )
+================================================================================
+
+Test Suites: 3 passed, 3 total
+Tests:       26 passed, 26 total
+Snapshots:   0 total
+Time:        110.669s
+Ran all test suites within paths "tests/unit/views/storage/SharedFSOffering.spec.js", "tests/unit/views/storage/CreateSharedFS.spec.js", "tests/unit/views/storage/SharedFSLocale.spec.js".

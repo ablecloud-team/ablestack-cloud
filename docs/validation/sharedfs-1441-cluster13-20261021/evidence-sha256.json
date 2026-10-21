@@ -6,7 +6,6 @@
   "06-fixed-vm-actual-resources.jpg": "737ca96496939cdeccf540075e785db28397aeb8952ad0841059fe22500b41e9",
   "management-install-stdout.json": "7762e9d35dc306b9df0ab94a5198e747d4d5d6469f1404fd9c402edf7ca228ea",
   "15-range-vm-actual-resources.jpg": "c996f8a6d3c24b81e34d294cd9d7f01e739f4554e9d0d1302ad190b5d2b2d786",
-  "ui-tests-final.log": "5f81fa30de149960df425c1bdd118b6cb032f22f45d483e59ac3781b1ca8625a",
   "11-free-vm-actual-resources.jpg": "a6238b43424205ef11dd48c5e82e659138e930dec94d225e04b996d6269bca8b",
   "test-offerings-created-ui.json": "028ee09772493d2d10fb291a7686de5dce62818dc68a980ebb49b6f4a5ec0430",
   "04-live-offerings-and-reasons.jpg": "372d6b4d949f41fa192ab2485278d94ab80ab19790cacdac80239216ac4288bb",
@@ -28,6 +27,7 @@
   "17-range-confirmed-resources.jpg": "63e491491c2424722d3d8cec1272dae3fabf852edeb82cd9b2151193208159f9",
   "10-free-initial-complete.jpg": "287c121fceae454852e8dc6c8fc52f9873d8b3df5f434e108e4f34a984d7f8fd",
   "14-range-create-review.jpg": "0c6c6597b0531887c62550271d9e5a0be130106439b427932560d2f14f8c5e3e",
+  "ui-tests-final.txt": "5f81fa30de149960df425c1bdd118b6cb032f22f45d483e59ac3781b1ca8625a",
   "management-after-runtime.json": "6d26b699bb0652f676ae17d7fe50585302750bc1b5d44e065779e28da924fda7",
   "thin-option-guard.json": "b1dc0abeaf4c983db3a59411d5901852a74b377b79a839e10a93ff6397df87e6"
 }
