@@ -1,0 +1,8 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+The following files have been auto-fixed:
+
+  tests/unit/views/storage/SharedFSBacking.spec.js
+
+ DONE  All lint errors auto-fixed.
