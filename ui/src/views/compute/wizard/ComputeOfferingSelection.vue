@@ -55,6 +55,7 @@
       </template>
       <template #displayText="{ record }">
         <span>{{ record.name }}</span>
+        <AllocationSummary :resource="record.allocationResource" compact inheritance />
         <span
             v-if="record.leaseduration !== undefined"
             :style="{
@@ -98,7 +99,9 @@
 </template>
 
 <script>
+import AllocationSummary from '@/components/view/AllocationSummary'
 export default {
+  components: { AllocationSummary },
   name: 'ComputeOfferingSelection',
   props: {
     computeItems: {
@@ -285,6 +288,7 @@ export default {
         }
 
         return {
+          allocationResource: item,
           key: item.id,
           name: item.name,
           cpu: cpuNumberValue.length > 0 ? `${cpuNumberValue} CPU x ${cpuSpeedValue} Ghz` : '',

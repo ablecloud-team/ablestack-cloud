@@ -1,0 +1,1112 @@
+{
+  "epic": 1422,
+  "issue": 1428,
+  "pr": 1435,
+  "sourceCommit": "4fa57a8429472c517f9071767f760166fa278e6a",
+  "initialUiSource": "7bd56a4b18596ffde68ae7f28e0d7564f417a7d2",
+  "changedModules": [
+    "ui"
+  ],
+  "mavenModulesChanged": [],
+  "fullCloudBuildRun": false,
+  "actionsDispatched": false,
+  "unit": {
+    "suites": 8,
+    "tests": 102,
+    "passed": 102
+  },
+  "lint": "PASS",
+  "productionBuild": "PASS",
+  "buildWarnings": [
+    "Webpack asset size",
+    "Webpack entrypoint size",
+    "Browserslist data outdated"
+  ],
+  "apiStorageMatrix": {
+    "31": [
+      {
+        "name": "VOL1428-31-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+        "deleteprotection": true
+      },
+      {
+        "name": "Admin-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = 0ca8da49-a599-404b-916f-b3202c612d71, name = VOL1428-31-20261020-admin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "Admin-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 0ca8da49-a599-404b-916f-b3202c612d71, name = VOL1428-31-20261020-admin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-31-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+        "deleteprotection": true
+      },
+      {
+        "name": "DomainAdmin-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = b6fb5835-ad0e-4424-87b8-c3488f6876f0, name = VOL1428-31-20261020-domainadmin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "DomainAdmin-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = b6fb5835-ad0e-4424-87b8-c3488f6876f0, name = VOL1428-31-20261020-domainadmin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-31-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+        "deleteprotection": true
+      },
+      {
+        "name": "User-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = 184feb3b-e891-45f8-95ee-8b8b2a206d22, name = VOL1428-31-20261020-user-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "User-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 184feb3b-e891-45f8-95ee-8b8b2a206d22, name = VOL1428-31-20261020-user-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-31-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "af228750-6546-49cb-af59-05956469013c",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-31-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "af228750-6546-49cb-af59-05956469013c",
+        "deleteprotection": true
+      },
+      {
+        "name": "Project-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = af228750-6546-49cb-af59-05956469013c, name = VOL1428-31-20261020-project-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "Project-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = af228750-6546-49cb-af59-05956469013c, name = VOL1428-31-20261020-project-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-31-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "af228750-6546-49cb-af59-05956469013c",
+        "deleteprotection": false
+      },
+      {
+        "name": "User-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "DomainAdmin-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "Project-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "foreign-user-volume-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "foreign-project-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "user-admin-volume-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-31-20261020-user-domain-edited",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+        "deleteprotection": false
+      },
+      {
+        "name": "admin-blank-path-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume path must not be empty or blank\"}",
+        "unchanged": true
+      },
+      {
+        "name": "dedicated-path-target-prepared",
+        "pass": true,
+        "imageFormat": "qcow2",
+        "logicalBytes": 1073741824,
+        "patternAndCopyCompared": true
+      },
+      {
+        "name": "user-account-expunge-disabled",
+        "pass": true,
+        "unchanged": true,
+        "onlyDedicatedAccountOverride": true
+      },
+      {
+        "name": "project-account-expunge-disabled",
+        "pass": true,
+        "unchanged": true,
+        "onlyDedicatedAccountOverride": true
+      }
+    ],
+    "32": [
+      {
+        "name": "VOL1428-32-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+        "deleteprotection": true
+      },
+      {
+        "name": "Admin-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = 7941b37f-5338-46c8-aa7f-78713d1a00b4, name = VOL1428-32-20261020-admin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "Admin-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 7941b37f-5338-46c8-aa7f-78713d1a00b4, name = VOL1428-32-20261020-admin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-32-20261020-admin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+        "deleteprotection": true
+      },
+      {
+        "name": "DomainAdmin-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = 2c3a5358-20de-48c1-81c3-6641233636dd, name = VOL1428-32-20261020-domainadmin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "DomainAdmin-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 2c3a5358-20de-48c1-81c3-6641233636dd, name = VOL1428-32-20261020-domainadmin-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-32-20261020-domainadmin-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+        "deleteprotection": true
+      },
+      {
+        "name": "User-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = d47e9dc7-b0c6-410a-9369-33baca86ea76, name = VOL1428-32-20261020-user-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "User-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = d47e9dc7-b0c6-410a-9369-33baca86ea76, name = VOL1428-32-20261020-user-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-32-20261020-user-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "5712d915-91dd-4304-936b-b8862d167636",
+        "deleteprotection": false
+      },
+      {
+        "name": "VOL1428-32-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "5712d915-91dd-4304-936b-b8862d167636",
+        "deleteprotection": true
+      },
+      {
+        "name": "Project-protected-delete-rejected",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Volume [id = 5712d915-91dd-4304-936b-b8862d167636, name = VOL1428-32-20261020-project-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "Project-protected-destroy-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 5712d915-91dd-4304-936b-b8862d167636, name = VOL1428-32-20261020-project-api] has delete protection enabled and cannot be deleted.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-32-20261020-project-api",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "5712d915-91dd-4304-936b-b8862d167636",
+        "deleteprotection": false
+      },
+      {
+        "name": "User-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "DomainAdmin-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "Project-unauthorized-path-unchanged",
+        "pass": true,
+        "unchanged": true
+      },
+      {
+        "name": "foreign-user-volume-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "foreign-project-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "user-admin-volume-denied",
+        "pass": true,
+        "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+        "unchanged": true
+      },
+      {
+        "name": "VOL1428-32-20261020-user-domain-edited",
+        "pass": true,
+        "identityPreserved": true,
+        "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+        "deleteprotection": false
+      },
+      {
+        "name": "admin-blank-path-rejected",
+        "pass": true,
+        "reason": "{\"errorcode\": 431, \"errortext\": \"Volume path must not be empty or blank\"}",
+        "unchanged": true
+      },
+      {
+        "name": "dedicated-path-target-prepared",
+        "pass": true,
+        "imageFormat": "raw",
+        "logicalBytes": 1073741824,
+        "patternAndCopyCompared": true
+      },
+      {
+        "name": "user-account-expunge-disabled",
+        "pass": true,
+        "unchanged": true,
+        "onlyDedicatedAccountOverride": true
+      },
+      {
+        "name": "project-account-expunge-disabled",
+        "pass": true,
+        "unchanged": true,
+        "onlyDedicatedAccountOverride": true
+      }
+    ]
+  },
+  "uiQualification": [
+    {
+      "name": "31-admin-on-payload",
+      "pass": true
+    },
+    {
+      "name": "31-admin-off-payload",
+      "pass": true
+    },
+    {
+      "name": "31-admin-controls",
+      "pass": true
+    },
+    {
+      "name": "31-user-on-payload",
+      "pass": true
+    },
+    {
+      "name": "31-user-off-payload",
+      "pass": true
+    },
+    {
+      "name": "31-user-controls",
+      "pass": true
+    },
+    {
+      "name": "31-project-on-payload",
+      "pass": true
+    },
+    {
+      "name": "31-project-off-payload",
+      "pass": true
+    },
+    {
+      "name": "31-project-controls",
+      "pass": true
+    },
+    {
+      "name": "31-domainadmin-on-payload",
+      "pass": true
+    },
+    {
+      "name": "31-domainadmin-off-payload",
+      "pass": true
+    },
+    {
+      "name": "31-domainadmin-controls",
+      "pass": true
+    },
+    {
+      "name": "31-path-alias",
+      "pass": true
+    },
+    {
+      "name": "31-path-restored",
+      "pass": true
+    },
+    {
+      "name": "31-mixed-bulk-blocked",
+      "pass": true
+    },
+    {
+      "name": "31-user-expunge-hidden",
+      "pass": true
+    },
+    {
+      "name": "31-user-soft-delete",
+      "pass": true
+    },
+    {
+      "name": "32-admin-on-payload",
+      "pass": true
+    },
+    {
+      "name": "32-admin-off-payload",
+      "pass": true
+    },
+    {
+      "name": "32-admin-controls",
+      "pass": true
+    },
+    {
+      "name": "32-user-on-payload",
+      "pass": true
+    },
+    {
+      "name": "32-user-off-payload",
+      "pass": true
+    },
+    {
+      "name": "32-user-controls",
+      "pass": true
+    },
+    {
+      "name": "32-project-on-payload",
+      "pass": true
+    },
+    {
+      "name": "32-project-off-payload",
+      "pass": true
+    },
+    {
+      "name": "32-project-controls",
+      "pass": true
+    },
+    {
+      "name": "32-domainadmin-on-payload",
+      "pass": true
+    },
+    {
+      "name": "32-domainadmin-off-payload",
+      "pass": true
+    },
+    {
+      "name": "32-domainadmin-controls",
+      "pass": true
+    },
+    {
+      "name": "32-path-alias",
+      "pass": true
+    },
+    {
+      "name": "32-path-restored",
+      "pass": true
+    },
+    {
+      "name": "32-mixed-bulk-blocked",
+      "pass": true
+    },
+    {
+      "name": "32-user-expunge-hidden",
+      "pass": true
+    },
+    {
+      "name": "32-user-soft-delete",
+      "pass": true
+    },
+    {
+      "name": "name-only-omits-path",
+      "pass": true
+    },
+    {
+      "name": "duplicate-click-single-update",
+      "pass": true
+    },
+    {
+      "name": "blank-path-no-update",
+      "pass": true
+    },
+    {
+      "name": "stale-form-no-update",
+      "pass": true
+    },
+    {
+      "name": "network-failure-no-update",
+      "pass": true
+    },
+    {
+      "name": "permission-error-keeps-input",
+      "pass": true
+    },
+    {
+      "name": "permission-restored-success",
+      "pass": true
+    },
+    {
+      "name": "unknown-job-no-resubmit",
+      "pass": true
+    },
+    {
+      "name": "bulk-delete-2-success",
+      "pass": true
+    },
+    {
+      "name": "bulk-race-server-preserved",
+      "pass": true
+    },
+    {
+      "name": "running-stopped-explicit-controls",
+      "pass": true
+    },
+    {
+      "name": "operational-readonly-no-mutations",
+      "pass": true
+    },
+    {
+      "name": "all-post-bodies-verified",
+      "pass": true
+    },
+    {
+      "name": "posts-never-send-account-or-domain",
+      "pass": true
+    }
+  ],
+  "uiDbImageComparisons": [
+    {
+      "cluster": 31,
+      "phase": "api-baseline",
+      "kind": "admin",
+      "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "name": "VOL1428-31-20261020-admin-api",
+      "deleteprotection": false,
+      "path": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "api-baseline",
+      "kind": "admin",
+      "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "name": "VOL1428-32-20261020-admin-api",
+      "deleteprotection": false,
+      "path": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-on",
+      "kind": "admin",
+      "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "name": "VOL1428-31-20261020-admin-ui",
+      "deleteprotection": true,
+      "path": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-on",
+      "kind": "admin",
+      "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "name": "VOL1428-32-20261020-admin-ui",
+      "deleteprotection": true,
+      "path": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 31,
+      "phase": "alias",
+      "kind": "admin",
+      "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "name": "VOL1428-31-20261020-admin-ui",
+      "deleteprotection": false,
+      "path": "VOL1428-31-20261020-path-0ca8da49-a599-404b-916f-b3202c612d71",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "alias",
+      "kind": "admin",
+      "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "name": "VOL1428-32-20261020-admin-ui",
+      "deleteprotection": false,
+      "path": "VOL1428-32-20261020-path-7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "restored",
+      "kind": "admin",
+      "id": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "name": "VOL1428-31-20261020-admin-ui",
+      "deleteprotection": false,
+      "path": "0ca8da49-a599-404b-916f-b3202c612d71",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "restored",
+      "kind": "admin",
+      "id": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "name": "VOL1428-32-20261020-admin-ui",
+      "deleteprotection": false,
+      "path": "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": true,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-on",
+      "kind": "user",
+      "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+      "name": "VOL1428-31-20261020-user-ui",
+      "deleteprotection": true,
+      "path": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-on",
+      "kind": "user",
+      "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+      "name": "VOL1428-32-20261020-user-ui",
+      "deleteprotection": true,
+      "path": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-off",
+      "kind": "user",
+      "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+      "name": "VOL1428-31-20261020-user-ui",
+      "deleteprotection": false,
+      "path": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-off",
+      "kind": "user",
+      "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+      "name": "VOL1428-32-20261020-user-ui",
+      "deleteprotection": false,
+      "path": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-on",
+      "kind": "project",
+      "id": "af228750-6546-49cb-af59-05956469013c",
+      "name": "VOL1428-31-20261020-project-ui",
+      "deleteprotection": true,
+      "path": "af228750-6546-49cb-af59-05956469013c",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-on",
+      "kind": "project",
+      "id": "5712d915-91dd-4304-936b-b8862d167636",
+      "name": "VOL1428-32-20261020-project-ui",
+      "deleteprotection": true,
+      "path": "5712d915-91dd-4304-936b-b8862d167636",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-off",
+      "kind": "project",
+      "id": "af228750-6546-49cb-af59-05956469013c",
+      "name": "VOL1428-31-20261020-project-ui",
+      "deleteprotection": false,
+      "path": "af228750-6546-49cb-af59-05956469013c",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-off",
+      "kind": "project",
+      "id": "5712d915-91dd-4304-936b-b8862d167636",
+      "name": "VOL1428-32-20261020-project-ui",
+      "deleteprotection": false,
+      "path": "5712d915-91dd-4304-936b-b8862d167636",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-on",
+      "kind": "domainadmin",
+      "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "name": "VOL1428-31-20261020-domainadmin-ui",
+      "deleteprotection": true,
+      "path": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-on",
+      "kind": "domainadmin",
+      "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "name": "VOL1428-32-20261020-domainadmin-ui",
+      "deleteprotection": true,
+      "path": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 31,
+      "phase": "ui-off-before-job-confirmation",
+      "kind": "domainadmin",
+      "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "name": "VOL1428-31-20261020-domainadmin-ui",
+      "deleteprotection": false,
+      "path": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "ui-off",
+      "kind": "domainadmin",
+      "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "name": "VOL1428-32-20261020-domainadmin-ui",
+      "deleteprotection": false,
+      "path": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 31,
+      "phase": "final-ui-on",
+      "kind": "domainadmin",
+      "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "name": "VOL1428-31-20261020-domainadmin-ui",
+      "deleteprotection": true,
+      "path": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 32,
+      "phase": "final-ui-on",
+      "kind": "domainadmin",
+      "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "name": "VOL1428-32-20261020-domainadmin-ui",
+      "deleteprotection": true,
+      "path": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": true
+    },
+    {
+      "cluster": 31,
+      "phase": "final-ui-off",
+      "kind": "domainadmin",
+      "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "name": "VOL1428-31-20261020-domainadmin-ui",
+      "deleteprotection": false,
+      "path": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "qcow2",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    },
+    {
+      "cluster": 32,
+      "phase": "final-ui-off",
+      "kind": "domainadmin",
+      "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "name": "VOL1428-32-20261020-domainadmin-ui",
+      "deleteprotection": false,
+      "path": "2c3a5358-20de-48c1-81c3-6641233636dd",
+      "dbAndApiAgree": true,
+      "identityPreserved": true,
+      "imageFormat": "raw",
+      "logicalBytes": 1073741824,
+      "seedPatternPreserved": false,
+      "protectedDeleteAndDestroyRejected": false
+    }
+  ],
+  "finalRuntime": {
+    "31": {
+      "passed": true,
+      "source": "4fa57a84294",
+      "protectionOnOffUiDbImage": true,
+      "unknownResultDisplayed": true,
+      "notificationCleared": true,
+      "onlySameJobRetried": true,
+      "extraUpdatePosts": 0
+    },
+    "32": {
+      "passed": true,
+      "source": "4fa57a84294",
+      "protectionOnOffUiDbImage": true
+    }
+  },
+  "postBodiesVerified": 35,
+  "deployment": {
+    "31": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1428-ui-4fa57a84294-edit-protection"
+    },
+    "32": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1428-ui-4fa57a84294-edit-protection"
+    }
+  },
+  "package": {
+    "files": 896,
+    "payloadSha256": "f0f5c84c195b557c892fd4c9c04a36ea605d3b124b2c1867978fa6b2384de910"
+  },
+  "cleanup": {
+    "31": {
+      "deleted": [
+        {
+          "id": "184feb3b-e891-45f8-95ee-8b8b2a206d22",
+          "actor": "user",
+          "kind": "user"
+        },
+        {
+          "id": "b6fb5835-ad0e-4424-87b8-c3488f6876f0",
+          "actor": "domainadmin",
+          "kind": "domainadmin"
+        },
+        {
+          "id": "af228750-6546-49cb-af59-05956469013c",
+          "actor": "project",
+          "kind": "project"
+        },
+        {
+          "id": "5ef25a2d-e938-4ada-8b1a-42450bec81a2",
+          "actor": "admin",
+          "kind": "explicit"
+        }
+      ],
+      "alreadyDeletedByUi": [
+        "0ca8da49-a599-404b-916f-b3202c612d71",
+        "91e0c263-d475-412c-b61a-6995f55363ef"
+      ],
+      "activeOwnedDb": {
+        "volumes": 0,
+        "accounts": 0,
+        "domains": 0,
+        "projects": 0,
+        "roles": 0,
+        "offerings": 0
+      },
+      "imagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "defaultRolePermissionsUnchanged": true,
+      "hostsUp": 3,
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200
+    },
+    "32": {
+      "deleted": [
+        {
+          "id": "d47e9dc7-b0c6-410a-9369-33baca86ea76",
+          "actor": "user",
+          "kind": "user"
+        },
+        {
+          "id": "2c3a5358-20de-48c1-81c3-6641233636dd",
+          "actor": "domainadmin",
+          "kind": "domainadmin"
+        },
+        {
+          "id": "5712d915-91dd-4304-936b-b8862d167636",
+          "actor": "project",
+          "kind": "project"
+        },
+        {
+          "id": "2f80d3ed-b2f9-4a94-94d2-781834456785",
+          "actor": "admin",
+          "kind": "explicit"
+        }
+      ],
+      "alreadyDeletedByUi": [
+        "7941b37f-5338-46c8-aa7f-78713d1a00b4",
+        "13387f9a-b12b-4c88-a6df-8836b4034029"
+      ],
+      "activeOwnedDb": {
+        "volumes": 0,
+        "accounts": 0,
+        "domains": 0,
+        "projects": 0,
+        "roles": 0,
+        "offerings": 0
+      },
+      "imagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "defaultRolePermissionsUnchanged": true,
+      "hostsUp": 3,
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200
+    }
+  },
+  "prDraft": true,
+  "prMerged": false
+}

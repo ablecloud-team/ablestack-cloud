@@ -16,7 +16,6 @@
 // under the License.
 package com.cloud.storage;
 
-import org.apache.commons.lang.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,18 +107,10 @@ public class Storage {
             return this.provisionType;
         }
 
-        public static ProvisioningType getProvisioningType(String provisioningType){
-
-            if(provisioningType.equals(THIN.provisionType)){
-                return ProvisioningType.THIN;
-            } else if(provisioningType.equals(SPARSE.provisionType)){
-                return ProvisioningType.SPARSE;
-            } else if (provisioningType.equals(FAT.provisionType)){
-                return ProvisioningType.FAT;
-            } else{
-                    throw new NotImplementedException();
-            }
+        public static ProvisioningType getProvisioningType(String provisioningType) {
+            return VolumeAllocationPolicy.legacy(provisioningType);
         }
+
     }
 
     public static enum FileSystem {

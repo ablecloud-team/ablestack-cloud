@@ -104,6 +104,10 @@ public class VolumeJoinDaoImpl extends GenericDaoBaseWithTagInformation<VolumeJo
         VolumeResponse volResponse = new VolumeResponse();
         if (volume.getVmId() > 0) volResponse.setVolumeMutationBlockedReason(backupVolumeGuard.reason(volume.getVmId()));
         volResponse.setId(volume.getUuid());
+        volResponse.setAllocation(com.cloud.storage.VolumeAllocationPolicy.describe(
+                volumeDetailsDao.listDetailsKeyPairs(volume.getId()),
+                volume.getProvisioningType() == null ? "unknown" : volume.getProvisioningType().toString(),
+                volume.getFormat() == null ? null : volume.getFormat().toString()));
 
         if (volume.getName() != null) {
             volResponse.setName(volume.getName());

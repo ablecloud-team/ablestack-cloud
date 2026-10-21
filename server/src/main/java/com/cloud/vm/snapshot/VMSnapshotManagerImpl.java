@@ -145,6 +145,8 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
 
 @Component
 public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase implements VMSnapshotManager, VMSnapshotService, VmWorkJobHandler, Configurable {
+    @Inject private com.cloud.storage.dao.VolumeDetailsDao allocationDetailsDao;
+
 
     public static final String VM_WORK_JOB_HANDLER = VMSnapshotManagerImpl.class.getSimpleName();
 
@@ -936,9 +938,19 @@ public class VMSnapshotManagerImpl extends MutualExclusiveIdsManagerBase impleme
         }
     }
 
+    private void validateAllocationRevert(Long snapshotId) {
+        VMSnapshotVO snapshot = _vmSnapshotDao.findById(snapshotId);
+        if (snapshot != null) {
+            for (VolumeVO volume : _volumeDao.findByInstance(snapshot.getVmId())) {
+                com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(volume.getId()), "VM snapshot revert");
+            }
+        }
+    }
+
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_VM_SNAPSHOT_REVERT, eventDescription = "Revert to Instance Snapshot", async = true)
     public UserVm revertToSnapshot(Long vmSnapshotId) throws InsufficientCapacityException, ResourceUnavailableException, ConcurrentOperationException {
+        validateAllocationRevert(vmSnapshotId);
 
         // check if VM snapshot exists in DB
         VMSnapshotVO vmSnapshotVo = _vmSnapshotDao.findById(vmSnapshotId);

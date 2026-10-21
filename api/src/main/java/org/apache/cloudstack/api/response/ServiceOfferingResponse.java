@@ -29,7 +29,15 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = ServiceOffering.class)
 public class ServiceOfferingResponse extends BaseResponseWithAnnotations {
-    @SerializedName("id")
+    @SerializedName("allocation")
+    @Param(description = "Versioned allocation intent and evidence; unknown effective policy is not inferred from legacy provisioning type", since = "4.23.0")
+    private java.util.Map<String, String> allocation;
+
+    public void setAllocation(java.util.Map<String, String> value) {
+        allocation = value;
+    }
+
+    @SerializedName(ApiConstants.ID)
     @Param(description = "The ID of the service offering")
     private String id;
 

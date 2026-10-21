@@ -1,0 +1,653 @@
+{
+  "recordType": "observations; not all entries are pass assertions",
+  "observations": [
+    {
+      "cluster": 31,
+      "case": "initial-current-values",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "20971520"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "16777216"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "3"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "400"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "300"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "invalid-integer",
+      "value": "-1",
+      "saveEnabled": false,
+      "error": "QoS 값은 0 이상 9007199254740991 이하의 정수로 입력하세요."
+    },
+    {
+      "cluster": 31,
+      "case": "invalid-integer",
+      "value": "1.5",
+      "saveEnabled": false,
+      "error": "QoS 값은 0 이상 9007199254740991 이하의 정수로 입력하세요."
+    },
+    {
+      "cluster": 31,
+      "case": "invalid-integer",
+      "value": "1e3",
+      "saveEnabled": false,
+      "error": "QoS 값은 0 이상 9007199254740991 이하의 정수로 입력하세요."
+    },
+    {
+      "cluster": 31,
+      "case": "invalid-integer",
+      "value": "9007199254740992",
+      "saveEnabled": false,
+      "error": "QoS 값은 0 이상 9007199254740991 이하의 정수로 입력하세요."
+    },
+    {
+      "cluster": 31,
+      "case": "burst-below-base",
+      "saveEnabled": false,
+      "error": "버스트 한도에는 양수 기본 한도가 필요하며 기본 한도 이상이어야 합니다."
+    },
+    {
+      "cluster": 31,
+      "case": "duration-without-burst",
+      "saveEnabled": false,
+      "error": "버스트 지속 시간을 설정하려면 양수 버스트 한도가 필요합니다."
+    },
+    {
+      "cluster": 31,
+      "case": "positive-save-doubleclick",
+      "postCount": 1
+    },
+    {
+      "cluster": 32,
+      "case": "initial-current-values",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "20971520"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "16777216"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "3"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "400"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "300"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "disk-clone-prefill",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "5242880"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "4194304"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "100"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "75"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "domainadmin-private-editor",
+      "tagControlCount": 0,
+      "currentRate": "1048576"
+    },
+    {
+      "cluster": 32,
+      "case": "ordinary-user",
+      "actionButtonCount": 0,
+      "canReadOffering": true
+    },
+    {
+      "cluster": 31,
+      "case": "domainadmin-private-editor",
+      "tagControlCount": 0
+    },
+    {
+      "cluster": 31,
+      "case": "ordinary-user",
+      "actionButtonCount": 0
+    },
+    {
+      "cluster": 31,
+      "case": "inactive-editor",
+      "minMaxInputCount": 0,
+      "text": "편집\nVOL1430-31-Storage\nInactive\n이름\n설명\n스토리지 태그\nWrite-Cache 유형\n디스크 캐시 없음\n\n캐시 변경은 새 디스크 연결 또는 VM 정지 후 시작 시 적용됩니다. 실행 중인 디스크의 캐시는 즉시 변경되지 않습니다.\n\n전송률은 B/s, IOPS는 초당 작업 수, 지속 시간은 초 단위입니다. 빈 값은 현재값을 유지하며, 0은 오퍼링의 해당 재정의를 해제합니다. 시스템 기본 제한이 있으면 적용될 수 있습니다. 버스트를 해제하려면 한도와 지속 시간을 모두 0으로 설정하세요.\n\n디스크 읽기 속도(BPS) (B/s)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 쓰기 속도(BPS) (B/s)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 읽기 속도(IOPS) (IOPS)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 쓰기 속도(IOPS) (IOPS)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n\n저장은 오퍼링 설정을 변경합니다. 실행 중 VM의 제한을 즉시 바꾸지 않습니다. 기존 디스크는 다시 연결하거나 VM을 정지 후 시작할 때 최신 설정을 읽습니다. 게스트 OS 재부팅만으로는 적용되지 않습니다.\n\n변경할 수 없는 디스크 속성\n\n크기·사용자 지정 IOPS·스토리지 유형·할당 정책 등은 여기서 변경할 수 없습니다. 다른 속성이 필요하면 복제하거나 새 오퍼링을 생성하세요. 활성 상태와 접근 범위는 각각의 작업에서 관리합니다.\n\n스토리지 유형: shared · 프로비저닝 유형: thin\n\n디스크 크기(GB 단위): 사용자지정\n\n사용자지정 IOPS: 아니오 · 최소 IOPS: 100 · 최대 IOPS: 200\n\n취소\n확인"
+    },
+    {
+      "cluster": 32,
+      "case": "inactive-editor",
+      "text": "편집\nVOL1430-32-Storage\nInactive\n이름\n설명\n스토리지 태그\nWrite-Cache 유형\n디스크 캐시 없음\n\n캐시 변경은 새 디스크 연결 또는 VM 정지 후 시작 시 적용됩니다. 실행 중인 디스크의 캐시는 즉시 변경되지 않습니다.\n\n전송률은 B/s, IOPS는 초당 작업 수, 지속 시간은 초 단위입니다. 빈 값은 현재값을 유지하며, 0은 오퍼링의 해당 재정의를 해제합니다. 시스템 기본 제한이 있으면 적용될 수 있습니다. 버스트를 해제하려면 한도와 지속 시간을 모두 0으로 설정하세요.\n\n디스크 읽기 속도(BPS) (B/s)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 쓰기 속도(BPS) (B/s)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 읽기 속도(IOPS) (IOPS)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n디스크 쓰기 속도(IOPS) (IOPS)\n기본 한도\n현재: 기본값\n버스트 한도\n현재: 기본값\n버스트 지속 시간 (s)\n현재: 기본값\n\n저장은 오퍼링 설정을 변경합니다. 실행 중 VM의 제한을 즉시 바꾸지 않습니다. 기존 디스크는 다시 연결하거나 VM을 정지 후 시작할 때 최신 설정을 읽습니다. 게스트 OS 재부팅만으로는 적용되지 않습니다.\n\n변경할 수 없는 디스크 속성\n\n크기·사용자 지정 IOPS·스토리지 유형·할당 정책 등은 여기서 변경할 수 없습니다. 다른 속성이 필요하면 복제하거나 새 오퍼링을 생성하세요. 활성 상태와 접근 범위는 각각의 작업에서 관리합니다.\n\n스토리지 유형: shared · 프로비저닝 유형: thin\n\n디스크 크기(GB 단위): 사용자지정\n\n사용자지정 IOPS: 아니오 · 최소 IOPS: 100 · 최대 IOPS: 200\n\n취소\n확인"
+    },
+    {
+      "cluster": 31,
+      "case": "clone-prefill",
+      "name": "VOL1430-31-Storage-Clone",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": ""
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": ""
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "byteswriterate",
+          "value": ""
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": ""
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "iopsreadrate",
+          "value": ""
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": ""
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "iopswriterate",
+          "value": ""
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": ""
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "clone-prefill",
+      "name": "VOL1430-32-Storage-Clone",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": ""
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": ""
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "byteswriterate",
+          "value": ""
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": ""
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "iopsreadrate",
+          "value": ""
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": ""
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": ""
+        },
+        {
+          "field": "iopswriterate",
+          "value": ""
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": ""
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "clone-prefill",
+      "name": "VOL1430-31-UI-Clone",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "5242880"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "4194304"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "100"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "75"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "clone-prefill",
+      "name": "VOL1430-32-UI-Clone",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "5242880"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "4194304"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "100"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "75"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "clone-prefill",
+      "name": "VOL1430-31-UI-None",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "5242880"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "4194304"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "100"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "75"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "cluster": 32,
+      "case": "clone-prefill",
+      "name": "VOL1430-32-UI-None",
+      "fields": [
+        {
+          "field": "bytesreadrate",
+          "value": "5242880"
+        },
+        {
+          "field": "bytesreadratemax",
+          "value": "10485760"
+        },
+        {
+          "field": "bytesreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "byteswriterate",
+          "value": "4194304"
+        },
+        {
+          "field": "byteswriteratemax",
+          "value": "8388608"
+        },
+        {
+          "field": "byteswriteratemaxlength",
+          "value": "2"
+        },
+        {
+          "field": "iopsreadrate",
+          "value": "100"
+        },
+        {
+          "field": "iopsreadratemax",
+          "value": "200"
+        },
+        {
+          "field": "iopsreadratemaxlength",
+          "value": "1"
+        },
+        {
+          "field": "iopswriterate",
+          "value": "75"
+        },
+        {
+          "field": "iopswriteratemax",
+          "value": "150"
+        },
+        {
+          "field": "iopswriteratemaxlength",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "cluster": 31,
+      "case": "dedicated-inheritance-detail",
+      "text": "이름\n\nVOL1430-31-Dedicated\n아이디\n\n52bd95d1-56f1-4e03-9021-fac3caa6ac3e\n설명\n\nVOL1430 dedicated disk\nHA 제공\n\nfalse\n프로비저닝 유형\n\nthin\nWrite-Cache 유형\n\nnone\n스토리지 유형\n\nshared\n사용자지정 디스크 크기\n\nfalse\nCPU 제한\n\nfalse\nCPU 코어\n\n1\n루트 디스크 사이즈(GB)\n\n0 GB\nCPU(MHz)\n\n1000\n메모리\n\n1024\n디스크 오퍼링 이름\n\nVOL1430-31-Dedicated\n디스크 오퍼링 연결 방식\n\n컴퓨트 오퍼링 전용(자동 생성)\n\n이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.\n\n생성일\n\n2026. 10. 21. 오후 2:43:18\nDynamic Scaling 활성화\n\ntrue\n디스크 오퍼링 엄격성\n\nfalse\n암호화 루트 디스크\n\nfalse\n공유 볼륨\n\nfalse\n압축/중복제거\n\nfalse\n디스크 읽기 속도(IOPS)\n\n200\n읽기 IOPS 버스트 한도\n\n400\n읽기 IOPS 버스트 지속 시간(초)\n\n2\n디스크 읽기 속도(BPS)\n\n10485760\n최대 디스크 읽기 속도(BPS)\n\n20971520\n읽기 전송률 버스트 지속 시간(초)\n\n2\n요청 정책 / 형식\n\n기존 호환 값: thin\n확정 정책\n\n알 수 없음\n실제 적용 정책\n\n알 수 없음\n실제 적용 방식\n\n알 수 없음\n실제 이미지 형식\n\n알 수 없음\n관측 할당량\n\n알 수 없음\n관측 시각\n\n알 수 없음\n할당 증거\n\n미검증"
+    },
+    {
+      "cluster": 31,
+      "case": "general-inheritance-detail",
+      "text": "이름\n\nVOL1430-31-Linked\n아이디\n\n660a3ebe-d303-49c0-91a3-832f2758e67f\n설명\n\nVOL1430 linked disk\nHA 제공\n\nfalse\n프로비저닝 유형\n\nthin\nWrite-Cache 유형\n\nhypervisor_default\n스토리지 유형\n\nshared\n사용자지정 디스크 크기\n\nfalse\nCPU 제한\n\nfalse\nCPU 코어\n\n1\n루트 디스크 사이즈(GB)\n\n0 GB\nCPU(MHz)\n\n1000\n메모리\n\n1024\n디스크 오퍼링 이름\n\nVOL1430-31-Edit\n디스크 오퍼링 연결 방식\n\n일반 디스크 오퍼링 연결\n\n연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.\n\n생성일\n\n2026. 10. 21. 오후 2:43:18\nDynamic Scaling 활성화\n\ntrue\n디스크 오퍼링 엄격성\n\nfalse\n암호화 루트 디스크\n\nfalse\n공유 볼륨\n\nfalse\n압축/중복제거\n\nfalse\n디스크 읽기 속도(IOPS)\n\n0\n읽기 IOPS 버스트 한도\n\n0\n읽기 IOPS 버스트 지속 시간(초)\n\n0\n디스크 쓰기 속도(IOPS)\n\n0\n쓰기 IOPS 버스트 한도\n\n0\n쓰기 IOPS 버스트 지속 시간(초)\n\n0\n디스크 읽기 속도(BPS)\n\n0\n최대 디스크 읽기 속도(BPS)\n\n0\n읽기 전송률 버스트 지속 시간(초)\n\n0\n디스크 쓰기 속도(BPS)\n\n0\n최대 디스크 쓰기 속도(BPS)\n\n0\n쓰기 전송률 버스트 지속 시간(초)\n\n0\n요청 정책 / 형식\n\n기존 호환 값: thin\n확정 정책\n\n알 수 없음\n실제 적용 정책\n\n알 수 없음\n실제 적용 방식\n\n알 수 없음\n실제 이미지 형식\n\n알 수 없음\n관측 할당량\n\n알 수 없음\n관측 시각\n\n알 수 없음\n할당 증거\n\n미검증"
+    },
+    {
+      "cluster": 31,
+      "case": "linked-clone-hidden-disk-controls",
+      "qosFieldCount": 0
+    },
+    {
+      "cluster": 32,
+      "case": "general-inheritance-detail",
+      "text": "이름\n\nVOL1430-32-Linked\n아이디\n\n0a63d00b-693e-4083-b3b4-401b95f9361e\n설명\n\nVOL1430 linked disk\nHA 제공\n\nfalse\n프로비저닝 유형\n\nthin\nWrite-Cache 유형\n\nhypervisor_default\n스토리지 유형\n\nshared\n사용자지정 디스크 크기\n\nfalse\nCPU 제한\n\nfalse\nCPU 코어\n\n1\n루트 디스크 사이즈(GB)\n\n0 GB\nCPU(MHz)\n\n1000\n메모리\n\n1024\n디스크 오퍼링 이름\n\nVOL1430-32-Edit\n디스크 오퍼링 연결 방식\n\n일반 디스크 오퍼링 연결\n\n연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.\n\n생성일\n\n2026. 10. 21. 오후 2:44:20\nDynamic Scaling 활성화\n\ntrue\n디스크 오퍼링 엄격성\n\nfalse\n암호화 루트 디스크\n\nfalse\n공유 볼륨\n\nfalse\n압축/중복제거\n\nfalse\n디스크 읽기 속도(IOPS)\n\n0\n읽기 IOPS 버스트 한도\n\n0\n읽기 IOPS 버스트 지속 시간(초)\n\n0\n디스크 쓰기 속도(IOPS)\n\n0\n쓰기 IOPS 버스트 한도\n\n0\n쓰기 IOPS 버스트 지속 시간(초)\n\n0\n디스크 읽기 속도(BPS)\n\n0\n최대 디스크 읽기 속도(BPS)\n\n0\n읽기 전송률 버스트 지속 시간(초)\n\n0\n디스크 쓰기 속도(BPS)\n\n0\n최대 디스크 쓰기 속도(BPS)\n\n0\n쓰기 전송률 버스트 지속 시간(초)\n\n0\n요청 정책 / 형식\n\n기존 호환 값: thin\n확정 정책\n\n알 수 없음\n실제 적용 정책\n\n알 수 없음\n실제 적용 방식\n\n알 수 없음\n실제 이미지 형식\n\n알 수 없음\n관측 할당량\n\n알 수 없음\n관측 시각\n\n알 수 없음\n할당 증거\n\n미검증"
+    },
+    {
+      "cluster": 31,
+      "case": "controlled-read-503",
+      "injected": true,
+      "text": "편집\nVOL1430-31-UI\nActive\nVOL1430 controlled read failure\n재시도\n취소\n확인",
+      "saveEnabled": false
+    },
+    {
+      "cluster": 31,
+      "case": "clone-prefill",
+      "name": "VOL1430-31-Storage-Clone-Final",
+      "fields": []
+    },
+    {
+      "cluster": 32,
+      "case": "storage-clone-final",
+      "prefill": [
+        {
+          "id": "form_item_diskiopsmin",
+          "value": "100"
+        },
+        {
+          "id": "form_item_diskiopsmax",
+          "value": "200"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "create-compute-zero",
+      "fields": 12,
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "create-compute-zero",
+      "fields": 12,
+      "pass": true
+    }
+  ],
+  "exclusions": [
+    {
+      "case": "initial-storage-clone",
+      "reason": "Storage min/max misclassified as hypervisor burst; initial clones deactivated; final clones API-verified at 100/200."
+    },
+    {
+      "case": "pre-fix-network-failure",
+      "reason": "Global interceptor logged out; fixed with preserveOnFailure and retested on both final deployments."
+    },
+    {
+      "case": "initial-unknown-response-harness",
+      "reason": "Expired/stale dialog or unqualified request interception; not counted."
+    },
+    {
+      "case": "mobile-bitmap",
+      "reason": "Capture scaling/portal mismatch; mobile evidence uses tab-specific DOM geometry; bitmap files not published."
+    }
+  ]
+}

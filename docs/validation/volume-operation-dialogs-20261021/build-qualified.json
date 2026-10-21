@@ -1,0 +1,9 @@
+{
+  "sourceCommit": "2d7e96619e0854b0b888558a0191e55bbeaeef4a",
+  "environment": "WSL ext4 /home/ablecloud/work/dhslove/cloud-epic-1422/ui; Node 14.21.3",
+  "suitesPassed": 4,
+  "testsPassed": 95,
+  "lintPassed": true,
+  "productionBuildPassed": true,
+  "fullCloudOrReleaseCiRun": false
+}

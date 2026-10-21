@@ -1,0 +1,441 @@
+{
+  "cluster": 31,
+  "kind": "compute",
+  "id": "3a3cca2f-10a5-414d-8351-4a790e46abce",
+  "existingRowsUnchanged": true,
+  "fieldOrderCorrect": true,
+  "stylesPreserved": true,
+  "lastRowUsesStandardNoBorder": true,
+  "baseline": {
+    "background": "rgba(0, 0, 0, 0)",
+    "border": "1px solid rgb(62, 70, 80)",
+    "color": "rgba(255, 255, 255, 0.65)",
+    "fontSize": "14px",
+    "labelColor": "rgba(255, 255, 255, 0.65)",
+    "labelWeight": "700",
+    "lineHeight": "22.001px",
+    "padding": "8px 0px"
+  },
+  "rows": [
+    {
+      "label": "이름",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "이름VOL1431-DETAILSTYLE-31-20261020-linked",
+      "value": "VOL1431-DETAILSTYLE-31-20261020-linked"
+    },
+    {
+      "label": "아이디",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "아이디3a3cca2f-10a5-414d-8351-4a790e46abce",
+      "value": "3a3cca2f-10a5-414d-8351-4a790e46abce"
+    },
+    {
+      "label": "설명",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "설명VOL1431-DETAILSTYLE-31-20261020-linked",
+      "value": "VOL1431-DETAILSTYLE-31-20261020-linked"
+    },
+    {
+      "label": "HA 제공",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "HA 제공false",
+      "value": "false"
+    },
+    {
+      "label": "프로비저닝 유형",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "프로비저닝 유형sparse",
+      "value": "sparse"
+    },
+    {
+      "label": "스토리지 유형",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "스토리지 유형shared",
+      "value": "shared"
+    },
+    {
+      "label": "사용자지정 디스크 크기",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "사용자지정 디스크 크기false",
+      "value": "false"
+    },
+    {
+      "label": "CPU 제한",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "CPU 제한false",
+      "value": "false"
+    },
+    {
+      "label": "CPU 코어",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "CPU 코어1",
+      "value": "1"
+    },
+    {
+      "label": "루트 디스크 사이즈(GB)",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "루트 디스크 사이즈(GB)1 GB ",
+      "value": "1 GB "
+    },
+    {
+      "label": "CPU(MHz)",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "CPU(MHz)1000",
+      "value": "1000"
+    },
+    {
+      "label": "메모리",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "메모리512",
+      "value": "512"
+    },
+    {
+      "label": "디스크 오퍼링 이름",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "디스크 오퍼링 이름VOL1431-DETAILSTYLE-31-20261020-explicit",
+      "value": "VOL1431-DETAILSTYLE-31-20261020-explicit"
+    },
+    {
+      "label": "스토리지 태그",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "스토리지 태그glue-gfs",
+      "value": "glue-gfs"
+    },
+    {
+      "label": "생성일",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "생성일2026. 10. 20. 오후 8:42:48",
+      "value": "2026. 10. 20. 오후 8:42:48"
+    },
+    {
+      "label": "Dynamic Scaling 활성화",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "Dynamic Scaling 활성화true",
+      "value": "true"
+    },
+    {
+      "label": "디스크 오퍼링 엄격성",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "디스크 오퍼링 엄격성false",
+      "value": "false"
+    },
+    {
+      "label": "암호화 루트 디스크",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "암호화 루트 디스크false",
+      "value": "false"
+    },
+    {
+      "label": "공유 볼륨",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "공유 볼륨false",
+      "value": "false"
+    },
+    {
+      "label": "압축/중복제거",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "압축/중복제거false",
+      "value": "false"
+    },
+    {
+      "label": "요청 정책 / 형식",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "요청 정책 / 형식Thin (metadata) · QCOW2",
+      "value": "Thin (metadata) · QCOW2"
+    },
+    {
+      "label": "확정 정책",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "확정 정책알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "실제 적용 정책",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "실제 적용 정책알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "실제 적용 방식",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "실제 적용 방식알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "실제 이미지 형식",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "실제 이미지 형식알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "관측 할당량",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "관측 할당량알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "관측 시각",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "1px solid rgb(62, 70, 80)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "관측 시각알 수 없음",
+      "value": "알 수 없음"
+    },
+    {
+      "label": "할당 증거",
+      "style": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px none rgba(255, 255, 255, 0.65)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "fontSize": "14px",
+        "labelColor": "rgba(255, 255, 255, 0.65)",
+        "labelWeight": "700",
+        "lineHeight": "22.001px",
+        "padding": "8px 0px"
+      },
+      "text": "할당 증거미검증",
+      "value": "미검증"
+    }
+  ]
+}

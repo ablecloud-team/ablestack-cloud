@@ -88,6 +88,12 @@
           </a-select-option>
         </a-select>
       </a-form-item>
+      <AllocationSummary v-if="selectedDiskOffering" :resource="selectedDiskOffering" compact />
+      <p v-if="explicitAllocation" class="volume-storage-error">{{ $t('message.allocation.cost.' + explicitAllocation.policy) }}</p>
+      <p v-if="explicitAllocation && !createOnStorage" class="volume-storage-error">{{ $t('message.allocation.target.pending') }}</p>
+      <a-alert v-if="allocationError" type="error" show-icon :message="$t('message.allocation.capability.failed')" />
+      <a-button v-if="allocationError" size="small" @click="queryAllocation">{{ $t('label.retry') }}</a-button>
+      <a-alert v-if="createVolumeFromSnapshot && allocationBlocked" type="error" show-icon :message="$t('message.allocation.snapshot.unsupported')" />
       <span v-if="customDiskOffering">
         <a-form-item ref="size" name="size">
           <template #label>
@@ -238,7 +244,7 @@
       </a-form-item>
       <div v-if="!hideActions" :span="24" class="action-button">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" :disabled="createOnStorage && (storageLoading || storageFetchError || !selectedStoragePool)" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button type="primary" ref="submit" :disabled="allocationBlocked || (createOnStorage && (storageLoading || storageFetchError || !selectedStoragePool))" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </div>
     </a-form>
   </a-spin>
@@ -256,11 +262,14 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import StoragePoolCapacity from '@/views/storage/StoragePoolCapacity.vue'
 import store from '@/store'
+import AllocationSummary from '@/components/view/AllocationSummary'
+import { allocationIntent, poolAcceptsIntent, readAllocationCapability, readAllocationList } from '@/utils/volumeAllocation'
 
 export default {
   name: 'CreateVolume',
   mixins: [mixinForm],
   components: {
+    AllocationSummary,
     OwnershipSelection,
     ResourceIcon,
     TooltipLabel,
@@ -283,6 +292,13 @@ export default {
         account: store.getters.project?.id ? null : store.getters.userInfo.account
       },
       snapshotZoneIds: [],
+      allocationLoading: false,
+      allocationError: false,
+      allocationCap: null,
+      allocationRequestId: 0,
+      snapshotAllocation: null,
+      snapshotAllocationError: false,
+      snapshotAllocationLoading: false,
       zones: [],
       offerings: [],
       customDiskOffering: false,
@@ -303,7 +319,12 @@ export default {
     }
   },
   computed: {
-    eligibleStoragePools () { return offeringStoragePools(this.storagePools, this.selectedDiskOffering) },
+    explicitAllocation () { return allocationIntent(this.selectedDiskOffering) },
+    allocationBlocked () {
+      return (this.createOnStorage && !!this.explicitAllocation && (this.allocationLoading || this.allocationError || !this.allocationCap?.policies[this.explicitAllocation.policy])) ||
+        (this.createVolumeFromSnapshot && (this.snapshotAllocationLoading || this.snapshotAllocationError || !!this.explicitAllocation || !!allocationIntent(this.snapshotAllocation)))
+    },
+    eligibleStoragePools () { return offeringStoragePools(this.storagePools, this.selectedDiskOffering).filter(pool => poolAcceptsIntent(pool, this.selectedDiskOffering)) },
     hasRuleStoragePools () { return storageTags(this.selectedDiskOffering?.tags).length > 0 && this.storagePools.some(pool => pool.state === 'Up' && pool.istagarule) },
     storagePoolOptions () {
       return this.eligibleStoragePools.map(pool => ({ value: pool.id, label: pool.name, title: pool.name, pool }))
@@ -332,7 +353,8 @@ export default {
     }
   },
   watch: {
-    'form.diskofferingid' () { this.reconcileStoragePool() },
+    'form.diskofferingid' () { this.reconcileStoragePool(); this.queryAllocation() },
+    'form.storageid' () { this.queryAllocation() },
     'form.zoneid' () {
       this.invalidateStoragePools()
       if (this.createOnStorage) this.fetchStoragePools(this.form.zoneid)
@@ -346,8 +368,21 @@ export default {
     this.initForm()
     this.fetchData()
   },
-  beforeUnmount () { this.storageRequestId++; this.offeringRequestId++ },
+  beforeUnmount () { this.storageRequestId++; this.offeringRequestId++; this.allocationRequestId++ },
   methods: {
+    async queryAllocation () {
+      const id = ++this.allocationRequestId
+      this.allocationCap = null; this.allocationError = false; this.allocationLoading = false
+      if (!this.createOnStorage || !this.explicitAllocation || !this.selectedStoragePool) return
+      this.allocationLoading = true
+      const current = () => id === this.allocationRequestId
+      try {
+        const cap = await readAllocationCapability(getAPI, this.selectedStoragePool, this.explicitAllocation.format, 'create', current)
+        if (!current()) return
+        this.allocationCap = cap
+        if (!cap?.policies[this.explicitAllocation.policy]) this.allocationError = true
+      } catch (e) { if (current()) this.allocationError = true } finally { if (current()) this.allocationLoading = false }
+    },
     validateDeviceId (rule, value) {
       const reason = volumeDeviceIdReason(value)
       return reason ? Promise.reject(new Error(this.$t(reason))) : Promise.resolve()
@@ -436,6 +471,11 @@ export default {
       })
     },
     fetchSnapshotZones () {
+      this.snapshotAllocationLoading = true
+      getAPI('listVolumes', { id: this.resource.volumeid, listall: true }, { preserveOnFailure: true }).then(json => {
+        this.snapshotAllocation = json.listvolumesresponse?.volume?.[0] || null
+        this.snapshotAllocationError = !this.snapshotAllocation
+      }).catch(() => { this.snapshotAllocationError = true }).finally(() => { this.snapshotAllocationLoading = false })
       this.loading = true
       this.snapshotZoneIds = []
       const params = {
@@ -479,9 +519,9 @@ export default {
       } else {
         params.account = this.owner.account
       }
-      return getAPI('listDiskOfferings', params, { preserveOnFailure: true }).then(json => {
+      return readAllocationList(getAPI, 'listDiskOfferings', 'diskoffering', params, () => sequence === this.offeringRequestId && zoneId === this.form.zoneid).then(rows => {
         if (sequence !== this.offeringRequestId || zoneId !== this.form.zoneid) return
-        this.offerings = json.listdiskofferingsresponse.diskoffering || []
+        this.offerings = rows || []
         if (this.createVolumeFromVM) {
           this.offerings = this.offerings.filter(x => x.suitableforvirtualmachine)
         }
@@ -503,6 +543,8 @@ export default {
       })
     },
     invalidateStoragePools () {
+      this.allocationRequestId++
+      this.allocationCap = null; this.allocationError = false; this.allocationLoading = false
       this.storageRequestId++
       this.storagePools = []
       this.form.storageid = undefined
@@ -558,11 +600,12 @@ export default {
       })
     },
     handleSubmit (e) {
-      if (this.loading || (this.createOnStorage && this.storageLoading)) return
+      if (this.loading || this.allocationBlocked || (this.createOnStorage && this.storageLoading)) return
       this.formRef.value.validate().then(() => {
         if (this.createOnStorage && (this.storageFetchError || this.storageLoading || !this.selectedStoragePool)) {
           throw new Error(this.$t(this.storageFetchError ? 'message.volume.storage.failed' : 'message.volume.storage.select.matching'))
         }
+        if (this.allocationBlocked) throw new Error(this.$t('message.allocation.capability.failed'))
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         if (this.createVolumeFromVM) {

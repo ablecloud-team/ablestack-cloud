@@ -1,0 +1,172 @@
+{
+  "issue": 1431,
+  "epic": 1422,
+  "pr": 1435,
+  "sourceCommit": "a720247198ab1081623adfaec2b03b8991e15a92",
+  "change": "Preserve existing DetailsTab vertical list; append allocation fields without CSS changes",
+  "uiCases": [
+    {
+      "cluster": 31,
+      "kind": "volume",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 12,
+      "addedRows": 9
+    },
+    {
+      "cluster": 31,
+      "kind": "offering",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 13,
+      "addedRows": 8
+    },
+    {
+      "cluster": 31,
+      "kind": "compute",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 20,
+      "addedRows": 8
+    },
+    {
+      "cluster": 31,
+      "kind": "legacy",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 12,
+      "addedRows": 8
+    },
+    {
+      "cluster": 32,
+      "kind": "volume",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 12,
+      "addedRows": 9
+    },
+    {
+      "cluster": 32,
+      "kind": "offering",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 13,
+      "addedRows": 8
+    },
+    {
+      "cluster": 32,
+      "kind": "compute",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 21,
+      "addedRows": 8
+    },
+    {
+      "cluster": 32,
+      "kind": "legacy",
+      "styleAndOrderPassed": true,
+      "apiDisplayMatched": true,
+      "existingRows": 12,
+      "addedRows": 8
+    }
+  ],
+  "helpVerified": {
+    "observation": true,
+    "linkedRootPolicyOwnership": true
+  },
+  "tests": {
+    "suites": 7,
+    "passed": 66,
+    "lint": "PASS",
+    "productionBuild": "PASS",
+    "webpackSizeWarnings": 2,
+    "fullCloudCiRun": false
+  },
+  "package": {
+    "files": 896,
+    "payloadSha256": "514a5f762713c44c6e498b95d5f096eead3da2ff2c78ae1c4abf1ecc43f5cddb"
+  },
+  "deployment": {
+    "31": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1431-ui-a720247198a-detail-style"
+    },
+    "32": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1431-ui-a720247198a-detail-style"
+    }
+  },
+  "cleanup": {
+    "31": {
+      "deletedVolumes": 1,
+      "disabledDiskOfferings": 2,
+      "disabledComputeOfferings": 1,
+      "activeOwnedDb": {
+        "volumes": 0,
+        "diskOfferings": 0,
+        "serviceOfferings": 0,
+        "vms": 0
+      },
+      "ownedImagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "baselineCounts": {
+        "volumes": 140,
+        "vms": 111,
+        "diskofferings": 7,
+        "computes": 15
+      },
+      "hostStates": [
+        "Up",
+        "Up",
+        "Up"
+      ],
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200
+    },
+    "32": {
+      "deletedVolumes": 1,
+      "disabledDiskOfferings": 2,
+      "disabledComputeOfferings": 1,
+      "activeOwnedDb": {
+        "volumes": 0,
+        "diskOfferings": 0,
+        "serviceOfferings": 0,
+        "vms": 0
+      },
+      "ownedImagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "baselineCounts": {
+        "volumes": 48,
+        "vms": 48,
+        "diskofferings": 6,
+        "computes": 4
+      },
+      "hostStates": [
+        "Up",
+        "Up",
+        "Up"
+      ],
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200
+    }
+  },
+  "logSha256": {
+    "tests.log": "cbce01f31655e12ab0eb9bfc501c9016d609c9d27d9a084944164a150a2d51ad",
+    "lint-final.log": "7b91ad6a7ad808c487d2f0b2eadb9865069dd070ec200f1ee4ea1a57126b00a0",
+    "build-final.log": "d8be2901084973bb8e07542746bfe25c252eb3ebe9500682c00e87716906194d",
+    "deploy.log": "40e2c02562ea1d02bdc93fe82c6ca071ecb17840667c6c4339164c11d0cfa196",
+    "cleanup.log": "de26a5341994789b4f85111bb297a16aa71fc6d78f2dd5e1d9db28693eb15eeb"
+  }
+}

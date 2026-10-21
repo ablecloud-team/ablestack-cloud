@@ -1,0 +1,211 @@
+Browser tab: 23, Title: "계정 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/account/6d3ebcb0-b23b-11f1-990e-0024811f8935?tab=limits".
+1 AXWebArea 계정 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/account/6d3ebcb0-b23b-11f1-990e-0024811f8935?tab=limits
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.32.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 10.10.32.10:8080/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 10.10.32.10:8080/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 10.10.32.10:8080/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 10.10.32.10:8080/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 10.10.32.10:8080/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 10.10.32.10:8080/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 10.10.32.10:8080/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			275 container
+				276 image bell
+				768 text 7
+			123 container
+				124 text AC admin cloud
+		125 container
+			769 container
+				770 link Description: home, Value: 10.10.32.10:8080/client/#/
+				771 text /
+				772 link Description: 계정, Value: 10.10.32.10:8080/client/#/account
+				773 text / admin
+				774 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/accounts.html
+				775 button reload 업데이트
+					776 image reload
+					777 text 업데이트
+			778 button down 작업
+				779 image down
+				780 text 작업
+			781 container
+				782 image edit
+				783 image team
+				784 heading admin, Value: 4
+					785 text admin
+				786 text 상태 정상 아이디
+				787 button barcode
+					788 image barcode
+				789 link Description: 6d3ebcb0-b23b-11f1-990e-0024811f8935 , Value: javascript:;
+				790 text CPU 69 메모리
+				791 image bulb
+				792 text 107520 메모리 역할
+				793 image idcard
+				794 link Description: Root Admin, Value: 10.10.32.10:8080/client/#/role/49e68247-b23b-11f1-990e-0024811f8935
+				795 text 도메인
+				796 image block
+				797 link Description: ROOT, Value: 10.10.32.10:8080/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				798 link Description: user 사용자 보기, Value: 10.10.32.10:8080/client/#/accountuser?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				799 link Description: cloud-server VM 보기, Value: 10.10.32.10:8080/client/#/vm?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				800 link Description: hdd 볼륨 보기, Value: 10.10.32.10:8080/client/#/volume?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				801 link Description: apartment 네트워크 보기, Value: 10.10.32.10:8080/client/#/guestnetwork?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				802 link Description: key SSH 키 쌍 보기, Value: 10.10.32.10:8080/client/#/ssh?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				803 link Description: solution 사용자 데이터 보기, Value: 10.10.32.10:8080/client/#/userdata?account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				804 link Description: save 템플릿 보기, Value: 10.10.32.10:8080/client/#/template?templatefilter=self&filter=self&account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				805 link Description: usb ISO 보기, Value: 10.10.32.10:8080/client/#/iso?isofilter=self&filter=self&account=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+			806 container
+				807 tab group
+					808 container
+						809 tab (selectable, settable, boolean) 상세, Value: 0, ID: rc-tabs-8-tab-details
+						810 tab (selected, settable, boolean) 제한, Value: 1, ID: rc-tabs-8-tab-limits
+						811 tab (selectable, settable, boolean) 구성 제한, Value: 0, ID: rc-tabs-8-tab-limits.configure
+						812 tab (selectable, settable, boolean) 인증서, Value: 0, ID: rc-tabs-8-tab-certificates
+						813 tab (selectable, settable, boolean) 설정, Value: 0, ID: rc-tabs-8-tab-settings
+						814 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-8-tab-events
+				815 container Description: 제한, ID: rc-tabs-8-panel-limits
+					816 content list
+						817 container
+							818 text 가상머신 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 40 / Unlimited
+						819 container
+							820 text CPU 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 69 / Unlimited
+						821 container
+							822 text 메모리 제한(MiB)  (Unlimited 사용 가능) 사용됨 / 제한 : 107520 / Unlimited
+						823 container
+							824 text GPU 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						825 container
+							826 text 기본 스토리지 제한(GiB)  (Unlimited 사용 가능) 사용됨 / 제한 : 3256 / Unlimited
+						827 container
+							828 text 볼륨 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 41 / Unlimited
+						829 container
+							830 text Public IP 주소 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 2 / Unlimited
+						831 container
+							832 text 네트워크 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 2 / Unlimited
+						833 container
+							834 text VPC 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						835 container
+							836 text 2차 스토리지 제한(GiB)  (Unlimited 사용 가능) 사용됨 / 제한 : 359.18777 / Unlimited
+						837 container
+							838 text 스냅샷 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 6 / Unlimited
+						839 container
+							840 text 템플릿 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 7 / Unlimited
+						841 container
+							842 text 프로젝트 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						843 container
+							844 text 백업 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						845 container
+							846 text 백업 스토리지 제한 (GiB)  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						847 container
+							848 text 버킷 제한  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+						849 container
+							850 text Object 스토리지 제한(GiB)  (Unlimited 사용 가능) 사용됨 / 제한 : 0 / Unlimited
+	248 container
+		249 image exclamation-circle
+		250 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		251 button 세부 경보 내용 확인
+		252 button 경보 규칙으로 이동
+		253 button 닫기
+			254 image close
+	851 container
+		852 image check-circle
+		853 text 볼륨 영구 삭제 - VOL1428-32-20261020-admin-ui
+
+The focused UI element is 1 AXWebArea 계정 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/account/6d3ebcb0-b23b-11f1-990e-0024811f8935?tab=limits

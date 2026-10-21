@@ -1,0 +1,18 @@
+{
+  "31": {
+    "sourceCommit": "6f5b0b358201d813fd0b8bfb6fa399ae973c899b",
+    "jarSha256": "e426ab0cccef23aac0cf3f514c53dcafbedc063306af65f791217540bf5a9072",
+    "unchangedEntries": 204518,
+    "backup": "/root/volume-1430-final-6f5b0b35820",
+    "clientHttp": 200,
+    "result": "/usr/share/cloudstack-management/webapp/index.html: OK\nDEPLOY_PASS cluster=31 backup=/root/volume-1430-final-6f5b0b35820 client=200 api=401"
+  },
+  "32": {
+    "sourceCommit": "6f5b0b358201d813fd0b8bfb6fa399ae973c899b",
+    "jarSha256": "952b783b29d483d47ab6c4bcaff69f9b3dada6a76f43aab9c545e0e3a418a752",
+    "unchangedEntries": 204512,
+    "backup": "/root/volume-1430-final-6f5b0b35820",
+    "clientHttp": 200,
+    "result": "/usr/share/cloudstack-management/webapp/index.html: OK\nDEPLOY_PASS cluster=32 backup=/root/volume-1430-final-6f5b0b35820 client=200 api=401"
+  }
+}

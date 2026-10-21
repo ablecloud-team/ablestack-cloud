@@ -1,0 +1,12 @@
+{
+  "issue": 1430,
+  "sourceCommit": "6f5b0b358201d813fd0b8bfb6fa399ae973c899b",
+  "label": "management-32-clone-size",
+  "originalJarSha256": "13a50e74f01c5e486da95e79921637362b0eaf7362804613870c352dda47142c",
+  "classHashes": {
+    "com/cloud/configuration/OfferingAllocationClone.class": "c5b562896fe2e20d988f0900b6ad643090de6e2d3215a487784f0ee8f02cb711"
+  },
+  "methodPreservationProof": "PATCH_PASS changedMethods=[sizeGiB(Ljava/lang/Long;Ljava/lang/Long;)Ljava/lang/Long;] unrelatedMethodsPreserved=4 selfReferencesVerified=true\n",
+  "patchedJarSha256": "952b783b29d483d47ab6c4bcaff69f9b3dada6a76f43aab9c545e0e3a418a752",
+  "unchangedEntries": 204512
+}

@@ -38,6 +38,7 @@
       </template>
 
       <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'name'">{{ record.name }}<AllocationSummary :resource="record.allocationResource" compact /></template>
         <template v-if="column.key === 'diskSize'">
           <div v-if="record.isCustomized">{{ $t('label.iscustomized') }}</div>
           <div v-else-if="record.diskSize">{{ record.diskSize }} GB</div>
@@ -72,7 +73,9 @@
 </template>
 
 <script>
+import AllocationSummary from '@/components/view/AllocationSummary'
 export default {
+  components: { AllocationSummary },
   name: 'DiskOfferingSelection',
   props: {
     items: {
@@ -145,6 +148,7 @@ export default {
     tableSource () {
       return this.dataItems.map((item) => {
         return {
+          allocationResource: item,
           key: item.id,
           name: item.name,
           diskSize: item.disksize,

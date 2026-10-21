@@ -27,6 +27,10 @@ public final class CreateObjectCommand extends StorageSubSystemCommand {
     public CreateObjectCommand(final DataTO obj) {
         super();
         data = obj;
+        if (obj instanceof org.apache.cloudstack.storage.to.VolumeObjectTO &&
+                !((org.apache.cloudstack.storage.to.VolumeObjectTO) obj).getAllocation().isEmpty()) {
+            setWait(3600); // Full zeroing/verification has a bounded one-hour work budget.
+        }
     }
 
     protected CreateObjectCommand() {

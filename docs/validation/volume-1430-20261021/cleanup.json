@@ -1,0 +1,66 @@
+{
+  "31": {
+    "vmsExpunged": 2,
+    "volumesRemoved": 4,
+    "vmDefinitionsRemaining": 0,
+    "imagesRemaining": 0,
+    "diskOfferingsTotal": 10,
+    "computeOfferingsDeactivated": 6,
+    "allOfferingsInactive": true,
+    "generalDiskIndependentDeactivation": true,
+    "privateDiskDeactivatedWithCompute": true,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "runtime": {
+      "mold": "active",
+      "webInf": true,
+      "client": "200"
+    },
+    "temporaryFilesRemoved": 12,
+    "backupsPreserved": true,
+    "verifiedAfterFinalUi": true,
+    "finalUiBlankFieldsApiDbPreserved": true
+  },
+  "32": {
+    "vmsExpunged": 2,
+    "volumesRemoved": 4,
+    "vmDefinitionsRemaining": 0,
+    "imagesRemaining": 0,
+    "diskOfferingsTotal": 9,
+    "computeOfferingsDeactivated": 6,
+    "allOfferingsInactive": true,
+    "generalDiskIndependentDeactivation": true,
+    "privateDiskDeactivatedWithCompute": true,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "runtime": {
+      "mold": "active",
+      "webInf": true,
+      "client": "200"
+    },
+    "temporaryFilesRemoved": 10,
+    "backupsPreserved": true,
+    "verifiedAfterFinalUi": true,
+    "finalUiBlankFieldsApiDbPreserved": true
+  }
+}

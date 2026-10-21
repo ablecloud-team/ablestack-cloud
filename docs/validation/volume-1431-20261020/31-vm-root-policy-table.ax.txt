@@ -1,0 +1,1157 @@
+Browser tab: 18, Title: "가상머신 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/action/deployVirtualMachine".
+1 AXWebArea 가상머신 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/action/deployVirtualMachine
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.31.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				273 content list sub_menu_1_$$_/compute-popup
+					274 cloud-server 가상머신
+						275 link Description: cloud-server 가상머신, Value: 10.10.31.10:8080/client/#/vm
+					276 camera VM 스냅샷
+						277 link Description: camera VM 스냅샷, Value: 10.10.31.10:8080/client/#/vmsnapshot
+					278 쿠버네티스
+						279 link Description: 쿠버네티스, Value: 10.10.31.10:8080/client/#/kubernetes
+					280 fullscreen 오토스케일 VM 그룹
+						281 link Description: fullscreen 오토스케일 VM 그룹, Value: 10.10.31.10:8080/client/#/autoscalevmgroup
+					282 gold 가상머신 그룹
+						283 link Description: gold 가상머신 그룹, Value: 10.10.31.10:8080/client/#/vmgroup
+					284 key SSH 키 쌍
+						285 link Description: key SSH 키 쌍, Value: 10.10.31.10:8080/client/#/ssh
+					286 solution 사용자 데이터 라이브러리
+						287 link Description: solution 사용자 데이터 라이브러리, Value: 10.10.31.10:8080/client/#/userdata
+					288 solution CNI 구성
+						289 link Description: solution CNI 구성, Value: 10.10.31.10:8080/client/#/cniconfiguration
+					290 swap Affinity 그룹
+						291 link Description: swap Affinity 그룹, Value: 10.10.31.10:8080/client/#/affinitygroup
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 container
+					15 image wifi
+					16 text 네트워크
+				17 container
+					18 image picture
+					19 text 이미지
+				20 container
+					21 image lock
+					22 text 키 관리
+				23 schedule 이벤트
+					24 link Description: schedule 이벤트, Value: 10.10.31.10:8080/client/#/event
+				25 project 프로젝트
+					26 link Description: project 프로젝트, Value: 10.10.31.10:8080/client/#/project
+				27 idcard 역할
+					28 link Description: idcard 역할, Value: 10.10.31.10:8080/client/#/role
+				29 team 계정
+					30 link Description: team 계정, Value: 10.10.31.10:8080/client/#/account
+				31 block 도메인
+					32 link Description: block 도메인, Value: 10.10.31.10:8080/client/#/domain
+				33 container
+					34 image bank
+					35 text 인프라스트럭쳐
+				36 container
+					37 image shopping
+					38 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 10.10.31.10:8080/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 10.10.31.10:8080/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 image bell
+			123 container
+				124 text AC admin cloud
+		125 container
+			292 container
+				293 text 새 가상머신
+				294 container 새 가상머신
+					295 button 1 다른 계정에 가상머신 할당 생성할 가상머신을 특정 계정에 할당할 수 있습니다.
+						296 text 1
+						297 text 다른 계정에 가상머신 할당
+						298 text 생성할 가상머신을 특정 계정에 할당할 수 있습니다.
+						299 container
+							300 text 소유자 유형
+							301 container
+								302 combo box (settable) rc_select_8
+								303 text 계정
+							304 container
+								305 text * 도메인
+							306 container
+								307 combo box (settable) rc_select_9
+								308 image block
+								309 text  ROOT
+							310 container
+								311 text * 계정
+							443 container
+								444 combo box (settable) rc_select_10
+								445 image team
+								446 text  admin
+					313 button 2 배포 인프라 선택 Zone은 원래 단일 데이터 센터에 해당합니다. 다수의 Zone을 설정하고 물리적으로 분리하는 방법으로 클라우드의 신뢰성을 높일 수 있습니다. * Zone global Zone Pod 클러스터 호스트
+						314 text 2
+						315 text 배포 인프라 선택
+						316 text Zone은 원래 단일 데이터 센터에 해당합니다. 다수의 Zone을 설정하고 물리적으로 분리하는 방법으로 클라우드의 신뢰성을 높일 수 있습니다.
+						317 container
+							318 text * Zone
+						319 container
+							320 radio button (settable, integer) Description: global Zone, Value: 1
+							321 image global
+							447 text  Zone
+						322 text Pod
+						323 combo box (settable) Pod, ID: form_item_podid
+						324 text 클러스터
+						325 combo box (settable) 클러스터, ID: form_item_clusterid
+						326 text 호스트
+						327 combo box (settable) 호스트, ID: form_item_hostid
+					328 button 3 이미지 유형 템플릿 ISO 볼륨 스냅샷 VM의 시작에 사용할 수 있는 OS 이미지 운영체제 Ubuntu Debian Rocky Linux Windows 사용자
+						329 text 3
+						330 text 이미지
+						448 text 유형
+						331 container
+							449 container form_item_imagetype
+								450 container
+									451 radio button (settable, integer) Description: 템플릿, Value: 1
+									452 text 템플릿
+								453 container
+									454 radio button (settable, integer) Description: ISO, Value: 0
+									455 text ISO
+								456 container
+									457 radio button (settable, integer) Description: 볼륨, Value: 0
+									458 text 볼륨
+								459 container
+									460 radio button (settable, integer) Description: 스냅샷, Value: 0
+									461 text 스냅샷
+							462 text VM의 시작에 사용할 수 있는 OS 이미지
+						463 text 운영체제
+						464 container form_item_guestoscategoryid
+							465 container
+								466 radio button (settable, integer) Description: Ubuntu, Value: 1
+								467 text Ubuntu
+							468 container
+								469 radio button (settable, integer) Description: Debian, Value: 0
+								470 text Debian
+							471 container
+								472 radio button (settable, integer) Description: Rocky Linux, Value: 0
+								473 text Rocky Linux
+							474 container
+								475 radio button (settable, integer) Description: Windows, Value: 0
+								476 text Windows
+							477 container
+								478 radio button (settable, integer) Description: 사용자, Value: 0
+								479 text 사용자
+						340 container
+							341 container
+								342 combo box (settable) rc_select_14
+								480 text 필터링 기준
+							343 container
+								344 text field (settable)
+								345 button search
+									346 image search
+							347 container
+								481 content list
+									482 container
+										483 radio button (settable, integer) Description:   Ubuntu 26.04 Server Base Install (without QGA) arrows-alt 추천 공개 HVM  , Value: 1
+										484 text    Ubuntu 26.04 Server Base Install (without QGA) 
+										485 image arrows-alt
+										486 text 추천 공개 HVM
+									487 container
+										488 radio button (settable, integer) Description:   Ubuntu 24.04 Server Base Install (without QGA) arrows-alt 추천 공개 HVM  , Value: 0
+										489 text    Ubuntu 24.04 Server Base Install (without QGA) 
+										490 image arrows-alt
+										491 text 추천 공개 HVM
+									492 container
+										493 radio button (settable, integer) Description:   Ubuntu 22.04 Server Base Install (without QGA) arrows-alt 추천 공개 HVM  , Value: 0
+										494 text    Ubuntu 22.04 Server Base Install (without QGA) 
+										495 image arrows-alt
+										496 text 추천 공개 HVM
+									497 container
+										498 radio button (settable, integer) Description:   AS04 기능 검증용 Ubuntu HTTP8080 HVM  , Value: 0
+										499 text    AS04 기능 검증용 Ubuntu HTTP8080  HVM
+								348 content list
+									500 text 전체 4 개 항목
+									501 container 이전 페이지
+										502 button (disabled) left
+											503 image left
+									504 text 1
+									505 container 다음 페이지
+										506 button (disabled) right
+											507 image right
+									349 container
+										350 combo box (settable) rc_select_15
+										508 text 10 / 쪽
+					351 button 4 컴퓨트 오퍼링 검색 search 전체 21 개 항목 left 1 2 3 right 10 / 쪽 CPU 코어 1 Increase Value Decrease Value 1 메모리(MB) 1024 Increase Value Decrease Value
+						352 text 4
+						353 text 컴퓨트 오퍼링
+						354 container
+							355 text field (settable)
+							356 button search
+								357 image search
+						509 container
+							510 table
+								511 row
+									512 cell
+										513 text 컴퓨트 오퍼링
+									514 cell
+										515 image appstore
+										516 text  CPU
+									517 cell
+										518 image bulb
+										519 text  메모리
+									520 cell
+										521 image appstore
+										522 text  압축/중복제거
+									523 cell
+										524 image tag
+										525 text  스토리지 태그
+							526 table
+								527 row
+									528 cell
+										529 container
+											530 radio button (settable, integer) Description:  , Value: 1
+									531 cell
+										532 text 1C1GB-TO-64C128GB-FR-GFS-None
+										533 container
+											534 text 기존 호환 값: thin 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									535 cell
+										536 text 1-64 CPU x 2.00 Ghz
+									537 cell
+										538 text 1024-131072 MB
+									539 cell
+										540 text 비활성화
+								541 row
+									542 cell
+										543 container
+											544 radio button (settable, integer) Description:  , Value: 0
+									545 cell
+										546 text VOL1431-31-20261020-own-root
+										547 container
+											548 text Eager zeroed thick (full) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									549 cell
+										550 text 1 CPU x 1.00 Ghz
+									551 cell
+										552 text 512 MB
+									553 cell
+										554 text 비활성화
+									555 cell
+										556 text glue-gfs
+								557 row
+									558 cell
+										559 container
+											560 radio button (settable, integer) Description:  , Value: 0
+									561 cell
+										562 text VOL1431-31-20261020-own-root-clone
+										563 container
+											564 text Eager zeroed thick (full) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									565 cell
+										566 text 1 CPU x 1.00 Ghz
+									567 cell
+										568 text 512 MB
+									569 cell
+										570 text 비활성화
+									571 cell
+										572 text glue-gfs
+								573 row
+									574 cell
+										575 container
+											576 radio button (settable, integer) Description:  , Value: 0
+									577 cell
+										578 text VOL1431-31-20261020-linked-root
+										579 container
+											580 text Eager zeroed thick (full) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									581 cell
+										582 text 1 CPU x 1.00 Ghz
+									583 cell
+										584 text 512 MB
+									585 cell
+										586 text 비활성화
+									587 cell
+										588 text glue-gfs
+								589 row
+									590 cell
+										591 container
+											592 radio button (settable, integer) Description:  , Value: 0
+									593 cell
+										594 text VOL1431-31-20261020-linked-root-clone
+										595 container
+											596 text Eager zeroed thick (full) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									597 cell
+										598 text 1 CPU x 1.00 Ghz
+									599 cell
+										600 text 512 MB
+									601 cell
+										602 text 비활성화
+									603 cell
+										604 text glue-gfs
+								605 row
+									606 cell
+										607 container
+											608 radio button (settable, integer) Description:  , Value: 0
+									609 cell
+										610 text VOL1431-UI31-own-raw-off
+										611 container
+											612 text Thin (off) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									613 cell
+										614 text 1 CPU x 1.00 Ghz
+									615 cell
+										616 text 512 MB
+									617 cell
+										618 text 비활성화
+									619 cell
+										620 text glue-gfs
+								621 row
+									622 cell
+										623 container
+											624 radio button (settable, integer) Description:  , Value: 0
+									625 cell
+										626 text VOL1431-UI31-own-raw-off-clone
+										627 container
+											628 text Thin (off) · RAW 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									629 cell
+										630 text 1 CPU x 1.00 Ghz
+									631 cell
+										632 text 512 MB
+									633 cell
+										634 text 비활성화
+									635 cell
+										636 text glue-gfs
+								637 row
+									638 cell
+										639 container
+											640 radio button (settable, integer) Description:  , Value: 0
+									641 cell
+										642 text 1C1GB-TO-64C128GB-FR-GFS
+										643 container
+											644 text 기존 호환 값: sparse 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									645 cell
+										646 text 1-64 CPU x 2.00 Ghz
+									647 cell
+										648 text 1024-131072 MB
+									649 cell
+										650 text 비활성화
+									651 cell
+										652 text glue-gfs
+								653 row
+									654 cell
+										655 container
+											656 radio button (settable, integer) Description:  , Value: 0
+									657 cell
+										658 text 1C1GB-TO-64C128GB-FR-CLVM
+										659 container
+											660 text 기존 호환 값: thin 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									661 cell
+										662 text 1-64 CPU x 2.00 Ghz
+									663 cell
+										664 text 1024-131072 MB
+									665 cell
+										666 text 비활성화
+									667 cell
+										668 text clvm
+								669 row
+									670 cell
+										671 container
+											672 radio button (settable, integer) Description:  , Value: 0
+									673 cell
+										674 text 1C1GB-TO-64C128GB-FR-CLVM-NG
+										675 container
+											676 text 기존 호환 값: thin 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+									677 cell
+										678 text 1-64 CPU x 2.00 Ghz
+									679 cell
+										680 text 1024-131072 MB
+									681 cell
+										682 text 비활성화
+									683 cell
+										684 text clvm-ng
+						358 content list
+							685 text 전체 21 개 항목
+							686 container 이전 페이지
+								687 button (disabled) left
+									688 image left
+							689 text 1
+							690 text 2
+							691 text 3
+							692 container 다음 페이지
+								693 button right
+									694 image right
+							359 container
+								360 combo box (settable) rc_select_16
+								695 text 10 / 쪽
+						696 container
+							697 text CPU 코어
+							698 container
+								699 container
+									700 slider 1
+								701 container
+									702 button Increase Value
+										703 image up
+									704 button (disabled) Decrease Value
+										705 image down
+									706 stepper (settable, integer) 1
+							707 text 메모리(MB)
+							708 container
+								709 container
+									710 slider 1024
+								711 container
+									712 button Increase Value
+										713 image up
+									714 button (disabled) Decrease Value
+										715 image down
+									716 stepper (settable, integer) 1024
+					361 button 5 루트 디스크 1 루트 디스크 오퍼링 루트 디스크 오퍼링 무시 다른 디스크 오퍼링을 선택해 루트 디스크를 구성합니다. 검색 search 전체 10 개 항목 left 1 right 10 / 쪽 2 루트 디스크 용량 1 GB 고정 용량 최소 IOPS Increase Value Decrease Value 최대 IOPS
+						362 text 5
+						363 text 루트 디스크
+						717 container
+							718 heading 1 루트 디스크 오퍼링, Value: 4
+								719 text 1 루트 디스크 오퍼링
+							720 text 루트 디스크 오퍼링 무시
+							721 container
+								722 switch 1
+								723 text 다른 디스크 오퍼링을 선택해 루트 디스크를 구성합니다.
+							1199 text field (settable)
+							1200 button search
+								1201 image search
+							1202 container
+								1203 table
+									1204 row
+										1205 cell
+											1206 text 디스크 오퍼링
+										1207 cell
+											1208 image hdd
+											1209 text  디스크 크기(GB 단위)
+										1210 cell
+											1211 image rocket
+											1212 text  최소 IOPS/최대 IOPS
+								1213 table
+									1214 row
+										1215 cell
+											1216 container
+												1217 radio button (settable, integer) Description:  , Value: 0
+										1218 cell
+											1219 text VOL1431-31-20261020-qcow2-metadata
+											1220 text Thin (metadata) · QCOW2
+										1221 cell
+											1222 text 1 GB
+										1223 cell
+											1224 text -
+									1225 row
+										1226 cell
+											1227 container
+												1228 radio button (settable, integer) Description:  , Value: 0
+										1229 cell
+											1230 text VOL1431-UI31-metadata
+											1231 text Thin (metadata) · QCOW2
+										1232 cell
+											1233 text 1 GB
+										1234 cell
+											1235 text -
+									1236 row
+										1237 cell
+											1238 container
+												1239 radio button (settable, integer) Description:  , Value: 0
+										1240 cell
+											1241 text VOL1431-UI31-metadata-clone
+											1242 text Thin (metadata) · QCOW2
+										1243 cell
+											1244 text 1 GB
+										1245 cell
+											1246 text -
+									1247 row
+										1248 cell
+											1249 container
+												1250 radio button (settable, integer) Description:  , Value: 0
+										1251 cell
+											1252 text VOL1431-31-20261020-qcow2-metadata-clone
+											1253 text Thin (metadata) · QCOW2
+										1254 cell
+											1255 text 1 GB
+										1256 cell
+											1257 text -
+									1258 row
+										1259 cell
+											1260 container
+												1261 radio button (settable, integer) Description:  , Value: 0
+										1262 cell
+											1263 text VOL1431-31-20261020-qcow2-falloc
+											1264 text Lazy zeroed thick (falloc) · QCOW2
+										1265 cell
+											1266 text 1 GB
+										1267 cell
+											1268 text -
+									1269 row
+										1270 cell
+											1271 container
+												1272 radio button (settable, integer) Description:  , Value: 0
+										1273 cell
+											1274 text VOL1431-31-20261020-qcow2-falloc-clone
+											1275 text Lazy zeroed thick (falloc) · QCOW2
+										1276 cell
+											1277 text 1 GB
+										1278 cell
+											1279 text -
+									1280 row
+										1281 cell
+											1282 container
+												1283 radio button (settable, integer) Description:  , Value: 0
+										1284 cell
+											1285 text VOL1431-31-20261020-qcow2-full
+											1286 text Eager zeroed thick (full) · QCOW2
+										1287 cell
+											1288 text 1 GB
+										1289 cell
+											1290 text -
+									1291 row
+										1292 cell
+											1293 container
+												1294 radio button (settable, integer) Description:  , Value: 0
+										1295 cell
+											1296 text VOL1431-31-20261020-qcow2-full-clone
+											1297 text Eager zeroed thick (full) · QCOW2
+										1298 cell
+											1299 text 1 GB
+										1300 cell
+											1301 text -
+									1302 row
+										1303 cell
+											1304 container
+												1305 radio button (settable, integer) Description:  , Value: 1
+										1306 cell
+											1307 text VOL1431-31-20261020-raw-off
+											1308 text Thin (off) · RAW
+										1309 cell
+											1310 text 1 GB
+										1311 cell
+											1312 text -
+									1313 row
+										1314 cell
+											1315 container
+												1316 radio button (settable, integer) Description:  , Value: 0
+										1317 cell
+											1318 text VOL1431-31-20261020-raw-off-clone
+											1319 text Thin (off) · RAW
+										1320 cell
+											1321 text 1 GB
+										1322 cell
+											1323 text -
+							1324 content list
+								1325 text 전체 10 개 항목
+								1326 container 이전 페이지
+									1327 button (disabled) left
+										1328 image left
+								1329 text 1
+								1330 container 다음 페이지
+									1331 button (disabled) right
+										1332 image right
+								1333 container
+									1334 combo box (settable) rc_select_22
+									1335 text 10 / 쪽
+						1336 container
+							1337 heading 2 루트 디스크 용량, Value: 4
+								1338 text 2 루트 디스크 용량
+							1339 container
+								1340 stepper (disabled, settable, integer) 1
+								1341 text GB 고정 용량
+							1342 text 최소 IOPS
+							1343 container
+								1344 button Increase Value
+									1345 image up
+								1346 button Decrease Value
+									1347 image down
+								1348 stepper (settable, integer) 0
+							1349 text 최대 IOPS
+							1350 container
+								1351 button Increase Value
+									1352 image up
+								1353 button Decrease Value
+									1354 image down
+								1355 stepper (settable, integer) 0
+						733 container
+							734 text 3 3 루트 디스크의 기본 스토리지
+						735 button loading 업데이트
+							1356 image loading
+							737 text 업데이트
+						738 container
+							739 text field (settable)
+							740 button search
+								741 image search
+						742 container
+							743 radio button (settable, integer) Description: 자동 선택  , Value: 1
+							744 text 자동 선택
+						1357 container
+							1358 image loading
+							1359 table
+								1360 row
+									1361 cell
+										1362 text 스토리지
+									1363 cell
+										1364 text 총 용량
+									1365 cell
+										1366 text 할당 용량
+									1367 cell
+										1368 text 물리 여유
+									1369 cell
+										1370 text 추가 할당 가능
+									1371 cell
+										1372 text 필요 용량
+								1373 row
+									1374 cell
+										1375 container
+											1376 radio button (settable, integer) Description:  , Value: 0
+									1377 cell
+										1378 text Primary
+										1379 text SharedMountPoint · CLUSTER
+									1380 cell
+										1381 text 21.83 TiB
+									1382 cell
+										1383 text 9.93 TiB
+									1384 cell
+										1385 text 18.72 TiB
+									1386 cell
+										1387 text 11.89 TiB
+									1388 cell
+										1389 text 100 GiB
+						776 container
+							777 text 할당 용량에는 예약 용량이 포함됩니다. 물리 여유와 추가 할당 가능 용량은 서로 다를 수 있습니다.  · 오후 6:14:01
+					364 button 6 데이터 디스크 검색 search 전체 10 개 항목 left 1 right 10 / 쪽 최소 IOPS Increase Value Decrease Value 최대 IOPS Increase Value Decrease Value 디스크 크기(GB 단위) 1 GB 고정 용량 데이터 디스크 개수
+						365 text 6
+						778 container
+							779 text 데이터 디스크
+							780 text field (settable)
+							781 button search
+								782 image search
+							783 container
+								784 table
+									785 row
+										786 cell
+											787 text 디스크 오퍼링
+										788 cell
+											789 image hdd
+											790 text  디스크 크기(GB 단위)
+										791 cell
+											792 image rocket
+											793 text  최소 IOPS/최대 IOPS
+								794 table
+									795 row
+										796 cell
+											797 container
+												798 radio button (settable, integer) Description:  , Value: 0
+										799 cell
+											800 text 설정 안함
+											801 text 기존 호환 값: 알 수 없음
+										802 cell
+											803 text -
+										804 cell
+											805 text -
+									806 row
+										807 cell
+											808 container
+												809 radio button (settable, integer) Description:  , Value: 1
+										810 cell
+											811 text VOL1431-31-20261020-qcow2-metadata
+											812 text Thin (metadata) · QCOW2
+										813 cell
+											814 text 1 GB
+										815 cell
+											816 text -
+									817 row
+										818 cell
+											819 container
+												820 radio button (settable, integer) Description:  , Value: 0
+										821 cell
+											822 text VOL1431-UI31-metadata
+											823 text Thin (metadata) · QCOW2
+										824 cell
+											825 text 1 GB
+										826 cell
+											827 text -
+									828 row
+										829 cell
+											830 container
+												831 radio button (settable, integer) Description:  , Value: 0
+										832 cell
+											833 text VOL1431-UI31-metadata-clone
+											834 text Thin (metadata) · QCOW2
+										835 cell
+											836 text 1 GB
+										837 cell
+											838 text -
+									839 row
+										840 cell
+											841 container
+												842 radio button (settable, integer) Description:  , Value: 0
+										843 cell
+											844 text VOL1431-31-20261020-qcow2-metadata-clone
+											845 text Thin (metadata) · QCOW2
+										846 cell
+											847 text 1 GB
+										848 cell
+											849 text -
+									850 row
+										851 cell
+											852 container
+												853 radio button (settable, integer) Description:  , Value: 0
+										854 cell
+											855 text VOL1431-31-20261020-qcow2-falloc
+											856 text Lazy zeroed thick (falloc) · QCOW2
+										857 cell
+											858 text 1 GB
+										859 cell
+											860 text -
+									861 row
+										862 cell
+											863 container
+												864 radio button (settable, integer) Description:  , Value: 0
+										865 cell
+											866 text VOL1431-31-20261020-qcow2-falloc-clone
+											867 text Lazy zeroed thick (falloc) · QCOW2
+										868 cell
+											869 text 1 GB
+										870 cell
+											871 text -
+									872 row
+										873 cell
+											874 container
+												875 radio button (settable, integer) Description:  , Value: 0
+										876 cell
+											877 text VOL1431-31-20261020-qcow2-full
+											878 text Eager zeroed thick (full) · QCOW2
+										879 cell
+											880 text 1 GB
+										881 cell
+											882 text -
+									883 row
+										884 cell
+											885 container
+												886 radio button (settable, integer) Description:  , Value: 0
+										887 cell
+											888 text VOL1431-31-20261020-qcow2-full-clone
+											889 text Eager zeroed thick (full) · QCOW2
+										890 cell
+											891 text 1 GB
+										892 cell
+											893 text -
+									894 row
+										895 cell
+											896 container
+												897 radio button (settable, integer) Description:  , Value: 0
+										898 cell
+											899 text VOL1431-31-20261020-raw-off
+											900 text Thin (off) · RAW
+										901 cell
+											902 text 1 GB
+										903 cell
+											904 text -
+									905 row
+										906 cell
+											907 container
+												908 radio button (settable, integer) Description:  , Value: 0
+										909 cell
+											910 text VOL1431-31-20261020-raw-off-clone
+											911 text Thin (off) · RAW
+										912 cell
+											913 text 1 GB
+										914 cell
+											915 text -
+							916 content list
+								917 text 전체 10 개 항목
+								918 container 이전 페이지
+									919 button (disabled) left
+										920 image left
+								921 text 1
+								922 container 다음 페이지
+									923 button (disabled) right
+										924 image right
+								925 container
+									926 combo box (settable) rc_select_17
+									927 text 10 / 쪽
+							928 text 최소 IOPS
+							929 container
+								930 button Increase Value
+									931 image up
+								932 button Decrease Value
+									933 image down
+								934 stepper (settable, integer) 0
+							935 text 최대 IOPS
+							936 container
+								937 button Increase Value
+									938 image up
+								939 button Decrease Value
+									940 image down
+								941 stepper (settable, integer) 0
+							942 text 디스크 크기(GB 단위)
+							943 container
+								944 stepper (disabled, settable, integer) 1
+								945 text GB 고정 용량
+							946 text 데이터 디스크 개수
+							947 container
+								948 button Increase Value
+									949 image up
+								950 button (disabled) Decrease Value
+									951 image down
+								952 stepper (settable, integer) 1
+							953 text 합계 용량: 1 GB 서로 다른 오퍼링이나 용량의 디스크를 추가하려면 가상머신 생성 후 볼륨 생성·연결 기능을 사용하세요. 데이터 디스크의 기본 스토리지
+							954 button loading 업데이트
+								1390 image loading
+								955 text 업데이트
+							956 text field (settable)
+							957 button search
+								958 image search
+							959 radio button (settable, integer) Description: 자동 선택  , Value: 1
+							960 text 자동 선택
+							1391 image loading
+							961 table
+								962 row
+									963 cell
+										964 text 스토리지
+									965 cell
+										966 text 총 용량
+									967 cell
+										968 text 할당 용량
+									969 cell
+										970 text 물리 여유
+									971 cell
+										972 text 추가 할당 가능
+									973 cell
+										974 text 필요 용량
+								1182 row
+									1183 cell
+										1184 container
+											1185 radio button (settable, integer) Description:  , Value: 0
+									1186 cell
+										1187 text Primary
+										1188 text SharedMountPoint · CLUSTER
+									1189 cell
+										1190 text 21.83 TiB
+									1191 cell
+										1192 text 9.93 TiB
+									1193 cell
+										1194 text 18.72 TiB
+									1195 cell
+										1196 text 11.89 TiB
+									1197 cell
+										1198 text 1 GiB
+							978 text 할당 용량에는 예약 용량이 포함됩니다. 물리 여유와 추가 할당 가능 용량은 서로 다를 수 있습니다.  · 오후 6:14:02
+					381 button 7 네트워크 인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다. 검색 search 새로운 네트워크 생성 전체 6 개 항목 left 1 right 10 / 쪽
+						382 text 7
+						383 text 네트워크
+						979 text 인스턴스를 연결할 네트워크를 하나 이상 선택하세요. 여기에서 새 네트워크를 만들 수도 있습니다. 여기에서 새 네트워크를 생성할 수도 있습니다.
+						384 container
+							385 text field (settable)
+							386 button search
+								387 image search
+						980 button 새로운 네트워크 생성
+						981 container
+							982 table
+								983 row
+									984 cell
+										985 container
+											986 checkbox (settable, integer) Description:  , Value: 0
+									987 cell
+										988 text 네트워크
+									989 cell
+										990 text 게스트 유형
+									991 cell
+										992 text VPC
+									993 cell
+										994 text VM 오토스케일링 지원
+							995 table
+								996 row
+									997 cell
+										998 button Expand row
+									999 cell
+										1000 container
+											1001 checkbox (settable, integer) Description:  , Value: 0
+									1002 cell
+										1003 image apartment
+										1004 text  AS-PROD-31-AS01-net
+									1005 cell
+										1006 text Isolated
+									1007 cell
+										1008 text Yes
+								1009 row
+									1010 cell
+										1011 button Expand row
+									1012 cell
+										1013 container
+											1014 checkbox (settable, integer) Description:  , Value: 0
+									1015 cell
+										1016 image apartment
+										1017 text  E1335-VM-Origin-L2
+									1018 cell
+										1019 text L2
+									1020 cell
+										1021 text No
+								1022 row
+									1023 cell
+										1024 button Expand row
+									1025 cell
+										1026 container
+											1027 checkbox (settable, integer) Description:  , Value: 0
+									1028 cell
+										1029 image apartment
+										1030 text  k8s-ui1330-gfs2-net
+									1031 cell
+										1032 text Isolated
+									1033 cell
+										1034 text No
+								1035 row
+									1036 cell
+										1037 button Expand row
+									1038 cell
+										1039 container
+											1040 checkbox (settable, integer) Description:  , Value: 0
+									1041 cell
+										1042 image apartment
+										1043 text  Admin-Isoloated-Net
+									1044 cell
+										1045 text Isolated
+									1046 cell
+										1047 text Yes
+								1048 row
+									1049 cell
+										1050 button Expand row
+									1051 cell
+										1052 container
+											1053 checkbox (settable, integer) Description:  , Value: 0
+									1054 cell
+										1055 image apartment
+										1056 text  L2-Test
+									1057 cell
+										1058 text L2
+									1059 cell
+										1060 text No
+								1061 row
+									1062 cell
+										1063 button Expand row
+									1064 cell
+										1065 container
+											1066 checkbox (settable, integer) Description:  , Value: 0
+									1067 cell
+										1068 image apartment
+										1069 text  ADMIN-L2-Network
+									1070 cell
+										1071 text L2
+									1072 cell
+										1073 text No
+						395 content list
+							1074 text 전체 6 개 항목
+							1075 container 이전 페이지
+								1076 button (disabled) left
+									1077 image left
+							1078 text 1
+							1079 container 다음 페이지
+								1080 button (disabled) right
+									1081 image right
+							396 container
+								397 combo box (settable) rc_select_18
+								1082 text 10 / 쪽
+					398 button 8 SSH 키 쌍 검색 search 전체 3 개 항목 left 1 right 10 / 쪽
+						399 text 8
+						400 text SSH 키 쌍
+						401 container
+							402 text field (settable)
+							403 button search
+								404 image search
+						1083 container
+							1084 table
+								1085 row
+									1086 cell
+										1087 container
+											1088 checkbox (settable, integer) Description:  , Value: 0
+									1089 cell
+										1090 text SSH 키 쌍
+									1091 cell
+										1092 image user
+										1093 text  계정
+									1094 cell
+										1095 image block
+										1096 text  도메인
+							1097 table
+								1098 row
+									1099 cell
+										1100 container
+											1101 checkbox (settable, integer) Description:  , Value: 0
+									1102 cell
+										1103 text ssh-test-dhslove
+									1104 cell
+										1105 text admin
+									1106 cell
+										1107 text ROOT
+								1108 row
+									1109 cell
+										1110 container
+											1111 checkbox (settable, integer) Description:  , Value: 0
+									1112 cell
+										1113 text k1230-20261006
+									1114 cell
+										1115 text admin
+									1116 cell
+										1117 text ROOT
+								1118 row
+									1119 cell
+										1120 container
+											1121 checkbox (settable, integer) Description:  , Value: 0
+									1122 cell
+										1123 text k8s-1
+									1124 cell
+										1125 text admin
+									1126 cell
+										1127 text ROOT
+						412 content list
+							1128 text 전체 3 개 항목
+							1129 container 이전 페이지
+								1130 button (disabled) left
+									1131 image left
+							1132 text 1
+							1133 container 다음 페이지
+								1134 button (disabled) right
+									1135 image right
+							413 container
+								414 combo box (settable) rc_select_19
+								1136 text 10 / 쪽
+					415 button 9 확장 모드 고급 설정 표시 
+						416 text 9
+						417 text 확장 모드
+						418 container
+							419 text 고급 설정 표시 
+							420 switch 0
+					421 button 10 상세 가상머신을 생성하기 전에 다음 설정을 확인해 주세요. 이름(옵션) 그룹(옵션) 업데이트 키보드 언어 생성할 가상머신 수 Increase Value Decrease Value 1 가상머신 생성 후 바로 시작 가상머신을 생성하고 중지 상태로 유지합니다. 생성 후 상세 화면에서 시작할 수 있습니다.
+						422 text 10
+						423 text 상세
+						424 text 가상머신을 생성하기 전에 다음 설정을 확인해 주세요.
+						1137 text 이름(옵션)
+						425 text field (settable) 이름(옵션), ID: form_item_name
+						1138 text 그룹(옵션)
+						426 container
+							427 combo box (settable) 그룹(옵션), ID: form_item_group
+							1139 text 대상 소유 범위에 그룹이 없습니다. 새 이름을 입력하면 해당 소유 범위에 생성합니다.
+							428 button 업데이트
+						1140 text 키보드 언어
+						429 combo box (settable) 키보드 언어, ID: form_item_keyboard
+						1141 text 생성할 가상머신 수
+						430 container
+							1142 button Increase Value
+								1143 image up
+							1144 button (disabled) Decrease Value
+								1145 image down
+							431 stepper (settable, integer) 1
+						1146 text 가상머신 생성 후 바로 시작
+						432 container
+							433 switch Description: 가상머신 생성 후 바로 시작, Value: 0, ID: form_item_startvm
+							1147 text 가상머신을 생성하고 중지 상태로 유지합니다. 생성 후 상세 화면에서 시작할 수 있습니다.
+			434 container
+				435 text 귀하의 가상머신
+				437 heading 4
+				1148 text KVM
+				1149 text OS 유형
+				1150 text Ubuntu 26.04 (64-bit)
+				1151 text CPU
+				1152 text 1 CPU x 2.00 GHz 
+				1153 image question-circle
+				1154 text 메모리
+				1155 text 1024 MB 메모리
+				1156 text 디스크 크기(GB 단위)
+				1157 image database
+				1158 text 1 GB (Root) | 1 GB × 1 (Data)
+				1159 container
+					1160 text 루트 디스크의 기본 스토리지
+					1161 text 자동 선택 · 1 GB
+				1162 container
+					1163 text 데이터 디스크의 기본 스토리지
+					1164 text 자동 선택 · 1 GB × 1 · 1 GB
+				1165 text 템플릿
+				1166 image save
+				1167 link Description: Ubuntu 26.04 Server Base Install (without QGA), Value: 10.10.31.10:8080/client/#/template/c86d655a-e460-4c24-9589-f435934d71c4
+				1168 text 컴퓨트 오퍼링
+				1169 image cloud
+				1170 link Description: 1C1GB-TO-64C128GB-FR-GFS-None, Value: 10.10.31.10:8080/client/#/computeoffering/e0b40823-d63b-4d55-a607-98ea93041dd6
+				1171 text 디스크 오퍼링
+				1172 image hdd
+				1392 link Description: VOL1431-31-20261020-raw-off (Root), Value: 10.10.31.10:8080/client/#/diskoffering/a61afb4f-d34a-4b02-8f37-540f3a9b4900
+				1393 text  | 
+				1173 link Description: VOL1431-31-20261020-qcow2-metadata (Data), Value: 10.10.31.10:8080/client/#/diskoffering/46388d8f-fa2e-4cc7-b5b9-e427fa764269
+				1174 text Zone
+				1175 image global
+				1176 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				1177 text 부팅 유형
+				1178 text UEFI
+				1179 text 부팅 모드
+				1180 text LEGACY
+				438 button (disabled) rocket 가상머신 생성
+					439 image rocket
+					440 text 가상머신 생성
+				441 button (disabled) down
+					442 image down
+	270 container
+		271 image info-circle
+		272 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+
+The focused UI element is 361 button 5 루트 디스크 1 루트 디스크 오퍼링 루트 디스크 오퍼링 무시 다른 디스크 오퍼링을 선택해 루트 디스크를 구성합니다. 검색 search 전체 10 개 항목 left 1 right 10 / 쪽 2 루트 디스크 용량 1 GB 고정 용량 최소 IOPS Increase Value Decrease Value 최대 IOPS

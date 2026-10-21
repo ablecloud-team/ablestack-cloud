@@ -1,0 +1,52 @@
+{
+  "uiEvidenceRecords": 77,
+  "resizePostCount": 35,
+  "allPostBodiesVerified": true,
+  "traceGaps": 0,
+  "perCluster": {
+    "31": {
+      "posts": 17,
+      "doubleClickPosts": 1,
+      "sameJobRecheckPosts": 0,
+      "finalCurrentValues": [
+        {
+          "disabled": false,
+          "id": "form_item_size",
+          "value": "4"
+        },
+        {
+          "disabled": false,
+          "id": "form_item_miniops",
+          "value": "170"
+        },
+        {
+          "disabled": false,
+          "id": "form_item_maxiops",
+          "value": "360"
+        }
+      ]
+    },
+    "32": {
+      "posts": 18,
+      "doubleClickPosts": 1,
+      "sameJobRecheckPosts": 0,
+      "finalCurrentValues": [
+        {
+          "disabled": false,
+          "id": "form_item_size",
+          "value": "4"
+        },
+        {
+          "disabled": false,
+          "id": "form_item_miniops",
+          "value": "170"
+        },
+        {
+          "disabled": false,
+          "id": "form_item_maxiops",
+          "value": "360"
+        }
+      ]
+    }
+  }
+}

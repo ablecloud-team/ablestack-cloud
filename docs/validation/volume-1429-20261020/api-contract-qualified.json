@@ -1,0 +1,182 @@
+[
+  {
+    "cluster": 31,
+    "case": "exact-offering-custom",
+    "volumeId": "f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "offeringId": "4ee01ac0-ac58-4ea5-b008-eb30c39e03ff",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 23,
+    "customIops": true,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "exact-offering-fixed",
+    "volumeId": "18195d32-f4cf-4134-a47a-e61f611f0e3a",
+    "offeringId": "de3d974b-39c8-4b1b-9611-7de4879f9745",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 23,
+    "customIops": false,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "exact-offering-strict",
+    "volumeId": "ca4ef757-6d5a-42b0-beb7-9b389c89efc6",
+    "offeringId": "b19effb3-9a34-46d1-b136-21f950a6773b",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 23,
+    "customIops": false,
+    "strictSize": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "exact-offering-explicit",
+    "volumeId": "bdf24ff4-125a-440e-817a-17b8e5d0e973",
+    "offeringId": "bc02f2d7-9572-4ae6-a864-ad5e82d8f32a",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 23,
+    "customIops": true,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "backend-reject-fixed",
+    "args": {
+      "miniops": 100,
+      "maxiops": 200
+    },
+    "reason": "The current disk offering does not support customization of the 'Min IOPS' parameter.",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "backend-reject-strict",
+    "args": {
+      "size": 2
+    },
+    "reason": "Resize of volume ca4ef757-6d5a-42b0-beb7-9b389c89efc6 is not allowed, since disk size is strictly fixed as per the disk offering",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "backend-reject-explicit",
+    "args": {
+      "size": 2
+    },
+    "reason": "ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "backend-reject-custom",
+    "args": {
+      "miniops": 400,
+      "maxiops": 200
+    },
+    "reason": "The 'miniops' parameter must be less than or equal to the 'maxiops' parameter.",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "exact-offering-custom",
+    "volumeId": "4d3af36e-4f83-4436-8f12-07680a329ece",
+    "offeringId": "08182e35-508a-4af4-b6b7-7c8794653a38",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 22,
+    "customIops": true,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "exact-offering-fixed",
+    "volumeId": "15f73699-1e51-4a1a-898a-ed67636cbbdd",
+    "offeringId": "3449a2c3-391a-4d76-aa82-bcc47558792d",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 22,
+    "customIops": false,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "exact-offering-strict",
+    "volumeId": "dc934ef3-c8e2-45fa-8990-6ce43992bd34",
+    "offeringId": "d76d34c8-6e3b-4e93-b8ef-7f545ada568b",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 22,
+    "customIops": false,
+    "strictSize": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "exact-offering-explicit",
+    "volumeId": "ec85e0e4-b77d-43d8-9ccf-40444374fe48",
+    "offeringId": "4812af46-79f8-4b1c-af73-a31eeaca2587",
+    "firstPageContainsTarget": false,
+    "firstPageRows": 10,
+    "totalOfferings": 22,
+    "customIops": true,
+    "strictSize": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "backend-reject-fixed",
+    "args": {
+      "miniops": 100,
+      "maxiops": 200
+    },
+    "reason": "The current disk offering does not support customization of the 'Min IOPS' parameter.",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "backend-reject-strict",
+    "args": {
+      "size": 2
+    },
+    "reason": "Resize of volume dc934ef3-c8e2-45fa-8990-6ce43992bd34 is not allowed, since disk size is strictly fixed as per the disk offering",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "backend-reject-explicit",
+    "args": {
+      "size": 2
+    },
+    "reason": "ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved",
+    "preserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "backend-reject-custom",
+    "args": {
+      "miniops": 400,
+      "maxiops": 200
+    },
+    "reason": "The 'miniops' parameter must be less than or equal to the 'maxiops' parameter.",
+    "preserved": true,
+    "pass": true
+  }
+]

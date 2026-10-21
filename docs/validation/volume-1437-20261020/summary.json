@@ -1,0 +1,653 @@
+{
+  "issue": 1437,
+  "epic": 1422,
+  "pr": 1435,
+  "sourceCommit": "475184d41d012d8e50547b5dd7a87cbe374efbe7",
+  "decision": {
+    "retry": "initial plus at most two fresh falloc attempts on compare exit 1 only",
+    "fullFallback": false,
+    "hostKernelStorageChanges": false,
+    "issueRemainsOpen": false,
+    "reason": "Product remediation completed with verified bounded fresh-image retries and safe failure. Kernel/host/storage root fixes are outside product and issue closure scope.",
+    "issueState": "closed",
+    "stateReason": "completed"
+  },
+  "sourceBuild": {
+    "modules": [
+      "plugins/hypervisors/kvm"
+    ],
+    "environment": "WSL ext4 JDK17 Maven3.9.10",
+    "tests": 90,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "checkstyle": "pass",
+    "fullCloudCI": false
+  },
+  "exactArtifactTests": {
+    "hosts": 3,
+    "testsPerHost": 90,
+    "total": 270,
+    "failures": 0
+  },
+  "native": {
+    "activeJarAssertions": 87,
+    "preDeployArtifactAssertions": 87,
+    "cases": [
+      [
+        {
+          "case": "raw-full-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "raw-full-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "raw-full-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "raw-falloc-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "raw-falloc-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "raw-falloc-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "raw-off-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "raw-off-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "raw-off-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "qcow2-metadata-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "qcow2-metadata-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "qcow2-metadata-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "qcow2-full-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "qcow2-full-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "qcow2-full-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "qcow2-falloc-blank-whole-zero",
+          "pass": true
+        },
+        {
+          "case": "qcow2-falloc-copy-pattern-zero-tail",
+          "pass": true
+        },
+        {
+          "case": "qcow2-falloc-lost-response-inode",
+          "pass": true
+        },
+        {
+          "case": "raw-two-real-mismatches-then-fresh-success",
+          "pass": true
+        },
+        {
+          "case": "raw-recovered-policy-remains-falloc",
+          "pass": true
+        },
+        {
+          "case": "qcow2-two-real-mismatches-then-fresh-success",
+          "pass": true
+        },
+        {
+          "case": "qcow2-recovered-policy-remains-falloc",
+          "pass": true
+        },
+        {
+          "case": "reject:after 3 attempt(s)",
+          "pass": true
+        },
+        {
+          "case": "exhausted-no-public-image",
+          "pass": true
+        },
+        {
+          "case": "reject:exit=4",
+          "pass": true
+        },
+        {
+          "case": "read-error-no-retry",
+          "pass": true
+        },
+        {
+          "case": "first-failure-retained",
+          "pass": true
+        },
+        {
+          "case": "all-transient-stages-clean",
+          "pass": true
+        },
+        {
+          "case": "source-hash-preserved",
+          "pass": true
+        }
+      ],
+      [
+        {
+          "pass": true,
+          "case": "raw-full-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-full-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-full-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-two-real-mismatches-then-fresh-success"
+        },
+        {
+          "pass": true,
+          "case": "raw-recovered-policy-remains-falloc"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-two-real-mismatches-then-fresh-success"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-recovered-policy-remains-falloc"
+        },
+        {
+          "pass": true,
+          "case": "reject:after 3 attempt(s)"
+        },
+        {
+          "pass": true,
+          "case": "exhausted-no-public-image"
+        },
+        {
+          "pass": true,
+          "case": "reject:exit=4"
+        },
+        {
+          "pass": true,
+          "case": "read-error-no-retry"
+        },
+        {
+          "pass": true,
+          "case": "first-failure-retained"
+        },
+        {
+          "pass": true,
+          "case": "all-transient-stages-clean"
+        },
+        {
+          "pass": true,
+          "case": "source-hash-preserved"
+        }
+      ],
+      [
+        {
+          "pass": true,
+          "case": "raw-full-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-full-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-full-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-falloc-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "raw-off-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-metadata-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-full-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-blank-whole-zero"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-copy-pattern-zero-tail"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-falloc-lost-response-inode"
+        },
+        {
+          "pass": true,
+          "case": "raw-two-real-mismatches-then-fresh-success"
+        },
+        {
+          "pass": true,
+          "case": "raw-recovered-policy-remains-falloc"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-two-real-mismatches-then-fresh-success"
+        },
+        {
+          "pass": true,
+          "case": "qcow2-recovered-policy-remains-falloc"
+        },
+        {
+          "pass": true,
+          "case": "reject:after 3 attempt(s)"
+        },
+        {
+          "pass": true,
+          "case": "exhausted-no-public-image"
+        },
+        {
+          "pass": true,
+          "case": "reject:exit=4"
+        },
+        {
+          "pass": true,
+          "case": "read-error-no-retry"
+        },
+        {
+          "pass": true,
+          "case": "first-failure-retained"
+        },
+        {
+          "pass": true,
+          "case": "all-transient-stages-clean"
+        },
+        {
+          "pass": true,
+          "case": "source-hash-preserved"
+        }
+      ]
+    ],
+    "controlledFaults": "writes to dedicated images force real qemu-img compare exit 1; separate from genuine lower-path failures",
+    "crossHostRace": {
+      "root": "/mnt/glue-gfs/VOL1437-cross-race",
+      "uuid": "f6b5adcd-00fd-424b-b3c0-5b7409658179",
+      "actors": [
+        "RACE_RESULT A published=true\n",
+        "RACE_RESULT B published=false\n"
+      ],
+      "retryHost": 3,
+      "allHostsCompare": true
+    }
+  },
+  "live": {
+    "apiCreatedVolumes": 6,
+    "uiCreatedVolumes": 1,
+    "allocationDetailRows": 77,
+    "wholeLogicalZeroReadHosts": 3,
+    "volumes": [
+      {
+        "id": "0a809bd3-f3de-40d3-993f-760a577cfb79",
+        "name": "VOL1437-31-20261020-qcow2-metadata",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "metadata",
+          "requestedformat": "qcow2",
+          "policyorigin": "explicit",
+          "fixedpolicy": "metadata",
+          "effectivepolicy": "metadata",
+          "appliedmethod": "qemu-preallocation-metadata",
+          "actualformat": "qcow2",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "348160",
+          "observedat": "2026-10-20T07:41:47.019286275Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "e64236be-13b1-48da-97e0-0eaeb36e2edd",
+        "name": "VOL1437-31-20261020-qcow2-falloc",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "falloc",
+          "requestedformat": "qcow2",
+          "policyorigin": "explicit",
+          "fixedpolicy": "falloc",
+          "effectivepolicy": "falloc",
+          "appliedmethod": "qemu-preallocation-falloc",
+          "actualformat": "qcow2",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "1076203520",
+          "observedat": "2026-10-20T07:41:53.256082087Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "498d2f71-2b18-43f0-845b-49117758adfb",
+        "name": "VOL1437-31-20261020-qcow2-full",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "full",
+          "requestedformat": "qcow2",
+          "policyorigin": "explicit",
+          "fixedpolicy": "full",
+          "effectivepolicy": "full",
+          "appliedmethod": "qemu-preallocation-full",
+          "actualformat": "qcow2",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "1076203520",
+          "observedat": "2026-10-20T07:42:01.859924498Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "4abb2915-7885-4d9c-8a75-b1be20b42478",
+        "name": "VOL1437-31-20261020-raw-off",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "off",
+          "requestedformat": "raw",
+          "policyorigin": "explicit",
+          "fixedpolicy": "off",
+          "effectivepolicy": "off",
+          "appliedmethod": "qemu-preallocation-off",
+          "actualformat": "raw",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "12288",
+          "observedat": "2026-10-20T07:42:08.128551601Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "d51da9d1-9792-4e11-8550-994d89c01be8",
+        "name": "VOL1437-31-20261020-raw-falloc",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "falloc",
+          "requestedformat": "raw",
+          "policyorigin": "explicit",
+          "fixedpolicy": "falloc",
+          "effectivepolicy": "falloc",
+          "appliedmethod": "qemu-preallocation-falloc",
+          "actualformat": "raw",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "1075871744",
+          "observedat": "2026-10-20T07:42:14.351486216Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "b2f57c0e-8a6f-4308-ac08-1c8b022cda63",
+        "name": "VOL1437-31-20261020-raw-full",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "full",
+          "requestedformat": "raw",
+          "policyorigin": "explicit",
+          "fixedpolicy": "full",
+          "effectivepolicy": "full",
+          "appliedmethod": "qemu-preallocation-full",
+          "actualformat": "raw",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "1075871744",
+          "observedat": "2026-10-20T07:42:22.670128519Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      },
+      {
+        "id": "93d2e3f1-7518-4800-bb4e-3c1be06f8ecf",
+        "name": "VOL1437-31-20261020-ui-raw-falloc",
+        "state": "Ready",
+        "allocation": {
+          "contractversion": "1",
+          "requestedpolicy": "falloc",
+          "requestedformat": "raw",
+          "policyorigin": "explicit",
+          "fixedpolicy": "falloc",
+          "effectivepolicy": "falloc",
+          "appliedmethod": "qemu-preallocation-falloc",
+          "actualformat": "raw",
+          "evidence": "verified",
+          "appliedbackend": "GFS2",
+          "appliedoperation": "create",
+          "evidencescope": "creation-or-copy-time",
+          "observedallocatedbytes": "1075871744",
+          "observedat": "2026-10-20T07:43:25.634524660Z",
+          "observedsource": "stat-st-blocks-times-512"
+        }
+      }
+    ],
+    "naturalRecovery": {
+      "host": "31.2",
+      "format": "qcow2",
+      "policy": "falloc",
+      "volumeUuid": "e64236be-13b1-48da-97e0-0eaeb36e2edd",
+      "firstAttemptMismatch": true,
+      "eventuallyReady": true,
+      "wholeLogicalZeroVerifiedAllHosts": true
+    }
+  },
+  "reproduction": {
+    "qemuVersion": "10.1.0-17.el9_8.5",
+    "kernel": "5.14.0-687.42.1.el9_8.x86_64",
+    "filesystem": "gfs2",
+    "initialQemu": {
+      "31.1": "raw falloc failed at first iteration",
+      "31.2": "50 raw and 50 qcow2 iterations passed",
+      "31.3": "qcow2 falloc failed at second iteration"
+    },
+    "directSyscalls": "posix_fallocate, truncate then posix_fallocate, fallocate CLI all reproduced non-zero on 31.3",
+    "syncAndDirectReopen": "mismatch persisted from all three hosts",
+    "keepSizeWorkaround": "not qualified; qcow2 mismatch reproduced on 31.1",
+    "rootCause": "below Cloud/QEMU creation path; exact kernel/block/storage component not established"
+  },
+  "preservation": {
+    "agents": [
+      {
+        "host": 1,
+        "jarSha256": "bf975feb1028881ce798bafe139512ec9790549a1ae4a938a5c3093da5b9f131",
+        "serviceActive": true,
+        "configPreserved": true,
+        "domainsPreserved": true,
+        "apiCorePreserved": true,
+        "linkageErrorsObserved": ""
+      },
+      {
+        "host": 2,
+        "jarSha256": "4438a919458ec8b5e02f1269e8e7d57e4c22805fd956b1a70bbe2fb66b04a221",
+        "serviceActive": true,
+        "configPreserved": true,
+        "domainsPreserved": true,
+        "apiCorePreserved": true,
+        "linkageErrorsObserved": ""
+      },
+      {
+        "host": 3,
+        "jarSha256": "b20ee8a308bc63d7d5f4a54333b817c1b3143c6c93147b8e5adda85fbdaa0831",
+        "serviceActive": true,
+        "configPreserved": true,
+        "domainsPreserved": true,
+        "apiCorePreserved": true,
+        "linkageErrorsObserved": ""
+      }
+    ],
+    "managementBinaryAndIndexPreserved": true,
+    "webInfPresent": true,
+    "clientHttp": 200,
+    "activeOwnedVolumeOfferingDetails": 0
+  },
+  "cleanup": {
+    "apiVolumeCount": 0,
+    "activeDiskOfferingCount": 0,
+    "activeAllocationDetailCount": 0,
+    "inactiveDiskOfferingHistory": 6,
+    "sharedOwnedTestRoots": 0,
+    "operationalInventoryCounts": {
+      "volumes": 140,
+      "vms": 111,
+      "diskofferings": 7,
+      "computes": 15
+    },
+    "failureArchive": {
+      "privateRemotePath": "/root/volume-1437-475184d41d0/failure-evidence.tgz",
+      "sha256": "386b004c585eb7b57c8b2f4353c6213a3a413444f664b2f7fe0790ee7a833769",
+      "fileCount": 35,
+      "publicImageBytes": false
+    },
+    "rollbackDirectories": [
+      "/root/volume-1437-475184d41d0 on each 31 Agent"
+    ]
+  },
+  "limits": [
+    "intermittent host-path defect not fixed; all 3 attempts may fail",
+    "creation-time evidence only",
+    "RBD unchanged and not redeployed",
+    "UI allocation labels remain a #1431 task",
+    "full Cloud/Release CI and guest workload not performed"
+  ]
+}

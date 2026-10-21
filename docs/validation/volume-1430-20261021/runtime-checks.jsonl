@@ -1,0 +1,14 @@
+{"cluster": 31, "stage": "running-update", "apiDbAgree": true, "runningVmUnchanged": true}
+{"cluster": 31, "stage": "new-volume-attachment", "newSettingsApplied": true, "existingDisksUnchanged": true}
+{"cluster": 31, "stage": "existing-volume-reattachment", "newSettingsApplied": true, "rootUnchanged": true}
+{"cluster": 31, "stage": "offline-image", "writePattern": true, "patternPreserved": true, "identityAndSizePreserved": true, "format": "qcow2"}
+{"cluster": 31, "stage": "cloud-stop-start", "rootAndDataApplied": true, "xmlAndQmpAgree": true}
+{"cluster": 32, "stage": "running-update", "apiDbAgree": true, "runningVmUnchanged": true}
+{"cluster": 32, "stage": "new-volume-attachment", "newSettingsApplied": true, "existingDisksUnchanged": true}
+{"cluster": 32, "stage": "existing-volume-reattachment", "newSettingsApplied": true, "rootUnchanged": true}
+{"cluster": 32, "stage": "offline-image", "writePattern": true, "patternPreserved": true, "identityAndSizePreserved": true, "format": "raw"}
+{"cluster": 32, "stage": "cloud-stop-start", "rootAndDataApplied": true, "xmlAndQmpAgree": true}
+{"cluster": 31, "stage": "zero-overrides", "apiDbAgree": true, "runtimeLimitsCleared": true, "hypervisorDefaultCache": true, "xmlAndQmpAgree": true}
+{"cluster": 32, "stage": "zero-overrides", "apiDbAgree": true, "runtimeLimitsCleared": true, "hypervisorDefaultCache": true, "xmlAndQmpAgree": true}
+{"cluster": 31, "stage": "offline-image", "writePattern": false, "patternPreserved": true, "identityAndSizePreserved": true, "format": "qcow2"}
+{"cluster": 32, "stage": "offline-image", "writePattern": false, "patternPreserved": true, "identityAndSizePreserved": true, "format": "raw"}

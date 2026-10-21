@@ -1,0 +1,462 @@
+Browser tab: 18, Title: "컴퓨트 오퍼링 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/computeoffering/8f30996d-64c4-481a-b9e0-6c8ad6a577a3".
+1 AXWebArea 컴퓨트 오퍼링 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/computeoffering/8f30996d-64c4-481a-b9e0-6c8ad6a577a3
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.31.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 container
+					15 image wifi
+					16 text 네트워크
+				17 container
+					18 image picture
+					19 text 이미지
+				20 container
+					21 image lock
+					22 text 키 관리
+				23 schedule 이벤트
+					24 link Description: schedule 이벤트, Value: 10.10.31.10:8080/client/#/event
+				25 project 프로젝트
+					26 link Description: project 프로젝트, Value: 10.10.31.10:8080/client/#/project
+				27 idcard 역할
+					28 link Description: idcard 역할, Value: 10.10.31.10:8080/client/#/role
+				29 team 계정
+					30 link Description: team 계정, Value: 10.10.31.10:8080/client/#/account
+				31 block 도메인
+					32 link Description: block 도메인, Value: 10.10.31.10:8080/client/#/domain
+				33 container
+					34 image bank
+					35 text 인프라스트럭쳐
+				36 container
+					37 image shopping
+					38 text 서비스 오퍼링
+				39 content list sub_menu_7_$$_/offering-popup
+					40 cloud 컴퓨트 오퍼링
+						41 link Description: cloud 컴퓨트 오퍼링, Value: 10.10.31.10:8080/client/#/computeoffering
+					42 setting 시스템 오퍼링
+						43 link Description: setting 시스템 오퍼링, Value: 10.10.31.10:8080/client/#/systemoffering
+					44 hdd 디스크 오퍼링
+						45 link Description: hdd 디스크 오퍼링, Value: 10.10.31.10:8080/client/#/diskoffering
+					46 wifi 네트워크 오퍼링
+						47 link Description: wifi 네트워크 오퍼링, Value: 10.10.31.10:8080/client/#/networkoffering
+					48 deployment-unit VPC 오퍼링
+						49 link Description: deployment-unit VPC 오퍼링, Value: 10.10.31.10:8080/client/#/vpcoffering
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 10.10.31.10:8080/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 10.10.31.10:8080/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 image bell
+			123 container
+				124 text AC admin cloud
+		125 container
+			126 container
+				127 container
+					128 link Description: home, Value: 10.10.31.10:8080/client/#/
+					129 text /
+					130 link Description: 컴퓨트 오퍼링, Value: 10.10.31.10:8080/client/#/computeoffering
+					131 text / VOL1431-UI31-own-raw-off
+					132 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/service_offerings.html#compute-and-disk-service-offerings
+					133 button reload 업데이트
+						134 image reload
+						135 text 업데이트
+				136 button down 작업
+					137 image down
+					138 text 작업
+			139 container
+				140 image cloud
+				141 heading VOL1431-UI31-own-raw-off, Value: 4
+					142 text VOL1431-UI31-own-raw-off
+				143 text 상태 정상 아이디
+				144 button barcode
+					145 image barcode
+				146 link Description: 8f30996d-64c4-481a-b9e0-6c8ad6a577a3 , Value: javascript:;
+				147 text CPU 1 CPU x 1.00 GHz 
+				148 image question-circle
+				149 text 메모리 512 MB 메모리 생성일
+				150 image calendar
+				151 text 2026. 10. 20. 오후 6:02:04
+				152 link Description: cloud-server 가상머신 보기, Value: 10.10.31.10:8080/client/#/vm?serviceofferingid=8f30996d-64c4-481a-b9e0-6c8ad6a577a3
+			153 container
+				154 tab group
+					155 container
+						156 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-0-tab-details
+						157 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-0-tab-events
+						158 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-0-tab-comments
+				159 container Description: 상세, ID: rc-tabs-0-panel-details
+					160 container
+						161 text 할당 정책과 적용 증거
+						162 container
+							163 container 요청 정책 / 형식 : Thin (off) · RAW
+								164 text 요청 정책 / 형식
+								165 text :
+								166 text Thin (off) · RAW
+							167 container 확정 정책 : 알 수 없음
+								168 text 확정 정책
+								169 text :
+								170 text 알 수 없음
+							171 container 실제 적용 정책 : 알 수 없음
+								172 text 실제 적용 정책
+								173 text :
+								174 text 알 수 없음
+						175 container
+							176 container 실제 적용 방식 : 알 수 없음
+								177 text 실제 적용 방식
+								178 text :
+								179 text 알 수 없음
+							180 container 실제 이미지 형식 : 알 수 없음
+								181 text 실제 이미지 형식
+								182 text :
+								183 text 알 수 없음
+							184 container 관측 할당량 : 알 수 없음
+								185 text 관측 할당량
+								186 text :
+								187 text 알 수 없음
+						188 container
+							189 container 관측 시각 : 알 수 없음
+								190 text 관측 시각
+								191 text :
+								192 text 알 수 없음
+							193 container 할당 증거 : 미검증
+								194 text 할당 증거
+								195 text :
+								196 text 미검증
+						197 text 오퍼링에는 요청만 저장하며 실제 적용을 뜻하지 않습니다. 참조 스토리지에 오퍼링을 묶지 않고 실제 생성 대상·호스트·작업에서 다시 검증합니다. 연결된 디스크 오퍼링이 루트 디스크 정책을 소유합니다. 추가 데이터 디스크는 별도로 선택한 디스크 오퍼링 정책을 사용합니다.
+					198 content list
+						199 container
+							200 text 이름
+							201 text VOL1431-UI31-own-raw-off
+						202 container
+							203 text 아이디
+							204 text 8f30996d-64c4-481a-b9e0-6c8ad6a577a3
+						205 container
+							206 text 설명
+							207 text VOL1431 UI compute-only RAW off
+						208 container
+							209 text HA 제공
+							210 text false
+						211 container
+							212 text 프로비저닝 유형
+							213 text thin
+						214 container
+							215 text Write-Cache 유형
+							216 text writeback
+						217 container
+							218 text 스토리지 유형
+							219 text shared
+						220 container
+							221 text 사용자지정 디스크 크기
+							222 text false
+						223 container
+							224 text CPU 제한
+							225 text false
+						226 container
+							227 text CPU 코어
+							228 text 1
+						229 container
+							230 text 루트 디스크 사이즈(GB)
+							231 text 1 GB
+						232 container
+							233 text CPU(MHz)
+							234 text 1000
+						235 container
+							236 text 메모리
+							237 text 512
+						238 container
+							239 text 디스크 오퍼링 이름
+							240 text VOL1431-UI31-own-raw-off
+						241 container
+							242 text 스토리지 태그
+							243 text glue-gfs
+						244 container
+							245 text 생성일
+							246 text 2026. 10. 20. 오후 6:02:04
+						247 container
+							248 text Dynamic Scaling 활성화
+							249 text true
+						250 container
+							251 text 디스크 오퍼링 엄격성
+							252 text false
+						253 container
+							254 text 암호화 루트 디스크
+							255 text false
+						256 container
+							257 text 공유 볼륨
+							258 text false
+						259 container
+							260 text 압축/중복제거
+							261 text false
+						262 container
+							263 text 최소 메모리(MB)
+						264 container
+							265 text 최대 메모리(MiB)
+						266 container
+							267 text 최소 CPU 코어
+						268 container
+							269 text 최대 CPU 코어 수
+	270 container
+		271 image info-circle
+		272 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	273 container
+		274 container 컴퓨트 오퍼링 복제question-circle
+			275 container
+				276 button Close
+					277 image close
+				278 container vcDialogTitle0
+					279 text 컴퓨트 오퍼링 복제
+					280 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/service_offerings.html#creating-a-new-compute-offering
+				281 container
+					282 text 다음에서 복제: VOL1431-UI31-own-raw-off
+					283 text 모든 값이 원본 오퍼링에서 미리 채워졌습니다. 새 오퍼링을 사용자 지정하려면 원하는 필드를 수정하세요.
+					284 container
+						285 text * 이름
+						286 image info-circle
+					287 text field (settable) * 이름 info-circle, Value: VOL1431-UI31-own-raw-off-clone, ID: form_item_name
+					288 container
+						289 text 설명
+						290 image info-circle
+					291 text field (settable) 설명 info-circle, Value: VOL1431 UI compute-only RAW off, ID: form_item_displaytext
+					292 text 컴퓨트 오퍼링 유형
+					293 container form_item_offeringtype
+						294 container
+							295 radio button (settable, integer) Description: 고정 오퍼링, Value: 1
+							296 text 고정 오퍼링
+						297 container
+							298 radio button (settable, integer) Description: 사용자지정 제한, Value: 0
+							299 text 사용자지정 제한
+						300 container
+							301 radio button (settable, integer) Description: 사용자지정 제한 없음, Value: 0
+							302 text 사용자지정 제한 없음
+					303 container
+						304 container
+							305 text * CPU 코어
+							306 image info-circle
+						307 text field (settable) * CPU 코어 info-circle, Value: 1, ID: form_item_cpunumber
+					308 container
+						309 container
+							310 text * CPU(MHz)
+							311 image info-circle
+						312 text field (settable) * CPU(MHz) info-circle, Value: 1000, ID: form_item_cpuspeed
+					313 container
+						314 container
+							315 text * 메모리(MB)
+							316 image info-circle
+						317 text field (settable) * 메모리(MB) info-circle, Value: 512, ID: form_item_memory
+					318 container
+						319 container
+							320 text 호스트 태그
+							321 image info-circle
+						322 text field (settable) 호스트 태그 info-circle, ID: form_item_hosttags
+					323 container
+						324 container
+							325 text 네트워크 속도(Mb/s)
+							326 image info-circle
+						327 text field (settable) 네트워크 속도(Mb/s) info-circle, ID: form_item_networkrate
+					328 container
+						329 container
+							330 text HA 제공
+							331 image info-circle
+						332 switch Description: HA 제공 info-circle, Value: 0, ID: form_item_offerha
+					333 container
+						334 container
+							335 text Dynamic Scaling 활성화
+							336 image info-circle
+						337 switch Description: Dynamic Scaling 활성화 info-circle, Value: 1, ID: form_item_dynamicscalingenabled
+					338 container
+						339 container
+							340 text CPU 제한
+							341 image info-circle
+						342 switch Description: CPU 제한 info-circle, Value: 0, ID: form_item_limitcpuuse
+					343 container
+						344 container
+							345 text 휘발성 여부
+							346 image info-circle
+						347 switch Description: 휘발성 여부 info-circle, Value: 0, ID: form_item_isvolatile
+					348 container
+						349 text 배포 플래너
+						350 image info-circle
+					351 combo box (settable) 배포 플래너 info-circle, ID: form_item_deploymentplanner
+					352 text GPU 카드
+					353 container
+						354 combo box (settable) GPU 카드, ID: form_item_gpucardid
+						355 text 없음
+					356 text 공개
+					357 switch Description: 공개, Value: 1, ID: form_item_ispublic
+					358 container
+						359 text Zone
+						360 image info-circle
+					361 container
+						362 combo box (settable) zone-selection
+						363 text The ID of the containing zone(s), null for public offerings
+					364 container
+						365 text VM 파기시 리소스 정리
+						366 image info-circle
+					367 switch Description: VM 파기시 리소스 정리 info-circle, Value: 0, ID: form_item_purgeresources
+					368 container
+						369 text 컴퓨팅 전용 디스크 제공
+						370 image info-circle
+					371 switch Description: 컴퓨팅 전용 디스크 제공 info-circle, Value: 1, ID: form_item_computeonly
+					372 container
+						373 container
+							374 text 스토리지 유형
+							375 image info-circle
+						376 container form_item_storagetype
+							377 container
+								378 radio button (settable, integer) Description: shared, Value: 1
+								379 text shared
+							380 container
+								381 radio button (settable, integer) Description: 로컬, Value: 0
+								382 text 로컬
+						383 text 할당 정책 계약
+						384 container
+							385 radio button (settable, integer) Description: 기존 호환 값, Value: 0
+							386 text 기존 호환 값
+							387 radio button (settable, integer) Description: 명시적 정책, Value: 1
+							388 text 명시적 정책
+						454 text 참조 스토리지 (지원 확인용)
+						389 container
+							390 combo box (settable) rc_select_5
+							455 text 지원 정책을 확인할 스토리지 선택
+						456 text 요청 이미지 형식
+						391 container
+							457 text RAW
+						458 text 요청 정책 / 형식
+						393 container
+							459 text Thin (off)
+						460 text 오퍼링에는 요청만 저장하며 실제 적용을 뜻하지 않습니다. 참조 스토리지에 오퍼링을 묶지 않고 실제 생성 대상·호스트·작업에서 다시 검증합니다.
+						461 text Thin은 쓰기에 따라 할당하므로 이후 쓰기에도 여유 공간이 필요합니다.
+						395 container
+							396 text 압축/중복제거
+							397 image info-circle
+						398 switch Description: 압축/중복제거 info-circle, Value: 0, ID: form_item_kvdoenable
+						399 container
+							400 text 공유 볼륨
+							401 image info-circle
+						402 switch Description: 공유 볼륨 info-circle, Value: 0, ID: form_item_shareable
+						403 container
+							404 text Write-Cache 유형
+							405 image info-circle
+						406 container form_item_cachemode
+							407 container
+								408 radio button (settable, integer) Description: Write-Back 디스크 캐싱, Value: 1
+								409 text Write-Back 디스크 캐싱
+							410 container
+								411 radio button (settable, integer) Description: Write-Through, Value: 0
+								412 text Write-Through
+							413 container
+								414 radio button (settable, integer) Description: 디스크 캐시 없음, Value: 0
+								415 text 디스크 캐시 없음
+							416 container
+								417 radio button (settable, integer) Description: 하이퍼바이저 기본값, Value: 0
+								418 text 하이퍼바이저 기본값
+						419 text QoS 유형
+						420 container form_item_qostype
+							421 container
+								422 radio button (settable, integer) Description: 없음, Value: 1
+								423 text 없음
+							424 container
+								425 radio button (settable, integer) Description: 하이퍼바이저, Value: 0
+								426 text 하이퍼바이저
+							427 container
+								428 radio button (settable, integer) Description: 스토리지, Value: 0
+								429 text 스토리지
+						430 container
+							431 text 루트 디스크 크기(GB)
+							432 image info-circle
+						433 text field (settable) 루트 디스크 크기(GB) info-circle, Value: 1, ID: form_item_rootdisksize
+						434 container
+							435 text 스토리지 태그
+							436 image info-circle
+						437 container
+							438 combo box (settable) 스토리지 태그 info-circle, ID: form_item_storagetags
+							439 text The tags for this service offering.
+						440 container
+							441 text 암호화
+							442 image info-circle
+						443 switch Description: 암호화 info-circle, Value: 0, ID: form_item_encryptdisk
+						444 container
+							445 text 디스크 오퍼링 엄격성
+							446 image info-circle
+						447 switch Description: 디스크 오퍼링 엄격성 info-circle, Value: 0, ID: form_item_diskofferingstrictness
+					448 container
+						449 text 외부 세부 정보
+						450 image info-circle
+					451 switch Description: 외부 세부 정보 info-circle, Value: 0, ID: form_item_externaldetails
+					452 button 취소
+					453 button 확인
+
+The focused UI element is 287 text field (settable) * 이름 info-circle, Value: VOL1431-UI31-own-raw-off-clone, ID: form_item_name

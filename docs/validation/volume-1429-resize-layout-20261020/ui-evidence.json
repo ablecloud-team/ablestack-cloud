@@ -1,0 +1,1787 @@
+[
+  {
+    "cluster": 31,
+    "phase": "initial",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.2899475097656,
+          "x": 385.8100280761719,
+          "y": 276.5386047363281
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "2"
+      },
+      {
+        "box": {
+          "width": 241.63967895507812,
+          "x": 385.8100280761719,
+          "y": 423.1637573242187
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 241.63970947265625,
+          "x": 643.4259033203125,
+          "y": 423.1637573242187
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385.8100280761719,
+    "modal": true,
+    "right": 885.0656127929688,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 499.2555847167969,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-iops-retained",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 315.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "2"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 462.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "300"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 462.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "입력값 확인 필요",
+    "text": "현재값과 입력값을 합친 최소·최대 IOPS가 모두 있어야 하며 최소 IOPS는 최대 IOPS 이하여야 합니다.\nVOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n입력값 확인 필요\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "iops-only-before-submit",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 315.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "2"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 462.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "150"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 462.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "300"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "IOPS 변경",
+    "text": "현재값과 입력값을 합친 최소·최대 IOPS가 모두 있어야 하며 최소 IOPS는 최대 IOPS 이하여야 합니다.\nVOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\nIOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "size-only-blank-iops-options",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 234.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "3"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 381.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 381.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 524.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 150\n최대 IOPS\n현재 300\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n현재보다 1 GiB 확장\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "size-and-iops",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 251.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 541.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장 · IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 3 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 150\n최대 IOPS\n현재 300\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 확장 · IOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "offering-read-failure",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 411.578125
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      }
+    ],
+    "gridColumns": "none",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "",
+    "text": "Network Error\n재시도\nVOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "offering-read-retry",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "fixed",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 338.15625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      }
+    ],
+    "gridColumns": "none",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-fixed-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 크기를 유지합니다.\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "strict",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-strict-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "explicit",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 267.3125
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-explicit-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "initial",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 360.7264404296875,
+          "x": 498.6431884765625,
+          "y": 254.90652465820312
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "2"
+      },
+      {
+        "box": {
+          "width": 191.4512939453125,
+          "x": 498.6431884765625,
+          "y": 371.07769775390625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 191.4512939453125,
+          "x": 702.75244140625,
+          "y": 371.07769775390625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 498.6431884765625,
+    "modal": true,
+    "right": 894.2037353515625,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 395.560546875,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "size-only-blank-iops",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 251.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "3"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": ""
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 541.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 2 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 150\n최대 IOPS\n현재 300\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 확장\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "size-and-iops",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 251.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 541.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장 · IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 3 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 150\n최대 IOPS\n현재 300\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 확장 · IOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "fixed",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 454.0163269042969,
+          "x": 388.1471862792969,
+          "y": 338.15374755859375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      }
+    ],
+    "gridColumns": "none",
+    "left": 388.1471862792969,
+    "modal": true,
+    "right": 886.0062255859375,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-fixed-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 크기를 유지합니다.\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 497.8590393066406,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "strict",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-strict-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "explicit",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 267.3125
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-explicit-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "shrink-consent-not-submitted",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 236.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "3"
+      },
+      {
+        "box": {
+          "width": 14,
+          "x": 385,
+          "y": 306.375
+        },
+        "checked": true,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 413.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 413.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 0,
+          "y": 556.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 축소",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재보다 1 GiB 축소\n\n볼륨 축소 허용\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 축소\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 32,
+    "phase": "mobile-390",
+    "clientWidth": 332,
+    "fields": [
+      {
+        "box": {
+          "width": 287.46875,
+          "x": 24.25,
+          "y": 313.15625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 199.28125,
+          "x": 156.46875,
+          "y": 430
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 199.28125,
+          "x": 156.46875,
+          "y": 508
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      }
+    ],
+    "gridColumns": "331.5px",
+    "left": 24.25,
+    "modal": true,
+    "right": 355.75,
+    "scrollWidth": 332,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 390,
+    "width": 331.5,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "qcow2-shrink-blocked",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 266.3125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "3"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 440
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 440
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 582.484375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "입력값 확인 필요",
+    "text": "현재 이미지 형식 또는 하이퍼바이저에서 볼륨 축소를 지원하지 않습니다.\nVOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재보다 1 GiB 축소\n\n현재 이미지 형식 또는 하이퍼바이저에서 볼륨 축소를 지원하지 않습니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n입력값 확인 필요\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "light-desktop",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "170"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-iops-zero",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 428.7985229492187,
+          "x": 417.4195556640625,
+          "y": 268.8985595703125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 227.5797119140625,
+          "x": 417.4195556640625,
+          "y": 406.9921875
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "0"
+      },
+      {
+        "box": {
+          "width": 227.5797119140625,
+          "x": 660.0458984375,
+          "y": 406.9921875
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 417.4195556640625,
+    "modal": true,
+    "right": 887.6256103515625,
+    "scrollWidth": 500,
+    "summary": "IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\nIOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 470.2060546875,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-size-and-iops",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 251.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 541.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장 · IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 0\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 확장 · IOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-iops-zero",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 428.80865478515625,
+          "x": 417.407470703125,
+          "y": 266.1614685058594
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "4"
+      },
+      {
+        "box": {
+          "width": 227.5850830078125,
+          "x": 417.407470703125,
+          "y": 404.25836181640625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "0"
+      },
+      {
+        "box": {
+          "width": 227.5850830078125,
+          "x": 660.03955078125,
+          "y": 404.25836181640625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "360"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 417.407470703125,
+    "modal": true,
+    "right": 887.6246337890625,
+    "scrollWidth": 500,
+    "summary": "IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 170\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\nIOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 470.2171630859375,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-size-and-iops",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 251.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 398.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      },
+      {
+        "box": {
+          "width": 16,
+          "x": 385,
+          "y": 541.0625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "",
+        "type": "checkbox",
+        "value": "on"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "현재보다 1 GiB 확장 · IOPS 변경",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 4 GiB\nGiB\n\n현재보다 1 GiB 확장\n\nIOPS 설정\n최소 IOPS\n현재 0\n최대 IOPS\n현재 360\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n추가 옵션\n현재보다 1 GiB 확장 · IOPS 변경\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-dark-desktop",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 5 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 180\n최대 IOPS\n현재 380\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-mobile-390",
+    "clientWidth": 332,
+    "fields": [
+      {
+        "box": {
+          "width": 287.46875,
+          "x": 24.25,
+          "y": 313.15625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 331.5,
+          "x": 24.25,
+          "y": 460
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 331.5,
+          "x": 24.25,
+          "y": 538
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      }
+    ],
+    "gridColumns": "331.5px",
+    "left": 24.25,
+    "modal": true,
+    "right": 355.75,
+    "scrollWidth": 332,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 5 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 180\n최대 IOPS\n현재 380\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 390,
+    "width": 331.5,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-mobile-320",
+    "clientWidth": 272,
+    "fields": [
+      {
+        "box": {
+          "width": 227.96875,
+          "x": 19,
+          "y": 314.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 272,
+          "x": 19,
+          "y": 461.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 272,
+          "x": 19,
+          "y": 539.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      }
+    ],
+    "gridColumns": "272px",
+    "left": 19,
+    "modal": true,
+    "right": 291,
+    "scrollWidth": 272,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-custom-20261020\nDATADISK\n변경할 크기\n현재 5 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 180\n최대 IOPS\n현재 380\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 320,
+    "width": 272,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-light-desktop",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 5 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 180\n최대 IOPS\n현재 380\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-dark-restored",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.3974914550781,
+          "x": 385.9208679199219,
+          "y": 276.6998291015625
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "5"
+      },
+      {
+        "box": {
+          "width": 241.69680786132812,
+          "x": 385.9208679199219,
+          "y": 423.3595886230469
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "180"
+      },
+      {
+        "box": {
+          "width": 241.69677734375,
+          "x": 643.59765625,
+          "y": 423.3595886230469
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "380"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385.9208679199219,
+    "modal": true,
+    "right": 885.29443359375,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-custom-20261020\nDATADISK\n변경할 크기\n현재 5 GiB\nGiB\n\n현재 크기를 유지합니다.\n\nIOPS 설정\n최소 IOPS\n현재 180\n최대 IOPS\n현재 380\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 499.3735656738281,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-strict",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-strict-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 31,
+    "phase": "final-explicit",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 267.3125
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 433
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-31-explicit-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-strict",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 455.96875,
+          "x": 385,
+          "y": 276.734375
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 385,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 242,
+          "x": 643,
+          "y": 423.578125
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 385,
+    "modal": true,
+    "right": 885,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-strict-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 500,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  },
+  {
+    "cluster": 32,
+    "phase": "final-explicit",
+    "clientWidth": 500,
+    "fields": [
+      {
+        "box": {
+          "width": 452.1415100097656,
+          "x": 391.0854187011719,
+          "y": 267.38671875
+        },
+        "checked": false,
+        "disabled": true,
+        "id": "form_item_size",
+        "type": "text",
+        "value": "1"
+      },
+      {
+        "box": {
+          "width": 239.96878051757812,
+          "x": 391.0854187011719,
+          "y": 431.6835021972656
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_miniops",
+        "type": "text",
+        "value": "100"
+      },
+      {
+        "box": {
+          "width": 239.96875,
+          "x": 646.9198608398438,
+          "y": 431.6835021972656
+        },
+        "checked": false,
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "type": "text",
+        "value": "200"
+      }
+    ],
+    "gridColumns": "242px 242px",
+    "left": 391.0854187011719,
+    "modal": true,
+    "right": 886.8886108398438,
+    "scrollWidth": 500,
+    "summary": "변경 사항 없음",
+    "text": "VOL-RESIZE-LAYOUT-32-explicit-20261020\nDATADISK\n변경할 크기\n현재 1 GiB\nGiB\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n\nIOPS 설정\n최소 IOPS\n현재 100\n최대 IOPS\n현재 200\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n변경 사항 없음\n취소\n변경",
+    "viewport": 1280,
+    "width": 495.8031921386719,
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73"
+  }
+]

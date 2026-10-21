@@ -1,0 +1,3 @@
+Browser tab: 19, Title: "디스크 오퍼링 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/diskoffering".
+There has been no change in the accessibility tree.
+The focused UI element is 709 combo box (expanded, settable) ID: rc_select_7, Secondary Actions: Collapse

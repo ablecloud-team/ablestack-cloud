@@ -1,0 +1,16 @@
+{
+  "31": {
+    "passed": true,
+    "source": "4fa57a84294",
+    "protectionOnOffUiDbImage": true,
+    "unknownResultDisplayed": true,
+    "notificationCleared": true,
+    "onlySameJobRetried": true,
+    "extraUpdatePosts": 0
+  },
+  "32": {
+    "passed": true,
+    "source": "4fa57a84294",
+    "protectionOnOffUiDbImage": true
+  }
+}

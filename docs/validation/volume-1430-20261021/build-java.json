@@ -1,0 +1,31 @@
+{
+  "environment": "WSL ext4 /home/ablecloud/work/dhslove/cloud-epic-1422",
+  "serverSourceCommit": "6f5b0b358201d813fd0b8bfb6fa399ae973c899b",
+  "apiContractTestCommit": "1ceae8fc6afe993d7c321fb3d6ea3c5839ae9efa",
+  "serverModulePackagePassed": true,
+  "serverTestsPassed": 92,
+  "apiModulePackagePassed": true,
+  "apiContractTestsPassed": 2,
+  "deployedFatJarJUnitTestsPassed": {
+    "31": 16,
+    "32": 16
+  },
+  "changedJavaCheckstylePassed": true,
+  "standardCheckstyle": "15 pre-existing wildcard import violations in unrelated tests; module package uses checkstyle.skip",
+  "fullCloudOrReleaseCiRun": false,
+  "agentOrQemuBuildRun": false,
+  "moduleArtifacts": {
+    "api": [
+      {
+        "file": "cloud-api-4.23.0.0.jar",
+        "sha256": "f2c15c05a8f35499de01f58e352a3826c93f71a3055313e18a4b363c5ebc5cf4"
+      }
+    ],
+    "server": [
+      {
+        "file": "cloud-server-4.23.0.0.jar",
+        "sha256": "c99c966152b2443f9281b702580ad78c85fc4f491190fd5f234a37cc1d4b4783"
+      }
+    ]
+  }
+}

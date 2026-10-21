@@ -1,0 +1,34 @@
+{
+  "sourceCommit": "d2c9c75b4e0fa4802884e47c958f32691a1c39ef",
+  "markers": [
+    "offering-performance-edit",
+    "label.offering.qos.base",
+    "message.offering.compute.linked",
+    "blockingLoadingState",
+    "fetchSyncProgress",
+    "extractJobId"
+  ],
+  "payloadSha256": "5f6064b5e968970bdbbfd1c21d36649bda236ef2dce0319b026718bbed35ae87",
+  "clusters": {
+    "31": {
+      "files": 899,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1430-ui-d2c9c75b4e0-1792565691",
+      "newApiLogin": true
+    },
+    "32": {
+      "files": 899,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1430-ui-d2c9c75b4e0-1792565691",
+      "newApiLogin": true
+    }
+  }
+}

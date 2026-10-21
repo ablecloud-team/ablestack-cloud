@@ -48,18 +48,20 @@
   <a-list
     class="resource-details-list"
     size="small"
-    :dataSource="fetchDetails()">
+    :dataSource="(fetchDetails() || []).concat(Object.keys(allocationDetails))">
     <template #renderItem="{item}">
-      <a-list-item v-if="(item in dataResource && !customDisplayItems.includes(item)) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)|| ($route.path.includes('/alertRules') && ['summary', 'description'].includes(item))">
+      <a-list-item v-if="allocationDetails[item] || (item in dataResource && !customDisplayItems.includes(item)) || (offeringDetails.includes(item) && dataResource.serviceofferingdetails)|| ($route.path.includes('/alertRules') && ['summary', 'description'].includes(item))">
         <div style="width: 100%">
-          <strong>{{ item === 'service' ? $t('label.supportedservices') :
+          <strong>{{ allocationDetails[item] ? $t(allocationDetails[item].label) : item === 'service' ? $t('label.supportedservices') :
            $route.meta.name === 'cniconfiguration' && item === 'userdata' ? $t('label.' + String($route.meta.name).toLowerCase()) :
            $t(getDetailTitle(item)) }}</strong>
+          <a-tooltip v-if="allocationDetails[item]?.help" :title="allocationDetails[item].help"><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'usedfsbytes'"><template #title>{{ $t('message.usedfsbytes') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="['volume', 'snapshot', 'template', 'iso'].includes($route.meta.name) && item === 'savingrate'"><template #title>{{ $t('message.savingrate') }}</template><QuestionCircleOutlined style="margin-left: 8px;"/></a-tooltip>
           <a-tooltip v-if="$route.meta.name === 'storagepool' && item === 'disksizeallocated'" :title="$t('message.storage.allocated.meaning')"><info-circle-outlined style="margin-left: 8px" /></a-tooltip>
           <br/>
-          <AffinityGroupPolicy v-if="$route.meta.name === 'affinitygroup' && item === 'type'" :type="dataResource.type" />
+          <div v-if="allocationDetails[item]">{{ allocationDetails[item].value }}</div>
+          <AffinityGroupPolicy v-else-if="$route.meta.name === 'affinitygroup' && item === 'type'" :type="dataResource.type" />
           <div v-else-if="$route.meta.name === 'kubernetes' && ['autoscalingenabled', 'csienabled'].includes(item)">{{ $t(dataResource[item] ? 'label.enabled' : 'label.disabled') }}</div>
           <div v-else-if="$route.meta.name === 'kubernetes' && item === 'clustertype'">{{ $t(dataResource[item] === 'ExternalManaged' ? 'label.external.managed' : 'label.cloud.managed') }}</div>
           <div v-else-if="$route.meta.name === 'vm' && item === 'vbmcport'">
@@ -117,6 +119,7 @@
           </div>
           <div v-else-if="$route.meta.name === 'computeoffering' && item === 'diskofferingcomputeonly'">
             {{ dataResource.diskofferingcomputeonly ? $t('label.compute.offering.dedicated.auto.created') : $t('label.general.disk.offering.link') }}
+            <p style="margin: 4px 0 0; font-size: 12px; opacity: .8;">{{ $t(dataResource.diskofferingcomputeonly ? 'message.offering.compute.dedicated' : 'message.offering.compute.linked') }}</p>
           </div>
           <div v-else-if="$route.meta.name === 'buckets' && item === 'size'">
             <div>
@@ -361,6 +364,8 @@ import { getAPI } from '@/api'
 import CodeHighlight from 'vue-code-highlight/src/CodeHighlight.vue'
 import 'vue-code-highlight/themes/prism-okaidia.css'
 
+import { allocationDetailFields } from '@/utils/volumeAllocation'
+
 export default {
   name: 'DetailsTab',
   components: {
@@ -413,6 +418,14 @@ export default {
     this.dedicatedSectionActive = this.dedicatedRoutes.includes(this.$route.meta.name)
   },
   computed: {
+    allocationDetails () {
+      const name = this.$route.meta.name
+      if (!['volume', 'diskoffering', 'computeoffering', 'systemoffering'].includes(name)) return {}
+      return allocationDetailFields(this.resource, this.$t, value => this.$bytesToHumanReadableSize(value), {
+        volume: name === 'volume',
+        inheritance: ['computeoffering', 'systemoffering'].includes(name)
+      })
+    },
     customDisplayItems () {
       var items = ['ip4routes', 'ip6routes', 'privatemtu', 'publicmtu', 'provider', 'migrationip', 'details', 'parameters', 'secretkey', 'backupofferingdetails']
       if (this.$route.meta.name === 'webhookdeliveries' || this.$route.meta.name === 'quotasummary') {

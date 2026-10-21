@@ -54,24 +54,7 @@
         </a-radio-button>
       </a-radio-group>
     </a-form-item>
-    <a-form-item name="provisioningtype" ref="provisioningtype">
-      <template #label>
-        <tooltip-label :title="$t('label.provisioningtype')" :tooltip="apiParams.provisioningtype.description"/>
-      </template>
-      <a-radio-group
-        v-model:value="form.provisioningtype"
-        buttonStyle="solid">
-        <a-radio-button value="thin">
-          {{ $t('label.provisioningtype.thin') }}
-        </a-radio-button>
-        <a-radio-button value="sparse">
-          {{ $t('label.provisioningtype.sparse') }}
-        </a-radio-button>
-        <a-radio-button value="fat">
-          {{ $t('label.provisioningtype.fat') }}
-        </a-radio-button>
-      </a-radio-group>
-    </a-form-item>
+    <AllocationPolicyEditor ref="allocationEditor" :form="form" @change="Object.assign(form, $event)" />
     <a-form-item name="encryptdisk" ref="encryptdisk">
       <template #label>
         <tooltip-label :title="$t('label.encrypt')" :tooltip="apiParams.encrypt.description" />
@@ -113,54 +96,7 @@
         </a-radio-button>
       </a-radio-group>
     </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskbytesreadrate" ref="diskbytesreadrate">
-      <template #label>
-        <tooltip-label :title="$t('label.diskbytesreadrate')" :tooltip="apiParams.bytesreadrate.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskbytesreadrate"
-        :placeholder="apiParams.bytesreadrate.description"/>
-    </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskbytesreadratemax" ref="diskbytesreadratemax">
-      <template #label>
-        <tooltip-label :title="$t('label.diskbytesreadratemax')" :tooltip="apiParams.bytesreadratemax.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskbytesreadratemax"
-        :placeholder="apiParams.bytesreadratemax.description"/>
-    </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskbyteswriterate" ref="diskbyteswriterate">
-      <template #label>
-        <tooltip-label :title="$t('label.diskbyteswriterate')" :tooltip="apiParams.byteswriterate.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskbyteswriterate"
-        :placeholder="apiParams.byteswriterate.description"/>
-    </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskbyteswriteratemax" ref="diskbyteswriteratemax">
-      <template #label>
-        <tooltip-label :title="$t('label.diskbyteswriteratemax')" :tooltip="apiParams.byteswriteratemax.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskbyteswriteratemax"
-        :placeholder="apiParams.byteswriteratemax.description"/>
-    </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskiopsreadrate" ref="diskiopsreadrate">
-      <template #label>
-        <tooltip-label :title="$t('label.diskiopsreadrate')" :tooltip="apiParams.iopsreadrate.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskiopsreadrate"
-        :placeholder="apiParams.iopsreadrate.description"/>
-    </a-form-item>
-    <a-form-item v-if="form.qostype === 'hypervisor'" name="diskiopswriterate" ref="diskiopswriterate">
-      <template #label>
-        <tooltip-label :title="$t('label.diskiopswriterate')" :tooltip="apiParams.iopswriterate.description"/>
-      </template>
-      <a-input
-        v-model:value="form.diskiopswriterate"
-        :placeholder="apiParams.iopswriterate.description"/>
-    </a-form-item>
+    <DiskQosFields v-if="form.qostype === 'hypervisor'" ref="qosEditor" :form="form" :api-params="apiParams" />
     <a-form-item v-if="form.qostype === 'storage'" name="iscustomizeddiskiops" ref="iscustomizeddiskiops">
       <template #label>
         <tooltip-label :title="$t('label.iscustomizeddiskiops')" :tooltip="apiParams.customizediops.description"/>
@@ -329,12 +265,19 @@ import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
+import DiskQosFields from '@/components/offering/DiskQosFields'
+import { performanceFormValues, qosFields } from '@/utils/offeringQos'
+import AllocationPolicyEditor from '@/components/offering/AllocationPolicyEditor'
+import AllocationSummary from '@/components/view/AllocationSummary'
 import { BlockOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 
 export default {
   name: 'DiskOfferingForm',
   mixins: [mixinForm],
   components: {
+    AllocationPolicyEditor,
+    DiskQosFields,
+    AllocationSummary,
     ResourceIcon,
     TooltipLabel,
     BlockOutlined,
@@ -360,6 +303,7 @@ export default {
       form: reactive(Object.assign({
         storagetype: 'shared',
         provisioningtype: 'thin',
+        allocationmode: 'legacy',
         customdisksize: true,
         writecachetype: 'writeback',
         qostype: '',
@@ -437,19 +381,12 @@ export default {
       this.syncUiStateFromForm()
     },
     normalizeQosType () {
-      const hasHypervisorQos = [
-        this.form.diskbytesreadrate,
-        this.form.diskbytesreadratemax,
-        this.form.diskbyteswriterate,
-        this.form.diskbyteswriteratemax,
-        this.form.diskiopsreadrate,
-        this.form.diskiopswriterate
-      ].some(value => value !== undefined && value !== null && value !== '')
+      const hasHypervisorQos = qosFields.some(field => Number(this.form[field.form]) > 0)
       const hasStorageQos = [
         this.form.diskiopsmin,
         this.form.diskiopsmax,
         this.form.hypervisorsnapshotreserve
-      ].some(value => value !== undefined && value !== null && value !== '') || this.form.iscustomizeddiskiops === true
+      ].some(value => value !== undefined && value !== null && value !== '' && Number(value) > 0) || this.form.iscustomizeddiskiops === true
 
       if (hasHypervisorQos) {
         this.form.qostype = 'hypervisor'
@@ -574,10 +511,18 @@ export default {
       }
     },
     validate () {
-      return this.$refs.internalFormRef.validate().then(() => {
+      return (this.$refs.allocationEditor?.validate() || Promise.resolve()).then(() => this.$refs.qosEditor?.validate()).then(() => this.$refs.internalFormRef.validate()).then(() => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
-        return values
+        // Allocation controls live in a child component, so they do not have parent form refs.
+        return {
+          ...values,
+          ...performanceFormValues(formRaw),
+          allocationmode: formRaw.allocationmode,
+          allocationpolicy: formRaw.allocationpolicy,
+          allocationformat: formRaw.allocationformat,
+          provisioningtype: formRaw.provisioningtype
+        }
       })
     },
     onInternalSubmit () {

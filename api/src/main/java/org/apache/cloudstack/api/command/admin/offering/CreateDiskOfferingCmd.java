@@ -40,7 +40,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.offering.DiskOffering;
 import com.cloud.offering.ServiceOffering;
-import com.cloud.storage.Storage.ProvisioningType;
 import com.cloud.user.Account;
 
 @APICommand(name = "createDiskOffering", description = "Creates a disk offering.", responseObject = DiskOfferingResponse.class,
@@ -88,7 +87,15 @@ public class CreateDiskOfferingCmd extends BaseCmd {
     @Parameter(name = ApiConstants.PROVISIONINGTYPE,
             type = CommandType.STRING,
             description = "Provisioning type used to create volumes. Valid values are thin, sparse, fat.")
-    private String provisioningType = ProvisioningType.THIN.toString();
+    private String provisioningType;
+
+    @Parameter(name = "allocationpolicy", type = CommandType.STRING, since = "4.23.0",
+            description = "Explicit allocation intent: off, metadata, falloc, full. Requires allocationformat; excludes provisioningtype. Execution requires a verified backend adapter.")
+    private String allocationPolicy;
+
+    @Parameter(name = "allocationformat", type = CommandType.STRING, since = "4.23.0",
+            description = "Explicit image format: qcow2 or raw. Requires allocationpolicy. Raw metadata is invalid.")
+    private String allocationFormat;
 
     @Parameter(name = ApiConstants.DISPLAY_OFFERING,
             type = CommandType.BOOLEAN,
@@ -297,7 +304,7 @@ public class CreateDiskOfferingCmd extends BaseCmd {
     }
 
     public String getProvisioningType() {
-        return provisioningType;
+        return com.cloud.storage.VolumeAllocationPolicy.legacyColumn(allocationPolicy, allocationFormat, provisioningType);
     }
 
     public Boolean getDisplayOffering() {
@@ -323,6 +330,10 @@ public class CreateDiskOfferingCmd extends BaseCmd {
                 }
             }
         }
+        if (detailsMap.keySet().stream().anyMatch(key -> key.startsWith("allocation."))) {
+            throw new com.cloud.exception.InvalidParameterValueException("Use allocationpolicy/allocationformat instead of reserved allocation.* details");
+        }
+        detailsMap.putAll(com.cloud.storage.VolumeAllocationPolicy.request(allocationPolicy, allocationFormat, provisioningType));
         return detailsMap;
     }
 

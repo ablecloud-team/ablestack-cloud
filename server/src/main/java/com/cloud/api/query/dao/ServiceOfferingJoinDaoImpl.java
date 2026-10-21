@@ -64,6 +64,8 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
     private ConfigurationDao configDao;
     @Inject
     private AccountManager accountManager;
+    @Inject
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
 
     private SearchBuilder<ServiceOfferingJoinVO> sofIdSearch;
 
@@ -124,6 +126,7 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
         offeringResponse.setSystemVmType(offering.getSystemVmType());
         offeringResponse.setDisplayText(offering.getDisplayText());
         offeringResponse.setProvisioningType(offering.getProvisioningType().toString());
+        populateAllocation(offeringResponse, offering);
         offeringResponse.setCpuNumber(offering.getCpu());
         offeringResponse.setCpuSpeed(offering.getSpeed());
         offeringResponse.setMemory(offering.getRamSize());
@@ -298,4 +301,9 @@ public class ServiceOfferingJoinDaoImpl extends GenericDaoBase<ServiceOfferingJo
         }
         return uvList;
     }
+    private void populateAllocation(ServiceOfferingResponse response, ServiceOfferingJoinVO offering) {
+        response.setAllocation(com.cloud.storage.VolumeAllocationPolicy.describe(
+                allocationDetailsDao.listDetailsKeyPairs(offering.getDiskOfferingId()), offering.getProvisioningType().toString(), null));
+    }
+
 }

@@ -196,6 +196,8 @@ import com.cloud.vm.snapshot.dao.VMSnapshotDetailsDao;
 
 @Component
 public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implements SnapshotManager, SnapshotApiService, Configurable {
+    @Inject private com.cloud.storage.dao.VolumeDetailsDao allocationDetailsDao;
+
 
     private static final String KVM_STORAGE_SNAPSHOT_DETAIL = "kvmStorageSnapshot";
     private static final String KVM_FILE_BASED_STORAGE_SNAPSHOT_DETAIL = "kvmFileBasedStorageSnapshot";
@@ -383,8 +385,16 @@ public class SnapshotManagerImpl extends MutualExclusiveIdsManagerBase implement
         return null;
     }
 
+    private void validateAllocationRevert(Long snapshotId) {
+        SnapshotVO snapshot = _snapshotDao.findById(snapshotId);
+        if (snapshot != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(snapshot.getVolumeId()), "snapshot revert");
+        }
+    }
+
     @Override
     public Snapshot revertSnapshot(Long snapshotId) {
+        validateAllocationRevert(snapshotId);
         SnapshotVO snapshot = _snapshotDao.findById(snapshotId);
         if (snapshot == null) {
             throw new InvalidParameterValueException("No such snapshot");
