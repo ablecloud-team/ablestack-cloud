@@ -1,0 +1,171 @@
+{
+  "modules_packaged": 43,
+  "suites": [
+    {
+      "suite": "com.cloud.storage.VolumeAllocationLifecycleTest",
+      "module": "api",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeAllocationPolicyTest",
+      "module": "api",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.command.VolumeAllocationTransportTest",
+      "module": "core",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.engine.orchestration.VolumeAllocationGuardTest",
+      "module": "engine/orchestration",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.volume.VolumeAllocationResultTest",
+      "module": "engine/storage/volume",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.volume.VolumeAllocationLifecycleGuardTest",
+      "module": "engine/storage/volume",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.hypervisor.kvm.storage.Gfs2AllocationCommandRunnerTest",
+      "module": "plugins/hypervisors/kvm",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.hypervisor.kvm.storage.Gfs2VolumeAllocationTest",
+      "module": "plugins/hypervisors/kvm",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.hypervisor.kvm.storage.Gfs2AllocationFailureEvidenceTest",
+      "module": "plugins/hypervisors/kvm",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.hypervisor.kvm.storage.RbdVolumeAllocationTest",
+      "module": "plugins/hypervisors/kvm",
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorAllocationTest",
+      "module": "plugins/hypervisors/kvm",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.datastore.driver.AblestackPrimaryDataStoreResizeResponseTest",
+      "module": "plugins/storage/volume/ablestack",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "org.apache.cloudstack.storage.datastore.driver.CloudStackPrimaryDataStoreResizeResponseTest",
+      "module": "plugins/storage/volume/default",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeAllocationRegistrationTest",
+      "module": "server",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeAllocationSnapshotGuardTest",
+      "module": "server",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeAllocationManagerImplTest",
+      "module": "server",
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeApiServiceImplTest",
+      "module": "server",
+      "tests": 159,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.metadata.VolumeAllocationMetadataTest",
+      "module": "server",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeAllocationMutationTest",
+      "module": "server",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.cloud.storage.VolumeApiServiceImplUpdateTest",
+      "module": "server",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "totals": {
+    "tests": 403,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}
