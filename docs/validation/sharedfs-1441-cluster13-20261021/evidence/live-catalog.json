@@ -1,0 +1,751 @@
+[
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "thin",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "4007504f-6cc3-4694-b44e-46f5a6f0baa4",
+      "name": "CKS Instance",
+      "state": "Active",
+      "displaytext": "CKS Instance",
+      "cpunumber": 2,
+      "cpuspeed": 1000,
+      "memory": 2048,
+      "created": "2026-10-01T16:18:20+0900",
+      "storagetype": "shared",
+      "provisioningtype": "thin",
+      "offerha": false,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "00ab83a6-e6fd-40ca-aae3-12913393f14e",
+      "diskofferingname": "CKS Instance",
+      "diskofferingdisplaytext": "CKS Instance",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": false,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 2
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 2048
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 1000
+        }
+      },
+      "reasons": [
+        {
+          "code": "HA_REQUIRED",
+          "field": "offerha",
+          "params": {}
+        },
+        {
+          "code": "ROOT_POLICY_THIN",
+          "field": "serviceofferingid",
+          "params": {}
+        }
+      ],
+      "root": {
+        "diskofferingid": "00ab83a6-e6fd-40ca-aae3-12913393f14e",
+        "policy": "thin",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "thin",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "ff8d160d-7523-46a7-ab98-faf49d16554b",
+      "name": "2C4GB",
+      "state": "Active",
+      "displaytext": "2C4GB",
+      "cpunumber": 2,
+      "cpuspeed": 2000,
+      "memory": 4096,
+      "created": "2026-10-06T08:31:44+0900",
+      "storagetype": "shared",
+      "provisioningtype": "thin",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "48bae5f6-dc30-451f-a7bb-b4e4a877a1ee",
+      "diskofferingname": "2C4GB",
+      "diskofferingdisplaytext": "2C4GB",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": false,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 2
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 4096
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [
+        {
+          "code": "ROOT_POLICY_THIN",
+          "field": "serviceofferingid",
+          "params": {}
+        }
+      ],
+      "root": {
+        "diskofferingid": "48bae5f6-dc30-451f-a7bb-b4e4a877a1ee",
+        "policy": "thin",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "thin",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "1dae1249-0b94-4db8-9317-4f60ecfdaa6a",
+      "name": "epic898-scale-4C8GB",
+      "state": "Active",
+      "displaytext": "Epic898 online scaling validation 4CPU8GiB",
+      "cpunumber": 4,
+      "cpuspeed": 2000,
+      "memory": 8192,
+      "created": "2026-10-07T10:22:39+0900",
+      "storagetype": "shared",
+      "provisioningtype": "thin",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "fd600aae-1dfd-4b05-82a1-85f5966478b1",
+      "diskofferingname": "epic898-scale-4C8GB",
+      "diskofferingdisplaytext": "Epic898 online scaling validation 4CPU8GiB",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": false,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 4
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 8192
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [
+        {
+          "code": "ROOT_POLICY_THIN",
+          "field": "serviceofferingid",
+          "params": {}
+        }
+      ],
+      "root": {
+        "diskofferingid": "fd600aae-1dfd-4b05-82a1-85f5966478b1",
+        "policy": "thin",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "5da2d6c9-d9c4-453a-a28c-3e93274a3380",
+      "name": "사용자 정의 컴퓨트 오퍼링",
+      "state": "Active",
+      "displaytext": "사용자가 자유롭게 CPU/Memory 크기 설정",
+      "created": "2026-10-07T11:56:52+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": true,
+      "cachemode": "none",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+      "diskofferingname": "사용자 정의 디스크 오퍼링",
+      "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+      "diskofferingcomputeonly": false,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": true,
+      "mode": "free",
+      "constraints": {
+        "cpunumber": {
+          "custom": true,
+          "min": 2,
+          "max": 2147483647
+        },
+        "memory": {
+          "custom": true,
+          "min": 1024,
+          "max": 2147483647
+        },
+        "cpuspeed": {
+          "custom": true,
+          "min": 1,
+          "max": 2147483647
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "fc808c8b-00fa-42d2-98b6-a082f12c347f",
+      "name": "epic898-sharedfs-sparse-2C4GB",
+      "state": "Active",
+      "displaytext": "epic898-sharedfs-sparse-2C4GB",
+      "cpunumber": 2,
+      "cpuspeed": 2000,
+      "memory": 4096,
+      "created": "2026-10-08T15:25:20+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "90b3f7d0-bf5b-46dc-bb6c-d46c57fa8774",
+      "diskofferingname": "epic898-sharedfs-sparse-2C4GB",
+      "diskofferingdisplaytext": "epic898-sharedfs-sparse-2C4GB",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 2
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 4096
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "90b3f7d0-bf5b-46dc-bb6c-d46c57fa8774",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "57c431e2-3330-4a1d-a0ff-11cbb5321899",
+      "name": "epic898-sharedfs-sparse-4C8GB",
+      "state": "Active",
+      "displaytext": "epic898-sharedfs-sparse-4C8GB",
+      "cpunumber": 4,
+      "cpuspeed": 2000,
+      "memory": 8192,
+      "created": "2026-10-08T15:25:20+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "1ae2dee3-dbf8-4626-9664-601a7dbef950",
+      "diskofferingname": "epic898-sharedfs-sparse-4C8GB",
+      "diskofferingdisplaytext": "epic898-sharedfs-sparse-4C8GB",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 4
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 8192
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "1ae2dee3-dbf8-4626-9664-601a7dbef950",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+      "name": "epic1438-1441-fixed-20261021",
+      "state": "Active",
+      "displaytext": "epic1438-1441-fixed-20261021",
+      "cpunumber": 2,
+      "cpuspeed": 2000,
+      "memory": 4096,
+      "created": "2026-10-21T20:17:14+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": false,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": false,
+      "diskofferingstrictness": false,
+      "diskofferingid": "df2c1607-58de-42c7-be4b-c950ed62e071",
+      "diskofferingname": "epic1438-1441-fixed-20261021",
+      "diskofferingdisplaytext": "epic1438-1441-fixed-20261021",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": false,
+      "mode": "fixed",
+      "constraints": {
+        "cpunumber": {
+          "custom": false,
+          "min": 2,
+          "max": 2147483647,
+          "value": 2
+        },
+        "memory": {
+          "custom": false,
+          "min": 1024,
+          "max": 2147483647,
+          "value": 4096
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "df2c1607-58de-42c7-be4b-c950ed62e071",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "610b811a-6674-4f1d-a16f-55681e50a6de",
+      "name": "epic1438-1441-free-20261021",
+      "state": "Active",
+      "displaytext": "epic1438-1441-free-20261021",
+      "created": "2026-10-21T20:17:38+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "iscustomized": true,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": false,
+      "diskofferingstrictness": false,
+      "diskofferingid": "a250168d-a33a-498a-bfd2-528908b4da8f",
+      "diskofferingname": "epic1438-1441-free-20261021",
+      "diskofferingdisplaytext": "epic1438-1441-free-20261021",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": true,
+      "mode": "free",
+      "constraints": {
+        "cpunumber": {
+          "custom": true,
+          "min": 2,
+          "max": 2147483647
+        },
+        "memory": {
+          "custom": true,
+          "min": 1024,
+          "max": 2147483647
+        },
+        "cpuspeed": {
+          "custom": true,
+          "min": 1,
+          "max": 2147483647
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "a250168d-a33a-498a-bfd2-528908b4da8f",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  },
+  {
+    "offering": {
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "unknown",
+        "evidence": "unverified"
+      },
+      "id": "0a3cccb9-62ed-4fa6-a3e9-d3f1dcb7bd00",
+      "name": "epic1438-1441-range-20261021",
+      "state": "Active",
+      "displaytext": "epic1438-1441-range-20261021",
+      "cpuspeed": 2000,
+      "created": "2026-10-21T20:17:58+0900",
+      "storagetype": "shared",
+      "provisioningtype": "sparse",
+      "offerha": true,
+      "limitcpuuse": false,
+      "isvolatile": false,
+      "issystem": false,
+      "defaultuse": false,
+      "serviceofferingdetails": {
+        "maxcpunumber": "4",
+        "mincpunumber": "2",
+        "minmemory": "1024",
+        "maxmemory": "8192"
+      },
+      "iscustomized": true,
+      "cachemode": "writeback",
+      "rootdisksize": 0,
+      "dynamicscalingenabled": true,
+      "diskofferingstrictness": false,
+      "diskofferingid": "cd54d518-d71e-4403-b6c6-37a75d6f4425",
+      "diskofferingname": "epic1438-1441-range-20261021",
+      "diskofferingdisplaytext": "epic1438-1441-range-20261021",
+      "diskofferingcomputeonly": true,
+      "encryptroot": false,
+      "shareable": false,
+      "kvdoenable": false,
+      "gpudisplay": false,
+      "hasannotations": false
+    },
+    "eligibility": {
+      "selectable": true,
+      "inputrequired": true,
+      "mode": "ranged",
+      "constraints": {
+        "cpunumber": {
+          "custom": true,
+          "min": 2,
+          "max": 4
+        },
+        "memory": {
+          "custom": true,
+          "min": 1024,
+          "max": 8192
+        },
+        "cpuspeed": {
+          "custom": false,
+          "min": 0,
+          "max": 2147483647,
+          "value": 2000
+        }
+      },
+      "reasons": [],
+      "root": {
+        "diskofferingid": "cd54d518-d71e-4403-b6c6-37a75d6f4425",
+        "policy": "sparse",
+        "source": "legacy"
+      },
+      "requirements": {
+        "mincpu": 2,
+        "minmemory": 1024,
+        "ha": true,
+        "dynamicscalingrequired": false,
+        "architecture": "x86_64"
+      }
+    }
+  }
+]

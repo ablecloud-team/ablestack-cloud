@@ -1,0 +1,137 @@
+[
+  {
+    "uuid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+    "domain": "i-2-105-VM",
+    "state": "running",
+    "vcpu": "2",
+    "memory": {
+      "value": "4194304",
+      "unit": "KiB"
+    },
+    "disks": [
+      {
+        "volumeId": "95047027-fe5e-4ec4-8fb2-1ed7d41bd3ec",
+        "path": "/mnt/glue-gfs/95047027-fe5e-4ec4-8fb2-1ed7d41bd3ec",
+        "target": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "serial": "95047027fe5e4ec48fb2",
+        "format": "QCOW2",
+        "virtualSize": 5242880000,
+        "filesystemAllocatedBytes": 1641992192,
+        "policy": "sparse"
+      },
+      {
+        "volumeId": "3af8261e-6877-4479-8815-0b64a1b50910",
+        "path": "/mnt/glue-gfs/3af8261e-6877-4479-8815-0b64a1b50910",
+        "target": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "serial": "3af8261e687744798815",
+        "format": "QCOW2",
+        "virtualSize": 21474836480,
+        "filesystemAllocatedBytes": 6369280,
+        "policy": "sparse"
+      }
+    ],
+    "host": "10.10.13.3"
+  },
+  {
+    "uuid": "92d99386-9157-4abe-b427-98829770a15d",
+    "domain": "i-2-106-VM",
+    "state": "running",
+    "vcpu": "3",
+    "memory": {
+      "value": "6291456",
+      "unit": "KiB"
+    },
+    "disks": [
+      {
+        "volumeId": "4b9e59dc-ecef-497b-9f06-1a95044fdceb",
+        "path": "/mnt/glue-gfs/4b9e59dc-ecef-497b-9f06-1a95044fdceb",
+        "target": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "serial": "4b9e59dcecef497b9f06",
+        "format": "QCOW2",
+        "virtualSize": 5242880000,
+        "filesystemAllocatedBytes": 1641893888,
+        "policy": "sparse"
+      },
+      {
+        "volumeId": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+        "path": "/mnt/glue-gfs/d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+        "target": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "serial": "d1984ccc44fa48f99812",
+        "format": "QCOW2",
+        "virtualSize": 21474836480,
+        "filesystemAllocatedBytes": 6369280,
+        "policy": "sparse"
+      }
+    ],
+    "host": "10.10.13.1"
+  },
+  {
+    "uuid": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+    "domain": "i-2-107-VM",
+    "state": "running",
+    "vcpu": "4",
+    "memory": {
+      "value": "8388608",
+      "unit": "KiB"
+    },
+    "disks": [
+      {
+        "volumeId": "47d100b7-44ef-4bb4-a5ec-9f64329eb73d",
+        "path": "/mnt/glue-gfs/47d100b7-44ef-4bb4-a5ec-9f64329eb73d",
+        "target": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "serial": "47d100b744ef4bb4a5ec",
+        "format": "QCOW2",
+        "virtualSize": 5242880000,
+        "filesystemAllocatedBytes": 1641869312,
+        "policy": "sparse"
+      },
+      {
+        "volumeId": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+        "path": "/mnt/glue-gfs/68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+        "target": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "serial": "68b4d72ec88d4ddf84a8",
+        "format": "QCOW2",
+        "virtualSize": 21474836480,
+        "filesystemAllocatedBytes": 6369280,
+        "policy": "sparse"
+      }
+    ],
+    "host": "10.10.13.2"
+  }
+]
