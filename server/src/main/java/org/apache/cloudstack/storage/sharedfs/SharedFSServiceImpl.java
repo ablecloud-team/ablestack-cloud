@@ -562,7 +562,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSVO existing = sharedFSDao.findByCreationRequest(ownerId, key);
         if (existing == null) return null;
         SharedFSCreationContext incoming = SharedFSCreationContext.from(cmd);
-        SharedFSCreationContext saved = SharedFSCreationContext.read(existing.getCreationContext());
+        SharedFSCreationContext saved;
+        try { saved = SharedFSCreationContext.read(existing.getCreationContext()); }
+        catch (SharedFSCreationContext.InvalidJournalException e) {
+            throw new InvalidParameterValueException(SharedFSCreationContext.INVALID_JOURNAL + ": observe and cancel the unallocated preparation");
+        }
         if (saved == null || !incoming.fingerprint.equals(saved.fingerprint))
             throw new InvalidParameterValueException("Creation request UUID was already used with different parameters");
         return existing;
@@ -667,7 +671,14 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         }
         try {
             SharedFSVO fs = sharedFSDao.findById(id);
-            SharedFSCreationContext c = SharedFSCreationContext.read(fs.getCreationContext());
+            SharedFSCreationContext c;
+            try {
+                c = SharedFSCreationContext.read(fs.getCreationContext());
+            } catch (SharedFSCreationContext.InvalidJournalException e) {
+                if ("CANCEL_PREPARATION".equals(action)) return cancelUnallocatedCorruptCreation(fs);
+                throw new InvalidParameterValueException(SharedFSCreationContext.INVALID_JOURNAL
+                        + ": creation is blocked; an unallocated preparation may be cancelled");
+            }
             if (c == null) throw new InvalidParameterValueException("This resource has no resumable creation journal");
             SharedFSLifeCycle life = getSharedFSProvider(fs.getFsProviderName()).getSharedFSLifeCycle();
             if (fs.getState() == SharedFS.State.Ready) {
@@ -773,6 +784,33 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
     private static String jsonString(com.google.gson.JsonObject object, String key) {
         return object.has(key) && !object.get(key).isJsonNull() ? object.get(key).getAsString() : null;
+    }
+
+    protected SharedFS cancelUnallocatedCorruptCreation(SharedFSVO fs) {
+        if (fs.getVmId() != null || (fs.getState() != SharedFS.State.Allocated && fs.getState() != SharedFS.State.Error))
+            throw new InvalidParameterValueException("Corrupt preparation with a VM or operational state requires investigation");
+        SharedFSCreationContext cancelled = new SharedFSCreationContext();
+        cancelled.planVm(fs.getUuid());
+        if (userVmDao.findByUuid(cancelled.plannedVmUuid) != null)
+            throw new InvalidParameterValueException("A planned VM exists; corrupt preparation cannot be cancelled automatically");
+        if (fs.getVolumeId() != null) {
+            VolumeVO data = volumeDao.findById(fs.getVolumeId());
+            if (data == null || data.getRemoved() != null || data.getAccountId() != fs.getAccountId()
+                    || data.getDataCenterId() != fs.getDataCenterId()
+                    || data.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK
+                    || data.getState() != com.cloud.storage.Volume.State.Ready || data.getInstanceId() != null)
+                throw new InvalidParameterValueException("Backing DATA must be owned, Ready and unattached before releasing a corrupt reservation");
+            for (SharedFSVO claim : sharedFSDao.listByBackingVolume(data.getId())) {
+                if (claim.getId() != fs.getId()) throw new InvalidParameterValueException("Another SharedFS claims the backing DATA");
+            }
+            ensureBackingUnreferenced(data.getId());
+            cancelled.existing = true; cancelled.volumeId = data.getId();
+        }
+        cancelled.cancelled = true; cancelled.errorCode = SharedFSCreationContext.INVALID_JOURNAL;
+        fs.setVolumeId(null);
+        if (fs.getState() == SharedFS.State.Allocated) stateTransitTo(fs, Event.OperationFailed);
+        saveCreation(fs, cancelled, "CANCELLED");
+        return sharedFSDao.findById(fs.getId());
     }
 
     private void cancelCreation(SharedFSVO fs, SharedFSCreationContext c, SharedFSLifeCycle life) {

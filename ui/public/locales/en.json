@@ -9923,5 +9923,6 @@
   "label.sharedfs.initial.expected.fs": "Optional expected filesystem",
   "label.sharedfs.initial.unobserved": "Not observed; no assumed format",
   "message.sharedfs.initial.pending": "An initial request is pending. Observe and continue the same request. Credentials are not stored.",
-  "label.sharedfs.initial.mount": "Continue mounting existing filesystem"
+  "label.sharedfs.initial.mount": "Continue mounting existing filesystem",
+  "message.sharedfs.initial.corrupt": "The creation journal is invalid. Continue and mount are blocked. Cancel may release a reservation only when no VM was allocated."
 }

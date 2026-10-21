@@ -237,11 +237,18 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     private String creationErrorCode;
     public void setCreation(SharedFS sharedFS) {
         if (sharedFS == null || sharedFS.getCreationContext() == null) return;
-        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
-        creationRequestId = sharedFS.getCreationRequestId(); creationStage = c.phase;
-        backingMode = c.existing ? "EXISTING" : "NEW";
-        creationJobId = c.lastJobUuid;
-        expectedFilesystem = c.expectedFilesystem; observedFilesystem = c.observedFilesystem; creationErrorCode = c.errorCode;
+        creationRequestId = sharedFS.getCreationRequestId();
+        try {
+            org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+            if (c == null) return;
+            creationStage = c.phase;
+            backingMode = c.existing ? "EXISTING" : "NEW";
+            creationJobId = c.lastJobUuid;
+            expectedFilesystem = c.expectedFilesystem; observedFilesystem = c.observedFilesystem; creationErrorCode = c.errorCode;
+        } catch (org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.InvalidJournalException e) {
+            creationStage = "CORRUPT";
+            creationErrorCode = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.INVALID_JOURNAL;
+        }
     }
 
     @Override
