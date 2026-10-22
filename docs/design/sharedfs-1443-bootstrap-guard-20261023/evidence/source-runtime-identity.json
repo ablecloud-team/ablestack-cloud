@@ -1,0 +1,27 @@
+{
+  "common.sh": {
+    "sourceSha256": "b09c125ef2587ec7d8d2df6554303837bbb0d358d7dcdb881a24a99965ecf117",
+    "guestSha256": "b09c125ef2587ec7d8d2df6554303837bbb0d358d7dcdb881a24a99965ecf117",
+    "same": true
+  },
+  "init.sh": {
+    "sourceSha256": "0f4bf34efcda9211c1b0487de2a894355610becb37005a64d1ce16a725a20f35",
+    "guestSha256": "0f4bf34efcda9211c1b0487de2a894355610becb37005a64d1ce16a725a20f35",
+    "same": true
+  },
+  "cloud-early-config": {
+    "sourceSha256": "f8cc0739dd6fb52ed39745cef0b0010b931d3284e079a2774024c2ecc422cd03",
+    "guestSha256": "f8cc0739dd6fb52ed39745cef0b0010b931d3284e079a2774024c2ecc422cd03",
+    "same": true
+  },
+  "bootstrap.sh": {
+    "sourceSha256": "3abd00c45cf62d73c18d67711fd3a47d47ef8cef04c6bee72a2b0098efba991b",
+    "guestSha256": "3abd00c45cf62d73c18d67711fd3a47d47ef8cef04c6bee72a2b0098efba991b",
+    "same": true
+  },
+  "patch.sh": {
+    "sourceSha256": "b245d1b45b8ebc9e5ab80515c1985d295dc4beb8a711af590a10901979cbb09c",
+    "guestSha256": "b245d1b45b8ebc9e5ab80515c1985d295dc4beb8a711af590a10901979cbb09c",
+    "same": true
+  }
+}

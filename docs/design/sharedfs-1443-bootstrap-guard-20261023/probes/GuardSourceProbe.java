@@ -1,0 +1,14 @@
+public class GuardSourceProbe {
+    protected String buildSharedFsBootstrapGuard() {
+        // QGA may be up before the late guest bootstrap network writes finish.
+        // Persist the intent first, but do not report network readiness yet.
+        return "sharedfs_boot_state=$(systemctl show cloud-early-config.service -p ActiveState -p SubState -p Result); " +
+                "if ! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'ActiveState=active' || " +
+                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'SubState=exited' || " +
+                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'Result=success'; then " +
+                "echo 'SHAREDFS_BOOTSTRAP_PENDING: waiting for guest network initialization' >&2; exit 75; fi; ";
+    }
+
+
+public static void main(String[] args) {System.out.print(new GuardSourceProbe().buildSharedFsBootstrapGuard());}
+}
