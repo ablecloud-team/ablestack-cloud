@@ -1,0 +1,274 @@
+{
+  "operationId": "33447f4c-0e5a-3d85-8ce3-11a794441052",
+  "volumeUuid": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+  "status": "PREPARED",
+  "phase": "PREPARED",
+  "formatCount": 1,
+  "formatEverStarted": true,
+  "filesystemUuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+  "createdAt": 1792636414.560555,
+  "formatStartedAt": 1792636414.9029412,
+  "formatDeadlineAt": 1792636894.9029412,
+  "heartbeatAt": 1792636473.3596358,
+  "finishedAt": 1792636473.359634,
+  "errorCode": null,
+  "reason": null,
+  "mountPath": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da",
+  "observedAt": 1792653032.202941,
+  "unitState": "MainPID=0\nActiveState=inactive\nSubState=dead\n",
+  "formatterProcesses": "",
+  "disks": {
+    "blockdevices": [
+      {
+        "name": "sda",
+        "path": "/dev/sda",
+        "type": "disk",
+        "fstype": null,
+        "uuid": null,
+        "serial": "f155538f6bac412caf02",
+        "size": 5242880000,
+        "mountpoint": null,
+        "children": [
+          {
+            "name": "sda1",
+            "path": "/dev/sda1",
+            "type": "part",
+            "fstype": "ext2",
+            "uuid": "02a28a52-ae70-46b5-8f12-3636640c9a99",
+            "serial": null,
+            "size": 398458880,
+            "mountpoint": "/boot"
+          },
+          {
+            "name": "sda2",
+            "path": "/dev/sda2",
+            "type": "part",
+            "fstype": null,
+            "uuid": null,
+            "serial": null,
+            "size": 1024,
+            "mountpoint": null
+          },
+          {
+            "name": "sda5",
+            "path": "/dev/sda5",
+            "type": "part",
+            "fstype": "swap",
+            "uuid": "c30f6d3c-fe8f-41df-99b0-52cb823c014c",
+            "serial": null,
+            "size": 510656512,
+            "mountpoint": null
+          },
+          {
+            "name": "sda6",
+            "path": "/dev/sda6",
+            "type": "part",
+            "fstype": "ext4",
+            "uuid": "91b8366d-a5de-42ad-a420-2e26aa755c3d",
+            "serial": null,
+            "size": 4329570304,
+            "mountpoint": "/"
+          }
+        ]
+      },
+      {
+        "name": "sdb",
+        "path": "/dev/sdb",
+        "type": "disk",
+        "fstype": "xfs",
+        "uuid": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+        "serial": "942aee61490d493eb60d",
+        "size": 2199023255552,
+        "mountpoint": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da"
+      },
+      {
+        "name": "sr0",
+        "path": "/dev/sr0",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00003",
+        "size": 1073741312,
+        "mountpoint": null
+      },
+      {
+        "name": "sr1",
+        "path": "/dev/sr1",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00004",
+        "size": 1073741312,
+        "mountpoint": null
+      }
+    ]
+  },
+  "fstabMatches": [
+    "UUID=bbaf069a-c5b9-4a55-be4f-774d7ad80583 /srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da xfs defaults,nofail,x-systemd.device-timeout=30 0 2 # ablestack-storage:942aee61-490d-493e-b60d-8cb81ce8f9da:backing",
+    "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n /export/p1443x2n none bind,nofail,x-systemd.requires-mounts-for=/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n 0 0 # ablestack-storage:83767bdf-5fa8-4a0f-9e8d-740a5510c0e8:alias"
+  ],
+  "helperSha256": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+  "moduleSha256": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+  "files": {
+    "p1443x2n": {
+      "path": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2n/preserve.txt",
+      "sha256": "a212dd6d52fd75eec77faa86de2d4144055114db900fb94a46bb3296a83bbec7",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "onDataFilesystem": true
+    },
+    "p1443x2s": {
+      "path": "/srv/ablestack-storage/volumes/942aee61-490d-493e-b60d-8cb81ce8f9da/export/p1443x2s/preserve.txt",
+      "sha256": "134e153ebcd502cee07baf7f6285219b1424cc65b7c978cc6974d2cc4f09ab42",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "onDataFilesystem": true
+    }
+  },
+  "currentBootId": "86f29f93-1859-4b4b-8b38-a219b8272a6d",
+  "addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.10.254.198",
+          "prefixlen": 16,
+          "broadcast": "10.10.255.255",
+          "scope": "global",
+          "dynamic": true,
+          "label": "eth0",
+          "valid_life_time": 7006,
+          "preferred_life_time": 7006
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "loopback",
+      "address": "00:00:00:00:00:00",
+      "broadcast": "00:00:00:00:00:00"
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "linkmode": "DEFAULT",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "ether",
+      "address": "02:0d:00:cc:00:48",
+      "broadcast": "ff:ff:ff:ff:ff:ff",
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "dst": "default",
+      "gateway": "10.10.0.1",
+      "dev": "eth0",
+      "flags": []
+    },
+    {
+      "dst": "10.10.0.0/16",
+      "dev": "eth0",
+      "protocol": "kernel",
+      "scope": "link",
+      "prefsrc": "10.10.254.198",
+      "flags": []
+    }
+  ],
+  "networkFiles": {
+    "/etc/ablestack-storage/sharedfs-network.json": {
+      "content": "{\"macAddress\":\"02:0d:00:cc:00:48\",\"ipAddress\":\"10.10.13.250\",\"cidr\":\"10.10.0.0/16\",\"gateway\":\"10.10.13.1\",\"dns1\":\"8.8.8.8\"}",
+      "sha256": "dad0f3e0f49adb56029c0ba3cb18e41be05e73b0657480abb4e8d56bf49c259b",
+      "mtime": 1792652833.996
+    },
+    "/etc/systemd/system/ablestack-sharedfs-network.service": {
+      "content": "[Unit]\nDescription=ABLESTACK SharedFS static network restore\nAfter=local-fs.target\nBefore=network-pre.target network.target\nWants=network-pre.target\nConditionPathExists=/etc/ablestack-storage/sharedfs-network.json\n\n[Service]\nType=oneshot\nExecStart=/usr/local/sbin/ablestack-sharedfs-network /etc/ablestack-storage/sharedfs-network.json\nRemainAfterExit=yes\n\n[Install]\nWantedBy=multi-user.target\n",
+      "sha256": "305bb72c1e90d980ca5a00615dba3f8f928c52df0b5e63cddc75b757fb56e8b0",
+      "mtime": 1792652834.032
+    },
+    "/usr/local/sbin/ablestack-sharedfs-network": {
+      "content": "#!/usr/bin/env python3\nimport ipaddress\nimport json\nimport subprocess\nimport sys\nfrom pathlib import Path\n\ndef run(*args):\n    return subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout\n\nstate_path = Path(sys.argv[1])\nstate = json.loads(state_path.read_text(encoding='utf-8'))\nnetwork = ipaddress.ip_network(state['cidr'], strict=False)\naddress = ipaddress.ip_address(state['ipAddress'])\ngateway = ipaddress.ip_address(state['gateway']) if state.get('gateway') else None\ndns = [ipaddress.ip_address(state[key]) for key in ('dns1', 'dns2') if state.get(key)]\nif network.version != 4 or address.version != 4 or address not in network or (gateway and (gateway.version != 4 or gateway not in network)):\n    raise ValueError('invalid SharedFS static IPv4 configuration')\nif address in (network.network_address, network.broadcast_address):\n    raise ValueError('SharedFS static IP cannot be the network or broadcast address')\nmac = state['macAddress'].lower()\ninterfaces = [path for path in Path('/sys/class/net').iterdir() if path.name != 'lo']\ninterface = next((path.name for path in interfaces if (path / 'address').read_text().strip().lower() == mac), None)\nif not interface:\n    raise RuntimeError('unable to find SharedFS NIC by MAC address ' + mac)\nsubprocess.run(['systemctl', 'disable', '--now', 'cloud-dhclient@' + interface + '.service'], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\nrun('ip', 'link', 'set', 'dev', interface, 'up')\nrun('ip', '-4', 'addr', 'flush', 'dev', interface, 'scope', 'global')\nrun('ip', 'addr', 'replace', str(address) + '/' + str(network.prefixlen), 'dev', interface)\nsubprocess.run(['ip', 'route', 'del', 'default', 'dev', interface], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\nif gateway:\n    run('ip', 'route', 'replace', 'default', 'via', str(gateway), 'dev', interface)\nif dns:\n    Path('/etc/resolv.conf').write_text(''.join('nameserver ' + str(server) + '\\n' for server in dns), encoding='utf-8')\naddresses = json.loads(run('ip', '-j', '-4', 'addr', 'show', 'dev', interface))\nroutes = json.loads(run('ip', '-j', '-4', 'route', 'show', 'default'))\nconfigured = any(info.get('local') == str(address) and info.get('prefixlen') == network.prefixlen for item in addresses for info in item.get('addr_info', []))\nrouted = gateway is None or any(route.get('gateway') == str(gateway) and route.get('dev') == interface for route in routes)\nif not configured or not routed:\n    raise RuntimeError('SharedFS static network verification failed')\nprint(json.dumps({'interface': interface, 'ipAddress': str(address), 'cidr': str(network), 'gateway': str(gateway) if gateway else None, 'dns': [str(server) for server in dns]}, separators=(',', ':')))\n",
+      "sha256": "7e74d3213c7bcb9eed461ed3554f7b1a924a9392f35340e99282a08647347e94",
+      "mtime": 1792652834.028
+    },
+    "/etc/network/interfaces": {
+      "content": "auto lo eth0  \niface lo inet loopback\n\niface  eth0 inet static\n  address 10.10.254.196 \n  netmask null\n",
+      "sha256": "e060b63e13db9acc771376b8323e391c521a5c8b52f2a3ec3da355bf96b6841b",
+      "mtime": 1792652835.06
+    }
+  },
+  "networkUnits": "Result=success\nExecMainStatus=0\nId=ablestack-sharedfs-network.service\nActiveState=active\nSubState=exited\nFragmentPath=/etc/systemd/system/ablestack-sharedfs-network.service\nActiveEnterTimestamp=Thu 2026-10-22 07:07:14 UTC\n\nResult=success\nExecMainStatus=0\nId=cloud-dhclient@eth0.service\nActiveState=inactive\nSubState=dead\nFragmentPath=\nActiveEnterTimestamp=\n",
+  "dhclientProcesses": "",
+  "networkJournal": "Oct 22 07:07:13 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Starting ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore...\nOct 22 07:07:13 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 ablestack-sharedfs-network[452]: {\"interface\":\"eth0\",\"ipAddress\":\"10.10.13.250\",\"cidr\":\"10.10.0.0/16\",\"gateway\":\"10.10.13.1\",\"dns\":[\"8.8.8.8\"]}\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Finished ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore.\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: ablestack-sharedfs-network.service: Deactivated successfully.\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Stopped ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore.\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Stopping ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore...\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Starting ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore...\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 ablestack-sharedfs-network[652]: {\"interface\":\"eth0\",\"ipAddress\":\"10.10.13.250\",\"cidr\":\"10.10.0.0/16\",\"gateway\":\"10.10.13.1\",\"dns\":[\"8.8.8.8\"]}\nOct 22 07:07:14 sharedfs-492c6b13-4500-3f94-8be7-76f146d9ba49 systemd[1]: Finished ablestack-sharedfs-network.service - ABLESTACK SharedFS static network restore.\n"
+}
