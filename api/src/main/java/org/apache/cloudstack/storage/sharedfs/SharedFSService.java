@@ -50,6 +50,8 @@ public interface SharedFSService {
 
     SharedFS allocSharedFS(CreateSharedFSCmd cmd);
 
+    String getSharedFSPreparation(Long id, String requestId);
+
     SharedFS resumeSharedFSCreation(Long id, String requestId, String action) throws ResourceUnavailableException,
             InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 

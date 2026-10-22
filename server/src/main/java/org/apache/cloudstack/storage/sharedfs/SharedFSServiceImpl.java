@@ -17,6 +17,7 @@
 
 package org.apache.cloudstack.storage.sharedfs;
 
+import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSInitialFormatMaxSeconds;
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSCleanupDelay;
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSCleanupInterval;
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSFeatureEnabled;
@@ -279,6 +280,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         final List<Class<?>> cmdList = new ArrayList<>();
         if (SharedFSFeatureEnabled.value()) {
             cmdList.add(org.apache.cloudstack.api.command.user.storage.sharedfs.ResumeSharedFSCreationCmd.class);
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.sharedfs.GetSharedFSPreparationCmd.class);
             cmdList.add(ListSharedFSProvidersCmd.class);
             cmdList.add(CreateSharedFSCmd.class);
             cmdList.add(ListSharedFSCmd.class);
@@ -567,7 +569,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         catch (SharedFSCreationContext.InvalidJournalException e) {
             throw new InvalidParameterValueException(SharedFSCreationContext.INVALID_JOURNAL + ": observe and cancel the unallocated preparation");
         }
-        if (saved == null || !incoming.fingerprint.equals(saved.fingerprint))
+        if (saved == null || !incoming.fingerprint.equals(saved.fingerprint)
+                || (saved.prepareNewFileBacking != null && !java.util.Objects.equals(saved.prepareNewFileBacking,incoming.prepareNewFileBacking)))
             throw new InvalidParameterValueException("Creation request UUID was already used with different parameters");
         return existing;
     }
@@ -661,7 +664,90 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         return continueCreation(id, action.toUpperCase());
     }
 
+    @Override
+    public String getSharedFSPreparation(Long id, String requestId) {
+        SharedFSVO fs = sharedFSDao.findById(id);
+        if (fs == null) throw new InvalidParameterValueException("SharedFS does not exist");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, fs);
+        if (!java.util.Objects.equals(fs.getCreationRequestId(), SharedFSCreationContext.normalizeKey(requestId)))
+            throw new InvalidParameterValueException("Original creation request UUID is required");
+        SharedFSCreationContext c = SharedFSCreationContext.read(fs.getCreationContext());
+        if (c == null || c.preparation == null || c.existing) return "{}";
+        // This path deliberately performs no journal update, launch, mount or format.
+        return storageService.operateInitialBackingPreparation(fs, "status");
+    }
+
     protected SharedFS continueCreation(long id, String action) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        String next = action;
+        for (;;) {
+            SharedFS result = continueCreationStep(id, next);
+            SharedFSCreationContext c = SharedFSCreationContext.read(result.getCreationContext());
+            if (c == null || c.existing || c.preparation == null || result.getState() == SharedFS.State.Ready
+                    || !"RUNNING".equals(jsonString(c.preparation,"status"))) return result;
+            // Resource/global locks and transactions have been released by the step.
+            try { Thread.sleep(5000); }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return result; // guest work is independent and remains observable
+            }
+            next = "OBSERVE_PREPARATION";
+        }
+    }
+
+    protected boolean prepareInitialNewData(SharedFSVO fs, SharedFSCreationContext c, String action) {
+        boolean first = c.preparation == null;
+        if (first) {
+            List<VolumeVO> roots = volumeDao.findByInstance(fs.getVmId()).stream()
+                .filter(v -> v.getVolumeType() == com.cloud.storage.Volume.Type.ROOT).collect(Collectors.toList());
+            if (roots.size() != 1 || !c.ownedVolumeIds.contains(roots.get(0).getId()))
+                throw new InvalidParameterValueException("Initial ROOT ownership is not verified");
+            VolumeVO data = volumeDao.findById(c.volumeId);
+            if (data == null || !c.ownedVolumeIds.contains(data.getId()) || !fs.getVmId().equals(data.getInstanceId()))
+                throw new InvalidParameterValueException("Initial DATA ownership is not verified");
+            com.google.gson.JsonObject p = new com.google.gson.JsonObject();
+            p.addProperty("operationId", java.util.UUID.nameUUIDFromBytes(
+                ("sharedfs-initial-data:" + fs.getUuid() + ":" + data.getUuid()).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
+            p.addProperty("vmUuid", userVmDao.findById(fs.getVmId()).getUuid());
+            p.addProperty("rootVolumeUuid", roots.get(0).getUuid());
+            p.addProperty("volumeUuid", data.getUuid()); p.addProperty("volumeName", data.getName());
+            p.addProperty("volumeSizeBytes", data.getSize()); p.addProperty("filesystem", c.expectedFilesystem.toLowerCase());
+            long remaining = org.apache.cloudstack.framework.jobs.impl.AsyncJobManagerImpl.JobCancelThresholdMinutes.value() * 60L;
+            org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext job = org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext.getCurrentExecutionContext();
+            if (job != null && job.getJob() != null && job.getJob().getCreated() != null)
+                remaining -= Math.max(0, (System.currentTimeMillis() - job.getJob().getCreated().getTime()) / 1000);
+            p.addProperty("formatTimeoutSeconds", SharedFSCreationContext.initialFormatBudget(data.getSize(),
+                SharedFSInitialFormatMaxSeconds.value(), remaining));
+            p.addProperty("status", "REQUESTED"); p.addProperty("phase", "QUEUED");
+            c.preparation = p;
+            saveCreation(fs,c,"PREPARING"); // intent is durable before the first guest launch
+        }
+        syncSharedFSToStorageService(fs);
+        com.google.gson.JsonObject observed = com.google.gson.JsonParser.parseString(storageService.operateInitialBackingPreparation(
+            fs, first ? "start" : ("OBSERVE_PREPARATION".equals(action) ? "status" : "resume"))).getAsJsonObject();
+        for (String key : java.util.List.of("status","phase","formatEverStarted","formatCount","formatStartedAt","formatDeadlineAt",
+                "startedAt","deadlineAt","phaseStartedAt","phaseTimeoutSeconds","heartbeatAt","lastObservedAt","createdAt","finishedAt","filesystemUuid","observedFilesystem","bootId","currentBootId",
+                "mountPath","errorCode","reason","canResume","blockedReason","observationAvailable","capabilityVersion"))
+            if (observed.has(key)) c.preparation.add(key,observed.get(key));
+        String status = jsonString(c.preparation,"status");
+        if (!"PREPARED".equals(status)) {
+            c.errorCode = jsonString(c.preparation,"errorCode");
+            saveCreation(fs,c,"RUNNING".equals(status) ? "PREPARING" :
+                ("RECOVERY_REQUIRED".equals(status) ? "RECOVERY_REQUIRED" : "OBSERVATION_PENDING"));
+            return false;
+        }
+        String uuid = jsonString(c.preparation,"filesystemUuid");
+        String mount = jsonString(c.preparation,"mountPath");
+        VolumeVO data = volumeDao.findById(c.volumeId);
+        if (uuid == null || uuid.isBlank() || !("/srv/ablestack-storage/volumes/" + data.getUuid()).equals(mount)
+                || !c.expectedFilesystem.equalsIgnoreCase(jsonString(c.preparation,"observedFilesystem")))
+            throw new InvalidParameterValueException("Initial filesystem/mount result is not verified");
+        c.filesystemUuid = uuid; c.mountPath = mount; c.bootId = jsonString(c.preparation,"currentBootId");
+        c.observedFilesystem = jsonString(c.preparation,"observedFilesystem");
+        return true;
+    }
+
+    protected SharedFS continueCreationStep(long id, String action) throws ResourceUnavailableException,
             InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         GlobalLock lock = GlobalLock.getInternLock("sharedfs-initial-" + id);
         if (lock == null) throw new com.cloud.utils.exception.CloudRuntimeException("Initial SharedFS lock is unavailable");
@@ -686,6 +772,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 return fs;
             }
             if ("CANCEL_PREPARATION".equals(action)) {
+                if (c.preparation != null) throw new InvalidParameterValueException("Initial DATA preparation must be observed; active or uncertain work cannot be cancelled");
                 if (c.cancelled) return fs;
                 cancelCreation(fs, c, life);
                 return sharedFSDao.findById(id);
@@ -697,6 +784,18 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 saveCreation(fs, c, c.phase);
             }
             if (fs.getState() == SharedFS.State.Error) stateTransitTo(fs, Event.CreationResumeRequested);
+            if (!c.existing && c.preparation != null) {
+                com.cloud.vm.UserVmVO allocated = userVmDao.findById(fs.getVmId());
+                if (allocated == null || !c.plannedVmUuid.equals(allocated.getUuid()) || allocated.getAccountId() != fs.getAccountId())
+                    throw new InvalidParameterValueException("Initial preparation VM identity changed");
+                if (!"OBSERVE_PREPARATION".equals(action) && allocated.getState() == com.cloud.vm.VirtualMachine.State.Stopped)
+                    life.startSharedFS(fs);
+                if (!prepareInitialNewData(fs,c,action)) return sharedFSDao.findById(id);
+                c.errorCode = null; saveCreation(fs,c,"READY");
+                if (fs.getState() != SharedFS.State.Ready) stateTransitTo(fs,Event.OperationSucceeded);
+                syncSharedFSToStorageService(sharedFSDao.findById(id));
+                return sharedFSDao.findById(id);
+            }
             try {
                 Map<String, String> compute = life.checkCreationPrerequisites(validateAndGetZone(fs.getDataCenterId()),
                         fs.getServiceOfferingId(), c.compute);
@@ -763,12 +862,17 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                             || !mounted.has("persistentMount") || !mounted.get("persistentMount").getAsBoolean())
                         throw new InvalidParameterValueException("Imported filesystem mount identity was not verified");
                 }
+                if (!c.existing && Boolean.TRUE.equals(c.prepareNewFileBacking) && !prepareInitialNewData(fs,c,action)) return sharedFSDao.findById(id);
                 c.errorCode = null; saveCreation(fs, c, "READY");
                 stateTransitTo(fs, Event.OperationSucceeded);
                 syncSharedFSToStorageService(sharedFSDao.findById(id));
                 return sharedFSDao.findById(id);
             } catch (Exception e) {
                 c.errorCode = e.getClass().getSimpleName();
+                if (c.preparation != null) {
+                    saveCreation(fs, c, "OBSERVATION_PENDING");
+                    throw e; // never clean DATA while guest work may still be active
+                }
                 if (e instanceof OperationTimedoutException || "ALLOCATION_PENDING".equals(c.phase)
                         || "ATTACH_PENDING".equals(c.phase)) {
                     saveCreation(fs, c, "OBSERVATION_PENDING");
@@ -1417,7 +1521,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 SharedFSCleanupInterval,
                 SharedFSCleanupDelay,
                 SharedFSFeatureEnabled,
-                SharedFSExpungeWorkers
+                SharedFSExpungeWorkers,
+                SharedFSInitialFormatMaxSeconds
         };
     }
     protected class SharedFSGarbageCollector extends ManagedContextRunnable {

@@ -6667,7 +6667,7 @@ export default {
       return this.normalizeEndpointIps(this.forms.nfsExport.listenips)
     },
     nfsExportImportMode () {
-      if (this.resource?.backingmode === 'EXISTING' && this.forms.nfsExport.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
+      if ((this.resource?.backingmode === 'EXISTING' || this.resource?.preparation?.status === 'PREPARED') && this.forms.nfsExport.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.nfsExport.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }
@@ -6677,7 +6677,7 @@ export default {
       return 'FORMAT_IF_EMPTY'
     },
     smbShareImportMode () {
-      if (this.resource?.backingmode === 'EXISTING' && this.forms.smbShare.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
+      if ((this.resource?.backingmode === 'EXISTING' || this.resource?.preparation?.status === 'PREPARED') && this.forms.smbShare.volumemode === 'CURRENT') return 'MOUNT_EXISTING'
       if (this.forms.smbShare.volumemode === 'NEW') {
         return 'FORMAT_EMPTY'
       }

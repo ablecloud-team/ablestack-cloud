@@ -1216,6 +1216,50 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
     }
 
     @Override
+    public String operateInitialBackingPreparation(org.apache.cloudstack.storage.sharedfs.SharedFS fs, String action) {
+        if (!java.util.Set.of("start", "status", "resume").contains(action))
+            throw new InvalidParameterValueException("Invalid initial DATA operation");
+        final StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(fs.getVmId());
+        if (instance == null) throw new InvalidParameterValueException("Initial Storage Service instance is unavailable");
+        requireInstance(instance.getId());
+        final VolumeVO data = requireVolume(fs.getVolumeId());
+        final org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext context =
+            org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(fs.getCreationContext());
+        if (context == null || context.existing || context.preparation == null
+                || !fs.getVmId().equals(data.getInstanceId()) || fs.getAccountId() != data.getAccountId()
+                || !context.ownedVolumeIds.contains(data.getId()))
+            throw new InvalidParameterValueException("Initial DATA operation requires the original owned attachment");
+        final JsonObject intent = context.preparation;
+        final JsonObject payload = new JsonObject();
+        for (String key : java.util.List.of("operationId","instanceUuid","vmUuid","rootVolumeUuid","volumeUuid",
+                "volumeName","volumeSizeBytes","filesystem","formatTimeoutSeconds")) {
+            if (intent.has(key)) payload.add(key, intent.get(key));
+        }
+        payload.addProperty("instanceUuid", instance.getUuid());
+        if (!data.getUuid().equals(getJsonString(payload,"volumeUuid")) || data.getSize() != payload.get("volumeSizeBytes").getAsLong())
+            throw new InvalidParameterValueException("Initial DATA identity or size changed");
+        final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+            instance.getVmId(), "volume prepare " + action, GSON.toJson(payload),
+            Math.min(20, StorageServiceInstance.StorageServiceCommandTimeout.value()), Collections.emptySet()));
+        if (!result.isSuccess()) {
+            JsonObject uncertain = new JsonObject();
+            uncertain.addProperty("status", "OBSERVATION_PENDING");
+            uncertain.addProperty("phase", "OBSERVATION_PENDING");
+            uncertain.addProperty("canResume", false);
+            uncertain.addProperty("observationAvailable", false);
+            uncertain.addProperty("errorCode", "RUNTIME_UPGRADE_OR_OBSERVATION_REQUIRED");
+            uncertain.addProperty("reason", "Initial preparation runtime is unavailable; observe the same DATA and verify runtime capability");
+            return GSON.toJson(uncertain);
+        }
+        JsonObject observed = parseJsonObject(result.getResultJson());
+        if (!observed.has("capabilityVersion") || observed.get("capabilityVersion").getAsInt() != 1
+                || !getJsonString(intent,"operationId").equals(getJsonString(observed,"operationId"))
+                || !data.getUuid().equals(getJsonString(observed,"volumeUuid")))
+            throw new CloudRuntimeException("Initial DATA observation identity/capability mismatch");
+        return GSON.toJson(observed);
+    }
+
+    @Override
     public String prepareInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS fs, String mode) {
         if (!java.util.Set.of("INSPECT_ONLY", "MOUNT_EXISTING").contains(mode))
             throw new InvalidParameterValueException("Formatting is forbidden during existing backing import");
@@ -2856,7 +2900,9 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         SharedFSVO importedFs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
         org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext imported =
                 importedFs == null ? null : org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(importedFs.getCreationContext());
-        if (imported != null && imported.existing && volume.getId() == imported.volumeId) {
+        boolean preparedPrimary = imported != null && imported.preparation != null
+            && "PREPARED".equals(getJsonString(imported.preparation,"status"));
+        if (imported != null && (imported.existing || preparedPrimary) && volume.getId() == imported.volumeId) {
             if (!"MOUNT_EXISTING".equalsIgnoreCase(importMode) && !"INSPECT_ONLY".equalsIgnoreCase(importMode))
                 throw new InvalidParameterValueException("Imported primary DATA cannot be formatted");
             payload.remove("shareId"); payload.remove("shareUuid");

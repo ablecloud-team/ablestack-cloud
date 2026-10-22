@@ -40,6 +40,15 @@ public final class SharedFSCreationContext {
             throw new InvalidParameterValueException("CREATION_JOURNAL_TOO_LARGE: TEXT byte limit exceeded");
         }
     }
+    public Boolean prepareNewFileBacking;
+    public com.google.gson.JsonObject preparation;
+    public static int initialFormatBudget(long bytes, int cap, long remainingSeconds) {
+        if (bytes <= 0 || cap < 300 || cap > 7200 || remainingSeconds < 1140)
+            throw new InvalidParameterValueException("Initial format has insufficient bounded job budget");
+        long tib = (bytes + (1L << 40) - 1) / (1L << 40);
+        return (int)Math.min(Math.min(Math.max(300,120 + 180*tib),cap),remainingSeconds-840);
+    }
+
     public int version = 1;
     public boolean existing;
     public String fingerprint;
@@ -81,6 +90,8 @@ public final class SharedFSCreationContext {
     }
 
     public String json() {
+        if (preparation != null && preparation.toString().getBytes(StandardCharsets.UTF_8).length > 8192)
+            throw new InvalidParameterValueException("Initial preparation state exceeds 8 KiB");
         String value = GSON.toJson(this);
         validateSize(value);
         return value;
@@ -134,6 +145,8 @@ public final class SharedFSCreationContext {
             for (byte b : digest) hex.append(String.format("%02x", b & 255));
             c.fingerprint = hex.toString();
         } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
+        // Outside the old fingerprint encoding; replay validates this optional extension separately.
+        c.prepareNewFileBacking = c.existing ? null : cmd.getInitialFileBacking();
         return c;
     }
 

@@ -16,7 +16,23 @@
 // under the License.
 
 <template>
-  <a-spin :spinning="loading">
+  <MoldDialog v-if="preparationMode" :title="$t('label.sharedfs.preparation.status')" size="md" @cancel="closeModal">
+    <SharedFSPreparationPanel
+:state="preparationObservation"
+:resource="resource"
+:busy="loading || preparationObserving"
+      :allow-resume="resource.state !== 'Ready' || !!pendingCreation?.setup?.services?.length"
+      @update="observePreparation"
+@resume="resumePreparation">
+      <a-form v-if="needsPreparationPassword" layout="vertical" style="margin-top: 16px">
+        <a-alert type="info" show-icon :message="$t('message.sharedfs.preparation.password')" />
+        <a-form-item :label="$t('label.storage.service.local.user')">{{ pendingCreation.setup.smblocalusername }}</a-form-item>
+        <a-form-item :label="$t('label.password')"><a-input-password v-model:value="form.smblocalpassword" autocomplete="new-password" /></a-form-item>
+      </a-form>
+    </SharedFSPreparationPanel>
+    <template #footer><a-button @click="closeModal">{{ $t('label.close') }}</a-button></template>
+  </MoldDialog>
+  <a-spin v-else :spinning="loading">
     <div class="sharedfs-create-dialog">
     <a-collapse
       v-if="!isNormalUserOrProject"
@@ -1056,12 +1072,16 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
 import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/sharedFsBacking'
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
+import MoldDialog from '@/components/view/MoldDialog'
+import SharedFSPreparationPanel from '@/views/storage/SharedFSPreparationPanel'
+import { needsInitialPreparation, isPreparedBacking, observeInitialCreation, freshPreparation, unavailablePreparation, canResumePreparation } from '@/utils/sharedFsPreparation'
 import { computeFields, computeInputErrors, customComputeParams, computeReasonText, offeringFailureText } from '@/utils/sharedFsOffering'
 
 export default {
   name: 'CreateSharedFS',
   mixins: [mixinForm],
   props: {
+    preparationMode: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -1070,6 +1090,8 @@ export default {
   components: {
     OwnershipSelection,
     SharedFSOfferingInputs,
+    MoldDialog,
+    SharedFSPreparationPanel,
     ResourceIcon,
     TooltipLabel
   },
@@ -1091,6 +1113,11 @@ export default {
       },
       creationRequestId: creationRequestId(),
       pendingCreation: null,
+      preparationObservation: {},
+      preparationObserving: false,
+      preparationGeneration: 0,
+      preparationTimer: null,
+      preparationClosed: false,
       volumeGeneration: 0,
       loading: false,
       zones: [],
@@ -1141,6 +1168,10 @@ export default {
     }
   },
   computed: {
+    needsPreparationPassword () {
+      const setup = this.pendingCreation?.setup
+      return setup?.services?.includes('SMB') && !setup.smbguestok && setup.smbidentitymode === 'LOCAL'
+    },
     selectedComputeEligibility () {
       return this.serviceofferings.find(x => x.id === this.form.serviceofferingid)?.eligibility
     },
@@ -1337,12 +1368,24 @@ export default {
   },
   created () {
     this.initForm()
-    this.fetchData()
     this.form.filesystem = 'XFS'
-    this.pendingCreation = this.readPendingCreation()
+    if (this.preparationMode) {
+      this.owner = { domainid: this.resource.domainid, account: this.resource.account, projectid: this.resource.projectid }
+      const saved = this.readPendingCreation()
+      this.pendingCreation = saved?.request?.requestid === this.resource.creationrequestid ? saved : {
+        request: { requestid: this.resource.creationrequestid, name: this.resource.name },
+        setup: { services: [], name: this.resource.name },
+        entityid: this.resource.id
+      }
+      this.observePreparation()
+    } else {
+      this.fetchData()
+      this.pendingCreation = this.readPendingCreation()
+    }
   },
+  beforeUnmount () { this.stopPreparationObservation() },
   watch: {
-    owner: { deep: true, handler () { this.pendingCreation = this.readPendingCreation() } },
+    owner: { deep: true, handler () { if (!this.preparationMode) this.pendingCreation = this.readPendingCreation() } },
     'form.name' (name, previousName) {
       this.syncInitialNfsPath(previousName ? `${previousName}-nfs` : '')
     },
@@ -1813,9 +1856,47 @@ export default {
       try { return JSON.parse(sessionStorage.getItem(this.pendingStorageKey()) || 'null') } catch (e) { return null }
     },
     savePendingCreation (value) {
+      const saved = this.readPendingCreation()
+      const ownRequest = this.pendingCreation?.request?.requestid
       this.pendingCreation = value
+      if (this.preparationMode && saved?.request?.requestid && saved.request.requestid !== ownRequest) return
       if (value) sessionStorage.setItem(this.pendingStorageKey(), JSON.stringify(value))
       else sessionStorage.removeItem(this.pendingStorageKey())
+    },
+    stopPreparationObservation () {
+      this.preparationClosed = true
+      this.preparationGeneration++
+      clearTimeout(this.preparationTimer)
+    },
+    async observePreparation () {
+      if (this.preparationObserving || this.preparationClosed) return
+      clearTimeout(this.preparationTimer)
+      const generation = ++this.preparationGeneration
+      this.preparationObserving = true
+      try {
+        const json = await getAPI('getSharedFileSystemPreparation', { id: this.resource.id, requestid: this.resource.creationrequestid })
+        if (generation === this.preparationGeneration) {
+          this.preparationObservation = freshPreparation(json.getsharedfilesystempreparationresponse?.preparation || {})
+        }
+      } catch (e) {
+        if (generation === this.preparationGeneration) this.preparationObservation = unavailablePreparation(this.preparationObservation)
+      } finally {
+        this.preparationObserving = false
+        if (generation === this.preparationGeneration && !this.preparationClosed) {
+          this.preparationTimer = setTimeout(() => this.observePreparation(), 5000)
+        }
+      }
+    },
+    async resumePreparation () {
+      // Re-observe before enabling a write; stale cached canResume is never authority.
+      await this.observePreparation()
+      if (!canResumePreparation(this.preparationObservation)) return
+      if (this.needsPreparationPassword && !this.form.smblocalpassword) {
+        this.$notification.warning({ message: this.$t('message.sharedfs.preparation.password') })
+        return
+      }
+      this.form.smblocalpasswordconfirm = this.form.smblocalpassword
+      await this.continuePendingCreation('CONTINUE')
     },
     async continuePendingCreation (action = 'CONTINUE') {
       const pending = this.pendingCreation
@@ -1842,7 +1923,7 @@ export default {
           this.$notification.warning({ message: this.$t('message.sharedfs.initial.corrupt') })
           return
         }
-        if (action === 'CONTINUE' && fs.state === 'Allocated' && fs.creationstage !== 'INSPECTED' && fs.creationjobid) {
+        if (action === 'CONTINUE' && !fs.preparation && fs.state === 'Allocated' && fs.creationstage !== 'INSPECTED' && fs.creationjobid) {
           this.closeModal()
           await this.runInitialStorageServiceSetup(fs.creationjobid, pending.setup, 'storage-service-setup-' + fs.creationjobid)
           return
@@ -1931,6 +2012,7 @@ export default {
       } finally { if (generation === this.volumeGeneration) this.volumeLoading = false }
     },
     closeModal () {
+      if (this.preparationMode) this.stopPreparationObservation()
       this.$emit('close-action')
     },
     formatVolumeOption (volume) {
@@ -2084,6 +2166,7 @@ export default {
         })
         if (values.dns2) data.dns2 = values.dns2
       }
+      if (!this.form?.useexistingvolume) data.initialfilebacking = needsInitialPreparation({ ...values, services: values.services || this.form?.services })
       Object.assign(data, customComputeParams(this.selectedComputeEligibility, this.form || values))
       return this.cleanParams(data)
     },
@@ -2118,7 +2201,7 @@ export default {
           if (!jobId) {
             throw new Error(this.$t('message.create.sharedfs.failed'))
           }
-          this.savePendingCreation({ ...this.pendingCreation, jobid: jobId })
+          this.savePendingCreation({ ...this.pendingCreation, jobid: jobId, entityid: response.createsharedfilesystemresponse?.id })
           const notificationKey = `storage-service-setup-${jobId}`
           this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.accepted', setupSnapshot.name, 0)
           this.loading = false
@@ -2145,16 +2228,27 @@ export default {
     async runInitialStorageServiceSetup (jobId, setup, notificationKey) {
       try {
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
-        const result = await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
+        const result = needsInitialPreparation(setup)
+          ? await observeInitialCreation({
+            get: getAPI,
+            jobid: jobId,
+            requestid: this.pendingCreation?.request?.requestid,
+            entityid: this.pendingCreation?.entityid,
+            owner: this.owner,
+            changed: (fs, observation) => {
+              this.savePendingCreation({ ...this.pendingCreation, entityid: fs.id, phase: fs.creationstage, preparation: observation })
+              this.notifyStorageServiceSetup(notificationKey, 'info', 'label.sharedfs.preparation.status', (observation?.phase || fs.creationstage || '') + ' · ' + setup.name, 0)
+            }
+          })
+          : await this.pollStorageServiceSetupJob(jobId, 'createSharedFileSystem', 240)
         const fs = await this.resolveCreatedSharedFileSystem(result)
         this.savePendingCreation({ ...(this.pendingCreation || this.readPendingCreation()), entityid: fs.id, phase: fs.creationstage, observedfilesystem: fs.observedfilesystem })
-        if (setup.useexistingvolume) {
-          setup.filesystem = fs.observedfilesystem || fs.filesystem
-          if (fs.state !== 'Ready') {
-            this.notifyStorageServiceSetup(notificationKey, 'info', 'message.sharedfs.initial.inspected', setup.name, 0)
-            this.parentFetchData()
-            return
-          }
+        if (setup.useexistingvolume) setup.filesystem = fs.observedfilesystem || fs.filesystem
+        if (fs.state !== 'Ready') {
+          this.notifyStorageServiceSetup(notificationKey, 'info',
+            fs.preparation ? 'label.sharedfs.preparation.status' : 'message.sharedfs.initial.inspected', setup.name, 0)
+          this.parentFetchData()
+          return
         }
         await this.configureInitialStorageServices({ sharedfs: fs }, setup, notificationKey)
         this.savePendingCreation(null)
@@ -2335,7 +2429,7 @@ export default {
           path: nfsPath,
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
-          importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : 'FORMAT_IF_EMPTY',
+          importmode: snapshot.useexistingvolume || isPreparedBacking(sharedfs) ? 'MOUNT_EXISTING' : 'FORMAT_IF_EMPTY',
           initialcreationrequestid: snapshot.useexistingvolume ? sharedfs.creationrequestid : undefined,
           createdirectory: true,
           quotabytes: this.toCapacityBytes(snapshot.nfsquotaamount, snapshot.nfsquotaunit),
@@ -2376,7 +2470,7 @@ export default {
           instanceid: instance.id,
           name: snapshot.smbname || snapshot.name + '-smb',
           path: snapshot.smbpath,
-          importmode: snapshot.useexistingvolume ? 'MOUNT_EXISTING' : undefined,
+          importmode: snapshot.useexistingvolume || isPreparedBacking(sharedfs) ? 'MOUNT_EXISTING' : undefined,
           volumeid: backingVolumeId,
           filesystem: (snapshot.filesystem || 'XFS').toLowerCase(),
           quotabytes: this.toCapacityBytes(snapshot.smbquotaamount, snapshot.smbquotaunit),
