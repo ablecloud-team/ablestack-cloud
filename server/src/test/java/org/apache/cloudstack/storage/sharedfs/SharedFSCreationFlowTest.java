@@ -193,4 +193,54 @@ public class SharedFSCreationFlowTest {
         verify(life, never()).allocateInitialSharedFSVm(any(),any(),anyMap(),anyString());
         verifyNoInteractions(volumeApiService, storageService);
     }
+
+    void preparedNewFixture(String status) {
+        initial.existing=false;initial.prepareNewFileBacking=true;initial.expectedFilesystem="XFS";
+        initial.ownedVolumeIds=new java.util.ArrayList<>(List.of(9L,10L));
+        initial.preparation=com.google.gson.JsonParser.parseString("{\"operationId\":\"33333333-2222-4333-8444-555555555555\",\"status\":\""+status+"\",\"phase\":\"QUEUED\"}").getAsJsonObject();
+        journal.set(initial.json());vmBinding.set(7L);attached.set(7L);
+        when(data.getUuid()).thenReturn("11111111-2222-4333-8444-555555555555");
+    }
+    @Test public void runningNewPreparationDoesNotRepeatVmAllocationOrNetworkSetup() throws Exception {
+        preparedNewFixture("RUNNING");
+        when(storageService.operateInitialBackingPreparation(fs,"status")).thenReturn("{\"status\":\"RUNNING\",\"phase\":\"FORMATTING\",\"formatCount\":1}");
+        service.continueCreationStep(1L,"OBSERVE_PREPARATION");
+        assertEquals(SharedFS.State.Allocated,state.get());
+        assertEquals("PREPARING",SharedFSCreationContext.read(journal.get()).phase);
+        verify(life,never()).allocateInitialSharedFSVm(any(),any(),anyMap(),anyString());
+        verify(life,never()).checkCreationPrerequisites(any(),any(),anyMap());
+        verifyNoInteractions(volumeApiService);
+    }
+    @Test public void preparedNewResumeValidatesMountAndBecomesReadyWithoutReallocation() throws Exception {
+        preparedNewFixture("OBSERVATION_PENDING");
+        when(storageService.operateInitialBackingPreparation(fs,"resume")).thenReturn("{\"status\":\"PREPARED\",\"phase\":\"PREPARED\",\"filesystemUuid\":\"fs-uuid\",\"observedFilesystem\":\"xfs\",\"mountPath\":\"/srv/ablestack-storage/volumes/11111111-2222-4333-8444-555555555555\"}");
+        service.continueCreationStep(1L,"CONTINUE");
+        assertEquals(SharedFS.State.Ready,state.get());assertEquals("READY",SharedFSCreationContext.read(journal.get()).phase);
+        verify(life,never()).allocateInitialSharedFSVm(any(),any(),anyMap(),anyString());
+        verifyNoInteractions(volumeApiService);
+    }
+    @Test public void pendingNewPreparationIsRetainedWithoutCleanupOrReady() throws Exception {
+        preparedNewFixture("RUNNING");
+        when(storageService.operateInitialBackingPreparation(fs,"status")).thenReturn("{\"status\":\"OBSERVATION_PENDING\",\"errorCode\":\"TRANSPORT_UNCERTAIN\"}");
+        service.continueCreationStep(1L,"OBSERVE_PREPARATION");
+        assertEquals(SharedFS.State.Allocated,state.get());
+        assertEquals("OBSERVATION_PENDING",SharedFSCreationContext.read(journal.get()).phase);
+        verify(life,never()).deleteSharedFS(any());verify(life,never()).cleanupImportedSharedFSVm(any());
+        verifyNoInteractions(volumeApiService);
+    }
+    @Test public void activeOrUncertainNewPreparationCannotBeCancelled() throws Exception {
+        preparedNewFixture("OBSERVATION_PENDING");
+        try {service.continueCreationStep(1L,"CANCEL_PREPARATION");fail();}
+        catch(com.cloud.exception.InvalidParameterValueException expected) { }
+        verifyNoInteractions(volumeApiService,storageService);
+        verify(life,never()).deleteSharedFS(any());
+    }
+    @Test public void preparedReplyWithForeignMountCannotBecomeReady() throws Exception {
+        preparedNewFixture("OBSERVATION_PENDING");
+        when(storageService.operateInitialBackingPreparation(fs,"resume")).thenReturn("{\"status\":\"PREPARED\",\"filesystemUuid\":\"fs-uuid\",\"observedFilesystem\":\"xfs\",\"mountPath\":\"/foreign\"}");
+        try {service.continueCreationStep(1L,"CONTINUE");fail();}
+        catch(com.cloud.exception.InvalidParameterValueException expected) { }
+        assertEquals(SharedFS.State.Allocated,state.get());verifyNoInteractions(volumeApiService);
+        verify(life,never()).deleteSharedFS(any());
+    }
 }

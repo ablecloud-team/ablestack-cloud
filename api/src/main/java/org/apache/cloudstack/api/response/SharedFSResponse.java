@@ -235,12 +235,15 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     private String creationJobId;
     @SerializedName("creationerrorcode") @Param(description = "Safe initial preparation error code")
     private String creationErrorCode;
+    @SerializedName("preparation") @Param(description="Last observed initial DATA preparation snapshot")
+    private java.util.Map<String,Object> preparation;
     public void setCreation(SharedFS sharedFS) {
         if (sharedFS == null || sharedFS.getCreationContext() == null) return;
         creationRequestId = sharedFS.getCreationRequestId();
         try {
             org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
             if (c == null) return;
+            if (c.preparation != null) preparation = new com.google.gson.Gson().fromJson(c.preparation, java.util.Map.class);
             creationStage = c.phase;
             backingMode = c.existing ? "EXISTING" : "NEW";
             creationJobId = c.lastJobUuid;
