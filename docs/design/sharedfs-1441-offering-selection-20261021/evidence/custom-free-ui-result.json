@@ -1,0 +1,51 @@
+{
+  "result": {
+    "dynamicScalingRequired": false,
+    "effective": {
+      "cpunumber": 4,
+      "cpuspeed": 2000,
+      "memory": 8192
+    },
+    "guestParameters": {
+      "cpuNumber": "4",
+      "cpuSpeed": "2000",
+      "memory": "8192"
+    },
+    "inputs": {
+      "cpu": {
+        "field": "cpunumber",
+        "fixed": false,
+        "max": 2147483647,
+        "min": 2
+      },
+      "memory": {
+        "field": "memory",
+        "fixed": false,
+        "max": 2147483647,
+        "min": 1024
+      },
+      "speed": {
+        "field": "cpuspeed",
+        "fixed": false,
+        "max": 2147483647,
+        "min": 1
+      }
+    },
+    "mode": "free",
+    "params": {
+      "cpunumber": 4,
+      "cpuspeed": 2000,
+      "memory": 8192
+    },
+    "reasons": [],
+    "rootPolicy": "sparse",
+    "selectable": false,
+    "valid": true
+  },
+  "selected": "5da2d6c9-d9c4-453a-a28c-3e93274a3380",
+  "values": {
+    "cpunumber": 4,
+    "cpuspeed": 2000,
+    "memory": 8192
+  }
+}

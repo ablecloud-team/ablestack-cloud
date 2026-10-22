@@ -1,0 +1,86 @@
+{
+  "epic": 1422,
+  "issue": 1429,
+  "pullRequest": 1435,
+  "scope": "승인한 입력 중심 목업 적용",
+  "validationDatesKst": [
+    "2026-10-20",
+    "2026-10-21"
+  ],
+  "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73",
+  "completed": true,
+  "build": {
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73",
+    "environment": "WSL ext4",
+    "module": "ui",
+    "node": "14.21.3",
+    "testSuites": 7,
+    "tests": 115,
+    "lintPassed": true,
+    "productionBuildPassed": true,
+    "javaChanges": false,
+    "mavenBuildRequired": false,
+    "fullCloudBuildRun": false
+  },
+  "uiQualified": {
+    "passed": 59,
+    "failed": 0,
+    "uiRecords": 33,
+    "resizePosts": 10,
+    "runtimeComparisons": 10
+  },
+  "deployment": {
+    "sourceCommit": "7025ea66ae129fdd8defc684793e5c7a7f10fb73",
+    "payloadSha256": "5a13e2458d09a7566680525fc44b48564c9cf2896fe9b7a092bccb590041bec3",
+    "clusters": {
+      "31": {
+        "files": 896,
+        "allHashesMatched": true,
+        "protectedPreserved": true,
+        "jarPreserved": true,
+        "pidPreserved": true,
+        "clientHttp": 200,
+        "backup": "/root/volume-resize-layout-ui-7025ea66ae1",
+        "newApiLogin": true
+      },
+      "32": {
+        "files": 896,
+        "allHashesMatched": true,
+        "protectedPreserved": true,
+        "jarPreserved": true,
+        "pidPreserved": true,
+        "clientHttp": 200,
+        "backup": "/root/volume-resize-layout-ui-7025ea66ae1",
+        "newApiLogin": true
+      }
+    }
+  },
+  "cleanup": {
+    "volumesDeleted": 8,
+    "offeringsDeactivated": 8,
+    "activeFixtureResiduals": 0,
+    "imagesRemaining": 0,
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 6
+  },
+  "browserCleanup": {
+    "loggedOutClusters": [
+      31,
+      32
+    ],
+    "temporaryTabsClosed": 2,
+    "blockedRequestsCleared": true,
+    "viewportOverrideReset": true,
+    "originalDarkThemeRestored": true,
+    "temporaryCssRemovedByReload": true
+  },
+  "issueState": "CLOSED/COMPLETED",
+  "pullRequestState": "OPEN/DRAFT",
+  "scopeLimits": [
+    "UI module only",
+    "Admin UI on GFS2 QCOW2 and RBD RAW test volumes",
+    "No ROOT or guest filesystem mutation",
+    "No RBD shrink support expansion or successful shrink claim",
+    "No full Cloud or Release CI"
+  ]
+}

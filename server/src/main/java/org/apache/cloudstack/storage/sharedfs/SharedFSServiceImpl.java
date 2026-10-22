@@ -22,6 +22,7 @@ import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSCleanupInt
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSFeatureEnabled;
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSExpungeWorkers;
 
+import org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +39,11 @@ import javax.inject.Inject;
 import javax.naming.ConfigurationException;
 
 import com.cloud.configuration.ConfigurationManager;
+import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.service.ServiceOfferingVO;
+import org.apache.cloudstack.api.response.ServiceOfferingResponse;
+import org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse;
+import org.apache.cloudstack.api.command.user.storage.sharedfs.ListSharedFSServiceOfferingsCmd;
 import com.cloud.dc.DataCenter;
 import com.cloud.dc.dao.DataCenterDao;
 import com.cloud.exception.InsufficientCapacityException;
@@ -141,11 +147,20 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         }
     }
 
+    @Inject private com.cloud.host.dao.HostDao hostDao;
+    @Inject private com.cloud.storage.dao.StoragePoolHostDao storagePoolHostDao;
+    @Inject private com.cloud.vm.dao.UserVmDao userVmDao;
+    @Inject private org.apache.cloudstack.storage.dataservice.StorageService storageService;
+    @Inject private org.apache.cloudstack.storage.dataservice.dao.StorageBlockTargetDao storageBlockTargetDao;
+
     @Inject
     private AccountManager accountMgr;
 
     @Inject
     private DataCenterDao dataCenterDao;
+
+    @Inject
+    private ServiceOfferingDao serviceOfferingDao;
 
     @Inject
     private ConfigurationManager configMgr;
@@ -263,9 +278,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     public List<Class<?>> getCommands() {
         final List<Class<?>> cmdList = new ArrayList<>();
         if (SharedFSFeatureEnabled.value()) {
+            cmdList.add(org.apache.cloudstack.api.command.user.storage.sharedfs.ResumeSharedFSCreationCmd.class);
             cmdList.add(ListSharedFSProvidersCmd.class);
             cmdList.add(CreateSharedFSCmd.class);
             cmdList.add(ListSharedFSCmd.class);
+            cmdList.add(ListSharedFSServiceOfferingsCmd.class);
             cmdList.add(UpdateSharedFSCmd.class);
             cmdList.add(DestroySharedFSCmd.class);
             cmdList.add(RestartSharedFSCmd.class);
@@ -277,6 +294,26 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             cmdList.add(ExpungeSharedFSCmd.class);
         }
         return cmdList;
+    }
+
+    @Override
+    public ListResponse<SharedFSServiceOfferingResponse> listCreationServiceOfferings(Long zoneId,
+            ListResponse<ServiceOfferingResponse> visible) {
+        DataCenter zone = validateAndGetZone(zoneId);
+        SharedFSLifeCycle lifeCycle = getSharedFSProvider(SharedFSProvider.SharedFSProviderType.SHAREDFSVM.toString()).getSharedFSLifeCycle();
+        List<SharedFSServiceOfferingResponse> rows = new ArrayList<>();
+        if (visible.getResponses() != null) {
+            for (ServiceOfferingResponse offering : visible.getResponses()) {
+                ServiceOfferingVO current = serviceOfferingDao.findByUuid(offering.getId());
+                if (current != null) {
+                    rows.add(new SharedFSServiceOfferingResponse(offering,
+                            lifeCycle.getCreationOfferingEligibility(zone, current.getId())));
+                }
+            }
+        }
+        ListResponse<SharedFSServiceOfferingResponse> response = new ListResponse<>();
+        response.setResponses(rows, visible.getCount());
+        return response;
     }
 
     private DataCenter validateAndGetZone(Long zoneId) {
@@ -439,23 +476,43 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CREATE, eventDescription = "Allocating Shared FileSystem", create = true)
     public SharedFS allocSharedFS(CreateSharedFSCmd cmd) {
+        if (cmd.getRequestId() == null) return allocateSharedFSRequest(cmd);
+        String key = SharedFSCreationContext.normalizeKey(cmd.getRequestId());
+        GlobalLock lock = GlobalLock.getInternLock("sharedfs-request-" + cmd.getEntityOwnerId() + "-" + key);
+        boolean acquired = false;
+        try {
+            acquired = lock.lock(10);
+            if (!acquired) throw new com.cloud.utils.exception.CloudRuntimeException("The initial request is busy; observe the same request");
+            return allocateSharedFSRequest(cmd);
+        } finally { if (acquired) lock.unlock(); lock.releaseRef(); }
+    }
+
+    protected SharedFS allocateSharedFSRequest(CreateSharedFSCmd cmd) {
         Account caller = CallContext.current().getCallingAccount();
 
         long ownerId = cmd.getEntityOwnerId();
         Account owner = accountMgr.getActiveAccountById(ownerId);
         accountMgr.checkAccess(caller, null, true, owner);
+        SharedFSVO replay = findCreationReplay(ownerId, cmd);
+        if (replay != null) return replay;
         DataCenter zone = validateAndGetZone(cmd.getZoneId());
 
         Long diskOfferingId = cmd.getDiskOfferingId();
         Long size = cmd.getSize();
         Long minIops = cmd.getMinIops();
         Long maxIops = cmd.getMaxIops();
-        validateDiskOffering(diskOfferingId, size, minIops, maxIops, zone);
-        validateInitialBackingStorage(diskOfferingId, cmd.getStorageId(), zone);
+        if (cmd.getVolumeId() == null) {
+            if (diskOfferingId == null) throw new InvalidParameterValueException("A new backing volume requires a disk offering");
+            validateDiskOffering(diskOfferingId, size, minIops, maxIops, zone);
+            validateInitialBackingStorage(diskOfferingId, cmd.getStorageId(), zone);
+        } else {
+            SharedFSCreationContext.from(cmd);
+            validateExistingBacking(null, cmd.getVolumeId(), ownerId, zone.getId());
+        }
 
         SharedFSProvider provider = getSharedFSProvider(cmd.getSharedFSProviderName());
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
-        lifeCycle.checkPrerequisites(zone, cmd.getServiceOfferingId());
+        lifeCycle.checkCreationPrerequisites(zone, cmd.getServiceOfferingId(), cmd.getCustomComputeParameters());
 
         NetworkVO networkVO = networkDao.findById(cmd.getNetworkId());
         if (networkVO == null) {
@@ -472,7 +529,10 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
 
         SharedFS.FileSystemType fsType;
         try {
-            fsType = SharedFS.FileSystemType.valueOf(cmd.getFsFormat().toUpperCase());
+            String expected = cmd.getFsFormat() == null && cmd.getVolumeId() != null ? "AUTO" : cmd.getFsFormat();
+            if (expected == null) throw new IllegalArgumentException();
+            fsType = SharedFS.FileSystemType.valueOf(expected.toUpperCase());
+            if (fsType == SharedFS.FileSystemType.AUTO && cmd.getVolumeId() == null) throw new IllegalArgumentException();
         } catch (IllegalArgumentException ex) {
             throw new InvalidParameterValueException("Invalid File system format specified. Supported formats are EXT4 and XFS");
         }
@@ -493,13 +553,292 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             sharedFS.setDns2(cmd.getDns2());
         }
 
-        return sharedFSDao.persist(sharedFS);
+        return persistCreation(sharedFS, cmd, ownerId);
+    }
+
+    protected SharedFSVO findCreationReplay(long ownerId, CreateSharedFSCmd cmd) {
+        String key = SharedFSCreationContext.normalizeKey(cmd.getRequestId());
+        if (key == null) return null;
+        SharedFSVO existing = sharedFSDao.findByCreationRequest(ownerId, key);
+        if (existing == null) return null;
+        SharedFSCreationContext incoming = SharedFSCreationContext.from(cmd);
+        SharedFSCreationContext saved;
+        try { saved = SharedFSCreationContext.read(existing.getCreationContext()); }
+        catch (SharedFSCreationContext.InvalidJournalException e) {
+            throw new InvalidParameterValueException(SharedFSCreationContext.INVALID_JOURNAL + ": observe and cancel the unallocated preparation");
+        }
+        if (saved == null || !incoming.fingerprint.equals(saved.fingerprint))
+            throw new InvalidParameterValueException("Creation request UUID was already used with different parameters");
+        return existing;
+    }
+
+    protected VolumeVO validateExistingBacking(SharedFSVO fs, Long volumeId, long ownerId, long zoneId) {
+        VolumeVO v = volumeDao.findById(volumeId);
+        if (v == null || v.getRemoved() != null || v.getAccountId() != ownerId || v.getDataCenterId() != zoneId
+                || v.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK)
+            throw new InvalidParameterValueException("Existing backing must be an owned DATA volume in the selected zone");
+        if (v.getState() != com.cloud.storage.Volume.State.Ready)
+            throw new InvalidParameterValueException("Existing backing DATA volume must be Ready");
+        if (v.getInstanceId() != null && (fs == null || !v.getInstanceId().equals(fs.getVmId())))
+            throw new InvalidParameterValueException("Existing backing DATA volume is attached to another VM");
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = v.getPoolId() == null ? null : storagePoolDao.findById(v.getPoolId());
+        if (pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up || pool.getDataCenterId() != zoneId)
+            throw new InvalidParameterValueException("Existing backing DATA has no Up primary storage in the selected zone");
+        for (SharedFSVO claim : sharedFSDao.listByBackingVolume(volumeId)) {
+            if (fs == null || claim.getId() != fs.getId())
+                throw new InvalidParameterValueException("Existing backing DATA is reserved by another SharedFS");
+        }
+        ensureBackingUnreferenced(volumeId);
+        return v;
+    }
+
+    protected void ensureBackingUnreferenced(long volumeId) {
+        com.cloud.utils.db.SearchCriteria<StorageFileShareVO> files = storageFileShareDao.createSearchCriteria();
+        files.addAnd("volumeId", SearchCriteria.Op.EQ, volumeId);
+        if (!storageFileShareDao.search(files, null).isEmpty())
+            throw new InvalidParameterValueException("Existing DATA is already referenced by a file share");
+        com.cloud.utils.db.SearchCriteria<org.apache.cloudstack.storage.dataservice.StorageBlockTargetVO> blocks = storageBlockTargetDao.createSearchCriteria();
+        blocks.addAnd("volumeId", SearchCriteria.Op.EQ, volumeId);
+        if (!storageBlockTargetDao.search(blocks, null).isEmpty())
+            throw new InvalidParameterValueException("Existing DATA is already referenced by a block target");
+    }
+
+    protected void validateBackingLocation(com.cloud.vm.UserVmVO vm, VolumeVO volume) {
+        org.apache.cloudstack.storage.datastore.db.StoragePoolVO pool = storagePoolDao.findById(volume.getPoolId());
+        if (pool == null || pool.getStatus() != com.cloud.storage.StoragePoolStatus.Up)
+            throw new InvalidParameterValueException("Existing backing primary storage is not Up");
+        if ("ZONE".equals(String.valueOf(pool.getScope()))) return;
+        if (vm.getHostId() == null) throw new InvalidParameterValueException("Backing attachment requires an observed running VM host");
+        com.cloud.host.HostVO host = hostDao.findById(vm.getHostId());
+        if (host == null) throw new InvalidParameterValueException("Backing attachment host is unavailable");
+        if ("CLUSTER".equals(String.valueOf(pool.getScope())) && !java.util.Objects.equals(pool.getClusterId(), host.getClusterId()))
+            throw new InvalidParameterValueException("Existing backing pool is not accessible from the selected VM cluster");
+        if ("HOST".equals(String.valueOf(pool.getScope())) && storagePoolHostDao.findByPoolHost(pool.getId(), host.getId()) == null)
+            throw new InvalidParameterValueException("Existing local backing pool belongs to a different host");
+    }
+
+    private void validateOriginalBacking(SharedFSCreationContext c, VolumeVO volume) {
+        if (!java.util.Objects.equals(volume.getPoolId(), c.originalPoolId)
+                || !java.util.Objects.equals(volume.getPath(), c.originalPath)
+                || !java.util.Objects.equals(volume.getSize(), c.originalSize)
+                || !java.util.Objects.equals(volume.getDiskOfferingId(), c.originalDiskOfferingId))
+            throw new InvalidParameterValueException("Original backing volume metadata changed since reservation");
+    }
+
+    private SharedFS persistCreation(SharedFSVO fs, CreateSharedFSCmd cmd, long ownerId) {
+        if (cmd.getRequestId() == null && cmd.getVolumeId() == null) return sharedFSDao.persist(fs);
+        SharedFSCreationContext context = SharedFSCreationContext.from(cmd);
+        context.planVm(fs.getUuid());
+        fs.setCreationRequestId(cmd.getRequestId() == null ? java.util.UUID.randomUUID().toString()
+                : SharedFSCreationContext.normalizeKey(cmd.getRequestId()));
+        fs.setCreationContext(context.json());
+        if (!context.existing) return sharedFSDao.persist(fs);
+        return com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<SharedFS>) status -> {
+            volumeDao.lockRow(context.volumeId, true);
+            VolumeVO original = validateExistingBacking(null, context.volumeId, ownerId, fs.getDataCenterId());
+            context.originalPoolId = original.getPoolId(); context.originalPath = original.getPath();
+            context.originalSize = original.getSize(); context.originalDiskOfferingId = original.getDiskOfferingId();
+            fs.setCreationContext(context.json());
+            fs.setVolumeId(context.volumeId);
+            return sharedFSDao.persist(fs);
+        });
+    }
+
+    private void saveCreation(SharedFSVO fs, SharedFSCreationContext c, String phase) {
+        c.phase = phase; fs.setCreationContext(c.json()); sharedFSDao.update(fs.getId(), fs);
+    }
+
+    @Override
+    public SharedFS resumeSharedFSCreation(Long id, String requestId, String action) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        SharedFSVO fs = sharedFSDao.findById(id);
+        if (fs == null) throw new InvalidParameterValueException("SharedFS does not exist");
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), null, true, fs);
+        if (!java.util.Objects.equals(fs.getCreationRequestId(), SharedFSCreationContext.normalizeKey(requestId)))
+            throw new InvalidParameterValueException("Original creation request UUID is required");
+        if (!java.util.Set.of("CONTINUE", "MOUNT_EXISTING", "CANCEL_PREPARATION").contains(action.toUpperCase()))
+            throw new InvalidParameterValueException("Unknown initial preparation action");
+        return continueCreation(id, action.toUpperCase());
+    }
+
+    protected SharedFS continueCreation(long id, String action) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        GlobalLock lock = GlobalLock.getInternLock("sharedfs-initial-" + id);
+        if (lock == null) throw new com.cloud.utils.exception.CloudRuntimeException("Initial SharedFS lock is unavailable");
+        if (!lock.lock(10)) {
+            lock.releaseRef();
+            throw new com.cloud.utils.exception.CloudRuntimeException("Initial SharedFS allocation is busy; observe the same request");
+        }
+        try {
+            SharedFSVO fs = sharedFSDao.findById(id);
+            SharedFSCreationContext c;
+            try {
+                c = SharedFSCreationContext.read(fs.getCreationContext());
+            } catch (SharedFSCreationContext.InvalidJournalException e) {
+                if ("CANCEL_PREPARATION".equals(action)) return cancelUnallocatedCorruptCreation(fs);
+                throw new InvalidParameterValueException(SharedFSCreationContext.INVALID_JOURNAL
+                        + ": creation is blocked; an unallocated preparation may be cancelled");
+            }
+            if (c == null) throw new InvalidParameterValueException("This resource has no resumable creation journal");
+            SharedFSLifeCycle life = getSharedFSProvider(fs.getFsProviderName()).getSharedFSLifeCycle();
+            if (fs.getState() == SharedFS.State.Ready) {
+                if ("CANCEL_PREPARATION".equals(action)) throw new InvalidParameterValueException("A Ready service cannot be cancelled as initial preparation");
+                return fs;
+            }
+            if ("CANCEL_PREPARATION".equals(action)) {
+                if (c.cancelled) return fs;
+                cancelCreation(fs, c, life);
+                return sharedFSDao.findById(id);
+            }
+            if (c.cancelled) throw new InvalidParameterValueException("Initial allocation was cancelled; use a new request");
+            org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext jobContext = org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext.getCurrentExecutionContext();
+            if (jobContext != null && jobContext.getJob() != null) {
+                c.lastJobUuid = jobContext.getJob().getUuid();
+                saveCreation(fs, c, c.phase);
+            }
+            if (fs.getState() == SharedFS.State.Error) stateTransitTo(fs, Event.CreationResumeRequested);
+            try {
+                Map<String, String> compute = life.checkCreationPrerequisites(validateAndGetZone(fs.getDataCenterId()),
+                        fs.getServiceOfferingId(), c.compute);
+                if (c.existing) validateExistingBacking(fs, c.volumeId, fs.getAccountId(), fs.getDataCenterId());
+                if (fs.getVmId() == null) {
+                    saveCreation(fs, c, "ALLOCATION_PENDING");
+                    fs.setVmId(life.allocateInitialSharedFSVm(fs, c.networkId, compute, c.plannedVmUuid));
+                    saveCreation(fs, c, "VM_ALLOCATED");
+                }
+                if (c.ownedVolumeIds.isEmpty()) {
+                    c.ownedVolumeIds = volumeDao.findByInstance(fs.getVmId()).stream()
+                            .filter(v -> v.getVolumeType() == com.cloud.storage.Volume.Type.ROOT
+                                || (!c.existing && java.util.Objects.equals(v.getDeviceId(), 1L)
+                                    && java.util.Objects.equals(v.getDiskOfferingId(), c.diskOfferingId)))
+                            .map(VolumeVO::getId).collect(Collectors.toList());
+                    saveCreation(fs, c, "VM_ALLOCATED");
+                }
+                com.cloud.vm.UserVmVO vm = userVmDao.findById(fs.getVmId());
+                if (vm == null || !c.plannedVmUuid.equals(vm.getUuid()) || vm.getAccountId() != fs.getAccountId()
+                        || !com.cloud.vm.UserVmManager.SHAREDFSVM.equals(vm.getUserVmType()))
+                    throw new InvalidParameterValueException("Planned VM identity does not match the allocation");
+                if (vm.getState() != com.cloud.vm.VirtualMachine.State.Running) life.startSharedFS(fs);
+                vm = userVmDao.findById(fs.getVmId());
+                configureStaticNetwork(sharedFSDao.findById(id));
+                if (!c.existing) {
+                    List<VolumeVO> data = volumeDao.findByInstance(fs.getVmId()).stream()
+                            .filter(v -> v.getVolumeType() == com.cloud.storage.Volume.Type.DATADISK).collect(Collectors.toList());
+                    if (data.size() != 1) throw new InvalidParameterValueException("Initial allocation must have exactly one owned DATA volume");
+                    VolumeVO backing = data.get(0);
+                    if (c.storageId != null && !c.storageId.equals(backing.getPoolId()))
+                        throw new InvalidParameterValueException("Backing volume was allocated on a different primary storage");
+                    fs.setVolumeId(backing.getId()); c.volumeId = backing.getId();
+                    for (VolumeVO owned : volumeDao.findByInstance(fs.getVmId())) {
+                        if (!owned.getName().startsWith("sharedfs-")) {
+                            owned.setName("sharedfs-" + owned.getName()); volumeDao.update(owned.getId(), owned);
+                        }
+                    }
+                } else {
+                    VolumeVO backing = validateExistingBacking(fs, c.volumeId, fs.getAccountId(), fs.getDataCenterId());
+                    validateOriginalBacking(c, backing);
+                    validateBackingLocation(vm, backing);
+                    if (backing.getInstanceId() == null) {
+                        saveCreation(fs, c, "ATTACH_PENDING");
+                        volumeApiService.attachVolumeToVM(fs.getVmId(), backing.getId(), null, true);
+                        backing = volumeDao.findById(backing.getId());
+                    }
+                    validateOriginalBacking(c, backing);
+                    if (!fs.getVmId().equals(backing.getInstanceId()))
+                        throw new InvalidParameterValueException("Backing volume attachment could not be verified");
+                    fs.setVolumeId(backing.getId()); saveCreation(fs, c, "ATTACHED");
+                    syncSharedFSToStorageService(fs);
+                    com.google.gson.JsonObject inspection = com.google.gson.JsonParser.parseString(
+                            storageService.prepareInitialImportedBackingVolume(fs, "INSPECT_ONLY")).getAsJsonObject();
+                    c.acceptInspection(jsonString(inspection, "filesystem"), jsonString(inspection, "filesystemUuid"));
+                    c.bootId = jsonString(inspection, "bootId"); c.mountPath = jsonString(inspection, "volumeMountPath");
+                    fs.setFsType(SharedFS.FileSystemType.valueOf(c.observedFilesystem.toUpperCase()));
+                    saveCreation(fs, c, "INSPECTED");
+                    if ("INSPECT_ONLY".equals(c.importMode) && !"MOUNT_EXISTING".equals(action)) return fs;
+                    saveCreation(fs, c, "MOUNT_PENDING");
+                    com.google.gson.JsonObject mounted = com.google.gson.JsonParser.parseString(
+                            storageService.prepareInitialImportedBackingVolume(fs, "MOUNT_EXISTING")).getAsJsonObject();
+                    if (!c.filesystemUuid.equals(jsonString(mounted, "filesystemUuid"))
+                            || !c.mountPath.equals(jsonString(mounted, "volumeMountPath"))
+                            || !mounted.has("persistentMount") || !mounted.get("persistentMount").getAsBoolean())
+                        throw new InvalidParameterValueException("Imported filesystem mount identity was not verified");
+                }
+                c.errorCode = null; saveCreation(fs, c, "READY");
+                stateTransitTo(fs, Event.OperationSucceeded);
+                syncSharedFSToStorageService(sharedFSDao.findById(id));
+                return sharedFSDao.findById(id);
+            } catch (Exception e) {
+                c.errorCode = e.getClass().getSimpleName();
+                if (e instanceof OperationTimedoutException || "ALLOCATION_PENDING".equals(c.phase)
+                        || "ATTACH_PENDING".equals(c.phase)) {
+                    saveCreation(fs, c, "OBSERVATION_PENDING");
+                } else {
+                    try { cancelCreation(fs, c, life); }
+                    catch (RuntimeException cleanup) { saveCreation(fs, c, "CLEANUP_PENDING"); e.addSuppressed(cleanup); }
+                }
+                if (fs.getState() == SharedFS.State.Allocated) stateTransitTo(fs, Event.OperationFailed);
+                throw e;
+            }
+        } finally { lock.unlock(); lock.releaseRef(); }
+    }
+
+    private static String jsonString(com.google.gson.JsonObject object, String key) {
+        return object.has(key) && !object.get(key).isJsonNull() ? object.get(key).getAsString() : null;
+    }
+
+    protected SharedFS cancelUnallocatedCorruptCreation(SharedFSVO fs) {
+        if (fs.getVmId() != null || (fs.getState() != SharedFS.State.Allocated && fs.getState() != SharedFS.State.Error))
+            throw new InvalidParameterValueException("Corrupt preparation with a VM or operational state requires investigation");
+        SharedFSCreationContext cancelled = new SharedFSCreationContext();
+        cancelled.planVm(fs.getUuid());
+        if (userVmDao.findByUuid(cancelled.plannedVmUuid) != null)
+            throw new InvalidParameterValueException("A planned VM exists; corrupt preparation cannot be cancelled automatically");
+        if (fs.getVolumeId() != null) {
+            VolumeVO data = volumeDao.findById(fs.getVolumeId());
+            if (data == null || data.getRemoved() != null || data.getAccountId() != fs.getAccountId()
+                    || data.getDataCenterId() != fs.getDataCenterId()
+                    || data.getVolumeType() != com.cloud.storage.Volume.Type.DATADISK
+                    || data.getState() != com.cloud.storage.Volume.State.Ready || data.getInstanceId() != null)
+                throw new InvalidParameterValueException("Backing DATA must be owned, Ready and unattached before releasing a corrupt reservation");
+            for (SharedFSVO claim : sharedFSDao.listByBackingVolume(data.getId())) {
+                if (claim.getId() != fs.getId()) throw new InvalidParameterValueException("Another SharedFS claims the backing DATA");
+            }
+            ensureBackingUnreferenced(data.getId());
+            cancelled.existing = true; cancelled.volumeId = data.getId();
+        }
+        cancelled.cancelled = true; cancelled.errorCode = SharedFSCreationContext.INVALID_JOURNAL;
+        fs.setVolumeId(null);
+        if (fs.getState() == SharedFS.State.Allocated) stateTransitTo(fs, Event.OperationFailed);
+        saveCreation(fs, cancelled, "CANCELLED");
+        return sharedFSDao.findById(fs.getId());
+    }
+
+    private void cancelCreation(SharedFSVO fs, SharedFSCreationContext c, SharedFSLifeCycle life) {
+        if (c.existing) {
+            ensureBackingUnreferenced(c.volumeId);
+            VolumeVO data = volumeDao.findById(c.volumeId);
+            if (data != null && fs.getVmId() != null && fs.getVmId().equals(data.getInstanceId())) {
+                storageService.releaseInitialImportedBackingVolume(fs);
+                volumeApiService.detachVolumeViaDestroyVM(fs.getVmId(), data.getId());
+                if (volumeDao.findById(data.getId()).getInstanceId() != null)
+                    throw new com.cloud.utils.exception.CloudRuntimeException("Existing DATA is still attached; owned VM cleanup is blocked");
+            }
+            if (fs.getVmId() != null) life.cleanupImportedSharedFSVm(fs);
+        } else if (fs.getVmId() != null) {
+            if (volumeDao.findByInstance(fs.getVmId()).stream().anyMatch(v -> !c.ownedVolumeIds.contains(v.getId())))
+                throw new com.cloud.utils.exception.CloudRuntimeException("Unowned volumes block initial VM cleanup");
+            life.deleteSharedFS(fs);
+        }
+        deleteStorageServiceCompatibility(fs);
+        fs.setVmId(null); fs.setVolumeId(null); c.cancelled = true;
+        saveCreation(fs, c, "CANCELLED");
     }
 
     @Override
     @ActionEvent(eventType = EventTypes.EVENT_SHAREDFS_CREATE, eventDescription = "Deploying Shared FileSystem", async = true)
     public SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         SharedFSVO sharedFS = sharedFSDao.findById(cmd.getEntityId());
+        if (sharedFS.getCreationContext() != null) return continueCreation(sharedFS.getId(), "CONTINUE");
         Long diskOfferingId = cmd.getDiskOfferingId();
         Long size = cmd.getSize();
         Long minIops = cmd.getMinIops();
@@ -508,7 +847,9 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SharedFSLifeCycle lifeCycle = provider.getSharedFSLifeCycle();
         Pair<Long, Long> result;
         try {
-            result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops);
+            Map<String, String> compute = lifeCycle.checkCreationPrerequisites(validateAndGetZone(cmd.getZoneId()),
+                    cmd.getServiceOfferingId(), cmd.getCustomComputeParameters());
+            result = lifeCycle.deploySharedFS(sharedFS, cmd.getNetworkId(), diskOfferingId, cmd.getStorageId(), size, minIops, maxIops, compute);
             sharedFS.setVolumeId(result.first());
             sharedFS.setVmId(result.second());
             sharedFSDao.update(sharedFS.getId(), sharedFS);
@@ -639,6 +980,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         sharedFSSearchBuilder.select(null, SearchCriteria.Func.DISTINCT, sharedFSSearchBuilder.entity().getId()); // select distinct
         accountMgr.buildACLSearchBuilder(sharedFSSearchBuilder, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
 
+        sharedFSSearchBuilder.and("requestId", sharedFSSearchBuilder.entity().getCreationRequestId(), SearchCriteria.Op.EQ);
         sharedFSSearchBuilder.and("id", sharedFSSearchBuilder.entity().getId(), SearchCriteria.Op.EQ);
         sharedFSSearchBuilder.and("name", sharedFSSearchBuilder.entity().getName(), SearchCriteria.Op.EQ);
         sharedFSSearchBuilder.and("dataCenterId", sharedFSSearchBuilder.entity().getDataCenterId(), SearchCriteria.Op.EQ);
@@ -664,6 +1006,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         SearchCriteria<SharedFSVO> sc = sharedFSSearchBuilder.create();
         accountMgr.buildACLSearchCriteria(sc, domainId, isRecursive, permittedAccounts, listProjectResourcesCriteria);
 
+        if (cmd.getRequestId() != null) sc.setParameters("requestId", SharedFSCreationContext.normalizeKey(cmd.getRequestId()));
         if (keyword != null) {
             sc.setParameters("keywordName", "%" + keyword + "%");
         }
@@ -727,6 +1070,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             sharedFSRespons = sharedFSJoinDao.createSharedFSResponses(respView, result.first().toArray(new SharedFSJoinVO[result.first().size()]));
         }
 
+        if (sharedFSRespons != null) for (SharedFSResponse item : sharedFSRespons)
+            item.setCreation(sharedFSDao.findByUuid(item.getId()));
         response.setResponses(sharedFSRespons, result.second());
         return response;
     }

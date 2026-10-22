@@ -314,6 +314,8 @@
 
     <bean id="lBHealthCheckManagerImpl" class="com.cloud.network.lb.LBHealthCheckManagerImpl" />
 
+    <bean id="volumeAllocationManager" class="com.cloud.storage.VolumeAllocationManagerImpl" />
+
     <bean id="volumeApiServiceImpl" class="com.cloud.storage.VolumeApiServiceImpl">
         <property name="storagePoolAllocators"
             value="#{storagePoolAllocatorsRegistry.registered}" />

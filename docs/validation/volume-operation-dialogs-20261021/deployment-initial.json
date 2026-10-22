@@ -1,0 +1,35 @@
+{
+  "sourceCommit": "2c5ab260cf99fa729275500baac48977ac29e957",
+  "payloadSha256": "8d92237135cf4ae9befb4470ede2b4d67caaec9151602ae64f38539d47e0b2e1",
+  "markers": [
+    "volume-offering-select",
+    "volume-migration-pool",
+    "operation-columns",
+    "label.volume.operation.auto.enabled",
+    "blockingLoadingState",
+    "fetchSyncProgress",
+    "extractJobId"
+  ],
+  "clusters": {
+    "31": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-operation-dialogs-ui-2c5ab260cf9-1792512435",
+      "newApiLogin": true
+    },
+    "32": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-operation-dialogs-ui-2c5ab260cf9-1792512435",
+      "newApiLogin": true
+    }
+  }
+}

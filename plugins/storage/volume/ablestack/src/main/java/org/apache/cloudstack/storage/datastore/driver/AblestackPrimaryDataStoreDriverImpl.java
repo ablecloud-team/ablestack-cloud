@@ -438,20 +438,24 @@ public class AblestackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDriv
         }
         CreateCmdResult result = new CreateCmdResult(null, null);
         try {
-            ResizeVolumeAnswer answer = (ResizeVolumeAnswer) storageMgr.sendToPool(pool, resizeParameter.hosts, resizeCmd);
-            if (answer != null && answer.getResult()) {
-                long finalSize = answer.getNewSize();
+            Answer answer = storageMgr.sendToPool(pool, resizeParameter.hosts, resizeCmd);
+            result.setAnswer(answer);
+            if (answer == null) {
+                result.setResult("No answer received while resizing volume " + vol.getUuid());
+            } else if (!answer.getResult()) {
+                result.setResult(answer.getDetails() == null || answer.getDetails().trim().isEmpty()
+                        ? "Agent rejected resize for volume " + vol.getUuid() : answer.getDetails());
+            } else if (!(answer instanceof ResizeVolumeAnswer)) {
+                result.setResult("Unexpected resize response type " + answer.getClass().getSimpleName() + " for volume " + vol.getUuid());
+            } else {
+                ResizeVolumeAnswer resizeAnswer = (ResizeVolumeAnswer) answer;
+                long finalSize = resizeAnswer.getNewSize();
                 logger.debug("Resize: volume started at size: " + toHumanReadableSize(vol.getSize()) + " and ended at size: " + toHumanReadableSize(finalSize));
 
                 vol.setSize(finalSize);
                 vol.update();
 
-                updateVolumePathDetails(vol, answer);
-            } else if (answer != null) {
-                result.setResult(answer.getDetails());
-            } else {
-                logger.debug("return a null answer, mark it as failed for unknown reason");
-                result.setResult("return a null answer, mark it as failed for unknown reason");
+                updateVolumePathDetails(vol, resizeAnswer);
             }
 
         } catch (Exception e) {

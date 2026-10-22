@@ -41,7 +41,7 @@ export default {
       filters: ['active', 'inactive'],
       columns: ['name', 'displaytext', 'state', 'cpunumber', 'cpuspeed', 'memory', { customTitle: 'linked.disk.offering', field: 'diskofferingname' }, 'gpu', 'domain', 'zone', 'order'],
       details: () => {
-        var fields = ['name', 'id', 'displaytext', 'offerha', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'iscustomizediops', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'diskofferingname', 'diskofferingcomputeonly', 'hosttags', 'tags', 'storagetags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness', 'encryptroot', 'shareable', 'kvdoenable', 'purgeresources']
+        var fields = ['name', 'id', 'displaytext', 'offerha', 'provisioningtype', 'cachemode', 'storagetype', 'iscustomized', 'iscustomizediops', 'limitcpuuse', 'cpunumber', 'cpuspeed', 'memory', 'diskofferingname', 'diskofferingcomputeonly', 'hosttags', 'tags', 'storagetags', 'domain', 'zone', 'created', 'dynamicscalingenabled', 'diskofferingstrictness', 'encryptroot', 'shareable', 'kvdoenable', 'purgeresources', 'diskIopsReadRate', 'diskIopsReadRateMax', 'diskIopsReadRateMaxLength', 'diskIopsWriteRate', 'diskIopsWriteRateMax', 'diskIopsWriteRateMaxLength', 'diskBytesReadRate', 'diskBytesReadRateMax', 'diskBytesReadRateMaxLength', 'diskBytesWriteRate', 'diskBytesWriteRateMax', 'diskBytesWriteRateMaxLength']
         if (store.getters.apis.createServiceOffering &&
           store.getters.apis.createServiceOffering.params.filter(x => x.name === 'storagepolicy').length > 0) {
           fields.splice(6, 0, 'vspherestoragepolicy')
@@ -262,7 +262,7 @@ export default {
       filters: ['active', 'inactive'],
       details: () => {
         var fields = ['name', 'id', 'displaytext', 'disksize', 'provisioningtype', 'storagetype', 'iscustomized', 'disksizestrictness', 'iscustomizediops',
-          'diskIopsReadRate', 'diskIopsWriteRate', 'diskBytesReadRate', 'diskBytesReadRateMax', 'diskBytesWriteRate', 'diskBytesWriteRateMax', 'miniops', 'maxiops', 'tags',
+          'cachemode', 'diskIopsReadRate', 'diskIopsReadRateMax', 'diskIopsReadRateMaxLength', 'diskIopsWriteRate', 'diskIopsWriteRateMax', 'diskIopsWriteRateMaxLength', 'diskBytesReadRate', 'diskBytesReadRateMax', 'diskBytesReadRateMaxLength', 'diskBytesWriteRate', 'diskBytesWriteRateMax', 'diskBytesWriteRateMaxLength', 'miniops', 'maxiops', 'tags',
           'domain', 'zone', 'created', 'encrypt', 'shareable', 'kvdoenable']
         if (store.getters.apis.createDiskOffering &&
           store.getters.apis.createDiskOffering.params.filter(x => x.name === 'storagepolicy').length > 0) {
@@ -307,7 +307,8 @@ export default {
         label: 'label.edit',
         docHelp: 'adminguide/service_offerings.html#modifying-or-deleting-a-service-offering',
         dataView: true,
-        args: ['name', 'displaytext', 'tags']
+        popup: true,
+        component: shallowRef(defineAsyncComponent(() => import('@/views/offering/UpdateDiskOffering.vue')))
       }, {
         api: 'updateDiskOffering',
         icon: 'lock-outlined',

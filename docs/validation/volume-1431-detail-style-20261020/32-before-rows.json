@@ -1,0 +1,14 @@
+[
+  "이름VOL1431-DETAILSTYLE-32-20261020-volume",
+  "아이디ae067d00-aab7-4f37-8ee0-99cabd05e730",
+  "유형DATADISK",
+  "스토리지 유형Shared (DATADISK)",
+  "디스크 오퍼링VOL1431-DETAILSTYLE-32-20261020-explicit",
+  "크기1.00 GiB",
+  "프로비저닝 유형fat",
+  "압축/중복제거false",
+  "압축 사용 상태false",
+  "중복제거 사용 상태false",
+  "경로ae067d00-aab7-4f37-8ee0-99cabd05e730",
+  "삭제 보호false"
+]

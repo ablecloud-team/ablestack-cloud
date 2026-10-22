@@ -1,0 +1,20 @@
+{
+  "stage": "/tmp/epic1441-001ca8c0bd88",
+  "sha256": "fde8f1b25207256c19b0e858d299d24eed061d126eefa17b9703d6607223d83d",
+  "probe": [
+    "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.api.command.user.storage.sharedfs.ListSharedFSServiceOfferingsCmd|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSLifeCycle|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSService|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility$Reason|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility$Constraint|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl$StaticNetworkConfiguration|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl$SharedFSGarbageCollector|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycle|file:/tmp/epic1441-001ca8c0bd88/cloudstack-4.23.0.0.jar",
+    "VERIFIED_CLASSES=12"
+  ],
+  "exit": 0
+}

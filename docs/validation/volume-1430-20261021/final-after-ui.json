@@ -1,0 +1,22 @@
+[
+  {
+    "cluster": 31,
+    "case": "final-ui-blank-fields-api-db",
+    "name": "VOL1430-31-UI-Final",
+    "state": "Inactive",
+    "all12Preserved": true,
+    "operationalInventoryUnchanged": true,
+    "jarPreserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "final-ui-blank-fields-api-db",
+    "name": "VOL1430-32-UI-Final",
+    "state": "Inactive",
+    "all12Preserved": true,
+    "operationalInventoryUnchanged": true,
+    "jarPreserved": true,
+    "pass": true
+  }
+]

@@ -469,6 +469,8 @@ import com.google.gson.reflect.TypeToken;
 
 
 public class UserVmManagerImpl extends ManagerBase implements UserVmManager, VirtualMachineGuru, Configurable, VmWorkJobHandler {
+    @Inject private com.cloud.storage.VolumeAllocationService allocationService;
+
     public static final String VM_WORK_JOB_HANDLER = UserVmManagerImpl.class.getSimpleName();
     private final VmWorkJobHandlerProxy fastCloneJobHandler = new VmWorkJobHandlerProxy(this);
 
@@ -521,6 +523,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     private ServiceOfferingDao serviceOfferingDao;
     @Inject
     private DiskOfferingDao _diskOfferingDao;
+    @Inject
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
     @Inject
     private VMTemplateDao _templateDao;
     @Inject
@@ -4894,6 +4898,21 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
 
         DiskOfferingVO rootDiskOffering = _diskOfferingDao.findById(rootDiskOfferingId);
+        validateAllocationOffering(rootDiskOffering, zone);
+        if (volume != null || snapshot != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(rootDiskOffering.getId()), "existing root or snapshot restore");
+            Long sourceId = volume != null ? volume.getId() : snapshot.getVolumeId();
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(volumeDetailsDao.listDetailsKeyPairs(sourceId), "existing root or snapshot restore");
+        }
+        if (rootDiskKmsKeyId != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(allocationDetailsDao.listDetailsKeyPairs(rootDiskOffering.getId()), "encrypted root");
+        }
+        if (dataDiskInfoList != null) {
+            for (VmDiskInfo diskInfo : dataDiskInfoList) {
+                validateAllocationOffering(diskInfo.getDiskOffering(), zone);
+            }
+        }
+
         long volumesSize = configureCustomRootDiskSize(customParameters, template, hypervisorType, rootDiskOffering);
 
         if (rootDiskOffering.getEncrypt() && hypervisorType != HypervisorType.KVM) {
@@ -4917,6 +4936,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         long additionalDiskSize = 0L;
         if (!isIso && diskOfferingId != null) {
             DiskOfferingVO diskOffering = _diskOfferingDao.findById(diskOfferingId);
+            validateAllocationOffering(diskOffering, zone);
             additionalDiskSize = verifyAndGetDiskSize(diskOffering, diskSize);
         }
         UserVm vm = getCheckedUserVmResource(zone, hostName, displayName, owner, diskOfferingId, diskSize, dataDiskInfoList, networkList, securityGroupIdList, group, httpmethod, userData, userDataId, userDataDetails, sshKeyPairs, caller, requestedIps, defaultIps, isDisplayVm, keyboard, affinityGroupIdList, customParameters, customId, dhcpOptionMap, datadiskTemplateToDiskOfferringMap, userVmOVFPropertiesMap, dynamicScalingEnabled, vmType, template, hypervisorType, accountId, offering, isIso, rootDiskOfferingId, rootDiskKmsKeyId, volumesSize, additionalDiskSize, volume, snapshot);
@@ -5353,11 +5373,28 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    private void requireUnqualifiedVmAllocation(long vmId, String operation) {
+        for (VolumeVO volume : _volsDao.findByInstance(vmId)) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(volumeDetailsDao.listDetailsKeyPairs(volume.getId()), operation);
+        }
+    }
+
+    private void validateAllocationOffering(DiskOffering offering, DataCenter zone) {
+        Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(allocationDetailsDao.listDetailsKeyPairs(offering.getId()));
+        if (!intent.isEmpty()) {
+            if (offering.getEncrypt()) {
+                throw new InvalidParameterValueException("ALLOCATION_OPERATION_UNSUPPORTED: encryption is not qualified with explicit allocation");
+            }
+            allocationService.validateCreate(intent, offering.getProvisioningType(), zone.getId(), null, offering.getTagsArray());
+        }
+    }
+
     private long verifyAndGetDiskSize(DiskOffering diskOffering, Long diskSize) {
         long size = 0l;
         if (diskOffering == null) {
             throw new InvalidParameterValueException("Specified disk offering cannot be found");
         }
+        com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(allocationDetailsDao.listDetailsKeyPairs(diskOffering.getId()));
         if (diskOffering.isCustomized() && !diskOffering.isComputeOnly()) {
             if (diskSize == null) {
                 throw new InvalidParameterValueException("This disk offering requires a custom size specified");
@@ -8701,6 +8738,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @ActionEvent(eventType = EventTypes.EVENT_VM_MIGRATE, eventDescription = "migrating VM", async = true)
     public VirtualMachine migrateVirtualMachineWithVolume(Long vmId, Host destinationHost, Map<String, String> volumeToPool) throws ResourceUnavailableException,
     ConcurrentOperationException, ManagementServerException, VirtualMachineMigrationException {
+        requireUnqualifiedVmAllocation(vmId, "VM storage migration");
         checkFastCloneOperationAllowed(vmId, "migrate");
         // Access check - only root administrator can migrate VM.
         Account caller = CallContext.current().getCallingAccount();
@@ -9830,6 +9868,10 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             needRestart = true;
         }
 
+        requireUnqualifiedVmAllocation(vmId, "VM restore");
+        if (rootDiskOfferingId != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(allocationDetailsDao.listDetailsKeyPairs(rootDiskOfferingId));
+        }
         VMTemplateVO currentTemplate = _templateDao.findById(vm.getTemplateId());
         List<VolumeVO> rootVols = _volsDao.findByInstanceAndType(vmId, Volume.Type.ROOT);
         if (rootVols.isEmpty()) {
@@ -11370,6 +11412,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         if (curVm == null) {
             throw new CloudRuntimeException("the VM doesn't exist or not registered in management server!");
         }
+        requireUnqualifiedVmAllocation(curVm.getId(), "VM clone");
         validateCloneNames(cmd, curVm.getDataCenterId());
         checkNoActiveBackupForClone(curVm.getId());
         UserVmVO vmStatus = _vmDao.findById(cmd.getId());
@@ -11476,6 +11519,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @ActionEvent(eventType = EventTypes.EVENT_VM_CLONE, eventDescription = "VM CLONE", async = true)
     public Optional<UserVm> cloneVirtualMachine(CloneVMCmd cmd) throws ResourceAllocationException, ResourceUnavailableException, InsufficientCapacityException {
         try {
+            requireUnqualifiedVmAllocation(cmd.getId(), "VM clone");
             return performCloneVirtualMachine(cmd);
         } catch (ResourceAllocationException | ResourceUnavailableException | InsufficientCapacityException | RuntimeException e) {
             // The event interceptor records context details, not the thrown exception.

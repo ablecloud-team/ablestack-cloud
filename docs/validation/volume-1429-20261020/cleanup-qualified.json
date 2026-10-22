@@ -1,0 +1,58 @@
+{
+  "31": {
+    "deletedVolumes": [
+      "f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+      "18195d32-f4cf-4134-a47a-e61f611f0e3a",
+      "ca4ef757-6d5a-42b0-beb7-9b389c89efc6",
+      "bdf24ff4-125a-440e-817a-17b8e5d0e973",
+      "ac547999-5968-4b8a-9486-0e2036ce3fd8",
+      "3ac189b9-ae1c-4b23-b9a0-4f663d2cc058"
+    ],
+    "deletedAccounts": 2,
+    "deletedDomains": 2,
+    "deletedRoles": 2,
+    "disabledOfferings": 16,
+    "activeOwnedDb": {
+      "volumes": 0,
+      "accounts": 0,
+      "domains": 0,
+      "roles": 0,
+      "offerings": 0
+    },
+    "imageAndStageResidual": [],
+    "operationalInventoryUnchanged": true,
+    "otherRolePermissionsUnchanged": true,
+    "hostsUp": 3,
+    "moldActive": true,
+    "webInfPreserved": true,
+    "clientHttp": 200
+  },
+  "32": {
+    "deletedVolumes": [
+      "4d3af36e-4f83-4436-8f12-07680a329ece",
+      "15f73699-1e51-4a1a-898a-ed67636cbbdd",
+      "dc934ef3-c8e2-45fa-8990-6ce43992bd34",
+      "ec85e0e4-b77d-43d8-9ccf-40444374fe48",
+      "fe9cb749-c28e-4f05-9ab2-f3000025b242",
+      "61fd19d0-533a-41f4-b79d-ceff4c72c2e7"
+    ],
+    "deletedAccounts": 2,
+    "deletedDomains": 2,
+    "deletedRoles": 2,
+    "disabledOfferings": 16,
+    "activeOwnedDb": {
+      "volumes": 0,
+      "accounts": 0,
+      "domains": 0,
+      "roles": 0,
+      "offerings": 0
+    },
+    "imageAndStageResidual": [],
+    "operationalInventoryUnchanged": true,
+    "otherRolePermissionsUnchanged": true,
+    "hostsUp": 3,
+    "moldActive": true,
+    "webInfPreserved": true,
+    "clientHttp": 200
+  }
+}

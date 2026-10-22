@@ -1,0 +1,351 @@
+{
+  "epic": 1422,
+  "issue": 1423,
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "baseCommit": "248653b58920d2a950393ed3edc7b343b831105d",
+  "implementationCommit": "c7b5ea1c6c8fae8ba603a4169636d35fcafaef54",
+  "modules": [
+    "server",
+    "plugins/storage/volume/default",
+    "plugins/storage/volume/ablestack"
+  ],
+  "moduleBuild": "PASS",
+  "fullCloudBuildRun": false,
+  "actionsDispatched": false,
+  "unitSuites": [
+    {
+      "name": "com.cloud.storage.VolumeApiServiceImplUpdateTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "com.cloud.storage.VolumeApiServiceImplTest",
+      "tests": "159",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.datastore.driver.CloudStackPrimaryDataStoreDriverImplTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.datastore.driver.CloudStackPrimaryDataStoreResizeResponseTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.datastore.driver.AblestackPrimaryDataStoreResizeResponseTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "clusters": {
+    "31": {
+      "storage": "GFS2/QCOW2",
+      "baselinePathLossReproduced": true,
+      "permissionChecks": {
+        "passed": 18,
+        "cases": [
+          "admin-name-only",
+          "admin-protection-only",
+          "admin-name-and-protection",
+          "admin-same-path",
+          "admin-blank-path-rejected",
+          "user-name-only",
+          "user-protection-only",
+          "user-combined",
+          "user-path-cannot-change",
+          "domainadmin-name-only",
+          "domainadmin-protection-only",
+          "domainadmin-combined",
+          "domainadmin-path-cannot-change",
+          "domainadmin-subordinate-volume",
+          "foreign-account-denied",
+          "normal-user-admin-volume-denied",
+          "project-member-name-and-protection",
+          "project-nonmember-denied"
+        ],
+        "dedicatedMinimalTestRolesUsed": true,
+        "productionRolePermissionsUnchanged": true
+      },
+      "runtimeJarCompatibilityTests": 33,
+      "uiRenameAttachResizeDetach": "PASS (Stopped VM)",
+      "faultJob": {
+        "id": 14035,
+        "status": 2,
+        "errorCode": 530,
+        "rootCausePreserved": true,
+        "classCastException": false,
+        "failureSizePreservedBytes": 1073741824,
+        "originalPathRestored": true
+      },
+      "successfulRetry": {
+        "sizeBytes": 2147483648,
+        "pathRetained": true,
+        "state": "Ready",
+        "detached": true
+      },
+      "dataPatterns": {
+        "offset0": "0x5a / 64KiB",
+        "offset512MiB": "0x3c / 64KiB",
+        "newRegion1536MiB": "zero / 64KiB",
+        "passed": true
+      },
+      "deployment": {
+        "sourceCommit": "c7b5ea1c6c8fae8ba603a4169636d35fcafaef54",
+        "jarSha256": "78269f2a7c1f2361ffadee04723c6dd51b3fcc9cccecba669592824df9f0378c",
+        "backup": "/root/volume-1423-c7b5ea1c6c8",
+        "preservedJarEntries": 204498,
+        "otherMethodCodePreserved": {
+          "VolumeApiServiceImpl": 189,
+          "AblestackPrimaryDataStoreDriverImpl": 34,
+          "CloudStackPrimaryDataStoreDriverImpl": 36
+        },
+        "clientHttpStatus": 200,
+        "webInfAndUiPreserved": true
+      },
+      "cleanup": {
+        "activeVolumes": 0,
+        "activeVms": 0,
+        "activeOfferings": 0,
+        "activeAccounts": 0,
+        "activeProjects": 0,
+        "activeDomains": 0,
+        "activeRoles": 0,
+        "hostImageResidual": 0
+      },
+      "operationalPreservation": {
+        "baselineVolumeCount": 140,
+        "missingBaselineVolumes": 0,
+        "changedVolumeMetadata": 0,
+        "changedVmStates": 0
+      }
+    },
+    "32": {
+      "storage": "RBD/RAW",
+      "baselinePathLossReproduced": true,
+      "permissionChecks": {
+        "passed": 18,
+        "cases": [
+          "admin-name-only",
+          "admin-protection-only",
+          "admin-name-and-protection",
+          "admin-same-path",
+          "admin-blank-path-rejected",
+          "user-name-only",
+          "user-protection-only",
+          "user-combined",
+          "user-path-cannot-change",
+          "domainadmin-name-only",
+          "domainadmin-protection-only",
+          "domainadmin-combined",
+          "domainadmin-path-cannot-change",
+          "domainadmin-subordinate-volume",
+          "foreign-account-denied",
+          "normal-user-admin-volume-denied",
+          "project-member-name-and-protection",
+          "project-nonmember-denied"
+        ],
+        "dedicatedMinimalTestRolesUsed": true,
+        "productionRolePermissionsUnchanged": true
+      },
+      "runtimeJarCompatibilityTests": 33,
+      "uiRenameAttachResizeDetach": "PASS (Stopped VM)",
+      "faultJob": {
+        "id": 1795,
+        "status": 2,
+        "errorCode": 530,
+        "rootCausePreserved": true,
+        "classCastException": false,
+        "failureSizePreservedBytes": 1073741824,
+        "originalPathRestored": true
+      },
+      "successfulRetry": {
+        "sizeBytes": 2147483648,
+        "pathRetained": true,
+        "state": "Ready",
+        "detached": true
+      },
+      "dataPatterns": {
+        "offset0": "0x5a / 64KiB",
+        "offset512MiB": "0x3c / 64KiB",
+        "newRegion1536MiB": "zero / 64KiB",
+        "passed": true
+      },
+      "deployment": {
+        "sourceCommit": "c7b5ea1c6c8fae8ba603a4169636d35fcafaef54",
+        "jarSha256": "b0076d644f3e3ed7fcff849e0a29690a8ecf10074e4ca2713036a31790ef192e",
+        "backup": "/root/volume-1423-c7b5ea1c6c8",
+        "preservedJarEntries": 204493,
+        "otherMethodCodePreserved": {
+          "VolumeApiServiceImpl": 189,
+          "AblestackPrimaryDataStoreDriverImpl": 34,
+          "CloudStackPrimaryDataStoreDriverImpl": 36
+        },
+        "clientHttpStatus": 200,
+        "webInfAndUiPreserved": true
+      },
+      "cleanup": {
+        "activeVolumes": 0,
+        "activeVms": 0,
+        "activeOfferings": 0,
+        "activeAccounts": 0,
+        "activeProjects": 0,
+        "activeDomains": 0,
+        "activeRoles": 0,
+        "hostImageResidual": 0
+      },
+      "operationalPreservation": {
+        "baselineVolumeCount": 48,
+        "missingBaselineVolumes": 0,
+        "changedVolumeMetadata": 0,
+        "changedVmStates": 0
+      }
+    }
+  },
+  "focusedTestCount": 201,
+  "checkstyle": {
+    "existingViolations": 15,
+    "changedFileViolations": 0,
+    "violations": [
+      {
+        "path": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+        "line": "47",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+        "line": "48",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+        "line": "49",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": "19",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": "20",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+        "line": "21",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": "19",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": "20",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+        "line": "21",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+        "line": "19",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+        "line": "20",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+        "line": "21",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/api/query/UserDataReferenceQueryTest.java",
+        "line": "22",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/network/CniMetadataJsonTest.java",
+        "line": "20",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      },
+      {
+        "path": "server/src/test/java/com/cloud/network/rules/UserdataToRouterRulesTest.java",
+        "line": "25",
+        "severity": "error",
+        "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+        "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+        "unchangedFromBase": true
+      }
+    ],
+    "pluginModules": "PASS"
+  },
+  "limitations": [
+    "Default User role denies updateVolume in deployment; isolated minimal test roles were used and removed. Default production roles were not changed.",
+    "API parameter authorization may filter unauthorized path parameters; verified no actual path changes, and service tests verify explicit rejection.",
+    "Live attachment/detachment used Stopped VMs; Running path-change rejection covered by service regression tests, not guest boot/hotplug qualification.",
+    "Checkstyle has 15 pre-existing violations in unchanged test files; no changed-file violations.",
+    "Full Cloud build, release RPM, UI deployment, host deployment and full CI were not run. Other Epic child issues remain outside this implementation."
+  ]
+}

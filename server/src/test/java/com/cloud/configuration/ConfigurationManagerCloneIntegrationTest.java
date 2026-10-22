@@ -359,7 +359,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         when(sourceOffering.getId()).thenReturn(sourceId);
         when(sourceOffering.getName()).thenReturn("source-disk");
         when(sourceOffering.getDisplayText()).thenReturn("Source Disk Display");
-        when(sourceOffering.getDiskSize()).thenReturn(10L);
+        when(sourceOffering.getDiskSize()).thenReturn(10L * 1073741824L);
         when(sourceOffering.getTags()).thenReturn("tag1");
         when(sourceOffering.isCustomized()).thenReturn(false);
         when(sourceOffering.getDisplayOffering()).thenReturn(true);
@@ -415,7 +415,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         when(sourceOffering.getId()).thenReturn(sourceId);
         when(sourceOffering.getName()).thenReturn("source-disk");
         when(sourceOffering.getDisplayText()).thenReturn("Source Disk Display");
-        when(sourceOffering.getDiskSize()).thenReturn(100L);
+        when(sourceOffering.getDiskSize()).thenReturn(100L * 1073741824L);
         when(sourceOffering.getTags()).thenReturn("tag1");
         when(sourceOffering.isCustomized()).thenReturn(false);
         when(sourceOffering.getProvisioningType()).thenReturn(Storage.ProvisioningType.THIN);
@@ -475,7 +475,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         when(sourceOffering.getName()).thenReturn("source-disk");
         when(sourceOffering.getProvisioningType()).thenReturn(Storage.ProvisioningType.THIN);
         when(sourceOffering.isUseLocalStorage()).thenReturn(false);
-        when(sourceOffering.getDiskSize()).thenReturn(10L);
+        when(sourceOffering.getDiskSize()).thenReturn(10L * 1073741824L);
         when(sourceOffering.getMinIops()).thenReturn(1000L);
         when(sourceOffering.getMaxIops()).thenReturn(2000L);
 
@@ -566,7 +566,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         Long sourceId = 1L;
 
         DiskOfferingVO sourceOffering = new DiskOfferingVO("source-disk", "Source Disk Offering",
-            Storage.ProvisioningType.THIN, 50L, "production,ssd", false, false, 1000L, 5000L);
+            Storage.ProvisioningType.THIN, 50L * 1073741824L, "production,ssd", false, false, 1000L, 5000L);
         sourceOffering.setDisplayOffering(true);
         sourceOffering.setDiskSizeStrictness(false);
         sourceOffering.setEncrypt(true);
@@ -587,7 +587,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         when(diskOfferingDetailsDao.getDetail(eq(sourceId), anyString())).thenReturn(null);
 
         DiskOfferingVO clonedOffering = new DiskOfferingVO("cloned-disk-offering", "Source Disk Offering",
-            Storage.ProvisioningType.THIN, 50L, "production,ssd", false, false, 1000L, 5000L);
+            Storage.ProvisioningType.THIN, 50L * 1073741824L, "production,ssd", false, false, 1000L, 5000L);
         clonedOffering.setEncrypt(true);
         clonedOffering.setHypervisorSnapshotReserve(20);
         when(diskOfferingDao.persist(any(DiskOfferingVO.class))).thenReturn(clonedOffering);
@@ -604,7 +604,7 @@ public class ConfigurationManagerCloneIntegrationTest {
 
         Assert.assertNotNull("Cloned disk offering should not be null", result);
         Assert.assertEquals("Should inherit display text", "Source Disk Offering", result.getDisplayText());
-        Assert.assertEquals("Should inherit disk size", 50L, result.getDiskSize());
+        Assert.assertEquals("Should inherit disk size", 50L * 1073741824L, result.getDiskSize());
         Assert.assertEquals("Should inherit tags", "production,ssd", result.getTags());
         Assert.assertEquals("Should inherit min IOPS", Long.valueOf(1000L), result.getMinIops());
         Assert.assertEquals("Should inherit max IOPS", Long.valueOf(5000L), result.getMaxIops());
@@ -670,7 +670,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         Long sourceId = 1L;
 
         DiskOfferingVO sourceOffering = new DiskOfferingVO("source-disk", "Source Disk",
-            Storage.ProvisioningType.THIN, 53L, "tag1", false, false, null, null);
+            Storage.ProvisioningType.THIN, 53L * 1073741824L, "tag1", false, false, null, null);
         sourceOffering.setBytesReadRate(10485760L);
         sourceOffering.setBytesReadRateMax(20971520L);
         sourceOffering.setBytesReadRateMaxLength(60L);
@@ -692,7 +692,7 @@ public class ConfigurationManagerCloneIntegrationTest {
         when(diskOfferingDetailsDao.getDetail(eq(sourceId), anyString())).thenReturn(null);
 
         DiskOfferingVO clonedOffering = new DiskOfferingVO("cloned-disk", "Source Disk",
-            Storage.ProvisioningType.THIN, 53L, "tag1", false, false, null, null);
+            Storage.ProvisioningType.THIN, 53L * 1073741824L, "tag1", false, false, null, null);
         clonedOffering.setBytesReadRate(10485760L);
         clonedOffering.setBytesReadRateMax(20971520L);
         clonedOffering.setBytesReadRateMaxLength(60L);

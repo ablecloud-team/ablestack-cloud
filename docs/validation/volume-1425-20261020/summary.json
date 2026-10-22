@@ -1,0 +1,1485 @@
+{
+  "issue": 1425,
+  "epic": 1422,
+  "pr": "https://github.com/ablecloud-team/ablestack-cloud/pull/1435",
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "implementationCommit": "188043f7dbeb3a17e7b6fc0a2fe38c41430693fa",
+  "rootDriverCommit": "f49077a87b72dd4f72b6e0f08d22a32c3d6aa13b",
+  "fileDeviceCommit": "1214e673a15833956cd40a2e2945182ca8eb8102",
+  "finalAgentCommit": "5ec9411b67794de3f98189a436c3000983b2a97c",
+  "supported": {
+    "GFS2/qcow2": [
+      "metadata",
+      "falloc",
+      "full"
+    ],
+    "GFS2/raw": [
+      "off",
+      "falloc",
+      "full"
+    ],
+    "operations": [
+      "create",
+      "copy"
+    ]
+  },
+  "build": {
+    "environment": "WSL rocky ext4; JDK17; Maven3.9.10",
+    "modules": [
+      "api",
+      "server",
+      "engine/orchestration",
+      "engine/storage/volume",
+      "plugins/hypervisors/kvm"
+    ],
+    "fullCloudBuild": false,
+    "qemuArtifactChanged": false,
+    "uiAssetsChanged": false
+  },
+  "tests": {
+    "source": {
+      "total": 623,
+      "suites": [
+        {
+          "name": "com.cloud.storage.VolumeAllocationPolicyTest",
+          "tests": 13
+        },
+        {
+          "name": "com.cloud.vm.VolumeAllocationPreflightTest",
+          "tests": 7
+        },
+        {
+          "name": "com.cloud.configuration.ConfigurationManagerImplTest",
+          "tests": 140
+        },
+        {
+          "name": "com.cloud.configuration.ConfigurationManagerCloneIntegrationTest",
+          "tests": 21
+        },
+        {
+          "name": "com.cloud.storage.VolumeAllocationManagerImplTest",
+          "tests": 28
+        },
+        {
+          "name": "com.cloud.storage.VolumeAllocationMutationTest",
+          "tests": 4
+        },
+        {
+          "name": "com.cloud.storage.VolumeApiServiceImplTest",
+          "tests": 159
+        },
+        {
+          "name": "com.cloud.storage.VolumeAllocationSnapshotGuardTest",
+          "tests": 6
+        },
+        {
+          "name": "com.cloud.storage.VolumeApiServiceImplUpdateTest",
+          "tests": 15
+        },
+        {
+          "name": "org.apache.cloudstack.engine.orchestration.VolumeAllocationGuardTest",
+          "tests": 4
+        },
+        {
+          "name": "org.apache.cloudstack.engine.orchestration.VolumeOrchestratorTest",
+          "tests": 50
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeObjectTest",
+          "tests": 37
+        },
+        {
+          "name": "org.apache.cloudstack.storage.volume.VolumeAllocationResultTest",
+          "tests": 17
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.RbdVolumeAllocationTest",
+          "tests": 30
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorAllocationTest",
+          "tests": 8
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.Gfs2VolumeAllocationTest",
+          "tests": 36
+        },
+        {
+          "name": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorTest",
+          "tests": 48
+        }
+      ]
+    },
+    "runtime": {
+      "managementFocused": 82,
+      "managementVolumeApi": 174,
+      "host1": 74,
+      "host2": 74,
+      "host3": 74,
+      "total": 478
+    },
+    "environmentChecks": 145,
+    "checkstyleExisting": {
+      "api": 4,
+      "server": 15
+    },
+    "checkstyleChangedFileViolations": 0,
+    "guestOsWorkload": false,
+    "runningHotUnplug": false
+  },
+  "deployment": {
+    "management": {
+      "sha256": "0b54af42012db87eda85960a51b96df35392408cf57268f720a59da621a319ba",
+      "sourceCommit": "188043f7dbeb3a17e7b6fc0a2fe38c41430693fa",
+      "backup": "/root/volume-1425-188043f7dbe"
+    },
+    "agents": {
+      "1": {
+        "kvmSha256": "aecf0ed2ec616cc5925c716e9f30bb51039000f5d54662adaa3ca99a9d088cd0",
+        "apiSha256": "dd55d50eeb88e3ae397abbb2191ad0abcffd6d418174c9815511c7be8c37feb6",
+        "coreSha256": "8cbaeb37e031ffdd5db3354aaace6426c0cee860d65cb72c52e22041e407a2ff",
+        "sourceCommit": "5ec9411b67794de3f98189a436c3000983b2a97c",
+        "nonTargetMethodsPreserved": true,
+        "serviceActive": true
+      },
+      "2": {
+        "kvmSha256": "74a0c26b2de32e8f1ee00e4f25b99f4d3c6ebeb59d2378b210beb64660bdf224",
+        "apiSha256": "6af759ea4bdafba677db74608d6d55e668b7b58a60a8062a92d7efd5e2a8f1bd",
+        "coreSha256": "d7779587eed28794c5d652211d348e89a425b494bba2e853e0c517dfda9947c1",
+        "sourceCommit": "5ec9411b67794de3f98189a436c3000983b2a97c",
+        "nonTargetMethodsPreserved": true,
+        "serviceActive": true
+      },
+      "3": {
+        "kvmSha256": "57659bbc2bfdc30be507bbd5b5a5c6ce624ffd459ba1526dbe33e52670b4eb55",
+        "apiSha256": "cf0ce39abe721d2805237e68d726b6ebf6969fcc8c6738a2044a28894fb8f59b",
+        "coreSha256": "5f3eccfa1cc20801bbc730f17e5a60a5a0cac7ceb05009dd2a81f2361e1d7d66",
+        "sourceCommit": "5ec9411b67794de3f98189a436c3000983b2a97c",
+        "nonTargetMethodsPreserved": true,
+        "serviceActive": true
+      }
+    },
+    "cluster32HashesUnchanged": {
+      "10": "2e0e3edeee781069f05912d0dbd634d2cb8cc5295bf873984c26b6cf9e13a210",
+      "1": "40260b9a137cece9d5d7fbb356bb471e9fb752d567fba17d5a34a3429c550f35",
+      "2": "4776caa64921d8bc8f9069824643ab9e87088212efd15cddcfbd5b3cc3b2ff86",
+      "3": "892e971080cb756ec71fa25c3c3ced47248558e99e69faab118e16d1173098e7"
+    },
+    "webinfAndStaticUiPreserved": true,
+    "schemaUnchanged": true
+  },
+  "finalCloudImages": [
+    {
+      "id": "48c83ece-3068-4630-a87d-9dba1e92621d",
+      "name": "VOL1425-31-20261020-api-qcow2-metadata",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 348160,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "metadata",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "metadata",
+        "effectivepolicy": "metadata",
+        "appliedmethod": "qemu-preallocation-metadata",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "348160",
+        "observedat": "2026-10-20T01:35:53.178281030Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "083f8913-6382-41a4-b84f-7efeeb188c67",
+      "name": "VOL1425-31-20261020-api-qcow2-falloc",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:35:56.154309131Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "6cf92c5e-4d6d-411d-8b35-f08c5fe233cd",
+      "name": "VOL1425-31-20261020-api-qcow2-full",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:36:00.215267441Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "69880bf5-1602-4bb8-b26c-1ad5dec74169",
+      "name": "VOL1425-31-20261020-api-raw-off",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 12288,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "off",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "off",
+        "effectivepolicy": "off",
+        "appliedmethod": "qemu-preallocation-off",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "12288",
+        "observedat": "2026-10-20T01:36:02.349758168Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "ced2335b-682e-4e17-992f-97c1ab3619d2",
+      "name": "VOL1425-31-20261020-api-raw-falloc",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:36:05.503119765Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "d10b9109-a508-4319-9bde-0d1516e9b08d",
+      "name": "VOL1425-31-20261020-api-raw-full",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:36:09.382123454Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "036bc4e3-1f2b-415f-be45-ffed9c56a2db",
+      "name": "VOL1425-31-20261020-api-legacy-thin",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 196624,
+      "allocatedBytes": 208896,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 0,
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "thin",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "qcow2",
+        "evidence": "unverified"
+      }
+    },
+    {
+      "id": "eb912351-3b27-4a4b-ba3f-8c0e0e0ee540",
+      "name": "VOL1425-31-20261020-api-legacy-sparse",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 348160,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 0,
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "sparse",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "qcow2",
+        "evidence": "unverified"
+      }
+    },
+    {
+      "id": "37dba2b2-7768-4f5e-999f-b7bcde8ca2ae",
+      "name": "VOL1425-31-20261020-api-legacy-fat",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 0,
+      "allocation": {
+        "contractversion": "legacy",
+        "requestedpolicy": "fat",
+        "requestedformat": "unspecified",
+        "policyorigin": "legacy",
+        "fixedpolicy": "unknown",
+        "effectivepolicy": "unknown",
+        "appliedmethod": "unknown",
+        "actualformat": "qcow2",
+        "evidence": "unverified"
+      }
+    },
+    {
+      "id": "b27faf9b-5538-4fde-87cc-0b18a0c07630",
+      "name": "ROOT-707",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 2453504,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "metadata",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "metadata",
+        "effectivepolicy": "metadata",
+        "appliedmethod": "qemu-preallocation-metadata",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "2453504",
+        "observedat": "2026-10-20T01:54:16.585388211Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "79b83d17-6a4b-4849-9a8e-b6fd56afc280",
+      "name": "ROOT-708",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:54:33.818812957Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "1fa00519-647f-4898-9717-2da9709dbba4",
+      "name": "ROOT-709",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:54:52.250571739Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "9a4e5e79-eaf5-4437-a93a-d08d6dbab39a",
+      "name": "ROOT-710",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 2117632,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "off",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "off",
+        "effectivepolicy": "off",
+        "appliedmethod": "qemu-preallocation-off",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "2117632",
+        "observedat": "2026-10-20T01:55:08.606760936Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "ec88d836-228f-49f0-9024-78a7c4ecb19f",
+      "name": "ROOT-711",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:55:25.556047749Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "65f8f281-6d5d-40bd-a8a2-c462221da7f1",
+      "name": "ROOT-712",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:55:42.272580036Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "7629034f-eac3-4dcb-ba7c-ad91d78ac51e",
+      "name": "ROOT-713",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:55:59.485528735Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "f2cc6f42-3072-48d9-8b26-da4a09b42d6c",
+      "name": "VOL1425-31-20261020-ui-qcow2-metadata",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 348160,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "metadata",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "metadata",
+        "effectivepolicy": "metadata",
+        "appliedmethod": "qemu-preallocation-metadata",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "348160",
+        "observedat": "2026-10-20T01:38:22.545180331Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "c7664e8b-9fbe-4962-b09e-57de8239b40e",
+      "name": "VOL1425-31-20261020-ui-qcow2-falloc",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:39:12.433158075Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "188a542f-1ccd-40a6-9129-ccfbb9fe8d44",
+      "name": "VOL1425-31-20261020-ui-qcow2-full",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "qcow2",
+      "fileLength": 1074135040,
+      "allocatedBytes": 1076203520,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1076203520",
+        "observedat": "2026-10-20T01:43:07.266716709Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "0bef8303-6c4a-4b61-b6c8-0cf26bfcb366",
+      "name": "VOL1425-31-20261020-ui-raw-off",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 12288,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "off",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "off",
+        "effectivepolicy": "off",
+        "appliedmethod": "qemu-preallocation-off",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "12288",
+        "observedat": "2026-10-20T01:44:29.249987468Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "9a5ee851-96f1-4f3e-bb8c-e1f047c872e6",
+      "name": "VOL1425-31-20261020-ui-raw-falloc",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:44:59.433518269Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "cb333ff5-8a52-4a74-b165-5aeb5171ed45",
+      "name": "VOL1425-31-20261020-ui-raw-full",
+      "type": "DATADISK",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "entire-logical-zero",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "create",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T01:45:31.118833582Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    },
+    {
+      "id": "23878350-893e-4a32-bb56-d739d7ba27af",
+      "name": "ROOT-715",
+      "type": "ROOT",
+      "virtualSize": 1073741824,
+      "actualFormat": "raw",
+      "fileLength": 1073741824,
+      "allocatedBytes": 1075871744,
+      "verification": "template-data-and-zero-tail",
+      "noBacking": true,
+      "databaseContractKeys": 11,
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "observedallocatedbytes": "1075871744",
+        "observedat": "2026-10-20T02:07:12.307417871Z",
+        "observedsource": "stat-st-blocks-times-512"
+      }
+    }
+  ],
+  "finalCloudImageCount": 23,
+  "databaseContractKeysVerified": 220,
+  "nativeAdapter": {
+    "source": "active final Agent classpath",
+    "sixBlankAndSixTemplateCopies": true,
+    "allSixLostAnswerRetries": true,
+    "fullZeroRead": true,
+    "controlledCopyAndTimeoutFailures": true,
+    "capacityFailureInjectedWithoutFillingPool": true,
+    "unknownFilePreserved": true,
+    "cleanup": {
+      "ownedImagesAbsent": true,
+      "count": 16
+    }
+  },
+  "crossHostRace": {
+    "onePublishedOneCollision": true,
+    "retryVerifiedWinner": true,
+    "cleanup": {
+      "ownedImageAbsent": true,
+      "ownedStagesAbsent": true,
+      "barrierAbsent": true,
+      "zeroDataVerified": true,
+      "fullBlocksVerified": true
+    }
+  },
+  "initialFailures": [
+    {
+      "case": "RAW ROOT start",
+      "sourceCommit": "188043f7dbeb3a17e7b6fc0a2fe38c41430693fa",
+      "reason": "RAW file was passed to QCOW2 disk definition/metadata cache",
+      "corrected": true,
+      "freshResourceRetest": "six new ROOT format/policy combinations"
+    },
+    {
+      "case": "RAW hot attach",
+      "sourceCommit": "1214e673a15833956cd40a2e2945182ca8eb8102",
+      "reason": "actual RAW AttachCommand format was not retained in physical disk object",
+      "corrected": true,
+      "freshResourceRetest": "new RAW Full ROOT VM and all six UI data volumes"
+    }
+  ],
+  "cleanup": {
+    "api": {
+      "api": "PASS",
+      "operationalInventoryEqual": true,
+      "counts": {
+        "volumes": 140,
+        "vms": 111,
+        "diskofferings": 7,
+        "computes": 15
+      },
+      "at": 1792462369.3340101
+    },
+    "physical": {
+      "ownedImagesRemaining": [],
+      "ownedStagesRemaining": [],
+      "templateCachePresent": false
+    },
+    "secondaryTemplateFolderAbsent": true,
+    "temporaryServices": {
+      "httpStopped": true,
+      "httpFolderAbsent": true,
+      "sourceFixtureAbsent": true,
+      "runtimeFirewallRuleRemoved": true
+    },
+    "temporaryZeroFilesAbsentOnAllHosts": true,
+    "protectedWslFtDiffUnchanged": true,
+    "fixtureHistory": {
+      "vms": 13,
+      "volumes": 28,
+      "publicDiskOfferings": 11,
+      "internalDiskOfferings": 1,
+      "computes": 11,
+      "templates": 1
+    },
+    "activeDatabaseCounts": {
+      "volumes": 0,
+      "vms": 0,
+      "nics": 0,
+      "allocationDetails": 0,
+      "diskOfferings": 0,
+      "computeOfferings": 0
+    }
+  },
+  "ui": {
+    "createdPolicies": 6,
+    "readyScreenshot": "31-ui-six-policies-ready.png",
+    "fullDetailScreenshot": "31-ui-raw-full-detail.png",
+    "resizeRejectionScreenshot": "31-ui-full-resize-blocked.png",
+    "cleanupScreenshot": "31-ui-cleanup-empty.png",
+    "policySelectorAndAppliedDisplayIssue": 1431,
+    "vmUiStandardIssue": 1433
+  },
+  "limitations": [
+    "Full/falloc file blocks are a creation/copy-time filesystem observation, not a persistent storage reservation.",
+    "Only independent unencrypted regular RAW/QCOW2 template sources; backing/external-data/encrypted sources rejected.",
+    "Guest OS boot/workload, guest disk recognition and Running hot unplug were not qualified.",
+    "No full Cloud/Release CI. Legacy compatibility labels and missing policy controls remain for #1431/#1433.",
+    "Resize/offering change/clone/restore/migrate of explicit allocation remain blocked until #1427 qualification."
+  ],
+  "checks": [
+    {
+      "name": "offering-qcow2-metadata",
+      "pass": true
+    },
+    {
+      "name": "create-qcow2-metadata",
+      "pass": true
+    },
+    {
+      "name": "offering-qcow2-falloc",
+      "pass": true
+    },
+    {
+      "name": "create-qcow2-falloc",
+      "pass": true
+    },
+    {
+      "name": "offering-qcow2-full",
+      "pass": true
+    },
+    {
+      "name": "create-qcow2-full",
+      "pass": true
+    },
+    {
+      "name": "offering-raw-off",
+      "pass": true
+    },
+    {
+      "name": "create-raw-off",
+      "pass": true
+    },
+    {
+      "name": "offering-raw-falloc",
+      "pass": true
+    },
+    {
+      "name": "create-raw-falloc",
+      "pass": true
+    },
+    {
+      "name": "offering-raw-full",
+      "pass": true
+    },
+    {
+      "name": "create-raw-full",
+      "pass": true
+    },
+    {
+      "name": "legacy-thin-compatible",
+      "pass": true
+    },
+    {
+      "name": "legacy-sparse-compatible",
+      "pass": true
+    },
+    {
+      "name": "legacy-fat-compatible",
+      "pass": true
+    },
+    {
+      "name": "raw-metadata-offering-rejected",
+      "pass": true
+    },
+    {
+      "name": "raw-metadata-no-offering",
+      "pass": true
+    },
+    {
+      "name": "qcow2-off-creation-rejected",
+      "pass": true
+    },
+    {
+      "name": "qcow2-off-no-volume",
+      "pass": true
+    },
+    {
+      "name": "tag-mismatch-creation-rejected",
+      "pass": true
+    },
+    {
+      "name": "tag-mismatch-no-volume",
+      "pass": true
+    },
+    {
+      "name": "qcow2-full-resize-blocked",
+      "pass": true
+    },
+    {
+      "name": "qcow2-full-resize-preserved",
+      "pass": true
+    },
+    {
+      "name": "raw-full-resize-blocked",
+      "pass": true
+    },
+    {
+      "name": "raw-full-resize-preserved",
+      "pass": true
+    },
+    {
+      "name": "public-evidence-write-blocked",
+      "pass": true
+    },
+    {
+      "name": "public-evidence-delete-blocked",
+      "pass": true
+    },
+    {
+      "name": "pattern-template-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-qcow2-metadata-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-qcow2-falloc-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-qcow2-full-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-raw-off-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-raw-falloc-ready",
+      "pass": true
+    },
+    {
+      "name": "ui-raw-full-ready",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-qcow2-metadata",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-metadata-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-b27faf9b-5538-4fde-87cc-0b18a0c07630",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-metadata-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-metadata-physical",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-metadata-expunged",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-qcow2-falloc",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-falloc-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-79b83d17-6a4b-4849-9a8e-b6fd56afc280",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-falloc-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-falloc-physical",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-falloc-expunged",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-qcow2-full",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-full-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-1fa00519-647f-4898-9717-2da9709dbba4",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-full-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-full-physical",
+      "pass": true
+    },
+    {
+      "name": "root-qcow2-full-expunged",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-raw-off",
+      "pass": true
+    },
+    {
+      "name": "root-raw-off-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-9a4e5e79-eaf5-4437-a93a-d08d6dbab39a",
+      "pass": true
+    },
+    {
+      "name": "root-raw-off-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-raw-off-physical",
+      "pass": true
+    },
+    {
+      "name": "root-raw-off-expunged",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-raw-falloc",
+      "pass": true
+    },
+    {
+      "name": "root-raw-falloc-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-ec88d836-228f-49f0-9024-78a7c4ecb19f",
+      "pass": true
+    },
+    {
+      "name": "root-raw-falloc-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-raw-falloc-physical",
+      "pass": true
+    },
+    {
+      "name": "root-raw-falloc-expunged",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-raw-full",
+      "pass": true
+    },
+    {
+      "name": "root-raw-full-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-65f8f281-6d5d-40bd-a8a2-c462221da7f1",
+      "pass": true
+    },
+    {
+      "name": "root-raw-full-stopped",
+      "pass": true
+    },
+    {
+      "name": "root-raw-full-physical",
+      "pass": true
+    },
+    {
+      "name": "root-raw-full-expunged",
+      "pass": true
+    },
+    {
+      "name": "compute-only-inherits-falloc",
+      "pass": true
+    },
+    {
+      "name": "compute-only-root-ready",
+      "pass": true
+    },
+    {
+      "name": "xml-7629034f-eac3-4dcb-ba7c-ad91d78ac51e",
+      "pass": true
+    },
+    {
+      "name": "compute-only-stopped",
+      "pass": true
+    },
+    {
+      "name": "compute-only-physical",
+      "pass": true
+    },
+    {
+      "name": "compute-only-expunged",
+      "pass": true
+    },
+    {
+      "name": "xml-4172544b-a82d-4efe-a14e-ce2e6ddb3da9",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-qcow2-clone",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-1-raw-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-raw-metadata-ablecube31-1",
+      "pass": true
+    },
+    {
+      "name": "qcow2-off-not-advertised-ablecube31-1",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-qcow2-clone",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-2-raw-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-raw-metadata-ablecube31-2",
+      "pass": true
+    },
+    {
+      "name": "qcow2-off-not-advertised-ablecube31-2",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-qcow2-clone",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-create",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-copy",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-resize",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-restore",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-migrate",
+      "pass": true
+    },
+    {
+      "name": "cap-ablecube31-3-raw-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-raw-metadata-ablecube31-3",
+      "pass": true
+    },
+    {
+      "name": "qcow2-off-not-advertised-ablecube31-3",
+      "pass": true
+    },
+    {
+      "name": "xml-23878350-893e-4a32-bb56-d739d7ba27af",
+      "pass": true
+    },
+    {
+      "name": "hotattach-qcow2-metadata",
+      "pass": true
+    },
+    {
+      "name": "xml-f2cc6f42-3072-48d9-8b26-da4a09b42d6c",
+      "pass": true
+    },
+    {
+      "name": "hotattach-qcow2-falloc",
+      "pass": true
+    },
+    {
+      "name": "xml-c7664e8b-9fbe-4962-b09e-57de8239b40e",
+      "pass": true
+    },
+    {
+      "name": "hotattach-qcow2-full",
+      "pass": true
+    },
+    {
+      "name": "xml-188a542f-1ccd-40a6-9129-ccfbb9fe8d44",
+      "pass": true
+    },
+    {
+      "name": "hotattach-raw-off",
+      "pass": true
+    },
+    {
+      "name": "xml-0bef8303-6c4a-4b61-b6c8-0cf26bfcb366",
+      "pass": true
+    },
+    {
+      "name": "hotattach-raw-falloc",
+      "pass": true
+    },
+    {
+      "name": "xml-9a5ee851-96f1-4f3e-bb8c-e1f047c872e6",
+      "pass": true
+    },
+    {
+      "name": "hotattach-raw-full",
+      "pass": true
+    },
+    {
+      "name": "xml-cb333ff5-8a52-4a74-b165-5aeb5171ed45",
+      "pass": true
+    },
+    {
+      "name": "attached-fixture-stopped",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-qcow2-metadata",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-qcow2-falloc",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-qcow2-full",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-raw-off",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-raw-falloc",
+      "pass": true
+    },
+    {
+      "name": "detach-VOL1425-31-20261020-ui-raw-full",
+      "pass": true
+    },
+    {
+      "name": "attach-root-data-preserved",
+      "pass": true
+    },
+    {
+      "name": "attach-fixture-expunged",
+      "pass": true
+    },
+    {
+      "name": "ui-full-resize-and-attach-preserved",
+      "pass": true
+    },
+    {
+      "name": "final-23-cloud-images-and-220-database-details",
+      "pass": true
+    },
+    {
+      "name": "active-final-six-policy-adapter-matrix",
+      "pass": true
+    },
+    {
+      "name": "cross-host-race-retry-and-cleanup",
+      "pass": true
+    }
+  ]
+}

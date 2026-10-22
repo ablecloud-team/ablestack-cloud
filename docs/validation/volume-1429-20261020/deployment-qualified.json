@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "cdbf29fb7a69ff21a4496e950c832d3e65944700",
+  "initialSourceCommit": "5d7187316948a5ec73ecea50716f9b209aeab5f8",
+  "final": {
+    "31": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1429-ui-cdbf29fb7a6-resize-iops"
+    },
+    "32": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1429-ui-cdbf29fb7a6-resize-iops"
+    }
+  },
+  "artifact": {
+    "files": 896,
+    "payloadSha256": "20373582e479e9227cf6854fed31aaddceff57e64c087520a9d15b2396570121"
+  }
+}

@@ -1,0 +1,150 @@
+[
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadrate": -1
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadrate": 99999999
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read rate (99999999) cannot be greater than Bytes Read maximum rate (20971520)\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadratemax": 500
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read rate (10485760) cannot be greater than Bytes Read maximum rate (500)\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadratemax": 0
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read burst length requires a positive maximum rate\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadratemaxlength": "9223372036854775808"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 9999, \"errortext\": \"Unable to execute API command updatediskoffering due to invalid value 9223372036854775808 for parameter bytesreadratemaxlength\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "bytesreadrate": "1.2"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 9999, \"errortext\": \"Unable to execute API command updatediskoffering due to invalid value 1.2 for parameter bytesreadrate\"}"
+  },
+  {
+    "cluster": 31,
+    "case": {
+      "cachemode": "unsafe"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Invalid cache mode (unsafe). Please specify one of the following valid cache mode parameters: none, writeback, writethrough or hypervisor_default.\"}"
+  },
+  {
+    "cluster": 31,
+    "command": "createDiskOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read burst requires a positive base rate\"}"
+  },
+  {
+    "cluster": 31,
+    "command": "cloneDiskOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  },
+  {
+    "cluster": 31,
+    "command": "createServiceOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadrate": -1
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadrate": 99999999
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read rate (99999999) cannot be greater than Bytes Read maximum rate (20971520)\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadratemax": 500
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read rate (10485760) cannot be greater than Bytes Read maximum rate (500)\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadratemax": 0
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read burst length requires a positive maximum rate\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadratemaxlength": "9223372036854775808"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 9999, \"errortext\": \"Unable to execute API command updatediskoffering due to invalid value 9223372036854775808 for parameter bytesreadratemaxlength\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "bytesreadrate": "1.2"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 9999, \"errortext\": \"Unable to execute API command updatediskoffering due to invalid value 1.2 for parameter bytesreadrate\"}"
+  },
+  {
+    "cluster": 32,
+    "case": {
+      "cachemode": "unsafe"
+    },
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Invalid cache mode (unsafe). Please specify one of the following valid cache mode parameters: none, writeback, writethrough or hypervisor_default.\"}"
+  },
+  {
+    "cluster": 32,
+    "command": "createDiskOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Bytes Read burst requires a positive base rate\"}"
+  },
+  {
+    "cluster": 32,
+    "command": "cloneDiskOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  },
+  {
+    "cluster": 32,
+    "command": "createServiceOffering",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Disk QoS rates and burst lengths must be non-negative integers\"}"
+  }
+]

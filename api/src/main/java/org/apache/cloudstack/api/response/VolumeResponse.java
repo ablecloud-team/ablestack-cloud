@@ -40,6 +40,18 @@ public class VolumeResponse extends BaseResponseWithTagInformation implements Co
     public String getVolumeMutationBlockedReason() { return volumeMutationBlockedReason; }
     public void setVolumeMutationBlockedReason(String reason) { volumeMutationBlockedReason = reason == null ? "" : reason; }
 
+    @SerializedName("allocation")
+    @Param(description = "Versioned allocation intent and evidence; unknown effective policy is not inferred from legacy provisioning type", since = "4.23.0")
+    private java.util.Map<String, String> allocation;
+
+    public java.util.Map<String, String> getAllocation() {
+        return allocation;
+    }
+
+    public void setAllocation(java.util.Map<String, String> value) {
+        allocation = value;
+    }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the disk volume")
     private String id;

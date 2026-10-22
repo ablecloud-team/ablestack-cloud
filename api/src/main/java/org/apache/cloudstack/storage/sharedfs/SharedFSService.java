@@ -39,6 +39,9 @@ public interface SharedFSService {
 
     List<SharedFSProvider> getSharedFSProviders();
 
+    ListResponse<org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse> listCreationServiceOfferings(
+            Long zoneId, ListResponse<org.apache.cloudstack.api.response.ServiceOfferingResponse> visible);
+
     boolean stateTransitTo(SharedFS sharedFS, SharedFS.Event event);
 
     void setSharedFSProviders(List<SharedFSProvider> sharedFSProviders);
@@ -46,6 +49,9 @@ public interface SharedFSService {
     SharedFSProvider getSharedFSProvider(String sharedFSProviderName);
 
     SharedFS allocSharedFS(CreateSharedFSCmd cmd);
+
+    SharedFS resumeSharedFSCreation(Long id, String requestId, String action) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 
     SharedFS deploySharedFS(CreateSharedFSCmd cmd) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
 

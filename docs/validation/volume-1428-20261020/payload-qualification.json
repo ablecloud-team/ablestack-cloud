@@ -1,0 +1,357 @@
+[
+  {
+    "cluster": 31,
+    "phase": "admin-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "admin-name-only",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "admin-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "admin-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "admin-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "path-alias",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "path"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "path-alias",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "path"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "path-restored",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "path"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "path-restored",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "path"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "stale-reopened-success",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "bulk-delete-success",
+    "command": "deleteVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "bulk-delete-success",
+    "command": "deleteVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "bulk-race-server-rejection",
+    "command": "deleteVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "bulk-race-server-rejection",
+    "command": "deleteVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "race-protection-off",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "single-delete-after-unprotect",
+    "command": "deleteVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "permission-rejected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "user-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "user-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "user-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "user-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "user-soft-delete",
+    "command": "destroyVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "user-soft-delete",
+    "command": "destroyVolume",
+    "keys": [
+      "id"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "project-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection",
+      "projectid"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "project-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection",
+      "projectid"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "project-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection",
+      "projectid"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "project-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection",
+      "projectid"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "domainadmin-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "domainadmin-protected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "name",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "domainadmin-unprotected",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "job-result-unknown",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "final-protection-on",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "final-protection-off",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "final-job-unknown",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "final-protection-off",
+    "command": "updateVolume",
+    "keys": [
+      "id",
+      "deleteprotection"
+    ],
+    "pass": true
+  }
+]

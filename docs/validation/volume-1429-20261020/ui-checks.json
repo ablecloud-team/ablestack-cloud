@@ -1,0 +1,1653 @@
+[
+  {
+    "cluster": 31,
+    "case": "initial-current-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "unchanged-current-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "initial-current-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "invalid-negative",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "-1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "invalid-fractional-size",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1.5"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "invalid-zero-size",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "invalid-min-over-max",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "300"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n현재값과 입력값을 합친 최소·최대 IOPS가 모두 있어야 하며 최소 IOPS는 최대 IOPS 이하여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "invalid-unsafe-iops",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "9007199254740992"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "invalid-negative",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "-1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "invalid-fractional-size",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1.5"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "invalid-zero-size",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "invalid-min-over-max",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "300"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n현재값과 입력값을 합친 최소·최대 IOPS가 모두 있어야 하며 최소 IOPS는 최대 IOPS 이하여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "invalid-unsafe-iops",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "9007199254740992"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "iops-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "200"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "400"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "iops-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "200"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "400"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n크기는 양의 정수, IOPS는 0 이상의 정수여야 하며 정확히 표현 가능한 범위여야 합니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "size-only-blank-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "size-only-blank-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "size-and-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "300"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "600"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "size-and-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "300"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "600"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "zero-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "0"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "zero-iops-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "0"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "fixed-iops-readonly",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-fixed\n\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "fixed-offering-size-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-fixed\n\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "strict-size-disabled",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-strict\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "explicit-size-disabled",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\nThin (metadata) · QCOW2\n\t\n확정 정책\nThin (metadata)\n\t\n실제 적용 정책\nThin (metadata)\n\n\n실제 적용 방식\nqemu-preallocation-metadata\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n340.00 KiB\n\t\n관측 시각\n2026-10-20T13:08:18.421865585Z\n\t\n할당 증거\n생성·복사 시점 검증됨\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-explicit\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "explicit-iops-only-input",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "200"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "400"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\nThin (metadata) · QCOW2\n\t\n확정 정책\nThin (metadata)\n\t\n실제 적용 정책\nThin (metadata)\n\n\n실제 적용 방식\nqemu-preallocation-metadata\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n340.00 KiB\n\t\n관측 시각\n2026-10-20T13:08:18.421865585Z\n\t\n할당 증거\n생성·복사 시점 검증됨\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-explicit\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "fixed-iops-readonly",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-fixed\n\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "fixed-offering-size-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-fixed\n\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "strict-size-disabled",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-strict\n\n현재 디스크 오퍼링의 크기가 엄격하게 고정되어 크기를 변경할 수 없습니다.\n크기\n\n고정 IOPS 오퍼링 · 현재 최소 / 최대 IOPS: 50 / 100\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "explicit-size-disabled",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\nThin (off) · RAW\n\t\n확정 정책\nThin (off)\n\t\n실제 적용 정책\nThin (off)\n\n\n실제 적용 방식\nrbd-thin\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n0 bytes\n\t\n관측 시각\n2026-10-20T13:08:43.962842177Z\n\t\n할당 증거\n생성·복사 시점 검증됨\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-explicit\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "explicit-iops-only-input",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "200"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "400"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\nThin (off) · RAW\n\t\n확정 정책\nThin (off)\n\t\n실제 적용 정책\nThin (off)\n\n\n실제 적용 방식\nrbd-thin\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n0 bytes\n\t\n관측 시각\n2026-10-20T13:08:43.962842177Z\n\t\n할당 증거\n생성·복사 시점 검증됨\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-explicit\n\n명시적 할당의 물리 크기 변경·복원·이동·이미지 clone은 지원하지 않습니다. 유효한 생성 증거가 있는 동일 정책·크기의 메타데이터 변경만 허용합니다.\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "compute-only-root-readonly",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n100.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n컴퓨트 오퍼링: 1C1GB-TO-64C128GB-FR-GFS\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n루트 볼륨은 resizeVolume API가 지원하는 IOPS 재정의 값을 변경합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "compute-only-root-readonly",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n100.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n컴퓨트 오퍼링: 1C1GB-TO-64C128GB-FR\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n루트 볼륨은 resizeVolume API가 지원하는 IOPS 재정의 값을 변경합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "offering-read-failure",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "3"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "retry-button-missing-before-fix",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "3"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "pre-read-network-failure-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "700"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "pre-read-network-failure-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "700"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "stale-volume-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "800"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n볼륨 또는 오퍼링이 변경되었습니다. 입력값을 확인하고 대화상자를 다시 여세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "stale-reopen-retry-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "10"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "800"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "stale-volume-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "0"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "800"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n볼륨 또는 오퍼링이 변경되었습니다. 입력값을 확인하고 대화상자를 다시 여세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "stale-reopen-retry-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "10"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "800"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "poll-failure-same-job-only",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": true,
+        "id": "form_item_miniops",
+        "value": "20"
+      },
+      {
+        "disabled": true,
+        "id": "form_item_maxiops",
+        "value": "900"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n작업 결과를 확인하지 못했습니다. 입력을 유지하며, 결과 확인으로 같은 작업을 다시 조회하세요. 작업 ID를 받지 못했다면 현재 볼륨 상태를 확인한 후 대화상자를 다시 여세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n결과 다시 확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "poll-failure-same-job-only",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": true,
+        "id": "form_item_miniops",
+        "value": "20"
+      },
+      {
+        "disabled": true,
+        "id": "form_item_maxiops",
+        "value": "900"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n작업 결과를 확인하지 못했습니다. 입력을 유지하며, 결과 확인으로 같은 작업을 다시 조회하세요. 작업 ID를 받지 못했다면 현재 볼륨 상태를 확인한 후 대화상자를 다시 여세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n결과 다시 확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "domainadmin-initial-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "domainadmin-iops-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "160"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "330"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "domainadmin-initial-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "domainadmin-iops-only-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "160"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "330"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "user-initial-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "user-initial-values",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "100"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "200"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "permission-denied-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "120"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "300"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nThe API [resizeVolume] does not exist or is not available for the account VOL1429-31-20261020-user.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "permission-denied-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "120"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "300"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nThe API [resizeVolume] does not exist or is not available for the account VOL1429-32-20261020-user.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "user-permission-restored-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "120"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "300"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nThe API [resizeVolume] does not exist or is not available for the account VOL1429-31-20261020-user.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "user-permission-restored-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "120"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "300"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nThe API [resizeVolume] does not exist or is not available for the account VOL1429-32-20261020-user.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "quota-job-failure-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nMaximum amount of resources of Type = 'primary_storage', tag = 'null' for Account Name = VOL1429-31-20261020-user in Domain Id = 47 is exceeded: Account Resource Limit = (1.00 GB) 1073741824, Current Account Resource Amount = (1.00 GB) 1073741824, Current Account Resource Reservation = (-1048576.00 KB) -1073741824, Requested Resource Amount = (2.00 GB) 2147483648.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "quota-job-failure-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nMaximum amount of resources of Type = 'primary_storage', tag = 'null' for Account Name = VOL1429-32-20261020-user in Domain Id = 4 is exceeded: Account Resource Limit = (1.00 GB) 1073741824, Current Account Resource Amount = (1.00 GB) 1073741824, Current Account Resource Reservation = (-1048576.00 KB) -1073741824, Requested Resource Amount = (2.00 GB) 2147483648.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "quota-restored-retry-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nMaximum amount of resources of Type = 'primary_storage', tag = 'null' for Account Name = VOL1429-31-20261020-user in Domain Id = 47 is exceeded: Account Resource Limit = (1.00 GB) 1073741824, Current Account Resource Amount = (1.00 GB) 1073741824, Current Account Resource Reservation = (-1048576.00 KB) -1073741824, Requested Resource Amount = (2.00 GB) 2147483648.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "quota-restored-retry-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nMaximum amount of resources of Type = 'primary_storage', tag = 'null' for Account Name = VOL1429-32-20261020-user in Domain Id = 4 is exceeded: Account Resource Limit = (1.00 GB) 1073741824, Current Account Resource Amount = (1.00 GB) 1073741824, Current Account Resource Reservation = (-1048576.00 KB) -1073741824, Requested Resource Amount = (2.00 GB) 2147483648.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n1.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "qcow2-shrink-rejected",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n현재 이미지 형식 또는 하이퍼바이저에서 볼륨 축소를 지원하지 않습니다.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "raw-shrink-needs-confirmation",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n볼륨을 축소하려면 축소 허용을 명시적으로 선택하세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "raw-shrink-confirmed-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n볼륨을 축소하려면 축소 허용을 명시적으로 선택하세요.\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 32,
+    "case": "raw-shrink-backend-error-retains-input",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "1"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nFailed to resize volume operation of volume UUID: [fe9cb749-c28e-4f05-9ab2-f3000025b242] due to - org.libvirt.LibvirtException: invalid argument: can't shrink capacity below existing allocation\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인",
+    "sourceStage": "5d718731694"
+  },
+  {
+    "cluster": 31,
+    "case": "final-query-failure-visible-retry",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n재시도\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-query-retry-current-values",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-query-failure-visible-retry",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\nNetwork Error\n재시도\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-query-retry-current-values",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-empty-offering-blocked",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n대상 볼륨의 오퍼링을 확인할 수 없습니다. 접근 권한과 오퍼링 상태를 확인한 후 다시 시도하세요.\n재시도\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-empty-offering-blocked",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": true,
+        "id": "form_item_size",
+        "value": "2"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n대상 볼륨의 오퍼링을 확인할 수 없습니다. 접근 권한과 오퍼링 상태를 확인한 후 다시 시도하세요.\n재시도\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n크기\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-empty-offering-recovered",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-iops-only-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "150"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "340"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-empty-offering-recovered",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "140"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "320"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-iops-only-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "2"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "150"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "340"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-size-only-blank-iops-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-size-only-blank-iops-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "3"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": ""
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": ""
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n2.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-size-and-iops-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "4"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "170"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "360"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 31,
+    "case": "final-current-values",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "4"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "170"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "360"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: sparse\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nQCOW2\n\t\n논리 용량\n4.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-31-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-size-and-iops-input",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "4"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "170"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "360"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n3.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  },
+  {
+    "cluster": 32,
+    "case": "final-current-values",
+    "sourceStage": "cdbf29fb7a6",
+    "inputs": [
+      {
+        "disabled": false,
+        "id": "form_item_size",
+        "value": "4"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_miniops",
+        "value": "170"
+      },
+      {
+        "disabled": false,
+        "id": "form_item_maxiops",
+        "value": "360"
+      }
+    ],
+    "dialogText": "볼륨 크기 변경\n할당 정책과 적용 증거\n요청 정책 / 형식\n기존 호환 값: thin\n\t\n확정 정책\n알 수 없음\n\t\n실제 적용 정책\n알 수 없음\n\n\n실제 적용 방식\n알 수 없음\n\t\n실제 이미지 형식\nRAW\n\t\n논리 용량\n4.00 GiB\n\n\n관측 할당량\n알 수 없음\n\t\n관측 시각\n알 수 없음\n\t\n할당 증거\n미검증\n\n생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.\n\n디스크 오퍼링: VOL1429-32-20261020-custom\n\n크기\n최소 IOPS\n최대 IOPS\n\n변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.\n\n볼륨 축소 허용\n필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션\n취소\n확인"
+  }
+]

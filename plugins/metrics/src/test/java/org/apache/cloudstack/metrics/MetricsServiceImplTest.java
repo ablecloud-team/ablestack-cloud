@@ -124,6 +124,31 @@ public class MetricsServiceImplTest {
     Filter filterMock;
 
 
+    @Test
+    public void listVolumeMetricsPreservesAllocationContractAndEvidence() {
+        org.apache.cloudstack.api.response.VolumeResponse source = new org.apache.cloudstack.api.response.VolumeResponse();
+        Map<String, String> allocation = new HashMap<>();
+        allocation.put("contractversion", "1");
+        allocation.put("requestedpolicy", "full");
+        allocation.put("requestedformat", "raw");
+        allocation.put("effectivepolicy", "full");
+        allocation.put("appliedmethod", "rbd-thick-create");
+        allocation.put("observedallocatedbytes", "1073741824");
+        allocation.put("evidence", "verified");
+        source.setAllocation(allocation);
+        source.setKvdoEnable(false);
+        source.setCompress(false);
+        source.setDedup(false);
+        try (MockedStatic<CallContext> contextMock = Mockito.mockStatic(CallContext.class)) {
+            CallContext context = Mockito.mock(CallContext.class);
+            contextMock.when(CallContext::current).thenReturn(context);
+            Mockito.when(context.getCallingAccount()).thenReturn(mockAccount);
+            Assert.assertEquals(allocation, spy.listVolumeMetrics(Collections.singletonList(source)).get(0).getAllocation());
+            source.setAllocation(null);
+            Assert.assertNull(spy.listVolumeMetrics(Collections.singletonList(source)).get(0).getAllocation());
+        }
+    }
+
     private void prepareSearchCriteriaWhenUseSetParameters() {
         Mockito.doNothing().when(scMock).setParameters(Mockito.anyString(), Mockito.any());
     }

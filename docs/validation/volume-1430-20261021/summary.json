@@ -1,0 +1,100 @@
+{
+  "issue": 1430,
+  "epic": 1422,
+  "pr": 1435,
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "prDraft": true,
+  "merged": false,
+  "sourceCommit": "d2c9c75b4e0fa4802884e47c958f32691a1c39ef",
+  "build": {
+    "serverTestsPassed": 92,
+    "apiTestsPassed": 2,
+    "deployedRuntimeTestsPassed": 32,
+    "uiSuitesPassed": 8,
+    "uiTestsPassed": 127,
+    "lintPassed": true,
+    "productionBuildPassed": true,
+    "fullCloudOrReleaseCiRun": false,
+    "preExistingCheckstyleViolations": 15,
+    "changedJavaCheckstylePassed": true
+  },
+  "apiInvalidCasesRejected": 20,
+  "roles": [
+    "Admin",
+    "DomainAdmin",
+    "User"
+  ],
+  "runtime": {
+    "clusters": [
+      31,
+      32
+    ],
+    "storages": [
+      "GFS2/QCOW2",
+      "kernel RBD/RAW"
+    ],
+    "runningDisksUnchangedOnOfferingSave": true,
+    "newAndExistingDataAttachApplyLatest": true,
+    "cloudStopStartAppliesToRootAndData": true,
+    "zeroOverridesClearedAfterStopStart": true,
+    "xmlQmpApiDbAgree": true,
+    "dataPatternPreserved": true,
+    "newPrivateComputeCloneVmQualified": true,
+    "guestThroughputBenchmark": false,
+    "qgaPolicyWeakened": false
+  },
+  "ui": {
+    "finalRecords": 14,
+    "finalSource": "d2c9c75b4e0fa4802884e47c958f32691a1c39ef",
+    "unknownResultRecoveryBothClusters": true,
+    "blankFieldsPreserveBurstBothClusters": true,
+    "desktopDarkAndLight": true,
+    "mobileWidths": [
+      390,
+      320
+    ],
+    "mobileLabelOverlap": 0,
+    "mobileBitmapQualified": false,
+    "exclusions": [
+      {
+        "case": "initial-storage-clone",
+        "reason": "Storage min/max misclassified as hypervisor burst; initial clones deactivated; final clones API-verified at 100/200."
+      },
+      {
+        "case": "pre-fix-network-failure",
+        "reason": "Global interceptor logged out; fixed with preserveOnFailure and retested on both final deployments."
+      },
+      {
+        "case": "initial-unknown-response-harness",
+        "reason": "Expired/stale dialog or unqualified request interception; not counted."
+      },
+      {
+        "case": "mobile-bitmap",
+        "reason": "Capture scaling/portal mismatch; mobile evidence uses tab-specific DOM geometry; bitmap files not published."
+      }
+    ]
+  },
+  "cleanup": {
+    "vmsExpunged": 4,
+    "volumesRemoved": 8,
+    "diskOfferingsInactive": 19,
+    "computeOfferingsInactive": 12,
+    "accountsRemoved": 4,
+    "domainsRemoved": 2,
+    "activeResiduals": 0,
+    "imagesRemaining": 0,
+    "hostsUp": 6,
+    "operationalInventoryUnchanged": true,
+    "temporaryFilesRemoved": 22,
+    "browserRestored": true
+  },
+  "remainingIssues": [
+    1432,
+    1154,
+    1209,
+    1210,
+    1433,
+    1434
+  ],
+  "nextIssue": 1432
+}

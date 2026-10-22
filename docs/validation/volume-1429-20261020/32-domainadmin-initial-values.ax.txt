@@ -1,0 +1,254 @@
+Browser tab: 25, Title: "볼륨 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/volume/61fd19d0-533a-41f4-b79d-ceff4c72c2e7".
+0 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/volume/61fd19d0-533a-41f4-b79d-ceff4c72c2e7
+	1 container
+		2 container
+			3 image
+			4 menu
+				5 dashboard 대시보드
+					6 link Description: dashboard 대시보드, Value: 10.10.32.10:8080/client/#/dashboard
+				7 container
+					8 image cloud
+					9 text 컴퓨트
+				10 container
+					11 image hdd
+					12 text 스토리지
+				246 content list sub_menu_38_$$_/storage-popup
+					247 hdd 볼륨
+						248 link Description: hdd 볼륨, Value: 10.10.32.10:8080/client/#/volume
+					249 build 스냅샷
+						250 link Description: build 스냅샷, Value: 10.10.32.10:8080/client/#/snapshot
+					251 build 스냅샷 정책
+						252 link Description: build 스냅샷 정책, Value: 10.10.32.10:8080/client/#/snapshotpolicy
+					253 funnel-plot 버킷
+						254 link Description: funnel-plot 버킷, Value: 10.10.32.10:8080/client/#/buckets
+					255 file-text 공유 파일 시스템
+						256 link Description: file-text 공유 파일 시스템, Value: 10.10.32.10:8080/client/#/sharedfs
+				13 container
+					14 image wifi
+					15 text 네트워크
+				16 container
+					17 image picture
+					18 text 이미지
+				19 schedule 이벤트
+					20 link Description: schedule 이벤트, Value: 10.10.32.10:8080/client/#/event
+				21 project 프로젝트
+					22 link Description: project 프로젝트, Value: 10.10.32.10:8080/client/#/project
+				23 idcard 역할
+					24 link Description: idcard 역할, Value: 10.10.32.10:8080/client/#/role
+				25 team 계정
+					26 link Description: team 계정, Value: 10.10.32.10:8080/client/#/account
+				27 block 도메인
+					28 link Description: block 도메인, Value: 10.10.32.10:8080/client/#/domain
+				29 container
+					30 image bank
+					31 text 인프라스트럭쳐
+				32 global Zone
+					33 link Description: global Zone, Value: 10.10.32.10:8080/client/#/zones
+				34 container
+					35 image shopping
+					36 text 서비스 오퍼링
+				37 container
+					38 image setting
+					39 text 구성
+				40 appstore-add 확장
+					41 link Description: appstore-add 확장, Value: 10.10.32.10:8080/client/#/extension
+				42 container
+					43 image tool
+					44 text 도구
+				45 read API 문서
+					46 link Description: read API 문서, Value: 10.10.32.10:8080/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			49 container
+				50 combo box (settable) rc_select_3
+				51 image project
+				52 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text VR Volume Resize
+		60 container
+			257 container
+				258 link Description: home, Value: 10.10.32.10:8080/client/#/
+				259 text /
+				260 link Description: 볼륨, Value: 10.10.32.10:8080/client/#/volume
+				261 text / VOL1429-32-20261020-domainadmin
+				262 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				263 button reload 업데이트
+					264 image reload
+					265 text 업데이트
+			266 button down 작업
+				267 image down
+				268 text 작업
+			269 container
+				270 image hdd
+				271 heading VOL1429-32-20261020-domainadmin, Value: 4
+					272 text VOL1429-32-20261020-domainadmin
+				273 text DATADISK
+				274 text 상태 사용 가능 아이디
+				275 button barcode
+					276 image barcode
+				277 link Description: 61fd19d0-533a-41f4-b79d-ceff4c72c2e7 , Value: javascript:;
+				278 text 디스크 크기(GB 단위)
+				279 image hdd
+				280 text 1.00 GiB Zone
+				281 image global
+				282 link Description: Zone, Value: 10.10.32.10:8080/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				283 text 계정
+				284 image user
+				285 link Description: VOL1429-32-20261020-domainadmin, Value: 10.10.32.10:8080/client/#/account?name=VOL1429-32-20261020-domainadmin&domainid=9dcf2b05-2b54-448d-b949-5606259ca14b
+				286 text 도메인
+				287 image block
+				288 link Description: VOL1429-32-20261020, Value: 10.10.32.10:8080/client/#/domain/9dcf2b05-2b54-448d-b949-5606259ca14b?tab=details
+				289 text 생성일
+				290 image calendar
+				291 text 2026. 10. 20. 오후 10:08:50
+				292 link Description: build 스냅샷 보기, Value: 10.10.32.10:8080/client/#/snapshot?volumeid=61fd19d0-533a-41f4-b79d-ceff4c72c2e7
+				293 text 태그
+			294 container
+				295 tab group
+					296 container
+						297 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-9-tab-details
+						298 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-9-tab-events
+						299 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-9-tab-comments
+				300 container Description: 상세, ID: rc-tabs-9-panel-details
+					301 content list
+						302 container
+							303 text 이름
+							304 text VOL1429-32-20261020-domainadmin
+						305 container
+							306 text 아이디
+							307 text 61fd19d0-533a-41f4-b79d-ceff4c72c2e7
+						308 container
+							309 text 유형
+							310 text DATADISK
+						311 container
+							312 text 디스크 오퍼링
+							313 text VOL1429-32-20261020
+						314 container
+							315 text 크기
+							316 text 1.00 GiB
+						317 container
+							318 text 프로비저닝 유형
+							319 text thin
+						320 container
+							321 text 압축/중복제거
+							322 text false
+						323 container
+							324 text 압축 사용 상태
+							325 text false
+						326 container
+							327 text 중복제거 사용 상태
+							328 text false
+						329 container
+							330 text 최소 IOPS
+							331 text 100
+						332 container
+							333 text 최대 IOPS
+							334 text 200
+						335 container
+							336 text 삭제 보호
+							337 text false
+						338 container
+							339 text 요청 정책 / 형식
+							340 text 기존 호환 값: thin
+						341 container
+							342 text 확정 정책
+							343 text 알 수 없음
+						344 container
+							345 text 실제 적용 정책
+							346 text 알 수 없음
+						347 container
+							348 text 실제 적용 방식
+							349 text 알 수 없음
+						350 container
+							351 text 실제 이미지 형식
+							352 text RAW
+						353 container
+							354 text 논리 용량
+							355 text 1.00 GiB
+						356 container
+							357 text 관측 할당량
+							358 image question-circle
+							359 text 알 수 없음
+						360 container
+							361 text 관측 시각
+							362 text 알 수 없음
+						363 container
+							364 text 할당 증거
+							365 text 미검증
+	239 container
+		240 image exclamation-circle
+		241 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		242 button 세부 경보 내용 확인
+		243 button 경보 규칙으로 이동
+		244 button 닫기
+			245 image close
+	366 container
+		367 container 볼륨 크기 변경question-circle
+			368 container
+				369 button Close
+					370 image close
+				371 container vcDialogTitle13
+					372 text 볼륨 크기 변경
+					373 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#resizing-volumes
+				374 container
+					375 text 할당 정책과 적용 증거
+					376 container
+						377 container 요청 정책 / 형식 : 기존 호환 값: thin
+							378 text 요청 정책 / 형식
+							379 text :
+							380 text 기존 호환 값: thin
+						381 container 확정 정책 : 알 수 없음
+							382 text 확정 정책
+							383 text :
+							384 text 알 수 없음
+						385 container 실제 적용 정책 : 알 수 없음
+							386 text 실제 적용 정책
+							387 text :
+							388 text 알 수 없음
+						389 container 실제 적용 방식 : 알 수 없음
+							390 text 실제 적용 방식
+							391 text :
+							392 text 알 수 없음
+						393 container 실제 이미지 형식 : RAW
+							394 text 실제 이미지 형식
+							395 text :
+							396 text RAW
+						397 container 논리 용량 : 1.00 GiB
+							398 text 논리 용량
+							399 text :
+							400 text 1.00 GiB
+						401 container 관측 할당량 : 알 수 없음
+							402 text 관측 할당량
+							403 text :
+							404 text 알 수 없음
+						405 container 관측 시각 : 알 수 없음
+							406 text 관측 시각
+							407 text :
+							408 text 알 수 없음
+						409 container 할당 증거 : 미검증
+							410 text 할당 증거
+							411 text :
+							412 text 미검증
+					413 text 생성·복사 시점의 증거이며 지속적인 예약 보장이 아닙니다. 관측 할당량은 논리 용량 및 RBD 복제본 포함 물리 사용량과 다릅니다. 증거가 없으면 알 수 없음으로 표시합니다.
+					414 text 디스크 오퍼링: VOL1429-32-20261020-custom
+					415 text 크기
+					416 text field (settable) 크기, Value: 1, ID: form_item_size
+					417 text 최소 IOPS
+					418 text field (settable) 최소 IOPS, Value: 100, ID: form_item_miniops
+					419 text 최대 IOPS
+					420 text field (settable) 최대 IOPS, Value: 200, ID: form_item_maxiops
+					421 text 변경하지 않거나 비운 값은 전송하지 않고 현재값을 유지합니다. IOPS 0은 명시적인 값이며 최소·최대 관계를 만족해야 합니다.
+					422 text 볼륨 축소 허용
+					423 switch Description: 볼륨 축소 허용, Value: 0, ID: form_item_shrinkok
+					424 text 필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션
+					425 switch Description: 필요한 경우 볼륨을 다른 스토리지 풀로 자동 마이그레이션, Value: 0, ID: form_item_automigrate
+					426 button 취소
+					427 button 확인
+						429 text 확인
+
+The focused UI element is 430 container

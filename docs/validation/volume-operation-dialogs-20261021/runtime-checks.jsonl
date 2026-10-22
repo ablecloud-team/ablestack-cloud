@@ -1,0 +1,12 @@
+{"cluster": 31, "kind": "current", "offering": "custom", "sizeGiB": 2, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 31, "kind": "current", "offering": "fixed", "sizeGiB": 3, "miniops": 300, "maxiops": 600, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 31, "kind": "current", "offering": "custom", "sizeGiB": 3, "miniops": 0, "maxiops": 0, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 32, "kind": "current", "offering": "custom", "sizeGiB": 2, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 32, "kind": "current", "offering": "fixed", "sizeGiB": 3, "miniops": 300, "maxiops": 600, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 32, "kind": "current", "offering": "custom", "sizeGiB": 3, "miniops": 0, "maxiops": 0, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 31, "kind": "explicit", "offering": "explicit-target", "sizeGiB": 1, "miniops": 120, "maxiops": 240, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 32, "kind": "explicit", "offering": "explicit-target", "sizeGiB": 1, "miniops": 120, "maxiops": 240, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2c5ab260cf9"}
+{"cluster": 31, "kind": "current", "offering": "fixed", "sizeGiB": 3, "miniops": 300, "maxiops": 600, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2d7e96619e0"}
+{"cluster": 31, "kind": "current", "offering": "unlimited", "sizeGiB": 3, "miniops": 0, "maxiops": 0, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2d7e96619e0"}
+{"cluster": 32, "kind": "current", "offering": "fixed", "sizeGiB": 3, "miniops": 300, "maxiops": 600, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2d7e96619e0"}
+{"cluster": 32, "kind": "current", "offering": "unlimited", "sizeGiB": 3, "miniops": 0, "maxiops": 0, "apiDbImageAgree": true, "identityAndOriginalDataPreserved": true, "sourceCommit": "2d7e96619e0"}

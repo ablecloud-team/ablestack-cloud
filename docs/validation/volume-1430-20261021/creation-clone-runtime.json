@@ -1,0 +1,20 @@
+[
+  {
+    "cluster": 31,
+    "uiDiskCreateCloneApiDbAgree": true,
+    "cloneNoneClearedHiddenValues": true,
+    "inactiveStateAndImmutableIopsPreserved": true,
+    "privateAndGeneralInheritanceAgree": true,
+    "newPrivateVmXmlQmpAgree": true,
+    "newVm": "01d30392-5de5-4aae-925e-70bd98cce6f2"
+  },
+  {
+    "cluster": 32,
+    "uiDiskCreateCloneApiDbAgree": true,
+    "cloneNoneClearedHiddenValues": true,
+    "inactiveStateAndImmutableIopsPreserved": true,
+    "privateAndGeneralInheritanceAgree": true,
+    "newPrivateVmXmlQmpAgree": true,
+    "newVm": "471ba38b-f55e-48c1-9895-e5309960f7fe"
+  }
+]

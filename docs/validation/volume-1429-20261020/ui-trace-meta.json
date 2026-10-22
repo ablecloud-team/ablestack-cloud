@@ -1,0 +1,912 @@
+[
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "cursorBefore": 6039,
+    "cursorAfter": 6046,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "unchanged-no-post",
+    "cursorBefore": 6046,
+    "cursorAfter": 6046,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "cursorBefore": 6574,
+    "cursorAfter": 6594,
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 32,
+    "phase": "unchanged-no-post",
+    "cursorBefore": 6594,
+    "cursorAfter": 6594,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "cursorBefore": 6074,
+    "cursorAfter": 6081,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-negative",
+    "cursorBefore": 6120,
+    "cursorAfter": 6120,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-fractional-size",
+    "cursorBefore": 6130,
+    "cursorAfter": 6130,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-zero-size",
+    "cursorBefore": 6133,
+    "cursorAfter": 6133,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-min-over-max",
+    "cursorBefore": 6136,
+    "cursorAfter": 6143,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "invalid-unsafe-iops",
+    "cursorBefore": 6146,
+    "cursorAfter": 6146,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "cursorBefore": 6671,
+    "cursorAfter": 6678,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "invalid-negative",
+    "cursorBefore": 6680,
+    "cursorAfter": 6680,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "invalid-fractional-size",
+    "cursorBefore": 6692,
+    "cursorAfter": 6714,
+    "truncated": false,
+    "count": 3
+  },
+  {
+    "cluster": 32,
+    "phase": "invalid-zero-size",
+    "cursorBefore": 6725,
+    "cursorAfter": 6725,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "invalid-min-over-max",
+    "cursorBefore": 6728,
+    "cursorAfter": 6728,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "invalid-unsafe-iops",
+    "cursorBefore": 6738,
+    "cursorAfter": 6738,
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "iops-only-submitted",
+    "cursorBefore": 6185,
+    "cursorAfter": 6220,
+    "truncated": false,
+    "count": 10
+  },
+  {
+    "cluster": 31,
+    "phase": "iops-only-complete",
+    "cursorBefore": 6220,
+    "cursorAfter": 6262,
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "iops-only-submitted",
+    "cursorBefore": 6756,
+    "cursorAfter": 6784,
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "iops-only-complete",
+    "cursorBefore": 6784,
+    "cursorAfter": 6833,
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "cursorBefore": 6311,
+    "cursorAfter": 6319,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "size-only-blank-iops-submitted",
+    "cursorBefore": 6329,
+    "cursorAfter": 6364,
+    "truncated": false,
+    "count": 10
+  },
+  {
+    "cluster": 31,
+    "phase": "size-only-blank-iops-complete",
+    "cursorBefore": 6364,
+    "cursorAfter": 6406,
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "cursorBefore": 6903,
+    "cursorAfter": 6911,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "size-only-blank-iops-submitted",
+    "cursorBefore": 6924,
+    "cursorAfter": 6973,
+    "truncated": false,
+    "count": 11
+  },
+  {
+    "cluster": 32,
+    "phase": "size-only-blank-iops-complete",
+    "cursorBefore": 6973,
+    "cursorAfter": 7022,
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "cursorBefore": 6511,
+    "cursorAfter": 6519,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "size-and-iops-submitted",
+    "cursorBefore": 6522,
+    "cursorAfter": 6550,
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "size-and-iops-complete",
+    "cursorBefore": 6550,
+    "cursorAfter": 6599,
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "cursorBefore": 7120,
+    "cursorAfter": 7128,
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "size-and-iops-submitted",
+    "cursorBefore": 7132,
+    "cursorAfter": 7160,
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "size-and-iops-complete",
+    "cursorBefore": 7160,
+    "cursorAfter": 7258,
+    "truncated": false,
+    "count": 24
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "zero-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "zero-iops-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "zero-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "zero-iops-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-18195d32-f4cf-4134-a47a-e61f611f0e3a",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "fixed-offering-size-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "fixed-offering-size-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ca4ef757-6d5a-42b0-beb7-9b389c89efc6",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "strict-unchanged-no-post",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "open-bdf24ff4-125a-440e-817a-17b8e5d0e973",
+    "truncated": false,
+    "count": 4
+  },
+  {
+    "cluster": 31,
+    "phase": "explicit-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "explicit-iops-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "open-15f73699-1e51-4a1a-898a-ed67636cbbdd",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "fixed-offering-size-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "fixed-offering-size-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "strict-open",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "strict-unchanged-no-post",
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "open-ec85e0e4-b77d-43d8-9ccf-40444374fe48",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "explicit-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "explicit-iops-only-complete",
+    "truncated": false,
+    "count": 13
+  },
+  {
+    "cluster": 31,
+    "phase": "open-95638c7a-8d4e-4d17-a432-f3bfd9b75bd7",
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 32,
+    "phase": "open-dc15fddc-1e50-4dd3-9de5-ce4edc82f2f1",
+    "truncated": false,
+    "count": 4
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "pre-read-network-failure",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "double-click-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "double-click-retry-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "pre-read-network-failure",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "double-click-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "double-click-retry-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "stale-volume-rejected",
+    "truncated": false,
+    "count": 4
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "stale-reopen-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "stale-reopen-retry-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "stale-volume-rejected",
+    "truncated": false,
+    "count": 4
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "truncated": false,
+    "count": 4
+  },
+  {
+    "cluster": 32,
+    "phase": "stale-reopen-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "stale-reopen-retry-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-f495e3bd-dbf8-4f02-b6d7-8201ff0fb2fe",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "poll-failure-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "open-4d3af36e-4f83-4436-8f12-07680a329ece",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "poll-failure-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "poll-failure-unknown",
+    "truncated": false,
+    "count": 20
+  },
+  {
+    "cluster": 32,
+    "phase": "poll-failure-unknown",
+    "truncated": false,
+    "count": 22
+  },
+  {
+    "cluster": 31,
+    "phase": "same-job-recheck",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 31,
+    "phase": "same-job-recheck-complete",
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "same-job-recheck",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "same-job-recheck-complete",
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 31,
+    "phase": "open-3ac189b9-ae1c-4b23-b9a0-4f663d2cc058",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "domainadmin-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "domainadmin-iops-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 32,
+    "phase": "open-61fd19d0-533a-41f4-b79d-ceff4c72c2e7",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "domainadmin-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "domainadmin-iops-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "user-permission-denied",
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 32,
+    "phase": "user-permission-denied",
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 31,
+    "phase": "user-permission-restored-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "user-permission-restored-complete",
+    "truncated": false,
+    "count": 16
+  },
+  {
+    "cluster": 32,
+    "phase": "user-permission-restored-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "user-permission-restored-complete",
+    "truncated": false,
+    "count": 16
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "quota-job-failure-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "quota-job-failure-terminal",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "quota-job-failure-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "quota-job-failure-terminal",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "quota-restored-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "quota-restored-retry-complete",
+    "truncated": false,
+    "count": 16
+  },
+  {
+    "cluster": 32,
+    "phase": "quota-restored-retry-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "quota-restored-retry-complete",
+    "truncated": false,
+    "count": 16
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "qcow2-shrink-rejected",
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "raw-shrink-needs-confirmation",
+    "truncated": false,
+    "count": 0
+  },
+  {
+    "cluster": 32,
+    "phase": "raw-shrink-confirmed-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "raw-shrink-backend-rejected",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 31,
+    "phase": "final-query-retry",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 6
+  },
+  {
+    "cluster": 32,
+    "phase": "final-query-retry",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "final-empty-offering-retry",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "final-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "final-iops-only-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "final-empty-offering-retry",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "final-iops-only-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "final-iops-only-complete",
+    "truncated": false,
+    "count": 14
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "final-size-only-blank-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "final-size-only-blank-iops-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "final-size-only-blank-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "final-size-only-blank-iops-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 31,
+    "phase": "final-size-and-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 31,
+    "phase": "final-size-and-iops-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 31,
+    "phase": "open-ac547999-5968-4b8a-9486-0e2036ce3fd8",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  },
+  {
+    "cluster": 32,
+    "phase": "final-size-and-iops-submitted",
+    "truncated": false,
+    "count": 8
+  },
+  {
+    "cluster": 32,
+    "phase": "final-size-and-iops-complete",
+    "truncated": false,
+    "count": 12
+  },
+  {
+    "cluster": 32,
+    "phase": "open-fe9cb749-c28e-4f05-9ab2-f3000025b242",
+    "truncated": false,
+    "count": 2
+  }
+]

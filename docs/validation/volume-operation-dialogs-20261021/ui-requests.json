@@ -1,0 +1,166 @@
+[
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "59f4007e-3bc8-4529-96ff-04bfe7eb3647",
+      "diskofferingid": "2a9c667d-649d-44cb-a1e6-96ae2fe25218",
+      "size": "2",
+      "miniops": "150",
+      "maxiops": "300",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "59f4007e-3bc8-4529-96ff-04bfe7eb3647",
+      "diskofferingid": "32ad8e71-3f8a-4f84-a8ae-f595ff40134b",
+      "automigrate": "false"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "59f4007e-3bc8-4529-96ff-04bfe7eb3647",
+      "diskofferingid": "2a9c667d-649d-44cb-a1e6-96ae2fe25218",
+      "size": "3",
+      "miniops": "0",
+      "maxiops": "0",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "956f34bf-a0d8-49d5-b9da-751617b36996",
+      "diskofferingid": "4562446d-e7cf-434b-9adf-d42effa47121",
+      "size": "1",
+      "miniops": "120",
+      "maxiops": "240",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "a413cb2c-193c-4f8b-a3da-983567696530",
+      "diskofferingid": "b4bbd0db-f969-4760-9288-ae9510c5c9f5",
+      "size": "2",
+      "miniops": "150",
+      "maxiops": "300",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "a413cb2c-193c-4f8b-a3da-983567696530",
+      "diskofferingid": "dd67ad4e-b54a-4b6d-9330-07a77bfeb018",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "a413cb2c-193c-4f8b-a3da-983567696530",
+      "diskofferingid": "b4bbd0db-f969-4760-9288-ae9510c5c9f5",
+      "size": "3",
+      "miniops": "0",
+      "maxiops": "0",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "84722b95-c089-4a59-94e2-1e8db59e36fd",
+      "diskofferingid": "9bcc0aaf-bbf2-4d49-a5e6-aedad46da864",
+      "size": "1",
+      "miniops": "120",
+      "maxiops": "240",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2c5ab260cf9"
+  },
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "59f4007e-3bc8-4529-96ff-04bfe7eb3647",
+      "diskofferingid": "32ad8e71-3f8a-4f84-a8ae-f595ff40134b",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2d7e96619e0"
+  },
+  {
+    "cluster": 31,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "59f4007e-3bc8-4529-96ff-04bfe7eb3647",
+      "diskofferingid": "b5e16e17-c46a-4a7a-a718-2c4877707514",
+      "size": "3",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2d7e96619e0"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "a413cb2c-193c-4f8b-a3da-983567696530",
+      "diskofferingid": "dd67ad4e-b54a-4b6d-9330-07a77bfeb018",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2d7e96619e0"
+  },
+  {
+    "cluster": 32,
+    "command": "changeOfferingForVolume",
+    "params": {
+      "command": "changeOfferingForVolume",
+      "id": "a413cb2c-193c-4f8b-a3da-983567696530",
+      "diskofferingid": "4ee1be43-d4bc-4bbe-b2df-66a0dd82c67e",
+      "size": "3",
+      "automigrate": "true"
+    },
+    "method": "POST",
+    "sourceCommit": "2d7e96619e0"
+  }
+]

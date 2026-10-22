@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "28c85867ed84d3c4b0e34d3b794804e123f752ce",
+  "payloadSha256": "c96e3678fa67706ddf02814f7e2d2ce02295570abc6c1930a4fbaa24f283bc71",
+  "clusters": {
+    "31": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-resize-layout-ui-28c85867ed8",
+      "newApiLogin": true
+    },
+    "32": {
+      "files": 896,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-resize-layout-ui-28c85867ed8",
+      "newApiLogin": true
+    }
+  }
+}

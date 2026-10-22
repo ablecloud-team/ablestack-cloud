@@ -96,6 +96,8 @@ public class VolumeOrchestratorTest {
     @Mock
     protected VolumeDao volumeDao;
     @Mock
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
+    @Mock
     protected PassphraseDao passphraseDao;
     @Mock
     protected PrimaryDataStoreDao storagePoolDao;

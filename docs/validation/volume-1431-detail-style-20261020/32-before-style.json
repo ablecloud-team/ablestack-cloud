@@ -1,0 +1,10 @@
+{
+  "background": "rgba(0, 0, 0, 0)",
+  "border": "1px solid rgb(62, 70, 80)",
+  "color": "rgba(255, 255, 255, 0.65)",
+  "fontSize": "14px",
+  "labelColor": "rgba(255, 255, 255, 0.65)",
+  "labelWeight": "700",
+  "lineHeight": "22.001px",
+  "padding": "8px 0px"
+}

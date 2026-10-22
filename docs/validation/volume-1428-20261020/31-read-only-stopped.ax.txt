@@ -1,0 +1,319 @@
+Browser tab: 22, Title: "볼륨 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/volume/1e695f55-ad5b-4ba5-a183-32068e0ae4c9".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/volume/1e695f55-ad5b-4ba5-a183-32068e0ae4c9
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.31.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				14 content list sub_menu_2_$$_/storage-popup
+					15 hdd 볼륨
+						16 link Description: hdd 볼륨, Value: 10.10.31.10:8080/client/#/volume
+					17 build 스냅샷
+						18 link Description: build 스냅샷, Value: 10.10.31.10:8080/client/#/snapshot
+					19 build 스냅샷 정책
+						20 link Description: build 스냅샷 정책, Value: 10.10.31.10:8080/client/#/snapshotpolicy
+					21 funnel-plot 버킷
+						22 link Description: funnel-plot 버킷, Value: 10.10.31.10:8080/client/#/buckets
+					23 file-text 공유 파일 시스템
+						24 link Description: file-text 공유 파일 시스템, Value: 10.10.31.10:8080/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 10.10.31.10:8080/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 10.10.31.10:8080/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 10.10.31.10:8080/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 10.10.31.10:8080/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 10.10.31.10:8080/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 10.10.31.10:8080/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 10.10.31.10:8080/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			255 container
+				256 image bell
+				495 text 4
+			123 container
+				124 text AC admin cloud
+		125 container
+			126 container
+				127 container
+					128 link Description: home, Value: 10.10.31.10:8080/client/#/
+					129 text /
+					130 link Description: 볼륨, Value: 10.10.31.10:8080/client/#/volume
+					258 text / ROOT-222
+					259 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+					260 button reload 업데이트
+						496 image reload
+						262 text 업데이트
+				263 button down 작업
+					264 image down
+					265 text 작업
+			497 container
+				498 image hdd
+				499 heading ROOT-222, Value: 4
+					500 text ROOT-222
+				501 text ROOT KVM
+				502 text 상태 사용 가능 아이디
+				503 button barcode
+					504 image barcode
+				505 link Description: 1e695f55-ad5b-4ba5-a183-32068e0ae4c9 , Value: javascript:;
+				506 text 디스크 크기(GB 단위)
+				507 image hdd
+				508 text 40.00 GiB
+				509 text 읽기 385.36 MB
+				510 text 쓰기 3.67 GB
+				511 text 읽기(IO) 11843
+				512 text 쓰기(IO) 43558
+				513 text VM 이름
+				514 image desktop
+				515 link Description: k8s-lifecycle31-v1359-gfs2-r13-node-1a11156e008, Value: 10.10.31.10:8080/client/#/vm/45cd82fc-fe24-43be-a72d-717b15a3572d
+				516 text 템플릿
+				517 image save
+				518 link Description: RT1230 전용 CKS 준비 이미지 1251 v1, Value: 10.10.31.10:8080/client/#/template/ac49cbbb-761e-42aa-8b7f-cf47c61a8e53
+				519 text 스토리지 풀
+				520 image database
+				521 link Description: Primary, Value: 10.10.31.10:8080/client/#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0
+				522 text Shared (ROOT) 클러스터
+				523 image cluster
+				524 link Description: Cluster, Value: 10.10.31.10:8080/client/#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5
+				525 text Pod
+				526 image appstore
+				527 link Description: Pod, Value: 10.10.31.10:8080/client/#/pod/2a9760c6-795d-48fc-bca1-77037c541279
+				528 text Zone
+				529 image global
+				530 link Description: Zone, Value: 10.10.31.10:8080/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				531 text 계정
+				532 image user
+				533 link Description: k1230-20261006, Value: 10.10.31.10:8080/client/#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f
+				534 text 도메인
+				535 image block
+				536 link Description: ROOT, Value: 10.10.31.10:8080/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+				537 text 생성일
+				538 image calendar
+				539 text 2026. 10. 6. 오후 10:11:08
+				540 link Description: build 스냅샷 보기, Value: 10.10.31.10:8080/client/#/snapshot?volumeid=1e695f55-ad5b-4ba5-a183-32068e0ae4c9
+				541 container
+					542 text 태그
+					543 container
+						544 image plus
+						545 text  새 태그
+			546 container
+				547 tab group
+					548 container
+						549 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-3-tab-details
+						550 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-3-tab-events
+						551 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-3-tab-comments
+				552 container Description: 상세, ID: rc-tabs-3-panel-details
+					553 content list
+						554 container
+							555 text 이름
+							556 text ROOT-222
+						557 container
+							558 text 아이디
+							559 text 1e695f55-ad5b-4ba5-a183-32068e0ae4c9
+						560 container
+							561 text 유형
+							562 text ROOT
+						563 container
+							564 text 스토리지 유형
+							565 text Shared (ROOT)
+						566 container
+							567 text 디스크 오퍼링
+							568 text Custom-GFS-Sparse
+						569 container
+							570 text 장치 ID
+							571 text 0
+						572 container
+							573 text 크기
+							574 text 40.00 GiB
+						575 container
+							576 text 물리적 크기
+							577 text 4.83 GiB
+						578 container
+							579 text 프로비저닝 유형
+							580 text sparse
+						581 container
+							582 text Write-Cache 유형
+							583 text none
+						584 container
+							585 text 이용
+							586 text 12.1%
+						587 container
+							588 text 디스크 파일시스템 사용량
+							589 image question-circle
+							590 text 4.53 GiB
+						591 container
+							592 text 압축/중복제거
+							593 text false
+						594 container
+							595 text 압축 사용 상태
+							596 text false
+						597 container
+							598 text 중복제거 사용 상태
+							599 text false
+						600 container
+							601 text 디스크 읽기 (KiB)
+							602 text 394610
+						603 container
+							604 text 디스크 쓰기 (KiB)
+							605 text 3852775
+						606 container
+							607 text 디스크 읽기(IO)
+							608 text 11843
+						609 container
+							610 text 디스크 쓰기(IO)
+							611 text 43558
+						612 container
+							613 text 디스크 IOPS
+							614 text 55401
+						615 container
+							616 text 경로
+							617 text 1e695f55-ad5b-4ba5-a183-32068e0ae4c9
+						618 container
+							619 text 삭제 보호
+							620 text false
+						621 container
+							622 text 요청 정책 / 형식
+							623 text 기존 호환 값: sparse
+						624 container
+							625 text 확정 정책
+							626 text 알 수 없음
+						627 container
+							628 text 실제 적용 정책
+							629 text 알 수 없음
+						630 container
+							631 text 실제 적용 방식
+							632 text 알 수 없음
+						633 container
+							634 text 실제 이미지 형식
+							635 text QCOW2
+						636 container
+							637 text 논리 용량
+							638 text 40.00 GiB
+						639 container
+							640 text 관측 할당량
+							641 image question-circle
+							642 text 알 수 없음
+						643 container
+							644 text 관측 시각
+							645 text 알 수 없음
+						646 container
+							647 text 할당 증거
+							648 text 미검증
+	252 container
+		253 image info-circle
+		254 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	649 container
+		650 container 편집question-circle
+			651 container
+				652 button Close
+					653 image close
+				654 container vcDialogTitle5
+					655 text 편집
+					656 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				657 container
+					658 text 이름
+					659 text field (settable) 이름, Value: ROOT-222, ID: form_item_name
+					660 text 삭제 보호
+					661 container
+						662 switch Description: 삭제 보호, Value: 0, ID: form_item_deleteprotection
+						663 text 삭제 보호를 설정하면 볼륨의 삭제와 영구 삭제가 차단됩니다. 삭제하려면 먼저 보호를 해제하십시오.
+					664 text 경로
+					665 container
+						666 switch Description: 경로, Value: 0, ID: form_item_pathEnabled
+						667 text 경로를 변경할 때만 활성화하십시오. 이름·삭제 보호 변경에는 경로를 전송하지 않습니다. 현재: 1e695f55-ad5b-4ba5-a183-32068e0ae4c9
+					668 button 취소
+					669 button 확인
+
+The focused UI element is 670 container

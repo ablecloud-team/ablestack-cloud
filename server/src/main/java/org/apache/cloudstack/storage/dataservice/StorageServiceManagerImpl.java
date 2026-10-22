@@ -595,10 +595,16 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         validateNfsExportName(cmd.getName());
         validateNfsExportPath(path, cmd.getName());
         validateFileSharePathAvailable(instance, path, null, cmd.getVolumeId(), "NFS export");
+        final boolean preserveInitialPosix = preserveInitialImportedNfsPosix(instance, cmd);
         String configJson = buildNfsConfigJson(null, cmd.getReadOnly(), cmd.getRootSquash(), cmd.getAllSquash(), cmd.getAnonUid(), cmd.getAnonGid(),
                 cmd.getOwnerUid(), cmd.getOwnerGid(), cmd.getMode(), cmd.getRecursivePermission(), cmd.getSync(), cmd.getSecure(),
-                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, true);
+                cmd.getEndpointMode(), cmd.getListenIps(), cmd.getListenerPorts(), protocolMode, !preserveInitialPosix);
         configJson = buildFileShareDirectoryConfigJson(configJson, requestedVolume, cmd.getImportMode(), cmd.getCreateDirectory());
+        if (preserveInitialPosix) {
+            JsonObject preserved = parseJsonObject(configJson);
+            preserved.addProperty("posixPolicy", "PRESERVE_EXISTING_INITIAL");
+            configJson = GSON.toJson(preserved);
+        }
         validateJsonObjectConfigOrThrow(configJson, "NFS export " + cmd.getName());
         StorageFileShareVO share = new StorageFileShareVO(instance.getId(), StorageServiceInstance.Protocol.NFS, cmd.getName(), path,
                 cmd.getVolumeId(), cmd.getFilesystem(), cmd.getQuotaBytes(), StorageServiceInstance.ResourceState.Creating,
@@ -608,6 +614,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         storageFileShareDao.update(share.getId(), share);
         try {
             prepareFileShareBackingVolume(instance, share, cmd.getImportMode());
+            if (preserveInitialPosix) requireInitialPosixPreservationRuntime(share);
             if (Boolean.TRUE.equals(cmd.getDeferApply())) {
                 share.setState(StorageServiceInstance.ResourceState.Allocated);
             } else {
@@ -1206,6 +1213,61 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             payload.addProperty("force", cmd.getForce());
         }
         return createRuntimeResponse(instance, "session disconnect", GSON.toJson(payload));
+    }
+
+    @Override
+    public String prepareInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS fs, String mode) {
+        if (!java.util.Set.of("INSPECT_ONLY", "MOUNT_EXISTING").contains(mode))
+            throw new InvalidParameterValueException("Formatting is forbidden during existing backing import");
+        final StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(fs.getVmId());
+        if (instance == null) throw new InvalidParameterValueException("Initial Storage Service instance is unavailable");
+        requireInstance(instance.getId());
+        final VolumeVO volume = requireVolume(fs.getVolumeId());
+        if (!instance.getVmId().equals(volume.getInstanceId()) || volume.getAccountId() != fs.getAccountId())
+            throw new InvalidParameterValueException("Initial backing volume identity/owner/attachment mismatch");
+        final org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c =
+                org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(fs.getCreationContext());
+        final JsonObject payload = new JsonObject();
+        payload.addProperty("instanceUuid", instance.getUuid());
+        payload.addProperty("volumeId", volume.getId());
+        payload.addProperty("volumeUuid", volume.getUuid());
+        payload.addProperty("volumeName", volume.getName());
+        payload.addProperty("volumeSizeBytes", volume.getSize());
+        payload.addProperty("filesystem", c.expectedFilesystem.toLowerCase());
+        payload.addProperty("importMode", mode);
+        final JsonObject config = new JsonObject();
+        config.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
+        config.addProperty("relativeSharePath", "");
+        config.addProperty("createDirectory", false);
+        if (c.filesystemUuid != null) {
+            JsonObject observed = new JsonObject(); observed.addProperty("filesystemUuid", c.filesystemUuid);
+            config.add("lastInspection", observed);
+        }
+        payload.add("config", config);
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                instance.getVmId(), "volume attach inspect", GSON.toJson(payload),
+                StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Initial backing inspection/mount failed: " + result.getDetails());
+        JsonObject observed = parseJsonObject(result.getResultJson());
+        if (!volume.getUuid().equals(getJsonString(observed, "volumeUuid")))
+            throw new CloudRuntimeException("Initial backing inspection returned a different volume UUID");
+        return result.getResultJson();
+    }
+
+    @Override
+    public void releaseInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS fs) {
+        StorageServiceInstanceVO instance = storageServiceInstanceDao.findByVmId(fs.getVmId());
+        if (instance == null) throw new InvalidParameterValueException("Initial Storage Service instance is unavailable");
+        requireInstance(instance.getId()); validateBackingVolumeUnused(instance, fs.getVolumeId());
+        VolumeVO volume = requireVolume(fs.getVolumeId());
+        JsonObject payload = new JsonObject();
+        payload.addProperty("instanceUuid", instance.getUuid()); payload.addProperty("volumeId", volume.getId());
+        payload.addProperty("volumeUuid", volume.getUuid()); payload.addProperty("volumeName", volume.getName());
+        payload.addProperty("mountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
+        StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                instance.getVmId(), "volume detach prepare", GSON.toJson(payload),
+                StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
+        if (!result.isSuccess()) throw new CloudRuntimeException("Unable to release initial backing mount: " + result.getDetails());
     }
 
     @Override
@@ -2752,10 +2814,55 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         }
     }
 
+    protected boolean preserveInitialImportedNfsPosix(StorageServiceInstanceVO instance, CreateStorageNfsExportCmd cmd) {
+        if (cmd.getInitialCreationRequestId() == null) return false;
+        final String key = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.normalizeKey(cmd.getInitialCreationRequestId());
+        final SharedFSVO fs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
+        if (fs == null || fs.getState() != SharedFS.State.Ready || !key.equals(fs.getCreationRequestId()))
+            throw new InvalidParameterValueException("Initial NFS setup requires the original Ready SharedFS creation request");
+        final org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c =
+                org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(fs.getCreationContext());
+        if (c == null || !c.existing || c.cancelled || !"READY".equals(c.phase)
+                || !java.util.Objects.equals(c.volumeId, cmd.getVolumeId())
+                || !"MOUNT_EXISTING".equalsIgnoreCase(cmd.getImportMode()))
+            throw new InvalidParameterValueException("Initial POSIX preservation is restricted to the imported primary volume");
+        if (!storageFileShareDao.listByInstanceIdAndProtocol(instance.getId(), StorageServiceInstance.Protocol.NFS).isEmpty())
+            throw new InvalidParameterValueException("The initial NFS export is already configured; observe the existing export");
+        if (cmd.getOwnerUid() != null || cmd.getOwnerGid() != null || StringUtils.isNotBlank(cmd.getMode())
+                || Boolean.TRUE.equals(cmd.getRecursivePermission()))
+            throw new InvalidParameterValueException("Initial imported NFS setup cannot initialize POSIX ownership or mode");
+        return true;
+    }
+
+    protected void requireInitialPosixPreservationRuntime(StorageFileShareVO share) {
+        JsonObject config = parseJsonObject(share.getConfigJson());
+        JsonObject inspection = getJsonObject(config, "lastInspection");
+        if (inspection == null || !getBoolean(inspection, "supportsInitialPosixPreservation", false))
+            throw new InvalidParameterValueException("SystemVM runtime must support initial POSIX preservation before applying this export");
+    }
+
+    protected boolean isImportedPrimary(StorageServiceInstanceVO instance, Long volumeId) {
+        if (volumeId == null || instance.getVmId() == null) return false;
+        SharedFSVO fs = sharedFSDao.findByVm(instance.getVmId());
+        if (fs == null || fs.getCreationContext() == null) return false;
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(fs.getCreationContext());
+        return c.existing && volumeId.equals(c.volumeId);
+    }
+
     protected void inspectAttachedFileShareVolume(final StorageServiceInstanceVO instance, final StorageFileShareVO share,
             final VolumeVO volume, final String importMode) {
         final JsonObject payload = createFileShareVolumePayload(instance, share, volume);
         payload.addProperty("importMode", StringUtils.defaultIfBlank(importMode, "MOUNT_EXISTING").toUpperCase());
+        SharedFSVO importedFs = instance.getVmId() == null ? null : sharedFSDao.findByVm(instance.getVmId());
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext imported =
+                importedFs == null ? null : org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(importedFs.getCreationContext());
+        if (imported != null && imported.existing && volume.getId() == imported.volumeId) {
+            if (!"MOUNT_EXISTING".equalsIgnoreCase(importMode) && !"INSPECT_ONLY".equalsIgnoreCase(importMode))
+                throw new InvalidParameterValueException("Imported primary DATA cannot be formatted");
+            payload.remove("shareId"); payload.remove("shareUuid");
+            JsonObject backingConfig = payload.getAsJsonObject("config");
+            backingConfig.addProperty("volumeMountPath", "/srv/ablestack-storage/volumes/" + volume.getUuid());
+        }
         final StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                 "volume attach inspect", GSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
         if (!result.isSuccess()) {
@@ -3466,6 +3573,13 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
             return;
         }
         final VolumeVO volume = requireVolume(volumeId);
+        if (isImportedPrimary(instance, volumeId)) {
+            SharedFSVO fs = sharedFSDao.findByVm(instance.getVmId());
+            if (fs.getState() != SharedFS.State.Ready)
+                throw new InvalidParameterValueException("Complete the initial backing mount before creating services");
+            if (resourceName.startsWith("iSCSI") || resourceName.startsWith("NVMe"))
+                throw new InvalidParameterValueException("Imported filesystem DATA cannot be exposed as a raw block backing");
+        }
         final Long attachedVmId = volume.getInstanceId();
         if (attachedVmId != null && !attachedVmId.equals(instance.getVmId())) {
             throw new InvalidParameterValueException(resourceName + " backing volume " + volume.getUuid() +
@@ -4105,6 +4219,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!config.has("anonGid")) {
             config.addProperty("anonGid", NFS_ANONYMOUS_GID);
         }
+        if ("PRESERVE_EXISTING_INITIAL".equals(getJsonString(config, "posixPolicy"))) return;
         if (!config.has("ownerUid")) {
             config.addProperty("ownerUid", getInt(config, "anonUid", NFS_ANONYMOUS_UID));
         }

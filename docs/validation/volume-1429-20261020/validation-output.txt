@@ -1,0 +1,11 @@
+tests-final.log
+Test Suites: 7 passed, 7 total
+Tests:       115 passed, 115 total
+Snapshots:   0 total
+Time:        27.793s
+
+lint-final.log
+ DONE  No lint errors found!
+
+build-final.log
+ DONE  Build complete. The dist directory is ready to be deployed.

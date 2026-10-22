@@ -56,6 +56,8 @@ public class DiskOfferingJoinDaoImpl extends GenericDaoBase<DiskOfferingJoinVO, 
     private ConfigurationDao configDao;
     @Inject
     private AccountManager accountManager;
+    @Inject
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
 
     private final SearchBuilder<DiskOfferingJoinVO> dofIdSearch;
     private SearchBuilder<DiskOfferingJoinVO> diskOfferingSearch;
@@ -104,6 +106,8 @@ public class DiskOfferingJoinDaoImpl extends GenericDaoBase<DiskOfferingJoinVO, 
         diskOfferingResponse.setState(offering.getState().toString());
         diskOfferingResponse.setDisplayText(offering.getDisplayText());
         diskOfferingResponse.setProvisioningType(offering.getProvisioningType().toString());
+        diskOfferingResponse.setAllocation(com.cloud.storage.VolumeAllocationPolicy.describe(
+                allocationDetailsDao.listDetailsKeyPairs(offering.getId()), offering.getProvisioningType().toString(), null));
         diskOfferingResponse.setCreated(offering.getCreated());
         diskOfferingResponse.setDiskSize(offering.getDiskSize() / (1024 * 1024 * 1024));
         diskOfferingResponse.setMinIops(offering.getMinIops());
