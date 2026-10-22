@@ -64,6 +64,9 @@ public interface SharedFS extends ControlledEntity, Identity, InternalIdentity, 
             null,
             SharedFSFeatureEnabled.key());
 
+    ConfigKey<Integer> SharedFSInitialFormatMaxSeconds = new ConfigKey<>("Advanced", Integer.class,
+        "sharedfs.initial.backing.format.max.seconds", "3600", "Maximum format budget for newly allocated initial SharedFS DATA only.", true);
+
     String SharedFSVmNamePrefix = "sharedfs";
     String SharedFSPath = "/export";
 

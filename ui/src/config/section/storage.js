@@ -765,6 +765,16 @@ export default {
           component: shallowRef(defineAsyncComponent(() => import('@/views/storage/CreateSharedFS.vue')))
         },
         {
+          api: 'getSharedFileSystemPreparation',
+          icon: 'clock-circle-outlined',
+          label: 'label.sharedfs.preparation.status',
+          dataView: true,
+          popup: true,
+          selfManagedDialog: true,
+          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/SharedFSPreparationStatus.vue'))),
+          show: record => !!record.creationrequestid && !!record.preparation
+        },
+        {
           api: 'resumeSharedFileSystemCreation',
           icon: 'close-circle-outlined',
           label: 'label.sharedfs.initial.cancel',

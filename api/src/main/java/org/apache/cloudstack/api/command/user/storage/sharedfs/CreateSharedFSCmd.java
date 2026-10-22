@@ -130,6 +130,11 @@ public class CreateSharedFSCmd extends BaseAsyncCreateCmd implements UserCmd {
     @Parameter(name = "requestid", type = CommandType.STRING, description = "Owner-scoped UUID for retrying the same initial allocation")
     private String requestId;
 
+    @Parameter(name = "initialfilebacking", type = CommandType.BOOLEAN,
+        description = "Prepare a filesystem for the initial NFS/SMB DATA; false preserves raw BLOCK-only setup (default true)")
+    private Boolean initialFileBacking;
+    public boolean getInitialFileBacking() { return !Boolean.FALSE.equals(initialFileBacking); }
+
     public Long getVolumeId() { return volumeId; }
     public String getImportMode() { return importMode; }
     public String getRequestId() { return requestId; }

@@ -141,4 +141,26 @@ public class SharedFSCreationDaoRoundTripTest {
         }
         assertEquals(1, corrupt);
     }
+
+    @Test public void newPreparationJournalRoundTripsWithoutTruncatingOrChangingIdentity() {
+        SharedFSVO fs=resource("XFS");SharedFSCreationContext c=context(fs,"XFS");
+        c.existing=false;c.prepareNewFileBacking=true;c.expectedFilesystem="XFS";c.phase="PREPARING";
+        c.preparation=new JsonObject();
+        c.preparation.addProperty("operationId",java.util.UUID.randomUUID().toString());
+        c.preparation.addProperty("volumeUuid",java.util.UUID.randomUUID().toString());
+        c.preparation.addProperty("volumeSizeBytes",10L*1024*1024*1024*1024);
+        c.preparation.addProperty("status","RUNNING");c.preparation.addProperty("phase","FORMATTING");
+        c.preparation.addProperty("formatCount",1);c.preparation.addProperty("reason","관찰".repeat(800));
+        String original=c.json();fs.setCreationContext(original);
+        SharedFSVO saved=dao.persist(fs);SharedFSVO observed=dao.findById(saved.getId());
+        assertEquals(original,observed.getCreationContext());
+        SharedFSCreationContext restored=SharedFSCreationContext.read(observed.getCreationContext());
+        assertEquals(c.preparation,restored.preparation);assertTrue(restored.prepareNewFileBacking);
+        restored.preparation.addProperty("phase","PREPARED");restored.preparation.addProperty("status","PREPARED");
+        restored.phase="READY";observed.setCreationContext(restored.json());assertTrue(dao.update(saved.getId(),observed));
+        SharedFSCreationContext completed=SharedFSCreationContext.read(dao.findById(saved.getId()).getCreationContext());
+        assertEquals("PREPARED",completed.preparation.get("status").getAsString());
+        assertEquals(c.preparation.get("operationId"),completed.preparation.get("operationId"));
+        assertEquals(1,completed.preparation.get("formatCount").getAsInt());
+    }
 }
