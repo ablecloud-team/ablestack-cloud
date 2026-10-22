@@ -1,0 +1,11 @@
+{
+  "formatCountBefore": 1,
+  "formatCountAfter": 1,
+  "filesystemUuidBefore": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+  "filesystemUuidAfter": "bbaf069a-c5b9-4a55-be4f-774d7ad80583",
+  "filesUnchanged": true,
+  "canonicalFstabCount": 1,
+  "uiTests": 69,
+  "actualApiSerializerTests": 1,
+  "status": "STOPPED_STATIC_IP_OVERWRITTEN_BY_BOOTSTRAP_DHCP"
+}
