@@ -1074,7 +1074,7 @@ import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
 import MoldDialog from '@/components/view/MoldDialog'
 import SharedFSPreparationPanel from '@/views/storage/SharedFSPreparationPanel'
-import { needsInitialPreparation, isPreparedBacking, observeInitialCreation, freshPreparation, unavailablePreparation, canResumePreparation } from '@/utils/sharedFsPreparation'
+import { needsInitialPreparation, isPreparedBacking, observeInitialCreation, freshPreparation, unavailablePreparation, canResumePreparation, preparationFromResponse, observedPrepared } from '@/utils/sharedFsPreparation'
 import { computeFields, computeInputErrors, customComputeParams, computeReasonText, offeringFailureText } from '@/utils/sharedFsOffering'
 
 export default {
@@ -1876,7 +1876,7 @@ export default {
       try {
         const json = await getAPI('getSharedFileSystemPreparation', { id: this.resource.id, requestid: this.resource.creationrequestid })
         if (generation === this.preparationGeneration) {
-          this.preparationObservation = freshPreparation(json.getsharedfilesystempreparationresponse?.preparation || {})
+          this.preparationObservation = freshPreparation(preparationFromResponse(json))
         }
       } catch (e) {
         if (generation === this.preparationGeneration) this.preparationObservation = unavailablePreparation(this.preparationObservation)
@@ -1935,6 +1935,13 @@ export default {
           return
         }
         if (fs.state === 'Ready') {
+          if (fs.preparation) {
+            const observation = preparationFromResponse(await getAPI('getSharedFileSystemPreparation', { id: fs.id, requestid: pending.request.requestid }))
+            if (!observedPrepared(observation)) {
+              this.$notification.info({ message: this.$t('label.sharedfs.preparation.status') })
+              return
+            }
+          }
           const setup = {
             ...pending.setup,
             filesystem: fs.observedfilesystem || fs.filesystem,
@@ -2228,7 +2235,8 @@ export default {
     async runInitialStorageServiceSetup (jobId, setup, notificationKey) {
       try {
         this.notifyStorageServiceSetup(notificationKey, 'info', 'message.storage.service.setup.sharedfs.running', setup.name, 0)
-        const result = needsInitialPreparation(setup)
+        const initialPreparation = needsInitialPreparation(setup) || (this.preparationMode && !!this.resource?.preparation)
+        const result = initialPreparation
           ? await observeInitialCreation({
             get: getAPI,
             jobid: jobId,
@@ -2244,7 +2252,7 @@ export default {
         const fs = await this.resolveCreatedSharedFileSystem(result)
         this.savePendingCreation({ ...(this.pendingCreation || this.readPendingCreation()), entityid: fs.id, phase: fs.creationstage, observedfilesystem: fs.observedfilesystem })
         if (setup.useexistingvolume) setup.filesystem = fs.observedfilesystem || fs.filesystem
-        if (fs.state !== 'Ready') {
+        if (fs.state !== 'Ready' || (initialPreparation && fs.preparation && !observedPrepared(result.preparationObservation))) {
           this.notifyStorageServiceSetup(notificationKey, 'info',
             fs.preparation ? 'label.sharedfs.preparation.status' : 'message.sharedfs.initial.inspected', setup.name, 0)
           this.parentFetchData()
