@@ -1,0 +1,22 @@
+{
+  "host": "10.10.13.10",
+  "commit": "b3dbcd8c37908d480f0a294783c6e665a96525a7",
+  "at_utc": "2026-10-22T02:25:49.257430+00:00",
+  "unit": "mold.service",
+  "before_service": {
+    "MainPID": "3032495",
+    "ActiveState": "active"
+  },
+  "after_service": {
+    "MainPID": "3089250",
+    "ActiveState": "active"
+  },
+  "backup": "/var/tmp/epic1443-b3dbcd8c3790-10-10-13-10-rollback",
+  "jar_sha256": {
+    "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar": "fc6ee2fa446a3782e1c8c0c01529067f7a1b6ffa4fba3c922cfd109f150413d2"
+  },
+  "before_domains": null,
+  "after_domains": null,
+  "existing_vm_identity_preserved": true,
+  "rollback": false
+}

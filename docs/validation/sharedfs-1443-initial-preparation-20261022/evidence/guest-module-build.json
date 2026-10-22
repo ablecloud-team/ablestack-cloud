@@ -1,0 +1,18 @@
+{
+  "baseCompressedSha256": "1e6454e9d3d7e614fe5630183522a9209f5bdf5e2677bf388b3e1924993057c6",
+  "sourceStoragectlSha256": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+  "preparationModuleSha256": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+  "changedGuestPaths": [
+    "usr/local/bin/ablestack-storagectl",
+    "usr/local/lib/ablestack-storage/volume_preparation.py"
+  ],
+  "unchangedGuestPathsVerified": 33921,
+  "changedArchiveMembers": [],
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261022/issue1443-implementation/systemvm-epic1443-preparation-20261022.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261022/issue1443-implementation/systemvm-epic1443-preparation-20261022.qcow2.bz2",
+  "compressedSha256": "4a5a5cc1cf951f9af6a386f71c6b2b3ca075e5128a8b1f2e869429e022bf1804",
+  "compressedBytes": 495667202,
+  "qemuImageCheck": "No errors were found on the image.\n27412/80000 = 34.27% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1797390336",
+  "buildKind": "module overlay on verified Europa SystemVM base; no package/OS changes"
+}

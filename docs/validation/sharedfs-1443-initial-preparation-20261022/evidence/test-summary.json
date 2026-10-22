@@ -1,0 +1,86 @@
+[
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSPreparationContractTest",
+    "tests": "7",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingCatalogCmdTest",
+    "tests": "3",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibilityTest",
+    "tests": "10",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationContextTest",
+    "tests": "17",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.dao.SharedFSCreationDaoRoundTripTest",
+    "tests": "5",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "com.cloud.upgrade.dao.EuropaSharedFSCreationUpgradeTest",
+    "tests": "3",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.dataservice.StorageServiceInitialBackingTest",
+    "tests": "4",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest",
+    "tests": "6",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.dataservice.StorageServiceInitialPosixTest",
+    "tests": "10",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest",
+    "tests": "13",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+    "tests": "36",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  },
+  {
+    "class": "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest",
+    "tests": "18",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0"
+  }
+]
