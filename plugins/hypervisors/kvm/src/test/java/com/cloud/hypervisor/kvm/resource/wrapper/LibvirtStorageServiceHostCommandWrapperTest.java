@@ -50,4 +50,40 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertTrue(shell.contains("/usr/local/bin/ablestack-storagectl"));
         Assert.assertFalse(shell.contains("ablestack-sharedfs-network.service"));
     }
+
+    @Test
+    public void testStaticRestoreUnitFollowsLateBootstrap() throws Exception {
+        java.lang.reflect.Field field=LibvirtStorageServiceHostCommandWrapper.class.getDeclaredField("SHAREDFS_NETWORK_UNIT_CONTENT");
+        field.setAccessible(true);String unit=(String)field.get(null);
+        Assert.assertTrue(unit.contains("After=local-fs.target cloud-early-config.service"));
+        Assert.assertFalse(unit.contains("Before=network-pre.target"));
+    }
+
+    @Test
+    public void testActualGuardWaitsForFinishedSuccessfulBootstrap() throws Exception {
+        LibvirtStorageServiceHostCommandWrapper wrapper=new LibvirtStorageServiceHostCommandWrapper();
+        String[] states={"ActiveState=activating\nSubState=start\nResult=success",
+            "ActiveState=failed\nSubState=failed\nResult=exit-code",
+            "ActiveState=active\nSubState=running\nResult=success",
+            "ActiveState=active\nSubState=exited\nResult=success"};
+        for(int i=0;i<states.length;i++){
+            String script="systemctl(){ printf '%s' '"+states[i]+"'; }; "+wrapper.buildSharedFsBootstrapGuard()+"printf NETWORK_READY";
+            Process process=new ProcessBuilder("bash","-c",script).start();
+            Assert.assertTrue(process.waitFor(10,java.util.concurrent.TimeUnit.SECONDS));
+            String out=new String(process.getInputStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+            String err=new String(process.getErrorStream().readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+            Assert.assertEquals(i==3?0:75,process.exitValue());
+            Assert.assertEquals(i==3,out.contains("NETWORK_READY"));
+            if(i!=3)Assert.assertTrue(err.contains("SHAREDFS_BOOTSTRAP_PENDING"));
+        }
+    }
+
+    @Test
+    public void testGuardRunsAfterIntentAndBeforeNetworkSuccess() {
+        LibvirtStorageServiceHostCommandWrapper wrapper=new LibvirtStorageServiceHostCommandWrapper();
+        StorageServiceHostCommand command=new StorageServiceHostCommand("test","configure-sharedfs-static-network","{}",60,Collections.emptySet());
+        String shell=wrapper.buildStorageCtlShell(command);
+        Assert.assertTrue(shell.indexOf("SHAREDFS_BOOTSTRAP_PENDING")>shell.indexOf("mv "));
+        Assert.assertTrue(shell.indexOf("SHAREDFS_BOOTSTRAP_PENDING")<shell.indexOf("systemctl restart ablestack-sharedfs-network.service"));
+    }
 }

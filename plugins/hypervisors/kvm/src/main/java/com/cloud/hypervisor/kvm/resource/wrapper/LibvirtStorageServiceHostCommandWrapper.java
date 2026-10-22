@@ -91,9 +91,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     private static final String SHAREDFS_NETWORK_UNIT_CONTENT = String.join("\n",
             "[Unit]",
             "Description=ABLESTACK SharedFS static network restore",
-            "After=local-fs.target",
-            "Before=network-pre.target network.target",
-            "Wants=network-pre.target",
+            "After=local-fs.target cloud-early-config.service",
             "ConditionPathExists=" + SHAREDFS_NETWORK_STATE,
             "",
             "[Service]",
@@ -214,8 +212,19 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 "printf '%s' '" + encodedUnit + "' | base64 -d > " + SHAREDFS_NETWORK_UNIT + ".tmp; " +
                 "mv " + SHAREDFS_NETWORK_UNIT + ".tmp " + SHAREDFS_NETWORK_UNIT + "; chmod 0644 " + SHAREDFS_NETWORK_UNIT + "; " +
                 "systemctl daemon-reload; systemctl enable ablestack-sharedfs-network.service >/dev/null; " +
+                buildSharedFsBootstrapGuard() +
                 "systemctl restart ablestack-sharedfs-network.service; systemctl --no-pager --full status ablestack-sharedfs-network.service >/dev/null; " +
                 SHAREDFS_NETWORK_HELPER + " " + SHAREDFS_NETWORK_STATE;
+    }
+
+    protected String buildSharedFsBootstrapGuard() {
+        // QGA may be up before the late guest bootstrap network writes finish.
+        // Persist the intent first, but do not report network readiness yet.
+        return "sharedfs_boot_state=$(systemctl show cloud-early-config.service -p ActiveState -p SubState -p Result); " +
+                "if ! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'ActiveState=active' || " +
+                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'SubState=exited' || " +
+                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'Result=success'; then " +
+                "echo 'SHAREDFS_BOOTSTRAP_PENDING: waiting for guest network initialization' >&2; exit 75; fi; ";
     }
 
     protected String decodeGuestData(final JsonObject response, final String field) {
