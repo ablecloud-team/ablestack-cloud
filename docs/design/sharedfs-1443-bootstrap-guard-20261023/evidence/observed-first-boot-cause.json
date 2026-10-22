@@ -1,0 +1,117 @@
+{
+  "vmUuid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+  "host": "10.10.13.3",
+  "role": "existing disposable SharedFS NEW EXT4 test VM; read-only historical first-boot evidence, not the deleted failed VM",
+  "unitStatesAndDependencies": {
+    "ssh.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /lib/systemd/system/ssh.service\n[Unit]\nDescription=OpenBSD Secure Shell server\nDocumentation=man:sshd(8) man:sshd_config(5)\nAfter=network.target auditd.service\nConditionPathExists=!/etc/ssh/sshd_not_to_be_run\n\n[Service]\nEnvironmentFile=-/etc/default/ssh\nExecStartPre=/usr/sbin/sshd -t\nExecStart=/usr/sbin/sshd -D $SSHD_OPTS\nExecReload=/usr/sbin/sshd -t\nExecReload=/bin/kill -HUP $MAINPID\nKillMode=process\nRestart=on-failure\nRestartPreventExitStatus=255\nType=notify\nRuntimeDirectory=sshd\nRuntimeDirectoryMode=0755\n\n[Install]\nWantedBy=multi-user.target\nAlias=sshd.service\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=success\nExecMainStartTimestampMonotonic=136579738\nExecMainExitTimestampMonotonic=0\nRequires=-.mount system.slice sysinit.target\nWants=\nBefore=shutdown.target multi-user.target\nAfter=network.target auditd.service sysinit.target systemd-journald.socket system.slice -.mount cloud-init.service basic.target\nActiveState=active\nSubState=running\n",
+        "err": ""
+      }
+    },
+    "cloud-init.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /lib/systemd/system/cloud-init.service\n[Unit]\nDescription=Initial cloud-init job (metadata service crawler)\nDefaultDependencies=no\nWants=cloud-init-local.service\nWants=sshd-keygen.service\nWants=sshd.service\nAfter=cloud-init-local.service\nAfter=systemd-networkd-wait-online.service\nAfter=networking.service\nBefore=network-online.target\nBefore=chronyd.service\nBefore=sshd-keygen.service\nBefore=sshd.service\nBefore=sysinit.target\nBefore=shutdown.target\nConflicts=shutdown.target\nBefore=systemd-user-sessions.service\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/cloud-init init\nRemainAfterExit=yes\nTimeoutSec=0\n\n# Output needs to appear in instance console output\nStandardOutput=journal+console\n\n[Install]\nWantedBy=cloud-init.target\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=exit-code\nExecMainStartTimestampMonotonic=10156071\nExecMainExitTimestampMonotonic=136551544\nRequires=system.slice\nWants=sshd-keygen.service ssh.service cloud-init-local.service\nBefore=sysinit.target ssh.service network-online.target shutdown.target chronyd.service sshd-keygen.service systemd-user-sessions.service cloud-config.target\nAfter=system.slice systemd-journald.socket networking.service systemd-networkd-wait-online.service cloud-init-local.service\nActiveState=failed\nSubState=failed\n",
+        "err": ""
+      }
+    },
+    "cloud-init-local.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /lib/systemd/system/cloud-init-local.service\n[Unit]\nDescription=Initial cloud-init job (pre-networking)\nDefaultDependencies=no\nWants=network-pre.target\nAfter=hv_kvp_daemon.service\nAfter=systemd-remount-fs.service\nBefore=NetworkManager.service\nBefore=network-pre.target\nBefore=shutdown.target\nBefore=sysinit.target\nConflicts=shutdown.target\nRequiresMountsFor=/var/lib/cloud\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/cloud-init init --local\nRemainAfterExit=yes\nTimeoutSec=0\n\n# Output needs to appear in instance console output\nStandardOutput=journal+console\n\n[Install]\nWantedBy=cloud-init.target\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=success\nExecMainStartTimestampMonotonic=8348074\nExecMainExitTimestampMonotonic=10138886\nRequires=system.slice -.mount\nWants=network-pre.target\nBefore=cloud-config.target shutdown.target network-pre.target sysinit.target NetworkManager.service cloud-init.service\nAfter=systemd-journald.socket systemd-remount-fs.service hv_kvp_daemon.service system.slice -.mount\nActiveState=active\nSubState=exited\n",
+        "err": ""
+      }
+    },
+    "cloud-config.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /lib/systemd/system/cloud-config.service\n[Unit]\nDescription=Apply the settings specified in cloud-config\nAfter=network-online.target cloud-config.target\nAfter=snapd.seeded.service\nWants=network-online.target cloud-config.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/cloud-init modules --mode=config\nRemainAfterExit=yes\nTimeoutSec=0\n\n# Output needs to appear in instance console output\nStandardOutput=journal+console\n\n[Install]\nWantedBy=cloud-init.target\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=exit-code\nExecMainStartTimestampMonotonic=136568195\nExecMainExitTimestampMonotonic=136821344\nRequires=system.slice sysinit.target\nWants=network-online.target cloud-config.target\nBefore=shutdown.target cloud-final.service\nAfter=network-online.target cloud-config.target system.slice systemd-journald.socket basic.target sysinit.target snapd.seeded.service\nActiveState=failed\nSubState=failed\n",
+        "err": ""
+      }
+    },
+    "cloud-final.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /lib/systemd/system/cloud-final.service\n[Unit]\nDescription=Execute cloud user/final scripts\nAfter=network-online.target cloud-config.service rc-local.service\nAfter=multi-user.target\nBefore=apt-daily.service\nWants=network-online.target cloud-config.service\n\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/cloud-init modules --mode=final\nRemainAfterExit=yes\nTimeoutSec=0\nKillMode=process\nTasksMax=infinity\n\n\n# Output needs to appear in instance console output\nStandardOutput=journal+console\n\n[Install]\nWantedBy=cloud-init.target\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=exit-code\nExecMainStartTimestampMonotonic=136844135\nExecMainExitTimestampMonotonic=137070632\nRequires=system.slice sysinit.target\nWants=network-online.target cloud-config.service\nBefore=apt-daily.service shutdown.target\nAfter=sysinit.target network-online.target systemd-journald.socket rc-local.service cloud-config.service basic.target multi-user.target system.slice\nActiveState=failed\nSubState=failed\n",
+        "err": ""
+      }
+    },
+    "cloud-early-config.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /etc/systemd/system/cloud-early-config.service\n[Unit]\nDescription=CloudStack post-boot patching service using cmdline\nDefaultDependencies=no\n\nRequires=local-fs.target cloud-preinit.service\nAfter=local-fs.target cloud-preinit.service\n\n[Install]\nWantedBy=multi-user.target\n\n[Service]\nType=oneshot\nExecStart=/opt/cloud/bin/setup/cloud-early-config\nRemainAfterExit=true\nTimeoutStartSec=5min\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=success\nExecMainStartTimestampMonotonic=5908375\nExecMainExitTimestampMonotonic=136610762\nRequires=local-fs.target system.slice cloud-preinit.service\nWants=\nBefore=cloud-postinit.service\nAfter=systemd-journald.socket cloud-preinit.service local-fs.target system.slice\nActiveState=active\nSubState=exited\n",
+        "err": ""
+      }
+    },
+    "cloud-preinit.service": {
+      "cat": {
+        "rc": 0,
+        "out": "# /etc/systemd/system/cloud-preinit.service\n[Unit]\nDescription=CloudStack service to initialize interfaces\nDefaultDependencies=no\n\nBefore=network-pre.target\nWants=network-pre.target\n\nRequires=local-fs.target\nAfter=local-fs.target\n\n[Install]\nWantedBy=multi-user.target\n\n[Service]\nType=oneshot\nExecStart=/opt/cloud/bin/setup/init.sh\nRemainAfterExit=true\nTimeoutStartSec=5min\n",
+        "err": ""
+      },
+      "show": {
+        "rc": 0,
+        "out": "Result=success\nExecMainStartTimestampMonotonic=3764206\nExecMainExitTimestampMonotonic=5889870\nRequires=system.slice local-fs.target\nWants=network-pre.target\nBefore=network-pre.target cloud-early-config.service\nAfter=local-fs.target system.slice systemd-journald.socket\nActiveState=active\nSubState=exited\n",
+        "err": ""
+      }
+    }
+  },
+  "sharedFsBootTimeline": [
+    "[    6.727250] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + systemctl restart ssh",
+    "[    6.873227] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0",
+    "[    7.115447] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a dhclient[1245]: bound to 10.10.254.125 -- renewal in 2939 seconds.",
+    "[    7.115512] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1245]: bound to 10.10.254.125 -- renewal in 2939 seconds.",
+    "[    8.326413] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + systemctl start --no-block cloud-init",
+    "[    8.349131] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + systemctl start --no-block cloud-config",
+    "[    8.355365] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + systemctl start --no-block cloud-final",
+    "[    8.361851] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + patch_sshd_config",
+    "[    8.379540] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-early-config[1088]: + systemctl restart ssh",
+    "[  136.612059] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Finished cloud-early-config.service - CloudStack post-boot patching service using cmdline."
+  ],
+  "metadataAndSshTimeline": [
+    "[    6.018477] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Started ssh.service - OpenBSD Secure Shell server.",
+    "[    6.777171] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Started ssh.service - OpenBSD Secure Shell server.",
+    "[   10.156715] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Starting cloud-init.service - Initial cloud-init job (metadata service crawler)...",
+    "[   10.397876] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-init[1583]: 2026-10-21 16:26:48,517 - url_helper.py[WARNING]: Calling 'http://10.10.0.1/latest/meta-data/instance-id' failed [0/120s]: bad status code [404]",
+    "[  129.492868] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-init[1583]: 2026-10-21 16:28:47,478 - url_helper.py[WARNING]: Calling 'http://10.10.0.1/latest/meta-data/instance-id' failed [118/120s]: bad status code [404]",
+    "[  136.493305] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-init[1583]: 2026-10-21 16:28:54,478 - url_helper.py[ERROR]: Timed out, no response from urls: ['http://10.10.0.1/latest/meta-data/instance-id']",
+    "[  136.495361] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a cloud-init[1583]: 2026-10-21 16:28:54,478 - DataSourceCloudStack.py[CRITICAL]: Giving up on waiting for the metadata from ['http://10.10.0.1/latest/meta-data/instance-id'] after 125 seconds",
+    "[  136.552752] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Failed to start cloud-init.service - Initial cloud-init job (metadata service crawler).",
+    "[  136.588965] sharedfs-a14c8a94-8c5c-3675-b036-652cbb92d15a systemd[1]: Started ssh.service - OpenBSD Secure Shell server."
+  ],
+  "cloudInitConfiguration": {
+    "/etc/cloud/cloud.cfg.d/cloudstack.cfg": "datasource_list: ['ConfigDrive', 'CloudStack']\ndatasource:\n  CloudStack:\n    max_wait: 120\n    timeout: 50\n"
+  }
+}
