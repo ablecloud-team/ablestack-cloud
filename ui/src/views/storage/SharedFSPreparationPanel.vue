@@ -10,7 +10,7 @@ for the specific language governing permissions and limitations. -->
 <template>
   <div class="sharedfs-preparation">
     <a-space wrap class="preparation-actions">
-      <a-button type="primary" :loading="busy" @click="$emit('update')"><reload-outlined />{{ $t('label.update') }}</a-button>
+      <a-button type="primary" :loading="busy" @click="$emit('update')"><reload-outlined />{{ $t('label.refresh') }}</a-button>
       <a-button :disabled="busy || !resumable" @click="$emit('resume')">{{ $t('label.sharedfs.preparation.resume') }}</a-button>
     </a-space>
     <a-alert show-icon :type="state.status === 'RECOVERY_REQUIRED' ? 'warning' : 'info'" :message="$t('label.sharedfs.preparation.phase.' + (state.phase || 'NOT_OBSERVED'))">

@@ -8,7 +8,16 @@
 // Initial SharedFS DATA preparation only; generic protocol jobs keep their deadlines.
 export const needsInitialPreparation = setup => !setup?.useexistingvolume && (setup?.services || []).some(x => ['NFS', 'SMB'].includes(x))
 export const isPreparedBacking = fs => fs?.preparation?.status === 'PREPARED' || fs?.preparation?.phase === 'PREPARED'
-export const freshPreparation = data => ({ ...data, observationAvailable: true })
+// The API serializer wraps ordinary single responses in their objectName.
+export function preparationFromResponse (json) {
+  const state = json?.getsharedfilesystempreparationresponse?.sharedfilesystempreparation?.preparation
+  if (!state || typeof state !== 'object' || !['RUNNING', 'PREPARED', 'OBSERVATION_PENDING', 'RECOVERY_REQUIRED'].includes(state.status)) {
+    throw new Error('Invalid initial preparation observation response')
+  }
+  return state
+}
+export const observedPrepared = state => state?.observationAvailable === true && state?.status === 'PREPARED'
+export const freshPreparation = data => ({ ...data, observationAvailable: data?.observationAvailable === true, canResume: data?.observationAvailable === true && data?.canResume === true })
 export const unavailablePreparation = previous => ({ ...previous, observationAvailable: false, canResume: false, status: 'OBSERVATION_PENDING' })
 export const canResumePreparation = state => state?.observationAvailable === true && state?.canResume === true && state?.status !== 'RUNNING' && state?.status !== 'RECOVERY_REQUIRED'
 
@@ -21,18 +30,18 @@ export async function observeInitialCreation ({ get, jobid, requestid, entityid,
       entityid = fs.id
       if (fs.preparation) {
         const reply = await get('getSharedFileSystemPreparation', { id: fs.id, requestid })
-        preparation = reply.getsharedfilesystempreparationresponse?.preparation
+        preparation = preparationFromResponse(reply)
       }
       changed(fs, preparation)
-      if (fs.state === 'Ready' && (!fs.preparation || preparation?.status === 'PREPARED')) return { sharedfs: fs }
-      if (preparation && ['RECOVERY_REQUIRED', 'OBSERVATION_PENDING'].includes(preparation.status)) return { sharedfs: fs }
+      if (fs.state === 'Ready' && (!fs.preparation || observedPrepared(preparation))) return { sharedfs: fs, preparationObservation: preparation }
+      if (preparation && ['RECOVERY_REQUIRED', 'OBSERVATION_PENDING'].includes(preparation.status)) return { sharedfs: fs, preparationObservation: preparation }
     }
     const job = (await get('queryAsyncJobResult', { jobid })).queryasyncjobresultresponse
     // A canceled job after management restart does not mean that the guest format failed.
     if (Number(job?.jobstatus) !== 0) {
       if (fs?.preparation) {
         if (preparation?.status === 'RUNNING') { await sleep(5000); continue }
-        return { sharedfs: fs }
+        return { sharedfs: fs, preparationObservation: preparation }
       }
       if (Number(job?.jobstatus) === 1) return job.jobresult
       throw new Error(job?.jobresult?.errortext || 'Initial creation job did not complete')
