@@ -1,0 +1,1 @@
+{"getstorageserviceconfigurationoperationresponse":{"configurationoperation":{"id":"design-operation","requestid":"design-request","state":"ROLLED_BACK","originalfailure":{"code":"VERIFY_FAILED","phase":"VERIFYING"},"rollback":{"state":"SUCCEEDED"}}}}

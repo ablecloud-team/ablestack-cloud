@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "fontSize": "16px",
+      "foreground": "rgb(75, 85, 99)",
+      "lineHeight": "22px",
+      "padding": "0px",
+      "rect": {
+        "h": 22,
+        "w": 812,
+        "x": 229,
+        "y": 40
+      },
+      "selector": ".ant-modal-title"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "fontSize": "14px",
+      "foreground": "rgb(75, 85, 99)",
+      "lineHeight": "22.001px",
+      "padding": "0px",
+      "rect": {
+        "h": 22,
+        "w": 54.765625,
+        "x": 229,
+        "y": 103
+      },
+      "selector": ".ant-form-item-label label"
+    },
+    {
+      "missing": true,
+      "selector": ".ant-alert-description"
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "fontSize": "14px",
+      "foreground": "rgb(255, 255, 255)",
+      "lineHeight": "22.001px",
+      "padding": "4px 15px",
+      "rect": {
+        "h": 32,
+        "w": 57.765625,
+        "x": 991.234375,
+        "y": 654
+      },
+      "selector": ".ant-modal-footer .ant-btn-primary"
+    }
+  ],
+  "theme": "ant-scrolling-effect",
+  "viewport": {
+    "h": 720,
+    "w": 1280
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "sourceSha256": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+  "pythonVersion": "3.11.2 (main, Oct  7 2026, 12:35:07) [GCC 12.2.0]",
+  "designOnly": true,
+  "results": [
+    {
+      "case": "NFS-current-render-failure",
+      "oldFileLost": true,
+      "failure": "ValueError"
+    },
+    {
+      "case": "NFS-design-compensation",
+      "operationId": "design-only-fixture",
+      "phase": "ROLLED_BACK",
+      "firstFailure": {
+        "type": "ValueError",
+        "stage": "APPLYING",
+        "code": "INJECTED_FAILURE"
+      },
+      "rollback": {
+        "success": true
+      }
+    },
+    {
+      "case": "SMB-current-validator-failure",
+      "oldFileOverwritten": true,
+      "validatorExit": 1
+    },
+    {
+      "case": "SMB-design-compensation",
+      "operationId": "design-only-fixture",
+      "phase": "ROLLED_BACK",
+      "firstFailure": {
+        "type": "CalledProcessError",
+        "stage": "APPLYING",
+        "code": "INJECTED_FAILURE"
+      },
+      "rollback": {
+        "success": true
+      }
+    },
+    {
+      "case": "SMB-real-preflight-rejects-before-publish",
+      "validatorExit": 1,
+      "oldFilePreserved": true
+    },
+    {
+      "case": "ISCSI-current-create-after-delete-failure",
+      "previousTargetAndBackstoreLost": true,
+      "executor": "modeled; real kernel untouched"
+    },
+    {
+      "case": "ISCSI-design-before-image-compensation",
+      "previousGraphRestored": true,
+      "firstFailure": "RuntimeError",
+      "executor": "modeled; real kernel untouched"
+    },
+    {
+      "case": "NVME-current-second-attribute-failure",
+      "firstAttributeChanged": true,
+      "failure": "SystemExit"
+    },
+    {
+      "case": "NVME-design-attribute-compensation",
+      "operationId": "design-only-fixture",
+      "phase": "ROLLED_BACK",
+      "firstFailure": {
+        "type": "SystemExit",
+        "stage": "APPLYING",
+        "code": "INJECTED_FAILURE"
+      },
+      "rollback": {
+        "success": true
+      }
+    },
+    {
+      "case": "design-dual-failure-retains-first",
+      "operationId": "design-only-fixture",
+      "phase": "RECOVERY_REQUIRED",
+      "firstFailure": {
+        "type": "SystemExit",
+        "stage": "APPLYING",
+        "code": "INJECTED_FAILURE"
+      },
+      "rollback": {
+        "success": false,
+        "type": "PermissionError"
+      }
+    },
+    {
+      "case": "design-diagnostic-read-after-reload",
+      "firstFailurePreserved": true,
+      "rollbackFailureSeparate": true
+    },
+    {
+      "case": "design-idempotency-and-revision-fence",
+      "applyCount": 1,
+      "changedRequestBlocked": true,
+      "staleRevisionBlocked": true
+    },
+    {
+      "case": "scope",
+      "newDiskCount": 0,
+      "liveServiceReloadCount": 0,
+      "liveConfigfsWrites": 0,
+      "productionFileWrites": 0,
+      "temporaryDirectoryRemovedOnExit": true
+    }
+  ]
+}

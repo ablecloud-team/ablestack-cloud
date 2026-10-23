@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "gap": "normal",
+      "h": 55,
+      "overflowY": "visible",
+      "padding": "16px 24px",
+      "selector": ".ant-modal-header",
+      "w": 860,
+      "x": 205,
+      "y": 24
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "gap": "normal",
+      "h": 564,
+      "overflowY": "hidden",
+      "padding": "24px",
+      "selector": ".ant-modal-body",
+      "w": 860,
+      "x": 205,
+      "y": 79
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "gap": "normal",
+      "h": 53,
+      "overflowY": "visible",
+      "padding": "10px 16px",
+      "selector": ".ant-modal-footer",
+      "w": 860,
+      "x": 205,
+      "y": 643
+    },
+    {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(197, 204, 212)",
+      "gap": "normal",
+      "h": 548,
+      "overflowY": "auto",
+      "padding": "0px 8px 20px 0px",
+      "selector": ".storage-modal-body",
+      "w": 812,
+      "x": 229,
+      "y": 103
+    }
+  ],
+  "viewport": {
+    "h": 720,
+    "w": 1280
+  }
+}
