@@ -103,6 +103,59 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             "WantedBy=multi-user.target",
             "");
 
+    private static final String SHAREDFS_BOOTSTRAP_GUARD_CONTENT = String.join("\n",
+            "import json",
+            "import subprocess",
+            "import sys",
+            "",
+            "UNITS = ('cloud-early-config.service', 'cloud-init-local.service', 'cloud-init.service')",
+            "PROPERTIES = ('Id', 'LoadState', 'ActiveState', 'SubState', 'Result', 'Job')",
+            "observations = {}",
+            "def finish(state, reason):",
+            "    snapshot = {'state': state, 'reason': reason, 'units': observations}",
+            "    if state == 'READY':",
+            "        return",
+            "    print(json.dumps({'sharedFsBootstrap': snapshot}, separators=(',', ':')))",
+            "    print('SHAREDFS_BOOTSTRAP_' + state + ': ' + json.dumps(snapshot, separators=(',', ':')), file=sys.stderr)",
+            "    sys.exit(75 if state == 'PENDING' else 76)",
+            "def inspect(unit):",
+            "    args = ['systemctl', 'show', unit]",
+            "    for prop in PROPERTIES:",
+            "        args.extend(['-p', prop])",
+            "    result = subprocess.run(args, text=True, capture_output=True, timeout=5)",
+            "    values = dict(line.split('=', 1) for line in result.stdout.splitlines() if '=' in line)",
+            "    required = PROPERTIES",
+            "    if any(key not in values for key in required):",
+            "        raise ValueError('Missing bootstrap unit properties: ' + unit)",
+            "    if result.returncode and values['LoadState'] != 'not-found':",
+            "        raise ValueError('Unable to inspect bootstrap unit: ' + unit)",
+            "    if any(len(values.get(key, '')) > 128 for key in PROPERTIES):",
+            "        raise ValueError('Invalid bootstrap unit property length: ' + unit)",
+            "    observations[unit] = {key: values.get(key, '') for key in PROPERTIES}",
+            "    return observations[unit]",
+            "try:",
+            "    for unit in UNITS:",
+            "        inspect(unit)",
+            "except subprocess.TimeoutExpired:",
+            "    finish('PENDING', 'UNIT_INSPECTION_TIMEOUT')",
+            "except (OSError, ValueError):",
+            "    finish('FAILED', 'UNIT_INSPECTION_FAILED')",
+            "early = observations[UNITS[0]]",
+            "if early['LoadState'] != 'loaded' or early['ActiveState'] == 'failed':",
+            "    finish('FAILED', 'EARLY_CONFIG_FAILED')",
+            "if early['Job'] not in ('', '0') or (early['ActiveState'], early['SubState'], early['Result']) != ('active', 'exited', 'success'):",
+            "    finish('PENDING', 'EARLY_CONFIG_RUNNING')",
+            "for unit in UNITS[1:]:",
+            "    stage = observations[unit]",
+            "    if stage['LoadState'] == 'not-found':",
+            "        continue",
+            "    if stage['LoadState'] != 'loaded':",
+            "        finish('FAILED', 'NETWORK_STAGE_UNAVAILABLE')",
+            "    if stage['Job'] not in ('', '0') or stage['ActiveState'] in ('activating', 'deactivating') or stage['SubState'] in ('running', 'start', 'start-pre', 'start-post'):",
+            "        finish('PENDING', 'NETWORK_STAGE_RUNNING')",
+            "finish('READY', 'NETWORK_INITIALIZATION_FINISHED')",
+            "");
+
     @Override
     public Answer execute(final StorageServiceHostCommand command, final LibvirtComputingResource libvirtComputingResource) {
         Domain domain = null;
@@ -218,13 +271,9 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     }
 
     protected String buildSharedFsBootstrapGuard() {
-        // QGA may be up before the late guest bootstrap network writes finish.
-        // Persist the intent first, but do not report network readiness yet.
-        return "sharedfs_boot_state=$(systemctl show cloud-early-config.service -p ActiveState -p SubState -p Result); " +
-                "if ! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'ActiveState=active' || " +
-                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'SubState=exited' || " +
-                "! printf '%s\\n' \"$sharedfs_boot_state\" | grep -qx 'Result=success'; then " +
-                "echo 'SHAREDFS_BOOTSTRAP_PENDING: waiting for guest network initialization' >&2; exit 75; fi; ";
+        // Preserve bootstrap ordering; do not apply STATIC while cloud-init can still change the NIC.
+        final String encoded = Base64.getEncoder().encodeToString(SHAREDFS_BOOTSTRAP_GUARD_CONTENT.getBytes(StandardCharsets.UTF_8));
+        return "python3 -c \"import base64;exec(base64.b64decode('" + encoded + "'))\"; ";
     }
 
     protected String decodeGuestData(final JsonObject response, final String field) {
