@@ -89,6 +89,6 @@
 - 새10TiB EXT4는 생성하지 않았다. 별도 이슈 분기나 #1468 UI 정리를 시작하지 않았다.
 - #1443은 닫지 않는다. 다음 단계는 위 관찰 경로 보완과 검증 재개에 대한 사용자 지시를 기다리는 것이다.
 
-[2TiB 결과](evidence/xfs2-result.json) · [2TiB 전](evidence/xfs2-before-vm-restart.json) · [2TiB 후](evidence/xfs2-after-vm-restart.json) · [관리 프로세스 재시작](evidence/management-restart.json) · [10TiB 포맷 진입](evidence/xfs10-formatting-before-error.json) · [오류 시 실제 guest](evidence/xfs10-error-diagnostic.json) · [원인 실증](evidence/observation-root-cause.json) · [UI 실제 API 응답 요약](evidence/ui-api-summary.json) · [guest 회귀](evidence/guest-regression.log)
+[2TiB 결과](evidence/xfs2-result.json) · [2TiB 전](evidence/xfs2-before-vm-restart.json) · [2TiB 후](evidence/xfs2-after-vm-restart.json) · [관리 프로세스 재시작](evidence/management-restart.json) · [10TiB 포맷 진입](evidence/xfs10-formatting-before-error.json) · [오류 시 실제 guest](evidence/xfs10-error-diagnostic.json) · [원인 실증](evidence/observation-root-cause.json) · [UI 실제 API 응답 요약](evidence/ui-api-summary.json) · [guest 회귀](evidence/guest-regression.txt)
 
 [중단 후 마지막 guest 상태](evidence/xfs10-final-diagnostic.json) · [장치 I/O 대기](evidence/xfs10-io-diagnostic.json) · [실제 BLKDISCARD syscall](evidence/xfs10-mkfs-syscall.json)
