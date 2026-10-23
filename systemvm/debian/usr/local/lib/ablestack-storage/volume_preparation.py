@@ -168,14 +168,18 @@ def validate_record(s, p):
             raise PreparationError("IDENTITY_CHANGED", "Preparation intent does not match the original volume")
 
 
-def inspect(p):
+def inspect(p, probe_filesystem=True):
     start = time.monotonic()
     def probe(args):
         remaining = 18 - (time.monotonic() - start)
         if remaining <= 0:
             raise PreparationError("OBSERVATION_TIMEOUT", "Volume observation exceeded its deadline")
         return run(args, min(8, remaining))
-    r = probe(["lsblk", "-b", "-J", "-o", "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"])
+    # Filesystem columns can themselves read a device that mkfs is modifying.
+    columns = "NAME,PATH,TYPE,SERIAL,SIZE,MOUNTPOINT"
+    if probe_filesystem:
+        columns += ",FSTYPE,UUID"
+    r = probe(["lsblk", "-b", "-J", "-o", columns])
     if r.returncode:
         raise PreparationError("OBSERVATION_FAILED", "Unable to observe attached disks")
     devices = json.loads(r.stdout).get("blockdevices", [])
@@ -196,6 +200,10 @@ def inspect(p):
         raise PreparationError("EXISTING_SIGNATURE", "A new DATA disk cannot contain partitions")
     if d.get("mountpoint") and os.path.realpath(str(d["mountpoint"])) != mount:
         raise PreparationError("FOREIGN_MOUNT", "DATA is mounted at a different path")
+    if source and os.path.realpath(source) != os.path.realpath(resolved["devicePath"]):
+        raise PreparationError("FOREIGN_MOUNT", "Canonical mount belongs to another disk")
+    if not probe_filesystem:
+        return dict(resolved, mountPath=mount, mounted=bool(source), observedAt=time.time())
     b = probe(["blkid", "-p", "-o", "export", resolved["devicePath"]])
     fields = dict(line.split("=", 1) for line in b.stdout.splitlines() if "=" in line)
     if b.returncode not in (0, 2):
@@ -206,8 +214,6 @@ def inspect(p):
         w = probe(["wipefs", "--no-act", "--json", resolved["devicePath"]])
         if w.returncode or json.loads(w.stdout).get("signatures"):
             raise PreparationError("EXISTING_SIGNATURE", "Unexpected or partial DATA signature")
-    if source and os.path.realpath(source) != os.path.realpath(resolved["devicePath"]):
-        raise PreparationError("FOREIGN_MOUNT", "Canonical mount belongs to another disk")
     return dict(resolved, filesystem=fs, filesystemUuid=fsid, mountPath=mount,
                 mounted=bool(source), observedAt=time.time())
 
@@ -222,6 +228,13 @@ def alive(s):
     return not pid or ticks(pid) == s.get("workerStartTicks")
 
 
+def observation_state(s):
+    out = {k: v for k, v in s.items() if k not in ("payload", "workerPid", "workerStartTicks")}
+    out.update(capabilityVersion=CAPABILITY, observationAvailable=True, lastObservedAt=time.time(),
+               canResume=False, progresspercent=None, currentBootId=boot_id())
+    return out
+
+
 def snapshot(p, store=None):
     store = store or Store(p["volumeUuid"])
     s = store.read()
@@ -230,14 +243,36 @@ def snapshot(p, store=None):
                 "volumeUuid": p["volumeUuid"], "status": "OBSERVATION_PENDING", "phase": "NOT_OBSERVED",
                 "canResume": False, "errorCode": "JOURNAL_MISSING", "observationAvailable": True}
     validate_record(s, p)
-    out = {k: v for k, v in s.items() if k not in ("payload", "workerPid", "workerStartTicks")}
-    out.update(capabilityVersion=CAPABILITY, observationAvailable=True, lastObservedAt=time.time(), canResume=False, progresspercent=None)
-    i = inspect(p)
-    out["observedFilesystem"] = i["filesystem"]
-    out["observedFilesystemUuid"] = i["filesystemUuid"]
-    out["currentBootId"] = boot_id()
-    if alive(s):
-        out.update(status="RUNNING", blockedReason="WORKER_RUNNING")
+    try:
+        if alive(s):
+            # Verify ROOT/DATA identity without reading signatures during mkfs/discard.
+            inspect(p, probe_filesystem=False)
+            s = store.read()
+            validate_record(s, p)
+            if alive(s):
+                out = observation_state(s)
+                out.update(status="RUNNING", blockedReason="WORKER_RUNNING")
+                return out
+        # An ended/rebooted worker still requires the original complete FS checks.
+        i = inspect(p)
+        s = store.read()
+        validate_record(s, p)
+        out = observation_state(s)
+        out["observedFilesystem"] = i["filesystem"]
+        out["observedFilesystemUuid"] = i["filesystemUuid"]
+        if alive(s):
+            out.update(status="RUNNING", blockedReason="WORKER_RUNNING")
+            return out
+    except (subprocess.TimeoutExpired, PreparationError) as e:
+        if not isinstance(e, subprocess.TimeoutExpired) and e.code != "OBSERVATION_TIMEOUT":
+            raise
+        # A read timeout is not evidence of a failed formatter or a blank disk.
+        s = store.read()
+        validate_record(s, p)
+        out = observation_state(s)
+        out.update(status="OBSERVATION_PENDING", observationAvailable=False, canResume=False,
+                   blockedReason="OBSERVATION_UNAVAILABLE", errorCode="OBSERVATION_TIMEOUT",
+                   reason=str(e)[-MAX_DIAGNOSTIC:])
         return out
     if s.get("filesystemUuid") and i["filesystemUuid"] != s["filesystemUuid"]:
         out.update(status="RECOVERY_REQUIRED", errorCode="FILESYSTEM_IDENTITY_CHANGED")
