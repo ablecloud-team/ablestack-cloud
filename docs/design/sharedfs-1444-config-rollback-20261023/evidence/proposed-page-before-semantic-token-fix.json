@@ -1,0 +1,62 @@
+[
+  {
+    "background": [
+      67,
+      67,
+      67,
+      1
+    ],
+    "color": "rgba(255, 255, 255, 0.65)",
+    "contrast": 5.277426149629209,
+    "selector": ".resource-card .ant-tag",
+    "text": "사용 가능"
+  },
+  {
+    "background": [
+      34,
+      40,
+      47,
+      1
+    ],
+    "color": "rgb(105, 177, 255)",
+    "contrast": 6.607418085557632,
+    "selector": ".resource-card a",
+    "text": "설정 원복 완료"
+  },
+  {
+    "background": [
+      24,
+      144,
+      255,
+      1
+    ],
+    "color": "rgb(255, 255, 255)",
+    "contrast": 3.2446756297921104,
+    "selector": ".detail-tab-toolbar .ant-btn-primary",
+    "text": "NFS 내보내기 생성"
+  },
+  {
+    "background": [
+      67,
+      67,
+      67,
+      1
+    ],
+    "color": "rgba(255, 255, 255, 0.65)",
+    "contrast": 5.277426149629209,
+    "selector": ".ant-table-tbody .ant-tag",
+    "text": "Ready"
+  },
+  {
+    "background": [
+      51,
+      42,
+      22,
+      1
+    ],
+    "color": "rgb(255, 231, 163)",
+    "contrast": 11.6015199533274,
+    "selector": ".ant-alert-warning .ant-alert-message",
+    "text": "최근 변경 실패 · 이전 정상 설정으로 원복 완료"
+  }
+]
