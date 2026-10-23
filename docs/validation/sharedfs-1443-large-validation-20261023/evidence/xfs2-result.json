@@ -1,0 +1,16 @@
+{
+  "case": "2TiB XFS",
+  "sharedfs": "d401c6b4-da3a-406b-b3e6-f37576262128",
+  "vm": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+  "root": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+  "data": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+  "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+  "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+  "formatCount": 1,
+  "formatSeconds": 57.25044393539429,
+  "vmRestartJob": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+  "bootChanged": true,
+  "filesPreserved": true,
+  "result": "PASS",
+  "managementRestartPhase": "after format completed, before initial SMB setup completed"
+}

@@ -1,0 +1,20 @@
+{
+  "capturedGuest": {
+    "status": "RUNNING",
+    "phase": "FORMATTING",
+    "formatCount": 1,
+    "heartbeatAge": 0.2598555088043213,
+    "sourceSha": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+    "processes": [
+      "   5148       1     149 python3",
+      "   5155    5148     149 ablestack-stora",
+      "   5168    5159     149 mkfs.xfs"
+    ]
+  },
+  "offlineOrderProbe": {
+    "timeoutPropagated": true,
+    "workerLivenessChecks": 0,
+    "existingImplementationFailsBeforeAlive": true,
+    "productFilesChanged": false
+  }
+}

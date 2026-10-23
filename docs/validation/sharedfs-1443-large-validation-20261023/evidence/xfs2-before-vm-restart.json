@@ -1,0 +1,97 @@
+{
+  "time": 1792723227.8081405,
+  "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+  "journals": [
+    {
+      "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+      "createdAt": 1792722832.7187912,
+      "deadlineAt": null,
+      "errorCode": null,
+      "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+      "finishedAt": 1792722890.1276414,
+      "formatCount": 1,
+      "formatDeadlineAt": 1792723312.8771975,
+      "formatEverStarted": true,
+      "formatStartedAt": 1792722832.8771975,
+      "heartbeatAt": 1792722890.1276417,
+      "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "observedFilesystem": "xfs",
+      "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+      "payload": {
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "instanceUuid": "fca7acd8-bb05-48d0-b53a-60e3abbda433",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      },
+      "phase": "PREPARED",
+      "phaseStartedAt": 1792722889.8952014,
+      "phaseTimeoutSeconds": 120,
+      "reason": null,
+      "startedAt": 1792722832.7187912,
+      "status": "PREPARED",
+      "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+      "version": 1,
+      "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "workerPid": 5430,
+      "workerStartTicks": "14075"
+    }
+  ],
+  "lsblk": {
+    "rc": 0,
+    "stdout": "{\n   \"blockdevices\": [\n      {\n         \"name\": \"sda\",\n         \"size\": 5242880000,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"f6ab50f915f44924b8f5\",\n         \"mountpoints\": [\n             null\n         ],\n         \"children\": [\n            {\n               \"name\": \"sda1\",\n               \"size\": 398458880,\n               \"fstype\": \"ext2\",\n               \"uuid\": \"02a28a52-ae70-46b5-8f12-3636640c9a99\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/boot\"\n               ]\n            },{\n               \"name\": \"sda2\",\n               \"size\": 1024,\n               \"fstype\": null,\n               \"uuid\": null,\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda5\",\n               \"size\": 510656512,\n               \"fstype\": \"swap\",\n               \"uuid\": \"c30f6d3c-fe8f-41df-99b0-52cb823c014c\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda6\",\n               \"size\": 4329570304,\n               \"fstype\": \"ext4\",\n               \"uuid\": \"91b8366d-a5de-42ad-a420-2e26aa755c3d\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/\"\n               ]\n            }\n         ]\n      },{\n         \"name\": \"sdb\",\n         \"size\": 2199023255552,\n         \"fstype\": \"xfs\",\n         \"uuid\": \"47bdc00b-c2ae-4f88-af78-4819030f0376\",\n         \"serial\": \"fcb8fa347d4840878153\",\n         \"mountpoints\": [\n             \"/export/x2n\", \"/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3\"\n         ]\n      },{\n         \"name\": \"sr0\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00003\",\n         \"mountpoints\": [\n             null\n         ]\n      },{\n         \"name\": \"sr1\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00004\",\n         \"mountpoints\": [\n             null\n         ]\n      }\n   ]\n}\n",
+    "stderr": ""
+  },
+  "units": {
+    "rc": 0,
+    "stdout": "  UNIT                                           LOAD   ACTIVE   SUB     DESCRIPTION\n  ablestack-sharedfs-network.service             loaded active   exited  ABLESTACK SharedFS static network restore\n  ablestack-storage-ganesha@0.0.0.0_2049.service loaded active   running ABLESTACK Storage Service NFS Ganesha endpoint 0.0.0.0_2049\n  ablestack-storage-monitor.service              loaded active   running ABLESTACK Storage Service monitor cache\n  ablestack-storage-reconcile.service            loaded inactive dead    ABLESTACK Storage Service boot reconcile\n  ablestack-storage-runtime-bootstrap.service    loaded active   exited  ABLESTACK Storage Service runtime bootstrap\n\nLOAD   = Reflects whether the unit definition was properly loaded.\nACTIVE = The high-level unit activation state, i.e. generalization of SUB.\nSUB    = The low-level unit activation state, values depend on unit type.\n5 loaded units listed.\nTo show all installed unit files use 'systemctl list-unit-files'.\n",
+    "stderr": ""
+  },
+  "network": {
+    "rc": 0,
+    "stdout": "[{\"ifindex\":1,\"ifname\":\"lo\",\"flags\":[\"LOOPBACK\",\"UP\",\"LOWER_UP\"],\"mtu\":65536,\"qdisc\":\"noqueue\",\"operstate\":\"UNKNOWN\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"loopback\",\"address\":\"00:00:00:00:00:00\",\"broadcast\":\"00:00:00:00:00:00\",\"addr_info\":[{\"family\":\"inet\",\"local\":\"127.0.0.1\",\"prefixlen\":8,\"scope\":\"host\",\"label\":\"lo\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]},{\"ifindex\":2,\"ifname\":\"eth0\",\"flags\":[\"BROADCAST\",\"MULTICAST\",\"UP\",\"LOWER_UP\"],\"mtu\":1500,\"qdisc\":\"fq_codel\",\"operstate\":\"UP\",\"group\":\"default\",\"txqlen\":1000,\"link_type\":\"ether\",\"address\":\"02:0d:00:cc:00:4b\",\"broadcast\":\"ff:ff:ff:ff:ff:ff\",\"altnames\":[\"enp0s3\",\"ens3\"],\"addr_info\":[{\"family\":\"inet\",\"local\":\"10.10.13.250\",\"prefixlen\":16,\"scope\":\"global\",\"label\":\"eth0\",\"valid_life_time\":4294967295,\"preferred_life_time\":4294967295}]}]\n",
+    "stderr": ""
+  },
+  "files": [
+    {
+      "path": "/export/x2n/preserve.txt",
+      "sha256": "05e94d825358d2b26bdca794f7909ed201d603e07960370a9c8cb68867378c3b",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "findmnt": {
+        "rc": 0,
+        "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/export/x2n\",\n         \"source\": \"/dev/sdb[/export/x2n]\",\n         \"fstype\": \"xfs\",\n         \"options\": \"rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota\"\n      }\n   ]\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3/export/x2n/preserve.txt",
+      "sha256": "05e94d825358d2b26bdca794f7909ed201d603e07960370a9c8cb68867378c3b",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "findmnt": {
+        "rc": 0,
+        "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"xfs\",\n         \"options\": \"rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota\"\n      }\n   ]\n}\n",
+        "stderr": ""
+      }
+    },
+    {
+      "path": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3/export/x2s/preserve.txt",
+      "sha256": "994f01244accef18c581de209f09fbee510071c1e243d3a2247be7726c494e2c",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "findmnt": {
+        "rc": 0,
+        "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"xfs\",\n         \"options\": \"rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota\"\n      }\n   ]\n}\n",
+        "stderr": ""
+      }
+    }
+  ]
+}
