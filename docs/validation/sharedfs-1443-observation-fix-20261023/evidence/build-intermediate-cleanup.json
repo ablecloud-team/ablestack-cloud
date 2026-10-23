@@ -1,0 +1,14 @@
+{
+  "removed": [
+    {
+      "path": "/root/work/epic1438-preparation/20261023/issue1443-observation-fix/verified-base.qcow2",
+      "bytes": 1797521408
+    },
+    {
+      "path": "/root/work/epic1438-preparation/20261023/issue1443-observation-fix/systemvm-epic1443-observation-20261023.qcow2",
+      "bytes": 1797586944
+    }
+  ],
+  "compressedArtifactRetained": true,
+  "freeAfter": 764674179072
+}
