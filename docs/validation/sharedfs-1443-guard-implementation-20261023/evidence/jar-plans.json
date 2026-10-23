@@ -1,0 +1,40 @@
+[
+  {
+    "kind": "management",
+    "target": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar",
+    "original_sha256": "fc6ee2fa446a3782e1c8c0c01529067f7a1b6ffa4fba3c922cfd109f150413d2",
+    "candidate_sha256": "7a00a376a686bb6fe120c617e77552867abcd71db2b35bf169c5e051d85853ee",
+    "jar_name": "cloudstack-4.23.0.0.jar",
+    "candidate": "/root/work/epic1438-preparation/20261023/issue1443-guard-implementation/management-guard.jar",
+    "classes": [
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$StaticNetworkConfiguration.class",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFsBootstrapPendingTimeoutException.class"
+    ],
+    "unchanged_entries": 93756,
+    "unchanged_bytes_verified": true,
+    "class_sha256": {
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$StaticNetworkConfiguration.class": "92eeccd548687bf6132b4d90ec565195ef0d9c6f9bc18e3a175a0d7676a9d219",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class": "b132cdde3d21ae4701e41280e5e0ec9a7b49f61c31615eaa6546921c7caad423",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class": "c82ea4a35d74a3684b3d0aab2959a6995cfcf8e872df538e894b5cb81b1c36c3",
+      "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFsBootstrapPendingTimeoutException.class": "273621e11583a378858606de66cf2dbfc3edf804f03570ab379c88b12b8af795"
+    }
+  },
+  {
+    "kind": "agent",
+    "target": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+    "original_sha256": "168350ffb5e9345b7ba2eee91a1e1c38d35cd47b209ab0caad58be7c0a97ec55",
+    "candidate_sha256": "0be334b2e9d9a4ab8c15b92fdc97ab664abc60c2ddd208996fc6f1f61f517b66",
+    "jar_name": "cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+    "candidate": "/root/work/epic1438-preparation/20261023/issue1443-guard-implementation/agent-guard.jar",
+    "classes": [
+      "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class"
+    ],
+    "unchanged_entries": 524,
+    "unchanged_bytes_verified": true,
+    "class_sha256": {
+      "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0"
+    }
+  }
+]

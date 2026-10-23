@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "d69133fffd2ba86b9aeba761aad198812345f323",
+  "static": {
+    "sharedfs": "e9ed9f67-492e-497c-b738-810cc85f3ee7",
+    "vm": "8144aac2-225b-3b0f-95ae-f2d490d4ef76",
+    "host": "10.10.13.3",
+    "root": "a81169df-e3a4-4aaa-bdf2-0254a82224f9",
+    "data": "e3e223fb-6843-4e8c-b235-9c6df2dbfae9",
+    "mode": "STATIC",
+    "ip": "10.10.13.253",
+    "template": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+    "sizeGiB": 20,
+    "protocols": [
+      "NFSv4.1",
+      "SMB3.1.1 LOCAL"
+    ],
+    "uiCreated": true,
+    "uiRestarted": true,
+    "clientConsoleReconnectPassed": true
+  },
+  "dhcp": {
+    "sharedfs": "a3d76efc-9abe-4752-8361-ed09297d7f34",
+    "vm": "0c9f5ce2-2328-33a1-a290-b0d6a6619ba5",
+    "host": "10.10.13.1",
+    "root": "057e0836-bc68-4af6-8528-54cf0d32c731",
+    "data": "a7a5adcc-f202-4103-a735-a32a8144c57d",
+    "mode": "DHCP",
+    "ip": "10.1.1.222",
+    "network": "605ea6da-a8ba-45a7-be63-e07843aaf969",
+    "sizeGiB": 20,
+    "uiCreated": true,
+    "restartPending": false,
+    "uiRestarted": true,
+    "originalDhcpLeaseRestored": true
+  },
+  "largeVolumeAcceptanceStarted": false,
+  "macManuallyChanged": false
+}
