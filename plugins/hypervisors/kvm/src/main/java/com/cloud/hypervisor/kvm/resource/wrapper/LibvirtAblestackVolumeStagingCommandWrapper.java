@@ -42,6 +42,9 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
             if (id == null || !id.matches("[A-Za-z0-9_.-]+") || id.equals(".") || id.equals("..")) {
                 return new Answer(command, false, "Invalid volume staging job ID");
             }
+            if ("EXTERNAL_RESTORE_CLEANUP".equals(command.getAction())) {
+                return cleanupRejectedRestore(command, resource);
+            }
             Path directory = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT, id);
             if ("RESTORE_RETIRE".equals(command.getAction())) {
                 var plan = new Gson().fromJson(command.getManifest(), org.apache.cloudstack.backup.ThirdPartyBackupRestore.Plan.class);
@@ -384,6 +387,53 @@ public class LibvirtAblestackVolumeStagingCommandWrapper
         } catch (Exception e) {
             logger.warn("Volume staging control failed for job [{}]", command.getJobId(), e);
             return new Answer(command, false, e.getMessage());
+        }
+    }
+
+    private Answer cleanupRejectedRestore(AblestackVolumeStagingCommand command, LibvirtComputingResource resource) throws java.io.IOException {
+        var plan = new Gson().fromJson(command.getManifest(), org.apache.cloudstack.backup.ThirdPartyExternalRestore.Attempt.class);
+        if (plan == null || !command.getJobId().equals(plan.id)
+                || !org.apache.cloudstack.backup.ThirdPartyExternalRestore.id(plan.provider, plan.jobId).equals(plan.id)
+                || !java.util.Set.of("ablestack-netbackup", "ablestack-veeam").contains(plan.provider)) {
+            return new Answer(command, false, "Invalid rejected external restore cleanup identity");
+        }
+        Path jobs = Path.of(AblestackBackupFrameworkUtils.ASYNC_BACKUP_JOB_ROOT);
+        if (Files.isDirectory(jobs)) {
+            try (var properties = Files.newDirectoryStream(jobs, "*.properties")) {
+                for (Path path : properties) {
+                    java.util.Properties saved = new java.util.Properties();
+                    try (var stream = Files.newInputStream(path)) { saved.load(stream); }
+                    if (!plan.vmName.equals(saved.getProperty("vmName"))) { continue; }
+                    String jobId = path.getFileName().toString().replaceFirst("\\.properties$", "");
+                    if (!java.util.Set.of("COMPLETED", "FAILED", "CANCELED", "INTERRUPTED").contains(
+                            LibvirtAblestackAsyncBackupRunner.getJobState(jobId, logger))) {
+                        return new Answer(command, false, "Host worker for this VM has not confirmed termination: " + jobId);
+                    }
+                }
+            }
+        }
+        Path script = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("thirdparty_external_restore_cleanup.py");
+        if (!Files.isRegularFile(script)) { return new Answer(command, false, "Rejected metadata cleanup helper is not installed"); }
+        Path receipts = jobs.getParent().resolve("external-restore-cleanup");
+        Files.createDirectories(receipts);
+        Files.setPosixFilePermissions(receipts, java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"));
+        Path request = receipts.resolve(plan.id + "-" + java.util.UUID.randomUUID() + ".plan");
+        try {
+            LibvirtAblestackVolumeRestoreHelper.atomic(request, command.getManifest());
+            var process = new com.cloud.utils.script.Script("/bin/bash", org.joda.time.Duration.standardSeconds(30));
+            process.add("-c");
+            process.add("python3 " + quote(script.toString()) + " --plan-file " + quote(request.toString())
+                    + " --receipt-root " + quote(receipts.toString()) + " 2>&1");
+            var parser = new com.cloud.utils.script.OutputInterpreter.AllLinesParser();
+            String error = process.execute(parser);
+            String output = parser.getLines();
+            if (error == null && output != null && java.util.Arrays.stream(output.split("\\r?\\n"))
+                    .anyMatch(line -> ("ABLESTACK_EXTERNAL_CLEANUP=" + plan.id).equals(line))) {
+                return new Answer(command, true, plan.id);
+            }
+            return new Answer(command, false, "Rejected metadata cleanup is unconfirmed: " + org.apache.commons.lang3.StringUtils.abbreviate(output, 2048));
+        } finally {
+            Files.deleteIfExists(request);
         }
     }
 

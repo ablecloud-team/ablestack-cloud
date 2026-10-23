@@ -512,6 +512,12 @@ public class BackupManagerTest {
                         assertFalse(resolved.restoreallowed);
                         assertEquals("The original VM must be Stopped before restoring metadata in the external UI", resolved.reason);
                         when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+                        String rejectedJob = "ablestack-netbackup".equals(provider) ? "121" : "b81acbeb-6cfa-424b-95b2-f4d26280a8c0";
+                        String rejectedKey = ThirdPartyExternalRestore.key(provider, rejectedJob);
+                        details.put(rejectedKey, gson.toJson(Map.of("provider", provider, "jobId", rejectedJob, "backupUuid", "backup-1")));
+                        assertTrue("A rejected Job remains claimed after the VM stops", backupManager.resolveBackupArtifact(
+                                provider, metadata.externalId, rejectedJob, null).tracked);
+                        details.remove(rejectedKey);
                         details.put(ThirdPartyBackupManifest.CATALOG_FAILURE_KEY, "Required Full artifact expired");
                         assertFalse(backupManager.resolveBackupArtifact(provider, metadata.externalId, null, null).restoreallowed);
                     }

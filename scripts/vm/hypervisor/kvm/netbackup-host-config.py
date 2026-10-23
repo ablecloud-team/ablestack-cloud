@@ -635,6 +635,7 @@ def write_watcher_config(path: Path, args: argparse.Namespace) -> None:
         'NETBACKUP_SSL_VERIFY="false"',
         'NETBACKUP_CA_FILE=""',
         f'NETBACKUP_STAGING_ROOT="{BACKUP_STAGING_ROOT}"',
+        f'MOLD_HOST_NAME="{args.kvm_hostname}"',
         f'RESTORE_NOTIFY_SCRIPT="{RESTORE_NOTIFY_OUTPUT_PATH}"',
         f'MOLD_CONFIG_FILE="{RESTORE_CONFIG_PATH}"',
         f'LOG_FILE="{WATCHER_LOG_PATH}"',

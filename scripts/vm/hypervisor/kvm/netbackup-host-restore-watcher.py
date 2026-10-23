@@ -618,13 +618,23 @@ def should_process_single_restore_path(external_ids: list[str], job_id_value: st
     return False
 
 
-def invoke_restore_notify(external_id: str, job_id_value: str) -> Optional[str]:
+def invoke_restore_notify(external_id: str, job_id_value: str, job: Optional[dict[str, Any]] = None) -> Optional[str]:
     notify_script = require_config("RESTORE_NOTIFY_SCRIPT")
     env = os.environ.copy()
     if CONFIG.get("MOLD_CONFIG_FILE"):
         env["MOLD_CONFIG_FILE"] = CONFIG["MOLD_CONFIG_FILE"]
     if CONFIG.get("MOLD_RESTORE_API_METHOD"):
         env["MOLD_RESTORE_API_METHOD"] = CONFIG["MOLD_RESTORE_API_METHOD"]
+    # Only a confirmed external Job may authorize cleanup of rejected metadata.
+    job = job if job is not None else fetch_restore_job(job_id_value)
+    started = parse_timestamp(get_nested(job, "attributes.startTime", "startTime", "attributes.timestamps.startTime"))
+    ended = parse_timestamp(get_nested(job, "attributes.endTime", "endTime", "attributes.timestamps.endTime"))
+    if started and ended and ended >= started:
+        env["MOLD_EXTERNAL_RESTORE_PROOF"] = json.dumps({
+            "hostName": CONFIG.get("MOLD_HOST_NAME") or socket.gethostname().split(".")[0],
+            "startedAt": int(started * 1000), "endedAt": int(ended * 1000)})
+    else:
+        env.pop("MOLD_EXTERNAL_RESTORE_PROOF", None)
     proc = subprocess.run(
         [notify_script, "netbackup-host-restore-watcher", external_id, "restore", job_id_value],
         stdout=subprocess.PIPE,
@@ -779,7 +789,7 @@ def poll_once(state: dict[str, Any]) -> None:
         # A partial Job may submit only the exact metadata directory verified above,
         # never an unverified catalog ID or a stale directory discovered by proximity.
         restore_identifier = validation.get("externalId", validation["root"]) if validation else local_identifiers[0]
-        notification_status = invoke_restore_notify(restore_identifier, current_job_id)
+        notification_status = invoke_restore_notify(restore_identifier, current_job_id, job)
         if notification_status:
             processed[current_job_id] = {
                 "externalId": restore_identifier,

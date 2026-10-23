@@ -502,6 +502,7 @@ cat "${MOLD_VM_CACHE_FILE}.request"
                 config.write_watcher_config(path, self.arguments())
             values = {line.split("=", 1)[0]: shlex.split(line.split("=", 1)[1])[0]
                       for line in path.read_text().splitlines() if "=" in line}
+            self.assertEqual("host-test", values["MOLD_HOST_NAME"])
             self.assertEqual(str(state), values["STATE_FILE"])
             self.assertEqual(str(lock), values["LOCK_FILE"])
             self.assertEqual(inode, lock.stat().st_ino)

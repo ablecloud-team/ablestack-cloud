@@ -132,6 +132,9 @@ public interface ThirdPartyBackupVolumeService {
     /** Serialize parent selection with deletion of artifacts shared by an incremental chain. */
     Lease acquireLifecycle(long vmId);
 
+    /** Called with the VM lifecycle lease held; no VM restore worker is launched. */
+    void rejectExternalRestore(Backup backup, String provider, String externalId, String jobId, String reason, String proof);
+
     /** Persist the initial volume plan and its pending resource accounting before Host dispatch. */
     void persistBackupPlan(Backup backup);
 

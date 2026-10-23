@@ -170,6 +170,12 @@ public class BackupResponse extends BaseResponse {
 
     public void setVmRestore(BackupStagingInfoResponse.VmRestoreInfo value) { vmRestore = value; }
 
+    @SerializedName("externalrestorefailure")
+    @Param(description = "Latest rejected external metadata restore, separate from VM backup availability")
+    private BackupExternalRestoreResponse externalRestoreFailure;
+
+    public void setExternalRestoreFailure(BackupExternalRestoreResponse value) { externalRestoreFailure = value; }
+
     @SerializedName("stagingqueue")
     @Param(description = "Persisted staging admission and waiting reason for the latest Backup or Restore attempt")
     private BackupStagingQueueResponse stagingQueue;

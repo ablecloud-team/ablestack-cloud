@@ -130,6 +130,23 @@
               <span>{{ $t('label.failure.reason') }} :</span>
               <span>{{ restoreFailureDetails }}</span>
             </div>
+            <template v-if="record.externalrestorefailure">
+              <div class="backup-progress-tooltip-row">
+                <span>{{ $t('label.backup.external.restore.job') }} :</span><span>{{ record.externalrestorefailure.jobid }}</span>
+              </div>
+              <div class="backup-progress-tooltip-row">
+                <span>{{ $t('label.created') }} :</span><span>{{ record.externalrestorefailure.date }}</span>
+              </div>
+              <div class="backup-progress-tooltip-row">
+                <span>{{ $t('label.host.name') }} :</span><span>{{ record.externalrestorefailure.host }}</span>
+              </div>
+              <div class="backup-progress-tooltip-row">
+                <span>{{ $t('label.backup.restore.cleanup.state') }} :</span><span>{{ record.externalrestorefailure.cleanupstate }}</span>
+              </div>
+              <div v-if="record.externalrestorefailure.cleanupdetails" class="backup-progress-tooltip-row">
+                <span>{{ record.externalrestorefailure.cleanupdetails }}</span>
+              </div>
+            </template>
             <div class="backup-progress-tooltip-note">{{ $t('message.restore.failure.backup.unaffected') }}</div>
           </div>
         </template>

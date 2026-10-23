@@ -1912,6 +1912,26 @@ NetBackup·Veeam의 메타데이터 파일 복원은 성공해도, Mold는 `reso
 NetBackup 감시 로그의 `SKIPPED restoreBackupArtifact` 또는 Veeam 이벤트의
 `mold.restore.skipped.volume-pipeline`과 해당 Job·세션 ID를 확인한다.
 원본 백업은 `BackedUp`을 유지하며, VM 정지 후 정상 복원을 테스트하려면 새 외부 복원 Job을 실행한다.
+
+감시기는 정확한 메타데이터 Backup ID·Restore Point, 외부 Job·세션 ID와 종료 증거를
+`rejectBackupArtifactRestore`로 전달한다. Mold는 VM 복원 작업을 생성하지 않고 사전 차단 이력을 저장한다.
+Mold 백업 목록의 실패 안내 아이콘에서 **최근 복원 실패 사유, 외부 Job·세션 ID, 기록 시각, 수신 Host와 정리 상태**를 확인한다.
+동일 외부 요청을 다시 감지해도 VM 복원을 시작하지 않는다. 이후 새로 시작한 실제 VM 복원 결과가 최신 결과가 된다.
+
+차단된 외부 파일 복원의 잔여 메타데이터는 자동 정리한다. 백업 UUID·VM UUID·시점·매니페스트·완료 마커와
+외부 작업의 실제 기록 시각이 일치하는 작은 메타데이터 파일 및 checkpoint XML만 대상이다.
+볼륨 이미지나 알 수 없는 파일이 있거나 다른 백업·복원 작업이 사용 중이면 `WAITING`과 사유를 남기고
+관리 서버가 30초 주기로 다시 확인한다. Host 단절, 종료 미확인, 소유권 불일치도 정리를 보류한다.
+정리 완료 후 `COMPLETED`를 표시하며, NetBackup/Veeam 보관 백업과 카탈로그·Restore Point는 이 정리로 삭제하지 않는다.
+Host의 `/var/lib/ablestack/backup/external-restore-cleanup/`에 작업별 정리 영수증을 남겨
+재시도나 재시작 후 같은 경로에 새로 복원된 파일을 이전 요청으로 삭제하지 않는다.
+
+이 개선은 **관리 서버, KVM Agent·공통 스크립트, NetBackup 복원 감시기·알림 스크립트 또는 Veeam 연동 라이브러리,
+Mold UI**를 함께 업데이트한다. 관리 서버는 `mold.service`를 재시작한다.
+NetBackup Host는 기존 사전구성 명령을 다시 실행하여 `/usr/local/sbin/netbackup-host-restore-watcher`와
+복원 알림 스크립트·감시 설정을 새 버전으로 생성한다. Veeam Host도 연동 라이브러리를 새 버전으로 배포하고 복원 에이전트를 재시작한다.
+업데이트 전에 이미 `SKIPPED`로 기록된 외부 요청을 소급 실행하지 않으므로 새 복원 Job·세션으로 검증한다.
+이미 남아 있는 파일의 소유권이나 종료 증거를 확인할 수 없으면 자동 삭제하지 않고 로그와 정리 대기 사유를 먼저 확인한다.
 `matched=false`나 백업 ID 조회 오류는 VM 상태 차단이 아니므로 별도로 확인한다.
 Commvault의 Mold UI 전체 VM 복원도 실행 중인 VM은 공통 사전 검사에서 거부한다.
 

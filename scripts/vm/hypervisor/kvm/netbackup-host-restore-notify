@@ -348,7 +348,7 @@ main() {
     printf '%s\n' "${response}"
     return 0
   fi
-  local matched tracked allowed reason
+  local matched tracked allowed reason artifact_type rejected_success
   matched="$(extract_json_value_by_key "${response}" "matched" 2>/dev/null || true)"
   [[ -n "${matched}" ]] || fail "Mold resolveBackupArtifact returned no resolution: ${response}"
   if [[ "${matched,,}" == "true" ]]; then
@@ -356,6 +356,14 @@ main() {
     allowed="$(extract_json_value_by_key "${response}" "restoreallowed" 2>/dev/null || true)"
     reason="$(extract_json_value_by_key "${response}" "reason" 2>/dev/null || true)"
     if [[ "${tracked,,}" == "true" || "${allowed,,}" != "true" ]]; then
+      artifact_type="$(extract_json_value_by_key "${response}" "artifacttype" 2>/dev/null || true)"
+      if [[ "${tracked,,}" != "true" && "${artifact_type}" == "METADATA" ]]; then
+        [[ -n "${netbackup_job_id}" && -n "${MOLD_EXTERNAL_RESTORE_PROOF:-}" ]] || fail "Rejected metadata requires an exact external Job completion proof; watcher will retry"
+        response="$(invoke_mold_api "${MOLD_RESTORE_API_METHOD}" "rejectBackupArtifactRestore" "externalid" "${external_id}" "${netbackup_job_id}" \
+          "provider=ablestack-netbackup&reason=$(urlencode_plus "${reason:-Metadata restore precheck declined}")&proof=$(urlencode_plus "${MOLD_EXTERNAL_RESTORE_PROOF}")")" || return 1
+        rejected_success="$(extract_json_value_by_key "${response}" "success" 2>/dev/null || true)"
+        [[ "${rejected_success,,}" == "true" ]] || fail "Mold did not confirm rejected metadata history and cleanup tracking"
+      fi
       log_line "RESTORE volume-pipeline-skip externalid=${external_id} jobid=${netbackup_job_id} reason=${reason}"
       printf 'SKIPPED restoreBackupArtifact reason=%s\n' "${reason}"
       return 0

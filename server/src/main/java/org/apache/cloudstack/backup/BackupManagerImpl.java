@@ -2018,6 +2018,9 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             if (found != null && StringUtils.isNotBlank(jobId)) {
                 String claimed = backup.getDetail(externalUiRestoreKey(provider, jobId));
+                if (StringUtils.isBlank(claimed)) {
+                    claimed = backup.getDetail(ThirdPartyExternalRestore.key(provider, jobId));
+                }
                 if (StringUtils.isNotBlank(claimed)) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> receipt = new Gson().fromJson(claimed, Map.class);
@@ -2079,6 +2082,32 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     private String externalUiRestoreKey(String provider, String jobId) {
         return "thirdparty.volume.ui.restore." + java.util.UUID.nameUUIDFromBytes(
                 (provider + ":" + jobId).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
+    @Override
+    public void rejectBackupArtifactRestore(String provider, String externalId, String jobId, String reason, String proof) {
+        if (!java.util.Set.of("ablestack-netbackup", "ablestack-veeam").contains(provider)
+                || StringUtils.isAnyBlank(externalId, jobId, reason, proof) || reason.length() > 4096) {
+            throw new CloudRuntimeException("Specify the exact rejected metadata Job, provider, reason and completion proof");
+        }
+        if ("ablestack-netbackup".equals(provider) && !jobId.matches("[0-9]+")) {
+            throw new CloudRuntimeException("NetBackup restore requires a numeric Job ID");
+        }
+        if ("ablestack-veeam".equals(provider)) { jobId = java.util.UUID.fromString(StringUtils.strip(jobId, "{}")).toString(); }
+        var resolved = resolveBackupArtifact(provider, externalId, jobId, null);
+        if (!resolved.matched) { throw new CloudRuntimeException("No exact metadata artifact matches the rejected restore"); }
+        BackupVO backup = backupDao.findByUuid(resolved.id);
+        if (backup == null) { throw new CloudRuntimeException("Logical backup no longer exists"); }
+        try (ThirdPartyBackupVolumeService.Lease lease = thirdPartyBackupVolumeService.acquireLifecycle(backup.getVmId())) {
+            backupDao.loadDetails(backup);
+            boolean recorded = StringUtils.isNotBlank(backup.getDetail(ThirdPartyExternalRestore.key(provider, jobId)));
+            resolved = resolveBackupArtifact(provider, externalId, jobId, null);
+            if (!resolved.matched || (!recorded && (resolved.tracked || !"METADATA".equals(resolved.artifacttype)))) {
+                throw new CloudRuntimeException("Owned restore jobs and volume payloads cannot be rejected as external metadata");
+            }
+            // A retry may arrive after the VM changes state. Reporting a rejection must never start a VM restore.
+            thirdPartyBackupVolumeService.rejectExternalRestore(backup, provider, externalId, jobId, reason, proof);
+        }
     }
 
     @Override
@@ -4507,6 +4536,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.ReconcileBackupStagingJobCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.ResolveBackupArtifactCmd.class);
         cmdList.add(org.apache.cloudstack.api.command.admin.backup.RestoreBackupArtifactCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.admin.backup.RejectBackupArtifactRestoreCmd.class);
         cmdList.add(GetBackupJobStatusCmd.class);
         cmdList.add(GetBackupRestoreJobStatusCmd.class);
         cmdList.add(UpdateBackupJobBandwidthCmd.class);
@@ -6358,6 +6388,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             try {
                 validateNoActiveRestoreOperation(backupId);
                 clearPreviousRestoreResult(backupId);
+                persistBackupDetail(backupId, ThirdPartyExternalRestore.STARTED_KEY, String.valueOf(System.currentTimeMillis()));
                 persistCurrentRestoreAsyncJobDetail(backupId, offering);
                 persistBackupDetail(backupId, AblestackBackupFrameworkUtils.RESTORE_OPERATION_TYPE_DETAIL, operationType);
                 if (targetVmId != null) {
@@ -7217,6 +7248,29 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             queue = getAdmissionEntry(backup, ThirdPartyBackupAdmission.BACKUP_KEY);
         }
         if (queue != null) { response.setStagingQueue(new BackupStagingQueueResponse(queue)); }
+        populateRejectedExternalRestore(backup, response);
+    }
+
+    private void populateRejectedExternalRestore(Backup backup, BackupResponse response) {
+        String id = backup.getDetail(ThirdPartyExternalRestore.LATEST_KEY);
+        if (StringUtils.isBlank(id)) { return; }
+        ThirdPartyExternalRestore.Attempt attempt = new Gson().fromJson(
+                backup.getDetail(ThirdPartyExternalRestore.PREFIX + id + ".operation"), ThirdPartyExternalRestore.Attempt.class);
+        if (attempt == null || !backup.getUuid().equals(attempt.backupUuid)) { return; }
+        long newerRestore = org.apache.commons.lang3.math.NumberUtils.toLong(backup.getDetail(ThirdPartyExternalRestore.STARTED_KEY), 0);
+        String current = backup.getDetail(AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL);
+        if (newerRestore > attempt.recordedAt || java.util.Set.of("RUNNING", "STARTING", "CANCEL_PENDING").contains(StringUtils.defaultString(current))) {
+            return;
+        }
+        response.setExternalRestoreFailure(new org.apache.cloudstack.api.response.BackupExternalRestoreResponse(attempt));
+        response.setRestoreJobId(attempt.id);
+        response.setRestoreJobState("FAILED");
+        response.setRestoreJobStep("PRECHECK");
+        response.setRestoreJobDetails(attempt.reason);
+        response.setRestoreJobLogPath(null);
+        response.setRestoreCleanupState(attempt.cleanupState);
+        response.setRestoreCleanupDetails(attempt.cleanupDetails);
+        response.setVmRestore(null);
     }
 
     private ThirdPartyBackupAdmission.Entry getAdmissionEntry(Backup backup, String key) {

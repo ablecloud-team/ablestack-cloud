@@ -131,14 +131,14 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
         for release in ("10.5", "11.1"):
             with self.subTest(release=release):
                 state, notify = self.poll(self.job(0, release=release))
-                notify.assert_called_once_with("host-test_1792458000", "200")
+                notify.assert_called_once_with("host-test_1792458000", "200", unittest.mock.ANY)
                 self.assertEqual("0", state["processed"]["200"]["netbackupStatusCode"])
 
     def test_verified_partial_success_submits_only_the_verified_metadata_directory(self):
         for release in ("10.5", "11.1"):
             with self.subTest(release=release):
                 state, notify = self.poll(self.job(release=release))
-                notify.assert_called_once_with(str(self.root), "200")
+                notify.assert_called_once_with(str(self.root), "200", unittest.mock.ANY)
                 proof = state["processed"]["200"]["validation"]
                 self.assertEqual("VERIFIED", proof["status"])
                 self.assertEqual(3, len(proof["requiredFiles"]))
@@ -215,7 +215,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
         expected = self.relocated_metadata()
         with patch.object(self.watcher, "resolve_restore_metadata", return_value=expected):
             state, notify = self.poll()
-        notify.assert_called_once_with(expected["metadatapath"], "200")
+        notify.assert_called_once_with(expected["metadatapath"], "200", unittest.mock.ANY)
         self.assertEqual(expected["metadatarestorepath"], state["processed"]["200"]["validation"]["root"])
 
     def test_relocated_partial_restore_rejects_another_backup_or_redirected_destination(self):
@@ -339,7 +339,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
             jobs.return_value = [old_job, new_job]
             self.assertEqual(0, self.watcher.main(["--once"]))
             self.assertEqual(0, self.watcher.main([]))
-        notify.assert_called_once_with("host-test_1792458000", "201")
+        notify.assert_called_once_with("host-test_1792458000", "201", unittest.mock.ANY)
         self.assertEqual(4, jobs.call_count)  # Baseline + three polling passes.
         state = self.watcher.load_state()
         self.assertTrue(state["initialJobBaselineCompleted"])
@@ -356,7 +356,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
             self.assertNotIn("200", self.watcher.load_state()["processed"])
             job["attributes"]["state"] = "DONE"
             self.assertEqual(0, self.watcher.main([]))
-        notify.assert_called_once_with("host-test_1792458000", "200")
+        notify.assert_called_once_with("host-test_1792458000", "200", unittest.mock.ANY)
 
     def test_running_vm_skip_is_recorded_without_retrying_the_same_restore_job(self):
         reason = "The original VM must be Stopped before restoring metadata in the external UI"
@@ -371,6 +371,17 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
         notify.assert_called_once()
         self.assertEqual("skipped", self.watcher.load_state()["processed"]["200"]["status"])
         self.assertIn(reason, (self.base / "watcher.log").read_text())
+
+    def test_notification_carries_the_exact_external_completion_window_for_both_releases(self):
+        for release in ("10.5", "11.1"):
+            with self.subTest(release=release), patch.dict(self.watcher.CONFIG, RESTORE_NOTIFY_SCRIPT="notify", MOLD_HOST_NAME="host-test"), \
+                    patch.object(self.watcher.subprocess, "run", return_value=MagicMock(returncode=0, stdout="SKIPPED reason=Running", stderr="")) as notify:
+                job = self.job(0, release=release)
+                self.assertEqual("skipped", self.watcher.invoke_restore_notify("host-test_1792458000", "200", job))
+                proof = json.loads(notify.call_args.kwargs["env"]["MOLD_EXTERNAL_RESTORE_PROOF"])
+                self.assertEqual("host-test", proof["hostName"])
+                self.assertLess(proof["startedAt"], proof["endedAt"])
+                self.assertAlmostEqual(time.time() * 1000, proof["endedAt"], delta=2000)
 
     def test_baseline_failure_exits_with_error_without_polling_and_can_retry(self):
         with patch.object(self.watcher, "fetch_restore_jobs", side_effect=RuntimeError("API unavailable")), \
@@ -412,7 +423,7 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
                 patch.object(self.watcher, "candidate_restore_identifiers", return_value=["host-test_1792458000"]), \
                 patch.object(self.watcher, "invoke_restore_notify", return_value="submitted") as notify:
             self.assertEqual(0, self.watcher.main([]))
-        notify.assert_called_once_with("host-test_1792458000", "201")
+        notify.assert_called_once_with("host-test_1792458000", "201", unittest.mock.ANY)
 
     def test_manual_poll_cannot_overlap_another_watcher(self):
         handle = self.watcher.acquire_process_lock()

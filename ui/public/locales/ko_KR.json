@@ -633,6 +633,7 @@
   "label.restore.finalization.failed": "복원 완료 처리 실패",
   "label.restore.failed": "복원 실패",
   "label.failure.reason": "실패 이유",
+  "label.backup.external.restore.job": "외부 복원 Job / 세션",
   "label.latest.restore.result": "최근 복원 결과",
   "message.restore.failure.backup.unaffected": "복원 실패는 백업본 상태에 영향을 주지 않습니다.",
   "label.backup.offering.assign": "백업 오퍼링 할당",

@@ -74,6 +74,7 @@ mold_backup_emit_restore_event() { echo "EVENT $*" >&2; }
 mold_backup_cmk_run() {
   echo "API $1" >> "$TEST_CALLS"
   if [[ "$1" == resolveBackupArtifact ]]; then echo "$TEST_RESOLUTION";
+  elif [[ "$1" == rejectBackupArtifactRestore ]]; then echo '{"rejectbackupartifactrestoreresponse":{"success":true}}';
   elif [[ "$1" == restoreBackupArtifact ]]; then echo '{"restorebackupartifactresponse":{"jobid":"async-test"}}';
   else echo "Unexpected API call: $1" >&2; return 1; fi
 }
@@ -234,9 +235,16 @@ fi
         self.expected["reason"] = "The original VM must be Stopped before restoring metadata in the external UI"
         output = self.watch(result="Success", twice=True)
         self.assertEqual(1, output.count("API resolveBackupArtifact"))
+        self.assertEqual(1, output.count("API rejectBackupArtifactRestore"))
         self.assertNotIn("API restoreBackupArtifact", output)
         self.assertIn(self.expected["reason"], output)
         self.assertTrue((self.base / "seen").exists())
+
+    def test_rejected_restore_without_confirmed_completion_remains_retryable(self):
+        self.expected["restoreallowed"] = False
+        self.expected["reason"] = "VM must be Stopped"
+        output = self.assert_blocked(result="Success", proof=dict(self.proof, endedAt=0))
+        self.assertNotIn("API rejectBackupArtifactRestore", output)
 
     def test_direct_callback_requeries_result_instead_of_trusting_success_text(self):
         self.assert_blocked(result="Failed", direct=True)

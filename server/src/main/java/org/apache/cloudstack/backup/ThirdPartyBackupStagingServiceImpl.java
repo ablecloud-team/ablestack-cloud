@@ -336,6 +336,7 @@ public class ThirdPartyBackupStagingServiceImpl extends ManagerBase implements T
 
     private void requireQuiescent(BackupVO backup) {
         boolean busy = backup.getStatus() == Backup.Status.BackingUp || backup.getStatus() == Backup.Status.Restoring
+                || "true".equals(backup.getDetail(ThirdPartyExternalRestore.PENDING_KEY))
                 || ThirdPartyBackupVolumeService.needsBackupCleanup(backup)
                 || StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupManifest.DELETE_PROGRESS_KEY))
                 || (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))

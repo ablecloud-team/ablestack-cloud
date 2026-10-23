@@ -62,6 +62,15 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private static final String MANUAL_INSPECTION_KEY = "thirdparty.staging.manual.inspection";
 
+    private ThirdPartyExternalRestoreCleanup externalRestoreCleanup() {
+        return new ThirdPartyExternalRestoreCleanup(backupDao, backupDetailsDao, hostDao, vmDao, agentManager, stagingService, this);
+    }
+
+    @Override
+    public void rejectExternalRestore(Backup backup, String provider, String externalId, String jobId, String reason, String proof) {
+        externalRestoreCleanup().record(backup, provider, externalId, jobId, reason, proof);
+    }
+
     @Override
     public void persistBackupPlan(Backup backup) {
         withStagingConfigurationLock(() -> {
@@ -1906,6 +1915,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         });
         cleanupExecutor.scheduleWithFixedDelay(() -> {
             try {
+                externalRestoreCleanup().resumePending();
                 if (!recoveredCompletedJobRecords) {
                     for (BackupDetailVO detail : backupDetailsDao.findDetails(ThirdPartyBackupManifest.FINALIZATION_STATE_KEY, "COMPLETED", false)) {
                         BackupVO backup = backupDao.findById(detail.getResourceId());
@@ -2123,6 +2133,7 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         // This also mounts/validates the configured staging filesystem on the chosen Worker Host.
         stagingService.getAvailableBytes(host, providerRoot.resolve("restore").toString());
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
+            backupDetailsDao.addDetail(tracked.getId(), ThirdPartyExternalRestore.STARTED_KEY, String.valueOf(System.currentTimeMillis()), false);
             backupDetailsDao.addDetail(tracked.getId(), ThirdPartyBackupRestore.PLAN_KEY, new Gson().toJson(plan), false);
             ThirdPartyBackupRestore.Operation operation = new ThirdPartyBackupRestore.Operation();
             operation.plan = new Gson().fromJson(new Gson().toJson(plan), ThirdPartyBackupRestore.Plan.class);

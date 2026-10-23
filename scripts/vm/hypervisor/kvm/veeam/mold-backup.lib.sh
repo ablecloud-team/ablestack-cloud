@@ -2504,9 +2504,35 @@ PYTHON
   return "$rc"
 }
 
+mold_backup_report_rejected_volume_restore() {
+  local sid="$1" rp_id="$2" reason="$3" proof host output success
+  proof="$(VEEAM_SSH_CMD_TIMEOUT="${RESTORE_VEEAM_SSH_TIMEOUT:-25}" mold_backup_query_veeam_restore_proof "$sid")" || return 2
+  host="$(mold_backup_local_kvm_name)"
+  proof="$(python3 - "$sid" "$host" "$proof" <<'PYTHON'
+import json, math, sys, time
+try:
+    sid, host, raw = sys.argv[1:]
+    value = json.loads(raw)
+    start, end = float(value.get('startedAt', 0)), float(value.get('endedAt', 0))
+    if (str(value.get('jobId', '')).strip('{}').lower() != sid.split('#')[0].lower()
+            or str(value.get('result', '')).lower() not in {'success', 'warning'}
+            or not host or not all(map(math.isfinite, (start, end))) or start <= 0 or end < start or end > time.time() + 300):
+        raise ValueError('External restore session completion is unconfirmed')
+    print(json.dumps(dict(hostName=host, startedAt=int(start * 1000), endedAt=int(end * 1000))))
+except (ValueError, TypeError, KeyError) as error:
+    print(str(error), file=sys.stderr)
+    sys.exit(1)
+PYTHON
+)" || return 2
+  output="$(mold_backup_cmk_run rejectBackupArtifactRestore "provider=ablestack-veeam" "externalid=${rp_id}" \
+    "jobid=${sid%%#*}" "reason=${reason:-Metadata restore precheck declined}" "proof=${proof}" 2>/dev/null)" || return 2
+  success="$(mold_backup_api_json_field "$output" "rejectbackupartifactrestoreresponse.success")"
+  [[ "$success" == [Tt][Rr][Uu][Ee] ]]
+}
+
 mold_backup_handle_volume_restore_session() {
   local job="$1" sid="$2" rp_id="${3:-}" trigger_mold="${4:-false}" result="${5:-}"
-  local json matched tracked allowed reason vm async_id
+  local json matched tracked allowed reason vm async_id artifact_type
   result="$(printf '%s' "$result" | tr '[:upper:]' '[:lower:]')"
   [[ "$result" == success || "$result" == warning ]] || return 2
   local -a params=("provider=ablestack-veeam" "jobid=${sid%%#*}")
@@ -2526,6 +2552,11 @@ mold_backup_handle_volume_restore_session() {
   allowed="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.backupartifact.restoreallowed")"
   reason="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.backupartifact.reason")"
   if [[ "$tracked" == [Tt][Rr][Uu][Ee] || "$allowed" != [Tt][Rr][Uu][Ee] ]]; then
+    artifact_type="$(mold_backup_api_json_field "$json" "resolvebackupartifactresponse.backupartifact.artifacttype")"
+    if [[ "$trigger_mold" == "true" && "$tracked" != [Tt][Rr][Uu][Ee] && "$artifact_type" == "METADATA" ]]; then
+      [[ -n "$rp_id" && "$rp_id" != "n/a" ]] || return 2
+      mold_backup_report_rejected_volume_restore "$sid" "$rp_id" "$reason" || return 2
+    fi
     mold_backup_emit_restore_event "mold.restore.skipped.volume-pipeline" "$vm" "session=${sid};rp=${rp_id};reason=${reason}"
     mold_backup_restore_session_mark_seen "$sid"
     return 0

@@ -536,3 +536,31 @@ test('pending deletion is visible with its persisted English state and reason', 
   expect(wrapper.text()).toContain('Dependent recovery points remain')
   wrapper.unmount()
 })
+
+test('shows rejected external restore details without changing a stored backup into Restoring', () => {
+  const wrapper = shallowMount(BackupProgress, {
+    props: {
+      record: {
+        id: 'backup-1',
+        status: 'BackedUp',
+        restorejobstate: 'FAILED',
+        restorejobstep: 'PRECHECK',
+        restorejobdetails: 'The original VM must be Stopped',
+        restorecleanupstate: 'WAITING',
+        externalrestorefailure: { jobid: '121', date: '2026-10-23T10:35:00+0900', host: 'ablecube4', cleanupstate: 'WAITING', cleanupdetails: 'Host unavailable' }
+      }
+    },
+    global: {
+      stubs: { 'a-tooltip': { template: '<span><slot /><slot name="title" /></span>' } },
+      mocks: { $t: key => key, $store: { getters: { apis: { getBackupRestoreJobStatus: {} } } } }
+    }
+  })
+  expect(wrapper.vm.showRestoreFailure).toBe(true)
+  expect(wrapper.vm.localStatus).toBe('BackedUp')
+  expect(wrapper.vm.isActive).toBe(false)
+  expect(wrapper.text()).toContain('121')
+  expect(wrapper.text()).toContain('ablecube4')
+  expect(wrapper.text()).toContain('Host unavailable')
+  expect(getAPI).not.toHaveBeenCalled()
+  wrapper.unmount()
+})
