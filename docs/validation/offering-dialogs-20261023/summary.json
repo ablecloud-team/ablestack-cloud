@@ -1,0 +1,123 @@
+{
+  "sourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+  "functionalSourceCommit": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+  "build": {
+    "sourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "functionalSourceCommit": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "node": "v14.21.3",
+    "ui-build": 0,
+    "seconds": 446,
+    "kind": "optimized-production",
+    "webpackSourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "staticOnlyUpdates": []
+  },
+  "tests": {
+    "success": true,
+    "numPassedTestSuites": 8,
+    "numPassedTests": 129,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "suites": [
+      "OfferingPerformance.spec.js",
+      "OfferingCreation.spec.js",
+      "LinkedDiskOffering.spec.js",
+      "AllocationPolicy.spec.js",
+      "StorageUiStandard.spec.js",
+      "DiskOfferingAllocationTable.spec.js",
+      "DeploymentDiskOfferings.spec.js",
+      "volumeAllocation.spec.js"
+    ]
+  },
+  "lint": [
+    {
+      "log": "lint.log",
+      "sha256": "d7b6ee8433bf7e9b562b92424578f4e91dcbe692c81fb94e2f23c6cd65fa4a2f",
+      "passed": true
+    },
+    {
+      "log": "lint-fix.log",
+      "sha256": "16954b8f20f9f4a9ad0a016a7aec5edabf58e7e673cfd363200ae2a4e99071a7",
+      "passed": true
+    },
+    {
+      "log": "lint-shell.log",
+      "sha256": "f83fc70c9ab8c74d0c7acfbe5aa3b93bc7c9ef7aec771cfdbe40f3720b88de48",
+      "passed": true
+    },
+    {
+      "log": "lint-qos.log",
+      "sha256": "49b04ed01f3c2f00dd663d05a3f7bb169ab52fc8aa2c4d90467aedc4fe6229b8",
+      "passed": true
+    },
+    {
+      "log": "lint-numeric.log",
+      "sha256": "2ef27fb5cd88ad5a265d32c9604cfa0e699904193fe352f6a6bb35433f6c2717",
+      "passed": true
+    },
+    {
+      "log": "lint-zone.log",
+      "sha256": "0d1b29067267e8ea4b9b018d43858372f91e5d4f6ee4963737cf05031a87bf19",
+      "passed": true
+    },
+    {
+      "log": "lint-style.log",
+      "sha256": "fe97a61e838acebc7229ec99fa8277162baa6bcc0d274eb561726b9cbb7e6177",
+      "passed": true
+    },
+    {
+      "log": "lint-final-style.log",
+      "sha256": "2ae917a4c623346eb2e3e40335bdea7241f5cc66b362caa825bf74f74efbeaee",
+      "passed": true
+    }
+  ],
+  "actualUiOfferings": 19,
+  "disks": 12,
+  "computes": 7,
+  "actualVolumes": 5,
+  "uiCheckCount": 26,
+  "visualCheckCount": 22,
+  "apiDbCases": 19,
+  "controlled503Requests": 1,
+  "cleanup": {
+    "31": {
+      "residual": {
+        "disks": 0,
+        "volumes": 0,
+        "computes": 0
+      },
+      "inventoryUnchanged": true,
+      "images": {
+        "31-disk-metadata": "absent",
+        "31-disk-full": "absent",
+        "31-disk-final-qos": "absent"
+      },
+      "runtimeUnchanged": true,
+      "routingHostsUp": 3
+    },
+    "32": {
+      "residual": {
+        "disks": 0,
+        "volumes": 0,
+        "computes": 0
+      },
+      "inventoryUnchanged": true,
+      "images": {
+        "32-disk-thin": "absent",
+        "32-disk-full": "absent"
+      },
+      "runtimeUnchanged": true,
+      "routingHostsUp": 3
+    }
+  },
+  "protectedWorkspace": {
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diffSha256": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e",
+    "statusEntries": 1389,
+    "unchanged": true
+  },
+  "fullCloudCiExecuted": false,
+  "pr": 1435,
+  "draft": true,
+  "merged": false,
+  "nextIssue": 1434
+}

@@ -1,0 +1,125 @@
+[
+  {
+    "cluster": 31,
+    "case": "resize-double-submit",
+    "volumeId": "5865be7c-4f37-4c3a-a4a3-9e184d2f4ccc",
+    "sizeGiB": 2,
+    "postCount": 1,
+    "jobId": "9df8f1a6-7998-45f0-98bc-682e5d27f5d9",
+    "uiUpdated": true
+  },
+  {
+    "cluster": 31,
+    "case": "snapshot-specific-xhr-failure",
+    "rowsRetained": 1,
+    "sessionRetained": true,
+    "volumeContextRetained": true
+  },
+  {
+    "cluster": 31,
+    "case": "uuid-copy",
+    "value": "5865be7c-4f37-4c3a-a4a3-9e184d2f4ccc",
+    "pass": true,
+    "evidence": "user-confirmed-real-paste-in-Chrome"
+  },
+  {
+    "cluster": 32,
+    "case": "snapshot-targeted-XHR-failure-retry",
+    "retainedRows": 1,
+    "retryVisible": true,
+    "sessionRetained": true,
+    "recovered": true
+  },
+  {
+    "cluster": 31,
+    "case": "1209-VM-disk-pagination-smoke",
+    "total": 12,
+    "pages": 2,
+    "lastPage": 2,
+    "selected": "Custom-GFS-Thin-none",
+    "sizeGiB": 1,
+    "count": 1,
+    "preservedOnPageRoundTrip": true,
+    "vmSubmitted": false
+  },
+  {
+    "cluster": 31,
+    "case": "1154-compute-only-link",
+    "invalidDiskLinkCount": 0,
+    "userMutationButtons": 0
+  },
+  {
+    "cluster": 32,
+    "case": "project-consumer-scope",
+    "count": 1,
+    "basicRowsExcluded": true
+  },
+  {
+    "cluster": 31,
+    "case": "domain-admin-create-gate",
+    "createVisible": true,
+    "domainRequired": true,
+    "submitted": false
+  },
+  {
+    "cluster": 31,
+    "case": "soft-delete-and-recover",
+    "softDeleted": true,
+    "restored": true
+  },
+  {
+    "cluster": 31,
+    "case": "list-targeted-XHR-failure-retry",
+    "retainedRows": 2,
+    "retainedSelection": 1,
+    "sessionRetained": true,
+    "retryVisible": true,
+    "recovered": true
+  },
+  {
+    "cluster": 31,
+    "case": "keyboard-dialog",
+    "tabStaysInside": true,
+    "escapeCloses": true,
+    "focusReturnsTo": "볼륨 생성"
+  },
+  {
+    "cluster": 32,
+    "case": "offering-change",
+    "from": "ace1fcc2-d43b-49cb-9c23-8fff690c28f8",
+    "to": "02b09967-0804-48ba-8163-5f005237a0f7",
+    "sizeGiB": 2,
+    "uiCompleted": true
+  },
+  {
+    "cluster": 32,
+    "case": "related-search-history-empty",
+    "noMatchCount": 0,
+    "backCount": 1,
+    "parentRetained": true
+  },
+  {
+    "case": "responsive-modal-matrix",
+    "volumeCases": 40,
+    "offeringCases": 16,
+    "assertions": [
+      "single-footer",
+      "footer-within-viewport",
+      "modal-within-viewport",
+      "no-body-horizontal-overflow"
+    ],
+    "zoomMethod": "640x360 CSS viewport DPR2 equivalent to 1280x720 at 200 percent"
+  },
+  {
+    "cluster": 31,
+    "case": "1154-general-disk-link",
+    "navigatedTo": "/diskoffering/e20e8a3c-4b1f-404b-824d-6163152e47cc",
+    "heading": "VOL1433-31-disk"
+  },
+  {
+    "case": "final-popup-bounds",
+    "records": 4,
+    "searchExecutedCluster": 32,
+    "allPassed": true
+  }
+]

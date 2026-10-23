@@ -104,6 +104,7 @@ import { isDangerAction, resolveActionMenuGroup } from '@/utils/actionMenu'
 
 export default {
   name: 'ActionButton',
+  inject: { resourceActionReady: { default: () => () => true } },
   components: { ResourceActionMenu },
   data () {
     return {
@@ -375,6 +376,7 @@ export default {
       this.$emit('exec-action', action)
     },
     isActionDisabled (action) {
+      if ((this.dataView || action.groupAction) && this.resourceActionReady?.() === false) return true
       return 'disabled' in action ? action.disabled(this.resource, this.$store.getters, this.selectedItems) : false
     },
     getActionTooltip (action) {

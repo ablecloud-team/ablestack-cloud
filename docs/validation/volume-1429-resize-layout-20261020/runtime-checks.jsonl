@@ -1,0 +1,10 @@
+{"cluster": 31, "sizeGiB": 2, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 31, "sizeGiB": 3, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 31, "sizeGiB": 4, "miniops": 170, "maxiops": 360, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 32, "sizeGiB": 2, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 32, "sizeGiB": 3, "miniops": 150, "maxiops": 300, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 32, "sizeGiB": 4, "miniops": 170, "maxiops": 360, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 31, "sizeGiB": 4, "miniops": 0, "maxiops": 360, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 31, "sizeGiB": 5, "miniops": 180, "maxiops": 380, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 32, "sizeGiB": 4, "miniops": 0, "maxiops": 360, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}
+{"cluster": 32, "sizeGiB": 5, "miniops": 180, "maxiops": 380, "apiDbImageAgree": true, "originalIdentityAndSeedPreserved": true}

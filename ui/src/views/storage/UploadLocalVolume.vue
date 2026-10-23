@@ -38,7 +38,7 @@
         show-icon
         :message="$t('message.ssvm.cert.untrusted')"
         :description="$t('message.ssvm.cert.trust.instructions')" />
-      <div :span="24" class="action-button">
+      <MoldDialogActions :span="24" :busy="loading || uploading">
         <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
         <a-button :href="ssvmOrigin" target="_blank" rel="noopener noreferrer">
           {{ $t('label.ssvm.open.cert.page') }}
@@ -46,7 +46,7 @@
         <a-button type="primary" :loading="loading" @click="retryUpload">
           {{ $t('label.retry.upload') }}
         </a-button>
-      </div>
+      </MoldDialogActions>
     </div>
     <a-spin :spinning="loading" v-else v-ctrl-enter="handleSubmit">
       <a-form
@@ -168,19 +168,20 @@
             :placeholder="$t('label.account')"
             @change-option-value="handleAccountChange" />
         </a-form-item>
-        <div :span="24" class="action-button">
+        <MoldDialogActions :span="24" :busy="loading || uploading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </MoldDialogActions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { volumeUploadError } from '@/utils/volumeUploadError'
-import { getAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { axios } from '../../utils/request'
 import { mixinForm } from '@/utils/mixin'
 import { probeSsvmCert } from '@/utils/ssvmProbe'
@@ -192,6 +193,7 @@ export default {
   name: 'UploadLocalVolume',
   mixins: [mixinForm],
   components: {
+    MoldDialogActions,
     ResourceIcon,
     TooltipLabel,
     InfiniteScrollSelect

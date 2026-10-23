@@ -1,0 +1,132 @@
+[
+  {
+    "cluster": 31,
+    "case": "API-DB-linked-disk-type",
+    "scope": "publicDedicated",
+    "computeId": "d8f2e503-e8a6-44a0-8416-5e6d73602fbc",
+    "diskId": "5fdf2170-4f7a-44f5-b93d-dfdacc0ba66a",
+    "computeOnly": true,
+    "name": "VOL1154-31-public-dedicated",
+    "publicDiskDetailVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "API-DB-linked-disk-type",
+    "scope": "publicGeneral",
+    "computeId": "b47c62bb-832b-464d-8582-333a948dd398",
+    "diskId": "86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "computeOnly": false,
+    "name": "VOL1154-31-public-Disk",
+    "publicDiskDetailVisible": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "API-DB-linked-disk-type",
+    "scope": "privateDedicated",
+    "computeId": "46826144-d7a2-40aa-aba1-67fa7a113456",
+    "diskId": "8bd6182c-6ef7-4fe4-abd5-79a2fed65b95",
+    "computeOnly": true,
+    "name": "VOL1154-31-private-dedicated",
+    "publicDiskDetailVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "API-DB-linked-disk-type",
+    "scope": "privateGeneral",
+    "computeId": "c51b64e2-a3d3-4faf-a58a-5568389d87fe",
+    "diskId": "6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "computeOnly": false,
+    "name": "VOL1154-31-private-Disk",
+    "publicDiskDetailVisible": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "API-DB-linked-disk-type",
+    "scope": "publicDedicated",
+    "computeId": "0bd55ff3-2374-4cfd-b02e-a0f18e653173",
+    "diskId": "9aa705fd-e858-4833-842b-e5e1d2b2736e",
+    "computeOnly": true,
+    "name": "VOL1154-32-public-dedicated",
+    "publicDiskDetailVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "API-DB-linked-disk-type",
+    "scope": "publicGeneral",
+    "computeId": "f75db425-c280-415e-8bfb-e396deededfa",
+    "diskId": "2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "computeOnly": false,
+    "name": "VOL1154-32-public-Disk",
+    "publicDiskDetailVisible": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "API-DB-linked-disk-type",
+    "scope": "privateDedicated",
+    "computeId": "c876173b-61b1-4bb7-82bb-f90800472a20",
+    "diskId": "345f7a13-9357-4e62-a3f8-b2bfcf121a9f",
+    "computeOnly": true,
+    "name": "VOL1154-32-private-dedicated",
+    "publicDiskDetailVisible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "API-DB-linked-disk-type",
+    "scope": "privateGeneral",
+    "computeId": "613195a2-af87-4aeb-be79-b52e8ee0d0cc",
+    "diskId": "fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "computeOnly": false,
+    "name": "VOL1154-32-private-Disk",
+    "publicDiskDetailVisible": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "API-role-compute-and-disk-detail-contract",
+    "types": 4,
+    "pass": true
+  }
+]

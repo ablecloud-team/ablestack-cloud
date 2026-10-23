@@ -1,0 +1,48 @@
+{
+  "31": {
+    "policies": [
+      {
+        "id": "96f3f79a-d182-4394-8819-bd802f0e53d6",
+        "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3",
+        "intervaltype": 1,
+        "schedule": "58:23",
+        "timezone": "UTC",
+        "maxsnaps": 2
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3",
+        "intervaltype": 3,
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "maxsnaps": 2
+      }
+    ],
+    "existingPolicyPreserved": true,
+    "emptyVolumePolicyCount": 0,
+    "apiDbMatched": true
+  },
+  "32": {
+    "policies": [
+      {
+        "id": "a366d8a7-7252-4047-b1f7-d0022746a8da",
+        "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1",
+        "intervaltype": 1,
+        "schedule": "58:23",
+        "timezone": "UTC",
+        "maxsnaps": 2
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1",
+        "intervaltype": 3,
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "maxsnaps": 2
+      }
+    ],
+    "existingPolicyPreserved": true,
+    "emptyVolumePolicyCount": 0,
+    "apiDbMatched": true
+  }
+}

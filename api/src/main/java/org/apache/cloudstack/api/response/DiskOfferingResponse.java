@@ -29,6 +29,14 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = DiskOffering.class)
 public class DiskOfferingResponse extends BaseResponseWithAnnotations {
+    @SerializedName("allocation")
+    @Param(description = "Versioned allocation intent and evidence; unknown effective policy is not inferred from legacy provisioning type", since = "4.23.0")
+    private java.util.Map<String, String> allocation;
+
+    public void setAllocation(java.util.Map<String, String> value) {
+        allocation = value;
+    }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "Unique ID of the disk offering")
     private String id;

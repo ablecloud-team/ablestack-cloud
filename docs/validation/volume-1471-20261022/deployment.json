@@ -1,0 +1,54 @@
+{
+  "31": {
+    "issue": 1471,
+    "sourceCommit": "b1052a73d44",
+    "originalJarSha256": "ef39abcea85c0d1e28627686479b6dad655193f21b437dd84c7381adbc0dabc1",
+    "methodPreservationProof": "PATCH_PASS changedMethods=[getPoolForAllocatedOrUploadedVolumeForAttach(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lcom/cloud/vm/UserVmVO;)Lcom/cloud/storage/StoragePool;, getSuitablePoolForAllocatedOrUploadedVolumeForAttach(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lcom/cloud/vm/UserVmVO;)Lcom/cloud/storage/StoragePool;] unrelatedMethodsPreserved=195 selfReferencesVerified=true",
+    "classSha256": "016db0919e7ef0871fb344566b9bd485fca1a13fcd7ff21754aa115810877bd2",
+    "changedMethods": [
+      "getPoolForAllocatedOrUploadedVolumeForAttach",
+      "getSuitablePoolForAllocatedOrUploadedVolumeForAttach"
+    ],
+    "unchangedEntries": 204520,
+    "patchedJarSha256": "5f90957825b5f225fa0aacb6c62bf4ecd1f0d338d35f5b9c094c259b5bde1d2e",
+    "runtimeJUnit": {
+      "tests": 91,
+      "failures": 0,
+      "exit": 0
+    },
+    "backup": "/root/volume-1471-b1052a73d44",
+    "clientHttp": 200,
+    "mold": "active",
+    "schemaPreserved": true,
+    "webappPreserved": true,
+    "configPreserved": true,
+    "otherJarsPreserved": true,
+    "activeVmAndVolumeRowsPreservedAtRestart": true
+  },
+  "32": {
+    "issue": 1471,
+    "sourceCommit": "b1052a73d44",
+    "originalJarSha256": "39699c00ee8a2ac352633a63083ff815a80ba211d48329588c2bb0626fb4a33b",
+    "methodPreservationProof": "PATCH_PASS changedMethods=[getPoolForAllocatedOrUploadedVolumeForAttach(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lcom/cloud/vm/UserVmVO;)Lcom/cloud/storage/StoragePool;, getSuitablePoolForAllocatedOrUploadedVolumeForAttach(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lcom/cloud/vm/UserVmVO;)Lcom/cloud/storage/StoragePool;] unrelatedMethodsPreserved=195 selfReferencesVerified=true",
+    "classSha256": "016db0919e7ef0871fb344566b9bd485fca1a13fcd7ff21754aa115810877bd2",
+    "changedMethods": [
+      "getPoolForAllocatedOrUploadedVolumeForAttach",
+      "getSuitablePoolForAllocatedOrUploadedVolumeForAttach"
+    ],
+    "unchangedEntries": 204514,
+    "patchedJarSha256": "391539345070605f02b84560c64efeb7ed1ce6464894e6d6bf675facd5bcaa8b",
+    "runtimeJUnit": {
+      "tests": 63,
+      "failures": 0,
+      "exit": 0
+    },
+    "backup": "/root/volume-1471-b1052a73d44",
+    "clientHttp": 200,
+    "mold": "active",
+    "schemaPreserved": true,
+    "webappPreserved": true,
+    "configPreserved": true,
+    "otherJarsPreserved": true,
+    "activeVmAndVolumeRowsPreservedAtRestart": true
+  }
+}

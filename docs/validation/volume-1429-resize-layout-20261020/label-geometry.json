@@ -1,0 +1,90 @@
+[
+  {
+    "cluster": 32,
+    "phase": "final-dark-desktop",
+    "fields": [
+      {
+        "inputBottom": 455.578125,
+        "inputTop": 423.578125,
+        "inputWidth": 242,
+        "labelBottom": 415.578125,
+        "rowBottom": 455.578125,
+        "rowWidth": 242
+      },
+      {
+        "inputBottom": 455.578125,
+        "inputTop": 423.578125,
+        "inputWidth": 242,
+        "labelBottom": 415.578125,
+        "rowBottom": 455.578125,
+        "rowWidth": 242
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "phase": "final-mobile-390",
+    "fields": [
+      {
+        "inputBottom": 492,
+        "inputTop": 460,
+        "inputWidth": 331.5,
+        "labelBottom": 452,
+        "rowBottom": 492,
+        "rowWidth": 331.5
+      },
+      {
+        "inputBottom": 570,
+        "inputTop": 538,
+        "inputWidth": 331.5,
+        "labelBottom": 530,
+        "rowBottom": 570,
+        "rowWidth": 331.5
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "phase": "final-mobile-320",
+    "fields": [
+      {
+        "inputBottom": 493.578125,
+        "inputTop": 461.578125,
+        "inputWidth": 272,
+        "labelBottom": 453.578125,
+        "rowBottom": 493.578125,
+        "rowWidth": 272
+      },
+      {
+        "inputBottom": 571.578125,
+        "inputTop": 539.578125,
+        "inputWidth": 272,
+        "labelBottom": 531.578125,
+        "rowBottom": 571.578125,
+        "rowWidth": 272
+      }
+    ]
+  },
+  {
+    "cluster": 31,
+    "phase": "final-light-desktop",
+    "fields": [
+      {
+        "inputBottom": 455.578125,
+        "inputTop": 423.578125,
+        "inputWidth": 242,
+        "labelBottom": 415.578125,
+        "rowBottom": 455.578125,
+        "rowWidth": 242
+      },
+      {
+        "inputBottom": 455.578125,
+        "inputTop": 423.578125,
+        "inputWidth": 242,
+        "labelBottom": 415.578125,
+        "rowBottom": 455.578125,
+        "rowWidth": 242
+      }
+    ]
+  }
+]

@@ -1,0 +1,97 @@
+{
+  "31": {
+    "finalUiApiDbAndDataProof": {
+      "purgeTrue": true,
+      "externalExact": true,
+      "otherOfferingPreserved": true,
+      "cloneExact": true,
+      "sentinelBytes": 65536,
+      "format": "qcow2"
+    },
+    "vmsExpunged": 2,
+    "volumesRemoved": 9,
+    "snapshotsRemoved": 1,
+    "policiesRemoved": 0,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 4,
+    "domainsRemoved": 2,
+    "computeOfferingsDeactivated": 6,
+    "diskOfferingsDeactivated": 4,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "snapshots": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "primaryImagesChecked": 5,
+    "imagesRemaining": 0,
+    "snapshotFilesRemaining": 0,
+    "snapshotDestroyedHistoryPreserved": true,
+    "vmDefinitionsRemaining": 0,
+    "hostsUp": 3,
+    "runtime": {
+      "mold": "active",
+      "webInf": true,
+      "client": "200",
+      "uiHashMismatches": 0,
+      "jarSha256": "ef39abcea85c0d1e28627686479b6dad655193f21b437dd84c7381adbc0dabc1",
+      "markers": true
+    },
+    "temporaryFilesRemoved": 6,
+    "backupsPreserved": true,
+    "privateDiskOfferingsInactive": true,
+    "policiesRemovedByUI": 1
+  },
+  "32": {
+    "finalUiApiDbAndDataProof": {
+      "purgeTrue": true,
+      "externalExact": true,
+      "otherOfferingPreserved": true,
+      "cloneExact": false,
+      "sentinelBytes": 65536,
+      "format": "raw"
+    },
+    "vmsExpunged": 2,
+    "volumesRemoved": 7,
+    "snapshotsRemoved": 1,
+    "policiesRemoved": 0,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 4,
+    "domainsRemoved": 2,
+    "computeOfferingsDeactivated": 5,
+    "diskOfferingsDeactivated": 4,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "snapshots": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "imagesRemaining": 0,
+    "vmDefinitionsRemaining": 0,
+    "hostsUp": 3,
+    "runtime": {
+      "mold": "active",
+      "webInf": true,
+      "client": "200",
+      "uiHashMismatches": 0,
+      "jarSha256": "39699c00ee8a2ac352633a63083ff815a80ba211d48329588c2bb0626fb4a33b",
+      "markers": true
+    },
+    "temporaryFilesRemoved": 6,
+    "backupsPreserved": true,
+    "primaryImagesChecked": 5,
+    "snapshotFilesRemaining": 0,
+    "snapshotDestroyedHistoryPreserved": true,
+    "privateDiskOfferingsInactive": true
+  }
+}

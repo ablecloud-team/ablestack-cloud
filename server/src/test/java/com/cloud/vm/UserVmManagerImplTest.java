@@ -233,6 +233,8 @@ public class UserVmManagerImplTest {
 
     @Mock
     private DiskOfferingDao diskOfferingDao;
+    @Mock
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationDetailsDao;
 
     @Mock
     private DataCenterDao _dcDao;

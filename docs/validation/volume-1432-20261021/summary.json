@@ -1,0 +1,156 @@
+{
+  "issue": 1432,
+  "epic": 1422,
+  "pr": 1435,
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "serverSource": "bc6cccd989712989312720f97e0fbd8bc9b9417b",
+  "uiSource": "aa7063fced9f78da12bc54544ad8598e64649402",
+  "apiUiMappings": 66,
+  "apiExecutionRecords": 214,
+  "uiExecutionRecords": 32,
+  "focusedBuild": {
+    "server": {
+      "server-package": 0,
+      "server-style": 0,
+      "sourceCommit": "bc6cccd989712989312720f97e0fbd8bc9b9417b",
+      "tests": 99,
+      "failures": 0,
+      "errors": 0,
+      "changedJavaCheckstyleViolations": 0,
+      "registeredFullCloudCiRun": false
+    },
+    "ui": {
+      "ui-lint": 0,
+      "ui-tests": 0,
+      "ui-build": 0,
+      "sourceCommit": "aa7063fced9f78da12bc54544ad8598e64649402",
+      "suites": 15,
+      "tests": 219,
+      "lint": 0,
+      "productionBuild": 0
+    },
+    "deployedJarQualification": {
+      "31": {
+        "tests": 21,
+        "failures": 0
+      },
+      "32": {
+        "tests": 21,
+        "failures": 0
+      }
+    },
+    "limits": [
+      "No full Cloud/Release CI, Agent or qemu build was requested or run.",
+      "Existing unrelated standard Checkstyle wildcard findings (15) excluded; changed Java files checked separately."
+    ]
+  },
+  "cleanup": {
+    "31": {
+      "finalUiApiDbAndDataProof": {
+        "purgeTrue": true,
+        "externalExact": true,
+        "otherOfferingPreserved": true,
+        "cloneExact": true,
+        "sentinelBytes": 65536,
+        "format": "qcow2"
+      },
+      "vmsExpunged": 2,
+      "volumesRemoved": 9,
+      "snapshotsRemoved": 1,
+      "policiesRemoved": 0,
+      "networksRemoved": 2,
+      "projectsRemoved": 1,
+      "accountsRemoved": 4,
+      "domainsRemoved": 2,
+      "computeOfferingsDeactivated": 6,
+      "diskOfferingsDeactivated": 4,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "snapshots": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "primaryImagesChecked": 5,
+      "imagesRemaining": 0,
+      "snapshotFilesRemaining": 0,
+      "snapshotDestroyedHistoryPreserved": true,
+      "vmDefinitionsRemaining": 0,
+      "hostsUp": 3,
+      "runtime": {
+        "mold": "active",
+        "webInf": true,
+        "client": "200",
+        "uiHashMismatches": 0,
+        "jarSha256": "ef39abcea85c0d1e28627686479b6dad655193f21b437dd84c7381adbc0dabc1",
+        "markers": true
+      },
+      "temporaryFilesRemoved": 6,
+      "backupsPreserved": true,
+      "privateDiskOfferingsInactive": true,
+      "policiesRemovedByUI": 1
+    },
+    "32": {
+      "finalUiApiDbAndDataProof": {
+        "purgeTrue": true,
+        "externalExact": true,
+        "otherOfferingPreserved": true,
+        "cloneExact": false,
+        "sentinelBytes": 65536,
+        "format": "raw"
+      },
+      "vmsExpunged": 2,
+      "volumesRemoved": 7,
+      "snapshotsRemoved": 1,
+      "policiesRemoved": 0,
+      "networksRemoved": 2,
+      "projectsRemoved": 1,
+      "accountsRemoved": 4,
+      "domainsRemoved": 2,
+      "computeOfferingsDeactivated": 5,
+      "diskOfferingsDeactivated": 4,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "snapshots": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "imagesRemaining": 0,
+      "vmDefinitionsRemaining": 0,
+      "hostsUp": 3,
+      "runtime": {
+        "mold": "active",
+        "webInf": true,
+        "client": "200",
+        "uiHashMismatches": 0,
+        "jarSha256": "39699c00ee8a2ac352633a63083ff815a80ba211d48329588c2bb0626fb4a33b",
+        "markers": true
+      },
+      "temporaryFilesRemoved": 6,
+      "backupsPreserved": true,
+      "primaryImagesChecked": 5,
+      "snapshotFilesRemaining": 0,
+      "snapshotDestroyedHistoryPreserved": true,
+      "privateDiskOfferingsInactive": true
+    }
+  },
+  "fullCloudCi": false,
+  "remainingIssues": [
+    1154,
+    1209,
+    1210,
+    1433,
+    1434
+  ],
+  "nextIssue": 1154,
+  "issueClosure": "implementation-and-individual-deployment-validation",
+  "epicClosure": false,
+  "prMerged": false
+}

@@ -1,0 +1,370 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-31-mainvm",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-31-mainvm",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3",
+      "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-31-mainvm",
+    "ids": [
+      "7759a50f-8191-481d-9c30-944af55f67e3"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "40e409b6-20da-4021-a842-197c21b6b8d5"
+    ],
+    "states": [
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-31-\ud504\ub85c\uc81d\ud2b8 VM"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ud504\ub85c\uc81d\ud2b8",
+    "ids": [
+      "40e409b6-20da-4021-a842-197c21b6b8d5"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-31-projectvm",
+    "ids": [
+      "40e409b6-20da-4021-a842-197c21b6b8d5"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "DB-stable-uuid-and-renamed-display",
+    "rows": [
+      {
+        "name": "VOL1210-31-projectvm",
+        "uuid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+        "state": "Stopped",
+        "instance": "i-236-723-VM",
+        "displayname": "VOL1210-31-Original-projectVm"
+      },
+      {
+        "name": "VOL1210-31-mainvm",
+        "uuid": "7759a50f-8191-481d-9c30-944af55f67e3",
+        "state": "Running",
+        "instance": "i-235-721-VM",
+        "displayname": "VOL1210-31-Original-mainVm"
+      },
+      {
+        "name": "VOL1210-31-duplicatevm",
+        "uuid": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+        "state": "Stopped",
+        "instance": "i-235-722-VM",
+        "displayname": "VOL1210-31-Original-duplicateVm"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-32-mainvm",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-32-mainvm",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "states": [
+      "Running",
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-32-mainvm",
+    "ids": [
+      "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "owner-state-filter-and-min-fields",
+    "ids": [
+      "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+    ],
+    "states": [
+      "Stopped"
+    ],
+    "displayNames": [
+      "VOL1210-32-\ud504\ub85c\uc81d\ud2b8 VM"
+    ],
+    "backupMetadataPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "API-displayname-and-name-search",
+    "keyword": "\ud504\ub85c\uc81d\ud2b8",
+    "ids": [
+      "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "API-displayname-and-name-search",
+    "keyword": "VOL1210-32-projectvm",
+    "ids": [
+      "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "DB-stable-uuid-and-renamed-display",
+    "rows": [
+      {
+        "name": "VOL1210-32-mainvm",
+        "uuid": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "state": "Running",
+        "instance": "i-47-202-VM",
+        "displayname": "VOL1210-32-Original-mainVm"
+      },
+      {
+        "name": "VOL1210-32-projectvm",
+        "uuid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+        "state": "Stopped",
+        "instance": "i-48-204-VM",
+        "displayname": "VOL1210-32-Original-projectVm"
+      },
+      {
+        "name": "VOL1210-32-duplicatevm",
+        "uuid": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+        "state": "Stopped",
+        "instance": "i-47-203-VM",
+        "displayname": "VOL1210-32-Original-duplicateVm"
+      }
+    ],
+    "pass": true
+  }
+]

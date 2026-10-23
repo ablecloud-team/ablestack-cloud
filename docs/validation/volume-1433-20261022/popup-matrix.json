@@ -1,0 +1,114 @@
+[
+  {
+    "label": "final-31-desktop-volume-search",
+    "buttons": [
+      "",
+      "",
+      "재설정",
+      "검색"
+    ],
+    "popup": {
+      "bottom": 692,
+      "height": 692,
+      "right": 994,
+      "width": 354,
+      "x": 640,
+      "y": 0
+    },
+    "scroll": {
+      "clientHeight": 656,
+      "clientWidth": 310,
+      "height": 773,
+      "width": 310
+    },
+    "viewport": {
+      "dpr": 1,
+      "height": 720,
+      "width": 1280
+    }
+  },
+  {
+    "label": "final-31-390-volume-search",
+    "buttons": [
+      "",
+      "",
+      "재설정",
+      "검색"
+    ],
+    "popup": {
+      "bottom": 809,
+      "height": 809,
+      "right": 390,
+      "width": 354,
+      "x": 36,
+      "y": 0
+    },
+    "scroll": {
+      "clientHeight": 773,
+      "clientWidth": 320,
+      "height": 773,
+      "width": 320
+    },
+    "viewport": {
+      "dpr": 1,
+      "height": 844,
+      "width": 390
+    }
+  },
+  {
+    "label": "final-31-200equiv-volume-search",
+    "buttons": [
+      "",
+      "",
+      "재설정",
+      "검색"
+    ],
+    "popup": {
+      "bottom": 332,
+      "height": 332,
+      "right": 583,
+      "width": 354,
+      "x": 229,
+      "y": 0
+    },
+    "scroll": {
+      "clientHeight": 296,
+      "clientWidth": 310,
+      "height": 773,
+      "width": 310
+    },
+    "viewport": {
+      "dpr": 2,
+      "height": 360,
+      "width": 640
+    }
+  },
+  {
+    "label": "final-32-volume-search",
+    "buttons": [
+      "",
+      "",
+      "재설정",
+      "검색"
+    ],
+    "popup": {
+      "bottom": 809,
+      "height": 809,
+      "right": 390,
+      "width": 354,
+      "x": 36,
+      "y": 0
+    },
+    "scroll": {
+      "clientHeight": 773,
+      "clientWidth": 320,
+      "height": 773,
+      "width": 320
+    },
+    "viewport": {
+      "dpr": 1,
+      "height": 844,
+      "width": 390
+    }
+  }
+]

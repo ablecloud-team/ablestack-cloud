@@ -1,0 +1,51 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "general-list-link-and-back",
+    "scope": "public",
+    "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "detailUrl": "http://10.10.31.10:8080/client/#/computeoffering?keyword=VOL1154-31-",
+    "pass": false,
+    "reason": "Playwright 클릭이 실제 탐색을 시작하지 않은 자동화 시도; AX 실제 클릭으로 별도 재검증"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "back-retains-filtered-list",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/dashboard",
+    "pass": false,
+    "reason": "Playwright 클릭이 실제 탐색을 시작하지 않은 자동화 시도; AX 실제 클릭으로 별도 재검증"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "controlled-response-missing-type-list",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-public-Disk",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-Disk",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      }
+    ],
+    "pass": false,
+    "reason": "검증 스크립트의 도움말 예상 문구 오류(연결 방식/연결 유형)"
+  }
+]

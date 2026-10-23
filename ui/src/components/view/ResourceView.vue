@@ -177,7 +177,7 @@ export default {
       this.wideLayout = false
       const query = Object.assign({}, this.$route.query)
       query.tab = key
-      if (['ssh', 'userdata', 'cniconfiguration', 'affinitygroup'].includes(this.$route.meta?.name)) {
+      if (['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name)) {
         this.$router.push({ path: this.$route.path, query })
         this.$emit('onTabChange', key)
         return
@@ -214,7 +214,7 @@ export default {
     },
     setActiveTab () {
       const requestedTab = this.$route.query.tab || this.historyTab
-      const available = ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup'].includes(this.$route.meta?.name) ? this.tabs.filter(tab => this.showTab(tab)) : this.tabs
+      const available = ['ssh', 'userdata', 'cniconfiguration', 'affinitygroup', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name) ? this.tabs.filter(tab => this.showTab(tab)) : this.tabs
       const selected = available.find(tab => tab.name === requestedTab) || available[0]
       this.activeTab = selected ? selected.name : ''
       // Invalid library deep links use the visible fallback tab in the URL too.
@@ -223,7 +223,7 @@ export default {
       // canonicalize its URL.
       const routeTabs = this.$route.meta?.tabs
       const ownsRouteTabs = !routeTabs || (routeTabs.length === this.tabs.length && routeTabs.every((tab, index) => tab.name === this.tabs[index].name))
-      if (ownsRouteTabs && ['userdata', 'cniconfiguration'].includes(this.$route.meta?.name) && this.$route.query.tab && selected && requestedTab !== selected.name) {
+      if (ownsRouteTabs && ['userdata', 'cniconfiguration', 'volume', 'computeoffering', 'diskoffering'].includes(this.$route.meta?.name) && this.$route.query.tab && selected && requestedTab !== selected.name) {
         this.$router.replace({ path: this.$route.path, query: { ...this.$route.query, tab: selected.name } })
       }
     }

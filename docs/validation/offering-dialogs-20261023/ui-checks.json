@@ -1,0 +1,225 @@
+[
+  {
+    "cluster": 31,
+    "name": "initial-europa-no-reference-pool",
+    "passed": true,
+    "format": "raw",
+    "policy": "off",
+    "referencePoolQueries": 0
+  },
+  {
+    "cluster": 31,
+    "name": "missing-name-reveals-basic-tab",
+    "selectedTab": "true"
+  },
+  {
+    "cluster": 31,
+    "name": "metadata-qos-create",
+    "passed": true,
+    "retainedName": true,
+    "invalidQosRevealedAdvanced": true,
+    "expectedPolicy": "metadata",
+    "expectedFormat": "qcow2"
+  },
+  {
+    "cluster": 31,
+    "name": "compute-direct-required-advanced-values",
+    "passed": true,
+    "cpu": 1,
+    "memoryMiB": 256,
+    "networkRate": 1000,
+    "offerHa": true,
+    "limitCpu": true,
+    "format": "raw",
+    "policy": "off"
+  },
+  {
+    "cluster": 32,
+    "name": "thin-create-without-reference",
+    "passed": true,
+    "format": "raw",
+    "policy": "off"
+  },
+  {
+    "cluster": 32,
+    "name": "full-create-503-retry",
+    "passed": true,
+    "controlled503": 1,
+    "inputRetained": true,
+    "sessionRetained": true,
+    "format": "raw",
+    "policy": "full",
+    "realCreations": 1
+  },
+  {
+    "cluster": 31,
+    "name": "disk-full",
+    "passed": true,
+    "source": "679d97650e64d5da7eb2f30ebb94f65c0389895b",
+    "requests": 1,
+    "legacy": false,
+    "policy": "full"
+  },
+  {
+    "cluster": 31,
+    "name": "disk-legacy",
+    "passed": true,
+    "source": "679d97650e64d5da7eb2f30ebb94f65c0389895b",
+    "requests": 1,
+    "legacy": true,
+    "policy": "fat"
+  },
+  {
+    "cluster": 32,
+    "name": "disk-legacy",
+    "passed": true,
+    "source": "679d97650e64d5da7eb2f30ebb94f65c0389895b",
+    "requests": 1,
+    "legacy": true,
+    "policy": "thin"
+  },
+  {
+    "cluster": 31,
+    "name": "nested-disk-creation",
+    "passed": true,
+    "independentFooters": true,
+    "parentRetained": true
+  },
+  {
+    "cluster": 31,
+    "name": "compute-linked-inheritance",
+    "passed": true,
+    "rootFormat": "qcow2",
+    "rootPolicy": "metadata",
+    "ownAllocationOmitted": true,
+    "strict": true
+  },
+  {
+    "cluster": 31,
+    "name": "cancel-reopen-defaults",
+    "passed": true,
+    "nameCleared": true,
+    "europaRestored": true,
+    "createRequests": 0
+  },
+  {
+    "cluster": 31,
+    "name": "real-doubleclick-single-create",
+    "passed": true,
+    "requests": 1
+  },
+  {
+    "cluster": 31,
+    "name": "final-compact-qos-submit",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "baseInputs": 4,
+    "burstInputs": 8,
+    "burstOpen": false,
+    "burstValue": "2097152"
+  },
+  {
+    "cluster": 32,
+    "name": "custom-zone-id-error-reveals-advanced",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8"
+  },
+  {
+    "cluster": 32,
+    "name": "private-domain-zone-save",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8"
+  },
+  {
+    "cluster": 32,
+    "name": "default-numeric-network-rate-saved",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "networkRate": "10000",
+    "rootDiskSize": "1"
+  },
+  {
+    "cluster": 32,
+    "name": "linked-rbd-full-definition",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "ownAllocationOmitted": true
+  },
+  {
+    "cluster": 31,
+    "name": "constrained-compute-legacy",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8"
+  },
+  {
+    "cluster": 32,
+    "name": "constrained-compute-legacy",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8"
+  },
+  {
+    "cluster": 32,
+    "name": "unconstrained-compute",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8"
+  },
+  {
+    "cluster": 31,
+    "name": "disk-falloc",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "format": "qcow2",
+    "policy": "falloc"
+  },
+  {
+    "cluster": 31,
+    "name": "disk-qcow2-full",
+    "passed": true,
+    "source": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "format": "qcow2",
+    "policy": "full"
+  },
+  {
+    "cluster": 31,
+    "name": "final-dark-theme-colors",
+    "passed": true,
+    "source": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "border": "rgb(62, 70, 80)",
+    "legend": "rgb(197, 204, 212)",
+    "link": "rgb(105, 177, 255)",
+    "scripts": [
+      "js/chunk-c2cd42d0.ce9ea8e4.js",
+      "js/chunk-3d4b9e72.180126f7.js",
+      "js/chunk-681f4242.af7ae815.js",
+      "js/less.min.js",
+      "js/vendors.3ea5c3f6.js",
+      "js/app.68633614.js"
+    ]
+  },
+  {
+    "cluster": 32,
+    "name": "final-dark-theme-colors",
+    "passed": true,
+    "source": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "border": "rgb(62, 70, 80)",
+    "legend": "rgb(197, 204, 212)",
+    "link": "rgb(105, 177, 255)",
+    "scripts": [
+      "js/chunk-c2cd42d0.ce9ea8e4.js",
+      "js/chunk-3d4b9e72.180126f7.js",
+      "js/chunk-681f4242.af7ae815.js",
+      "js/less.min.js",
+      "js/vendors.3ea5c3f6.js",
+      "js/app.68633614.js"
+    ]
+  },
+  {
+    "cluster": 31,
+    "name": "final-light-theme-colors",
+    "passed": true,
+    "source": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "border": "rgb(217, 223, 231)",
+    "legend": "rgb(75, 85, 99)",
+    "link": "rgb(9, 105, 218)"
+  }
+]

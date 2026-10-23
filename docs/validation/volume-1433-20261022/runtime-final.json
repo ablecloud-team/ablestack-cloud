@@ -1,0 +1,24 @@
+{
+  "31": {
+    "staticHashesMatch": true,
+    "protectedHashesMatch": true,
+    "webInf": true,
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "markers": true,
+    "jarAndPidPreserved": true,
+    "remoteTemporaryFilesRemoved": 3
+  },
+  "32": {
+    "staticHashesMatch": true,
+    "protectedHashesMatch": true,
+    "webInf": true,
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "markers": true,
+    "jarAndPidPreserved": true,
+    "remoteTemporaryFilesRemoved": 3
+  }
+}

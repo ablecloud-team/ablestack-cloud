@@ -1,0 +1,18 @@
+[
+  {
+    "cluster": 31,
+    "case": "detach-for-same-display-name-second-VM",
+    "id": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+    "state": "Ready",
+    "pathPreserved": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "detach-for-same-display-name-second-VM",
+    "id": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+    "state": "Ready",
+    "pathPreserved": true,
+    "pass": true
+  }
+]

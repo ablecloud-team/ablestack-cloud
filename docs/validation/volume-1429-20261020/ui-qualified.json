@@ -1,0 +1,249 @@
+{
+  "passedAssertions": 42,
+  "assertions": [
+    {
+      "cluster": 31,
+      "case": "iops-only",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "size-only-blank-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "size-and-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "zero-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "double-click-retry",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-iops-only",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-size-only-blank-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-size-and-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "unchanged-no-post",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "strict-unchanged-no-post",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "pre-read-network-failure",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "stale-volume-rejected",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "same-job-recheck",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "same-job-recheck-complete",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-query-retry",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-empty-offering-retry",
+      "noMutation": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-query-failure-visible-retry",
+      "submitDisabled": true,
+      "retryVisible": true
+    },
+    {
+      "cluster": 31,
+      "case": "final-empty-offering-blocked",
+      "submitDisabled": true,
+      "retryVisible": true
+    },
+    {
+      "cluster": 31,
+      "case": "same-job-recheck",
+      "jobId": "e1e27d0e-d424-4f08-b837-adada363c568",
+      "sameId": true,
+      "additionalMutation": false
+    },
+    {
+      "cluster": 31,
+      "case": "permission-denial",
+      "http": 432,
+      "inputPreserved": true
+    },
+    {
+      "cluster": 32,
+      "case": "iops-only",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "size-only-blank-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "size-and-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "zero-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "double-click-retry",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-iops-only",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-size-only-blank-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-size-and-iops",
+      "exactPostBody": true,
+      "singleMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "unchanged-no-post",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "strict-unchanged-no-post",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "pre-read-network-failure",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "stale-volume-rejected",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "same-job-recheck",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "same-job-recheck-complete",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-query-retry",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-empty-offering-retry",
+      "noMutation": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-query-failure-visible-retry",
+      "submitDisabled": true,
+      "retryVisible": true
+    },
+    {
+      "cluster": 32,
+      "case": "final-empty-offering-blocked",
+      "submitDisabled": true,
+      "retryVisible": true
+    },
+    {
+      "cluster": 32,
+      "case": "same-job-recheck",
+      "jobId": "15441b04-b101-4ddc-8cd1-3cc28bc1fb83",
+      "sameId": true,
+      "additionalMutation": false
+    },
+    {
+      "cluster": 32,
+      "case": "permission-denial",
+      "http": 432,
+      "inputPreserved": true
+    },
+    {
+      "cluster": 31,
+      "case": "compute-only-root",
+      "vmUuidResolved": true,
+      "serviceOfferingUuidResolved": true,
+      "readOnly": true
+    },
+    {
+      "cluster": 32,
+      "case": "compute-only-root",
+      "vmUuidResolved": true,
+      "serviceOfferingUuidResolved": true,
+      "readOnly": true
+    }
+  ],
+  "evidenceRecords": 77,
+  "mutatingPostBodies": 35,
+  "allBodiesVerified": true,
+  "traceGaps": 0
+}

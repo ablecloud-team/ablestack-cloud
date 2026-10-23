@@ -1,0 +1,65 @@
+{
+  "sourceCommit": "bbf1b9cc4d41e816f7fc2fca6671970d56ae3796",
+  "tests": {
+    "numTotalTestSuites": 8,
+    "numPassedTestSuites": 8,
+    "numFailedTestSuites": 0,
+    "numTotalTests": 100,
+    "numPassedTests": 100,
+    "numFailedTests": 0,
+    "success": true
+  },
+  "build": {
+    "sourceCommit": "bbf1b9cc4d41e816f7fc2fca6671970d56ae3796",
+    "node": "v14.21.3",
+    "ui-build": 0,
+    "seconds": 463,
+    "kind": "optimized-production"
+  },
+  "before": {
+    "conditions": 12,
+    "minMs": 10181,
+    "maxMs": 10254,
+    "requestsPerCondition": 2
+  },
+  "after": {
+    "conditions": 12,
+    "minMs": 573,
+    "maxMs": 691,
+    "requestsPerCondition": 1
+  },
+  "comparison": [
+    {
+      "menu": "볼륨",
+      "beforeMinMs": 10215,
+      "beforeMaxMs": 10247,
+      "afterMinMs": 573,
+      "afterMaxMs": 691
+    },
+    {
+      "menu": "컴퓨트 오퍼링",
+      "beforeMinMs": 10206,
+      "beforeMaxMs": 10247,
+      "afterMinMs": 576,
+      "afterMaxMs": 662
+    },
+    {
+      "menu": "디스크 오퍼링",
+      "beforeMinMs": 10181,
+      "beforeMaxMs": 10254,
+      "afterMinMs": 588,
+      "afterMaxMs": 635
+    }
+  ],
+  "cleanup": {
+    "volumesRemoved": 4,
+    "computeOfferingsInactive": 2,
+    "diskOfferingsInactive": 2,
+    "commentsRemoved": 6,
+    "activeResiduals": 0
+  },
+  "fullCloudBuildRun": false,
+  "nextIssue": 1434,
+  "pr": 1435,
+  "merged": false
+}

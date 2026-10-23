@@ -1,0 +1,142 @@
+[
+  {
+    "label": "final-31-created-auto-refresh",
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "34508.3342",
+        "command": "createSnapshotPolicy",
+        "method": "POST",
+        "fields": {
+          "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3",
+          "intervaltype": "daily",
+          "schedule": "58:23",
+          "timezone": "UTC",
+          "maxsnaps": "2"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "34508.3343",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "34508.3345",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "34508.3347",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3"
+        },
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "final-32-created-auto-refresh",
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "46268.3234",
+        "command": "createSnapshotPolicy",
+        "method": "POST",
+        "fields": {
+          "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1",
+          "intervaltype": "daily",
+          "schedule": "58:23",
+          "timezone": "UTC",
+          "maxsnaps": "2"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "46268.3235",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "46268.3237",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "46268.3238",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1"
+        },
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "final-31-daily-deleted",
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "34508.3432",
+        "command": "deleteSnapshotPolicies",
+        "method": "POST",
+        "fields": {
+          "id": "96f3f79a-d182-4394-8819-bd802f0e53d6"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "34508.3433",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "8dfa3284-86a8-40d1-a784-62bedf42c9a3"
+        },
+        "status": 200
+      }
+    ]
+  },
+  {
+    "label": "final-32-daily-deleted",
+    "hasMore": false,
+    "requests": [
+      {
+        "requestId": "46268.3328",
+        "command": "deleteSnapshotPolicies",
+        "method": "POST",
+        "fields": {
+          "id": "a366d8a7-7252-4047-b1f7-d0022746a8da"
+        },
+        "status": 200
+      },
+      {
+        "requestId": "46268.3329",
+        "command": "listSnapshotPolicies",
+        "method": "GET",
+        "fields": {
+          "volumeid": "23c37d56-02dc-46ab-b2a9-221fdbe1beb1"
+        },
+        "status": 200
+      }
+    ]
+  }
+]

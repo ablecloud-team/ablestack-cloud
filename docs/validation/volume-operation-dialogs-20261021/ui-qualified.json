@@ -1,0 +1,28 @@
+{
+  "observationsQualified": 37,
+  "observationsExcluded": [
+    {
+      "label": "initial-http503-harness-unqualified",
+      "reason": "Initial interception matched a global offering request; excluded and retested against the exact volume request."
+    },
+    {
+      "label": "final-migration-real-empty-mobile-320",
+      "reason": "Browser viewport capability affected the other tab; excluded and retested with a tab-specific 320px override."
+    }
+  ],
+  "horizontalOverflow": 0,
+  "labelInputOverlap": 0,
+  "finalSource": "2d7e96619e0",
+  "actualOfferingPosts": 12,
+  "actualMigrationPosts": 0,
+  "finalSourceOfferingPosts": 4,
+  "doubleClickFirstChangePosts": 1,
+  "mobileWidths": [
+    390,
+    320
+  ],
+  "migrationMobileProof": "Tab-specific DOM geometry; bitmap screenshot excluded due to capture scaling.",
+  "exactReadFailureRetrySessionRetained": true,
+  "noRealMigrationDestination": true,
+  "controlledMigrationCandidateAndAttachedVmUiOnly": true
+}

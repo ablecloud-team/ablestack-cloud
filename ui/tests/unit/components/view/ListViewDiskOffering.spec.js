@@ -28,8 +28,9 @@ function diskOfferingCell (record) {
     props: { columns: [{ key: 'diskofferingname', dataIndex: 'diskofferingname' }], items: [record] },
     global: {
       provide: { parentFetchData: jest.fn(), parentToggleLoading: jest.fn() },
-      mocks: { $route: { path: '/computeoffering', meta: {} }, $store: { getters: { apis: {}, userInfo: { roletype: 'Admin' } } }, $t: key => key },
+      mocks: { $route: { path: '/computeoffering', meta: {} }, $store: { getters: { apis: { listDiskOfferings: {} }, userInfo: { roletype: 'Admin' } } }, $t: key => key },
       stubs: {
+        LinkedDiskOffering: false,
         'a-table': { render () { return h('div', this.$slots.bodyCell({ column: { key: 'diskofferingname' }, text: record.diskofferingname, record })) } },
         'router-link': { props: ['to'], template: '<a :data-target="JSON.stringify(to)"><slot /></a>' }
       }
@@ -58,6 +59,19 @@ describe('Linked disk offering navigation', () => {
     })
 
     expect(JSON.parse(wrapper.find('a').attributes('data-target'))).toEqual({ path: '/diskoffering/regular-id' })
+    wrapper.unmount()
+  })
+  it.each([undefined, null, 'true', 'unknown'])('does not navigate for an unknown or internal type %s', type => {
+    const wrapper = diskOfferingCell({ diskofferingid: 'disk-id', diskofferingname: 'same-name', diskofferingcomputeonly: type })
+    expect(wrapper.text()).toContain('same-name')
+    expect(wrapper.find('a').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('does not create a broken route without a disk offering ID', () => {
+    const wrapper = diskOfferingCell({ diskofferingname: 'missing-id', diskofferingcomputeonly: false })
+    expect(wrapper.find('a').exists()).toBe(false)
+    expect(wrapper.text()).toContain('missing-id')
     wrapper.unmount()
   })
 })

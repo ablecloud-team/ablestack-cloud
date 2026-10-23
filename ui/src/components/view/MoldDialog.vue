@@ -19,17 +19,27 @@ for the specific language governing permissions and limitations. -->
     :wrap-props="{ 'aria-modal': true }"
     :width="dialogWidth"
     :visible="visible"
-    @cancel="$emit('cancel')">
+    :closable="$attrs.closable !== false && !formBusy"
+    :keyboard="$attrs.keyboard !== false && !formBusy"
+    @cancel="!formBusy && $emit('cancel')">
     <template #title><slot name="title">{{ title }}</slot></template>
     <slot />
-    <template #footer><slot name="footer"><a-button @click="$emit('cancel')">{{ $t('label.close') }}</a-button></slot></template>
+    <template #footer><slot name="footer"><div v-if="formActions" ref="footerTarget" class="mold-dialog-form-actions" /><a-button v-else @click="$emit('cancel')">{{ $t('label.close') }}</a-button></slot></template>
   </a-modal>
 </template>
 <script>
+import { computed, provide, reactive, shallowRef } from 'vue'
 export default {
   name: 'MoldDialog',
   inheritAttrs: false,
-  props: { visible: { type: Boolean, default: true }, title: { type: String, default: '' }, width: { type: [Number, String], default: 760 }, size: { type: String, default: '', validator: value => ['', 'sm', 'md', 'lg', 'xl'].includes(value) } },
+  props: { visible: { type: Boolean, default: true }, title: { type: String, default: '' }, width: { type: [Number, String], default: 760 }, size: { type: String, default: '', validator: value => ['', 'sm', 'md', 'lg', 'xl'].includes(value) }, formActions: { type: Boolean, default: false } },
+  setup () {
+    const footerTarget = shallowRef(null)
+    const busyOwners = reactive(new Set())
+    provide('moldDialogFooterTarget', footerTarget)
+    provide('moldDialogSetBusy', (owner, busy) => busy ? busyOwners.add(owner) : busyOwners.delete(owner))
+    return { footerTarget, formBusy: computed(() => busyOwners.size > 0) }
+  },
   emits: ['cancel'],
   computed: { dialogWidth () { return { sm: 480, md: 720, lg: 960, xl: 1120 }[this.size] || this.width } }
 }

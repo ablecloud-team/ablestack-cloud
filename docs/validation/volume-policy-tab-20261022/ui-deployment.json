@@ -1,0 +1,32 @@
+{
+  "31": {
+    "files": 914,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": null,
+    "clientHttp": 200,
+    "backup": "/root/volume-policy-tab-ui-04a5b31a27c-1792678586",
+    "sourceCommit": "04a5b31a27cb957bf8e05e9ec8aae57523478134",
+    "payloadSha256": "b7cbbf2e6fffef50874deea09660d616ac46da706518a887f972a1126210654f"
+  },
+  "32": {
+    "files": 914,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": [
+      29194321920,
+      1791859614464247580,
+      27209289
+    ],
+    "clientHttp": 200,
+    "backup": "/root/volume-policy-tab-ui-04a5b31a27c-1792678589",
+    "sourceCommit": "04a5b31a27cb957bf8e05e9ec8aae57523478134",
+    "payloadSha256": "b7cbbf2e6fffef50874deea09660d616ac46da706518a887f972a1126210654f"
+  }
+}

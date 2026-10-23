@@ -1,0 +1,16 @@
+{
+  "31": {
+    "finalDeploymentPidPreserved": true,
+    "managementPid": 2517533,
+    "schemaPreservedAfterTests": true,
+    "allNamedVolumeResiduals": 0,
+    "allNamedVmResiduals": 0
+  },
+  "32": {
+    "finalDeploymentPidPreserved": true,
+    "managementPid": 2431051,
+    "schemaPreservedAfterTests": true,
+    "allNamedVolumeResiduals": 0,
+    "allNamedVmResiduals": 0
+  }
+}

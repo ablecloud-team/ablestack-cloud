@@ -1,0 +1,3 @@
+ DONE  Build complete. The dist directory is ready to be deployed.
+Post-build: removing all docHelp suffixes in ./public/config.json
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

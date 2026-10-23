@@ -32,7 +32,7 @@
           @finish="handleSubmit"
          >
           <a-row :gutter="12">
-            <a-col :md="24" :lg="24">
+            <a-col :xs="24" :md="24" :lg="24">
               <a-form-item :label="$t('label.intervaltype')" name="intervaltype" ref="intervaltype">
                 <a-radio-group
                   v-model:value="form.intervaltype"
@@ -53,7 +53,7 @@
                 </a-radio-group>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="12" v-if="form.intervaltype==='hourly'">
+            <a-col :xs="24" :md="24" :lg="12" v-if="form.intervaltype==='hourly'">
               <a-form-item :label="$t('label.time')" name="time" ref="time">
                 <a-tooltip
                   placement="right"
@@ -68,7 +68,7 @@
                 </a-tooltip>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="12" v-if="['daily', 'weekly', 'monthly'].includes(form.intervaltype)">
+            <a-col :xs="24" :md="24" :lg="12" v-if="['daily', 'weekly', 'monthly'].includes(form.intervaltype)">
               <a-form-item
                 class="custom-time-select"
                 :label="$t('label.time')"
@@ -82,7 +82,7 @@
                   style="width: 100%;" />
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="12" v-if="form.intervaltype==='weekly'">
+            <a-col :xs="24" :md="24" :lg="12" v-if="form.intervaltype==='weekly'">
               <a-form-item :label="$t('label.day.of.week')" name="day-of-week" ref="day-of-week">
                 <a-select
                   v-model:value="form['day-of-week']"
@@ -98,7 +98,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="12" v-if="form.intervaltype==='monthly'">
+            <a-col :xs="24" :md="24" :lg="12" v-if="form.intervaltype==='monthly'">
               <a-form-item :label="$t('label.day.of.month')" ref="day-of-month" name="day-of-month">
                 <a-select
                   v-model:value="form['day-of-month']"
@@ -114,7 +114,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="12">
+            <a-col :xs="24" :md="24" :lg="12">
               <a-form-item :label="$t('label.keep')" name="maxsnaps" ref="maxsnaps">
                 <a-tooltip
                   placement="right"
@@ -126,7 +126,7 @@
                 </a-tooltip>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="24">
+            <a-col :xs="24" :md="24" :lg="24">
               <a-form-item :label="$t('label.timezone')" ref="timezone" name="timezone">
                 <a-select
                   v-model:value="form.timezone"
@@ -142,7 +142,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="24" v-if="resourceType === 'Volume'">
+            <a-col :xs="24" :md="24" :lg="24" v-if="resourceType === 'Volume'">
               <a-form-item ref="zoneids" name="zoneids" :required="(!isAdmin && form.useStorageReplication)">
                 <template #label>
                   <tooltip-label :title="$t('label.zones')" :tooltip="''"/>
@@ -173,7 +173,7 @@
                 </a-select>
               </a-form-item>
             </a-col>
-            <a-col :md="24" :lg="24" v-if="resourceType === 'Volume'">
+            <a-col :xs="24" :md="24" :lg="24" v-if="resourceType === 'Volume'">
               <a-form-item name="useStorageReplication" ref="useStorageReplication">
                 <template #label>
                   <tooltip-label :title="$t('label.usestoragereplication')" :tooltip="apiParams.usestoragereplication.description" />
@@ -236,7 +236,7 @@
               <plus-outlined /> {{ $t('label.new.tag') }}
             </a-tag>
           </div>
-          <div :span="24" class="action-button">
+          <MoldDialogActions v-if="actionsVisible" :span="24" :busy="actionLoading">
             <a-button
               :loading="actionLoading"
               @click="closeAction">
@@ -244,13 +244,14 @@
             </a-button>
             <a-button
               v-if="handleShowButton()"
+              :disabled="disabled"
               :loading="actionLoading"
               type="primary"
               ref="submit"
               @click="handleSubmit">
               {{ $t('label.ok') }}
             </a-button>
-          </div>
+          </MoldDialogActions>
         </a-form>
       </div>
     </div>
@@ -258,23 +259,29 @@
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { timeZone } from '@/utils/timezone'
 import { mixinForm } from '@/utils/mixin'
+import storageDialogContext from '@/utils/storageDialogContext'
 import debounce from 'lodash/debounce'
 
 export default {
   name: 'FormSchedule',
-  mixins: [mixinForm],
+  mixins: [mixinForm, storageDialogContext],
   components: {
+    MoldDialogActions,
     TooltipButton,
     TooltipLabel
   },
   props: {
+    actionsVisible: { type: Boolean, default: true },
+    disabled: { type: Boolean, default: false },
     loading: {
       type: Boolean,
       default: false
@@ -442,7 +449,7 @@ export default {
       } else if (this.form.intervaltype === 'monthly') {
         this.fetchDayOfMonth()
       }
-      this.intervalValue = this.getIntervalValue(this.formintervaltype)
+      this.intervalValue = this.getIntervalValue(this.form.intervaltype)
     },
     getIntervalValue (intervalType) {
       switch (intervalType) {
@@ -510,8 +517,9 @@ export default {
     handleDeleteTag (tag) {
     },
     handleSubmit (e) {
-      if (this.actionLoading) return
+      if (this.actionLoading || this.disabled || !this.dialogCurrent()) return
       this.formRef.value.validate().then(() => {
+        if (this.actionLoading || this.disabled || !this.dialogCurrent()) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
 
@@ -549,7 +557,8 @@ export default {
           params = Object.assign({}, params, formattedTagData)
         }
         this.actionLoading = true
-        postAPI('createSnapshotPolicy', params).then(json => {
+        postAPI('createSnapshotPolicy', params, { preserveOnFailure: true }).then(json => {
+          if (!this.dialogCurrent()) return
           this.$emit('refresh')
           this.$notification.success({
             message: this.$t('label.action.recurring.snapshot'),
@@ -557,7 +566,7 @@ export default {
           })
           this.resetForm()
         }).catch(error => {
-          this.$notifyError(error)
+          if (this.dialogCurrent()) this.$notifyError(error)
         }).finally(() => {
           this.actionLoading = false
         })

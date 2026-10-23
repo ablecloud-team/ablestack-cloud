@@ -278,6 +278,29 @@ body .mold-dialog-standard {
   }
 }
 
+/* Form actions keep their component/event ownership while the common shell
+ * owns the single fixed footer. Internal row actions stay in the body. */
+.mold-dialog-form-actions { width: 100%; min-width: 0; }
+.mold-dialog-standard .mold-dialog-form-actions .mold-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  .ant-btn { margin: 0; }
+}
+.storage-standard-dialog {
+  .form-layout, .volume-attach-dialog, .take-snapshot, .snapshot-layout { width: 100% !important; min-width: 0 !important; max-width: 100%; }
+  .ant-modal-body:has(.mold-form-dialog) { overflow-y: auto; }
+  .volume-attach-content { overflow: visible; }
+}
+.storage-query-error { margin-bottom: 16px; }
+
 body .mold-dialog-standard {
   .ant-checkbox .ant-checkbox-inner { background: var(--ui-bg-input); border-color: var(--ui-border-strong); }
   .ant-checkbox-checked .ant-checkbox-inner { background: var(--ui-action-primary-bg); border-color: var(--ui-link); }

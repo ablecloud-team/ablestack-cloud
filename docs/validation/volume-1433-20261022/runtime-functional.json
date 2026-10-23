@@ -1,0 +1,66 @@
+{
+  "31": {
+    "readyVolume": {
+      "id": "5865be7c-4f37-4c3a-a4a3-9e184d2f4ccc",
+      "state": "Ready",
+      "bytes": 2147483648,
+      "hostFormat": "qcow2",
+      "hostVirtualBytes": 2147483648
+    },
+    "attachedVolume": {
+      "id": "9e704360-57b4-4ef7-be57-650a1031a91f",
+      "vmid": "ef4d3a43-4bd0-4224-8534-4db89b3ec312",
+      "deviceid": 1,
+      "path": "9e704360-57b4-4ef7-be57-650a1031a91f",
+      "libvirtExactImageOnSelectedVm": true
+    },
+    "snapshots": [
+      {
+        "id": "ed36679e-ef66-4ec5-9645-a6db183db351",
+        "state": "BackedUp",
+        "intervaltype": "MANUAL",
+        "physicalsizeFromVolumeQuery": 196640
+      }
+    ],
+    "ownedCounts": {
+      "volumes": 6,
+      "vms": 3,
+      "routers": 1,
+      "snapshots": 1,
+      "computes": 3,
+      "disks": 3
+    }
+  },
+  "32": {
+    "readyVolume": {
+      "id": "a66cc455-a4f2-4e80-8085-8e68d1d60c31",
+      "state": "Ready",
+      "bytes": 2147483648,
+      "hostFormat": "raw",
+      "hostVirtualBytes": 2147483648
+    },
+    "attachedVolume": {
+      "id": "93555d2e-d253-4d09-b1a4-1269024a75cb",
+      "vmid": "b2740f60-b4aa-47d8-be50-3163425a6601",
+      "deviceid": 1,
+      "path": "93555d2e-d253-4d09-b1a4-1269024a75cb",
+      "libvirtExactImageOnSelectedVm": true
+    },
+    "snapshots": [
+      {
+        "id": "8e7aa96d-76b1-4107-a1c0-3ffc8a896b09",
+        "state": "BackedUp",
+        "intervaltype": "MANUAL",
+        "physicalsizeFromVolumeQuery": 196640
+      }
+    ],
+    "ownedCounts": {
+      "volumes": 7,
+      "vms": 3,
+      "routers": 1,
+      "snapshots": 1,
+      "computes": 1,
+      "disks": 2
+    }
+  }
+}

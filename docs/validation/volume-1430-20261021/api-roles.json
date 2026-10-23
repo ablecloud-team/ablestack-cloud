@@ -1,0 +1,54 @@
+[
+  {
+    "cluster": 31,
+    "actor": "admin",
+    "test": "shareable cache guard",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Shareable disks require cache mode none\"}"
+  },
+  {
+    "cluster": 31,
+    "actor": "user",
+    "apiVisible": false,
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1430-31-user.\"}"
+  },
+  {
+    "cluster": 31,
+    "actor": "domainadmin",
+    "apiVisible": true,
+    "privateOfferingUpdated": true
+  },
+  {
+    "cluster": 31,
+    "actor": "domainadmin",
+    "publicOfferingRejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public disk offering [DiskOffering {\\\"id\\\":171,\\\"name\\\":\\\"VOL1430-31-Edit\\\",\\\"uuid\\\":\\\"ccc896c8-5c50-4fd3-97c1-4b45e3240e65\\\"}.] by user [User {\\\"id\\\":188,\\\"username\\\":\\\"VOL1430-31-domainadmin\\\",\\\"uuid\\\":\\\"fcc58851-ab85-472c-9ec3-ff36718a72b2\\\"}.] because it is domain-admin.\"}"
+  },
+  {
+    "cluster": 32,
+    "actor": "admin",
+    "test": "shareable cache guard",
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Shareable disks require cache mode none\"}"
+  },
+  {
+    "cluster": 32,
+    "actor": "user",
+    "apiVisible": false,
+    "rejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1430-32-user.\"}"
+  },
+  {
+    "cluster": 32,
+    "actor": "domainadmin",
+    "apiVisible": true,
+    "privateOfferingUpdated": true
+  },
+  {
+    "cluster": 32,
+    "actor": "domainadmin",
+    "publicOfferingRejected": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public disk offering [DiskOffering {\\\"id\\\":107,\\\"name\\\":\\\"VOL1430-32-Edit\\\",\\\"uuid\\\":\\\"b24ff241-52ae-4a5d-a6e1-c17b33eebbdd\\\"}.] by user [User {\\\"id\\\":24,\\\"username\\\":\\\"VOL1430-32-domainadmin\\\",\\\"uuid\\\":\\\"0bc0fdd1-10cb-46ae-9723-0c0eaba0055c\\\"}.] because it is domain-admin.\"}"
+  }
+]

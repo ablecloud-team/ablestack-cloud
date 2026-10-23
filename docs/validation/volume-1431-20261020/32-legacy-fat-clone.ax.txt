@@ -1,0 +1,371 @@
+Browser tab: 19, Title: "디스크 오퍼링 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/diskoffering/5cff6992-c789-4b0b-9ebb-34eae0d9deeb".
+1 AXWebArea 디스크 오퍼링 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/diskoffering/5cff6992-c789-4b0b-9ebb-34eae0d9deeb
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.32.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 10.10.32.10:8080/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 10.10.32.10:8080/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 10.10.32.10:8080/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 10.10.32.10:8080/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 10.10.32.10:8080/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				284 content list sub_menu_7_$$_/offering-popup
+					285 cloud 컴퓨트 오퍼링
+						286 link Description: cloud 컴퓨트 오퍼링, Value: 10.10.32.10:8080/client/#/computeoffering
+					287 setting 시스템 오퍼링
+						288 link Description: setting 시스템 오퍼링, Value: 10.10.32.10:8080/client/#/systemoffering
+					289 hdd 디스크 오퍼링
+						290 link Description: hdd 디스크 오퍼링, Value: 10.10.32.10:8080/client/#/diskoffering
+					291 wifi 네트워크 오퍼링
+						292 link Description: wifi 네트워크 오퍼링, Value: 10.10.32.10:8080/client/#/networkoffering
+					293 deployment-unit VPC 오퍼링
+						294 link Description: deployment-unit VPC 오퍼링, Value: 10.10.32.10:8080/client/#/vpcoffering
+				61 container
+					62 image setting
+					63 text 구성
+				64 appstore-add 확장
+					65 link Description: appstore-add 확장, Value: 10.10.32.10:8080/client/#/extension
+				66 container
+					67 image tool
+					68 text 도구
+				69 read API 문서
+					70 link Description: read API 문서, Value: 10.10.32.10:8080/client/#/apidocs/
+		71 container
+			72 text 페이지 스타일 설정
+			73 button 닫기
+				74 image close
+			75 container
+				76 heading 페이지 스타일 설정, Value: 3
+					77 text 페이지 스타일 설정
+				78 container
+					79 image
+					80 container
+						81 radio button (settable, integer) Description:  , Value: 0
+				82 container
+					83 image
+					84 container
+						85 radio button (settable, integer) Description:  , Value: 1
+					86 image check
+				87 heading 테마 색상, Value: 3
+					88 text 테마 색상
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+					91 image check
+				92 container
+					93 radio button (settable, integer) Description:  , Value: 0
+				94 container
+					95 radio button (settable, integer) Description:  , Value: 0
+				96 container
+					97 radio button (settable, integer) Description:  , Value: 0
+				98 container
+					99 radio button (settable, integer) Description:  , Value: 0
+				100 container
+					101 radio button (settable, integer) Description:  , Value: 0
+				102 container
+					103 radio button (settable, integer) Description:  , Value: 0
+				104 container
+					105 radio button (settable, integer) Description:  , Value: 0
+				106 heading 네비게이션 설정, Value: 3
+					107 text 네비게이션 설정
+				108 container
+					109 container
+						110 text 배경색
+						111 color well (disabled, settable) #ffffff
+					112 container
+						113 text 텍스트 색상
+						114 color well (disabled, settable) #000000
+				115 image exclamation-circle
+				116 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				117 button download 세팅값 다운로드(json)
+					118 image download
+					119 text 세팅값 다운로드(json)
+				120 button undo 기본값으로 재설정
+					121 image undo
+					122 text 기본값으로 재설정
+		123 container
+			124 image menu-fold
+			125 container
+				126 combo box (settable) rc_select_0
+				127 image project
+				128 text 기본 보기
+			129 button 생성 down
+				130 text 생성
+				131 image down
+			132 image translation
+			133 image bell
+			134 container
+				135 text AC admin cloud
+		136 container
+			137 container
+				138 container
+					139 link Description: home, Value: 10.10.32.10:8080/client/#/
+					140 text /
+					141 link Description: 디스크 오퍼링, Value: 10.10.32.10:8080/client/#/diskoffering
+					142 text / VOL1431-32-20261020-legacy-fat
+					143 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/service_offerings.html#compute-and-disk-service-offerings
+					144 button reload 업데이트
+						295 image reload
+						146 text 업데이트
+				147 button down 작업
+					148 image down
+					149 text 작업
+			296 container
+				297 image hdd
+				298 heading VOL1431-32-20261020-legacy-fat, Value: 4
+					299 text VOL1431-32-20261020-legacy-fat
+				300 text 상태 정상 아이디
+				301 button barcode
+					302 image barcode
+				303 link Description: 5cff6992-c789-4b0b-9ebb-34eae0d9deeb , Value: javascript:;
+				304 text 생성일
+				305 image calendar
+				306 text 2026. 10. 20. 오후 5:42:56
+				307 link Description: hdd 볼륨 보기, Value: 10.10.32.10:8080/client/#/volume?diskofferingid=5cff6992-c789-4b0b-9ebb-34eae0d9deeb
+			308 container
+				309 tab group
+					310 container
+						311 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-3-tab-details
+						312 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-3-tab-events
+						313 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-3-tab-comments
+				314 container Description: 상세, ID: rc-tabs-3-panel-details
+					315 container
+						316 text 할당 정책과 적용 증거
+						317 container
+							318 container 요청 정책 / 형식 : 기존 호환 값: fat
+								319 text 요청 정책 / 형식
+								320 text :
+								321 text 기존 호환 값: fat
+							322 container 확정 정책 : 알 수 없음
+								323 text 확정 정책
+								324 text :
+								325 text 알 수 없음
+							326 container 실제 적용 정책 : 알 수 없음
+								327 text 실제 적용 정책
+								328 text :
+								329 text 알 수 없음
+						330 container
+							331 container 실제 적용 방식 : 알 수 없음
+								332 text 실제 적용 방식
+								333 text :
+								334 text 알 수 없음
+							335 container 실제 이미지 형식 : 알 수 없음
+								336 text 실제 이미지 형식
+								337 text :
+								338 text 알 수 없음
+							339 container 관측 할당량 : 알 수 없음
+								340 text 관측 할당량
+								341 text :
+								342 text 알 수 없음
+						343 container
+							344 container 관측 시각 : 알 수 없음
+								345 text 관측 시각
+								346 text :
+								347 text 알 수 없음
+							348 container 할당 증거 : 미검증
+								349 text 할당 증거
+								350 text :
+								351 text 미검증
+						352 text 오퍼링에는 요청만 저장하며 실제 적용을 뜻하지 않습니다. 참조 스토리지에 오퍼링을 묶지 않고 실제 생성 대상·호스트·작업에서 다시 검증합니다.
+					353 content list
+						354 container
+							355 text 이름
+							356 text VOL1431-32-20261020-legacy-fat
+						357 container
+							358 text 아이디
+							359 text 5cff6992-c789-4b0b-9ebb-34eae0d9deeb
+						360 container
+							361 text 설명
+							362 text VOL1431-32-20261020-legacy-fat
+						363 container
+							364 text 디스크 크기(GB 단위)
+							365 text 1
+						366 container
+							367 text 프로비저닝 유형
+							368 text fat
+						369 container
+							370 text 스토리지 유형
+							371 text shared
+						372 container
+							373 text 사용자지정 디스크 크기
+							374 text false
+						375 container
+							376 text 디스크 크기 엄격성
+							377 text false
+						378 container
+							379 text 사용자지정 IOPS
+							380 text true
+						381 container
+							382 text 태그
+							383 text rbd
+						384 container
+							385 text 생성일
+							386 text 2026. 10. 20. 오후 5:42:56
+						387 container
+							388 text 암호화
+							389 text false
+						390 container
+							391 text 공유 볼륨
+							392 text false
+						393 container
+							394 text 압축/중복제거
+							395 text false
+	277 container
+		278 image exclamation-circle
+		279 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		280 button 세부 경보 내용 확인
+		281 button 경보 규칙으로 이동
+		282 button 닫기
+			283 image close
+	396 container
+		397 container 디스크 오퍼링 복제question-circle
+			398 container
+				399 button Close
+					400 image close
+				401 container vcDialogTitle3
+					402 text 디스크 오퍼링 복제
+					403 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/service_offerings.html#creating-a-new-disk-offering
+				404 container
+					405 text 다음에서 복제: VOL1431-32-20261020-legacy-fat
+					406 text 모든 값이 원본 오퍼링에서 미리 채워졌습니다. 새 오퍼링을 사용자 지정하려면 원하는 필드를 수정하세요.
+					407 container
+						408 text * 이름
+						409 image info-circle
+					410 text field (settable) * 이름 info-circle, Value: VOL1431-UI32-legacy-fat-clone, ID: form_item_name
+					411 container
+						412 text 설명
+						413 image info-circle
+					414 text field (settable) 설명 info-circle, Value: VOL1431-32-20261020-legacy-fat, ID: form_item_displaytext
+					415 container
+						416 text 스토리지 유형
+						417 image info-circle
+					418 container form_item_storagetype
+						419 container
+							420 radio button (settable, integer) Description: shared, Value: 1
+							421 text shared
+						422 container
+							423 radio button (settable, integer) Description: 로컬, Value: 0
+							424 text 로컬
+					425 container
+						426 text 할당 정책 계약
+						427 container
+							428 radio button (settable, integer) Description: 기존 호환 값, Value: 1
+							429 text 기존 호환 값
+							430 radio button (settable, integer) Description: 명시적 정책, Value: 0
+							431 text 명시적 정책
+						432 text 프로비저닝 유형
+						433 container
+							434 container
+								435 radio button (settable, integer) Description: thin, Value: 0
+								436 text thin
+							437 container
+								438 radio button (settable, integer) Description: sparse, Value: 0
+								439 text sparse
+							440 container
+								441 radio button (settable, integer) Description: fat, Value: 1
+								442 text fat
+							443 text 기존 thin/sparse/fat 값을 그대로 유지합니다. 이 호환 값만으로 실제 이미지 할당을 확정하지 않습니다.
+					444 container
+						445 text 암호화
+						446 image info-circle
+					447 switch Description: 암호화 info-circle, Value: 0, ID: form_item_encryptdisk
+					448 container
+						449 text 디스크 크기 엄격성
+						450 image info-circle
+					451 switch Description: 디스크 크기 엄격성 info-circle, Value: 0, ID: form_item_disksizestrictness
+					452 container
+						453 text 사용자지정 디스크 크기
+						454 image info-circle
+					455 switch Description: 사용자지정 디스크 크기 info-circle, Value: 0, ID: form_item_customdisksize
+					456 container
+						457 text * 디스크 크기(GB 단위)
+						458 image info-circle
+					459 text field (settable) * 디스크 크기(GB 단위) info-circle, Value: 1, ID: form_item_disksize
+					460 text QoS 유형
+					461 container form_item_qostype
+						462 container
+							463 radio button (settable, integer) Description: 없음, Value: 0
+							464 text 없음
+						465 container
+							466 radio button (settable, integer) Description: 하이퍼바이저, Value: 0
+							467 text 하이퍼바이저
+						468 container
+							469 radio button (settable, integer) Description: 스토리지, Value: 1
+							470 text 스토리지
+					471 container
+						472 text 사용자지정 IOPS
+						473 image info-circle
+					474 switch Description: 사용자지정 IOPS info-circle, Value: 1, ID: form_item_iscustomizeddiskiops
+					475 container
+						476 text 하이퍼바이저 스냅샷 예약
+						477 image info-circle
+					478 text field (settable) 하이퍼바이저 스냅샷 예약 info-circle, ID: form_item_hypervisorsnapshotreserve
+					479 container
+						480 text 압축/중복제거
+						481 image info-circle
+					482 switch Description: 압축/중복제거 info-circle, Value: 0, ID: form_item_kvdoenable
+					483 container
+						484 text 공유 볼륨
+						485 image info-circle
+					486 switch Description: 공유 볼륨 info-circle, Value: 0, ID: form_item_shareable
+					487 container
+						488 text Write-Cache 유형
+						489 image info-circle
+					490 container form_item_writecachetype
+						491 container
+							492 radio button (settable, integer) Description: Write-Back 디스크 캐싱, Value: 1
+							493 text Write-Back 디스크 캐싱
+						494 container
+							495 radio button (settable, integer) Description: Write-Through, Value: 0
+							496 text Write-Through
+						497 container
+							498 radio button (settable, integer) Description: 디스크 캐시 없음, Value: 0
+							499 text 디스크 캐시 없음
+						500 container
+							501 radio button (settable, integer) Description: 하이퍼바이저 기본값, Value: 0
+							502 text 하이퍼바이저 기본값
+					503 container
+						504 text 스토리지 태그
+						505 image info-circle
+					506 container
+						507 text rbd
+						508 combo box (settable) 스토리지 태그 info-circle, ID: form_item_tags
+					509 text 공개
+					510 switch Description: 공개, Value: 1, ID: form_item_ispublic
+					511 container
+						512 text Zone
+						513 image info-circle
+					514 container
+						515 combo box (settable) zone-selection
+						516 text The ID of the containing zone(s), null for public offerings
+					517 button 취소
+					518 button 확인
+
+The focused UI element is 410 text field (settable) * 이름 info-circle, Value: VOL1431-UI32-legacy-fat-clone, ID: form_item_name

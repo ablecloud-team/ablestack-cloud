@@ -1,0 +1,113 @@
+{
+  "issue": 1154,
+  "epic": 1422,
+  "pr": 1435,
+  "sourceCommit": "77475f80bd2ed1f38897b94d26bd2d27c7cb460c",
+  "uiTests": 114,
+  "uiSuites": 7,
+  "apiRecords": 20,
+  "browserRecords": 83,
+  "uiDeployment": {
+    "31": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1154-ui-77475f80bd2-1792602120",
+      "sourceCommit": "77475f80bd2ed1f38897b94d26bd2d27c7cb460c",
+      "payloadSha256": "b4d025018c540c56a8f6b0466a89e000cf9d0ffe957a9e2c5d245186d77b6f5c"
+    },
+    "32": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1154-ui-77475f80bd2-1792602124",
+      "sourceCommit": "77475f80bd2ed1f38897b94d26bd2d27c7cb460c",
+      "payloadSha256": "b4d025018c540c56a8f6b0466a89e000cf9d0ffe957a9e2c5d245186d77b6f5c"
+    }
+  },
+  "cleanup": {
+    "31": {
+      "computeOfferingsInactive": 6,
+      "generalDiskOfferingsInactive": 2,
+      "privateDiskOfferingsInactive": 3,
+      "generalDiskStayedActiveUntilOwnDeactivation": true,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 1,
+      "vmsOrImagesCreated": 0,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "backupsAndProductHistoryPreserved": true
+    },
+    "32": {
+      "computeOfferingsInactive": 6,
+      "generalDiskOfferingsInactive": 2,
+      "privateDiskOfferingsInactive": 3,
+      "generalDiskStayedActiveUntilOwnDeactivation": true,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 1,
+      "vmsOrImagesCreated": 0,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "backupsAndProductHistoryPreserved": true
+    }
+  },
+  "fullCloudCi": false,
+  "mavenBuild": "not applicable; no Java source changes",
+  "nextIssue": 1209,
+  "remainingIssues": [
+    1209,
+    1210,
+    1433,
+    1434
+  ],
+  "prMerged": false,
+  "epicClosed": false,
+  "browserFunctionalRecords": 81,
+  "browserLiveResponseRecords": 76,
+  "browserControlledResponseRecords": 5,
+  "browserEnvironmentRestoreRecords": 2,
+  "resumeApiChecks": 2,
+  "completionBasis": "implementation, changed UI module build, deployment and individual functional verification"
+}

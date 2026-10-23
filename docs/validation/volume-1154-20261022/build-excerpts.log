@@ -1,0 +1,9 @@
+FILE ui-lint.log
+ DONE  No lint errors found!
+
+FILE ui-tests.log
+Test Suites: 7 passed, 7 total
+Tests:       114 passed, 114 total
+
+FILE ui-build.log
+ DONE  Build complete. The dist directory is ready to be deployed.

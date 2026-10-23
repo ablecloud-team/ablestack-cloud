@@ -1,0 +1,27 @@
+FILE server-package.log
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.641 s - in com.cloud.configuration.OfferingAllocationCloneTest
+[INFO] Tests run: 78, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.311 s - in com.cloud.configuration.ConfigurationManagerTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s - in com.cloud.configuration.ConfigurationManagerDiskQosTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.808 s - in com.cloud.configuration.ConfigurationManagerServiceOfferingUpdateTest
+[INFO] Tests run: 99, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+FILE server-style.log
+[INFO] You have 0 Checkstyle violations.
+[INFO] BUILD SUCCESS
+
+FILE ui-tests.log
+Test Suites: 15 passed, 15 total
+Tests:       219 passed, 219 total
+
+FILE ui-lint.log
+
+FILE ui-build.log
+ DONE  Build complete. The dist directory is ready to be deployed.
+
+FILE 31-runtime-junit.log
+OK (21 tests)
+
+FILE 32-runtime-junit.log
+OK (21 tests)
+

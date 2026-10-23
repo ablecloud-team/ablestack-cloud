@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+  "testNode": "v20.20.2",
+  "mavenModules": [],
+  "javaChanged": false,
+  "fullCloudCiExecuted": false,
+  "buildNode": "v14.21.3",
+  "ui-lint": 0,
+  "ui-tests": 0,
+  "testSuites": 3,
+  "tests": 61,
+  "ui-build": 0
+}

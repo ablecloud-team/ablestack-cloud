@@ -30,6 +30,7 @@
         :disabled="disabled"
         :class="buttonClass"
         :loading="loading"
+        :aria-label="$attrs['aria-label'] || tooltip"
         @click="handleClicked()"
         v-clipboard:copy="copyResource" >
         <template #icon v-if="icon"><render-icon :icon="icon" /></template>
@@ -46,6 +47,7 @@
         :disabled="disabled"
         :class="buttonClass"
         :loading="loading"
+        :aria-label="$attrs['aria-label'] || tooltip"
         @click="handleClicked()" >
         <template #icon v-if="icon"><render-icon :icon="icon" /></template>
         <template v-if="iconType && iconTwoToneColor">

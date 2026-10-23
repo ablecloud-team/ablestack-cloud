@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "cdbf29fb7a69ff21a4496e950c832d3e65944700",
+  "environment": "WSL ext4",
+  "module": "ui",
+  "node": "14.21.3",
+  "testSuites": 7,
+  "tests": 115,
+  "coverageCollection": false,
+  "lintPassed": true,
+  "productionBuildPassed": true,
+  "javaChanges": false,
+  "mavenBuildRequired": false,
+  "fullCloudBuildRun": false
+}

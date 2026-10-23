@@ -1,0 +1,285 @@
+{
+  "diagnosticArchive": {
+    "archived": true,
+    "archive": "/root/volume-1431-failure-evidence-20261020/failure-evidence.tar.gz",
+    "archiveSha256": "a303b535a882a7e0ea93388df5ffe54f2ec32369b0a001d25f5a0aa9a4dd6af7",
+    "volumeUuid": "6a8b21af-65db-4fa1-8c8d-534e3adf88e6",
+    "capturedFormat": "qcow2",
+    "capturedAt": "2026-10-20T08:41:46.937439369Z",
+    "sourceSlotRemoved": true,
+    "fileCount": 3
+  },
+  "issue": 1431,
+  "epic": 1422,
+  "pullRequest": 1435,
+  "uiSourceCommit": "ffbbf9443f0519851b48cdb5e254758def5591fc",
+  "managementSourceCommit": "13fa9b104c6",
+  "build": {
+    "modules": [
+      "api",
+      "server",
+      "plugins/metrics"
+    ],
+    "serverTests": 30,
+    "metricsTests": 18,
+    "uiTests": 66,
+    "uiSuites": 7,
+    "runtimeJarTests": {
+      "31": 48,
+      "32": 48
+    },
+    "productionUiBuild": true,
+    "uiLint": true,
+    "fullCloudBuild": false,
+    "fullCi": false,
+    "preexistingCheckstyleViolations": 15
+  },
+  "apiMatrixChecks": 38,
+  "apiMatrixAllPassed": true,
+  "images": {
+    "31": [
+      {
+        "id": "52ff5b1b-1322-4f38-8fe2-4c1ef584b4ac",
+        "name": "VOL1431-31-20261020-qcow2-metadata",
+        "offeringId": "d27baa40-53ae-4115-b60f-ab4b30ba07a7",
+        "format": "qcow2",
+        "policy": "metadata",
+        "method": "qemu-preallocation-metadata",
+        "logicalBytes": 1073741824,
+        "observedBytes": 348160,
+        "observedAt": "2026-10-20T08:41:43.854833418Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "6a8b21af-65db-4fa1-8c8d-534e3adf88e6",
+        "name": "VOL1431-31-20261020-qcow2-falloc",
+        "offeringId": "da8ff8d9-f181-4ce1-93c5-5465e9e1c9c6",
+        "format": "qcow2",
+        "policy": "falloc",
+        "method": "qemu-preallocation-falloc",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1076203520,
+        "observedAt": "2026-10-20T08:41:47.920404465Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "02d70106-46cc-481a-b48d-eaa4c497fe10",
+        "name": "VOL1431-31-20261020-qcow2-full",
+        "offeringId": "583ead37-4ade-4252-8437-21362585cff2",
+        "format": "qcow2",
+        "policy": "full",
+        "method": "qemu-preallocation-full",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1076203520,
+        "observedAt": "2026-10-20T08:41:53.630678741Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "c8680e53-0ff3-4959-8c2e-6a2e6fe242d1",
+        "name": "VOL1431-31-20261020-raw-off",
+        "offeringId": "92d010e9-f8d4-4897-9205-d3f58e1ecc0f",
+        "format": "raw",
+        "policy": "off",
+        "method": "qemu-preallocation-off",
+        "logicalBytes": 1073741824,
+        "observedBytes": 12288,
+        "observedAt": "2026-10-20T08:41:56.794348569Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "1a571c55-90cb-409f-b32f-1c6caef407fc",
+        "name": "VOL1431-31-20261020-raw-falloc",
+        "offeringId": "d8b6b0bb-a173-4506-8a83-64e049e68bbf",
+        "format": "raw",
+        "policy": "falloc",
+        "method": "qemu-preallocation-falloc",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1075871744,
+        "observedAt": "2026-10-20T08:42:00.972909481Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "6e7249a0-a706-4f74-8ac7-ca65aae079eb",
+        "name": "VOL1431-31-20261020-raw-full",
+        "offeringId": "774ee87c-5928-4eb7-8301-5e2879192d5b",
+        "format": "raw",
+        "policy": "full",
+        "method": "qemu-preallocation-full",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1075871744,
+        "observedAt": "2026-10-20T08:42:07.181556579Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "55a4dd08-55d5-4a4b-8680-cef396486107",
+        "name": "VOL1431-UI31-volume-metadata",
+        "offeringId": "800adba8-8c9c-4f8b-9500-49e044855fec",
+        "format": "qcow2",
+        "policy": "metadata",
+        "method": "qemu-preallocation-metadata",
+        "logicalBytes": 1073741824,
+        "observedBytes": 348160,
+        "observedAt": "2026-10-20T08:46:36.235687063Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      }
+    ],
+    "32": [
+      {
+        "id": "02d409f5-d8eb-4b62-b045-db25665c5532",
+        "name": "VOL1431-32-20261020-raw-off",
+        "offeringId": "b65020ad-0e7b-4ed7-8e7b-98b29b5b6435",
+        "format": "raw",
+        "policy": "off",
+        "method": "rbd-thin",
+        "logicalBytes": 1073741824,
+        "observedBytes": 0,
+        "observedAt": "2026-10-20T08:42:26.279015293Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "f7db23c0-8ed8-4832-9a36-e03299f1a955",
+        "name": "VOL1431-32-20261020-raw-full",
+        "offeringId": "2e79551d-612b-4eee-b2c7-37f57566d085",
+        "format": "raw",
+        "policy": "full",
+        "method": "rbd-thick-create",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1073741824,
+        "observedAt": "2026-10-20T08:42:51.864862985Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      },
+      {
+        "id": "66322478-8610-479a-b924-fe50680bb418",
+        "name": "VOL1431-UI32-volume-full",
+        "offeringId": "8e40cfa6-0d40-4b18-8818-b11faa05484b",
+        "format": "raw",
+        "policy": "full",
+        "method": "rbd-thick-create",
+        "logicalBytes": 1073741824,
+        "observedBytes": 1073741824,
+        "observedAt": "2026-10-20T08:46:04.018831655Z",
+        "dbAndApiAgree": true,
+        "wholeZeroRead": true
+      }
+    ]
+  },
+  "managementArtifacts": {
+    "31": {
+      "sourceCommit": "13fa9b104c61f3ba5063fffefaebd0f8de9c051a",
+      "originalJarSha256": "0fbf06b120ea5042adcc89e3006780cbff2d9cc3271948194d83fb91e9dfac65",
+      "classHashes": {
+        "com/cloud/configuration/OfferingAllocationClone.class": "5a29e513b2f197fdaf9d7b3faca0951899f30343f6b9a85c1e5efe104cfb2182",
+        "com/cloud/configuration/ConfigurationManagerImpl.class": "87337fc4dbec6f706ca082c18d4b8a571b7c8c0e52d9f8514e1e354a907c2e50",
+        "org/apache/cloudstack/api/response/VolumeResponse.class": "21054c2aa25cc48431cc0ce806c4b9f149f8091540dbcda0f8ec0f4ead2bffa2"
+      },
+      "methodPreservationProof": "API_GETTER_PATCH_PASS unrelatedMethodsPreserved=164\nCLONE_PATCH_PASS updatedMethods=2 newClasses=1 rawUnrelatedMethodsPreserved=257\n",
+      "patchedJarSha256": "dd0fa170dbf2019bed9304b43f4f64915d35ca05a0d9ff362e2a26e425a34912",
+      "unchangedEntries": 204513
+    },
+    "32": {
+      "sourceCommit": "13fa9b104c61f3ba5063fffefaebd0f8de9c051a",
+      "originalJarSha256": "d23e3262a176e48d14cf3561537fcc21f0d13466e21d8095c9a6a23ae4bd5391",
+      "classHashes": {
+        "com/cloud/configuration/OfferingAllocationClone.class": "5a29e513b2f197fdaf9d7b3faca0951899f30343f6b9a85c1e5efe104cfb2182",
+        "com/cloud/configuration/ConfigurationManagerImpl.class": "87337fc4dbec6f706ca082c18d4b8a571b7c8c0e52d9f8514e1e354a907c2e50",
+        "org/apache/cloudstack/api/response/VolumeResponse.class": "21054c2aa25cc48431cc0ce806c4b9f149f8091540dbcda0f8ec0f4ead2bffa2"
+      },
+      "methodPreservationProof": "API_GETTER_PATCH_PASS unrelatedMethodsPreserved=164\nCLONE_PATCH_PASS updatedMethods=2 newClasses=1 rawUnrelatedMethodsPreserved=257\n",
+      "patchedJarSha256": "fb1c64d75e1d156b073c5f9009e6981e61e8adfe93e4addde38dde9c249d85ca",
+      "unchangedEntries": 204508
+    }
+  },
+  "uiArtifact": {
+    "sha256": "f7b695f9ebb0013d86e6f46f4697cbf78856a6e3d77be526e6f2a5c43b30150a",
+    "files": 894,
+    "protectedDirectoriesAndConfigPreserved": true
+  },
+  "uiContract": {
+    "31": {
+      "volumeCount": 1,
+      "diskOfferingCount": 2,
+      "computeOfferingCount": 2,
+      "metricsAllocationMatches": true
+    },
+    "32": {
+      "volumeCount": 1,
+      "diskOfferingCount": 2,
+      "computeOfferingCount": 2,
+      "metricsAllocationMatches": true
+    }
+  },
+  "cleanup": {
+    "31": {
+      "deletedVolumes": 7,
+      "disabledDiskOfferings": 20,
+      "disabledComputeOfferings": 6,
+      "activeOwnedDb": {
+        "volumes": 0,
+        "diskOfferings": 0,
+        "serviceOfferings": 0,
+        "vms": 0
+      },
+      "ownedImagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "baselineCounts": {
+        "volumes": 140,
+        "vms": 111,
+        "diskofferings": 7,
+        "computes": 15
+      },
+      "hostStates": [
+        "Up",
+        "Up",
+        "Up"
+      ],
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200,
+      "diagnosticEvidenceArchived": true,
+      "ownedDiagnosticSlotRemaining": 0
+    },
+    "32": {
+      "deletedVolumes": 3,
+      "disabledDiskOfferings": 12,
+      "disabledComputeOfferings": 6,
+      "activeOwnedDb": {
+        "volumes": 0,
+        "diskOfferings": 0,
+        "serviceOfferings": 0,
+        "vms": 0
+      },
+      "ownedImagesAndStages": [],
+      "operationalInventoryUnchanged": true,
+      "baselineCounts": {
+        "volumes": 48,
+        "vms": 48,
+        "diskofferings": 6,
+        "computes": 4
+      },
+      "hostStates": [
+        "Up",
+        "Up",
+        "Up"
+      ],
+      "moldActive": true,
+      "webInfPreserved": true,
+      "clientHttp": 200
+    }
+  },
+  "limitations": [
+    "Full Cloud/Release CI not run",
+    "existing Checkstyle errors excluded with checkstyle.skip for module builds",
+    "role UI regression and all-menu VM visual standards remain in 1432/1433/1434",
+    "explicit physical resize/restore/migrate/image clone remain unsupported",
+    "no kernel/host fix or new RBD allocation method"
+  ]
+}

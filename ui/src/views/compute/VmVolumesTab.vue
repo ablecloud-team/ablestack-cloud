@@ -31,7 +31,7 @@
     </a-alert>
     <a-table :columns="columns" :data-source="filteredRows" row-key="id" :loading="loading" :pagination="{ pageSize: 10, hideOnSinglePage: true }" :scroll="{ x: 1120 }" size="small">
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'name'"><hdd-outlined /> <router-link :to="'/volume/' + record.id">{{ record.name }}</router-link> <a-tag v-if="record.provisioningtype">{{ record.provisioningtype }}</a-tag></template>
+        <template v-if="column.key === 'name'"><hdd-outlined /> <router-link :to="'/volume/' + record.id">{{ record.name }}</router-link> <AllocationSummary :resource="record" compact /></template>
         <template v-else-if="column.key === 'state'"><status :text="record.state" /> {{ record.state }}</template>
         <template v-else-if="column.key === 'size'">{{ (record.size / 1073741824).toFixed(2) }} GB</template>
         <template v-else-if="column.key === 'storage'"><router-link v-if="record.storageid" :to="'/storagepool/' + record.storageid">{{ record.storage }}</router-link></template>
@@ -100,9 +100,11 @@ import Status from '@/components/widgets/Status'
 import CreateVolume from '@/views/storage/CreateVolume.vue'
 import eventBus from '@/config/eventBus'
 
+import AllocationSummary from '@/components/view/AllocationSummary'
+
 export default {
   name: 'VmVolumesTab',
-  components: { Status, CreateVolume },
+  components: { AllocationSummary, Status, CreateVolume },
   props: { resource: { type: Object, required: true } },
   mixins: [listRefreshMixin(['fetchData'], { interval: 10000, active: vm => !!vm.resource.id })],
   data () { return { backupReason: 'message.vmvolume.backup.unknown', snapshots: null, snapshotChecking: false, snapshotRequest: 0, opening: false, rows: [], loading: false, search: '', form: '', selected: null, mode: 'preserve', candidates: [], candidatesLoading: false, candidateError: '', attachId: undefined, attachDeviceId: undefined, progressVisible: false } },

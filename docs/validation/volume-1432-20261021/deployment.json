@@ -1,0 +1,66 @@
+{
+  "management": {
+    "31": {
+      "issue": 1432,
+      "serverSourceCommit": "bc6cccd989712989312720f97e0fbd8bc9b9417b",
+      "originalJarSha256": "a18741909b9b3f6abca04e17eb6332f7e4dcb237cc8ef1d5c0a4e8e7bd2d9b30",
+      "methodPreservationProof": "PATCH_PASS changedMethods=[resolvePurgeResources(Lorg/apache/cloudstack/api/command/admin/offering/UpdateServiceOfferingCmd;Z)Z, updateServiceOffering(Lorg/apache/cloudstack/api/command/admin/offering/UpdateServiceOfferingCmd;)Lcom/cloud/offering/ServiceOffering;] unrelatedMethodsPreserved=259 selfReferencesVerified=true",
+      "changedMethods": [
+        "updateServiceOffering",
+        "resolvePurgeResources(UpdateServiceOfferingCmd,boolean)"
+      ],
+      "classSha256": "0ab6c106b35081bb5676d2a38f464bd092c4cd0b1fb541a390a21767e3241e5e",
+      "patchedJarSha256": "ef39abcea85c0d1e28627686479b6dad655193f21b437dd84c7381adbc0dabc1",
+      "unchangedEntries": 204519,
+      "backup": "/root/volume-1432-bc6cccd9897-1792588337",
+      "clientHttp": 200,
+      "mold": "active",
+      "schemaPreserved": true,
+      "webInfPreserved": true,
+      "uiPreserved": true
+    },
+    "32": {
+      "issue": 1432,
+      "serverSourceCommit": "bc6cccd989712989312720f97e0fbd8bc9b9417b",
+      "originalJarSha256": "945a06cae62084cc29548e598834b63cea5cc2b0e666724af8afcf568775c214",
+      "methodPreservationProof": "PATCH_PASS changedMethods=[resolvePurgeResources(Lorg/apache/cloudstack/api/command/admin/offering/UpdateServiceOfferingCmd;Z)Z, updateServiceOffering(Lorg/apache/cloudstack/api/command/admin/offering/UpdateServiceOfferingCmd;)Lcom/cloud/offering/ServiceOffering;] unrelatedMethodsPreserved=259 selfReferencesVerified=true",
+      "changedMethods": [
+        "updateServiceOffering",
+        "resolvePurgeResources(UpdateServiceOfferingCmd,boolean)"
+      ],
+      "classSha256": "0ab6c106b35081bb5676d2a38f464bd092c4cd0b1fb541a390a21767e3241e5e",
+      "patchedJarSha256": "39699c00ee8a2ac352633a63083ff815a80ba211d48329588c2bb0626fb4a33b",
+      "unchangedEntries": 204513,
+      "backup": "/root/volume-1432-bc6cccd9897-1792588337",
+      "clientHttp": 200,
+      "mold": "active",
+      "schemaPreserved": true,
+      "webInfPreserved": true,
+      "uiPreserved": true
+    }
+  },
+  "ui": {
+    "31": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1432-ui-aa7063fced9-1792588039",
+      "sourceCommit": "aa7063fced9f78da12bc54544ad8598e64649402",
+      "payloadSha256": "b3a73329eba4453983815fba5b6a8a32a6cba564dcd7069a8c7c8f510ea0a4c1"
+    },
+    "32": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1432-ui-aa7063fced9-1792588043",
+      "sourceCommit": "aa7063fced9f78da12bc54544ad8598e64649402",
+      "payloadSha256": "b3a73329eba4453983815fba5b6a8a32a6cba564dcd7069a8c7c8f510ea0a4c1"
+    }
+  }
+}

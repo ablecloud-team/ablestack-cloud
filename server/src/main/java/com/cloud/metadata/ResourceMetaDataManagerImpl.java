@@ -179,6 +179,9 @@ public class ResourceMetaDataManagerImpl extends ManagerBase implements Resource
     @DB
     @ActionEvent(eventType = EventTypes.EVENT_RESOURCE_DETAILS_CREATE, eventDescription = "creating resource meta data")
     public boolean addResourceMetaData(final String resourceId, final ResourceObjectType resourceType, final Map<String, String> details, final boolean forDisplay) {
+        if (isAllocationResource(resourceType) && details.keySet().stream().anyMatch(key -> key.startsWith("allocation."))) {
+            throw new InvalidParameterValueException("Allocation contract metadata is reserved for the storage service");
+        }
         if (resourceType == ResourceObjectType.Volume && details.keySet().stream()
                 .anyMatch(com.cloud.storage.VmStorageSelectionService.REQUIRED_POOL::equalsIgnoreCase)) {
             throw new InvalidParameterValueException("First-deployment storage metadata is managed by the deployment service");
@@ -216,6 +219,10 @@ public class ResourceMetaDataManagerImpl extends ManagerBase implements Resource
         }
 
         DetailDaoHelper newDetailDaoHelper = new DetailDaoHelper(resourceType);
+        if (isAllocationResource(resourceType) && ((key != null && key.startsWith("allocation.")) ||
+                (key == null && newDetailDaoHelper.getDetailsMap(id, null).keySet().stream().anyMatch(name -> name.startsWith("allocation."))))) {
+            throw new InvalidParameterValueException("Allocation contract metadata cannot be removed through the metadata API");
+        }
         if (key != null) {
             newDetailDaoHelper.removeDetail(id, key);
         } else {
@@ -223,6 +230,10 @@ public class ResourceMetaDataManagerImpl extends ManagerBase implements Resource
         }
 
         return true;
+    }
+
+    private boolean isAllocationResource(ResourceObjectType type) {
+        return type == ResourceObjectType.Volume || type == ResourceObjectType.DiskOffering || type == ResourceObjectType.ServiceOffering;
     }
 
     private class DetailDaoHelper {

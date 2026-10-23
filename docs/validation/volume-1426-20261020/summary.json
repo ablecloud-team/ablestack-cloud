@@ -1,0 +1,518 @@
+{
+  "epic": 1422,
+  "issue": 1426,
+  "pr": "https://github.com/ablecloud-team/ablestack-cloud/pull/1435",
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "implementationCommit": "defb87309a9572778a5b255c38a6c6cc350bfa3a",
+  "agentCapacityCommit": "c4b10d9e46dd05e92423d8e0cc5479919144143d",
+  "build": {
+    "environment": "WSL rocky ext4; JDK17; Maven3.9.10",
+    "changedModules": [
+      "api",
+      "core",
+      "server",
+      "engine/orchestration",
+      "engine/storage/volume",
+      "plugins/hypervisors/kvm"
+    ],
+    "fullCloudBuild": false,
+    "qemuArtifactChanged": false
+  },
+  "tests": {
+    "source": 586,
+    "sourceByModule": {
+      "api": 13,
+      "core": 7,
+      "server": 377,
+      "engine/orchestration": 54,
+      "engine/storage/volume": 49,
+      "plugins/hypervisors/kvm": 86
+    },
+    "failures": 0,
+    "errors": 0,
+    "runtimeManagement": 248,
+    "runtimePerHost": 38,
+    "runtimeTotalExecutions": 362,
+    "environmentChecks": 73,
+    "checkstyleExistingByModule": {
+      "api": 4,
+      "core": 0,
+      "server": 15,
+      "engine/orchestration": 0,
+      "engine/storage/volume": 0,
+      "plugins/hypervisors/kvm": 0
+    },
+    "checkstyleChangedFileViolations": []
+  },
+  "deployment": {
+    "management": {
+      "cluster": 32,
+      "jarSha256": "2e0e3edeee781069f05912d0dbd634d2cb8cc5295bf873984c26b6cf9e13a210",
+      "sourceCommit": "defb87309a9572778a5b255c38a6c6cc350bfa3a",
+      "patchedClasses": 15,
+      "unrelatedMethodsPreserved": 1426,
+      "unchangedJarEntries": 204492,
+      "webinfPreserved": true,
+      "staticIndexPreserved": true,
+      "clientHttpStatus": 200,
+      "backup": "/root/volume-1426-defb87309a9"
+    },
+    "hosts": [
+      {
+        "host": "cluster32-host1",
+        "service": "mold-agent",
+        "kvmJarSha256": "40260b9a137cece9d5d7fbb356bb471e9fb752d567fba17d5a34a3429c550f35",
+        "preservedLegacyMethods": 693,
+        "finalRuntimeTests": 38,
+        "untouchedJarEntriesInCapacityPatch": 513,
+        "domainStatesPreserved": true,
+        "agentPropertiesPreserved": true
+      },
+      {
+        "host": "cluster32-host2",
+        "service": "mold-agent",
+        "kvmJarSha256": "4776caa64921d8bc8f9069824643ab9e87088212efd15cddcfbd5b3cc3b2ff86",
+        "preservedLegacyMethods": 693,
+        "finalRuntimeTests": 38,
+        "untouchedJarEntriesInCapacityPatch": 513,
+        "domainStatesPreserved": true,
+        "agentPropertiesPreserved": true
+      },
+      {
+        "host": "cluster32-host3",
+        "service": "mold-agent",
+        "kvmJarSha256": "892e971080cb756ec71fa25c3c3ced47248558e99e69faab118e16d1173098e7",
+        "preservedLegacyMethods": 693,
+        "finalRuntimeTests": 38,
+        "untouchedJarEntriesInCapacityPatch": 513,
+        "domainStatesPreserved": true,
+        "agentPropertiesPreserved": true
+      }
+    ],
+    "cluster31JarUnchanged": "b6e02c6f9a5ece4fb14975c4f097b3c2193a1b23016876159f9f771f70afd02f"
+  },
+  "physicalVolumes": [
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 0,
+      "hasCowParent": false,
+      "requestedPolicy": "off",
+      "case": "off"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "zeroReadBytes": 1073741824,
+      "zeroSha256": "49bc20df15e412a64472421e13fe86ff1c5165e18b2afccf160d4dc19fe68a14",
+      "case": "full"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 0,
+      "hasCowParent": false,
+      "requestedPolicy": "thin",
+      "case": "legacy-thin"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "zeroReadBytes": 1073741824,
+      "zeroSha256": "49bc20df15e412a64472421e13fe86ff1c5165e18b2afccf160d4dc19fe68a14",
+      "case": "ui-full"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "patternedTemplateAndZeroTailIdentical": true,
+      "case": "linked-compute-root"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "patternedTemplateAndZeroTailIdentical": true,
+      "case": "internal-compute-root"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "zeroReadBytes": 1073741824,
+      "zeroSha256": "49bc20df15e412a64472421e13fe86ff1c5165e18b2afccf160d4dc19fe68a14",
+      "case": "capacity-full"
+    },
+    {
+      "virtualBytes": 1073741824,
+      "imageUsedBytes": 1073741824,
+      "hasCowParent": false,
+      "requestedPolicy": "full",
+      "patternedTemplateAndZeroTailIdentical": true,
+      "case": "final-agent-template-root"
+    }
+  ],
+  "physical": {
+    "fullVolumes": 6,
+    "thinVolumes": 2,
+    "virtualBytesEach": 1073741824,
+    "fullImageUsedBytesEach": 1073741824,
+    "thinImageUsedBytesEach": 0,
+    "allParentless": true,
+    "patternedTemplateCopies": 3,
+    "zeroReadFullDataVolumes": 3,
+    "copyProbeBytes": 67108864,
+    "realConcurrentWriters": 2,
+    "concurrentPublishedWinners": 1,
+    "sameRequestRetryVerified": true,
+    "capacityFailure": "controlled available-space fault; production uses authenticated Ceph pool max_avail",
+    "copyFailure": "controlled transport failure after actual thick stage creation; stage cleanup verified"
+  },
+  "database": {
+    "allocationDetailsBeforeCleanup": 77,
+    "schemaChanged": false,
+    "legacyBackfill": false,
+    "activeFixtureCountsAfterCleanup": {
+      "active_owned_volumes": 0,
+      "active_owned_vms": 0,
+      "active_owned_nics": 0,
+      "active_owned_disk_offerings": 0,
+      "active_owned_service_offerings": 0,
+      "active_owned_templates": 0,
+      "active_owned_snapshots": 0,
+      "active_owned_vm_snapshots": 0,
+      "active_owned_allocation_details": 0
+    },
+    "snapshotHistory": {
+      "status": "Destroyed",
+      "rowsRetained": 1,
+      "active": 0
+    }
+  },
+  "cleanup": {
+    "api": "PASS",
+    "operationalInventoryEqual": true,
+    "counts": {
+      "volumes": 48,
+      "vms": 48,
+      "diskofferings": 6,
+      "computes": 4
+    },
+    "ownedCloudImagesAndTemplateAbsent": true,
+    "ownedStagesAbsent": true,
+    "poolImageCountRestored": 69,
+    "additionalRecoveredProbeImagesCleaned": 4,
+    "httpServerAndFixtureRemoved": true,
+    "temporaryFirewallRuleRemoved": true,
+    "temporaryCredentialRemoved": true,
+    "secondaryTemplateAndSnapshotFilesAbsent": true,
+    "protectedWslFtDiffUnchanged": true
+  },
+  "limitations": [
+    "Full is allocation at create/copy verification time, not persistent reservation after discard or later lifecycle operations.",
+    "RBD falloc/lazy thick, qcow2 metadata, Full resize/COW clone/restore/migration are not supported.",
+    "RAW VM snapshot creation is rejected by the existing KVM implementation; VM snapshot revert guard was verified by focused tests, not a fabricated live revert.",
+    "The dedicated patterned QCOW2 image has no installed guest OS; no guest workload or broad Cloud CI was qualified.",
+    "UI still shows compatibility provisioningtype fat and existing unsupported actions; policy selection/applied evidence UX is tracked by #1431 and VM UI unification by #1433."
+  ],
+  "checks": [
+    {
+      "name": "capability-ablecube32-1-create",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-1-copy",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-1-resize",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-1-restore",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-1-migrate",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-1-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-falloc-ablecube32-1",
+      "pass": true
+    },
+    {
+      "name": "reject-full-resize-ablecube32-1",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-qcow2-ablecube32-1",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-create",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-copy",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-resize",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-restore",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-migrate",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-2-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-falloc-ablecube32-2",
+      "pass": true
+    },
+    {
+      "name": "reject-full-resize-ablecube32-2",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-qcow2-ablecube32-2",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-create",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-copy",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-resize",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-restore",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-migrate",
+      "pass": true
+    },
+    {
+      "name": "capability-ablecube32-3-clone",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-falloc-ablecube32-3",
+      "pass": true
+    },
+    {
+      "name": "reject-full-resize-ablecube32-3",
+      "pass": true
+    },
+    {
+      "name": "reject-rbd-qcow2-ablecube32-3",
+      "pass": true
+    },
+    {
+      "name": "offering-off-intent",
+      "pass": true
+    },
+    {
+      "name": "api-off-ready",
+      "pass": true
+    },
+    {
+      "name": "offering-full-intent",
+      "pass": true
+    },
+    {
+      "name": "api-full-ready",
+      "pass": true
+    },
+    {
+      "name": "legacy-thin-compatible",
+      "pass": true
+    },
+    {
+      "name": "legacy-sparse-cannot-pretend-full",
+      "pass": true
+    },
+    {
+      "name": "legacy-sparse-no-volume",
+      "pass": true
+    },
+    {
+      "name": "legacy-fat-cannot-pretend-full",
+      "pass": true
+    },
+    {
+      "name": "legacy-fat-no-volume",
+      "pass": true
+    },
+    {
+      "name": "unsupported-falloc-creation",
+      "pass": true
+    },
+    {
+      "name": "unsupported-falloc-no-volume",
+      "pass": true
+    },
+    {
+      "name": "unsupported-metadata-creation",
+      "pass": true
+    },
+    {
+      "name": "unsupported-metadata-no-volume",
+      "pass": true
+    },
+    {
+      "name": "full-resize-blocked",
+      "pass": true
+    },
+    {
+      "name": "full-migrate-blocked",
+      "pass": true
+    },
+    {
+      "name": "legacy-to-full-offering-change-blocked",
+      "pass": true
+    },
+    {
+      "name": "full-to-legacy-offering-change-blocked",
+      "pass": true
+    },
+    {
+      "name": "public-allocation-evidence-write-blocked",
+      "pass": true
+    },
+    {
+      "name": "public-allocation-evidence-delete-blocked",
+      "pass": true
+    },
+    {
+      "name": "unsupported-actions-preserve-volume",
+      "pass": true
+    },
+    {
+      "name": "pattern-template-ready",
+      "pass": true
+    },
+    {
+      "name": "linked-compute-inherits-full",
+      "pass": true
+    },
+    {
+      "name": "ui-full-created-and-ready",
+      "pass": true
+    },
+    {
+      "name": "template-full-root-ready",
+      "pass": true
+    },
+    {
+      "name": "fixture-vm-stopped",
+      "pass": true
+    },
+    {
+      "name": "full-vm-clone-blocked",
+      "pass": true
+    },
+    {
+      "name": "full-vm-restore-blocked",
+      "pass": true
+    },
+    {
+      "name": "vm-guards-preserve-stopped-state",
+      "pass": true
+    },
+    {
+      "name": "internal-compute-requests-full",
+      "pass": true
+    },
+    {
+      "name": "internal-compute-full-root-ready",
+      "pass": true
+    },
+    {
+      "name": "internal-compute-fixture-stopped",
+      "pass": true
+    },
+    {
+      "name": "full-vm-storage-migration-blocked",
+      "pass": true
+    },
+    {
+      "name": "blocked-vm-migration-preserves-host",
+      "pass": true
+    },
+    {
+      "name": "full-volume-revert-blocked",
+      "pass": true
+    },
+    {
+      "name": "full-snapshot-create-volume-restore-blocked",
+      "pass": true
+    },
+    {
+      "name": "dedicated-volume-snapshot-cleaned",
+      "pass": true
+    },
+    {
+      "name": "final-agent-full-create-ready",
+      "pass": true
+    },
+    {
+      "name": "final-agent-full-template-copy-ready",
+      "pass": true
+    },
+    {
+      "name": "final-agent-vm-stopped",
+      "pass": true
+    },
+    {
+      "name": "ui-full-resize-keeps-size-and-evidence",
+      "pass": true
+    },
+    {
+      "name": "ui-legacy-fat-failure-creates-no-volume",
+      "pass": true
+    },
+    {
+      "name": "raw-vm-snapshot-platform-unsupported",
+      "pass": true
+    },
+    {
+      "name": "operational-volumes-preserved",
+      "pass": true
+    },
+    {
+      "name": "operational-vms-preserved",
+      "pass": true
+    },
+    {
+      "name": "operational-diskofferings-preserved",
+      "pass": true
+    },
+    {
+      "name": "operational-computes-preserved",
+      "pass": true
+    }
+  ]
+}

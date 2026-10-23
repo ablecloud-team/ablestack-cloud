@@ -1,0 +1,8 @@
+{
+  "sourceBefore": "341e8ad085bc6322b76fa8d9a51c56ecb2c00af4",
+  "failedSuites": 1,
+  "failedTests": 6,
+  "cases": "3 storage menus x EventsTab and AnnotationsTab",
+  "trigger": "query.tab changes while the first successful request is in flight",
+  "failure": "normal response and loading teardown discarded until 10s auto refresh"
+}

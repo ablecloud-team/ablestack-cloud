@@ -1,0 +1,14 @@
+{
+  "ui-lint": 0,
+  "ui-tests": 0,
+  "sourceCommit": "70dd965b2b662a15362f4c9ad2f2cdc92174017a",
+  "testNode": "20.20.2",
+  "buildNode": "14.21.3",
+  "ui-build": 0,
+  "suites": 6,
+  "tests": 65,
+  "javaChanges": false,
+  "mavenModulesChanged": [],
+  "managementJarDeployment": false,
+  "fullCloudCi": false
+}

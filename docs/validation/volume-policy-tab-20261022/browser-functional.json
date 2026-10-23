@@ -1,0 +1,47 @@
+{
+  "finalSource": "04a5b31a27cb957bf8e05e9ec8aae57523478134",
+  "finalBundles": {
+    "31": [
+      "js/app.f41477a4.js"
+    ],
+    "32": [
+      "js/app.f41477a4.js"
+    ]
+  },
+  "finalAutoRefresh": {
+    "31": true,
+    "32": true
+  },
+  "finalLayoutCases": 24,
+  "finalPolicyIsolation": {
+    "31": true,
+    "32": true
+  },
+  "finalPolicyReadFailure": {
+    "31": {
+      "rowsRetained": true,
+      "deleteDisabled": true,
+      "sessionRetained": true,
+      "retryRecovered": true
+    },
+    "32": {
+      "rowsRetained": true,
+      "deleteDisabled": true,
+      "sessionRetained": true,
+      "retryRecovered": true
+    }
+  },
+  "finalDelete": {
+    "31": true,
+    "32": true
+  },
+  "browserCleanup": {
+    "themeRestored": true,
+    "interceptionCleared": true,
+    "cacheRestored": true,
+    "metricsCleared": true,
+    "loggedOut31": true,
+    "loggedOut32": true,
+    "ownTabsClosed": true
+  }
+}

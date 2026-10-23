@@ -75,10 +75,10 @@
           </a-select>
         </a-form-item>
 
-        <div :span="24" class="action-button">
+        <MoldDialogActions :span="24" :busy="loading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </MoldDialogActions>
 
       </a-form>
     </a-spin>
@@ -86,8 +86,10 @@
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -102,6 +104,7 @@ export default {
     }
   },
   components: {
+    MoldDialogActions,
     ResourceIcon
   },
   data () {

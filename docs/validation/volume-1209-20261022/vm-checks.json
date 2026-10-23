@@ -1,0 +1,108 @@
+{
+  "31": {
+    "cluster": 31,
+    "case": "UI-created-Stopped-VM-last-page-DATA-id-matches-API-DB",
+    "vm": {
+      "id": "c0fc54bd-e589-4e6c-996b-ad06db10f821",
+      "name": "VOL1209-31-vm",
+      "displayname": "VOL1209-31-vm",
+      "instancename": "i-232-720-VM",
+      "state": "Stopped",
+      "serviceofferingid": "acdb6303-db4d-4e90-bd08-0fa26f047aaa",
+      "templateid": "e3d8677e-70f0-44bd-917e-6068636b97a8"
+    },
+    "volumes": [
+      {
+        "id": "6d93135e-1a0d-451e-9977-16ccf22b6818",
+        "name": "ROOT-720",
+        "type": "ROOT",
+        "state": "Allocated",
+        "size": 107374182400,
+        "diskofferingid": null,
+        "path": null,
+        "storageid": null
+      },
+      {
+        "id": "ed2d8f14-f192-47ca-922a-eb06a6c59b8d",
+        "name": "DATA-720-1",
+        "type": "DATADISK",
+        "state": "Allocated",
+        "size": 1073741824,
+        "diskofferingid": "487cf645-fa40-4b89-9133-9c7a53d13810",
+        "path": null,
+        "storageid": null
+      }
+    ],
+    "dbVmId": 720,
+    "dbData": {
+      "path": null,
+      "vmid": 720,
+      "bytes": 1073741824,
+      "state": "Allocated",
+      "diskid": "487cf645-fa40-4b89-9133-9c7a53d13810",
+      "poolId": null,
+      "serviceofferingid": "acdb6303-db4d-4e90-bd08-0fa26f047aaa"
+    },
+    "guestBootAndIoVerified": false,
+    "pass": true,
+    "rootDbHistory": {
+      "computeDiskId": "a917b5d7-c4e1-4a24-bf52-f4c27d77c484",
+      "diskOfferingId": "a917b5d7-c4e1-4a24-bf52-f4c27d77c484",
+      "serviceofferingId": "acdb6303-db4d-4e90-bd08-0fa26f047aaa"
+    },
+    "rootOfferingInheritedFromSelectedCompute": true
+  },
+  "32": {
+    "cluster": 32,
+    "case": "UI-created-Stopped-VM-last-page-DATA-id-matches-API-DB",
+    "vm": {
+      "id": "10d089eb-3976-480f-baed-cb8c065e640e",
+      "name": "VOL1209-32-vm",
+      "displayname": "VOL1209-32-vm",
+      "instancename": "i-44-201-VM",
+      "state": "Stopped",
+      "serviceofferingid": "89bd20b9-2560-4300-9195-64cd2dc34d8d",
+      "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d"
+    },
+    "volumes": [
+      {
+        "id": "cf94eb1f-11cb-4526-a6e9-2b1808499440",
+        "name": "ROOT-201",
+        "type": "ROOT",
+        "state": "Allocated",
+        "size": 107374182400,
+        "diskofferingid": null,
+        "path": null,
+        "storageid": null
+      },
+      {
+        "id": "2d4ae0fa-a375-4f69-8540-dbb75c6757a2",
+        "name": "DATA-201-1",
+        "type": "DATADISK",
+        "state": "Allocated",
+        "size": 1073741824,
+        "diskofferingid": "ea088297-d534-477e-a499-55a6b1a9791b",
+        "path": null,
+        "storageid": null
+      }
+    ],
+    "dbVmId": 201,
+    "dbData": {
+      "path": null,
+      "vmid": 201,
+      "bytes": 1073741824,
+      "state": "Allocated",
+      "diskid": "ea088297-d534-477e-a499-55a6b1a9791b",
+      "poolId": null,
+      "serviceofferingid": "89bd20b9-2560-4300-9195-64cd2dc34d8d"
+    },
+    "guestBootAndIoVerified": false,
+    "pass": true,
+    "rootDbHistory": {
+      "computeDiskId": "03590119-33da-4203-8837-1ad55c5452db",
+      "diskOfferingId": "03590119-33da-4203-8837-1ad55c5452db",
+      "serviceofferingId": "89bd20b9-2560-4300-9195-64cd2dc34d8d"
+    },
+    "rootOfferingInheritedFromSelectedCompute": true
+  }
+}

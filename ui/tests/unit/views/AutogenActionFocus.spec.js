@@ -50,6 +50,15 @@ test('removed triggers do not steal focus from another page control', async () =
   expect(document.activeElement).toBe(current)
 })
 
+test('a resized storage toolbar returns focus to its replacement action trigger in the same route', async () => {
+  const removed = document.createElement('button')
+  const replacement = document.createElement('button')
+  document.body.append(replacement)
+  const context = { ...view(), isStorageUi: true, $route: { path: '/volume/id' }, actionOriginPath: '/volume/id', actionTrigger: removed, $refs: { detailActionsTrigger: { $el: replacement } } }
+  AutogenView.methods.closeAction.call(context); await Promise.resolve()
+  expect(document.activeElement).toBe(replacement)
+})
+
 test('a newly opened modal retains focus when previous restoration is queued', async () => {
   const trigger = document.createElement('button')
   const nextInput = document.createElement('input')

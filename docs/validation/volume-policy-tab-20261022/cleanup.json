@@ -1,0 +1,32 @@
+{
+  "31": {
+    "volumesRemoved": 2,
+    "diskOfferingInactive": 1,
+    "snapshotsRemoved": 0,
+    "activeResiduals": {
+      "volumes": 0,
+      "policies": 0,
+      "offerings": 0
+    },
+    "imageResiduals": 0,
+    "operationalInventoryUnchanged": true,
+    "jarAndPidPreserved": true,
+    "hostsUp": 3,
+    "productHistoryPreserved": true
+  },
+  "32": {
+    "volumesRemoved": 2,
+    "diskOfferingInactive": 1,
+    "snapshotsRemoved": 0,
+    "activeResiduals": {
+      "volumes": 0,
+      "policies": 0,
+      "offerings": 0
+    },
+    "imageResiduals": 0,
+    "operationalInventoryUnchanged": true,
+    "jarAndPidPreserved": true,
+    "hostsUp": 3,
+    "productHistoryPreserved": true
+  }
+}

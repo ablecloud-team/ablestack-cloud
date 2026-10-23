@@ -1,0 +1,36 @@
+{
+  "server": {
+    "server-package": 0,
+    "server-style": 0,
+    "sourceCommit": "bc6cccd989712989312720f97e0fbd8bc9b9417b",
+    "tests": 99,
+    "failures": 0,
+    "errors": 0,
+    "changedJavaCheckstyleViolations": 0,
+    "registeredFullCloudCiRun": false
+  },
+  "ui": {
+    "ui-lint": 0,
+    "ui-tests": 0,
+    "ui-build": 0,
+    "sourceCommit": "aa7063fced9f78da12bc54544ad8598e64649402",
+    "suites": 15,
+    "tests": 219,
+    "lint": 0,
+    "productionBuild": 0
+  },
+  "deployedJarQualification": {
+    "31": {
+      "tests": 21,
+      "failures": 0
+    },
+    "32": {
+      "tests": 21,
+      "failures": 0
+    }
+  },
+  "limits": [
+    "No full Cloud/Release CI, Agent or qemu build was requested or run.",
+    "Existing unrelated standard Checkstyle wildcard findings (15) excluded; changed Java files checked separately."
+  ]
+}

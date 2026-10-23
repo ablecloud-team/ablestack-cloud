@@ -1,0 +1,11 @@
+{
+  "ui/public/locales/en.json": "2070d646b7302f5de21e1e1627230c1d1ffdf047ab48e9725a5a06365007b8cc",
+  "ui/public/locales/ko_KR.json": "691b348fdefc8d5ee3c1f7b7d9ca01ccc62802dfdee8d659fa4f65c1b3217d71",
+  "ui/src/utils/deploymentDiskOfferings.js": "99e9d0c7079012790cbbbd34d811d4d058b3f256d726697c95f158c638c81432",
+  "ui/src/views/compute/DeployVM.vue": "b9f9981b32c4bbf6f8e2b72eb3668ef96ab7a5176958bfcb60f55974320c469c",
+  "ui/src/views/compute/wizard/DiskOfferingSelection.vue": "b47ef8b544924de229ea04129f49bfab24fa3150548df732a567f1c726f290c1",
+  "ui/src/views/compute/wizard/IsoAdditionalDataDisks.vue": "8171ee0a92791b9aa81dc683f760ec15adcf1e3ac7f8dce8762dc20fd8a79be8",
+  "ui/tests/unit/views/compute/DeploymentDiskOfferings.spec.js": "195a226487b4c0294f0b5befc3ed9ce6fd2d71b08d5704c2a3f8eb7251630c98",
+  "ui/tests/unit/views/compute/DeploymentStorageSelection.spec.js": "b83e2609297461b2c45ad5ab8b339bf40895d9405f1900b27dd586d884f77719",
+  "ui/tests/unit/views/compute/DiskOfferingPagination.spec.js": "f87c83d92d6db6c6e9018406ef360bcf38aeb60f089ce50b73b3b27835a6c754"
+}

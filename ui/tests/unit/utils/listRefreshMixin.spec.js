@@ -73,4 +73,10 @@ describe('explicit list adapters', () => {
     calls[0]([{ id: 'a', name: 'old' }]); await flushPromises()
     expect(vm.rows).toEqual([])
   })
+  it('keeps the full URL as the default scope for adapters without an override', async () => {
+    wrapper.vm.fetchRows()
+    wrapper.vm.$route.fullPath = '/list?filter=other'
+    calls[0]([{ id: 'old', name: 'old filter' }]); await flushPromises()
+    expect(wrapper.vm.rows).toEqual([])
+  })
 })

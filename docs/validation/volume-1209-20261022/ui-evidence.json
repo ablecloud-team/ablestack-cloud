@@ -1,0 +1,1261 @@
+[
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "controlled-initial-lookup-failure-retains-name-blocks-create",
+    "controlled": true,
+    "name": null,
+    "message": [
+      "\t\t\t\t\t389 button 5 데이터 디스크 재시도 검색 search 전체 0 개 항목 left 1 right 10 / 쪽",
+      "\t\t\t\t\t\t\t585 text 사용 가능한 디스크 오퍼링 전체를 조회하지 못했습니다. 마지막 선택을 유지했습니다. 가상머신을 생성하기 전에 재시도하세요. VOL1209 controlled initial lookup failure",
+      "\t\t\t\t\t\t586 button 재시도",
+      "\t\t\t\t578 button (disabled) rocket 가상머신 생성"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "initial-lookup-retry-recovers",
+    "error": false,
+    "rows": 11,
+    "total": "전체 30 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "client-pager-23-total-10-offerings-plus-optional",
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "data-page-two-10-offerings",
+    "active": "2",
+    "ids": [
+      "5aa160e8-3c79-4076-a353-eb8774cebd79",
+      "e98fe9ef-d517-4234-97db-31cd73d0f035",
+      "a3cd2a61-3714-4031-93d0-3d6ad44495d8",
+      "79e3c1c7-1173-4a88-a5ba-c1d11bad9a02",
+      "a546fa41-1282-4c5f-8381-c4e489bab624",
+      "95e3abc9-812a-4dcf-99f6-b0162a708d87",
+      "6e7bd361-1fd8-4b90-8bc9-e0b838fbee3f",
+      "e11cee2d-1893-4d05-9631-b0e3275bb8cb",
+      "12a8d278-9026-414b-bbd8-e1ffaa6b1a94",
+      "953e74c0-2ff1-4e93-a848-fbc5ecbf085f"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "data-last-page-three-offerings",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "select-last-page-disk23",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "page-roundtrip-retains-disk23",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "client-pager-23-total-10-offerings-plus-optional",
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "data-page-two-10-offerings",
+    "active": "2",
+    "ids": [
+      "c929860a-0a73-4fe6-9be2-13ebea174f1a",
+      "3e6e7008-d473-414a-8b77-63d3803632aa",
+      "db05b995-553f-4b30-b4ec-f2f57bce696a",
+      "db03879f-ca6f-48d1-a98e-247dcae65756",
+      "9a430f29-5930-41bd-8ec1-c1ab4b5d2451",
+      "4e03702a-ff37-4c38-96a8-e18756440277",
+      "4cd95720-9e0f-4289-9618-63c65f454f1b",
+      "2f1d008f-f5ca-4b73-8832-ddb930b1238a",
+      "3900ce89-ed2e-4a83-8e75-b6355497bc8c",
+      "dcc859e8-2bc2-4f25-8fed-fd66f69069dc"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "data-last-page-three-offerings",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "select-last-page-disk23",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "page-roundtrip-retains-disk23",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "page-size-20-resets-page-one-keeps-selection",
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0",
+      "5aa160e8-3c79-4076-a353-eb8774cebd79",
+      "e98fe9ef-d517-4234-97db-31cd73d0f035",
+      "a3cd2a61-3714-4031-93d0-3d6ad44495d8",
+      "79e3c1c7-1173-4a88-a5ba-c1d11bad9a02",
+      "a546fa41-1282-4c5f-8381-c4e489bab624",
+      "95e3abc9-812a-4dcf-99f6-b0162a708d87",
+      "6e7bd361-1fd8-4b90-8bc9-e0b838fbee3f",
+      "e11cee2d-1893-4d05-9631-b0e3275bb8cb",
+      "12a8d278-9026-414b-bbd8-e1ffaa6b1a94",
+      "953e74c0-2ff1-4e93-a848-fbc5ecbf085f"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "20-size-last-page-still-selected-disk23",
+    "active": "2",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "case-insensitive-description-search-retains-selection",
+    "active": "1",
+    "ids": [
+      "0",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 1 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "empty-search-keeps-selected-summary",
+    "ids": [
+      "0"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 0 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "search-clear-preserves-page-size-and-selected-id",
+    "active": "2",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "page-size-20-resets-page-one",
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430",
+      "c929860a-0a73-4fe6-9be2-13ebea174f1a",
+      "3e6e7008-d473-414a-8b77-63d3803632aa",
+      "db05b995-553f-4b30-b4ec-f2f57bce696a",
+      "db03879f-ca6f-48d1-a98e-247dcae65756",
+      "9a430f29-5930-41bd-8ec1-c1ab4b5d2451",
+      "4e03702a-ff37-4c38-96a8-e18756440277",
+      "4cd95720-9e0f-4289-9618-63c65f454f1b",
+      "2f1d008f-f5ca-4b73-8832-ddb930b1238a",
+      "3900ce89-ed2e-4a83-8e75-b6355497bc8c",
+      "dcc859e8-2bc2-4f25-8fed-fd66f69069dc"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "description-search-retains-disk23",
+    "active": "1",
+    "ids": [
+      "0",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 1 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "search-clear-retains-size-and-selected-id",
+    "active": "2",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "no-selection-clears-old-DATA-metadata",
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0",
+      "5aa160e8-3c79-4076-a353-eb8774cebd79",
+      "e98fe9ef-d517-4234-97db-31cd73d0f035",
+      "a3cd2a61-3714-4031-93d0-3d6ad44495d8",
+      "79e3c1c7-1173-4a88-a5ba-c1d11bad9a02",
+      "a546fa41-1282-4c5f-8381-c4e489bab624",
+      "95e3abc9-812a-4dcf-99f6-b0162a708d87",
+      "6e7bd361-1fd8-4b90-8bc9-e0b838fbee3f",
+      "e11cee2d-1893-4d05-9631-b0e3275bb8cb",
+      "12a8d278-9026-414b-bbd8-e1ffaa6b1a94",
+      "953e74c0-2ff1-4e93-a848-fbc5ecbf085f"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "summaryDataLinks": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "select-test-compute-DATA-choice-preserved",
+    "active": "2",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "no-selection-clears-old-DATA-metadata",
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430",
+      "c929860a-0a73-4fe6-9be2-13ebea174f1a",
+      "3e6e7008-d473-414a-8b77-63d3803632aa",
+      "db05b995-553f-4b30-b4ec-f2f57bce696a",
+      "db03879f-ca6f-48d1-a98e-247dcae65756",
+      "9a430f29-5930-41bd-8ec1-c1ab4b5d2451",
+      "4e03702a-ff37-4c38-96a8-e18756440277",
+      "4cd95720-9e0f-4289-9618-63c65f454f1b",
+      "2f1d008f-f5ca-4b73-8832-ddb930b1238a",
+      "3900ce89-ed2e-4a83-8e75-b6355497bc8c",
+      "dcc859e8-2bc2-4f25-8fed-fd66f69069dc"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "summaryDataLinks": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "select-test-compute-DATA-choice-preserved",
+    "active": "2",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "20 / 쪽",
+    "pages": [
+      "1",
+      "2"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "ROOT-DATA-independent-client-pagers-no-refetch",
+    "rootFirst": {
+      "active": "1",
+      "ids": [
+        "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+        "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+        "97a55672-589d-4b86-95d7-4dda4f4adffc",
+        "d868fd40-6cac-41b3-97d2-819e4654fc73",
+        "86846988-77a3-4591-a15e-a03f313b7633",
+        "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+        "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+        "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+        "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+        "cc339162-3bfd-471b-8b6a-d6dfac2479a0"
+      ],
+      "pageSize": "10 / 쪽",
+      "pages": [
+        "1",
+        "2",
+        "3"
+      ],
+      "selected": [],
+      "total": "전체 23 개 항목"
+    },
+    "rootLast": {
+      "active": "3",
+      "ids": [
+        "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+        "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+        "487cf645-fa40-4b89-9133-9c7a53d13810"
+      ],
+      "pageSize": "10 / 쪽",
+      "pages": [
+        "1",
+        "2",
+        "3"
+      ],
+      "selected": [
+        "38787baa-49cd-4968-a2ee-4ce9a80dd52c"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "dataBefore": {
+      "active": "2",
+      "ids": [
+        "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+        "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+        "487cf645-fa40-4b89-9133-9c7a53d13810"
+      ],
+      "pageSize": "20 / 쪽",
+      "pages": [
+        "1",
+        "2"
+      ],
+      "selected": [
+        "487cf645-fa40-4b89-9133-9c7a53d13810"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "dataAfter": {
+      "active": "2",
+      "ids": [
+        "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+        "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+        "487cf645-fa40-4b89-9133-9c7a53d13810"
+      ],
+      "pageSize": "20 / 쪽",
+      "pages": [
+        "1",
+        "2"
+      ],
+      "selected": [
+        "487cf645-fa40-4b89-9133-9c7a53d13810"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "listDiskRequests": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "ROOT-DATA-independent-client-pagers-no-refetch",
+    "rootFirst": {
+      "active": "1",
+      "ids": [
+        "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+        "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+        "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+        "a4aebef7-c35f-4187-977c-7330ca1b9508",
+        "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+        "fe2d8055-d744-4b2b-be59-b70ca13af625",
+        "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+        "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+        "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+        "1b3c853f-7959-4141-81a5-6bd8f84af430"
+      ],
+      "pageSize": "10 / 쪽",
+      "pages": [
+        "1",
+        "2",
+        "3"
+      ],
+      "selected": [],
+      "total": "전체 23 개 항목"
+    },
+    "rootLast": {
+      "active": "3",
+      "ids": [
+        "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+        "47e82350-3e97-4576-9059-96bcff3199c6",
+        "ea088297-d534-477e-a499-55a6b1a9791b"
+      ],
+      "pageSize": "10 / 쪽",
+      "pages": [
+        "1",
+        "2",
+        "3"
+      ],
+      "selected": [
+        "47e82350-3e97-4576-9059-96bcff3199c6"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "dataBefore": {
+      "active": "2",
+      "ids": [
+        "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+        "47e82350-3e97-4576-9059-96bcff3199c6",
+        "ea088297-d534-477e-a499-55a6b1a9791b"
+      ],
+      "pageSize": "20 / 쪽",
+      "pages": [
+        "1",
+        "2"
+      ],
+      "selected": [
+        "ea088297-d534-477e-a499-55a6b1a9791b"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "dataAfter": {
+      "active": "2",
+      "ids": [
+        "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+        "47e82350-3e97-4576-9059-96bcff3199c6",
+        "ea088297-d534-477e-a499-55a6b1a9791b"
+      ],
+      "pageSize": "20 / 쪽",
+      "pages": [
+        "1",
+        "2"
+      ],
+      "selected": [
+        "ea088297-d534-477e-a499-55a6b1a9791b"
+      ],
+      "total": "전체 23 개 항목"
+    },
+    "listDiskRequests": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "final-10-per-page-last-selected-with-1GiB",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "final-10-per-page-last-selected-with-1GiB",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "actual-create-POST-last-page-id-size-count",
+    "requests": [
+      {
+        "command": "deployVirtualMachine",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "templateid": "e3d8677e-70f0-44bd-917e-6068636b97a8",
+        "startvm": "false",
+        "serviceofferingid": "acdb6303-db4d-4e90-bd08-0fa26f047aaa",
+        "datadisksdetails[0].diskofferingid": "487cf645-fa40-4b89-9133-9c7a53d13810",
+        "datadisksdetails[0].deviceid": "1",
+        "datadisksdetails[0].size": "1",
+        "name": "VOL1209-31-vm",
+        "displayname": "VOL1209-31-vm"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "actual-create-POST-last-page-id-size-count",
+    "requests": [
+      {
+        "command": "deployVirtualMachine",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+        "startvm": "false",
+        "serviceofferingid": "89bd20b9-2560-4300-9195-64cd2dc34d8d",
+        "datadisksdetails[0].diskofferingid": "ea088297-d534-477e-a499-55a6b1a9791b",
+        "datadisksdetails[0].deviceid": "1",
+        "datadisksdetails[0].size": "1",
+        "name": "VOL1209-32-vm",
+        "displayname": "VOL1209-32-vm"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "created-VM-volume-tab-ROOT-DATA-1GiB",
+    "text": "생성 및 연결\n기존 볼륨 연결\n업데이트\n이름\t상태\t유형\t볼륨 번호 (Device ID)\t크기\t스토리지\tKMS 키\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nROOT-720\n기존 호환 값: thin\n\t\n Allocated\tROOT\t0\t100.00 GB\t\t\t\n디스크 분리\n\nDATA-720-1\n기존 호환 값: thin\n\t\n Allocated\tDATADISK\t1\t1.00 GB\t\t\t\n디스크 분리",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "created-VM-volume-tab-ROOT-DATA-1GiB",
+    "text": "생성 및 연결\n기존 볼륨 연결\n업데이트\n이름\t상태\t유형\t볼륨 번호 (Device ID)\t크기\t스토리지\tKMS 키\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nROOT-201\n기존 호환 값: thin\n\t\n Allocated\tROOT\t0\t100.00 GB\t\t\t\n디스크 분리\n\nDATA-201-1\n기존 호환 값: thin\n\t\n Allocated\tDATADISK\t1\t1.00 GB\t\t\t\n디스크 분리",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "scope-candidate-count-and-pages",
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "foreign-domain-candidate-not-visible",
+    "ids": [
+      "0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 0 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "scope-candidate-count-and-pages",
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "foreign-domain-candidate-not-visible",
+    "ids": [
+      "0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 0 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "scope-candidate-count-and-pages",
+    "step": 6,
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "foreign-domain-candidate-not-visible",
+    "ids": [
+      "0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 0 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "scope-candidate-count-and-pages",
+    "step": 6,
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "foreign-domain-candidate-not-visible",
+    "ids": [
+      "0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 0 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "scope-candidate-count-and-pages",
+    "step": 6,
+    "active": "1",
+    "ids": [
+      "0",
+      "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+      "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+      "97a55672-589d-4b86-95d7-4dda4f4adffc",
+      "d868fd40-6cac-41b3-97d2-819e4654fc73",
+      "86846988-77a3-4591-a15e-a03f313b7633",
+      "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+      "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+      "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+      "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+      "cc339162-3bfd-471b-8b6a-d6dfac2479a0"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "7bd8ff84-f036-492d-96ae-74e9eb27d8a0",
+      "38787baa-49cd-4968-a2ee-4ce9a80dd52c",
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "487cf645-fa40-4b89-9133-9c7a53d13810"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "admin-foreign-domain-visible-as-API-contract",
+    "active": "1",
+    "ids": [
+      "0",
+      "e5679c02-2b7a-4c57-a562-759cf1336694"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 1 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "scope-candidate-count-and-pages",
+    "step": 6,
+    "active": "1",
+    "ids": [
+      "0",
+      "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+      "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+      "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+      "a4aebef7-c35f-4187-977c-7330ca1b9508",
+      "b181d99b-2ed6-4b09-8591-4abc9863a04d",
+      "fe2d8055-d744-4b2b-be59-b70ca13af625",
+      "9f7b81ea-a9ab-4b36-b99e-1df7eb9c2719",
+      "beca3dbc-45f9-46ab-9c68-bf9e6614a4a5",
+      "eccabe0d-e485-4954-97a3-eccc572b7ed5",
+      "1b3c853f-7959-4141-81a5-6bd8f84af430"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "0"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "scope-last-page-selection",
+    "active": "3",
+    "ids": [
+      "dd84ffb1-0863-4c75-a52a-1ca1f84df584",
+      "47e82350-3e97-4576-9059-96bcff3199c6",
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1",
+      "2",
+      "3"
+    ],
+    "selected": [
+      "ea088297-d534-477e-a499-55a6b1a9791b"
+    ],
+    "total": "전체 23 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "admin-foreign-domain-visible-as-API-contract",
+    "active": "1",
+    "ids": [
+      "0",
+      "57d4e95c-2fdf-4c70-b62f-be84ef2e641e"
+    ],
+    "pageSize": "10 / 쪽",
+    "pages": [
+      "1"
+    ],
+    "selected": [],
+    "total": "전체 1 개 항목",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "browser-settings-restored-and-logout",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "browser-settings-restored-and-logout",
+    "pass": true
+  }
+]

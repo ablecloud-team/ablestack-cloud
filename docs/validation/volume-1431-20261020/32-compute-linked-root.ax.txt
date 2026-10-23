@@ -1,0 +1,3 @@
+Browser tab: 19, Title: "컴퓨트 오퍼링 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/computeoffering".
+There has been no change in the accessibility tree.
+The focused UI element is 1645 combo box (collapsed, settable) * 디스크 오퍼링, ID: form_item_diskofferingid, Secondary Actions: Expand

@@ -19,16 +19,17 @@
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
       <DiskOfferingForm
+        organized
         ref="formRef"
         :initialValues="form"
         :apiParams="apiParams"
         :isAdmin="isAdmin"
         @submit="handleSubmit">
         <template #form-actions>
-          <div :span="24" class="action-button">
+          <MoldDialogActions :span="24" :busy="loading">
             <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-          </div>
+            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.add') }}</a-button>
+          </MoldDialogActions>
         </template>
       </DiskOfferingForm>
     </a-spin>
@@ -36,14 +37,20 @@
 </template>
 
 <script>
+import storageDialogContext from '@/utils/storageDialogContext'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import DiskOfferingForm from '@/components/offering/DiskOfferingForm'
 import { reactive } from 'vue'
 import { postAPI } from '@/api'
+import { performanceParams } from '@/utils/offeringQos'
+import { allocationParams, newOfferingAllocation } from '@/utils/volumeAllocation'
 import { isAdmin } from '@/role'
 
 export default {
+  mixins: [storageDialogContext],
   name: 'AddDiskOffering',
   components: {
+    MoldDialogActions,
     DiskOfferingForm
   },
   data () {
@@ -51,6 +58,7 @@ export default {
       form: reactive({
         storagetype: 'shared',
         provisioningtype: 'thin',
+        ...newOfferingAllocation(this.apiParams),
         customdisksize: true,
         writecachetype: 'none',
         qostype: '',
@@ -77,12 +85,12 @@ export default {
       if (this.loading) return
 
       this.$refs.formRef.validate().then((values) => {
+        if (this.loading || (this.dialogCurrent && !this.dialogCurrent())) return
         const params = {
           name: values.name,
           displaytext: values.displaytext,
           storagetype: values.storagetype,
           cachemode: values.writecachetype,
-          provisioningtype: values.provisioningtype,
           customized: values.customdisksize,
           disksizestrictness: values.disksizestrictness,
           encrypt: values.encryptdisk,
@@ -95,40 +103,7 @@ export default {
         if (values.customdisksize !== true) {
           params.disksize = values.disksize
         }
-        if (values.qostype === 'storage') {
-          const customIops = values.iscustomizeddiskiops === true
-          params.customizediops = customIops
-          if (!customIops) {
-            if (values.diskiopsmin != null && values.diskiopsmin.length > 0) {
-              params.miniops = values.diskiopsmin
-            }
-            if (values.diskiopsmax != null && values.diskiopsmax.length > 0) {
-              params.maxiops = values.diskiopsmax
-            }
-            if (values.hypervisorsnapshotreserve != null && values.hypervisorsnapshotreserve.length > 0) {
-              params.hypervisorsnapshotreserve = values.hypervisorsnapshotreserve
-            }
-          }
-        } else if (values.qostype === 'hypervisor') {
-          if (values.diskbytesreadrate != null && values.diskbytesreadrate.length > 0) {
-            params.bytesreadrate = values.diskbytesreadrate
-          }
-          if (values.diskbytesreadratemax != null && values.diskbytesreadratemax.length > 0) {
-            params.bytesreadratemax = values.diskbytesreadratemax
-          }
-          if (values.diskbyteswriterate != null && values.diskbyteswriterate.length > 0) {
-            params.byteswriterate = values.diskbyteswriterate
-          }
-          if (values.diskbyteswriteratemax != null && values.diskbyteswriteratemax.length > 0) {
-            params.byteswriteratemax = values.diskbyteswriteratemax
-          }
-          if (values.diskiopsreadrate != null && values.diskiopsreadrate.length > 0) {
-            params.iopsreadrate = values.diskiopsreadrate
-          }
-          if (values.diskiopswriterate != null && values.diskiopswriterate.length > 0) {
-            params.iopswriterate = values.diskiopswriterate
-          }
-        }
+        Object.assign(params, performanceParams(values))
         if (values.tags != null && values.tags.length > 0) {
           params.tags = values.tags.join(',')
         }
@@ -164,8 +139,9 @@ export default {
           params.storagepolicy = values.storagepolicy
         }
 
+        Object.assign(params, allocationParams(values))
         this.loading = true
-        postAPI('createDiskOffering', params).then(json => {
+        postAPI('createDiskOffering', params, { preserveOnFailure: true }).then(json => {
           this.$emit('publish-disk-offering-id', json?.creatediskofferingresponse?.diskoffering?.id)
           this.$message.success(`${this.$t('message.disk.offering.created')} ${values.name}`)
           this.$emit('refresh-data')
@@ -175,6 +151,8 @@ export default {
         }).finally(() => {
           this.loading = false
         })
+      }).catch(error => {
+        if (!error?.errorFields) this.$message.error(error.message || this.$t('message.error.select'))
       })
     },
     closeAction () {
@@ -186,10 +164,7 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-
-    @media (min-width: 700px) {
-      width: 550px;
-    }
+    width: 650px;
+    max-width: calc(100vw - 64px);
   }
 </style>

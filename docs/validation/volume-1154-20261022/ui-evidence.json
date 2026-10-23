@@ -1,0 +1,1518 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "active-list-public-private-types",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "dedicated-text-click-stays-in-list",
+    "url": "http://10.10.31.10:8080/client/#/computeoffering?keyword=VOL1154-31-",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "active-list-public-private-types",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "dedicated-text-click-stays-in-list",
+    "url": "http://10.10.32.10:8080/client/#/computeoffering?keyword=VOL1154-32-",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "general-list-link-and-back",
+    "scope": "public",
+    "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "detailUrl": "http://10.10.31.10:8080/client/#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "back-retains-filtered-list",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/computeoffering?keyword=VOL1154-31-",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "general-list-link-and-back",
+    "scope": "private",
+    "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "detailUrl": "http://10.10.31.10:8080/client/#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "back-retains-filtered-list",
+    "scope": "private",
+    "url": "http://10.10.31.10:8080/client/#/computeoffering?keyword=VOL1154-31-",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "general-list-link-and-back",
+    "scope": "public",
+    "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "detailUrl": "http://10.10.32.10:8080/client/#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "back-retains-filtered-list",
+    "scope": "public",
+    "url": "http://10.10.32.10:8080/client/#/computeoffering?keyword=VOL1154-32-",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "general-list-link-and-back",
+    "scope": "private",
+    "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "detailUrl": "http://10.10.32.10:8080/client/#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "back-retains-filtered-list",
+    "scope": "private",
+    "url": "http://10.10.32.10:8080/client/#/computeoffering?keyword=VOL1154-32-",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1088,
+        "label": "디스크 오퍼링 이름",
+        "top": 1027
+      },
+      {
+        "bottom": 1190.6875,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1088
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1088,
+        "label": "디스크 오퍼링 이름",
+        "top": 1027
+      },
+      {
+        "bottom": 1209.53125,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1088
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "general-detail-link",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1088,
+        "label": "디스크 오퍼링 이름",
+        "top": 1027
+      },
+      {
+        "bottom": 1190.6875,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1088
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1088,
+        "label": "디스크 오퍼링 이름",
+        "top": 1027
+      },
+      {
+        "bottom": 1209.53125,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1088
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "general-detail-link",
+    "scope": "private",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1119,
+        "label": "디스크 오퍼링 이름",
+        "top": 1058
+      },
+      {
+        "bottom": 1221.6875,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1119
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1119,
+        "label": "디스크 오퍼링 이름",
+        "top": 1058
+      },
+      {
+        "bottom": 1240.53125,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1119
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "general-detail-link",
+    "scope": "public",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1119,
+        "label": "디스크 오퍼링 이름",
+        "top": 1058
+      },
+      {
+        "bottom": 1221.6875,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1119
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "vertical-detail-connection-and-name",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "geometry": [
+      {
+        "bottom": 1119,
+        "label": "디스크 오퍼링 이름",
+        "top": 1058
+      },
+      {
+        "bottom": 1240.53125,
+        "label": "디스크 오퍼링 연결 방식",
+        "top": 1119
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "general-detail-link",
+    "scope": "private",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "inactive-list-types",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-inactiveDedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "inactive-detail-type",
+    "type": "Dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-inactiveDedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "inactive-detail-type",
+    "type": "General",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "inactive-list-types",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-inactiveDedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "inactive-detail-type",
+    "type": "Dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-inactiveDedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "inactive-detail-type",
+    "type": "General",
+    "rows": [
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "controlled-response-missing-type-list",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-public-Disk",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-Disk",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "controlled-response-missing-type-detail",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-Disk",
+        "title": "연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요."
+      },
+      {
+        "href": null,
+        "name": "알 수 없음 연결 유형을 확인할 수 없어 상세 이동을 제공하지 않습니다. 오퍼링 정보를 다시 조회하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "detail-refresh-restores-known-general-link",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "controlled-response-string-boolean-list",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "controlled-list-failure-preserves-data-and-session",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "message": [
+      "733 text 목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.",
+      "736 text 요청 실패 (500) VOL1154 controlled list failure"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "list-retry-recovers",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "controlled-list-failure-preserves-data-and-session",
+    "controlled": true,
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "message": [
+      "607 text 목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.",
+      "610 text 요청 실패 (500) VOL1154 controlled list failure"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "list-retry-recovers",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+        "name": "VOL1154-31-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/86eddfb9-480a-44fa-a5d1-c68812cb894d",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-31-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+        "name": "VOL1154-31-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.31.10:8080/client/#/diskoffering/6e90af83-9a34-4a30-aa0f-c52935e5b210",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-active-list-public-private",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-public-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "public",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+        "name": "VOL1154-32-public-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-general-link",
+    "scope": "public",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/2da9f51c-05d8-48a8-af1d-266b3f350fd5",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "dedicated",
+    "rows": [
+      {
+        "href": null,
+        "name": "VOL1154-32-private-dedicated",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "컴퓨트 오퍼링 전용(자동 생성) 이 컴퓨트 오퍼링 전용으로 자동 생성된 디스크 속성입니다. 컴퓨트 편집은 CPU·메모리나 캐시·QoS를 변경하지 않습니다. 디스크 속성을 바꾸려면 컴퓨트 오퍼링을 복제하거나 새로 생성하세요.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-detail-type",
+    "scope": "private",
+    "type": "general",
+    "rows": [
+      {
+        "href": "#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+        "name": "VOL1154-32-private-Disk",
+        "title": null
+      },
+      {
+        "href": null,
+        "name": "일반 디스크 오퍼링 연결 연결한 일반 디스크 오퍼링의 디스크 속성을 사용합니다. 캐시·QoS는 해당 디스크 오퍼링에서 편집하고, 불변 속성은 디스크 오퍼링을 복제하거나 새로 생성해 변경하세요. 이 컴퓨트를 사용하는 기존 VM도 다음 연결·정지 후 시작 시 영향을 받을 수 있습니다.",
+        "title": null
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "role-general-link",
+    "scope": "private",
+    "url": "http://10.10.32.10:8080/client/#/diskoffering/fb6da5a9-50ff-4974-9fad-3e8b6c9b9a76",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "native-dedicated-detail-text-click-no-navigation",
+    "url": "http://10.10.32.10:8080/client/#/computeoffering/0bd55ff3-2374-4cfd-b02e-a0f18e653173",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "browser-test-settings-restored-and-logout",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "browser-test-settings-restored-and-logout",
+    "pass": true
+  }
+]

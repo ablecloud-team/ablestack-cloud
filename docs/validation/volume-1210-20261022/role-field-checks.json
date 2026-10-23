@@ -1,0 +1,50 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": true,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": false,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": false,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": true,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": false,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "instance-name-visibility-follows-API-role",
+    "instanceNamePresent": false,
+    "nameAndDisplayAndUuidPresent": true,
+    "pass": true
+  }
+]

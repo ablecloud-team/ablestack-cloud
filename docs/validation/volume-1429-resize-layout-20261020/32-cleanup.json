@@ -1,0 +1,10 @@
+{
+  "cluster": 32,
+  "volumesDeleted": 4,
+  "offeringsDeactivated": 4,
+  "activeFixtureResiduals": 0,
+  "imagesRemaining": 0,
+  "operationalInventoryUnchanged": true,
+  "hostsUp": 3,
+  "clientHttp": 200
+}

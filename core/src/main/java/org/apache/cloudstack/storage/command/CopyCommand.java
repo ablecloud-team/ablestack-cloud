@@ -37,6 +37,10 @@ public class CopyCommand extends StorageSubSystemCommand {
         srcTO = srcData;
         destTO = destData;
         setWait(timeout);
+        if (destData instanceof org.apache.cloudstack.storage.to.VolumeObjectTO &&
+                !((org.apache.cloudstack.storage.to.VolumeObjectTO) destData).getAllocation().isEmpty()) {
+            setWait(Math.max(timeout, 3600));
+        }
         this.executeInSequence = executeInSequence;
     }
 

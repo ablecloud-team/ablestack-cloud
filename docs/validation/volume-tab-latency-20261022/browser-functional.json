@@ -1,0 +1,54 @@
+{
+  "bundles": {
+    "31": [
+      "js/app.376758f4.js"
+    ],
+    "32": [
+      "js/app.376758f4.js"
+    ]
+  },
+  "pendingTabReturn31": {
+    "readyMs": 660,
+    "eventRequests": 1
+  },
+  "draftRetained31": true,
+  "failure-31-listEvents": {
+    "rowsRetained": true,
+    "draftRetained": true,
+    "loadingEnded": true,
+    "sessionRetained": true,
+    "retryRecovered": true,
+    "rows": 5
+  },
+  "failure-31-listAnnotations": {
+    "rowsRetained": true,
+    "draftRetained": true,
+    "loadingEnded": true,
+    "sessionRetained": true,
+    "retryRecovered": true,
+    "rows": 1
+  },
+  "failure-32-listEvents": {
+    "rowsRetained": true,
+    "draftRetained": true,
+    "loadingEnded": true,
+    "sessionRetained": true,
+    "retryRecovered": true,
+    "rows": 5
+  },
+  "failure-32-listAnnotations": {
+    "rowsRetained": true,
+    "draftRetained": true,
+    "loadingEnded": true,
+    "sessionRetained": true,
+    "retryRecovered": true,
+    "rows": 1
+  },
+  "otherVolumeIsolated31": true,
+  "browserCleanup": {
+    "interceptionCleared": true,
+    "cacheRestored": true,
+    "loggedOut": true,
+    "ownTabsClosed": true
+  }
+}

@@ -287,6 +287,7 @@ import com.cloud.service.dao.ServiceOfferingDetailsDao;
 import com.cloud.storage.DiskOfferingVO;
 import com.cloud.storage.Storage;
 import com.cloud.storage.Storage.ProvisioningType;
+import com.cloud.storage.VolumeAllocationPolicy;
 import com.cloud.storage.StorageManager;
 import com.cloud.storage.StoragePoolTagVO;
 import com.cloud.storage.Volume;
@@ -344,6 +345,8 @@ import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6Network;
 
 public class ConfigurationManagerImpl extends ManagerBase implements ConfigurationManager, ConfigurationService, Configurable {
+    @Inject private com.cloud.storage.VolumeAllocationService allocationService;
+
     public static final String PERACCOUNT = "peraccount";
     public static final String PERZONE = "perzone";
     public static final String CLUSTER_NODES_DEFAULT_START_SSH_PORT = "2222";
@@ -2838,7 +2841,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new CloudRuntimeException(errorMsg + "there are Secondary storages in this zone");
         }
 
-        // We could check if there are any non-removed VMware datacenters in the zone. EWe don´t care.
+        // We could check if there are any non-removed VMware datacenters in the zone. EWe don쨈t care.
         // These can continu to exist as long as the mapping will be gone (see line deleteZone
     }
 
@@ -3598,6 +3601,10 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
 
         final Long diskOfferingId = cmd.getDiskOfferingId();
+        if (diskOfferingId != null && cmd.getExplicitProvisioningType() != null &&
+                !VolumeAllocationPolicy.validateStored(diskOfferingDetailsDao.listDetailsKeyPairs(diskOfferingId)).isEmpty()) {
+            throw new InvalidParameterValueException("provisioningtype conflicts with the explicit policy on the linked disk offering");
+        }
         if (diskOfferingId != null) {
             DiskOfferingVO diskOffering = _diskOfferingDao.findById(diskOfferingId);
             if ((diskOffering == null) || diskOffering.isComputeOnly()) {
@@ -3678,6 +3685,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
 
         final ProvisioningType typedProvisioningType = ProvisioningType.getProvisioningType(provisioningType);
+        VolumeAllocationPolicy.validateStored(details);
 
         tags = com.cloud.utils.StringUtils.cleanupTags(tags);
 
@@ -3736,6 +3744,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         serviceOffering.setGpuCount(gpuCount);
         serviceOffering.setGpuDisplay(gpuDisplay);
 
+        VolumeAllocationPolicy.resolve(
+                VolumeAllocationPolicy.validateStored(details),
+                diskOfferingId == null ? null : diskOfferingDetailsDao.listDetailsKeyPairs(diskOfferingId), diskOfferingId != null);
         DiskOfferingVO diskOffering = null;
         if (diskOfferingId == null) {
             diskOffering = createDiskOfferingInternal(
@@ -3830,13 +3841,17 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                                                       Long iopsWriteRate, Long iopsWriteRateMax, Long iopsWriteRateMaxLength,
                                                       final Integer hypervisorSnapshotReserve, String cacheMode, final Long storagePolicyID, boolean encrypt, boolean shareable, boolean kvdoEnable) {
 
+        validateDiskQos(null, bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength,
+                bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength,
+                iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate, iopsWriteRateMax, iopsWriteRateMaxLength);
+
         DiskOfferingVO diskOffering = new DiskOfferingVO(name, displayText, typedProvisioningType, false, tags, false, localStorageRequired, false);
 
         if (Boolean.TRUE.equals(isCustomizedIops) || isCustomizedIops == null) {
             minIops = null;
             maxIops = null;
         } else {
-            if (minIops == null && maxIops == null) {
+            if ((minIops == null && maxIops == null) || (Long.valueOf(0).equals(minIops) && Long.valueOf(0).equals(maxIops))) {
                 minIops = 0L;
                 maxIops = 0L;
             } else {
@@ -3888,6 +3903,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         if ((diskOffering = _diskOfferingDao.persist(diskOffering)) != null) {
             if ((details != null && !details.isEmpty()) || (storagePolicyID != null)) {
                 List<DiskOfferingDetailVO> diskDetailsVO = new ArrayList<>();
+                for (Map.Entry<String, String> entry : VolumeAllocationPolicy.validateStored(details).entrySet()) {
+                    diskDetailsVO.add(new DiskOfferingDetailVO(diskOffering.getId(), entry.getKey(), entry.getValue(), false));
+                }
                 // Support disk offering details for below parameters
                 if (details.containsKey(Volume.BANDWIDTH_LIMIT_IN_MBPS)) {
                     diskDetailsVO.add(new DiskOfferingDetailVO(diskOffering.getId(), Volume.BANDWIDTH_LIMIT_IN_MBPS, details.get(Volume.BANDWIDTH_LIMIT_IN_MBPS), false));
@@ -3911,43 +3929,43 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         return diskOffering;
     }
     private void setIopsRate(DiskOffering offering, Long iopsReadRate, Long iopsReadRateMax, Long iopsReadRateMaxLength, Long iopsWriteRate, Long iopsWriteRateMax, Long iopsWriteRateMaxLength) {
-        if (iopsReadRate != null && iopsReadRate > 0) {
+        if (iopsReadRate != null) {
             offering.setIopsReadRate(iopsReadRate);
         }
-        if (iopsReadRateMax != null && iopsReadRateMax > 0) {
+        if (iopsReadRateMax != null) {
             offering.setIopsReadRateMax(iopsReadRateMax);
         }
-        if (iopsReadRateMaxLength != null && iopsReadRateMaxLength > 0) {
+        if (iopsReadRateMaxLength != null) {
             offering.setIopsReadRateMaxLength(iopsReadRateMaxLength);
         }
-        if (iopsWriteRate != null && iopsWriteRate > 0) {
+        if (iopsWriteRate != null) {
             offering.setIopsWriteRate(iopsWriteRate);
         }
-        if (iopsWriteRateMax != null && iopsWriteRateMax > 0) {
+        if (iopsWriteRateMax != null) {
             offering.setIopsWriteRateMax(iopsWriteRateMax);
         }
-        if (iopsWriteRateMaxLength != null && iopsWriteRateMaxLength > 0) {
+        if (iopsWriteRateMaxLength != null) {
             offering.setIopsWriteRateMaxLength(iopsWriteRateMaxLength);
         }
     }
 
     private void setBytesRate(DiskOffering offering, Long bytesReadRate, Long bytesReadRateMax, Long bytesReadRateMaxLength, Long bytesWriteRate, Long bytesWriteRateMax, Long bytesWriteRateMaxLength) {
-        if (bytesReadRate != null && bytesReadRate > 0) {
+        if (bytesReadRate != null) {
             offering.setBytesReadRate(bytesReadRate);
         }
-        if (bytesReadRateMax != null && bytesReadRateMax > 0) {
+        if (bytesReadRateMax != null) {
             offering.setBytesReadRateMax(bytesReadRateMax);
         }
-        if (bytesReadRateMaxLength != null && bytesReadRateMaxLength > 0) {
+        if (bytesReadRateMaxLength != null) {
             offering.setBytesReadRateMaxLength(bytesReadRateMaxLength);
         }
-        if (bytesWriteRate != null && bytesWriteRate > 0) {
+        if (bytesWriteRate != null) {
             offering.setBytesWriteRate(bytesWriteRate);
         }
-        if (bytesWriteRateMax != null && bytesWriteRateMax > 0) {
+        if (bytesWriteRateMax != null) {
             offering.setBytesWriteRateMax(bytesWriteRateMax);
         }
-        if (bytesWriteRateMaxLength != null && bytesWriteRateMaxLength > 0) {
+        if (bytesWriteRateMaxLength != null) {
             offering.setBytesWriteRateMaxLength(bytesWriteRateMaxLength);
         }
     }
@@ -4027,19 +4045,34 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         }
         final Integer finalGpuCount = validateVgpuProfileAndGetGpuCount(vgpuProfileId, gpuCount);
 
-        final Map<String, String> mergedDetails = mergeOfferingDetails(cmd, sourceOffering, customParams);
+        final Long diskOfferingId = cmd.getDiskOfferingId() != null ? cmd.getDiskOfferingId() :
+                (sourceDiskOffering != null && !sourceDiskOffering.isComputeOnly() &&
+                 (requestParams == null || (!requestParams.containsKey("provisioningtype") && !requestParams.containsKey("allocationpolicy")))
+                 ? sourceOffering.getDiskOfferingId() : null);
+        final Map<String, String> mergedDetails = OfferingAllocationClone.details(
+                mergeOfferingDetails(cmd, sourceOffering, customParams),
+                sourceDiskOffering == null ? Map.of() : diskOfferingDetailsDao.listDetailsKeyPairs(sourceDiskOffering.getId()),
+                cmd.getDetails(), requestParams, diskOfferingId != null);
+        if (diskOfferingId != null) {
+            DiskOfferingVO linked = _diskOfferingDao.findById(diskOfferingId);
+            if (linked == null || linked.isComputeOnly()) {
+                throw new InvalidParameterValueException("Please specify a valid general disk offering.");
+            }
+            if (requestParams != null && requestParams.containsKey("provisioningtype") &&
+                    !VolumeAllocationPolicy.validateStored(diskOfferingDetailsDao.listDetailsKeyPairs(diskOfferingId)).isEmpty()) {
+                throw new InvalidParameterValueException("provisioningtype conflicts with linked allocation policy");
+            }
+        }
 
         final boolean localStorageRequired = ServiceOffering.StorageType.local.toString().equalsIgnoreCase(storageType);
 
         final boolean systemUse = sourceOffering.isSystemUse();
         final VirtualMachine.Type vmType = resolveVmType(sourceOffering);
 
-        final Long diskOfferingId = getOrDefault(cmd.getDiskOfferingId(), sourceOffering.getDiskOfferingId());
-
         return createServiceOffering(userId, systemUse, vmType,
-                name, cpuNumber, memory, cpuSpeed, displayText, provisioningType, localStorageRequired,
+                name, cpuNumber, memory, cpuSpeed, displayText, OfferingAllocationClone.provisioning(provisioningType, sourceDiskOffering == null ? "thin" : sourceDiskOffering.getProvisioningType().toString(), mergedDetails, requestParams), localStorageRequired,
                 offerHa, limitCpuUse, isVolatile, tags, domainIds, zoneIds, hostTag, networkRate,
-                deploymentPlanner, mergedDetails, diskParams.rootDiskSize, diskParams.isCustomizedIops,
+                deploymentPlanner, mergedDetails, OfferingAllocationClone.sizeGiB(cmd.getRootDiskSize(), sourceDiskOffering == null ? null : sourceDiskOffering.getDiskSize()), diskParams.isCustomizedIops,
                 diskParams.minIops, diskParams.maxIops,
                 diskParams.bytesReadRate, diskParams.bytesReadRateMax, diskParams.bytesReadRateMaxLength,
                 diskParams.bytesWriteRate, diskParams.bytesWriteRateMax, diskParams.bytesWriteRateMaxLength,
@@ -4274,7 +4307,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final String name = cmd.getOfferingName();
         final String displayText = getOrDefault(cmd.getDisplayText(), sourceOffering.getDisplayText());
         final String provisioningType = getOrDefault(cmd.getProvisioningType(), sourceOffering.getProvisioningType().toString());
-        final Long diskSize = getOrDefault(cmd.getDiskSize(), sourceOffering.getDiskSize());
+        final Long diskSize = OfferingAllocationClone.sizeGiB(cmd.getDiskSize(), sourceOffering.getDiskSize());
         final String tags = getOrDefault(cmd.getTags(), sourceOffering.getTags());
 
         final Boolean isCustomized = resolveBooleanParam(requestParams, ApiConstants.CUSTOMIZED, cmd::isCustomized, sourceOffering.isCustomized());
@@ -4296,7 +4329,8 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final String cacheMode = resolveCacheMode(cmd, sourceOffering);
         final Long storagePolicy = resolveStoragePolicyForDiskOffering(cmd, sourceOffering);
 
-        final Map<String, String> mergedDetails = mergeDiskOfferingDetails(cmd, sourceOffering);
+        final Map<String, String> mergedDetails = OfferingAllocationClone.details(mergeDiskOfferingDetails(cmd, sourceOffering),
+                diskOfferingDetailsDao.listDetailsKeyPairs(sourceOffering.getId()), cmd.getDetails(), requestParams, false);
 
         if (cmd.getCacheMode() != null) {
             validateCacheMode(cmd.getCacheMode());
@@ -4309,7 +4343,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         validateMaximumIopsAndBytesLength(iopsParams.iopsReadRateMaxLength, iopsParams.iopsWriteRateMaxLength,
                                           rateParams.bytesReadRateMaxLength, rateParams.bytesWriteRateMaxLength);
 
-        return createDiskOffering(userId, domainIds, zoneIds, name, displayText, provisioningType, diskSize, tags,
+        return createDiskOffering(userId, domainIds, zoneIds, name, displayText, OfferingAllocationClone.provisioning(provisioningType, sourceOffering.getProvisioningType().toString(), mergedDetails, requestParams), diskSize, tags,
                 isCustomized, localStorageRequired, displayOffering, isCustomizedIops, iopsParams.minIops, iopsParams.maxIops,
                 rateParams.bytesReadRate, rateParams.bytesReadRateMax, rateParams.bytesReadRateMaxLength,
                 rateParams.bytesWriteRate, rateParams.bytesWriteRateMax, rateParams.bytesWriteRateMaxLength,
@@ -4449,7 +4483,6 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         String storageTags = cmd.getStorageTags();
         String hostTags = cmd.getHostTags();
         ServiceOffering.State state = cmd.getState();
-        boolean purgeResources = cmd.isPurgeResources();
         final Map<String, String> externalDetails = cmd.getExternalDetails();
         final boolean cleanupExternalDetails = cmd.isCleanupExternalDetails();
 
@@ -4475,6 +4508,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         if (StringUtils.isNotBlank(purgeResourceStr)) {
             existingPurgeResources = Boolean.parseBoolean(purgeResourceStr);
         }
+        final boolean purgeResources = resolvePurgeResources(cmd, existingPurgeResources);
 
         // check if valid domain
         if (CollectionUtils.isNotEmpty(domainIds)) {
@@ -4624,6 +4658,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             }
             if (serviceOfferingExternalDetailsNeedUpdate) {
                 SearchCriteria<ServiceOfferingDetailsVO> externalDetailsRemoveSC = sb.create();
+                externalDetailsRemoveSC.setParameters("offeringId", String.valueOf(id));
                 externalDetailsRemoveSC.setParameters("detailNameLike", VmDetailConstants.EXTERNAL_DETAIL_PREFIX + "%");
                 _serviceOfferingDetailsDao.remove(externalDetailsRemoveSC);
                 if (!cleanupExternalDetails) {
@@ -4641,6 +4676,11 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         offering = _serviceOfferingDao.findById(id);
         CallContext.current().setEventDetails("Service offering ID:" + offering.getUuid());
         return offering;
+    }
+
+    protected boolean resolvePurgeResources(UpdateServiceOfferingCmd cmd, boolean existing) {
+        final Map<String, String> params = cmd.getFullUrlParams();
+        return params != null && params.containsKey(ApiConstants.PURGE_RESOURCES) ? cmd.isPurgeResources() : existing;
     }
 
     @Override
@@ -4670,6 +4710,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
                                                 Long iopsWriteRate, Long iopsWriteRateMax, Long iopsWriteRateMaxLength,
                                                 final Integer hypervisorSnapshotReserve, String cacheMode, final Map<String, String> details, final Long storagePolicyID,
                                                 final boolean diskSizeStrictness, final boolean encrypt, final boolean shareable, final boolean kvdoEnable) {
+        validateDiskQos(null, bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength,
+                bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength,
+                iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate, iopsWriteRateMax, iopsWriteRateMaxLength);
         long diskSize = 0;// special case for custom disk offerings
         long maxVolumeSizeInGb = VolumeOrchestrationService.MaxVolumeSize.value();
         if (numGibibytes != null && numGibibytes <= 0) {
@@ -4678,6 +4721,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             throw new InvalidParameterValueException(String.format("The maximum size for a disk is %d GB.", maxVolumeSizeInGb));
         }
         final ProvisioningType typedProvisioningType = ProvisioningType.getProvisioningType(provisioningType);
+        VolumeAllocationPolicy.validateStored(details);
 
         if (numGibibytes != null) {
             diskSize = numGibibytes * 1024 * 1024 * 1024;
@@ -4691,7 +4735,7 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
             minIops = null;
             maxIops = null;
         } else {
-            if (minIops == null && maxIops == null) {
+            if ((minIops == null && maxIops == null) || (Long.valueOf(0).equals(minIops) && Long.valueOf(0).equals(maxIops))) {
                 minIops = 0L;
                 maxIops = 0L;
             } else {
@@ -4890,9 +4934,40 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
      * It throws InvalidParameterValueException if normal rate is greater than maximum rate
      */
     protected void validateMaxRateEqualsOrGreater(Long normalRate, Long maxRate, String rateType) {
-        if (normalRate != null && maxRate != null && maxRate < normalRate) {
+        if (normalRate != null && maxRate != null && maxRate > 0 && maxRate < normalRate) {
             throw new InvalidParameterValueException(
                     String.format("%s rate (%d) cannot be greater than %s maximum rate (%d)", rateType, normalRate, rateType, maxRate));
+        }
+    }
+
+    /** Validate the effective values, including fields omitted by a partial update. Zero clears an override. */
+    protected void validateDiskQos(DiskOffering existing, Long... requested) {
+        Long[] current = existing == null ? new Long[12] : new Long[] {
+                existing.getBytesReadRate(), existing.getBytesReadRateMax(), existing.getBytesReadRateMaxLength(),
+                existing.getBytesWriteRate(), existing.getBytesWriteRateMax(), existing.getBytesWriteRateMaxLength(),
+                existing.getIopsReadRate(), existing.getIopsReadRateMax(), existing.getIopsReadRateMaxLength(),
+                existing.getIopsWriteRate(), existing.getIopsWriteRateMax(), existing.getIopsWriteRateMaxLength() };
+        String[] groups = { BYTES_READ_RATE, BYTES_WRITE_RATE, IOPS_READ_RATE, IOPS_WRITE_RATE };
+        for (int index = 0; index < current.length; index++) {
+            if (requested[index] != null) {
+                if (requested[index] < 0) {
+                    throw new InvalidParameterValueException("Disk QoS rates and burst lengths must be non-negative integers");
+                }
+                current[index] = requested[index];
+            }
+        }
+        for (int group = 0; group < groups.length; group++) {
+            int offset = group * 3;
+            long rate = current[offset] == null ? 0 : current[offset];
+            long max = current[offset + 1] == null ? 0 : current[offset + 1];
+            long length = current[offset + 2] == null ? 0 : current[offset + 2];
+            validateMaxRateEqualsOrGreater(rate, max, groups[group]);
+            if (max > 0 && rate == 0) {
+                throw new InvalidParameterValueException(groups[group] + " burst requires a positive base rate");
+            }
+            if (length > 0 && max == 0) {
+                throw new InvalidParameterValueException(groups[group] + " burst length requires a positive maximum rate");
+            }
         }
     }
 
@@ -5027,6 +5102,13 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
         final DiskOfferingVO diskOffering = _diskOfferingDao.createForUpdate(diskOfferingId);
         updateDiskOfferingIfCmdAttributeNotNull(diskOffering, cmd);
 
+        if (shouldUpdateIopsRateParameters(iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate, iopsWriteRateMax, iopsWriteRateMaxLength)
+                || shouldUpdateBytesRateParameters(bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength, bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength)) {
+            validateDiskQos(diskOfferingHandle, bytesReadRate, bytesReadRateMax, bytesReadRateMaxLength,
+                    bytesWriteRate, bytesWriteRateMax, bytesWriteRateMaxLength,
+                    iopsReadRate, iopsReadRateMax, iopsReadRateMaxLength, iopsWriteRate, iopsWriteRateMax, iopsWriteRateMaxLength);
+        }
+
         updateOfferingTagsIfIsNotNull(tags, diskOffering);
 
         validateMaxRateEqualsOrGreater(iopsReadRate, iopsReadRateMax, IOPS_READ_RATE);
@@ -5040,6 +5122,9 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
         if (cacheMode != null) {
             validateCacheMode(cacheMode);
+            if (diskOfferingHandle.getShareable() && !"none".equalsIgnoreCase(cacheMode)) {
+                throw new InvalidParameterValueException("Shareable disks require cache mode none");
+            }
             diskOffering.setCacheMode(DiskOffering.DiskCacheMode.valueOf(cacheMode.toUpperCase()));
         }
 
@@ -7170,6 +7255,12 @@ public class ConfigurationManagerImpl extends ManagerBase implements Configurati
 
     @Override
     public void checkDiskOfferingAccess(final Account caller, final DiskOffering dof, DataCenter zone) {
+        if (dof != null) {
+            java.util.Map<String, String> intent = VolumeAllocationPolicy.requireCreationIntent(diskOfferingDetailsDao.listDetailsKeyPairs(dof.getId()));
+            if (!intent.isEmpty()) {
+                allocationService.validateCreate(intent, dof.getProvisioningType(), zone.getId(), null, dof.getTagsArray());
+            }
+        }
         for (final SecurityChecker checker : _secChecker) {
             if (checker.checkAccess(caller, dof, zone)) {
                 if (logger.isDebugEnabled()) {

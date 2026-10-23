@@ -1,0 +1,567 @@
+[
+  {
+    "cluster": 31,
+    "phase": "null-pod-known-cluster",
+    "pass": true,
+    "vm": "5a7f0af1-2429-4e21-b131-9761a78ff6fc",
+    "volume": "9cedb5e7-3c34-4e2a-877a-3bab1a72337d",
+    "path": "9cedb5e7-3c34-4e2a-877a-3bab1a72337d",
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "explicit-allocation-contract",
+    "pass": true,
+    "vm": "5a7f0af1-2429-4e21-b131-9761a78ff6fc",
+    "volume": "4dde67a6-0129-476a-b1ae-975291713a15",
+    "allocation": {
+      "fixedpolicy": "metadata",
+      "actualformat": "qcow2",
+      "evidence": "verified",
+      "appliedbackend": "GFS2",
+      "observedat": "2026-10-22T06:18:07.037972713Z",
+      "effectivepolicy": "metadata",
+      "requestedpolicy": "metadata",
+      "evidencescope": "creation-or-copy-time",
+      "policyorigin": "explicit",
+      "observedsource": "stat-st-blocks-times-512",
+      "contractversion": "1",
+      "observedallocatedbytes": "348160",
+      "requestedformat": "qcow2",
+      "appliedmethod": "qemu-preallocation-metadata",
+      "appliedoperation": "create"
+    },
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 348160,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "no-eligible-pool-safe-failure",
+    "pass": true,
+    "volume": "d88fc471-3709-4c90-93df-f1fb67286722",
+    "error": "{\"errorcode\": 530, \"errortext\": \"Failed to find a primary storage for volume in state: Allocated\"}",
+    "state": "Allocated\tNULL\tNULL\tNULL",
+    "stateUnchanged": true
+  },
+  {
+    "cluster": 31,
+    "phase": "uploaded-before-first-start",
+    "pass": true,
+    "vm": "16436430-ab72-4ce9-9419-6fc3a58390f9",
+    "volume": "d19bc940-766c-4002-b068-44aed95986e4",
+    "path": "3c3ab99f-3831-4d5b-bb44-ec55cd7386ea",
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 401408,
+      "fullLogicalReadPass": true,
+      "pattern": 90
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "first-start-mainVm",
+    "pass": true,
+    "vm": "5a7f0af1-2429-4e21-b131-9761a78ff6fc",
+    "host": "10.10.31.2",
+    "volumeMappings": [
+      {
+        "uuid": "0ef309d5-f384-4bbc-85af-b97b58147860",
+        "path": "0ef309d5-f384-4bbc-85af-b97b58147860",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+        "path": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "DATADISK"
+      },
+      {
+        "uuid": "9cedb5e7-3c34-4e2a-877a-3bab1a72337d",
+        "path": "9cedb5e7-3c34-4e2a-877a-3bab1a72337d",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "DATADISK"
+      },
+      {
+        "uuid": "4dde67a6-0129-476a-b1ae-975291713a15",
+        "path": "4dde67a6-0129-476a-b1ae-975291713a15",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 31,
+    "phase": "first-start-projectVm",
+    "pass": true,
+    "vm": "9459934b-c5ee-4c38-bdf1-2a26ff882bc5",
+    "host": "10.10.31.1",
+    "volumeMappings": [
+      {
+        "uuid": "6a8ff0c1-8fcd-4d63-adf4-3ca7ea2363b5",
+        "path": "6a8ff0c1-8fcd-4d63-adf4-3ca7ea2363b5",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "adbd1bd9-afd9-4dec-8ef2-f90063daecdb",
+        "path": "adbd1bd9-afd9-4dec-8ef2-f90063daecdb",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 31,
+    "phase": "first-start-uploadedVm",
+    "pass": true,
+    "vm": "16436430-ab72-4ce9-9419-6fc3a58390f9",
+    "host": "10.10.31.1",
+    "volumeMappings": [
+      {
+        "uuid": "da3e14bf-1f6e-41d1-81da-a6e64a48339b",
+        "path": "da3e14bf-1f6e-41d1-81da-a6e64a48339b",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "d19bc940-766c-4002-b068-44aed95986e4",
+        "path": "3c3ab99f-3831-4d5b-bb44-ec55cd7386ea",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 31,
+    "phase": "running-allocated-root-pool-reuse",
+    "pass": true,
+    "volume": "a884fd30-92f5-418c-973d-c76941f130c8",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "prior-boot-stopped-allocated-project",
+    "pass": true,
+    "volume": "b519f827-fac1-4eb1-978f-3a1eb8ec63d4",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "ready-detach-reattach-stopped",
+    "pass": true,
+    "volume": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+    "path": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    }
+  },
+  {
+    "cluster": 31,
+    "phase": "uploaded-data-after-first-start",
+    "pass": true,
+    "volume": "d19bc940-766c-4002-b068-44aed95986e4",
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 401408,
+      "fullLogicalReadPass": true,
+      "pattern": 90
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "null-pod-known-cluster",
+    "pass": true,
+    "vm": "1aeb3e4b-7d29-4c64-bf8f-c325e05f3e92",
+    "volume": "f6056c19-a881-448d-8098-1b80bbee0ea8",
+    "path": "f6056c19-a881-448d-8098-1b80bbee0ea8",
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "f6056c19-a881-448d-8098-1b80bbee0ea8",
+            "id": "d1fafc34eaf9cd",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "explicit-allocation-contract",
+    "pass": true,
+    "vm": "1aeb3e4b-7d29-4c64-bf8f-c325e05f3e92",
+    "volume": "7a909d85-96a7-4e68-8436-7d27c2878d0f",
+    "allocation": {
+      "fixedpolicy": "off",
+      "actualformat": "raw",
+      "evidence": "verified",
+      "appliedbackend": "RBD",
+      "observedat": "2026-10-22T06:21:48.053372725Z",
+      "effectivepolicy": "off",
+      "requestedpolicy": "off",
+      "evidencescope": "creation-or-copy-time",
+      "policyorigin": "explicit",
+      "observedsource": "rbd-du-exact-image-used-size",
+      "contractversion": "1",
+      "observedallocatedbytes": "0",
+      "requestedformat": "raw",
+      "appliedmethod": "rbd-thin",
+      "appliedoperation": "create"
+    },
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "7a909d85-96a7-4e68-8436-7d27c2878d0f",
+            "id": "d1fd78a8489a14",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "no-eligible-pool-safe-failure",
+    "pass": true,
+    "volume": "c878efe6-52f9-4578-9316-acd758a1a8f7",
+    "error": "{\"errorcode\": 530, \"errortext\": \"Failed to find a primary storage for volume in state: Allocated\"}",
+    "state": "Allocated\tNULL\tNULL\tNULL",
+    "stateUnchanged": true
+  },
+  {
+    "cluster": 32,
+    "phase": "uploaded-before-first-start",
+    "pass": true,
+    "vm": "f22bcbad-52bd-4208-9a7e-25448bcfbf8c",
+    "volume": "a294aae0-6514-4aaa-9ff4-10b25b231ae0",
+    "path": "bedbeb77-4af6-43d9-b73e-0c00f08a64a3",
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 90,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "bedbeb77-4af6-43d9-b73e-0c00f08a64a3",
+            "id": "d1fdf033ba903e",
+            "provisioned_size": 1073741824,
+            "used_size": 65536
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "first-start-mainVm",
+    "pass": true,
+    "vm": "1aeb3e4b-7d29-4c64-bf8f-c325e05f3e92",
+    "host": "10.10.32.3",
+    "volumeMappings": [
+      {
+        "uuid": "e398ed61-0e1d-4abf-8d13-57fa200ba750",
+        "path": "e398ed61-0e1d-4abf-8d13-57fa200ba750",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "c8b35317-ef21-4123-a88c-262a2024c63a",
+        "path": "c8b35317-ef21-4123-a88c-262a2024c63a",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "DATADISK"
+      },
+      {
+        "uuid": "f6056c19-a881-448d-8098-1b80bbee0ea8",
+        "path": "f6056c19-a881-448d-8098-1b80bbee0ea8",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "DATADISK"
+      },
+      {
+        "uuid": "7a909d85-96a7-4e68-8436-7d27c2878d0f",
+        "path": "7a909d85-96a7-4e68-8436-7d27c2878d0f",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 32,
+    "phase": "first-start-projectVm",
+    "pass": true,
+    "vm": "7cee1ed7-98e3-404a-b354-3fc96956d1da",
+    "host": "10.10.32.3",
+    "volumeMappings": [
+      {
+        "uuid": "07929b10-8cf7-4b11-b090-78b1faf54432",
+        "path": "07929b10-8cf7-4b11-b090-78b1faf54432",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+        "path": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 32,
+    "phase": "first-start-uploadedVm",
+    "pass": true,
+    "vm": "f22bcbad-52bd-4208-9a7e-25448bcfbf8c",
+    "host": "10.10.32.3",
+    "volumeMappings": [
+      {
+        "uuid": "440da7a8-38ae-486c-8e68-65c92c8fe313",
+        "path": "440da7a8-38ae-486c-8e68-65c92c8fe313",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "ROOT"
+      },
+      {
+        "uuid": "a294aae0-6514-4aaa-9ff4-10b25b231ae0",
+        "path": "bedbeb77-4af6-43d9-b73e-0c00f08a64a3",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "type": "DATADISK"
+      }
+    ],
+    "libvirtRunning": true
+  },
+  {
+    "cluster": 32,
+    "phase": "running-allocated-root-pool-reuse",
+    "pass": true,
+    "volume": "f2ba40f9-fba0-4f7d-8084-ccd0aa554de5",
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "f2ba40f9-fba0-4f7d-8084-ccd0aa554de5",
+            "id": "d0ce41be3fef6c",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "prior-boot-stopped-allocated-project",
+    "pass": true,
+    "volume": "f01fabfe-13df-41fa-a65e-ab1d51c7e134",
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "f01fabfe-13df-41fa-a65e-ab1d51c7e134",
+            "id": "d1585bdcd7d0e6",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "ready-detach-reattach-stopped",
+    "pass": true,
+    "volume": "c8b35317-ef21-4123-a88c-262a2024c63a",
+    "path": "c8b35317-ef21-4123-a88c-262a2024c63a",
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "c8b35317-ef21-4123-a88c-262a2024c63a",
+            "id": "d0bfdae655f195",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    }
+  },
+  {
+    "cluster": 32,
+    "phase": "uploaded-data-after-first-start",
+    "pass": true,
+    "volume": "a294aae0-6514-4aaa-9ff4-10b25b231ae0",
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 90,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "bedbeb77-4af6-43d9-b73e-0c00f08a64a3",
+            "id": "d1fdf033ba903e",
+            "provisioned_size": 1073741824,
+            "used_size": 65536
+          }
+        ]
+      }
+    }
+  }
+]

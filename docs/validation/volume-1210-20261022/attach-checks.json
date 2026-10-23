@@ -1,0 +1,307 @@
+[
+  {
+    "cluster": 31,
+    "phase": "running",
+    "vm": {
+      "id": "7759a50f-8191-481d-9c30-944af55f67e3",
+      "name": "VOL1210-31-mainvm",
+      "displayname": "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "instancename": "i-235-721-VM",
+      "state": "Running",
+      "hostid": "384871b9-7c75-4717-a673-e96a76abeb71",
+      "hostname": "ablecube31-3"
+    },
+    "volume": {
+      "id": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "name": "VOL1210-31-volume",
+      "state": "Ready",
+      "virtualmachineid": "7759a50f-8191-481d-9c30-944af55f67e3",
+      "deviceid": 1,
+      "path": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "vmid": 721,
+      "state": "Ready",
+      "poolId": 1,
+      "vmUuid": "7759a50f-8191-481d-9c30-944af55f67e3",
+      "deviceid": 1,
+      "volumeUuid": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd"
+    },
+    "pass": true,
+    "guestIoVerified": false,
+    "hostDisk": {
+      "source": {
+        "file": "/mnt/glue-gfs/9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+        "index": "5"
+      },
+      "target": {
+        "dev": "sdb",
+        "bus": "scsi"
+      },
+      "driver": {
+        "name": "qemu",
+        "type": "qcow2",
+        "cache": "none",
+        "discard": "unmap"
+      }
+    },
+    "host": 3,
+    "storageInfo": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 197120,
+            "filename": "/mnt/glue-gfs/9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+            "format": "file",
+            "actual-size": 208896,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 1073741824,
+      "filename": "/mnt/glue-gfs/9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 208896,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    },
+    "libvirtPathAndLogicalSizeVerified": true
+  },
+  {
+    "cluster": 32,
+    "phase": "running",
+    "vm": {
+      "id": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "name": "VOL1210-32-mainvm",
+      "displayname": "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "instancename": "i-47-202-VM",
+      "state": "Running",
+      "hostid": "a7b3e91f-2248-436b-affb-e3b31b36ed62",
+      "hostname": "ablecube32-2"
+    },
+    "volume": {
+      "id": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "name": "VOL1210-32-volume",
+      "state": "Ready",
+      "virtualmachineid": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "deviceid": 1,
+      "path": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "vmid": 202,
+      "state": "Ready",
+      "poolId": 3,
+      "vmUuid": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "deviceid": 1,
+      "volumeUuid": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe"
+    },
+    "pass": true,
+    "guestIoVerified": false,
+    "hostDisk": {
+      "source": {
+        "dev": "/dev/rbd/rbd/e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+        "index": "4"
+      },
+      "target": {
+        "dev": "sdb",
+        "bus": "scsi"
+      },
+      "driver": {
+        "name": "qemu",
+        "type": "raw",
+        "cache": "none",
+        "discard": "unmap"
+      }
+    },
+    "host": 2,
+    "storageInfo": {
+      "name": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "id": "1ccf5525c42cdd",
+      "size": 1073741824,
+      "objects": 256,
+      "order": 22,
+      "object_size": 4194304,
+      "snapshot_count": 0,
+      "block_name_prefix": "rbd_data.1ccf5525c42cdd",
+      "format": 2,
+      "features": [
+        "layering",
+        "exclusive-lock",
+        "object-map",
+        "fast-diff",
+        "deep-flatten"
+      ],
+      "op_features": [],
+      "flags": [],
+      "create_timestamp": "Thu Oct 22 04:09:25 2026",
+      "access_timestamp": "Thu Oct 22 04:09:25 2026",
+      "modify_timestamp": "Thu Oct 22 04:09:25 2026"
+    },
+    "libvirtPathAndLogicalSizeVerified": true
+  },
+  {
+    "cluster": 31,
+    "phase": "duplicate",
+    "vm": {
+      "id": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+      "name": "VOL1210-31-duplicatevm",
+      "displayname": "VOL1210-31-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "instancename": "i-235-722-VM",
+      "state": "Stopped",
+      "hostid": null,
+      "hostname": null
+    },
+    "volume": {
+      "id": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "name": "VOL1210-31-volume",
+      "state": "Ready",
+      "virtualmachineid": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+      "deviceid": 1,
+      "path": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+      "vmid": 722,
+      "state": "Ready",
+      "poolId": 1,
+      "vmUuid": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+      "deviceid": 1,
+      "volumeUuid": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd"
+    },
+    "pass": true,
+    "guestIoVerified": false
+  },
+  {
+    "cluster": 32,
+    "phase": "duplicate",
+    "vm": {
+      "id": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+      "name": "VOL1210-32-duplicatevm",
+      "displayname": "VOL1210-32-\ubcc0\uacbd\ub41c \ud45c\uc2dc\uc774\ub984",
+      "instancename": "i-47-203-VM",
+      "state": "Stopped",
+      "hostid": null,
+      "hostname": null
+    },
+    "volume": {
+      "id": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "name": "VOL1210-32-volume",
+      "state": "Ready",
+      "virtualmachineid": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+      "deviceid": 1,
+      "path": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+      "vmid": 203,
+      "state": "Ready",
+      "poolId": 3,
+      "vmUuid": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+      "deviceid": 1,
+      "volumeUuid": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe"
+    },
+    "pass": true,
+    "guestIoVerified": false
+  },
+  {
+    "cluster": 31,
+    "phase": "project",
+    "vm": {
+      "id": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "name": "VOL1210-31-projectvm",
+      "displayname": "VOL1210-31-\ud504\ub85c\uc81d\ud2b8 VM",
+      "instancename": "i-236-723-VM",
+      "state": "Stopped",
+      "hostid": null,
+      "hostname": null
+    },
+    "volume": {
+      "id": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4",
+      "name": "VOL1210-31-projectVolume",
+      "state": "Ready",
+      "virtualmachineid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "deviceid": 1,
+      "path": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4",
+      "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4",
+      "vmid": 723,
+      "state": "Ready",
+      "poolId": 1,
+      "vmUuid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "deviceid": 1,
+      "volumeUuid": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4"
+    },
+    "pass": true,
+    "guestIoVerified": false
+  },
+  {
+    "cluster": 32,
+    "phase": "project",
+    "vm": {
+      "id": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "name": "VOL1210-32-projectvm",
+      "displayname": "VOL1210-32-\ud504\ub85c\uc81d\ud2b8 VM",
+      "instancename": "i-48-204-VM",
+      "state": "Stopped",
+      "hostid": null,
+      "hostname": null
+    },
+    "volume": {
+      "id": "b01a5666-bf3c-4ae3-8e7e-bec550838a66",
+      "name": "VOL1210-32-projectVolume",
+      "state": "Ready",
+      "virtualmachineid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "deviceid": 1,
+      "path": "b01a5666-bf3c-4ae3-8e7e-bec550838a66",
+      "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "size": 1073741824,
+      "type": "DATADISK"
+    },
+    "db": {
+      "path": "b01a5666-bf3c-4ae3-8e7e-bec550838a66",
+      "vmid": 204,
+      "state": "Ready",
+      "poolId": 3,
+      "vmUuid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "deviceid": 1,
+      "volumeUuid": "b01a5666-bf3c-4ae3-8e7e-bec550838a66"
+    },
+    "pass": true,
+    "guestIoVerified": false
+  }
+]

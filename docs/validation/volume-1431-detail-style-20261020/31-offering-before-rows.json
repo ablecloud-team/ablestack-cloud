@@ -1,0 +1,15 @@
+[
+  "이름VOL1431-DETAILSTYLE-31-20261020-explicit",
+  "아이디1110d616-afb5-41eb-9e2d-e021b5bca2e3",
+  "설명VOL1431-DETAILSTYLE-31-20261020-explicit",
+  "디스크 크기(GB 단위)1",
+  "프로비저닝 유형sparse",
+  "스토리지 유형shared",
+  "사용자지정 디스크 크기false",
+  "디스크 크기 엄격성false",
+  "태그glue-gfs",
+  "생성일2026. 10. 20. 오후 8:42:46",
+  "암호화false",
+  "공유 볼륨false",
+  "압축/중복제거false"
+]

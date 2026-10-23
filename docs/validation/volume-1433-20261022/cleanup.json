@@ -1,0 +1,60 @@
+{
+  "31": {
+    "testVmsExpunged": 3,
+    "routersRemoved": 1,
+    "volumesRemoved": 7,
+    "snapshotsRemoved": 1,
+    "imagesRemoved": 4,
+    "imageResiduals": 0,
+    "vmDefinitionResiduals": 0,
+    "computeOfferingsInactive": 3,
+    "generalDiskOfferingsInactive": 3,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0,
+      "snapshots": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "jarAndPidPreserved": true,
+    "productHistoryAndBackupsPreserved": true
+  },
+  "32": {
+    "testVmsExpunged": 3,
+    "routersRemoved": 1,
+    "volumesRemoved": 8,
+    "snapshotsRemoved": 1,
+    "imagesRemoved": 4,
+    "imageResiduals": 0,
+    "vmDefinitionResiduals": 0,
+    "computeOfferingsInactive": 1,
+    "generalDiskOfferingsInactive": 2,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0,
+      "snapshots": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "jarAndPidPreserved": true,
+    "productHistoryAndBackupsPreserved": true
+  }
+}

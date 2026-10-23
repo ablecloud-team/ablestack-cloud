@@ -43,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.cloud.exception.InvalidParameterValueException;
 import com.cloud.offering.ServiceOffering;
-import com.cloud.storage.Storage;
 import com.cloud.user.Account;
 
 @APICommand(name = "createServiceOffering", description = "Creates a service offering.", responseObject = ServiceOfferingResponse.class,
@@ -68,7 +67,15 @@ public class CreateServiceOfferingCmd extends BaseCmd {
     private String displayText;
 
     @Parameter(name = ApiConstants.PROVISIONINGTYPE, type = CommandType.STRING, description = "Provisioning type used to create volumes. Valid values are thin, sparse, fat.")
-    private String provisioningType = Storage.ProvisioningType.THIN.toString();
+    private String provisioningType;
+
+    @Parameter(name = "allocationpolicy", type = CommandType.STRING, since = "4.23.0",
+            description = "Explicit allocation intent: off, metadata, falloc, full. Requires allocationformat; excludes provisioningtype. Execution requires a verified backend adapter.")
+    private String allocationPolicy;
+
+    @Parameter(name = "allocationformat", type = CommandType.STRING, since = "4.23.0",
+            description = "Explicit image format: qcow2 or raw. Requires allocationpolicy. Raw metadata is invalid.")
+    private String allocationFormat;
 
     @Parameter(name = ApiConstants.MEMORY, type = CommandType.INTEGER, required = false, description = "The total memory of the service offering in MB")
     private Integer memory;
@@ -311,8 +318,12 @@ public class CreateServiceOfferingCmd extends BaseCmd {
         return StringUtils.isEmpty(displayText) ? serviceOfferingName : displayText;
     }
 
-    public String getProvisioningType() {
+    public String getExplicitProvisioningType() {
         return provisioningType;
+    }
+
+    public String getProvisioningType() {
+        return com.cloud.storage.VolumeAllocationPolicy.legacyColumn(allocationPolicy, allocationFormat, provisioningType);
     }
 
     public Integer getMemory() {
@@ -403,6 +414,10 @@ public class CreateServiceOfferingCmd extends BaseCmd {
         }
 
         detailsMap.putAll(getExternalDetails());
+        if (detailsMap.keySet().stream().anyMatch(key -> key.startsWith("allocation."))) {
+            throw new com.cloud.exception.InvalidParameterValueException("Use allocationpolicy/allocationformat instead of reserved allocation.* details");
+        }
+        detailsMap.putAll(com.cloud.storage.VolumeAllocationPolicy.request(allocationPolicy, allocationFormat, provisioningType));
         return detailsMap;
     }
 

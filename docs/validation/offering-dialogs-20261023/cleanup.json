@@ -1,0 +1,31 @@
+{
+  "31": {
+    "residual": {
+      "disks": 0,
+      "volumes": 0,
+      "computes": 0
+    },
+    "inventoryUnchanged": true,
+    "images": {
+      "31-disk-metadata": "absent",
+      "31-disk-full": "absent",
+      "31-disk-final-qos": "absent"
+    },
+    "runtimeUnchanged": true,
+    "routingHostsUp": 3
+  },
+  "32": {
+    "residual": {
+      "disks": 0,
+      "volumes": 0,
+      "computes": 0
+    },
+    "inventoryUnchanged": true,
+    "images": {
+      "32-disk-thin": "absent",
+      "32-disk-full": "absent"
+    },
+    "runtimeUnchanged": true,
+    "routingHostsUp": 3
+  }
+}

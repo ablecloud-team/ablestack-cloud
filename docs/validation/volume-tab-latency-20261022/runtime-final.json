@@ -1,0 +1,48 @@
+{
+  "31": {
+    "protectedHashesPreserved": true,
+    "staticHashesMatched": true,
+    "staticFileCount": 914,
+    "markers": [
+      "volume-policy-tab",
+      "blockingLoadingState",
+      "fetchSyncProgress",
+      "extractJobId",
+      "mold-dialog-actions",
+      "storage-related-resources",
+      "storage-query-error"
+    ],
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "taskTemporaryFilesRemoved": [
+      "volume-tab-latency-ui.tgz",
+      "volume-tab-latency-ui.py",
+      "volume-tab-latency-ui-manifest.json"
+    ],
+    "backupPreserved": "/root/volume-tab-latency-ui-bbf1b9cc4d4-1792680322"
+  },
+  "32": {
+    "protectedHashesPreserved": true,
+    "staticHashesMatched": true,
+    "staticFileCount": 914,
+    "markers": [
+      "volume-policy-tab",
+      "blockingLoadingState",
+      "fetchSyncProgress",
+      "extractJobId",
+      "mold-dialog-actions",
+      "storage-related-resources",
+      "storage-query-error"
+    ],
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "taskTemporaryFilesRemoved": [
+      "volume-tab-latency-ui.tgz",
+      "volume-tab-latency-ui.py",
+      "volume-tab-latency-ui-manifest.json"
+    ],
+    "backupPreserved": "/root/volume-tab-latency-ui-bbf1b9cc4d4-1792680325"
+  }
+}

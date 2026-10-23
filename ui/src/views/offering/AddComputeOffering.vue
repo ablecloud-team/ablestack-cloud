@@ -19,6 +19,7 @@
   <div class="form-layout" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading">
       <ComputeOfferingForm
+        :organized="!isSystem"
         :initialValues="form"
         :rules="rules"
         :apiParams="apiParams"
@@ -28,10 +29,10 @@
         @submit="handleSubmit">
         <template #form-actions>
           <br/>
-          <div :span="24" class="action-button">
+          <MoldDialogActions :span="24" :busy="loading">
             <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-          </div>
+            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.add') }}</a-button>
+          </MoldDialogActions>
         </template>
       </ComputeOfferingForm>
     </a-spin>
@@ -39,9 +40,14 @@
 </template>
 
 <script>
+import storageDialogContext from '@/utils/storageDialogContext'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import ComputeOfferingForm from '@/components/offering/ComputeOfferingForm'
 import { ref, reactive } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
+import { performanceParams } from '@/utils/offeringQos'
+import { allocationParams, newOfferingAllocation } from '@/utils/volumeAllocation'
 import AddDiskOffering from '@/views/offering/AddDiskOffering'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
@@ -52,8 +58,9 @@ import store from '@/store'
 
 export default {
   name: 'AddServiceOffering',
-  mixins: [mixinForm],
+  mixins: [storageDialogContext, mixinForm],
   components: {
+    MoldDialogActions,
     ComputeOfferingForm,
     AddDiskOffering,
     ResourceIcon,
@@ -154,6 +161,7 @@ export default {
         computeonly: this.computeonly,
         storagetype: this.storageType,
         provisioningtype: this.provisioningType,
+        ...newOfferingAllocation(this.isSystem ? {} : this.apiParams),
         cachemode: this.cacheMode,
         qostype: this.qosType,
         iscustomizeddiskiops: this.isCustomizedDiskIops,
@@ -201,10 +209,6 @@ export default {
           this.naturalNumberRule
         ],
         rootdisksize: [this.naturalNumberRule],
-        diskbytesreadrate: [this.naturalNumberRule],
-        diskbyteswriterate: [this.naturalNumberRule],
-        diskiopsreadrate: [this.naturalNumberRule],
-        diskiopswriterate: [this.naturalNumberRule],
         diskiopsmin: [this.naturalNumberRule],
         diskiopsmax: [this.naturalNumberRule],
         hypervisorsnapshotreserve: [this.naturalNumberRule],
@@ -350,12 +354,12 @@ export default {
       if (this.loading) return
 
       this.formRef.value.validate().then((values) => {
+        if (this.loading || (this.dialogCurrent && !this.dialogCurrent())) return
         const params = {
           issystem: this.isSystem,
           name: values.name,
           displaytext: values.displaytext,
           storagetype: values.storagetype,
-          provisioningtype: values.provisioningtype,
           cachemode: values.cachemode,
           customized: values.offeringtype !== 'fixed',
           offerha: values.offerha === true,
@@ -406,41 +410,15 @@ export default {
           }
         }
 
-        if (values.networkrate != null && values.networkrate.length > 0) {
+        if (values.networkrate != null && String(values.networkrate).length > 0) {
           params.networkrate = values.networkrate
         }
-        if (values.rootdisksize != null && values.rootdisksize.length > 0) {
+        if (values.rootdisksize != null && String(values.rootdisksize).length > 0) {
           params.rootdisksize = values.rootdisksize
         }
-        if (values.qostype === 'storage') {
-          const customIops = values.iscustomizeddiskiops === true
-          params.customizediops = customIops
-          if (!customIops) {
-            if (values.diskiopsmin != null && values.diskiopsmin.length > 0) {
-              params.miniops = values.diskiopsmin
-            }
-            if (values.diskiopsmax != null && values.diskiopsmax.length > 0) {
-              params.maxiops = values.diskiopsmax
-            }
-            if (values.hypervisorsnapshotreserve !== undefined &&
-             values.hypervisorsnapshotreserve != null && values.hypervisorsnapshotreserve.length > 0) {
-              params.hypervisorsnapshotreserve = values.hypervisorsnapshotreserve
-            }
-          }
-        } else if (values.qostype === 'hypervisor') {
-          if (values.diskbytesreadrate != null && values.diskbytesreadrate.length > 0) {
-            params.bytesreadrate = values.diskbytesreadrate
-          }
-          if (values.diskbyteswriterate != null && values.diskbyteswriterate.length > 0) {
-            params.byteswriterate = values.diskbyteswriterate
-          }
-          if (values.diskiopsreadrate != null && values.diskiopsreadrate.length > 0) {
-            params.iopsreadrate = values.diskiopsreadrate
-          }
-          if (values.diskiopswriterate != null && values.diskiopswriterate.length > 0) {
-            params.iopswriterate = values.diskiopswriterate
-          }
-        }
+        delete params.cachemode
+        delete params.cacheMode
+        Object.assign(params, performanceParams(values, values.computeonly === false))
         if (values.storagetags != null && values.storagetags.length > 0) {
           params.tags = values.storagetags.join(',')
         }
@@ -510,8 +488,10 @@ export default {
           })
         }
 
+        Object.assign(params, allocationParams(values, values.computeonly === false))
+        if (values.computeonly !== false) delete params.diskofferingid
         this.loading = true
-        postAPI('createServiceOffering', params).then(json => {
+        postAPI('createServiceOffering', params, { preserveOnFailure: true }).then(json => {
           const message = this.isSystem
             ? `${this.$t('message.create.service.offering')}: `
             : `${this.$t('message.create.compute.offering')}: `
@@ -523,6 +503,8 @@ export default {
         }).finally(() => {
           this.loading = false
         })
+      }).catch(error => {
+        if (!error?.errorFields) this.$message.error(error.message || this.$t('message.error.select'))
       })
     },
     closeAction () {
@@ -540,9 +522,7 @@ export default {
 
 <style scoped lang="scss">
   .form-layout {
-    width: 80vw;
-    @media (min-width: 800px) {
-      width: 700px;
-    }
+    width: 650px;
+    max-width: calc(100vw - 64px);
   }
 </style>

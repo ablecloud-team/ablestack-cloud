@@ -38,6 +38,15 @@ import java.util.List;
 import java.util.Set;
 
 public class VolumeObjectTO extends DownloadableObjectTO implements DataTO, Serializable {
+    private java.util.Map<String, String> allocation;
+
+    public java.util.Map<String, String> getAllocation() {
+        return allocation == null ? java.util.Collections.emptyMap() : new java.util.LinkedHashMap<>(allocation);
+    }
+
+    public void setAllocation(java.util.Map<String, String> value) {
+        allocation = value == null ? null : new java.util.LinkedHashMap<>(value);
+    }
     private String uuid;
     private Volume.Type volumeType;
     private DataStoreTO dataStore;

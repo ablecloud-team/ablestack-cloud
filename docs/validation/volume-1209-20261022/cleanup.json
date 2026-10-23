@@ -1,0 +1,70 @@
+{
+  "31": {
+    "testVmExpunged": 1,
+    "volumesRemoved": 2,
+    "allocatedVolumesHadNoPoolOrPath": true,
+    "storageMaterializationOrGuestIoClaimed": false,
+    "networkRemoved": 1,
+    "computeOfferingsInactive": 1,
+    "generalDiskOfferingsInactive": 24,
+    "privateDiskOfferingsInactive": 1,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 2,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "jarAndPidPreserved": true,
+    "runtime": {
+      "staticHashesMatch": true,
+      "markers": true,
+      "webInf": true,
+      "mold": "active",
+      "client": "200"
+    },
+    "temporaryFilesRemoved": 3,
+    "backupsAndProductHistoryPreserved": true
+  },
+  "32": {
+    "testVmExpunged": 1,
+    "volumesRemoved": 2,
+    "allocatedVolumesHadNoPoolOrPath": true,
+    "storageMaterializationOrGuestIoClaimed": false,
+    "networkRemoved": 1,
+    "computeOfferingsInactive": 1,
+    "generalDiskOfferingsInactive": 24,
+    "privateDiskOfferingsInactive": 1,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 2,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "hostsUp": 3,
+    "jarAndPidPreserved": true,
+    "runtime": {
+      "staticHashesMatch": true,
+      "markers": true,
+      "webInf": true,
+      "mold": "active",
+      "client": "200"
+    },
+    "temporaryFilesRemoved": 3,
+    "backupsAndProductHistoryPreserved": true
+  }
+}

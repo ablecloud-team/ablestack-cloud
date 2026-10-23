@@ -141,19 +141,21 @@
             allowClear="true"
             @change-option-value="handleAccountChange" />
         </a-form-item>
-        <div :span="24" class="action-button">
+        <MoldDialogActions :span="24" :busy="loading">
           <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
           <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-        </div>
+        </MoldDialogActions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { volumeUploadError, resolveVolumeUpload } from '@/utils/volumeUploadError'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { createJobTracker } from '@/utils/jobTracker'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -164,6 +166,7 @@ export default {
   name: 'UploadVolume',
   mixins: [mixinForm],
   components: {
+    MoldDialogActions,
     ResourceIcon,
     TooltipLabel,
     InfiniteScrollSelect

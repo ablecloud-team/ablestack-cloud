@@ -30,21 +30,23 @@
         </template>
         <a-switch v-model:checked="form.dedup" />
       </a-form-item>
-      <div :span="24" class="action-button">
+      <MoldDialogActions :span="24" :busy="loading">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button :loading="loading" type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </MoldDialogActions>
     </a-form>
   </div>
 </template>
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 
 export default {
   name: 'updateCompressDedup',
   components: {
+    MoldDialogActions,
     TooltipLabel
   },
   props: {

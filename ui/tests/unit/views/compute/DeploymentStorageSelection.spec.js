@@ -112,7 +112,7 @@ test('mounted offering selector retains the selected root offering across filter
   expect(wrapper.vm.rowSelection.selectedRowKeys).toEqual(['fixed'])
   expect(wrapper.emitted('on-selected-root-disk-size').slice(-1)[0][0]).toEqual(fixed)
   await wrapper.setProps({ value: '' })
-  expect(wrapper.vm.rowSelection.selectedRowKeys).toEqual(['0'])
+  expect(wrapper.vm.rowSelection.selectedRowKeys).toEqual([])
   wrapper.unmount()
 })
 

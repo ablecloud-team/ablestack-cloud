@@ -1,0 +1,57 @@
+[
+  {
+    "cluster": 31,
+    "case": "storage-clone-fixed-iops",
+    "id": "ac76927a-fcf1-46ea-93a6-e369754961ed",
+    "minimum": 100,
+    "maximum": 200,
+    "state": "Active",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "storage-clone-fixed-iops",
+    "id": "94898bed-30a7-40f2-bbe5-c0c3ca4229d0",
+    "minimum": 100,
+    "maximum": 200,
+    "state": "Active",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "ui-compute-zero-api-db",
+    "id": "896ce0d9-3d6e-478f-9e5b-db5914577a3d",
+    "all12Zero": true,
+    "privateDisk": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "destroy-owned-vms",
+    "count": 2,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "storage-clone-fixed-iops",
+    "id": "4437ea70-2bf1-4773-8c42-5baf1c8a26c0",
+    "minimum": 100,
+    "maximum": 200,
+    "state": "Active",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "ui-compute-zero-api-db",
+    "id": "21dee060-314f-4160-87ed-ff0416a0895f",
+    "all12Zero": true,
+    "privateDisk": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "destroy-owned-vms",
+    "count": 2,
+    "pass": true
+  }
+]

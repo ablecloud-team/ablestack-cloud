@@ -1805,6 +1805,8 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> createVolumeFromSnapshot(VolumeInfo volume, DataStore store, SnapshotInfo snapshot) {
+        requireQualifiedAllocationLifecycle(volume.getId(), "snapshot restore target");
+        requireQualifiedAllocationLifecycle(snapshot.getVolumeId(), "snapshot restore source");
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
 
         try {
@@ -1829,6 +1831,8 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> cloneVolumeFromSnapshot(VolumeInfo volume, DataStore store, SnapshotInfo snapshot) {
+        requireQualifiedAllocationLifecycle(volume.getId(), "snapshot clone target");
+        requireQualifiedAllocationLifecycle(snapshot.getVolumeId(), "snapshot clone source");
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
 
         try {
@@ -2093,6 +2097,7 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> copyVolume(VolumeInfo srcVolume, DataStore destStore) {
+        requireQualifiedAllocationLifecycle(srcVolume.getId(), "volume copy/move");
         DataStore srcStore = srcVolume.getDataStore();
         if (logger.isDebugEnabled()) {
             String srcRole = (srcStore != null && srcStore.getRole() != null ? srcVolume.getDataStore().getRole().toString() : "<unknown role>");
@@ -2481,6 +2486,7 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> migrateVolume(VolumeInfo srcVolume, DataStore destStore) {
+        requireQualifiedAllocationLifecycle(srcVolume.getId(), "volume migration");
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
         VolumeApiResult res = new VolumeApiResult(srcVolume);
         try {
@@ -2546,6 +2552,7 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<CommandResult> migrateVolumes(Map<VolumeInfo, DataStore> volumeMap, VirtualMachineTO vmTo, Host srcHost, Host destHost) {
+        requireAllocationMigration(volumeMap);
         AsyncCallFuture<CommandResult> future = new AsyncCallFuture<>();
         CommandResult res = new CommandResult();
         try {
@@ -2618,6 +2625,7 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public AsyncCallFuture<VolumeApiResult> registerVolume(VolumeInfo volume, DataStore store) {
+        requireQualifiedAllocationLifecycle(volume.getId(), "volume upload registration");
 
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
         DataObject volumeOnStore = store.create(volume);
@@ -2647,6 +2655,7 @@ public class VolumeServiceImpl implements VolumeService {
 
     @Override
     public Pair<EndPoint, DataObject> registerVolumeForPostUpload(VolumeInfo volume, DataStore store) {
+        requireQualifiedAllocationLifecycle(volume.getId(), "volume browser upload registration");
 
         EndPoint ep = _epSelector.select(store);
         if (ep == null) {
@@ -2718,8 +2727,19 @@ public class VolumeServiceImpl implements VolumeService {
         }
     }
 
+    private void requireAllocationMigration(Map<VolumeInfo, DataStore> volumeMap) {
+        for (VolumeInfo volume : volumeMap.keySet()) {
+            requireQualifiedAllocationLifecycle(volume.getId(), "VM storage migration");
+        }
+    }
+
+    private void requireQualifiedAllocationLifecycle(long volumeId, String operation) {
+        com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volumeDetailsDao.listDetailsKeyPairs(volumeId), operation);
+    }
+
     @Override
     public AsyncCallFuture<VolumeApiResult> resize(VolumeInfo volume) {
+        requireQualifiedAllocationLifecycle(volume.getId(), "storage resize");
         AsyncCallFuture<VolumeApiResult> future = new AsyncCallFuture<>();
         VolumeApiResult result = new VolumeApiResult(volume);
         try {

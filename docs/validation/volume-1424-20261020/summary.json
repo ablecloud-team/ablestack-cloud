@@ -1,0 +1,632 @@
+{
+  "epic": 1422,
+  "issue": 1424,
+  "sourceCommit": "a320e4a6b790bd99e7d8e36d57b0cbc390015864",
+  "scope": "API/DB allocation contract v1; execution adapters remain disabled pending VOL-03/VOL-04",
+  "moduleBuild": {
+    "workspace": "WSL ext4",
+    "modules": [
+      "api",
+      "core",
+      "server",
+      "engine/orchestration"
+    ],
+    "result": "PASS",
+    "fullCloudBuildRun": false
+  },
+  "focusedTests": {
+    "total": 434,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "name": "org.apache.cloudstack.engine.orchestration.VolumeAllocationGuardTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "org.apache.cloudstack.engine.orchestration.VolumeOrchestratorTest",
+        "tests": 50,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.storage.VolumeAllocationManagerImplTest",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.configuration.ConfigurationManagerCloneIntegrationTest",
+        "tests": 21,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.vm.UserVmManagerImplTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.configuration.ConfigurationManagerImplTest",
+        "tests": 140,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.storage.VolumeApiServiceImplUpdateTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.storage.VolumeApiServiceImplTest",
+        "tests": 159,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.storage.VolumeAllocationRegistrationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.metadata.VolumeAllocationMetadataTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.vm.VolumeAllocationPreflightTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "com.cloud.storage.VolumeAllocationPolicyTest",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ]
+  },
+  "checkstyle": [
+    {
+      "module": "api",
+      "errors": [
+        {
+          "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/DeleteCniConfigurationCmdTest.java",
+          "line": "19",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/DeleteCniConfigurationCmdTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/RegisterCniConfigurationCmdTest.java",
+          "line": "19",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "api/src/test/java/org/apache/cloudstack/api/command/user/userdata/RegisterCniConfigurationCmdTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        }
+      ],
+      "changedFileErrors": 0
+    },
+    {
+      "module": "core",
+      "errors": [],
+      "changedFileErrors": 0
+    },
+    {
+      "module": "server",
+      "errors": [
+        {
+          "file": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+          "line": "47",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+          "line": "48",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/vm/UserVmUserDataResetTest.java",
+          "line": "49",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+          "line": "19",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/CniRegistrationTest.java",
+          "line": "21",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+          "line": "19",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataDeletionTest.java",
+          "line": "21",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+          "line": "19",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.ArgumentMatchers.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/server/UserDataRegistrationTest.java",
+          "line": "21",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/api/query/UserDataReferenceQueryTest.java",
+          "line": "22",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/network/CniMetadataJsonTest.java",
+          "line": "20",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.junit.Assert.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        },
+        {
+          "file": "server/src/test/java/com/cloud/network/rules/UserdataToRouterRulesTest.java",
+          "line": "25",
+          "severity": "error",
+          "message": "Using the '.*' form of import should be avoided - org.mockito.Mockito.*.",
+          "source": "com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck",
+          "unchangedFromBase": true
+        }
+      ],
+      "changedFileErrors": 0
+    },
+    {
+      "module": "engine/orchestration",
+      "errors": [],
+      "changedFileErrors": 0
+    }
+  ],
+  "baselineVmSuite": {
+    "baselineTests": 257,
+    "baselineFailures": [
+      "createVirtualMachineWithExistingSnapshot",
+      "testResetVMUserDataSuccessResetWithUserdataId",
+      "testResetVMUserDataDontAcceptBothUserdataAndUserdataId",
+      "createVirtualMachineWithSnapshotFromVolumeWithNullDataStoreSucceeds",
+      "createVirtualMachineWithVolumeFromNonZoneScopedStorageFails",
+      "createVirtualMachineWithSnapshotFromExpungedLocalStorageVolumeSucceeds",
+      "testResetVMUserDataVMStateNotStopped",
+      "createVirtualMachineWithVolumeWithNullDataStoreFails",
+      "createVirtualMachineWithExistingVolume",
+      "testResetVMUserDataSuccessResetWithUserdata"
+    ],
+    "changedSuiteFailures": [
+      "createVirtualMachineWithExistingSnapshot",
+      "createVirtualMachineWithExistingVolume",
+      "createVirtualMachineWithSnapshotFromExpungedLocalStorageVolumeSucceeds",
+      "createVirtualMachineWithSnapshotFromVolumeWithNullDataStoreSucceeds",
+      "createVirtualMachineWithVolumeFromNonZoneScopedStorageFails",
+      "createVirtualMachineWithVolumeWithNullDataStoreFails",
+      "testResetVMUserDataDontAcceptBothUserdataAndUserdataId",
+      "testResetVMUserDataSuccessResetWithUserdata",
+      "testResetVMUserDataSuccessResetWithUserdataId",
+      "testResetVMUserDataVMStateNotStopped"
+    ],
+    "sameFailures": true
+  },
+  "clusters": {
+    "31": {
+      "backend": "GFS2",
+      "apiChecks": 91,
+      "apiCheckNames": [
+        "old-agent-host1-qcow2-create",
+        "old-agent-host1-qcow2-copy",
+        "old-agent-host1-qcow2-resize",
+        "old-agent-host1-qcow2-restore",
+        "old-agent-host1-qcow2-migrate",
+        "old-agent-host1-qcow2-clone",
+        "old-agent-host1-raw-create",
+        "old-agent-host1-raw-copy",
+        "old-agent-host1-raw-resize",
+        "old-agent-host1-raw-restore",
+        "old-agent-host1-raw-migrate",
+        "old-agent-host1-raw-clone",
+        "old-agent-host2-qcow2-create",
+        "old-agent-host2-qcow2-copy",
+        "old-agent-host2-qcow2-resize",
+        "old-agent-host2-qcow2-restore",
+        "old-agent-host2-qcow2-migrate",
+        "old-agent-host2-qcow2-clone",
+        "old-agent-host2-raw-create",
+        "old-agent-host2-raw-copy",
+        "old-agent-host2-raw-resize",
+        "old-agent-host2-raw-restore",
+        "old-agent-host2-raw-migrate",
+        "old-agent-host2-raw-clone",
+        "old-agent-host3-qcow2-create",
+        "old-agent-host3-qcow2-copy",
+        "old-agent-host3-qcow2-resize",
+        "old-agent-host3-qcow2-restore",
+        "old-agent-host3-qcow2-migrate",
+        "old-agent-host3-qcow2-clone",
+        "old-agent-host3-raw-create",
+        "old-agent-host3-raw-copy",
+        "old-agent-host3-raw-resize",
+        "old-agent-host3-raw-restore",
+        "old-agent-host3-raw-migrate",
+        "old-agent-host3-raw-clone",
+        "non-admin-capability-api-denied",
+        "capability-raw-metadata",
+        "invalid-missing-format",
+        "invalid-missing-policy",
+        "invalid-raw-metadata",
+        "invalid-bad-policy",
+        "invalid-bad-format",
+        "invalid-conflict",
+        "invalid-legacy-falloc",
+        "invalid-legacy-metadata",
+        "legacy-create-thin",
+        "legacy-create-sparse",
+        "legacy-create-fat",
+        "offering-resolver-qcow2-off",
+        "data-allocation-gate-qcow2-off",
+        "offering-resolver-qcow2-metadata",
+        "data-allocation-gate-qcow2-metadata",
+        "offering-resolver-qcow2-falloc",
+        "data-allocation-gate-qcow2-falloc",
+        "offering-resolver-qcow2-full",
+        "data-allocation-gate-qcow2-full",
+        "offering-resolver-raw-off",
+        "data-allocation-gate-raw-off",
+        "offering-resolver-raw-falloc",
+        "data-allocation-gate-raw-falloc",
+        "offering-resolver-raw-full",
+        "data-allocation-gate-raw-full",
+        "linked-explicit-conflict",
+        "linked-legacy-conflict",
+        "offering-change-gate",
+        "resize-policy-change-gate",
+        "new-disk-clone-gate",
+        "new-compute-clone-gate",
+        "reserved-metadata-add-DiskOffering",
+        "reserved-metadata-add-ServiceOffering",
+        "reserved-metadata-add-Volume",
+        "reserved-key-delete",
+        "reserved-all-delete",
+        "root-allocation-gate-compute-qcow2-off",
+        "root-allocation-gate-linked-qcow2-off",
+        "root-allocation-gate-compute-qcow2-metadata",
+        "root-allocation-gate-linked-qcow2-metadata",
+        "root-allocation-gate-compute-qcow2-falloc",
+        "root-allocation-gate-linked-qcow2-falloc",
+        "root-allocation-gate-compute-qcow2-full",
+        "root-allocation-gate-linked-qcow2-full",
+        "root-allocation-gate-compute-raw-off",
+        "root-allocation-gate-linked-raw-off",
+        "root-allocation-gate-compute-raw-falloc",
+        "root-allocation-gate-linked-raw-falloc",
+        "root-allocation-gate-compute-raw-full",
+        "root-allocation-gate-linked-raw-full",
+        "root-rejections-no-residual-records",
+        "legacy-root-creation",
+        "1423-path-preservation-regression"
+      ],
+      "apiFailures": 0,
+      "oldAgentScopeChecks": 36,
+      "runtimeTestsUnique": 397,
+      "jarSha256": "b6e02c6f9a5ece4fb14975c4f097b3c2193a1b23016876159f9f771f70afd02f",
+      "unrelatedMethodCodePreserved": 1290,
+      "unchangedJarEntryCount": 204488,
+      "backup": "/root/volume-1424-a320e4a6b79",
+      "uiChecks": [
+        "explicit-policy-blocked-no-volume",
+        "legacy-thin-created-ready"
+      ],
+      "dbContractRowsVerified": 21,
+      "dbContractVersion": "1",
+      "schemaChanged": false,
+      "rootPolicyRejectionsWithoutVmResidue": 14,
+      "legacyRootTest": {
+        "vmState": "Stopped",
+        "rootState": "Allocated",
+        "rootBytes": 17179869184,
+        "guestBootTested": false
+      },
+      "materializedDataVolumes": 4,
+      "imageObservations": [
+        {
+          "legacyPolicy": "thin",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 208896,
+          "source": "qemu-img info actual-size"
+        },
+        {
+          "legacyPolicy": "sparse",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 348160,
+          "source": "qemu-img info actual-size"
+        },
+        {
+          "legacyPolicy": "fat",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 1076203520,
+          "source": "qemu-img info actual-size"
+        },
+        {
+          "legacyPolicy": "thin",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 208896,
+          "source": "qemu-img info actual-size"
+        }
+      ],
+      "cleanupActiveCounts": {
+        "volumes": 0,
+        "vms": 0,
+        "nics": 0,
+        "accounts": 0,
+        "diskofferings": 0,
+        "computes": 0,
+        "volume_allocation_rows": 0,
+        "rootvolumes": 0
+      },
+      "hostImageAbsenceChecks": 8,
+      "operationalInventoryPreserved": {
+        "volumes": 140,
+        "vms": 111,
+        "diskofferings": 7,
+        "computes": 15
+      },
+      "serviceActive": true,
+      "clientHttpStatus": 200,
+      "webInfPreserved": true,
+      "uiOfferingLabelUpdatePreservedPolicy": true
+    },
+    "32": {
+      "backend": "RBD",
+      "apiChecks": 75,
+      "apiCheckNames": [
+        "old-agent-host1-raw-create",
+        "old-agent-host1-raw-copy",
+        "old-agent-host1-raw-resize",
+        "old-agent-host1-raw-restore",
+        "old-agent-host1-raw-migrate",
+        "old-agent-host1-raw-clone",
+        "old-agent-host2-raw-create",
+        "old-agent-host2-raw-copy",
+        "old-agent-host2-raw-resize",
+        "old-agent-host2-raw-restore",
+        "old-agent-host2-raw-migrate",
+        "old-agent-host2-raw-clone",
+        "old-agent-host3-raw-create",
+        "old-agent-host3-raw-copy",
+        "old-agent-host3-raw-resize",
+        "old-agent-host3-raw-restore",
+        "old-agent-host3-raw-migrate",
+        "old-agent-host3-raw-clone",
+        "non-admin-capability-api-denied",
+        "capability-raw-metadata",
+        "rbd-falloc-rejected",
+        "rbd-full-resize-rejected",
+        "invalid-missing-format",
+        "invalid-missing-policy",
+        "invalid-raw-metadata",
+        "invalid-bad-policy",
+        "invalid-bad-format",
+        "invalid-conflict",
+        "invalid-legacy-falloc",
+        "invalid-legacy-metadata",
+        "legacy-create-thin",
+        "legacy-create-sparse",
+        "legacy-create-fat",
+        "offering-resolver-qcow2-off",
+        "data-allocation-gate-qcow2-off",
+        "offering-resolver-qcow2-metadata",
+        "data-allocation-gate-qcow2-metadata",
+        "offering-resolver-qcow2-falloc",
+        "data-allocation-gate-qcow2-falloc",
+        "offering-resolver-qcow2-full",
+        "data-allocation-gate-qcow2-full",
+        "offering-resolver-raw-off",
+        "data-allocation-gate-raw-off",
+        "offering-resolver-raw-falloc",
+        "data-allocation-gate-raw-falloc",
+        "offering-resolver-raw-full",
+        "data-allocation-gate-raw-full",
+        "linked-explicit-conflict",
+        "linked-legacy-conflict",
+        "offering-change-gate",
+        "resize-policy-change-gate",
+        "new-disk-clone-gate",
+        "new-compute-clone-gate",
+        "reserved-metadata-add-DiskOffering",
+        "reserved-metadata-add-ServiceOffering",
+        "reserved-metadata-add-Volume",
+        "reserved-key-delete",
+        "reserved-all-delete",
+        "root-allocation-gate-compute-qcow2-off",
+        "root-allocation-gate-linked-qcow2-off",
+        "root-allocation-gate-compute-qcow2-metadata",
+        "root-allocation-gate-linked-qcow2-metadata",
+        "root-allocation-gate-compute-qcow2-falloc",
+        "root-allocation-gate-linked-qcow2-falloc",
+        "root-allocation-gate-compute-qcow2-full",
+        "root-allocation-gate-linked-qcow2-full",
+        "root-allocation-gate-compute-raw-off",
+        "root-allocation-gate-linked-raw-off",
+        "root-allocation-gate-compute-raw-falloc",
+        "root-allocation-gate-linked-raw-falloc",
+        "root-allocation-gate-compute-raw-full",
+        "root-allocation-gate-linked-raw-full",
+        "root-rejections-no-residual-records",
+        "legacy-root-creation",
+        "1423-path-preservation-regression"
+      ],
+      "apiFailures": 0,
+      "oldAgentScopeChecks": 18,
+      "runtimeTestsUnique": 397,
+      "jarSha256": "2af187c1badc29d0cb218c9152066795673e8e72e8f3aeb7e7eeaf2a49647d84",
+      "unrelatedMethodCodePreserved": 1288,
+      "unchangedJarEntryCount": 204483,
+      "backup": "/root/volume-1424-a320e4a6b79",
+      "uiChecks": [
+        "explicit-policy-blocked-no-volume",
+        "legacy-thin-created-ready"
+      ],
+      "dbContractRowsVerified": 21,
+      "dbContractVersion": "1",
+      "schemaChanged": false,
+      "rootPolicyRejectionsWithoutVmResidue": 14,
+      "legacyRootTest": {
+        "vmState": "Stopped",
+        "rootState": "Allocated",
+        "rootBytes": 17179869184,
+        "guestBootTested": false
+      },
+      "materializedDataVolumes": 4,
+      "imageObservations": [
+        {
+          "legacyPolicy": "thin",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 0,
+          "source": "rbd du used_size"
+        },
+        {
+          "legacyPolicy": "sparse",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 0,
+          "source": "rbd du used_size"
+        },
+        {
+          "legacyPolicy": "fat",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 0,
+          "source": "rbd du used_size"
+        },
+        {
+          "legacyPolicy": "thin",
+          "virtualBytes": 1073741824,
+          "observedAllocatedBytes": 0,
+          "source": "rbd du used_size"
+        }
+      ],
+      "cleanupActiveCounts": {
+        "volumes": 0,
+        "vms": 0,
+        "nics": 0,
+        "accounts": 0,
+        "diskofferings": 0,
+        "computes": 0,
+        "volume_allocation_rows": 0,
+        "rootvolumes": 0
+      },
+      "hostImageAbsenceChecks": 5,
+      "operationalInventoryPreserved": {
+        "volumes": 48,
+        "vms": 48,
+        "diskofferings": 6,
+        "computes": 4
+      },
+      "serviceActive": true,
+      "clientHttpStatus": 200,
+      "webInfPreserved": true,
+      "uiOfferingLabelUpdatePreservedPolicy": true
+    }
+  },
+  "ftWorktreeDiffPreserved": true
+}

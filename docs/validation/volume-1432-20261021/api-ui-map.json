@@ -1,0 +1,1651 @@
+[
+  {
+    "api": "addAnnotation",
+    "ui": "볼륨 및 관리자 오퍼링 코멘트 탭",
+    "decision": "각 API 권한 적용, 타 소유자 UUID 접근 거절. 실패 입력/목록 보존.",
+    "scope": "개체 소유권/관리자 전용 표시 계약; 가시성 변경 API 없는 역할에 버튼 숨김",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/cniVersions.js:22",
+      "ui/src/utils/userDataVersions.js:22",
+      "ui/src/components/view/AnnotationsTab.vue:23",
+      "ui/src/config/section/compute.js:1526"
+    ],
+    "requests": {
+      "31": {
+        "requests": 4,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 4,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "addResourceDetail",
+    "ui": "의도적 일반 편집 미노출: 내부 리소스 세부 정보 계약",
+    "decision": "할당 증거, fastclone, FT 등 내부 키를 임의 수정하는 범용 UI 불필요. 도메인별 전용 작업/상세 표시를 사용.",
+    "scope": "서버 API 권한/리소스 ACL. 전체 details 편집은 제품 데이터 계약 훼손 위험",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "assignVolume",
+    "ui": "볼륨 상세 > 소유권 변경 (신규)",
+    "decision": "Admin/DA 및 API 허용 시. 대상 UUID 계정 또는 프로젝트 하나. 확인·재조회·스냅샷 차단·중복/불명 결과 보호.",
+    "scope": "UI: Ready DATADISK 미연결, mutation 상태 확인; 서버: 원본/대상 계정 접근·사용량 제한·스냅샷/연결 거절. 블록 복사 아님",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:171",
+      "ui/src/views/storage/AssignVolume.vue:48"
+    ],
+    "requests": {
+      "31": {
+        "requests": 4,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 4,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "attachVolume",
+    "ui": "볼륨 연결/분리, VM 볼륨 탭",
+    "decision": "대상 VM과 볼륨 모두 서버 소유권 검사.",
+    "scope": "연결: Allocated/Ready/Uploaded, 미연결; 분리: 연결됨, backup/fastclone 차단; 이번 Stopped VM",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmDiskDeployment.js:129",
+      "ui/src/utils/vmVolumeActions.js:32",
+      "ui/src/config/section/storage.js:148",
+      "ui/src/views/compute/VmVolumesTab.vue:21",
+      "ui/src/views/storage/AttachVolume.vue:102"
+    ],
+    "requests": {
+      "31": {
+        "requests": 11,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 10,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "changeOfferingForVolume",
+    "ui": "볼륨 크기/오퍼링/스토리지 변경 대화상자",
+    "decision": "기존 입력 항목 옆 현재값 방식 유지.",
+    "scope": "#1429; 상태·지원 풀·태그·할당 계약으로 후보 제한",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:286",
+      "ui/src/views/storage/ChangeOfferingForVolume.vue:98"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "checkVolume",
+    "ui": "의도적 미노출: 관리자 유지보수 API",
+    "decision": "일반 볼륨 기능에 이미지 수리 UI를 추가하지 않는다. repair=leaks/all은 운영 복구 판단과 백업이 필요.",
+    "scope": "KVM Ready QCOW2/VDI, 연결 VM은 Stopped. 이번 QCOW2 읽기 검사 성공; RBD RAW는 서버 거절. repair 미실행",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "cloneDiskOffering",
+    "ui": "디스크 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin 및 허용 도메인의 DA 관리; 일반 User/Project는 사용 가능한 오퍼링 조회. delete API는 Inactive 상태 변경이므로 별도 물리 삭제 버튼 불필요.",
+    "scope": "상태 Active/Inactive 조회; 원본 사용 볼륨 불변. VM 생성의 디스크 오퍼링 선택기 10개 초과 페이지 문제 #1209 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/offering.js:356",
+      "ui/src/views/offering/CloneDiskOffering.vue:84"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "cloneServiceOffering",
+    "ui": "컴퓨트 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin/DA 관리. DA는 공용 오퍼링 수정/zone 변경 불가. 신규 편집: purgeresources 명시 변경, External 세부 정보 유지/편집/확인 후 정리. 생략 시 purge 보존. clone은 External prefix 제거 후 전달.",
+    "scope": "purge는 Expunged 이후 DB 정리 정책. 기존 VM을 저장 시 삭제하지 않는다. 전용/일반 연결 디스크 표시·링크 완료 판정 #1154 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/offering.js:147",
+      "ui/src/views/offering/CloneComputeOffering.vue:154"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createDiskOffering",
+    "ui": "디스크 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin 및 허용 도메인의 DA 관리; 일반 User/Project는 사용 가능한 오퍼링 조회. delete API는 Inactive 상태 변경이므로 별도 물리 삭제 버튼 불필요.",
+    "scope": "상태 Active/Inactive 조회; 원본 사용 볼륨 불변. VM 생성의 디스크 오퍼링 선택기 10개 초과 페이지 문제 #1209 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/offering.js:267",
+      "ui/src/views/offering/AddDiskOffering.vue:69"
+    ],
+    "requests": {
+      "31": {
+        "requests": 7,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 7,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "createServiceOffering",
+    "ui": "컴퓨트 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin/DA 관리. DA는 공용 오퍼링 수정/zone 변경 불가. 신규 편집: purgeresources 명시 변경, External 세부 정보 유지/편집/확인 후 정리. 생략 시 purge 보존. clone은 External prefix 제거 후 전달.",
+    "scope": "purge는 Expunged 이후 DB 정리 정책. 기존 VM을 저장 시 삭제하지 않는다. 전용/일반 연결 디스크 표시·링크 완료 판정 #1154 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/offering.js:47",
+      "ui/src/config/section/compute.js:880",
+      "ui/src/views/offering/AddComputeOffering.vue:126"
+    ],
+    "requests": {
+      "31": {
+        "requests": 8,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 8,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "createSnapshot",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmSnapshotActions.js:22",
+      "ui/src/api/index.js:94",
+      "ui/src/config/section/storage.js:201",
+      "ui/src/config/section/network.js:616",
+      "ui/src/config/section/compute.js:348"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createSnapshotBackup",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createSnapshotFromVMSnapshot",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmSnapshotActions.js:22",
+      "ui/src/api/index.js:94",
+      "ui/src/config/section/compute.js:757",
+      "ui/src/views/AutogenView.vue:1179",
+      "ui/src/views/compute/VmSnapshotsTab.vue:50"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createSnapshotPolicy",
+    "ui": "정기 스냅샷 대화상자",
+    "decision": "기존 작업; 볼륨 후보/정책 모든 페이지 읽기, 읽기 실패 시 기존 정책 유지·재시도, 다른 소유 문맥 응답 폐기.",
+    "scope": "Ready 및 snapshot 지원 조건. 프로젝트·소유 볼륨 범위",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:218",
+      "ui/src/views/storage/FormSchedule.vue:317"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createTags",
+    "ui": "상세 태그 영역",
+    "decision": "기존 리소스 태그 UI; offering 배치 태그와 다른 계약.",
+    "scope": "리소스 ACL/태그 필터; 서버 권한 적용",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/view/InfoCard.vue:1146",
+      "ui/src/views/compute/AutoScaleLoadBalancing.vue:87",
+      "ui/src/views/network/IngressEgressRuleConfigure.vue:192",
+      "ui/src/views/network/FirewallRules.vue:203",
+      "ui/src/views/network/AclRulesTab.vue:533"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createTemplate",
+    "ui": "볼륨 다운로드/템플릿 생성",
+    "decision": "기존 볼륨 작업. API 권한·extractable·VM/볼륨 상태 조건 적용.",
+    "scope": "#1428; 다운로드는 보조 스토리지/허용 형식 조건",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:319",
+      "ui/src/views/storage/CreateTemplate.vue:240"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "createVolume",
+    "ui": "볼륨 생성, VM 볼륨 추가",
+    "decision": "생성 UI; allocation capability를 실제 풀/오퍼링 조건에 맞춰 조회.",
+    "scope": "#1423~#1427; GFS2 QCOW2/RAW와 kernel RBD RAW의 실제 지원 정책만 선택",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmDiskDeployment.js:125",
+      "ui/src/utils/vmVolumeActions.js:32",
+      "ui/src/components/header/CreateMenu.vue:74",
+      "ui/src/config/section/storage.js:118",
+      "ui/src/views/compute/VmVolumesTab.vue:21"
+    ],
+    "requests": {
+      "31": {
+        "requests": 5,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 5,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteDiskOffering",
+    "ui": "디스크 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin 및 허용 도메인의 DA 관리; 일반 User/Project는 사용 가능한 오퍼링 조회. delete API는 Inactive 상태 변경이므로 별도 물리 삭제 버튼 불필요.",
+    "scope": "상태 Active/Inactive 조회; 원본 사용 볼륨 불변. VM 생성의 디스크 오퍼링 선택기 10개 초과 페이지 문제 #1209 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteServiceOffering",
+    "ui": "컴퓨트 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin/DA 관리. DA는 공용 오퍼링 수정/zone 변경 불가. 신규 편집: purgeresources 명시 변경, External 세부 정보 유지/편집/확인 후 정리. 생략 시 purge 보존. clone은 External prefix 제거 후 전달.",
+    "scope": "purge는 Expunged 이후 DB 정리 정책. 기존 VM을 저장 시 삭제하지 않는다. 전용/일반 연결 디스크 표시·링크 완료 판정 #1154 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteSnapshot",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:480",
+      "ui/src/views/storage/SnapshotZones.vue:192",
+      "ui/src/views/storage/ScheduledSnapshots.vue:181"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteSnapshotPolicies",
+    "ui": "정기 스냅샷 대화상자",
+    "decision": "기존 작업; 볼륨 후보/정책 모든 페이지 읽기, 읽기 실패 시 기존 정책 유지·재시도, 다른 소유 문맥 응답 폐기.",
+    "scope": "Ready 및 snapshot 지원 조건. 프로젝트·소유 볼륨 범위",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:522",
+      "ui/src/views/storage/ScheduledSnapshots.vue:181"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteTags",
+    "ui": "상세 태그 영역",
+    "decision": "기존 리소스 태그 UI; offering 배치 태그와 다른 계약.",
+    "scope": "리소스 ACL/태그 필터; 서버 권한 적용",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/view/InfoCard.vue:1119",
+      "ui/src/views/compute/AutoScaleLoadBalancing.vue:94",
+      "ui/src/views/network/IngressEgressRuleConfigure.vue:451",
+      "ui/src/views/network/FirewallRules.vue:213",
+      "ui/src/views/network/AclRulesTab.vue:494"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "deleteVolume",
+    "ui": "볼륨 삭제/복구 작업",
+    "decision": "deleteVolume은 destroyVolume의 레거시 동등 진입점으로 별도 버튼 불필요. 삭제 보호 서버 거절.",
+    "scope": "VM 연결/backup/clone 상태 차단, Destroy 복구 가능한 상태만 recover",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/volumeEdit.js:71",
+      "ui/src/config/section/storage.js:359"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "destroyVolume",
+    "ui": "볼륨 삭제/복구 작업",
+    "decision": "deleteVolume은 destroyVolume의 레거시 동등 진입점으로 별도 버튼 불필요. 삭제 보호 서버 거절.",
+    "scope": "VM 연결/backup/clone 상태 차단, Destroy 복구 가능한 상태만 recover",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmVolumeActions.js:46",
+      "ui/src/config/section/storage.js:342",
+      "ui/src/views/compute/VmVolumesTab.vue:73"
+    ],
+    "requests": {
+      "31": {
+        "requests": 9,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 8,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "detachVolume",
+    "ui": "볼륨 연결/분리, VM 볼륨 탭",
+    "decision": "대상 VM과 볼륨 모두 서버 소유권 검사.",
+    "scope": "연결: Allocated/Ready/Uploaded, 미연결; 분리: 연결됨, backup/fastclone 차단; 이번 Stopped VM",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmVolumeActions.js:32",
+      "ui/src/config/section/storage.js:157",
+      "ui/src/views/compute/VmVolumesTab.vue:41"
+    ],
+    "requests": {
+      "31": {
+        "requests": 5,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 4,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "extractSnapshot",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:460"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "extractVolume",
+    "ui": "볼륨 다운로드/템플릿 생성",
+    "decision": "기존 볼륨 작업. API 권한·extractable·VM/볼륨 상태 조건 적용.",
+    "scope": "#1428; 다운로드는 보조 스토리지/허용 형식 조건",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:299"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "findStoragePoolsForMigration",
+    "ui": "볼륨 크기/오퍼링/스토리지 변경 대화상자",
+    "decision": "기존 입력 항목 옆 현재값 방식 유지.",
+    "scope": "#1429; 상태·지원 풀·태그·할당 계약으로 후보 제한",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/view/StoragePoolSelectView.vue:187",
+      "ui/src/config/section/storage.js:254",
+      "ui/src/views/storage/MigrateVolume.vue:109"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "getUploadParamsForVolume",
+    "ui": "볼륨 목록의 URL/로컬 업로드",
+    "decision": "기존 진입점 유지; URL/업로드 토큰을 일반 세부 정보 편집으로 노출하지 않는다.",
+    "scope": "#1428 검증 범위; 이미지 업로드 후 할당 계약",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:132",
+      "ui/src/views/storage/UploadLocalVolume.vue:217"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "getVolumeAllocationCapabilities",
+    "ui": "볼륨 생성, VM 볼륨 추가",
+    "decision": "생성 UI; allocation capability를 실제 풀/오퍼링 조건에 맞춰 조회.",
+    "scope": "#1423~#1427; GFS2 QCOW2/RAW와 kernel RBD RAW의 실제 지원 정책만 선택",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/utils/volumeAllocation.js:91",
+      "ui/src/components/offering/AllocationPolicyEditor.vue:68"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "importVolume",
+    "ui": "도구 > 볼륨 관리, StorageBrowser",
+    "decision": "기존 관리/관리해제 진입점 유지; 일반 볼륨 목록에 중복 UI 불필요.",
+    "scope": "관리자 API 및 풀/지원 hypervisor/볼륨 소유 조건. 이번 import/unmanage 실물 재실행 제외",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/views/tools/ManageVolumes.vue:240",
+      "ui/src/views/infra/StorageBrowser.vue:53",
+      "ui/src/views/storage/ImportStorageVolume.vue:57"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "isAccountAllowedToCreateOfferingsWithTags",
+    "ui": "오퍼링 생성/편집의 태그 권한",
+    "decision": "서버 허용 시에만 태그 필드 편집. 조회 실패는 저장 차단/재시도.",
+    "scope": "Admin/DA 현재 계정 범위",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/offering/DiskOfferingForm.vue:423",
+      "ui/src/components/offering/ComputeOfferingForm.vue:757",
+      "ui/src/views/offering/CloneComputeOffering.vue:451",
+      "ui/src/views/offering/UpdateDiskOffering.vue:110",
+      "ui/src/views/offering/UpdateComputeOffering.vue:88"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listAccounts",
+    "ui": "소유권/접근 범위 선택기",
+    "decision": "허용된 대상만 전체 페이지 UUID로 선택. DA domain 범위·Admin zone 범위. index 기반 식별 제거.",
+    "scope": "계정 enabled/프로젝트 Active 및 실제 ACL; 선택 후 저장 직전 재검증",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/affinityGroupCreation.js:39",
+      "ui/src/components/view/DomainDeleteConfirm.vue:107",
+      "ui/src/components/view/SearchFilter.vue:107",
+      "ui/src/components/view/SearchView.vue:351",
+      "ui/src/components/view/InfoCard.vue:1529"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listAnnotations",
+    "ui": "볼륨 및 관리자 오퍼링 코멘트 탭",
+    "decision": "각 API 권한 적용, 타 소유자 UUID 접근 거절. 실패 입력/목록 보존.",
+    "scope": "개체 소유권/관리자 전용 표시 계약; 가시성 변경 API 없는 역할에 버튼 숨김",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/cniVersions.js:22",
+      "ui/src/utils/cniHistory.js:28",
+      "ui/src/utils/userDataVersions.js:22",
+      "ui/src/components/view/SearchFilter.vue:228",
+      "ui/src/components/view/SearchView.vue:334"
+    ],
+    "requests": {
+      "31": {
+        "requests": 9,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 8,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "listAsyncJobs",
+    "ui": "비동기 작업 상태/진행 표시",
+    "decision": "내부 공통 폴링; 독립 볼륨 메뉴 불필요.",
+    "scope": "자신의 허용된 작업만 조회. 생성 실패·작업 상태는 공통 작업 경로로 확인",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/views/compute/wizard/CreationSourceOperations.vue:86",
+      "ui/src/views/infra/AsyncJobsTab.vue:97"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listDiskOfferings",
+    "ui": "디스크 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin 및 허용 도메인의 DA 관리; 일반 User/Project는 사용 가능한 오퍼링 조회. delete API는 Inactive 상태 변경이므로 별도 물리 삭제 버튼 불필요.",
+    "scope": "상태 Active/Inactive 조회; 원본 사용 볼륨 불변. VM 생성의 디스크 오퍼링 선택기 10개 초과 페이지 문제 #1209 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/volumeResize.js:42",
+      "ui/src/components/view/SearchFilter.vue:161",
+      "ui/src/components/view/SearchView.vue:1218",
+      "ui/src/components/view/DeployVMFromBackup.vue:1087",
+      "ui/src/components/offering/ComputeOfferingForm.vue:727"
+    ],
+    "requests": {
+      "31": {
+        "requests": 5,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 5,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listDomains",
+    "ui": "소유권/접근 범위 선택기",
+    "decision": "허용된 대상만 전체 페이지 UUID로 선택. DA domain 범위·Admin zone 범위. index 기반 식별 제거.",
+    "scope": "계정 enabled/프로젝트 Active 및 실제 ACL; 선택 후 저장 직전 재검증",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/utils/affinityGroupCreation.js:39",
+      "ui/src/components/view/TreeView.vue:441",
+      "ui/src/components/view/SearchFilter.vue:101",
+      "ui/src/components/view/SearchView.vue:348",
+      "ui/src/components/view/DedicateDomain.vue:26"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listEvents",
+    "ui": "볼륨/오퍼링 이벤트 탭",
+    "decision": "API 권한, resourceid/resourcetype·page/pagesize·소유권. 읽기 실패 시 기존 데이터 유지 및 재시도.",
+    "scope": "모든 상태; 성공/실패 이력은 테스트 후 보존",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/header/HeaderNotice.vue:101",
+      "ui/src/components/view/SearchView.vue:1602",
+      "ui/src/components/view/EventsTab.vue:174",
+      "ui/src/components/view/EventSidebar.vue:179",
+      "ui/src/config/section/offering.js:74"
+    ],
+    "requests": {
+      "31": {
+        "requests": 9,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 8,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "listProjects",
+    "ui": "소유권/접근 범위 선택기",
+    "decision": "허용된 대상만 전체 페이지 UUID로 선택. DA domain 범위·Admin zone 범위. index 기반 식별 제거.",
+    "scope": "계정 enabled/프로젝트 Active 및 실제 ACL; 선택 후 저장 직전 재검증",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/affinityGroupCreation.js:39",
+      "ui/src/components/header/ProjectMenu.vue:26",
+      "ui/src/components/view/SearchView.vue:401",
+      "ui/src/config/section/project.js:26",
+      "ui/src/views/AutogenView.vue:1515"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listResourceDetails",
+    "ui": "의도적 일반 편집 미노출: 내부 리소스 세부 정보 계약",
+    "decision": "할당 증거, fastclone, FT 등 내부 키를 임의 수정하는 범용 UI 불필요. 도메인별 전용 작업/상세 표시를 사용.",
+    "scope": "서버 API 권한/리소스 ACL. 전체 details 편집은 제품 데이터 계약 훼손 위험",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listServiceOfferings",
+    "ui": "컴퓨트 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin/DA 관리. DA는 공용 오퍼링 수정/zone 변경 불가. 신규 편집: purgeresources 명시 변경, External 세부 정보 유지/편집/확인 후 정리. 생략 시 purge 보존. clone은 External prefix 제거 후 전달.",
+    "scope": "purge는 Expunged 이후 DB 정리 정책. 기존 VM을 저장 시 삭제하지 않는다. 전용/일반 연결 디스크 표시·링크 완료 판정 #1154 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/volumeResize.js:51",
+      "ui/src/utils/autoscaleValidation.js:32",
+      "ui/src/components/view/SearchFilter.vue:155",
+      "ui/src/components/view/SearchView.vue:1205",
+      "ui/src/components/view/DeployVMFromBackup.vue:1074"
+    ],
+    "requests": {
+      "31": {
+        "requests": 42,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 23,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listSnapshotPolicies",
+    "ui": "정기 스냅샷 대화상자",
+    "decision": "기존 작업; 볼륨 후보/정책 모든 페이지 읽기, 읽기 실패 시 기존 정책 유지·재시도, 다른 소유 문맥 응답 폐기.",
+    "scope": "Ready 및 snapshot 지원 조건. 프로젝트·소유 볼륨 범위",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:497",
+      "ui/src/views/storage/RecurringSnapshotVolume.vue:198"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listSnapshots",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:378",
+      "ui/src/views/dashboard/UsageDashboard.vue:103",
+      "ui/src/views/storage/SnapshotZones.vue:375",
+      "ui/src/views/storage/CreateVolume.vue:485",
+      "ui/src/views/storage/AssignVolume.vue:89"
+    ],
+    "requests": {
+      "31": {
+        "requests": 9,
+        "errorResponses": 4
+      },
+      "32": {
+        "requests": 8,
+        "errorResponses": 4
+      }
+    }
+  },
+  {
+    "api": "listTags",
+    "ui": "상세 태그 영역",
+    "decision": "기존 리소스 태그 UI; offering 배치 태그와 다른 계약.",
+    "scope": "리소스 ACL/태그 필터; 서버 권한 적용",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/request.js:232",
+      "ui/src/components/view/InfoCard.vue:1113",
+      "ui/src/views/compute/AutoScaleLoadBalancing.vue:530",
+      "ui/src/views/network/IngressEgressRuleConfigure.vue:438",
+      "ui/src/views/network/FirewallRules.vue:646"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listVirtualMachinesMetrics",
+    "ui": "VM 볼륨 연결 대상/관련 VM 진입점",
+    "decision": "기존 VM 목록·대상 조회; VM 소유권과 상태 적용.",
+    "scope": "Stopped fixture 연결/분리 검증; Running 게스트 I/O는 #1434",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmUserData.js:31",
+      "ui/src/config/section/compute.js:130",
+      "ui/src/views/AutogenView.vue:1805"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listVolumes",
+    "ui": "볼륨 목록/상세, VM 볼륨 탭",
+    "decision": "조회, 소유 계정/프로젝트·도메인 범위. listall은 권한 확대가 아니다.",
+    "scope": "모든 볼륨 상태; 스토리지 무관",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/vmDiskDeployment.js:107",
+      "ui/src/utils/volumeResize.js:47",
+      "ui/src/components/view/StatsTab.vue:396",
+      "ui/src/components/view/InstanceVolumesStoragePoolSelectListView.vue:171",
+      "ui/src/components/view/SearchFilter.vue:458"
+    ],
+    "requests": {
+      "31": {
+        "requests": 88,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 80,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listVolumesForImport",
+    "ui": "도구 > 볼륨 관리, StorageBrowser",
+    "decision": "기존 관리/관리해제 진입점 유지; 일반 볼륨 목록에 중복 UI 불필요.",
+    "scope": "관리자 API 및 풀/지원 hypervisor/볼륨 소유 조건. 이번 import/unmanage 실물 재실행 제외",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/tools.js:87",
+      "ui/src/views/tools/ManageVolumes.vue:578"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listVolumesMetrics",
+    "ui": "볼륨 목록/상세, VM 볼륨 탭",
+    "decision": "조회, 소유 계정/프로젝트·도메인 범위. listall은 권한 확대가 아니다.",
+    "scope": "모든 볼륨 상태; 스토리지 무관",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:44",
+      "ui/src/views/event/EventDownload.vue:886"
+    ],
+    "requests": {
+      "31": {
+        "requests": 4,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 4,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listVolumesUsageHistory",
+    "ui": "볼륨 사용 이력 StatsTab",
+    "decision": "instancesdisksstatsretentionenabled 및 API 허용 시에만 표시. 문맥 변경 시 이전 차트 응답 폐기.",
+    "scope": "통계 보존 설정/기간 필요. 실제 장기 사용량·게스트 워크로드 미실증 #1434",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/view/StatsTab.vue:396",
+      "ui/src/config/section/storage.js:95"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "listZones",
+    "ui": "소유권/접근 범위 선택기",
+    "decision": "허용된 대상만 전체 페이지 UUID로 선택. DA domain 범위·Admin zone 범위. index 기반 식별 제거.",
+    "scope": "계정 enabled/프로젝트 Active 및 실제 ACL; 선택 후 저장 직전 재검증",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/view/SearchFilter.vue:95",
+      "ui/src/components/view/SearchView.vue:1068",
+      "ui/src/components/view/ImageDeployInstanceButton.vue:131",
+      "ui/src/components/view/DeployVMFromBackup.vue:1099",
+      "ui/src/components/offering/DiskOfferingForm.vue:445"
+    ],
+    "requests": {
+      "31": {
+        "requests": 1,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 1,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "migrateVolume",
+    "ui": "볼륨 크기/오퍼링/스토리지 변경 대화상자",
+    "decision": "기존 입력 항목 옆 현재값 방식 유지.",
+    "scope": "#1429; 상태·지원 풀·태그·할당 계약으로 후보 제한",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:253",
+      "ui/src/config/section/kms.js:131",
+      "ui/src/views/storage/MigrateVolume.vue:142"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "migrateVolumesToKMS",
+    "ui": "볼륨 암호화 키 변경 작업",
+    "decision": "기존 KMS 작업; 등록 키/암호화 스토리지 조건.",
+    "scope": "본 테스트 클러스터의 암호화 fixture 없음, 실물 I/O 미실증 #1434",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:267",
+      "ui/src/config/section/kms.js:131"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "queryAsyncJobResult",
+    "ui": "비동기 작업 상태/진행 표시",
+    "decision": "내부 공통 폴링; 독립 볼륨 메뉴 불필요.",
+    "scope": "자신의 허용된 작업만 조회. 생성 실패·작업 상태는 공통 작업 경로로 확인",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/autoScaleCreation.js:86",
+      "ui/src/utils/vmDiskDeployment.js:56",
+      "ui/src/utils/autoScaleEditing.js:42",
+      "ui/src/utils/vmGroupMembers.js:82",
+      "ui/src/utils/vbmc.js:55"
+    ],
+    "requests": {
+      "31": {
+        "requests": 47,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 41,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "recoverVolume",
+    "ui": "볼륨 삭제/복구 작업",
+    "decision": "deleteVolume은 destroyVolume의 레거시 동등 진입점으로 별도 버튼 불필요. 삭제 보호 서버 거절.",
+    "scope": "VM 연결/backup/clone 상태 차단, Destroy 복구 가능한 상태만 recover",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:332"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "removeAnnotation",
+    "ui": "볼륨 및 관리자 오퍼링 코멘트 탭",
+    "decision": "각 API 권한 적용, 타 소유자 UUID 접근 거절. 실패 입력/목록 보존.",
+    "scope": "개체 소유권/관리자 전용 표시 계약; 가시성 변경 API 없는 역할에 버튼 숨김",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/components/view/AnnotationsTab.vue:101",
+      "ui/src/config/section/tools.js:46"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "removeResourceDetail",
+    "ui": "의도적 일반 편집 미노출: 내부 리소스 세부 정보 계약",
+    "decision": "할당 증거, fastclone, FT 등 내부 키를 임의 수정하는 범용 UI 불필요. 도메인별 전용 작업/상세 표시를 사용.",
+    "scope": "서버 API 권한/리소스 ACL. 전체 details 편집은 제품 데이터 계약 훼손 위험",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "resizeVolume",
+    "ui": "볼륨 크기/오퍼링/스토리지 변경 대화상자",
+    "decision": "기존 입력 항목 옆 현재값 방식 유지.",
+    "scope": "#1429; 상태·지원 풀·태그·할당 계약으로 후보 제한",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/utils/volumeResize.js:62",
+      "ui/src/config/section/storage.js:241",
+      "ui/src/views/storage/ResizeVolume.vue:79",
+      "ui/src/views/storage/SharedFSTab.vue:4370"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "revertSnapshot",
+    "ui": "볼륨 연관 스냅샷, 스냅샷 메뉴/VM 스냅샷 작업",
+    "decision": "기존 진입점. 이번 관련 조회/소유권과 assign 사전 검사만 변경. 스냅샷 전체 회귀는 #1434.",
+    "scope": "스냅샷 상태/스토리지 전략/VM 상태 조건. kernel RBD snapshot 형식 지원을 GFS2와 동일하다고 가정하지 않음",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:452"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "unmanageVolume",
+    "ui": "도구 > 볼륨 관리, StorageBrowser",
+    "decision": "기존 관리/관리해제 진입점 유지; 일반 볼륨 목록에 중복 UI 불필요.",
+    "scope": "관리자 API 및 풀/지원 hypervisor/볼륨 소유 조건. 이번 import/unmanage 실물 재실행 제외",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/views/tools/ManageVolumes.vue:312"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "updateAnnotationVisibility",
+    "ui": "볼륨 및 관리자 오퍼링 코멘트 탭",
+    "decision": "각 API 권한 적용, 타 소유자 UUID 접근 거절. 실패 입력/목록 보존.",
+    "scope": "개체 소유권/관리자 전용 표시 계약; 가시성 변경 API 없는 역할에 버튼 숨김",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/view/AnnotationsTab.vue:82",
+      "ui/src/components/view/ListView.vue:1809"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "updateCompressDedup",
+    "ui": "볼륨 압축/중복제거 작업",
+    "decision": "기존 ABLESTACK Block 전용 UI/API.",
+    "scope": "GFS2/kernel RBD RAW에 기능을 가정하지 않는다. 해당 Block pool 없음, 실물 미실증",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:191",
+      "ui/src/views/storage/UpdateCompressDedup.vue:46"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "updateDiskOffering",
+    "ui": "디스크 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin 및 허용 도메인의 DA 관리; 일반 User/Project는 사용 가능한 오퍼링 조회. delete API는 Inactive 상태 변경이므로 별도 물리 삭제 버튼 불필요.",
+    "scope": "상태 Active/Inactive 조회; 원본 사용 볼륨 불변. VM 생성의 디스크 오퍼링 선택기 10개 초과 페이지 문제 #1209 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/view/ListView.vue:1647",
+      "ui/src/components/view/DeployVMFromBackup.vue:430",
+      "ui/src/config/section/offering.js:305",
+      "ui/src/views/AutogenView.vue:2778",
+      "ui/src/views/compute/DeployVnfAppliance.vue:284"
+    ],
+    "requests": {
+      "31": {
+        "requests": 2,
+        "errorResponses": 2
+      },
+      "32": {
+        "requests": 2,
+        "errorResponses": 2
+      }
+    }
+  },
+  {
+    "api": "updateServiceOffering",
+    "ui": "컴퓨트 오퍼링 목록/상세/생성/편집/접근/복제/비활성화",
+    "decision": "Admin/DA 관리. DA는 공용 오퍼링 수정/zone 변경 불가. 신규 편집: purgeresources 명시 변경, External 세부 정보 유지/편집/확인 후 정리. 생략 시 purge 보존. clone은 External prefix 제거 후 전달.",
+    "scope": "purge는 Expunged 이후 DB 정리 정책. 기존 VM을 저장 시 삭제하지 않는다. 전용/일반 연결 디스크 표시·링크 완료 판정 #1154 별도",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User—,Project—",
+      "32:Admin✓,DomainAdmin✓,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/view/ListView.vue:1644",
+      "ui/src/config/section/offering.js:96",
+      "ui/src/views/AutogenView.vue:2782",
+      "ui/src/views/event/EventDownload.vue:1426",
+      "ui/src/views/offering/UpdateComputeOffering.vue:70"
+    ],
+    "requests": {
+      "31": {
+        "requests": 45,
+        "errorResponses": 2
+      },
+      "32": {
+        "requests": 25,
+        "errorResponses": 2
+      }
+    }
+  },
+  {
+    "api": "updateSnapshotPolicy",
+    "ui": "정기 스냅샷 대화상자",
+    "decision": "기존 작업; 볼륨 후보/정책 모든 페이지 읽기, 읽기 실패 시 기존 정책 유지·재시도, 다른 소유 문맥 응답 폐기.",
+    "scope": "Ready 및 snapshot 지원 조건. 프로젝트·소유 볼륨 범위",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "server/API 유지보수 또는 전용 상위 작업 경로"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  },
+  {
+    "api": "updateVolume",
+    "ui": "볼륨 편집/삭제 보호",
+    "decision": "API 권한으로 노출; 기본 User/DA/Project에는 updateVolume API가 없다.",
+    "scope": "상태/backup/mutation 차단 계약 #1431",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin—,User—,Project—",
+      "32:Admin✓,DomainAdmin—,User—,Project—"
+    ],
+    "source": [
+      "ui/src/components/view/InstanceVolumesStoragePoolSelectListView.vue:201",
+      "ui/src/components/view/DeployVMFromBackup.vue:457",
+      "ui/src/config/section/storage.js:182",
+      "ui/src/views/infra/StorageBrowser.vue:412",
+      "ui/src/views/storage/UpdateVolume.vue:59"
+    ],
+    "requests": {
+      "31": {
+        "requests": 21,
+        "errorResponses": 9
+      },
+      "32": {
+        "requests": 17,
+        "errorResponses": 8
+      }
+    }
+  },
+  {
+    "api": "uploadVolume",
+    "ui": "볼륨 목록의 URL/로컬 업로드",
+    "decision": "기존 진입점 유지; URL/업로드 토큰을 일반 세부 정보 편집으로 노출하지 않는다.",
+    "scope": "#1428 검증 범위; 이미지 업로드 후 할당 계약",
+    "roleApiRegistration": [
+      "31:Admin✓,DomainAdmin✓,User✓,Project✓",
+      "32:Admin✓,DomainAdmin✓,User✓,Project✓"
+    ],
+    "source": [
+      "ui/src/config/section/storage.js:138",
+      "ui/src/views/storage/UploadVolume.vue:187"
+    ],
+    "requests": {
+      "31": {
+        "requests": 0,
+        "errorResponses": 0
+      },
+      "32": {
+        "requests": 0,
+        "errorResponses": 0
+      }
+    }
+  }
+]

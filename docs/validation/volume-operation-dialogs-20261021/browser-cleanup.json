@@ -1,0 +1,16 @@
+{
+  "fetchInterceptionCleared": true,
+  "viewportOverridesCleared": true,
+  "theme31Restored": {
+    "background": "rgb(22, 27, 34)",
+    "color": "rgb(197, 204, 212)"
+  },
+  "logoutRequested": [
+    31,
+    32
+  ],
+  "logoutConfirmed": [
+    31,
+    32
+  ]
+}

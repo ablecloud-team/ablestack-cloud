@@ -1,0 +1,8 @@
+
+> cloudstack-ui@4.22.0 lint
+> vue-cli-service lint --no-fix src/views/storage/AttachVolume.vue src/utils/volumeAttachVm.js tests/unit/views/storage/AttachVolume.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ DONE  No lint errors found!

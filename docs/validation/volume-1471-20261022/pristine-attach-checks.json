@@ -1,0 +1,160 @@
+[
+  {
+    "cluster": 31,
+    "phase": "same-pristine-ui-User",
+    "vm": "5a7f0af1-2429-4e21-b131-9761a78ff6fc",
+    "volume": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+    "state": "Ready",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "path": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+    "diskofferingid": "1512a162-bde9-4588-a0f9-79cae78a50a3",
+    "size": 1073741824,
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "root": {
+      "path": null,
+      "pool": null,
+      "state": "Allocated"
+    },
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    },
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "phase": "same-pristine-ui-Project",
+    "vm": "9459934b-c5ee-4c38-bdf1-2a26ff882bc5",
+    "volume": "adbd1bd9-afd9-4dec-8ef2-f90063daecdb",
+    "state": "Ready",
+    "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+    "path": "adbd1bd9-afd9-4dec-8ef2-f90063daecdb",
+    "diskofferingid": "1512a162-bde9-4588-a0f9-79cae78a50a3",
+    "size": 1073741824,
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "root": {
+      "path": null,
+      "pool": null,
+      "state": "Allocated"
+    },
+    "physical": {
+      "format": "qcow2",
+      "virtualSize": 1073741824,
+      "actualSize": 208896,
+      "fullLogicalReadPass": true,
+      "pattern": 0
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "same-pristine-ui-User",
+    "vm": "1aeb3e4b-7d29-4c64-bf8f-c325e05f3e92",
+    "volume": "c8b35317-ef21-4123-a88c-262a2024c63a",
+    "state": "Ready",
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+    "path": "c8b35317-ef21-4123-a88c-262a2024c63a",
+    "diskofferingid": "670aa18a-935f-4c8a-8eeb-a6354ba5f416",
+    "size": 1073741824,
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "root": {
+      "path": null,
+      "pool": null,
+      "state": "Allocated"
+    },
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "c8b35317-ef21-4123-a88c-262a2024c63a",
+            "id": "d0bfdae655f195",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "phase": "same-pristine-ui-Project",
+    "vm": "7cee1ed7-98e3-404a-b354-3fc96956d1da",
+    "volume": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+    "state": "Ready",
+    "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+    "path": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+    "diskofferingid": "670aa18a-935f-4c8a-8eeb-a6354ba5f416",
+    "size": 1073741824,
+    "placement": {
+      "pod": null,
+      "host": null,
+      "last": null
+    },
+    "root": {
+      "path": null,
+      "pool": null,
+      "state": "Allocated"
+    },
+    "physical": {
+      "format": "raw",
+      "virtualSize": 1073741824,
+      "fullLogicalReadPass": true,
+      "pattern": 0,
+      "rbdInfo": {
+        "size": 1073741824,
+        "objects": 256,
+        "order": 22,
+        "features": [
+          "layering",
+          "exclusive-lock",
+          "object-map",
+          "fast-diff",
+          "deep-flatten"
+        ]
+      },
+      "rbdDu": {
+        "images": [
+          {
+            "name": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+            "id": "d1f63423721b6a",
+            "provisioned_size": 1073741824,
+            "used_size": 0
+          }
+        ]
+      }
+    },
+    "pass": true
+  }
+]

@@ -1,0 +1,139 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "cluster": 31,
+      "case": "disk-metadata",
+      "apiDbMatch": true,
+      "format": "qcow2",
+      "policy": "metadata"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-full",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "full"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-legacy",
+      "apiDbMatch": true,
+      "format": null,
+      "policy": "fat"
+    },
+    {
+      "cluster": 31,
+      "case": "nested-disk",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "off"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-doubleclick",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "off"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-final-qos",
+      "apiDbMatch": true,
+      "format": "qcow2",
+      "policy": "metadata"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-falloc",
+      "apiDbMatch": true,
+      "format": "qcow2",
+      "policy": "falloc"
+    },
+    {
+      "cluster": 31,
+      "case": "disk-qcow2-full",
+      "apiDbMatch": true,
+      "format": "qcow2",
+      "policy": "full"
+    },
+    {
+      "cluster": 31,
+      "case": "compute-direct",
+      "apiDbMatch": true,
+      "linkedComputeOnly": true,
+      "networkRate": 1000
+    },
+    {
+      "cluster": 31,
+      "case": "compute-linked",
+      "apiDbMatch": true,
+      "linkedComputeOnly": false,
+      "networkRate": null
+    },
+    {
+      "cluster": 31,
+      "case": "compute-range",
+      "apiDbMatch": true,
+      "linkedComputeOnly": true,
+      "networkRate": 10000
+    },
+    {
+      "cluster": 32,
+      "case": "disk-thin",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "off"
+    },
+    {
+      "cluster": 32,
+      "case": "disk-full",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "full"
+    },
+    {
+      "cluster": 32,
+      "case": "disk-legacy",
+      "apiDbMatch": true,
+      "format": null,
+      "policy": "thin"
+    },
+    {
+      "cluster": 32,
+      "case": "disk-private",
+      "apiDbMatch": true,
+      "format": "raw",
+      "policy": "off"
+    },
+    {
+      "cluster": 32,
+      "case": "compute-direct",
+      "apiDbMatch": true,
+      "linkedComputeOnly": true,
+      "networkRate": 10000
+    },
+    {
+      "cluster": 32,
+      "case": "compute-linked",
+      "apiDbMatch": true,
+      "linkedComputeOnly": false,
+      "networkRate": 10000
+    },
+    {
+      "cluster": 32,
+      "case": "compute-range",
+      "apiDbMatch": true,
+      "linkedComputeOnly": true,
+      "networkRate": 10000
+    },
+    {
+      "cluster": 32,
+      "case": "compute-unconstrained",
+      "apiDbMatch": true,
+      "linkedComputeOnly": true,
+      "networkRate": 10000
+    }
+  ],
+  "offeringCount": 19
+}

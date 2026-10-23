@@ -1,0 +1,1640 @@
+{
+  "rows": [
+    {
+      "cluster": 31,
+      "phase": "before",
+      "case": "renamed-display-name-search",
+      "expectedBug": "데이터 없음",
+      "observed": true
+    },
+    {
+      "cluster": 32,
+      "phase": "before",
+      "case": "renamed-display-name-search",
+      "expectedBug": "데이터 없음",
+      "observed": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "case": "lookup-503-error-retry-visible-and-submit-blocked-session-preserved",
+      "controlledResponse": true,
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "case": "lookup-503-error-retry-visible-and-submit-blocked-session-preserved",
+      "controlledResponse": true,
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "B060E64E-133A-4AD3-B1F4-0F9E7EB95BC7",
+      "ids": [
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "C3D22D5A-0BA0-48F0-8ADF-970E1D64A6CE",
+      "ids": [
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "DomainAdmin",
+      "case": "final-dark-theme-secondary-identity-readable",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "B060E64E-133A-4AD3-B1F4-0F9E7EB95BC7",
+      "ids": [
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "User",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "C3D22D5A-0BA0-48F0-8ADF-970E1D64A6CE",
+      "ids": [
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "DomainAdmin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · i-235-721-VM · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · i-235-722-VM · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · i-235-721-VM · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "I-235-721-vm",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · i-235-721-VM · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "B060E64E-133A-4AD3-B1F4-0F9E7EB95BC7",
+      "ids": [
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-duplicatevm · i-235-722-VM · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · i-235-721-VM · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · i-235-722-VM · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": " 변경된 표시이름 ",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · i-47-202-VM · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · i-47-203-VM · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "MAINVM",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · i-47-202-VM · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "I-47-202-vm",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · i-47-202-VM · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "C3D22D5A-0BA0-48F0-8ADF-970E1D64A6CE",
+      "ids": [
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-duplicatevm · i-47-203-VM · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "no-such-1210",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · i-47-202-VM · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · i-47-203-VM · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "case": "UI-attach-Running-main-UUID-submitted",
+      "vmId": "7759a50f-8191-481d-9c30-944af55f67e3",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "case": "UI-attach-Running-main-UUID-submitted",
+      "vmId": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "변경된 표시이름",
+      "ids": [
+        "7759a50f-8191-481d-9c30-944af55f67e3",
+        "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-mainvm · i-235-721-VM · 7759a50f-8191-481d-9c30-944af55f67e3",
+          "name": "VOL1210-31-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-31-duplicatevm · i-235-722-VM · b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+          "name": "VOL1210-31-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "변경된 표시이름",
+      "ids": [
+        "6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+        "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-mainvm · i-47-202-VM · 6b6365c5-0aa3-490a-b2c9-e219fa8e719a",
+          "name": "VOL1210-32-변경된 표시이름"
+        },
+        {
+          "identity": "VOL1210-32-duplicatevm · i-47-203-VM · c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+          "name": "VOL1210-32-변경된 표시이름"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Admin",
+      "case": "UI-attach-same-display-name-second-Stopped-UUID-submitted",
+      "vmId": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Admin",
+      "case": "UI-attach-same-display-name-second-Stopped-UUID-submitted",
+      "vmId": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "프로젝트",
+      "ids": [
+        "40e409b6-20da-4021-a842-197c21b6b8d5"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-projectvm · 40e409b6-20da-4021-a842-197c21b6b8d5",
+          "name": "VOL1210-31-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "프로젝트",
+      "ids": [
+        "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-projectvm · 7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+          "name": "VOL1210-32-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "변경된 표시이름",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "40E409B6-20DA-4021-A842-197C21B6B8D5",
+      "ids": [
+        "40e409b6-20da-4021-a842-197c21b6b8d5"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-projectvm · 40e409b6-20da-4021-a842-197c21b6b8d5",
+          "name": "VOL1210-31-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "40e409b6-20da-4021-a842-197c21b6b8d5"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-projectvm · 40e409b6-20da-4021-a842-197c21b6b8d5",
+          "name": "VOL1210-31-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "변경된 표시이름",
+      "ids": [],
+      "rows": [],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "7B7A1DAA-FAB5-4C60-9352-8E72C65FFE73",
+      "ids": [
+        "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-projectvm · 7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+          "name": "VOL1210-32-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "",
+      "ids": [
+        "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-projectvm · 7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+          "name": "VOL1210-32-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "프로젝트",
+      "ids": [
+        "40e409b6-20da-4021-a842-197c21b6b8d5"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-31-projectvm · 40e409b6-20da-4021-a842-197c21b6b8d5",
+          "name": "VOL1210-31-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "case": "UI-attach-project-after-first-boot-Stopped-UUID-submitted",
+      "vmId": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "precondition": "ROOT Ready and pod initialized; distinct from open issue1471",
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "case": "search-and-owner-scope",
+      "search": "프로젝트",
+      "ids": [
+        "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      ],
+      "rows": [
+        {
+          "identity": "VOL1210-32-projectvm · 7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+          "name": "VOL1210-32-프로젝트 VM"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "case": "UI-attach-project-after-first-boot-Stopped-UUID-submitted",
+      "vmId": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "precondition": "ROOT Ready and pod initialized; distinct from open issue1471",
+      "pass": true
+    },
+    {
+      "cluster": 31,
+      "case": "browser-controls-restored-and-logged-out",
+      "environmentRestore": true,
+      "pass": true
+    },
+    {
+      "cluster": 32,
+      "case": "browser-controls-restored-and-logged-out",
+      "environmentRestore": true,
+      "pass": true
+    }
+  ],
+  "requests": [
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "projectid": "-1",
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "id": "7759a50f-8191-481d-9c30-944af55f67e3"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+        "virtualmachineid": "7759a50f-8191-481d-9c30-944af55f67e3"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "projectid": "-1",
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "all",
+        "page": "1",
+        "pagesize": "200"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "id": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+        "virtualmachineid": "6b6365c5-0aa3-490a-b2c9-e219fa8e719a"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-31-user",
+        "domainid": "3daf35c1-c13f-4488-b278-1d4b950c7f77",
+        "id": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "9a53ab1d-2391-48e7-b1d7-3fd6a182f1bd",
+        "virtualmachineid": "b060e64e-133a-4ad3-b1f4-0f9e7eb95bc7"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "hypervisor": "KVM",
+        "account": "VOL1210-32-user",
+        "domainid": "7cd7a93c-6eae-4a0b-8b45-f252af1de327",
+        "id": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "e79dc9af-6556-461c-80f0-ca8fe3fbb4fe",
+        "virtualmachineid": "c3d22d5a-0ba0-48f0-8adf-970e1d64a6ce"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "id": "40e409b6-20da-4021-a842-197c21b6b8d5"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4",
+        "virtualmachineid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "running",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "details": "min",
+        "state": "stopped",
+        "page": "1",
+        "pagesize": "1",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "id": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "b01a5666-bf3c-4ae3-8e7e-bec550838a66",
+        "virtualmachineid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "details": "min",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864",
+        "id": "40e409b6-20da-4021-a842-197c21b6b8d5"
+      }
+    },
+    {
+      "cluster": 31,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "5f631386-47b1-49a7-8d24-1fad0ec3e5d4",
+        "virtualmachineid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+        "projectid": "b04997d7-9594-4796-bd00-c89e192d8864"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "state": "Running",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "state": "Stopped",
+        "page": "1",
+        "pagesize": "100"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "listVirtualMachines",
+      "method": "GET",
+      "params": {
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "details": "min",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4",
+        "id": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73"
+      }
+    },
+    {
+      "cluster": 32,
+      "command": "attachVolume",
+      "method": "POST",
+      "params": {
+        "id": "b01a5666-bf3c-4ae3-8e7e-bec550838a66",
+        "virtualmachineid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+        "projectid": "1a483759-8b49-478a-a35f-b9f1e0d92ee4"
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "case": "initial-dark-theme-contrast",
+      "sourceCommit": "e7641e885ba361d9e09cdd98ca5d1a2f5faddb42",
+      "pass": false,
+      "action": "inherit theme text color; rebuilt"
+    },
+    {
+      "case": "initial-alert-action-slot",
+      "sourceCommit": "e7641e885ba361d9e09cdd98ca5d1a2f5faddb42",
+      "pass": false,
+      "observed": "503 preserved session and blocked submit; retry slot not rendered",
+      "action": "standalone retry button and click regression test"
+    },
+    {
+      "case": "interim-domain-admin-selection",
+      "sourceCommit": "e7641e885ba361d9e09cdd98ca5d1a2f5faddb42",
+      "observed": "display name preferred; UUID selected; instancename correctly absent in restricted API response"
+    },
+    {
+      "cluster": 31,
+      "actor": "Project",
+      "case": "pristine-Stopped-plus-Allocated-project-attach-backend-NPE",
+      "vmId": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "pass": false,
+      "followupIssue": 1471
+    },
+    {
+      "cluster": 32,
+      "actor": "Project",
+      "case": "pristine-Stopped-plus-Allocated-project-attach-backend-NPE",
+      "vmId": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "pass": false,
+      "followupIssue": 1471
+    }
+  ]
+}

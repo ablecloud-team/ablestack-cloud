@@ -1,0 +1,23 @@
+[
+  "이름VOL1431-DETAILSTYLE-32-20261020-linked",
+  "아이디02b9fa61-6be5-4973-afb7-cd91d3f72521",
+  "설명VOL1431-DETAILSTYLE-32-20261020-linked",
+  "HA 제공false",
+  "프로비저닝 유형fat",
+  "스토리지 유형shared",
+  "사용자지정 디스크 크기false",
+  "CPU 제한false",
+  "CPU 코어1",
+  "루트 디스크 사이즈(GB)1 GB ",
+  "CPU(MHz)1000",
+  "메모리512",
+  "디스크 오퍼링 이름VOL1431-DETAILSTYLE-32-20261020-explicit",
+  "디스크 오퍼링 연결 방식일반 디스크 오퍼링 연결",
+  "스토리지 태그rbd",
+  "생성일2026. 10. 20. 오후 8:43:12",
+  "Dynamic Scaling 활성화true",
+  "디스크 오퍼링 엄격성false",
+  "암호화 루트 디스크false",
+  "공유 볼륨false",
+  "압축/중복제거false"
+]

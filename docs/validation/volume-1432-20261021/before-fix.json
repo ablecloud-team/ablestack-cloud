@@ -1,0 +1,17 @@
+[
+  {
+    "cluster": 31,
+    "case": "before-fix-name-only-purge",
+    "before": true,
+    "after": false,
+    "falseResponseFieldOmitted": true,
+    "reproduced": true
+  },
+  {
+    "cluster": 32,
+    "case": "before-fix-name-only-purge",
+    "before": true,
+    "after": null,
+    "reproduced": true
+  }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "case": "31-disk-metadata",
+    "volumeId": "ee3077cb-f199-458a-9da1-def226975aa9",
+    "state": "Ready",
+    "format": "qcow2",
+    "policy": "metadata",
+    "evidence": "verified",
+    "method": "qemu-preallocation-metadata",
+    "virtualBytes": 1073741824,
+    "observedBytes": 348160,
+    "qemuImgCheckPassed": true
+  },
+  {
+    "case": "31-disk-full",
+    "volumeId": "45e96752-4f9d-4ca3-b964-e444205db8b8",
+    "state": "Ready",
+    "format": "raw",
+    "policy": "full",
+    "evidence": "verified",
+    "method": "qemu-preallocation-full",
+    "virtualBytes": 1073741824,
+    "observedBytes": 1075871744
+  },
+  {
+    "case": "32-disk-thin",
+    "volumeId": "147289d6-d4ba-42f1-a5dd-03f00cccb8d4",
+    "state": "Ready",
+    "format": "raw",
+    "policy": "off",
+    "evidence": "verified",
+    "method": "rbd-thin",
+    "virtualBytes": 1073741824,
+    "observedBytes": 0
+  },
+  {
+    "case": "32-disk-full",
+    "volumeId": "7db152f5-b345-431d-8f16-8668459b145d",
+    "state": "Ready",
+    "format": "raw",
+    "policy": "full",
+    "evidence": "verified",
+    "method": "rbd-thick-create",
+    "virtualBytes": 1073741824,
+    "observedBytes": 1073741824
+  },
+  {
+    "case": "31-disk-final-qos",
+    "volumeId": "031f3247-0b3e-4f3a-974c-48dd30b4dcd5",
+    "state": "Ready",
+    "format": "qcow2",
+    "policy": "metadata",
+    "evidence": "verified",
+    "method": "qemu-preallocation-metadata",
+    "virtualBytes": 1073741824,
+    "observedBytes": 348160,
+    "qemuImgCheckPassed": true
+  }
+]

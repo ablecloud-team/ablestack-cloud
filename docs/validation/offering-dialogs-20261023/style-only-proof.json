@@ -1,0 +1,19 @@
+[
+  {
+    "functionalSourceCommit": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "sourceCommit": "dcfa1a3232dfb8675e9b7f52bd6abedd0cf1ecfd",
+    "unchangedTemplatesAndScripts": {
+      "ui/src/components/offering/AllocationPolicyEditor.vue": true,
+      "ui/src/components/offering/DiskQosFields.vue": true,
+      "ui/src/components/offering/OfferingAdvancedGroup.vue": true,
+      "ui/src/components/offering/OfferingFormSections.vue": true
+    }
+  },
+  {
+    "functionalSourceCommit": "12b3ff3fd683024864327a8e44acdaef053d05e8",
+    "sourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "unchangedTemplatesAndScripts": {
+      "ui/src/components/offering/OfferingFormSections.vue": true
+    }
+  }
+]

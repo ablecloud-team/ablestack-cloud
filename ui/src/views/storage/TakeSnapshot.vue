@@ -135,7 +135,7 @@
             <plus-outlined /> {{ $t('label.new.tag') }}
           </a-tag>
         </div>
-        <div :span="24" class="action-button">
+        <MoldDialogActions :span="24" :busy="actionLoading">
           <a-button
             :loading="actionLoading"
             @click="closeAction">
@@ -149,15 +149,18 @@
             @click="handleSubmit">
             {{ $t('label.ok') }}
           </a-button>
-        </div>
+        </MoldDialogActions>
       </a-form>
     </a-spin>
   </div>
 </template>
 
 <script>
+import storageDialogContext from '@/utils/storageDialogContext'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import TooltipButton from '@/components/widgets/TooltipButton'
@@ -166,8 +169,9 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
   name: 'TakeSnapshot',
-  mixins: [mixinForm],
+  mixins: [storageDialogContext, mixinForm],
   components: {
+    MoldDialogActions,
     TooltipButton,
     TooltipLabel,
     ResourceIcon
@@ -266,9 +270,10 @@ export default {
       })
     },
     handleSubmit (e) {
-      e.preventDefault()
+      if (e && e.preventDefault) e.preventDefault()
       if (this.actionLoading) return
       this.formRef.value.validate().then(() => {
+        if (this.actionLoading || (this.dialogCurrent && !this.dialogCurrent())) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
 

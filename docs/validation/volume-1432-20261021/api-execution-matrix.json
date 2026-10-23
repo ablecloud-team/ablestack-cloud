@@ -1,0 +1,2002 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": true,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": false,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": true,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "transfer-source-pattern",
+    "format": "qcow2",
+    "bytes": 65536,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "destroyVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd, name = VOL1432-31-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-da.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "destroyVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd, name = VOL1432-31-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-da.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateDiskOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public disk offering [DiskOffering {\\\"id\\\":185,\\\"name\\\":\\\"VOL1432-31-publicDisk\\\",\\\"uuid\\\":\\\"3807dbed-5a36-46fd-b44b-2c597d8a2966\\\"}.] by user [User {\\\"id\\\":189,\\\"username\\\":\\\"VOL1432-31-da\\\",\\\"uuid\\\":\\\"8d9662f8-ba2c-46d2-940b-47cc49e97855\\\"}.] because it is domain-admin.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateServiceOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public service offering: Service offering {\\\"id\\\":93,\\\"name\\\":\\\"VOL1432-31-publicCompute\\\",\\\"uuid\\\":\\\"0fd79264-b80a-4a05-bfc7-fba023918363\\\"}. by user: User {\\\"id\\\":189,\\\"username\\\":\\\"VOL1432-31-da\\\",\\\"uuid\\\":\\\"8d9662f8-ba2c-46d2-940b-47cc49e97855\\\"}. because it is domain-admin\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateDiskOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update disk offering [da51d581-ebee-4086-b0a1-3499da862804] by domain-admin [8d9662f8-ba2c-46d2-940b-47cc49e97855] with domain [adfcc65e-e007-49af-a642-d962e17ce3d3] which is not a child domain.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "updateServiceOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update zone(s) for service offering: Service offering {\\\"id\\\":94,\\\"name\\\":\\\"VOL1432-31-privateComputeA-DA\\\",\\\"uuid\\\":\\\"930ed42c-2d8e-4b3a-820c-a26b55bd1008\\\"}. by admin: User {\\\"id\\\":189,\\\"username\\\":\\\"VOL1432-31-da\\\",\\\"uuid\\\":\\\"8d9662f8-ba2c-46d2-940b-47cc49e97855\\\"}. as it is domain-admin\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "cloneDiskOffering-allowed",
+    "id": "50c648c9-04f4-40fb-bd39-1716436f7943",
+    "privateScope": "88b2de94-3879-4cf7-a18b-fa7e442758cc",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "cloneServiceOffering-allowed",
+    "id": "b4b072b5-0131-4d90-a7c9-6e7a4dfa5659",
+    "privateScope": "88b2de94-3879-4cf7-a18b-fa7e442758cc",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "updateVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "destroyVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd, name = VOL1432-31-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 47321300-a335-44dc-89a6-33b83528b14f does not have permission to list annotations on the entity with uuid 3ee074e9-04ef-45e0-b268-8a98d4088759 of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "updateVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "attachVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "destroyVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "assignVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "updateVolume-denied",
+    "target": "088bca34-7d4d-4251-9b8e-e55babbb8b9e",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "destroyVolume-denied",
+    "target": "088bca34-7d4d-4251-9b8e-e55babbb8b9e",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 088bca34-7d4d-4251-9b8e-e55babbb8b9e, name = VOL1432-31-projectVolume] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 47321300-a335-44dc-89a6-33b83528b14f does not have permission to list annotations on the entity with uuid 3ee074e9-04ef-45e0-b268-8a98d4088759 of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "updateVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "attachVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "destroyVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "assignVolume-denied",
+    "target": "3ee074e9-04ef-45e0-b268-8a98d4088759",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User e3c4ea84-e8ba-4af5-affb-7bf6c00bf5a5 does not have permission to list annotations on the entity with uuid f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "updateVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-peer.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "attachVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "destroyVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "assignVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-31-peer.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-31-peer.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Peer",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-31-peer.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User f90b082d-ade1-4d16-9f7a-a32f158f728d does not have permission to list annotations on the entity with uuid f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "updateVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-31-foreign.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "attachVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "destroyVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "assignVolume-denied",
+    "target": "f1d4b2fe-794c-4dbc-b5de-09a6a9399fbd",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-31-foreign.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-31-foreign.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Foreign",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-31-foreign.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "checkVolume-read-only-qcow2",
+    "result": {
+      "volume": {
+        "volumemutationblockedreason": "",
+        "id": "385b7b02-3f5d-4c37-a711-6907b130f4c7",
+        "name": "VOL1432-31-transfer",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "type": "DATADISK",
+        "provisioningtype": "thin",
+        "size": 1073741824,
+        "created": "2026-10-21T21:40:33+0900",
+        "state": "Ready",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "storagetype": "shared",
+        "cachemode": "none",
+        "hypervisor": "KVM",
+        "diskofferingid": "3807dbed-5a36-46fd-b44b-2c597d8a2966",
+        "diskofferingname": "VOL1432-31-publicDisk",
+        "diskofferingdisplaytext": "VOL1432-31-publicDisk",
+        "storage": "Primary",
+        "destroyed": false,
+        "isextractable": true,
+        "displayvolume": true,
+        "path": "385b7b02-3f5d-4c37-a711-6907b130f4c7",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+        "quiescevm": false,
+        "supportsstoragesnapshot": false,
+        "deleteprotection": false,
+        "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+        "clustername": "Cluster",
+        "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+        "podname": "Pod",
+        "volumecheckresult": {
+          "allocated-clusters": "1",
+          "total-clusters": "16384",
+          "filename": "/mnt/glue-gfs/385b7b02-3f5d-4c37-a711-6907b130f4c7",
+          "image-end-offset": "393216",
+          "check-errors": "0",
+          "format": "qcow2"
+        },
+        "kvdoenable": false,
+        "compress": false,
+        "dedup": false,
+        "allocation": {
+          "fixedpolicy": "unknown",
+          "actualformat": "qcow2",
+          "evidence": "unverified",
+          "contractversion": "legacy",
+          "effectivepolicy": "unknown",
+          "requestedformat": "unspecified",
+          "requestedpolicy": "thin",
+          "appliedmethod": "unknown",
+          "policyorigin": "legacy"
+        },
+        "tags": [],
+        "hasannotations": false,
+        "jobid": "b07826b7-6365-4e04-bade-e1ecb9c30321",
+        "jobstatus": 0
+      }
+    },
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": true,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": false,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "cleanup-policy-partial-update",
+    "flag": true,
+    "patches": 5,
+    "apiDbAgree": true,
+    "externalPreserved": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "transfer-source-pattern",
+    "format": "raw",
+    "bytes": 65536,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "destroyVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = a57daf75-89cf-40b1-948f-48f8a49eefbb, name = VOL1432-32-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-da.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "destroyVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = a57daf75-89cf-40b1-948f-48f8a49eefbb, name = VOL1432-32-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-da.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateDiskOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public disk offering [DiskOffering {\\\"id\\\":120,\\\"name\\\":\\\"VOL1432-32-publicDisk\\\",\\\"uuid\\\":\\\"7a4c6bc4-8552-4a48-a612-f60627e644e1\\\"}.] by user [User {\\\"id\\\":25,\\\"username\\\":\\\"VOL1432-32-da\\\",\\\"uuid\\\":\\\"cffaa7df-95d3-4f47-aba7-afc3f1745346\\\"}.] because it is domain-admin.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateServiceOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update public service offering: Service offering {\\\"id\\\":49,\\\"name\\\":\\\"VOL1432-32-publicCompute\\\",\\\"uuid\\\":\\\"05ebcae2-6f74-418a-b8bd-daf42a278819\\\"}. by user: User {\\\"id\\\":25,\\\"username\\\":\\\"VOL1432-32-da\\\",\\\"uuid\\\":\\\"cffaa7df-95d3-4f47-aba7-afc3f1745346\\\"}. because it is domain-admin\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateDiskOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update disk offering [fee57761-f569-4db9-bd46-581ebe134d6f] by domain-admin [cffaa7df-95d3-4f47-aba7-afc3f1745346] with domain [4a24c0b4-93e3-4cb1-a6c3-2ac410edfd2a] which is not a child domain.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "updateServiceOffering-scope-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"Unable to update zone(s) for service offering: Service offering {\\\"id\\\":50,\\\"name\\\":\\\"VOL1432-32-privateComputeA-DA\\\",\\\"uuid\\\":\\\"a5e16d01-91a2-4a3a-ad14-9faec0ce4163\\\"}. by admin: User {\\\"id\\\":25,\\\"username\\\":\\\"VOL1432-32-da\\\",\\\"uuid\\\":\\\"cffaa7df-95d3-4f47-aba7-afc3f1745346\\\"}. as it is domain-admin\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "cloneDiskOffering-allowed",
+    "id": "1c5eab16-37e8-43c4-9638-102561f06efd",
+    "privateScope": "291a4881-ea81-4639-832d-d69d82587334",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "cloneServiceOffering-allowed",
+    "id": "723c3534-5c4d-4bd9-a1f8-256e0bfc6181",
+    "privateScope": "291a4881-ea81-4639-832d-d69d82587334",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "updateVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "destroyVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = a57daf75-89cf-40b1-948f-48f8a49eefbb, name = VOL1432-32-Admin-edit] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 3a2b6410-d17a-4094-986b-5902a8c1edd2 does not have permission to list annotations on the entity with uuid f8766b0c-112c-47e4-a434-28ab6d1e7676 of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "updateVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "attachVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "destroyVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "assignVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "updateVolume-denied",
+    "target": "8e13a8a6-e73e-461d-a776-62a93abd3eaf",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "own-volume-read-and-role-gated-edit",
+    "pathSizeOwnershipAllocationPreserved": true,
+    "pass_": true,
+    "editApplied": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "destroyVolume-denied",
+    "target": "8e13a8a6-e73e-461d-a776-62a93abd3eaf",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume [id = 8e13a8a6-e73e-461d-a776-62a93abd3eaf, name = VOL1432-32-projectVolume] has delete protection enabled and cannot be deleted.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "own-attach-detach-delete-protection",
+    "stoppedVm": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "own-related-queries",
+    "annotations": 1,
+    "eventsAndSnapshotsScoped": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 3a2b6410-d17a-4094-986b-5902a8c1edd2 does not have permission to list annotations on the entity with uuid f8766b0c-112c-47e4-a434-28ab6d1e7676 of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "updateVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "attachVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "destroyVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "assignVolume-denied",
+    "target": "f8766b0c-112c-47e4-a434-28ab6d1e7676",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 65504505-41bc-46e2-820d-9c3c1e93af11 does not have permission to list annotations on the entity with uuid a57daf75-89cf-40b1-948f-48f8a49eefbb of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "updateVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-peer.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "attachVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "destroyVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "assignVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-32-peer.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-32-peer.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Peer",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-32-peer.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listVolumes-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listVolumesMetrics-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listSnapshots-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listEvents-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listAnnotations-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"User 0d1d3541-e747-4f0c-8b40-3a67edb21023 does not have permission to list annotations on the entity with uuid a57daf75-89cf-40b1-948f-48f8a49eefbb of type VOLUME\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "updateVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateVolume] does not exist or is not available for the account VOL1432-32-foreign.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "attachVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "destroyVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Caller does not have permission to operate with provided resource.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "assignVolume-denied",
+    "target": "a57daf75-89cf-40b1-948f-48f8a49eefbb",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [assignVolume] does not exist or is not available for the account VOL1432-32-foreign.\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listDiskOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "listServiceOfferings-foreign-hidden",
+    "emptyOrDenied": true,
+    "reason": null,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "createDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createDiskOffering] does not exist or is not available for the account VOL1432-32-foreign.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Foreign",
+    "case": "createServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [createServiceOffering] does not exist or is not available for the account VOL1432-32-foreign.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "checkVolume-denied",
+    "target": "b2df19d2-632e-4ba3-a87d-f8252e48a5e8",
+    "reason": "{\"errorcode\": 431, \"errortext\": \"Volume format is not supported for checking and repair\"}",
+    "unchanged": true,
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "create-own-volume",
+    "id": "17f46577-b6f7-4d66-952e-637d63dd2075",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "destroy-own-volume",
+    "id": "17f46577-b6f7-4d66-952e-637d63dd2075",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"VOL1432-31-da\\\",\\\"id\\\":223,\\\"uuid\\\":\\\"e6d6c845-5798-4d63-8d86-4594d6674737\\\"}] for disk offering: DiskOffering {\\\"id\\\":187,\\\"name\\\":\\\"VOL1432-31-privateDiskB\\\",\\\"uuid\\\":\\\"58828fad-6bc9-4433-b2cb-d81b16b4b5ba\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"7013f5a1-de59-4cea-a596-f4f58815f31c\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "private-disk-edit-deactivate-reactivate",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "assign-foreign-domain-denied",
+    "unchanged": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 530, \"cserrorcode\": 9999, \"errortext\": \"Assign volume command for volume [3ee074e9-04ef-45e0-b268-8a98d4088759] failed due to [Caller does not have permission to operate with provided resource.].\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "create-own-volume",
+    "id": "4e8ebf9d-254b-480c-8b5b-56bc2d771a64",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "destroy-own-volume",
+    "id": "4e8ebf9d-254b-480c-8b5b-56bc2d771a64",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"VOL1432-31-user\\\",\\\"id\\\":224,\\\"uuid\\\":\\\"4355926e-c2ee-4b46-a558-0f3f9a8ff379\\\"}] for disk offering: DiskOffering {\\\"id\\\":187,\\\"name\\\":\\\"VOL1432-31-privateDiskB\\\",\\\"uuid\\\":\\\"58828fad-6bc9-4433-b2cb-d81b16b4b5ba\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"7013f5a1-de59-4cea-a596-f4f58815f31c\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "updateDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "updateServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "cloneDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "cloneServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "create-own-volume",
+    "id": "8d03f63d-9833-4f1c-9c58-47f841f0cb5b",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "destroy-own-volume",
+    "id": "8d03f63d-9833-4f1c-9c58-47f841f0cb5b",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"PrjAcct-VOL1432-31-Project-50\\\",\\\"id\\\":227,\\\"uuid\\\":\\\"221d6fb1-f45e-4955-97a0-b26fa1bab661\\\"}] for disk offering: DiskOffering {\\\"id\\\":187,\\\"name\\\":\\\"VOL1432-31-privateDiskB\\\",\\\"uuid\\\":\\\"58828fad-6bc9-4433-b2cb-d81b16b4b5ba\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"7013f5a1-de59-4cea-a596-f4f58815f31c\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "updateDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "updateServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "cloneDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneDiskOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "cloneServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneServiceOffering] does not exist or is not available for the account VOL1432-31-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "create-own-volume",
+    "id": "839e8caa-26fb-4d24-a8d6-1cd1557ba459",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "destroy-own-volume",
+    "id": "839e8caa-26fb-4d24-a8d6-1cd1557ba459",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"VOL1432-32-da\\\",\\\"id\\\":35,\\\"uuid\\\":\\\"a512b4ed-1dcf-494f-90b4-859e51672af7\\\"}] for disk offering: DiskOffering {\\\"id\\\":122,\\\"name\\\":\\\"VOL1432-32-privateDiskB\\\",\\\"uuid\\\":\\\"5914949b-be27-4706-a250-7e3ffaf595d2\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"991d2f57-0f37-4445-b956-09773d064816\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "private-disk-edit-deactivate-reactivate",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "assign-foreign-domain-denied",
+    "unchanged": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 530, \"cserrorcode\": 9999, \"errortext\": \"Assign volume command for volume [f8766b0c-112c-47e4-a434-28ab6d1e7676] failed due to [Caller does not have permission to operate with provided resource.].\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "create-own-volume",
+    "id": "bab85d05-77ec-471e-9e0e-68cec5dfb2b7",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "destroy-own-volume",
+    "id": "bab85d05-77ec-471e-9e0e-68cec5dfb2b7",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"VOL1432-32-user\\\",\\\"id\\\":36,\\\"uuid\\\":\\\"ab919659-425a-4ba0-b7f9-2e47a942bd8d\\\"}] for disk offering: DiskOffering {\\\"id\\\":122,\\\"name\\\":\\\"VOL1432-32-privateDiskB\\\",\\\"uuid\\\":\\\"5914949b-be27-4706-a250-7e3ffaf595d2\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"991d2f57-0f37-4445-b956-09773d064816\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "updateDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "updateServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "cloneDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "cloneServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "create-own-volume",
+    "id": "f7b8a9ed-f137-41aa-9ba4-b0cb87f54265",
+    "state": "Allocated",
+    "format": "unknown",
+    "ownerCorrect": true,
+    "pass_": true,
+    "physicalImageCreated": false,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "destroy-own-volume",
+    "id": "f7b8a9ed-f137-41aa-9ba4-b0cb87f54265",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "create-foreign-private-offering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 531, \"cserrorcode\": 4365, \"errortext\": \"Access denied to Account [{\\\"accountName\\\":\\\"PrjAcct-VOL1432-32-Project-7\\\",\\\"id\\\":39,\\\"uuid\\\":\\\"5c7d41f7-0eeb-47fb-ab2d-f2d6246418da\\\"}] for disk offering: DiskOffering {\\\"id\\\":122,\\\"name\\\":\\\"VOL1432-32-privateDiskB\\\",\\\"uuid\\\":\\\"5914949b-be27-4706-a250-7e3ffaf595d2\\\"}., zone: Zone {\\\"id\\\": \\\"1\\\", \\\"name\\\": \\\"Zone\\\", \\\"uuid\\\": \\\"991d2f57-0f37-4445-b956-09773d064816\\\"} by AffinityGroupAccessChecker\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "updateDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "updateServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [updateServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "cloneDiskOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneDiskOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "cloneServiceOffering-denied",
+    "reason": "{\"uuidList\": [], \"errorcode\": 432, \"cserrorcode\": 9999, \"errortext\": \"The API [cloneServiceOffering] does not exist or is not available for the account VOL1432-32-user.\"}",
+    "pass_": true,
+    "stage": "initial-server-54c28e6b83c"
+  },
+  {
+    "cluster": 31,
+    "case": "external-replace-and-clear-only-selected-offering",
+    "actor": "DomainAdmin",
+    "otherDomainAndPublicDetailsPreserved": true,
+    "apiDbAgree": true,
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 31,
+    "case": "UI-transfer-content-and-metadata-preserved",
+    "format": "qcow2",
+    "bytes": 65536,
+    "pathSizeStorageAllocationPreserved": true,
+    "newOwner": "VOL1432-31-user",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 31,
+    "case": "snapshot-fixture-created",
+    "snapshotId": "5bcfccda-3146-4a87-8cf4-4ad86951706e",
+    "state": "Allocated",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 31,
+    "case": "assign-real-snapshot-volume-denied",
+    "unchanged": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 530, \"cserrorcode\": 9999, \"errortext\": \"Assign volume command for volume [59cd3926-9291-4cf8-a195-6d86084da483] failed due to [Volume [{\\\"id\\\":855,\\\"name\\\":\\\"VOL1432-31-peerVolume\\\",\\\"uuid\\\":\\\"59cd3926-9291-4cf8-a195-6d86084da483\\\"}] has snapshots. Remove the volume's snapshots before assigning it to another account.].\"}",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 32,
+    "case": "external-replace-and-clear-only-selected-offering",
+    "actor": "DomainAdmin",
+    "otherDomainAndPublicDetailsPreserved": true,
+    "apiDbAgree": true,
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 32,
+    "case": "UI-transfer-content-and-metadata-preserved",
+    "format": "raw",
+    "bytes": 65536,
+    "pathSizeStorageAllocationPreserved": true,
+    "newOwner": "VOL1432-32-Project",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 32,
+    "case": "snapshot-fixture-created",
+    "snapshotId": "029a6bd9-1b46-4498-879b-fe0f8840e376",
+    "state": "Allocated",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  },
+  {
+    "cluster": 32,
+    "case": "assign-real-snapshot-volume-denied",
+    "unchanged": true,
+    "reason": "{\"uuidList\": [], \"errorcode\": 530, \"cserrorcode\": 9999, \"errortext\": \"Assign volume command for volume [5b374889-c61a-4e4b-a8ba-0531d3a8f644] failed due to [Volume [{\\\"id\\\":243,\\\"name\\\":\\\"VOL1432-32-peerVolume\\\",\\\"uuid\\\":\\\"5b374889-c61a-4e4b-a8ba-0531d3a8f644\\\"}] has snapshots. Remove the volume's snapshots before assigning it to another account.].\"}",
+    "pass": true,
+    "stage": "final-server-bc6cccd9897"
+  }
+]

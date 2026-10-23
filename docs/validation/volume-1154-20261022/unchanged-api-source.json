@@ -1,0 +1,22 @@
+[
+  {
+    "file": "api/src/main/java/org/apache/cloudstack/api/response/ServiceOfferingResponse.java",
+    "unchanged": true,
+    "contract": [
+      {
+        "line": 241,
+        "text": "@SerializedName(\"diskofferingcomputeonly\")"
+      }
+    ]
+  },
+  {
+    "file": "server/src/main/java/com/cloud/api/query/dao/ServiceOfferingJoinDaoImpl.java",
+    "unchanged": true,
+    "contract": [
+      {
+        "line": 208,
+        "text": "offeringResponse.setDiskOfferingComputeOnly(diskOfferingVO.isComputeOnly());"
+      }
+    ]
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "server/src/main/java/com/cloud/configuration/ConfigurationManagerImpl.java": "d53acf7f3567a7ce5e8c41c7176f0323a443e0bf3facae5bc41d22bf7739fa53",
+  "server/src/test/java/com/cloud/configuration/ConfigurationManagerServiceOfferingUpdateTest.java": "9e63e3b7acd4f92ad9b3aedabbdff96c461e865b6f6a105b68141a270af37a30",
+  "ui/public/locales/en.json": "9e74957832dec1b893cd807973cc9338764b1228a22aad1c894913b44791e146",
+  "ui/public/locales/ko_KR.json": "85fd811672fb42b407066cafa58a5c87180b081837c4dc218baf4b8debe5b2f9",
+  "ui/src/components/view/AnnotationsTab.vue": "a9896be22eb673fbc2ed813a49ec6d35fd3a405d7f8b8a4479d56bc757242456",
+  "ui/src/components/view/EventsTab.vue": "a756ec548b71d71828ddf7b3b5f1c3de64af5f57dc92af1fa8a91fe40742e95a",
+  "ui/src/components/view/StatsTab.vue": "fcb9ebe7bc1c9b476955606d11f6ddc904a623ec724d2b7b043957a0c17abfdf",
+  "ui/src/config/section/offering.js": "027ebfe2d6baca427a8adfa32d317d8cc1f08578ffb7fba2b4590fb2eda83b3d",
+  "ui/src/config/section/storage.js": "df53259cd5d48eab5053fa834e72ed7783c7c45cf5c0715ba02758d32e4549d3",
+  "ui/src/utils/storageManagement.js": "255da7c6808b357929302fe07e00f4110eace35349d83ed0debb91dce164eac4",
+  "ui/src/utils/storageManagementMixin.js": "7d5641d99095ad3ba0e033707ae61ce1ffe32a6773f05689f391feeb34516387",
+  "ui/src/views/offering/CloneComputeOffering.vue": "f8a627656504fc5d83fa20fef8d125b11919ae14d22976bf66180f1cb54a1bca",
+  "ui/src/views/offering/UpdateComputeOffering.vue": "c62d688b815da53561ab75310eb3e8c41f8235f47f80a7733c5d5d1c7faab6d6",
+  "ui/src/views/offering/UpdateStorageOfferingAccess.vue": "d8e0bc9eff3bb4a89f61f86ba3251f962a8e8cd2969e58c271af8b05c6553b1c",
+  "ui/src/views/storage/AssignVolume.vue": "8e338cf1738b3e0f6546d05e7c7bdb4f5cb0dafe8de5a27ca1fe3a97ce482341",
+  "ui/src/views/storage/RecurringSnapshotVolume.vue": "f2a665db8fe2e06700959b80337761d6b38371b6b6649d42630fe6bd858b01fb",
+  "ui/tests/unit/components/SharedDetailTabs.spec.js": "e7e34ecf46e164d7e7cb0a7744f9737cfd219b175806fd1a2ce42c4cc0b12314",
+  "ui/tests/unit/components/view/AllocationPolicy.spec.js": "d0df79a6356577ef5516cad06f5fe6a89d11f05a7aad7bf3bce30dac38fe387d",
+  "ui/tests/unit/views/storage/StorageManagement.spec.js": "3ebb2e6deed9572c9a702da520c715c0774ab7265275f19f60f5d8f59f2267df",
+  "ui/tests/unit/views/storage/StorageRelatedTabs.spec.js": "d18ded340553bd61cc95caf7f4e5bc2cf71f7532e1d49429477558e76fcbc492"
+}

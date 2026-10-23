@@ -19,6 +19,10 @@
   <div>
     <disk-offering-selection
       :items="items"
+      :all-items="allItems"
+      :error="error"
+      :scope-key="scopeKey"
+      @retry="$emit('retry')"
       :zone-id="zoneId"
       :value="value.offeringid || ''"
       :loading="loading"
@@ -58,10 +62,13 @@ export default {
     items: { type: Array, default: () => [] },
     zoneId: { type: String, default: '' },
     loading: Boolean,
+    allItems: Boolean,
+    error: { type: String, default: '' },
+    scopeKey: { type: String, default: '' },
     kmsKeys: { type: Array, default: () => [] },
     loadingKmsKeys: Boolean
   },
-  emits: ['update:value', 'search'],
+  emits: ['update:value', 'search', 'retry'],
   data () { return { cachedOffering: null } },
   computed: {
     offering () { return this.items.find(item => item.id === this.value.offeringid) || (this.cachedOffering?.id === this.value.offeringid ? this.cachedOffering : null) },

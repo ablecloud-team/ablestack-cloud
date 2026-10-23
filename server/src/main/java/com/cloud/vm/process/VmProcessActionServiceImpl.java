@@ -38,7 +38,7 @@ import org.apache.cloudstack.api.response.VmProcessActionResponse;
 import org.apache.cloudstack.context.CallContext;
 import org.apache.cloudstack.vm.process.VmProcessActionService;
 import org.apache.cloudstack.vm.process.VmProcessSnapshotService;
-import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.binary.Hex;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -102,8 +102,17 @@ public class VmProcessActionServiceImpl extends com.cloud.utils.component.Manage
     }
 
     static String fingerprint(long vm, String snapshot, long pid, String action, String service) {
-        return DigestUtils.sha256Hex(
-                JSON.toJson(Arrays.asList(vm, snapshot, pid, action, service)));
+        try {
+            return Hex.encodeHexString(
+                    java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(
+                                    JSON.toJson(
+                                                    Arrays.asList(
+                                                            vm, snapshot, pid, action, service))
+                                            .getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private boolean placement(UserVmVO vm, VmProcessOperationStore.Record r) {

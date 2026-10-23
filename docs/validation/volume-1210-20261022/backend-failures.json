@@ -1,0 +1,34 @@
+[
+  {
+    "cluster": 31,
+    "case": "pristine-Stopped-Allocated-project-attach-failure",
+    "expectedNoPodFixture": {
+      "pod": null,
+      "state": "Stopped",
+      "vmUuid": "40e409b6-20da-4021-a842-197c21b6b8d5",
+      "lastHost": null,
+      "rootPool": null,
+      "rootState": "Allocated"
+    },
+    "failure": "NPE unboxing UserVmVO.getPodIdToDeployIn()",
+    "followupIssue": 1471,
+    "pass": false,
+    "fixedByThisIssue": false
+  },
+  {
+    "cluster": 32,
+    "case": "pristine-Stopped-Allocated-project-attach-failure",
+    "expectedNoPodFixture": {
+      "pod": null,
+      "state": "Stopped",
+      "vmUuid": "7b7a1daa-fab5-4c60-9352-8e72c65ffe73",
+      "lastHost": null,
+      "rootPool": null,
+      "rootState": "Allocated"
+    },
+    "failure": "NPE unboxing UserVmVO.getPodIdToDeployIn()",
+    "followupIssue": 1471,
+    "pass": false,
+    "fixedByThisIssue": false
+  }
+]

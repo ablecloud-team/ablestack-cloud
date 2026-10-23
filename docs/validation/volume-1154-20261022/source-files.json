@@ -1,0 +1,9 @@
+{
+  "ui/public/locales/en.json": "0aee6846c44ab04b7ab133bbf66f9cd0cd35ff790c1ddc6668cf855da6d0a3aa",
+  "ui/public/locales/ko_KR.json": "2ceda3c7b57dba1136b10e9dd03e23ceeec1d5b029955505db7817f725ef6a4a",
+  "ui/src/components/offering/LinkedDiskOffering.vue": "fdc9c2b79dbb71b7e7c940ea5a244c70dbf18a2db6b545038060887ae3015732",
+  "ui/src/components/view/DetailsTab.vue": "ec530da4de2790edf704e9910dbb867b8b98ca9207debb620a73640d21f92aa8",
+  "ui/src/components/view/ListView.vue": "cf33d3efb13a680880444f914205e5ea6ddf6d3c5ac3d722374cf4107fb81549",
+  "ui/tests/unit/components/offering/LinkedDiskOffering.spec.js": "6aa1534c14982df694f718df62194c5b37257bc6d287b3113f45b1bb9c8ce88a",
+  "ui/tests/unit/components/view/ListViewDiskOffering.spec.js": "6116c076a3a3ebc913d9d9a2f63561ee413583bb70d1be6d0732555f37dd668a"
+}

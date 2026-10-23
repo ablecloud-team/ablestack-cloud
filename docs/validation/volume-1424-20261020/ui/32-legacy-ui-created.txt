@@ -1,0 +1,237 @@
+Browser tab: 8, Title: "볼륨 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/volume/4cbfc898-cbdc-4e0d-b314-592335a2fbaa".
+0 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/volume/4cbfc898-cbdc-4e0d-b314-592335a2fbaa
+	1 container
+		2 container
+			3 image
+			4 menu
+				5 dashboard 대시보드
+					6 link Description: dashboard 대시보드, Value: 10.10.32.10:8080/client/#/dashboard
+				7 container
+					8 image cloud
+					9 text 컴퓨트
+				10 container
+					11 image hdd
+					12 text 스토리지
+				13 content list sub_menu_2_$$_/storage-popup
+					14 hdd 볼륨
+						15 link Description: hdd 볼륨, Value: 10.10.32.10:8080/client/#/volume
+					16 build 스냅샷
+						17 link Description: build 스냅샷, Value: 10.10.32.10:8080/client/#/snapshot
+					18 build 스냅샷 정책
+						19 link Description: build 스냅샷 정책, Value: 10.10.32.10:8080/client/#/snapshotpolicy
+					20 funnel-plot 버킷
+						21 link Description: funnel-plot 버킷, Value: 10.10.32.10:8080/client/#/buckets
+					22 file-text 공유 파일 시스템
+						23 link Description: file-text 공유 파일 시스템, Value: 10.10.32.10:8080/client/#/sharedfs
+				24 container
+					25 image wifi
+					26 text 네트워크
+				27 container
+					28 image picture
+					29 text 이미지
+				30 container
+					31 image lock
+					32 text 키 관리
+				33 schedule 이벤트
+					34 link Description: schedule 이벤트, Value: 10.10.32.10:8080/client/#/event
+				35 project 프로젝트
+					36 link Description: project 프로젝트, Value: 10.10.32.10:8080/client/#/project
+				37 idcard 역할
+					38 link Description: idcard 역할, Value: 10.10.32.10:8080/client/#/role
+				39 team 계정
+					40 link Description: team 계정, Value: 10.10.32.10:8080/client/#/account
+				41 block 도메인
+					42 link Description: block 도메인, Value: 10.10.32.10:8080/client/#/domain
+				43 container
+					44 image bank
+					45 text 인프라스트럭쳐
+				46 container
+					47 image shopping
+					48 text 서비스 오퍼링
+				49 container
+					50 image setting
+					51 text 구성
+				52 appstore-add 확장
+					53 link Description: appstore-add 확장, Value: 10.10.32.10:8080/client/#/extension
+				54 container
+					55 image tool
+					56 text 도구
+				57 read API 문서
+					58 link Description: read API 문서, Value: 10.10.32.10:8080/client/#/apidocs/
+		59 container
+			60 text 페이지 스타일 설정
+			61 button 닫기
+				62 image close
+			63 container
+				64 heading 페이지 스타일 설정, Value: 3
+					65 text 페이지 스타일 설정
+				66 container
+					67 image
+					68 container
+						69 radio button (settable, integer) Description:  , Value: 0
+				70 container
+					71 image
+					72 container
+						73 radio button (settable, integer) Description:  , Value: 1
+					74 image check
+				75 heading 테마 색상, Value: 3
+					76 text 테마 색상
+				77 container
+					78 radio button (settable, integer) Description:  , Value: 0
+					79 image check
+				80 container
+					81 radio button (settable, integer) Description:  , Value: 0
+				82 container
+					83 radio button (settable, integer) Description:  , Value: 0
+				84 container
+					85 radio button (settable, integer) Description:  , Value: 0
+				86 container
+					87 radio button (settable, integer) Description:  , Value: 0
+				88 container
+					89 radio button (settable, integer) Description:  , Value: 0
+				90 container
+					91 radio button (settable, integer) Description:  , Value: 0
+				92 container
+					93 radio button (settable, integer) Description:  , Value: 0
+				94 heading 네비게이션 설정, Value: 3
+					95 text 네비게이션 설정
+				96 container
+					97 container
+						98 text 배경색
+						99 color well (disabled, settable) #ffffff
+					100 container
+						101 text 텍스트 색상
+						102 color well (disabled, settable) #000000
+				103 image exclamation-circle
+				104 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				105 button download 세팅값 다운로드(json)
+					106 image download
+					107 text 세팅값 다운로드(json)
+				108 button undo 기본값으로 재설정
+					109 image undo
+					110 text 기본값으로 재설정
+		111 container
+			112 image menu-fold
+			113 container
+				114 combo box (settable) rc_select_0
+				115 image project
+				116 text 기본 보기
+			117 button 생성 down
+				118 text 생성
+				119 image down
+			120 image translation
+			795 container
+				796 image bell
+				797 text 1
+			122 container
+				123 text AC admin cloud
+		780 button 알림 제거
+		124 container
+			125 container
+				126 link Description: home, Value: 10.10.32.10:8080/client/#/
+				127 text /
+				128 link Description: 볼륨, Value: 10.10.32.10:8080/client/#/volume
+				798 text / VOL1424-32-20261020-final-ui-legacy
+				799 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				800 button reload 업데이트
+					801 image reload
+					802 text 업데이트
+			803 button down 작업
+				804 image down
+				805 text 작업
+			806 container
+				807 image hdd
+				808 heading VOL1424-32-20261020-final-ui-legacy, Value: 4
+					809 text VOL1424-32-20261020-final-ui-legacy
+				810 text DATADISK KVM
+				811 text 상태 사용 가능 아이디
+				812 button barcode
+					813 image barcode
+				814 link Description: 4cbfc898-cbdc-4e0d-b314-592335a2fbaa , Value: javascript:;
+				815 text 디스크 크기(GB 단위)
+				816 image hdd
+				817 text 1.00 GiB 스토리지 풀
+				818 image database
+				819 link Description: Primary, Value: 10.10.32.10:8080/client/#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122
+				820 text Shared (DATADISK) 클러스터
+				821 image cluster
+				822 link Description: Cluster, Value: 10.10.32.10:8080/client/#/cluster/722e6930-cfc8-4143-83b1-680b7348d1e9
+				823 text Pod
+				824 image appstore
+				825 link Description: Pod, Value: 10.10.32.10:8080/client/#/pod/6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad
+				826 text Zone
+				827 image global
+				828 link Description: Zone, Value: 10.10.32.10:8080/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				829 text 계정
+				830 image user
+				831 link Description: admin, Value: 10.10.32.10:8080/client/#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				832 text 도메인
+				833 image block
+				834 link Description: ROOT, Value: 10.10.32.10:8080/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				835 text 생성일
+				836 image calendar
+				837 text 2026. 10. 20. 오전 1:33:33
+				838 link Description: build 스냅샷 보기, Value: 10.10.32.10:8080/client/#/snapshot?volumeid=4cbfc898-cbdc-4e0d-b314-592335a2fbaa
+				839 container
+					840 text 태그
+					841 container
+						842 image plus
+						843 text  새 태그
+			844 container
+				845 tab group
+					846 container
+						847 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						848 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						849 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				850 container Description: 상세, ID: rc-tabs-1-panel-details
+					851 content list
+						852 container
+							853 text 이름
+							854 text VOL1424-32-20261020-final-ui-legacy
+						855 container
+							856 text 아이디
+							857 text 4cbfc898-cbdc-4e0d-b314-592335a2fbaa
+						858 container
+							859 text 유형
+							860 text DATADISK
+						861 container
+							862 text 스토리지 유형
+							863 text Shared (DATADISK)
+						864 container
+							865 text 디스크 오퍼링
+							866 text VOL1424-32-20261020-final-legacy-thin
+						867 container
+							868 text 크기
+							869 text 1.00 GiB
+						870 container
+							871 text 프로비저닝 유형
+							872 text thin
+						873 container
+							874 text 압축/중복제거
+							875 text false
+						876 container
+							877 text 압축 사용 상태
+							878 text false
+						879 container
+							880 text 중복제거 사용 상태
+							881 text false
+						882 container
+							883 text 경로
+							884 text 4cbfc898-cbdc-4e0d-b314-592335a2fbaa
+						885 container
+							886 text 삭제 보호
+							887 text false
+	709 container
+		710 image exclamation-circle
+		711 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		712 button 세부 경보 내용 확인
+		713 button 경보 규칙으로 이동
+		714 button 닫기
+			715 image close
+	790 container
+		791 image close-circle
+		792 text 요청 실패 (431) ALLOCATION_EXECUTION_NOT_IMPLEMENTED: explicit allocation requires a verified backend execution adapter and Agent capability; no legacy fallback is allowed
+		793 link close
+			794 image close
+
+The focused UI element is 0 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/volume/4cbfc898-cbdc-4e0d-b314-592335a2fbaa

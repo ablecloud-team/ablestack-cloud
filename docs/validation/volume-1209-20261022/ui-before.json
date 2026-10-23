@@ -1,0 +1,106 @@
+[
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "original-bug-more-than-23-candidates-shows-only-10-one-page",
+    "pages": [
+      "1"
+    ],
+    "rows": [
+      {
+        "id": "2eb7ada5-14ce-4202-bb21-dd8182730ff0",
+        "text": "\tVOL1209-31-Disk-01\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "d868acad-8777-4d01-bcc1-0b5d03e5fb20",
+        "text": "\tVOL1209-31-Disk-02\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "97a55672-589d-4b86-95d7-4dda4f4adffc",
+        "text": "\tVOL1209-31-Disk-03\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "d868fd40-6cac-41b3-97d2-819e4654fc73",
+        "text": "\tVOL1209-31-Disk-04\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "86846988-77a3-4591-a15e-a03f313b7633",
+        "text": "\tVOL1209-31-Disk-05\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "b0f2b5c2-312d-4da2-b9d8-d695f97ec620",
+        "text": "\tVOL1209-31-Disk-06\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "7dc5afde-c2dc-4212-aa60-9154cd89953c",
+        "text": "\tVOL1209-31-Disk-07\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "3c9ba78f-33e1-4d80-9d81-02f2e94b2849",
+        "text": "\tVOL1209-31-Disk-08\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "df1b0707-bcf3-4ab5-b494-f85fc208de3d",
+        "text": "\tVOL1209-31-Disk-09\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "cc339162-3bfd-471b-8b6a-d6dfac2479a0",
+        "text": "\tVOL1209-31-Disk-10\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      }
+    ],
+    "text": "전체 10 개 항목",
+    "reproduced": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "original-bug-more-than-23-candidates-shows-only-10-one-page",
+    "pages": [
+      "1"
+    ],
+    "rows": [
+      {
+        "id": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+        "text": "\tCustom\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "a3cf822d-80e0-4a2d-a5af-dd36455e5279",
+        "text": "\tShareable-DiskOffer\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "4233544d-1a40-48c7-a8bf-675fe3c606f9",
+        "text": "\tFTCTL Internal Root Disk\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "58cc0e7e-81a5-42ae-b84e-5caf1b5c31ab",
+        "text": "\tFTCTL Internal Data Disk\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "caa1400b-116e-4afe-87d3-c5e027032cd7",
+        "text": "\tE1335-32-QoS-10GiB-500-1000\n기존 호환 값: thin\n\t\n10 GB\n\t500 - 1000"
+      },
+      {
+        "id": "bfee28ef-b69c-4a24-8bf8-dc52ba4773a0",
+        "text": "\tAS-PROD-32-AS05-NO-POOL\n기존 호환 값: thin\n\t\n100 GB\n\t-"
+      },
+      {
+        "id": "b7ad4ab0-d613-4988-b6d7-1fc8c253d786",
+        "text": "\tVOL1209-32-Disk-01\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "70282641-25aa-4f17-a5f2-b3aa832c67cd",
+        "text": "\tVOL1209-32-Disk-02\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "31e1a980-1c65-42da-a94f-f61a77ebfec0",
+        "text": "\tVOL1209-32-Disk-03\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      },
+      {
+        "id": "a4aebef7-c35f-4187-977c-7330ca1b9508",
+        "text": "\tVOL1209-32-Disk-04\n기존 호환 값: thin\n\t\n사용자지정 디스크 크기\n\t-"
+      }
+    ],
+    "text": "전체 10 개 항목",
+    "reproduced": true
+  }
+]

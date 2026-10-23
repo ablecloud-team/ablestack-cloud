@@ -1,0 +1,54 @@
+[
+  {
+    "cluster": 31,
+    "scope": "user",
+    "vm": "5a7f0af1-2429-4e21-b131-9761a78ff6fc",
+    "volume": "97b3b8dd-b08c-4dbe-becb-42ac2493a3da",
+    "project": null,
+    "job": 14975,
+    "jobStatus": 1,
+    "uiReadyAndRelationshipVerified": true,
+    "rootRemainedAllocated": true,
+    "vmPlacementRemainedNull": true,
+    "screenshot": "31-user-pristine-attached.jpg"
+  },
+  {
+    "cluster": 31,
+    "scope": "project",
+    "vm": "9459934b-c5ee-4c38-bdf1-2a26ff882bc5",
+    "volume": "adbd1bd9-afd9-4dec-8ef2-f90063daecdb",
+    "project": "33c69157-c540-44f7-8df3-427f9ef619e2",
+    "job": 14979,
+    "jobStatus": 1,
+    "uiReadyAndRelationshipVerified": true,
+    "rootRemainedAllocated": true,
+    "vmPlacementRemainedNull": true,
+    "screenshot": "31-project-pristine-attached.jpg"
+  },
+  {
+    "cluster": 32,
+    "scope": "user",
+    "vm": "1aeb3e4b-7d29-4c64-bf8f-c325e05f3e92",
+    "volume": "c8b35317-ef21-4123-a88c-262a2024c63a",
+    "project": null,
+    "job": 2286,
+    "jobStatus": 1,
+    "uiReadyAndRelationshipVerified": true,
+    "rootRemainedAllocated": true,
+    "vmPlacementRemainedNull": true,
+    "screenshot": "32-user-pristine-attached.jpg"
+  },
+  {
+    "cluster": 32,
+    "scope": "project",
+    "vm": "7cee1ed7-98e3-404a-b354-3fc96956d1da",
+    "volume": "fc657a64-b23c-40ad-a7be-949eba8ab417",
+    "project": "ea77158d-312a-4f6e-a23b-3946d5202a6d",
+    "job": 2288,
+    "jobStatus": 1,
+    "uiReadyAndRelationshipVerified": true,
+    "rootRemainedAllocated": true,
+    "vmPlacementRemainedNull": true,
+    "screenshot": "32-project-pristine-attached.jpg"
+  }
+]

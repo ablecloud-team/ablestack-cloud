@@ -1,0 +1,1021 @@
+[
+  {
+    "cluster": 31,
+    "case": "blank-preserves-current-burst",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "unknown-result-input-and-session-preserved",
+    "injected": true,
+    "input": {
+      "disabled": true,
+      "value": "VOL1430-31-UI-Lost"
+    },
+    "saveEnabled": false,
+    "additionalPosts": 0,
+    "pass": true
+  },
+  {
+    "case": "final-desktop-dark",
+    "cluster": 31,
+    "documentWidth": 1082,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 226
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 436.65625
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 647.328125
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 226
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 436.65625
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 647.328125
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 226
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 436.65625
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 647.328125
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 226
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 436.65625
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 647.328125
+      }
+    ],
+    "modal": {
+      "width": 678,
+      "x": 202
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 1092
+  },
+  {
+    "case": "final-mobile-390-dark",
+    "cluster": 31,
+    "documentWidth": 380,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 648.90625,
+        "labelBottom": 648.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 751.75,
+        "labelBottom": 751.75,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 854.59375,
+        "labelBottom": 854.59375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 991.4375,
+        "labelBottom": 991.4375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 1094.28125,
+        "labelBottom": 1094.28125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 1197.125,
+        "labelBottom": 1197.125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 1333.96875,
+        "labelBottom": 1333.96875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 1436.8125,
+        "labelBottom": 1436.8125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 1539.65625,
+        "labelBottom": 1539.65625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1676.5,
+        "labelBottom": 1676.5,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1779.34375,
+        "labelBottom": 1779.34375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1882.1875,
+        "labelBottom": 1882.1875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 19.25
+      }
+    ],
+    "modal": {
+      "width": 373.5,
+      "x": 3.25
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 390
+  },
+  {
+    "case": "final-mobile-320-dark",
+    "cluster": 31,
+    "documentWidth": 310,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 686.59375,
+        "labelBottom": 686.59375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 789.4375,
+        "labelBottom": 789.4375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 892.28125,
+        "labelBottom": 892.28125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 1029.125,
+        "labelBottom": 1029.125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 1131.96875,
+        "labelBottom": 1131.96875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 1234.8125,
+        "labelBottom": 1234.8125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 1371.65625,
+        "labelBottom": 1371.65625,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 1474.5,
+        "labelBottom": 1474.5,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 1577.34375,
+        "labelBottom": 1577.34375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1714.1875,
+        "labelBottom": 1714.1875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1817.03125,
+        "labelBottom": 1817.03125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1919.875,
+        "labelBottom": 1919.875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      }
+    ],
+    "modal": {
+      "width": 304,
+      "x": 3
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 320
+  },
+  {
+    "cluster": 32,
+    "case": "blank-preserve-and-transport-read-retry",
+    "injected": 1,
+    "preservedRate": "5242880",
+    "pass": true
+  },
+  {
+    "case": "final-desktop-dark",
+    "cluster": 32,
+    "documentWidth": 1270,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 320
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 530.65625
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 612.375,
+        "labelBottom": 612.375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 741.328125
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 320
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 530.65625
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 749.21875,
+        "labelBottom": 749.21875,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 741.328125
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 320
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 530.65625
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 886.0625,
+        "labelBottom": 886.0625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 741.328125
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.65625,
+        "x": 320
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 530.65625
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1022.90625,
+        "labelBottom": 1022.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.671875,
+        "x": 741.328125
+      }
+    ],
+    "modal": {
+      "width": 678,
+      "x": 296
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 1280
+  },
+  {
+    "cluster": 32,
+    "case": "unknown-result-input-and-session-preserved",
+    "injected": true,
+    "input": {
+      "disabled": true,
+      "value": "VOL1430-32-UI-Lost"
+    },
+    "saveEnabled": false,
+    "pass": true
+  },
+  {
+    "case": "final-mobile-390-dark",
+    "cluster": 32,
+    "documentWidth": 380,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 1470.90625,
+        "labelBottom": 1470.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 1573.75,
+        "labelBottom": 1573.75,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 1676.59375,
+        "labelBottom": 1676.59375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 1813.4375,
+        "labelBottom": 1813.4375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 1916.28125,
+        "labelBottom": 1916.28125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 2019.125,
+        "labelBottom": 2019.125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 2155.96875,
+        "labelBottom": 2155.96875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 2258.8125,
+        "labelBottom": 2258.8125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 2361.65625,
+        "labelBottom": 2361.65625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 2498.5,
+        "labelBottom": 2498.5,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 2601.34375,
+        "labelBottom": 2601.34375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 2704.1875,
+        "labelBottom": 2704.1875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      }
+    ],
+    "modal": {
+      "width": 373.5,
+      "x": 0
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 390
+  },
+  {
+    "case": "final-mobile-320-dark",
+    "cluster": 32,
+    "documentWidth": 310,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 686.59375,
+        "labelBottom": 686.59375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 789.4375,
+        "labelBottom": 789.4375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 892.28125,
+        "labelBottom": 892.28125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 1029.125,
+        "labelBottom": 1029.125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 1131.96875,
+        "labelBottom": 1131.96875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 1234.8125,
+        "labelBottom": 1234.8125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 1371.65625,
+        "labelBottom": 1371.65625,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 1474.5,
+        "labelBottom": 1474.5,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 1577.34375,
+        "labelBottom": 1577.34375,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1714.1875,
+        "labelBottom": 1714.1875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1817.03125,
+        "labelBottom": 1817.03125,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1919.875,
+        "labelBottom": 1919.875,
+        "outside": false,
+        "overlap": false,
+        "width": 272,
+        "x": 19
+      }
+    ],
+    "modal": {
+      "width": 304,
+      "x": 3
+    },
+    "theme": "dark-mode ant-scrolling-effect",
+    "viewport": 320
+  },
+  {
+    "case": "final-desktop-light",
+    "cluster": 32,
+    "documentWidth": 1270,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 611.478271484375,
+        "labelBottom": 611.478271484375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.36203002929688,
+        "x": 321.1627502441406
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 611.478271484375,
+        "labelBottom": 611.478271484375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.37762451171875,
+        "x": 531.5069580078125
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 611.478271484375,
+        "labelBottom": 611.478271484375,
+        "outside": false,
+        "overlap": false,
+        "width": 198.3775634765625,
+        "x": 741.8668212890625
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 748.1193237304688,
+        "labelBottom": 748.1193237304688,
+        "outside": false,
+        "overlap": false,
+        "width": 198.36203002929688,
+        "x": 321.1627502441406
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 748.1193237304688,
+        "labelBottom": 748.1193237304688,
+        "outside": false,
+        "overlap": false,
+        "width": 198.37762451171875,
+        "x": 531.5069580078125
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 748.1193237304688,
+        "labelBottom": 748.1193237304688,
+        "outside": false,
+        "overlap": false,
+        "width": 198.3775634765625,
+        "x": 741.8668212890625
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 884.7603759765625,
+        "labelBottom": 884.7603759765625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.36203002929688,
+        "x": 321.1627502441406
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 884.7603759765625,
+        "labelBottom": 884.7603759765625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.37762451171875,
+        "x": 531.5069580078125
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 884.7603759765625,
+        "labelBottom": 884.7603759765625,
+        "outside": false,
+        "overlap": false,
+        "width": 198.3775634765625,
+        "x": 741.8668212890625
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 1021.4014282226562,
+        "labelBottom": 1021.4014282226562,
+        "outside": false,
+        "overlap": false,
+        "width": 198.36203002929688,
+        "x": 321.1627502441406
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 1021.4014282226562,
+        "labelBottom": 1021.4014282226562,
+        "outside": false,
+        "overlap": false,
+        "width": 198.37762451171875,
+        "x": 531.5069580078125
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 1021.4014282226562,
+        "labelBottom": 1021.4014282226562,
+        "outside": false,
+        "overlap": false,
+        "width": 198.3775634765625,
+        "x": 741.8668212890625
+      }
+    ],
+    "modal": {
+      "width": 676.9957275390625,
+      "x": 297.19830322265625
+    },
+    "theme": "ant-scrolling-effect",
+    "viewport": 1280
+  },
+  {
+    "case": "final-mobile-390-light",
+    "cluster": 32,
+    "documentWidth": 380,
+    "inputs": [
+      {
+        "field": "bytesreadrate",
+        "inputTop": 1470.90625,
+        "labelBottom": 1470.90625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "bytesreadratemax",
+        "inputTop": 1573.75,
+        "labelBottom": 1573.75,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "bytesreadratemaxlength",
+        "inputTop": 1676.59375,
+        "labelBottom": 1676.59375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriterate",
+        "inputTop": 1813.4375,
+        "labelBottom": 1813.4375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriteratemax",
+        "inputTop": 1916.28125,
+        "labelBottom": 1916.28125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "byteswriteratemaxlength",
+        "inputTop": 2019.125,
+        "labelBottom": 2019.125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadrate",
+        "inputTop": 2155.96875,
+        "labelBottom": 2155.96875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadratemax",
+        "inputTop": 2258.8125,
+        "labelBottom": 2258.8125,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopsreadratemaxlength",
+        "inputTop": 2361.65625,
+        "labelBottom": 2361.65625,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriterate",
+        "inputTop": 2498.5,
+        "labelBottom": 2498.5,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriteratemax",
+        "inputTop": 2601.34375,
+        "labelBottom": 2601.34375,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      },
+      {
+        "field": "iopswriteratemaxlength",
+        "inputTop": 2704.1875,
+        "labelBottom": 2704.1875,
+        "outside": false,
+        "overlap": false,
+        "width": 331.5,
+        "x": 16
+      }
+    ],
+    "modal": {
+      "width": 373.5,
+      "x": 0
+    },
+    "theme": "ant-scrolling-effect",
+    "viewport": 390
+  },
+  {
+    "cluster": 31,
+    "case": "browser-cleanup",
+    "themeDark": true,
+    "interceptionCleared": true,
+    "viewportCleared": true,
+    "cacheRestored": true
+  },
+  {
+    "cluster": 32,
+    "case": "browser-cleanup",
+    "themeDark": true,
+    "interceptionCleared": true,
+    "viewportCleared": true,
+    "cacheRestored": true
+  }
+]

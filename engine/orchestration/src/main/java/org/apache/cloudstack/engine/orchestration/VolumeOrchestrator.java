@@ -335,6 +335,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     @Override
     public VolumeInfo moveVolume(VolumeInfo volumeInfo, long destPoolDcId, Long destPoolPodId, Long destPoolClusterId, HypervisorType dataDiskHyperType)
             throws ConcurrentOperationException, StorageUnavailableException {
+        com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volDetailDao.listDetailsKeyPairs(volumeInfo.getId()), "move volume");
         String volumeToString = getReflectOnlySelectedFields(volumeInfo.getVolume());
 
         // Find a destination storage pool with the specified criteria
@@ -364,6 +365,11 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     }
 
     public VolumeVO allocateDuplicateVolumeVO(Volume oldVol, DiskOffering diskOffering, Long templateId) {
+        com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volDetailDao.listDetailsKeyPairs(oldVol.getId()), "duplicate volume");
+        com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailDao.listDetailsKeyPairs(oldVol.getDiskOfferingId()));
+        if (diskOffering != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailDao.listDetailsKeyPairs(diskOffering.getId()));
+        }
         VolumeVO newVol = new VolumeVO(oldVol.getVolumeType(), oldVol.getName(), oldVol.getDataCenterId(), oldVol.getDomainId(), oldVol.getAccountId(), oldVol.getDiskOfferingId(),
                 oldVol.getProvisioningType(), oldVol.getSize(), oldVol.getMinIops(), oldVol.getMaxIops(), oldVol.get_iScsiName());
         if (templateId != null) {
@@ -1156,6 +1162,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
             minIops = minIops != null ? minIops : offering.getMinIops();
             maxIops = maxIops != null ? maxIops : offering.getMaxIops();
 
+            com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(_diskOfferingDetailDao.listDetailsKeyPairs(offering.getId()));
             VolumeVO vol = new VolumeVO(type, name, vm.getDataCenterId(), owner.getDomainId(), owner.getId(), offering.getId(), offering.getProvisioningType(), size, minIops, maxIops, null);
             if (vm != null) {
                 vol.setInstanceId(vm.getId());
@@ -1221,6 +1228,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         minIops = minIops != null ? minIops : offering.getMinIops();
         maxIops = maxIops != null ? maxIops : offering.getMaxIops();
 
+        com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(_diskOfferingDetailDao.listDetailsKeyPairs(offering.getId()));
         VolumeVO vol = new VolumeVO(type, name, vm.getDataCenterId(), owner.getDomainId(), owner.getId(), offering.getId(), offering.getProvisioningType(), size, minIops, maxIops, null);
         if (vm != null) {
             vol.setInstanceId(vm.getId());
@@ -1271,6 +1279,10 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
 
     private DiskProfile allocateTemplatedVolume(Type type, String name, DiskOffering offering, Long rootDisksize, Long minIops, Long maxIops, VirtualMachineTemplate template, VirtualMachine vm,
                                                 Account owner, long deviceId, String configurationId, Long kmsKeyId, Volume volume, Snapshot snapshot) {
+        com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(_diskOfferingDetailDao.listDetailsKeyPairs(offering.getId()));
+        if (volume != null || snapshot != null) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_diskOfferingDetailDao.listDetailsKeyPairs(offering.getId()), "restore/attach existing root");
+        }
         assert (template.getFormat() != ImageFormat.ISO) : "ISO is not a template.";
 
         if (volume != null) {
@@ -1430,8 +1442,31 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         });
     }
 
+    private void validateSavedAllocation(Long diskOfferingId, Long volumeId) {
+        java.util.Map<String, String> frozen = com.cloud.storage.VolumeAllocationLifecycle.intent(_volDetailDao.listDetailsKeyPairs(volumeId));
+        java.util.Map<String, String> intent = com.cloud.storage.VolumeAllocationLifecycle.intent(_diskOfferingDetailDao.listDetailsKeyPairs(diskOfferingId));
+        if (!frozen.isEmpty() && !frozen.equals(intent)) {
+            throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_CONVERSION_UNSUPPORTED: immutable volume intent cannot change with its offering");
+        }
+        if (frozen.isEmpty() && !intent.isEmpty()) {
+            VolumeVO existing = _volsDao.findById(volumeId);
+            if (existing != null && existing.getState() != Volume.State.Allocated) {
+                throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_CONVERSION_UNSUPPORTED: cannot add explicit intent to an existing image");
+            }
+        }
+    }
+
     @Override
     public void saveVolumeDetails(Long diskOfferingId, Long volumeId) {
+        validateSavedAllocation(diskOfferingId, volumeId);
+        java.util.Map<String, String> frozen = com.cloud.storage.VolumeAllocationPolicy.validateStored(_volDetailDao.listDetailsKeyPairs(volumeId));
+        java.util.Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.requireCreationIntent(_diskOfferingDetailDao.listDetailsKeyPairs(diskOfferingId));
+        if (frozen.isEmpty() && !intent.isEmpty()) {
+            for (java.util.Map.Entry<String, String> entry : intent.entrySet()) {
+                _volDetailDao.addDetail(volumeId, entry.getKey(), entry.getValue(), false);
+            }
+        }
+
         List<VolumeDetailVO> volumeDetailsVO = new ArrayList<>();
         DiskOfferingDetailVO bandwidthLimitDetail = _diskOfferingDetailDao.findDetail(diskOfferingId, Volume.BANDWIDTH_LIMIT_IN_MBPS);
         if (bandwidthLimitDetail != null) {
@@ -1846,6 +1881,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
     @Override
     @DB
     public Volume migrateVolume(Volume volume, StoragePool destPool) throws StorageUnavailableException {
+        com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volDetailDao.listDetailsKeyPairs(volume.getId()), "migrate volume");
         String volumeToString = getVolumeIdentificationInfos(volume);
 
         VolumeInfo vol = volFactory.getVolume(volume.getId());
@@ -1919,11 +1955,19 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         }
     }
 
+    private void requireAllocationMigration(Map<Volume, StoragePool> volumeToPool) {
+        for (Volume volume : volumeToPool.keySet()) {
+            com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volDetailDao.listDetailsKeyPairs(volume.getId()), "VM storage migration");
+        }
+    }
+
     @Override
     public void migrateVolumes(VirtualMachine vm, VirtualMachineTO vmTo, Host srcHost, Host destHost, Map<Volume, StoragePool> volumeToPool) {
         // Check if all the vms being migrated belong to the vm.
         // Check if the storage pool is of the right type.
         // Create a VolumeInfo to DataStore map too.
+
+        requireAllocationMigration(volumeToPool);
 
         Map<VolumeInfo, DataStore> volumeMap = new HashMap<VolumeInfo, DataStore>();
         for (Map.Entry<Volume, StoragePool> entry : volumeToPool.entrySet()) {
@@ -2877,6 +2921,7 @@ public class VolumeOrchestrator extends ManagerBase implements VolumeOrchestrati
         minIops = minIops != null ? minIops : offering.getMinIops();
         maxIops = maxIops != null ? maxIops : offering.getMaxIops();
 
+        com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailDao.listDetailsKeyPairs(offering.getId()));
         VolumeVO vol = new VolumeVO(type, name, zoneId, owner.getDomainId(), owner.getId(), offering.getId(), offering.getProvisioningType(), sizeInBytes, minIops, maxIops, null);
         if (vm != null) {
             vol.setInstanceId(vm.getId());

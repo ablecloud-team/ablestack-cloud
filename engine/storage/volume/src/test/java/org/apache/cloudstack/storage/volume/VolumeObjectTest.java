@@ -102,6 +102,7 @@ public class VolumeObjectTest extends TestCase{
         volumeObjectSpy.configure(dataStoreMock, volumeVoMock);
         volumeObjectSpy.volumeStoreDao = volumeDataStoreDaoMock;
         volumeObjectSpy.volumeDao = volumeDaoMock;
+        volumeObjectSpy.volumeDetailsDao = Mockito.mock(com.cloud.storage.dao.VolumeDetailsDao.class);
         volumeObjectSpy.objectInStoreMgr = objectInDataStoreManagerMock;
 
         diskOfferingVoMethodsWithLongReturn.add(DiskOfferingVO::getBytesReadRate);

@@ -1,0 +1,266 @@
+{
+  "success": true,
+  "passedSuites": 3,
+  "passedTests": 61,
+  "suites": [
+    {
+      "path": "tests/unit/views/storage/AttachVolume.spec.js",
+      "cases": [
+        {
+          "name": "display name takes priority; fallback and duplicate identity contain UUID",
+          "status": "passed"
+        },
+        {
+          "name": "searches display/name/instance/UUID:  변경된 표시이름 ",
+          "status": "passed"
+        },
+        {
+          "name": "searches display/name/instance/UUID: OLD-HOSTNAME",
+          "status": "passed"
+        },
+        {
+          "name": "searches display/name/instance/UUID: I-2-50-vm",
+          "status": "passed"
+        },
+        {
+          "name": "searches display/name/instance/UUID: UUID-1",
+          "status": "passed"
+        },
+        {
+          "name": "fetches all state pages with immutable owner filters; publishes only after both finish",
+          "status": "passed"
+        },
+        {
+          "name": "project scope omits account/domain, and None hypervisor is omitted",
+          "status": "passed"
+        },
+        {
+          "name": "failed later page preserves previous rows/selection, blocks submit, retry replaces atomically",
+          "status": "passed"
+        },
+        {
+          "name": "late owner response is ignored and selection is cleared when scope changes",
+          "status": "passed"
+        },
+        {
+          "name": "new lookup supersedes prior lookup and removed selection is cleared",
+          "status": "passed"
+        },
+        {
+          "name": "fresh missing/ineligible VM blocks attach: []",
+          "status": "passed"
+        },
+        {
+          "name": "fresh missing/ineligible VM blocks attach: [{\"id\":\"uuid-1\",\"name\":\"old-hostname\",\"displayname\":\"변경된 표시이름\",\"instancename\":\"i-2-50-VM\",\"state\":\"Destroyed\",\"zoneid\":\"zone\",\"account\":\"owner\",\"domainid\":\"domain\",\"volumemutationblockedreason\":\"\"}]",
+          "status": "passed"
+        },
+        {
+          "name": "fresh missing/ineligible VM blocks attach: [{\"id\":\"uuid-1\",\"name\":\"old-hostname\",\"displayname\":\"변경된 표시이름\",\"instancename\":\"i-2-50-VM\",\"state\":\"Stopped\",\"zoneid\":\"zone\",\"account\":\"other\",\"domainid\":\"domain\",\"volumemutationblockedreason\":\"\"}]",
+          "status": "passed"
+        },
+        {
+          "name": "fresh missing/ineligible VM blocks attach: [{\"id\":\"uuid-1\",\"name\":\"old-hostname\",\"displayname\":\"변경된 표시이름\",\"instancename\":\"i-2-50-VM\",\"state\":\"Stopped\",\"zoneid\":\"zone\",\"account\":\"owner\",\"domainid\":\"domain\",\"volumemutationblockedreason\":\"backup\"}]",
+          "status": "passed"
+        },
+        {
+          "name": "same-name selection submits exact UUID after fresh validation; locks duplicate validation clicks",
+          "status": "passed"
+        },
+        {
+          "name": "project switch during preflight never posts old selection",
+          "status": "passed"
+        },
+        {
+          "name": "missing backup metadata disables candidate; empty results block submit",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "path": "tests/unit/views/compute/VmVolumesTab.spec.js",
+      "cases": [
+        {
+          "name": "periodic refresh preserves rows and columns while pending and after failure",
+          "status": "passed"
+        },
+        {
+          "name": "same VM parent update does not reset data or refresh presentation",
+          "status": "passed"
+        },
+        {
+          "name": "rejects stale response after VM switch",
+          "status": "passed"
+        },
+        {
+          "name": "permission is rechecked before mutation and detach defaults to preserve",
+          "status": "passed"
+        },
+        {
+          "name": "changed attachment prevents detach and subsequent deletion",
+          "status": "passed"
+        },
+        {
+          "name": "passes chosen device ID only to attachVolume (existing)",
+          "status": "passed"
+        },
+        {
+          "name": "passes chosen device ID only to attachVolume (create)",
+          "status": "passed"
+        },
+        {
+          "name": "snapshots block createVolume before any mutation",
+          "status": "passed"
+        },
+        {
+          "name": "snapshots block attachVolume before any mutation",
+          "status": "passed"
+        },
+        {
+          "name": "snapshots block detachVolume before any mutation",
+          "status": "passed"
+        },
+        {
+          "name": "unknown snapshots fail closed for missing permission and failed refresh",
+          "status": "passed"
+        },
+        {
+          "name": "pending snapshot request blocks actions and an old VM response cannot unlock new VM",
+          "status": "passed"
+        },
+        {
+          "name": "opening a dialog rechecks snapshots and refresh after last removal restores eligibility",
+          "status": "passed"
+        },
+        {
+          "name": "snapshot created after volume creation blocks attach and retry reuses the created volume",
+          "status": "passed"
+        },
+        {
+          "name": "backup guard prevents creation before allocating a disk (BACKUP_EXISTS)",
+          "status": "passed"
+        },
+        {
+          "name": "backup guard prevents creation before allocating a disk (BACKUP_SCHEDULE_EXISTS)",
+          "status": "passed"
+        },
+        {
+          "name": "backup protection appearing after creation preserves the disk and retries only attach",
+          "status": "passed"
+        },
+        {
+          "name": "project VM ROOT and snapshot reads use the VM project even from the default view",
+          "status": "passed"
+        },
+        {
+          "name": "snapshot verification retains display while blocking actions; failure replaces it with unknown",
+          "status": "passed"
+        },
+        {
+          "name": "tab refresh and safety reads opt into the existing failure-preserving transport contract",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "path": "tests/unit/views/storage/VolumeOperationDialogs.spec.js",
+      "cases": [
+        {
+          "name": "offering custom values and checked default are sent, including explicit zero",
+          "status": "passed"
+        },
+        {
+          "name": "fixed offering never receives stale custom size or IOPS fields",
+          "status": "passed"
+        },
+        {
+          "name": "blank custom values retain current values; missing API fields are not sent",
+          "status": "passed"
+        },
+        {
+          "name": "invalid IOPS -1 cannot be submitted",
+          "status": "passed"
+        },
+        {
+          "name": "invalid IOPS 1.5 cannot be submitted",
+          "status": "passed"
+        },
+        {
+          "name": "invalid IOPS 1e3 cannot be submitted",
+          "status": "passed"
+        },
+        {
+          "name": "invalid IOPS Infinity cannot be submitted",
+          "status": "passed"
+        },
+        {
+          "name": "invalid IOPS 9007199254740992 cannot be submitted",
+          "status": "passed"
+        },
+        {
+          "name": "pair ordering, size range and policy conversion are rejected",
+          "status": "passed"
+        },
+        {
+          "name": "shrink requires acknowledgement and supported format for fixed and custom sizes",
+          "status": "passed"
+        },
+        {
+          "name": "same explicit policy permits unchanged size but blocks size changes",
+          "status": "passed"
+        },
+        {
+          "name": "migration collects pages, excludes current pool and avoids Down as default",
+          "status": "passed"
+        },
+        {
+          "name": "replacement offering lookup uses exact selected pool UUID and ignores stale responses",
+          "status": "passed"
+        },
+        {
+          "name": "empty or failed pool refresh blocks mutation and retry preserves selection",
+          "status": "passed"
+        },
+        {
+          "name": "detached migration omits replacement and explicit allocation never queries or posts",
+          "status": "passed"
+        },
+        {
+          "name": "offering defaults use selected compatible row rather than the incompatible first row",
+          "status": "passed"
+        },
+        {
+          "name": "offering read failure retains all fields and retries in the same dialog",
+          "status": "passed"
+        },
+        {
+          "name": "fixed offering with no IOPS limits clears existing limits and must show a change",
+          "status": "passed"
+        },
+        {
+          "name": "offering duplicate submit is blocked until the job finishes, with correct boolean default",
+          "status": "passed"
+        },
+        {
+          "name": "offering stale volume or project context cannot mutate",
+          "status": "passed"
+        },
+        {
+          "name": "unknown submit for $name preserves input and cannot post twice",
+          "status": "passed"
+        },
+        {
+          "name": "unknown submit for $name preserves input and cannot post twice",
+          "status": "passed"
+        },
+        {
+          "name": "unknown job for $name resumes the same job without a second POST",
+          "status": "passed"
+        },
+        {
+          "name": "unknown job for $name resumes the same job without a second POST",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

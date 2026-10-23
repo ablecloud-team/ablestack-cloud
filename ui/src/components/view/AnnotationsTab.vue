@@ -79,7 +79,7 @@
                   :title="this.$localStorage.get('LOCALE') == 'ko_KR' ?
                           (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + $t('label.make') + '?' :
                           $t('label.make') + ' ' + (item.adminsonly ? $t('label.annotation.everyone') : $t('label.adminsonly')) + '?'"
-                  v-if="['Admin'].includes($store.getters.userInfo.roletype)"
+                  v-if="['Admin'].includes($store.getters.userInfo.roletype) && 'updateAnnotationVisibility' in $store.getters.apis"
                   key="visibility"
                   @confirm="updateVisibility(item)"
                   :okText="$t('label.yes')"
@@ -130,12 +130,12 @@
 </template>
 
 <script>
-import { listRefreshMixin } from '@/utils/listRefreshMixin'
+import { listRefreshMixin, detailTabRouteKey } from '@/utils/listRefreshMixin'
 
 import { getAPI, postAPI } from '@/api'
 
 export default {
-  mixins: [listRefreshMixin(['getAnnotations'])],
+  mixins: [listRefreshMixin(['getAnnotations'], { routeKey: vm => detailTabRouteKey(vm.$route) })],
   name: 'AnnotationsTab',
   props: {
     resource: {
@@ -244,7 +244,7 @@ export default {
         return
       }
       this.loadingAnnotations = !listRequest.loaded
-      return getAPI('listAnnotations', { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize }).then(json => {
+      return getAPI('listAnnotations', { entityid: this.resource.id, entitytype: this.annotationType, annotationfilter: 'all', page: this.page, pagesize: this.pageSize }, { preserveOnFailure: true }).then(json => {
         if (!this.isListRequestCurrent('getAnnotations', listRequest)) return
         this.notes = json.listannotationsresponse?.annotation || []
         this.itemCount = json.listannotationsresponse?.count || 0
@@ -293,7 +293,7 @@ export default {
       this.loadingAnnotations = true
       const args = {}
       args.id = annotation.id
-      postAPI('removeAnnotation', args).catch(error => {
+      postAPI('removeAnnotation', args, { preserveOnFailure: true }).catch(error => {
         this.$notifyError(error)
       }).finally(e => {
         this.getAnnotations()
@@ -305,7 +305,7 @@ export default {
         id: annotation.id,
         adminsonly: !annotation.adminsonly
       }
-      postAPI('updateAnnotationVisibility', args).catch(error => {
+      postAPI('updateAnnotationVisibility', args, { preserveOnFailure: true }).catch(error => {
         this.$notifyError(error)
       }).finally(e => {
         this.getAnnotations()

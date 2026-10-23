@@ -175,17 +175,19 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <div :span="24" class="action-button">
+      <MoldDialogActions :span="24" :busy="loading">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
         <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-      </div>
+      </MoldDialogActions>
     </a-form>
   </a-spin>
 </template>
 
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -195,6 +197,7 @@ export default {
   name: 'CreateTemplate',
   mixins: [mixinForm],
   components: {
+    MoldDialogActions,
     ResourceIcon,
     TooltipLabel,
     InfiniteScrollSelect

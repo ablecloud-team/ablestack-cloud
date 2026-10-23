@@ -38,7 +38,7 @@ then
 fi
 
 untar() {
-  local ft=$(file $1| awk -F" " '{print $2}')
+  local ft=$(file "$1"| awk -F" " '{print $2}')
   local basedir=$(dirname $1)
   case $ft in
   USTAR)  local rootimg=$(tar tf $1 | grep $3)
@@ -54,7 +54,7 @@ untar() {
 }
 
 uncompress() {
-  local ft=$(file $1| awk -F" " '{print $2}')
+  local ft=$(file "$1"| awk -F" " '{print $2}')
   local imgfile=${1%.*} #strip out trailing file suffix
   local tmpfile=${imgfile}.tmp
 
@@ -88,23 +88,25 @@ create_from_file() {
   local tmpltfs=$1
   local tmpltimg="$2"
   local tmpltname=$3
-  if [ -b $tmpltimg ]; then
-      $qemu_img convert -f raw -O qcow2 "$tmpltimg" /$tmpltfs/$tmpltname
+  local target="/$tmpltfs/$tmpltname"
+  local format
+  format=$($qemu_img info "$tmpltimg") || return 1
+  if [ -b "$tmpltimg" ] || printf '%s\n' "$format" | grep -q '^file format: raw$'; then
+      $qemu_img convert -f raw -O qcow2 "$tmpltimg" "$target" || return 1
   else
     # if backing image exists, we need to combine them, otherwise
     # copy the image to preserve snapshots/compression
-    if $qemu_img info "$tmpltimg" | grep -q backing; then
-      $qemu_img convert -f qcow2 -O qcow2 "$tmpltimg" /$tmpltfs/$tmpltname >& /dev/null
+    if printf '%s\n' "$format" | grep -q backing; then
+      $qemu_img convert -f qcow2 -O qcow2 "$tmpltimg" "$target" || return 1
     else
-      cp -f $tmpltimg /$tmpltfs/$tmpltname
+      cp -f -- "$tmpltimg" "$target" || return 1
     fi
   fi
 
-  if [ "$cleanup" == "true" ]
-  then
-    rm -f "$tmpltimg"
-  fi
-  chmod a+r /$tmpltfs/$tmpltname
+  # A valid header alone cannot detect an interrupted copy with zeroed L2 entries.
+  # Verify guest-visible data before publishing the template's properties.
+  $qemu_img compare "$tmpltimg" "$target" || return 1
+  chmod a+r "$target" || return 1
 }
 
 create_from_snapshot() {
@@ -113,14 +115,14 @@ create_from_snapshot() {
   local tmpltfs=$3
   local tmpltname=$4
 
-  $qemu_img convert -f qcow2 -O qcow2 -s "$snapshotName" "$tmpltImg" /$tmpltfs/$tmpltname >& /dev/null
+  $qemu_img convert -f qcow2 -O qcow2 -s "$snapshotName" "$tmpltImg" "/$tmpltfs/$tmpltname"
   if [ $? -gt 0 ]
   then
      printf "Failed to create template /$tmpltfs/$tmpltname from snapshot $snapshotName on disk $tmpltImg "
      exit 2
   fi
 
-  chmod a+r /$tmpltfs/$tmpltname
+  chmod a+r "/$tmpltfs/$tmpltname" || return 1
 }
 
 tflag=
@@ -163,9 +165,9 @@ do
 done
 
 
-if [ ! -d /$tmpltfs ]
+if [ ! -d "/$tmpltfs" ]
 then
-  mkdir -p /$tmpltfs
+  mkdir -p "/$tmpltfs"
   if [ $? -gt 0 ]
   then
     printf "Failed to create user fs $tmpltfs\n" >&2
@@ -173,7 +175,7 @@ then
   fi
 fi
 
-if [ ! -f $tmpltimg -a ! -b $tmpltimg ]
+if [ ! -f "$tmpltimg" ] && [ ! -b "$tmpltimg" ]
 then
   printf "root disk file $tmpltimg doesn't exist\n"
   exit 3
@@ -182,24 +184,30 @@ fi
 tmpltimg=$(uncompress "$tmpltimg")
 if [ $? -ne 0 ]
 then
-  printf "failed to uncompress $tmpltimg\n"
+  printf "failed to uncompress %s\n" "$tmpltimg" >&2
+  exit 1
 fi
 
+target="/$tmpltfs/$tmpltname"
+properties="/$tmpltfs/template.properties"
+complete=false
+# A failed copy must never leave a readable partial template or success metadata.
+trap 'if [ "$complete" != "true" ]; then rm -f -- "$target" "$properties"; fi' EXIT
 if [ "$sflag" == "1" ]
 then
-   create_from_snapshot  "$tmpltimg" "$snapshotName" $tmpltfs $tmpltname
+   create_from_snapshot "$tmpltimg" "$snapshotName" "$tmpltfs" "$tmpltname" || exit 2
 else
-   create_from_file $tmpltfs "$tmpltimg" $tmpltname
+   create_from_file "$tmpltfs" "$tmpltimg" "$tmpltname" || exit 2
 fi
 
-touch /$tmpltfs/template.properties
-chmod a+r /$tmpltfs/template.properties
-echo -n "" > /$tmpltfs/template.properties
-
 today=$(date '+%m_%d_%Y')
-echo "filename=$tmpltname" > /$tmpltfs/template.properties
-echo "snapshot.name=$today" >> /$tmpltfs/template.properties
-echo "description=$descr" >> /$tmpltfs/template.properties
+{
+  printf 'filename=%s\n' "$tmpltname" &&
+  printf 'snapshot.name=%s\n' "$today" &&
+  printf 'description=%s\n' "$descr"
+} > "$properties" || exit 2
+chmod a+r "$properties" || exit 2
+complete=true
 
 if [ "$cleanup" == "true" ]
 then

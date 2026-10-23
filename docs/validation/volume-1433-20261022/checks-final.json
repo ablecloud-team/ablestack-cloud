@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "60bf0bd3fe08d5cd8d82c3ffb8e509460ee22162",
+  "node": "v20.20.2",
+  "results": {
+    "lint": 0,
+    "focused-tests": 0
+  },
+  "suites": [
+    "tests/unit/components/view/ResourceView.spec.js",
+    "tests/unit/components/view/ActionButton.spec.js",
+    "tests/unit/components/view/ListViewDiskOffering.spec.js",
+    "tests/unit/components/view/MoldDialog.spec.js",
+    "tests/unit/components/offering/LinkedDiskOffering.spec.js",
+    "tests/unit/api/request.spec.js",
+    "tests/unit/api/optionalRequest.spec.js",
+    "tests/unit/views/AutogenActionFocus.spec.js",
+    "tests/unit/views/AutogenView.spec.js",
+    "tests/unit/views/compute/DiskOfferingPagination.spec.js",
+    "tests/unit/views/compute/DeploymentDiskOfferings.spec.js",
+    "tests/unit/views/compute/DiskOfferingAllocationTable.spec.js",
+    "tests/unit/views/storage/AttachVolume.spec.js",
+    "tests/unit/views/storage/OfferingPerformance.spec.js",
+    "tests/unit/views/storage/ResizeVolume.spec.js",
+    "tests/unit/views/storage/StorageManagement.spec.js",
+    "tests/unit/views/storage/StorageUiStandard.spec.js",
+    "tests/unit/views/storage/CreateVolumeStorageTags.spec.js",
+    "tests/unit/views/storage/VolumeOperationDialogs.spec.js",
+    "tests/unit/views/storage/UpdateVolume.spec.js",
+    "tests/unit/views/storage/StorageRelatedTabs.spec.js"
+  ]
+}

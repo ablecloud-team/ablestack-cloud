@@ -1,0 +1,236 @@
+[
+  {
+    "cluster": 31,
+    "case": "UI-account-transfer",
+    "requests": [
+      {
+        "command": "assignVolume",
+        "volumeid": "385b7b02-3f5d-4c37-a711-6907b130f4c7",
+        "accountid": "4355926e-c2ee-4b46-a558-0f3f9a8ff379"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-project-transfer",
+    "requests": [
+      {
+        "command": "assignVolume",
+        "volumeid": "385b7b02-3f5d-4c37-a711-6907b130f4c7",
+        "projectid": "759a31ca-897e-442a-9660-796f09278e4e"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-project-view-to-account-ignore-source-project",
+    "requests": [
+      {
+        "command": "assignVolume",
+        "volumeid": "385b7b02-3f5d-4c37-a711-6907b130f4c7",
+        "accountid": "bfa98f88-8023-480d-b905-59578ec0217d"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-access-UUID-noop",
+    "posts": 0,
+    "dialogClosed": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-specific-read-network-failure",
+    "controlled": true,
+    "readError": "Network Error",
+    "saveDisabled": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-unknown-post-result-input-preserved-and-locked",
+    "controlled": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "UI-RBD-account-transfer",
+    "requests": [
+      {
+        "command": "assignVolume",
+        "volumeid": "b2df19d2-632e-4ba3-a87d-f8252e48a5e8",
+        "accountid": "ab919659-425a-4ba0-b7f9-2e47a942bd8d"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "UI-RBD-project-transfer",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "UI-child-account-transfer",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "UI-public-compute-management-hidden-clone-only",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "UI-compute-name-only-tag-permission",
+    "tagsHidden": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "UI-access-public-and-zone-controls-hidden",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "UI-own-attached-actions-no-assign-no-edit",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "UI-owned-comments-read-and-add",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "UI-owned-events-pagination",
+    "rows": 10,
+    "total": 30,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "UI-real-foreign-UUID-denied-redirect-dashboard",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "UI-project-volume-no-assign",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "UI-project-owned-comments",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-compute-name-only-no-policy-or-external-post",
+    "requests": [
+      {
+        "command": "updateServiceOffering",
+        "id": "c0c34811-6e3a-48fb-af27-150875d8bd74",
+        "name": "VOL1432-31-purgeCompute-UI"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-external-clear-requires-confirmation",
+    "posts": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-explicit-purge-false-and-external-clear",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-explicit-purge-true-and-external-edit",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-clone-external-prefix-and-internal-filter",
+    "externalKeys": [
+      "externaldetails[0].audit.ui"
+    ],
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "UI-compute-name-only",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "UI-real-snapshot-preflight-block-input-preserved",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-real-snapshot-preflight-block-no-write",
+    "posts": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-assignment-responsive-390-320",
+    "method": "DOM geometry; no bitmap claim",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-attached-volume-assign-disabled",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-policy-read-failure-preserves-existing-row",
+    "controlled": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-policy-retry-reconciles-real-deletion",
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-access-responsive-320",
+    "geometry": {
+      "clientWidth": 310,
+      "overflow": 0,
+      "scrollWidth": 310,
+      "viewport": 320
+    },
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "UI-compute-responsive-320",
+    "geometry": {
+      "clientWidth": 300,
+      "overflow": 0,
+      "scrollWidth": 304,
+      "viewport": 320
+    },
+    "pass": true,
+    "note": "All interactive controls remain inside the 320px viewport. Dialog internal border-box scroll/client widths differ by 4px; no clipped controls. Full visual standardization remains #1433."
+  }
+]

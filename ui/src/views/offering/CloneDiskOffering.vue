@@ -17,7 +17,8 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
-    <a-spin :spinning="loading">
+    <a-spin :spinning="loading || sourceLoading">
+      <a-alert v-if="sourceError" type="error" :message="sourceError" show-icon><template #description><a-button @click="fetchSourceOffering">{{ $t('label.retry') }}</a-button></template></a-alert>
       <a-alert
         v-if="resource"
         type="info"
@@ -40,10 +41,10 @@
         :isAdmin="isAdmin"
         @submit="handleSubmit">
         <template #form-actions>
-          <div :span="24" class="action-button">
+          <MoldDialogActions :span="24" :busy="loading || sourceLoading">
             <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-          </div>
+            <a-button :loading="loading" :disabled="sourceLoading || !sourceReady" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          </MoldDialogActions>
         </template>
       </DiskOfferingForm>
     </a-spin>
@@ -51,14 +52,21 @@
 </template>
 
 <script>
+import storageDialogContext from '@/utils/storageDialogContext'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import DiskOfferingForm from '@/components/offering/DiskOfferingForm'
 import { reactive } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
+import { performanceParams, qosForm } from '@/utils/offeringQos'
+import { allocationParams, allocationForm } from '@/utils/volumeAllocation'
 import { isAdmin } from '@/role'
 
 export default {
+  mixins: [storageDialogContext],
   name: 'CloneDiskOffering',
   components: {
+    MoldDialogActions,
     DiskOfferingForm
   },
   props: {
@@ -71,6 +79,9 @@ export default {
     return {
       formRef: null,
       form: reactive({}),
+      sourceLoading: false,
+      sourceReady: false,
+      sourceError: '',
       loading: false
     }
   },
@@ -81,26 +92,25 @@ export default {
     this.fetchSourceOffering()
   },
   methods: {
-    fetchSourceOffering () {
-      if (!this.resource?.id) {
-        this.populateFormFromResource()
-        return
-      }
-
-      getAPI('listDiskOfferings', {
-        id: this.resource.id,
-        listall: true
-      }).then(json => {
-        const offering = json?.listdiskofferingsresponse?.diskoffering?.[0]
-        this.populateFormFromResource(offering || this.resource)
-      }).catch(() => {
-        this.populateFormFromResource()
-      })
+    async fetchSourceOffering () {
+      this.sourceLoading = true
+      this.sourceReady = false
+      this.sourceError = ''
+      try {
+        const response = await getAPI('listDiskOfferings', { id: this.resource.id, listall: true, state: 'all', details: 'all' })
+        const source = response.listdiskofferingsresponse?.diskoffering?.find(row => row.id === this.resource.id)
+        if (!source) throw new Error(this.$t('message.offering.not.found'))
+        this.populateFormFromResource(source)
+        this.sourceReady = true
+      } catch (error) {
+        this.sourceError = error?.response?.data?.errortext || error?.message || this.$t('message.offering.not.found')
+      } finally { this.sourceLoading = false }
     },
     populateFormFromResource (sourceResource = this.resource) {
       if (!sourceResource) return
 
       const r = sourceResource
+      Object.assign(this.form, allocationForm(r))
       const isTrueValue = value => value === true || value === 'true' || value === 1 || value === '1'
       this.form.name = r.name + ' - Clone'
       this.form.displaytext = r.displaytext
@@ -135,37 +145,13 @@ export default {
         this.form.shareable = isTrueValue(r.shareable)
       }
 
-      const hasHypervisorQos = [
-        r.diskBytesReadRate,
-        r.diskBytesReadRateMax,
-        r.diskBytesWriteRate,
-        r.diskBytesWriteRateMax,
-        r.diskIopsReadRate,
-        r.diskIopsWriteRate
-      ].some(value => value !== undefined && value !== null)
-      const hasStorageQos = [
-        r.miniops,
-        r.maxiops,
-        r.hypervisorsnapshotreserve
-      ].some(value => value !== undefined && value !== null) || isTrueValue(r.iscustomizediops)
-
-      if (hasHypervisorQos) {
-        this.form.qostype = 'hypervisor'
-        if (r.diskBytesReadRate) this.form.diskbytesreadrate = r.diskBytesReadRate
-        if (r.diskBytesReadRateMax) this.form.diskbytesreadratemax = r.diskBytesReadRateMax
-        if (r.diskBytesWriteRate) this.form.diskbyteswriterate = r.diskBytesWriteRate
-        if (r.diskBytesWriteRateMax) this.form.diskbyteswriteratemax = r.diskBytesWriteRateMax
-        if (r.diskIopsReadRate) this.form.diskiopsreadrate = r.diskIopsReadRate
-        if (r.diskIopsWriteRate) this.form.diskiopswriterate = r.diskIopsWriteRate
-      } else if (hasStorageQos) {
-        this.form.qostype = 'storage'
-        if (r.miniops) this.form.diskiopsmin = r.miniops
-        if (r.maxiops) this.form.diskiopsmax = r.maxiops
-        if (r.hypervisorsnapshotreserve) this.form.hypervisorsnapshotreserve = r.hypervisorsnapshotreserve
-      }
-      if (r.iscustomizediops !== undefined) {
-        this.form.iscustomizeddiskiops = isTrueValue(r.iscustomizediops)
-      }
+      Object.assign(this.form, qosForm(r))
+      const hasHypervisorQos = Object.values(qosForm(r)).some(value => value !== '' && Number(value) > 0)
+      this.form.qostype = hasHypervisorQos ? 'hypervisor' : (isTrueValue(r.iscustomizediops) || Number(r.miniops) > 0 || Number(r.maxiops) > 0 ? 'storage' : '')
+      this.form.iscustomizeddiskiops = isTrueValue(r.iscustomizediops)
+      if (r.miniops !== undefined) this.form.diskiopsmin = String(r.miniops)
+      if (r.maxiops !== undefined) this.form.diskiopsmax = String(r.maxiops)
+      if (r.hypervisorsnapshotreserve !== undefined) this.form.hypervisorsnapshotreserve = String(r.hypervisorsnapshotreserve)
 
       if (r.tags) {
         this.form.tags = r.tags.split(',')
@@ -191,9 +177,10 @@ export default {
       if (e && e.preventDefault) {
         e.preventDefault()
       }
-      if (this.loading) return
+      if (this.loading || this.sourceLoading || !this.sourceReady) return
 
       this.$refs.formRef.validate().then((values) => {
+        if (this.loading || (this.dialogCurrent && !this.dialogCurrent())) return
         const params = {
           sourceofferingid: this.resource.id,
           name: values.name
@@ -207,9 +194,6 @@ export default {
         }
         if (values.writecachetype) {
           params.cachemode = values.writecachetype
-        }
-        if (values.provisioningtype) {
-          params.provisioningtype = values.provisioningtype
         }
         if (values.customdisksize !== undefined) {
           params.customized = values.customdisksize
@@ -225,41 +209,7 @@ export default {
           params.disksize = values.disksize
         }
 
-        if (values.qostype === 'storage') {
-          const customIops = values.iscustomizeddiskiops === true
-          params.customizediops = customIops
-          if (!customIops) {
-            if (values.diskiopsmin != null && values.diskiopsmin.length > 0) {
-              params.miniops = values.diskiopsmin
-            }
-            if (values.diskiopsmax != null && values.diskiopsmax.length > 0) {
-              params.maxiops = values.diskiopsmax
-            }
-            if (values.hypervisorsnapshotreserve != null && values.hypervisorsnapshotreserve.length > 0) {
-              params.hypervisorsnapshotreserve = values.hypervisorsnapshotreserve
-            }
-          }
-        } else if (values.qostype === 'hypervisor') {
-          if (values.diskbytesreadrate != null && values.diskbytesreadrate.length > 0) {
-            params.bytesreadrate = values.diskbytesreadrate
-          }
-          if (values.diskbytesreadratemax != null && values.diskbytesreadratemax.length > 0) {
-            params.bytesreadratemax = values.diskbytesreadratemax
-          }
-          if (values.diskbyteswriterate != null && values.diskbyteswriterate.length > 0) {
-            params.byteswriterate = values.diskbyteswriterate
-          }
-          if (values.diskbyteswriteratemax != null && values.diskbyteswriteratemax.length > 0) {
-            params.byteswriteratemax = values.diskbyteswriteratemax
-          }
-          if (values.diskiopsreadrate != null && values.diskiopsreadrate.length > 0) {
-            params.iopsreadrate = values.diskiopsreadrate
-          }
-          if (values.diskiopswriterate != null && values.diskiopswriterate.length > 0) {
-            params.iopswriterate = values.diskiopswriterate
-          }
-        }
-
+        Object.assign(params, performanceParams(values, false, true))
         if (values.tags != null && values.tags.length > 0) {
           const tags = values.tags.join(',')
           params.tags = tags
@@ -299,6 +249,7 @@ export default {
           params.storagepolicy = values.storagepolicy
         }
 
+        Object.assign(params, allocationParams(values))
         this.loading = true
         postAPI('cloneDiskOffering', params).then(json => {
           this.$message.success(`${this.$t('message.success.clone.disk.offering')} ${values.name}`)

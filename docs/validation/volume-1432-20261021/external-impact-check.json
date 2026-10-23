@@ -1,0 +1,14 @@
+{
+  "31": {
+    "baselineOfferingCount": 15,
+    "preMutationCovered": 15,
+    "externalOperationalRowsBefore": 0,
+    "allBaselineCovered": true
+  },
+  "32": {
+    "baselineOfferingCount": 4,
+    "preMutationCovered": 4,
+    "externalOperationalRowsBefore": 0,
+    "allBaselineCovered": true
+  }
+}

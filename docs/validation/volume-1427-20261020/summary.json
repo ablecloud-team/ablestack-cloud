@@ -1,0 +1,1629 @@
+{
+  "issue": 1427,
+  "epic": 1422,
+  "pullRequest": 1435,
+  "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+  "sourceTests": {
+    "api": [
+      {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationLifecycleTest"
+      },
+      {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationPolicyTest"
+      }
+    ],
+    "server": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.metadata.VolumeAllocationMetadataTest"
+      },
+      {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.vm.VolumeAllocationPreflightTest"
+      },
+      {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationManagerImplTest"
+      },
+      {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationMutationTest"
+      },
+      {
+        "tests": 159,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeApiServiceImplTest"
+      },
+      {
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeApiServiceImplUpdateTest"
+      },
+      {
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationSnapshotGuardTest"
+      },
+      {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.storage.VolumeAllocationRegistrationTest"
+      }
+    ],
+    "engine/orchestration": [
+      {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "org.apache.cloudstack.engine.orchestration.VolumeAllocationGuardTest"
+      }
+    ],
+    "engine/storage/volume": [
+      {
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "org.apache.cloudstack.storage.volume.VolumeAllocationResultTest"
+      },
+      {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "org.apache.cloudstack.storage.volume.VolumeAllocationLifecycleGuardTest"
+      }
+    ],
+    "plugins/hypervisors/kvm": [
+      {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.hypervisor.kvm.storage.Gfs2AllocationCommandRunnerTest"
+      },
+      {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.hypervisor.kvm.storage.Gfs2VolumeAllocationTest"
+      },
+      {
+        "tests": 30,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.hypervisor.kvm.storage.RbdVolumeAllocationTest"
+      },
+      {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "class": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorAllocationTest"
+      }
+    ]
+  },
+  "sourceTestTotal": 373,
+  "runtimeTests": [
+    {
+      "target": "Mold 31",
+      "result": "RUNTIME_RESULT tests=229 failures=0 ignored=0"
+    },
+    {
+      "target": "Mold 32",
+      "result": "RUNTIME_RESULT tests=229 failures=0 ignored=0"
+    },
+    {
+      "target": "Agent31 1",
+      "result": "RUNTIME_RESULT tests=78 failures=0 ignored=0"
+    },
+    {
+      "target": "Agent31 2",
+      "result": "RUNTIME_RESULT tests=78 failures=0 ignored=0"
+    },
+    {
+      "target": "Agent31 3",
+      "result": "RUNTIME_RESULT tests=78 failures=0 ignored=0"
+    }
+  ],
+  "runtimeExecutionTotal": 692,
+  "environmentChecks": [
+    {
+      "name": "before-31-identical-policy-offering-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: change disk offering is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-created",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-pattern-written",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "qcow2",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1074135040,
+          "allocatedBytes": 2453504,
+          "mtimeNs": 1792478735368760283,
+          "inode": 1951812706
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "qcow2",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1074135040,
+          "allocatedBytes": 1076203520,
+          "mtimeNs": 1792478736733747585,
+          "inode": 5620832628
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "qcow2",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1074135040,
+          "allocatedBytes": 1076203520,
+          "mtimeNs": 1792478738153734375,
+          "inode": 712469693
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1073741824,
+          "allocatedBytes": 2121728,
+          "mtimeNs": 1792478739041726115,
+          "inode": 5717820358
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1073741824,
+          "allocatedBytes": 1075871744,
+          "mtimeNs": 1792478742989689389,
+          "inode": 5492913676
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1073741824,
+          "allocatedBytes": 1075871744,
+          "mtimeNs": 1792478749088632654,
+          "inode": 1854301090
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-legacy-thin-grow",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 2147483648,
+          "format": "qcow2",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 2424864,
+          "allocatedBytes": 2383872,
+          "mtimeNs": 1792478860077344935,
+          "inode": 52009231
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "allocatedBytes": 3145728,
+          "noParent": true
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-same-policy-offering",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-cloud-iops-only",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-metadata-preserves-image",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "allocatedBytes": 1073741824,
+          "noParent": true
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-frozen-db-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-creation-observation-scope",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-legacy-thin-grow",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 2147483648,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "allocatedBytes": 3145728,
+          "noParent": true
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-metadata-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-falloc-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-qcow2-full-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-off-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-falloc-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-raw-full-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-legacy-thin-to-fat-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-legacy-cannot-acquire-full",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-legacy-rejection-preserved",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-off-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-resize-rejected-1",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-resize-rejected-2",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 432, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: physical resize is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-cannot-drop-contract",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-manual-path-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-reject-preserves-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-raw-full-reject-preserves-pattern",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-legacy-thin-to-fat-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-legacy-cannot-acquire-full",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-legacy-rejection-preserved",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-full-to-thin-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-migration-entry-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: migrate is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-manual-chain-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-format-conversion-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-falloc-to-full-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-extra-guards-preserve-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-extra-guards-preserve-data",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-snapshot-backup-ready",
+      "pass": true,
+      "evidence": {
+        "snapshot": "1d7fdf50-f253-4afe-92ca-626f6d946a45"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-snapshot-revert-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: snapshot revert is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-snapshot-create-volume-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: snapshot restore is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-restore-no-target-volume",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-full-to-thin-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_CONVERSION_UNSUPPORTED: changing an offering cannot convert allocation policy or image format; source and evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-migration-entry-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: migrate is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-manual-chain-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: manual volume path/pool/chain/state/type change is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-extra-guards-preserve-api-db",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-extra-guards-preserve-data",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-snapshot-backup-ready",
+      "pass": true,
+      "evidence": {
+        "snapshot": "0bf9b4eb-e8e6-432e-96e6-ec3bef696605"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-snapshot-revert-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"errorcode\": 431, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: snapshot revert is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-snapshot-create-volume-rejected",
+      "pass": true,
+      "evidence": {
+        "error": "{\"uuidList\": [], \"errorcode\": 431, \"cserrorcode\": 4350, \"errortext\": \"ALLOCATION_OPERATION_UNSUPPORTED: snapshot restore is not qualified for explicit allocation; source and allocation evidence are preserved\"}"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-restore-no-target-volume",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-same-policy-success",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-errors-preserve-frozen-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-policy-preserves-data",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 1073741824,
+          "allocatedBytes": 1075871744,
+          "mtimeNs": 1792478749088632654,
+          "inode": 1854301090
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-legacy-thin-grow",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-growth-pattern-and-zero-tail",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 3221225472,
+          "format": "qcow2",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "fileLength": 2424864,
+          "allocatedBytes": 2383872,
+          "mtimeNs": 1792479435068267881,
+          "inode": 52009231
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-same-policy-success",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-errors-preserve-frozen-evidence",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-policy-preserves-data",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 1073741824,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "allocatedBytes": 1073741824,
+          "noParent": true
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-legacy-thin-grow",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-growth-pattern-and-zero-tail",
+      "pass": true,
+      "evidence": {
+        "observation": {
+          "size": 3221225472,
+          "format": "raw",
+          "noBacking": true,
+          "data": "two-patterns-and-all-other-zero",
+          "allocatedBytes": 3145728,
+          "noParent": true
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-cleanup-no-active-volumes",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-cleanup-offerings-snapshots",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-operational-inventory-preserved",
+      "pass": true,
+      "evidence": {
+        "counts": {
+          "volumes": 140,
+          "vms": 111,
+          "diskofferings": 7,
+          "computes": 15
+        }
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-cleanup-no-active-volumes",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-cleanup-offerings-snapshots",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-operational-inventory-preserved",
+      "pass": true,
+      "evidence": {
+        "counts": {
+          "volumes": 48,
+          "vms": 48,
+          "diskofferings": 6,
+          "computes": 4
+        }
+      }
+    },
+    {
+      "name": "VOL1427-31-20261020-physical-images-stages-clean",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-secondary-snapshot-files-clean",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-management-ui-preserved",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-physical-images-stages-clean",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-secondary-snapshot-files-clean",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-32-20261020-management-ui-preserved",
+      "pass": true,
+      "evidence": {}
+    },
+    {
+      "name": "VOL1427-31-20261020-ui-cleanup-empty",
+      "pass": true,
+      "evidence": {
+        "screenshot": "31-cleanup-empty.png",
+        "visibleText": "전체 0 개 항목 중 0-0 표시"
+      }
+    },
+    {
+      "name": "VOL1427-32-20261020-ui-cleanup-empty",
+      "pass": true,
+      "evidence": {
+        "screenshot": "32-cleanup-empty.png",
+        "visibleText": "전체 0 개 항목 중 0-0 표시"
+      }
+    }
+  ],
+  "environmentCheckTotal": 157,
+  "checkstyle": {
+    "apiExisting": 4,
+    "serverExisting": 15,
+    "changedFiles": 0,
+    "orchestration": 0,
+    "storageVolume": 0,
+    "kvm": 0
+  },
+  "deployment": {
+    "management-31": {
+      "issue": 1427,
+      "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+      "label": "management-31",
+      "originalJarSha256": "0b54af42012db87eda85960a51b96df35392408cf57268f720a59da621a319ba",
+      "classHashes": {
+        "com/cloud/storage/VolumeApiServiceImpl.class": "d3b3ca8e2e92c2b85fbe0c575f793e7a64a85f7a9a9d6bd648d1dda5074c1e9a",
+        "com/cloud/storage/VolumeAllocationLifecycle.class": "c44937386a0798a09e1903b50f85601bf37f6cc7eda1355ca5f7764ed1ce656d",
+        "com/cloud/storage/VolumeAllocationPolicy.class": "5232bd2764fcf13f62192d2d823f74aec62a25c18142f39ba2f402a24328afd8",
+        "org/apache/cloudstack/engine/orchestration/VolumeOrchestrator.class": "82065204d29d1dc8eb8deeed5699b033ab6e0eefd5b4a9de6f8123ce3629e880",
+        "org/apache/cloudstack/storage/volume/VolumeServiceImpl.class": "9e66124ba1175833c460419febe532261cee05535158095b527fbf5c3eab7ac1"
+      },
+      "methodPreservationProof": "ADD com/cloud/storage/VolumeAllocationLifecycle.class\nPATCH com/cloud/storage/VolumeAllocationPolicy copied=[requireUnqualifiedLifecycle, requireLegacyExecution, requireCreationIntent, describe] preserved=12\nHOOK com/cloud/storage/VolumeApiServiceImpl validateVolume(Lcom/cloud/user/Account;JLjava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/util/List;)Z\nHOOK com/cloud/storage/VolumeApiServiceImpl resizeVolume(Lorg/apache/cloudstack/api/command/user/volume/ResizeVolumeCmd;)Lcom/cloud/storage/VolumeVO;\nHOOK com/cloud/storage/VolumeApiServiceImpl orchestrateResizeVolume(JJJLjava/lang/Long;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/Long;Z)Lcom/cloud/storage/VolumeVO;\nHOOK com/cloud/storage/VolumeApiServiceImpl changeDiskOfferingForVolumeInternal(Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;ZZ)Lcom/cloud/storage/Volume;\nHOOK com/cloud/storage/VolumeApiServiceImpl updateVolume(JLjava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/cloud/storage/Volume;\nPATCH com/cloud/storage/VolumeApiServiceImpl copied=[validateResolvedAllocation, validateAllocationIdentityMutation, validateAllocationMutationSize, validateAllocationMutation, resizeWithAllocationGuard, validateAllocationUploadOffering] preserved=186\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator moveVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;JLjava/lang/Long;Ljava/lang/Long;Lcom/cloud/hypervisor/Hypervisor$HypervisorType;)Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator migrateVolume(Lcom/cloud/storage/Volume;Lcom/cloud/storage/StoragePool;)Lcom/cloud/storage/Volume;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator migrateVolumes(Lcom/cloud/vm/VirtualMachine;Lcom/cloud/agent/api/to/VirtualMachineTO;Lcom/cloud/host/Host;Lcom/cloud/host/Host;Ljava/util/Map;)V\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator allocateDuplicateVolumeVO(Lcom/cloud/storage/Volume;Lcom/cloud/offering/DiskOffering;Ljava/lang/Long;)Lcom/cloud/storage/VolumeVO;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator saveVolumeDetails(Ljava/lang/Long;Ljava/lang/Long;)V\nPATCH org/apache/cloudstack/engine/orchestration/VolumeOrchestrator copied=[validateSavedAllocation, requireAllocationMigration] preserved=103\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl createVolumeFromSnapshot(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;Lorg/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl cloneVolumeFromSnapshot(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;Lorg/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl copyVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl migrateVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl migrateVolumes(Ljava/util/Map;Lcom/cloud/agent/api/to/VirtualMachineTO;Lcom/cloud/host/Host;Lcom/cloud/host/Host;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl registerVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl registerVolumeForPostUpload(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lcom/cloud/utils/Pair;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl resize(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nPATCH org/apache/cloudstack/storage/volume/VolumeServiceImpl copied=[requireAllocationMigration, requireQualifiedAllocationLifecycle] preserved=86\nPATCH_PASS classes=4 added=1 unrelatedMethodsPreserved=387\n",
+      "patchedJarSha256": "a6841c3a461e59846dfe730c35fde74b2a8dc6988dd7506774ab2e6e7174c6d5",
+      "unchangedEntries": 204509
+    },
+    "management-32": {
+      "issue": 1427,
+      "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+      "label": "management-32",
+      "originalJarSha256": "2e0e3edeee781069f05912d0dbd634d2cb8cc5295bf873984c26b6cf9e13a210",
+      "classHashes": {
+        "com/cloud/storage/VolumeApiServiceImpl.class": "d3b3ca8e2e92c2b85fbe0c575f793e7a64a85f7a9a9d6bd648d1dda5074c1e9a",
+        "com/cloud/storage/VolumeAllocationLifecycle.class": "c44937386a0798a09e1903b50f85601bf37f6cc7eda1355ca5f7764ed1ce656d",
+        "com/cloud/storage/VolumeAllocationPolicy.class": "ca42fa5622ab58bb6d7477feeb7bb2ba4639f226ef63ff12465f265ace63d394",
+        "org/apache/cloudstack/engine/orchestration/VolumeOrchestrator.class": "82065204d29d1dc8eb8deeed5699b033ab6e0eefd5b4a9de6f8123ce3629e880",
+        "org/apache/cloudstack/storage/volume/VolumeServiceImpl.class": "9e66124ba1175833c460419febe532261cee05535158095b527fbf5c3eab7ac1"
+      },
+      "methodPreservationProof": "ADD com/cloud/storage/VolumeAllocationLifecycle.class\nPATCH com/cloud/storage/VolumeAllocationPolicy copied=[requireUnqualifiedLifecycle, requireLegacyExecution, requireCreationIntent, describe] preserved=12\nHOOK com/cloud/storage/VolumeApiServiceImpl validateVolume(Lcom/cloud/user/Account;JLjava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/util/List;)Z\nHOOK com/cloud/storage/VolumeApiServiceImpl resizeVolume(Lorg/apache/cloudstack/api/command/user/volume/ResizeVolumeCmd;)Lcom/cloud/storage/VolumeVO;\nHOOK com/cloud/storage/VolumeApiServiceImpl orchestrateResizeVolume(JJJLjava/lang/Long;Ljava/lang/Long;Ljava/lang/Integer;Ljava/lang/Long;Z)Lcom/cloud/storage/VolumeVO;\nHOOK com/cloud/storage/VolumeApiServiceImpl changeDiskOfferingForVolumeInternal(Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;ZZ)Lcom/cloud/storage/Volume;\nHOOK com/cloud/storage/VolumeApiServiceImpl updateVolume(JLjava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/String;JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/cloud/storage/Volume;\nPATCH com/cloud/storage/VolumeApiServiceImpl copied=[validateResolvedAllocation, validateAllocationIdentityMutation, validateAllocationMutationSize, validateAllocationMutation, resizeWithAllocationGuard, validateAllocationUploadOffering] preserved=186\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator moveVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;JLjava/lang/Long;Ljava/lang/Long;Lcom/cloud/hypervisor/Hypervisor$HypervisorType;)Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator migrateVolume(Lcom/cloud/storage/Volume;Lcom/cloud/storage/StoragePool;)Lcom/cloud/storage/Volume;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator migrateVolumes(Lcom/cloud/vm/VirtualMachine;Lcom/cloud/agent/api/to/VirtualMachineTO;Lcom/cloud/host/Host;Lcom/cloud/host/Host;Ljava/util/Map;)V\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator allocateDuplicateVolumeVO(Lcom/cloud/storage/Volume;Lcom/cloud/offering/DiskOffering;Ljava/lang/Long;)Lcom/cloud/storage/VolumeVO;\nHOOK org/apache/cloudstack/engine/orchestration/VolumeOrchestrator saveVolumeDetails(Ljava/lang/Long;Ljava/lang/Long;)V\nPATCH org/apache/cloudstack/engine/orchestration/VolumeOrchestrator copied=[validateSavedAllocation, requireAllocationMigration] preserved=103\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl createVolumeFromSnapshot(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;Lorg/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl cloneVolumeFromSnapshot(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;Lorg/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl copyVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl migrateVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl migrateVolumes(Ljava/util/Map;Lcom/cloud/agent/api/to/VirtualMachineTO;Lcom/cloud/host/Host;Lcom/cloud/host/Host;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl registerVolume(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl registerVolumeForPostUpload(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;Lorg/apache/cloudstack/engine/subsystem/api/storage/DataStore;)Lcom/cloud/utils/Pair;\nHOOK org/apache/cloudstack/storage/volume/VolumeServiceImpl resize(Lorg/apache/cloudstack/engine/subsystem/api/storage/VolumeInfo;)Lorg/apache/cloudstack/framework/async/AsyncCallFuture;\nPATCH org/apache/cloudstack/storage/volume/VolumeServiceImpl copied=[requireAllocationMigration, requireQualifiedAllocationLifecycle] preserved=86\nPATCH_PASS classes=4 added=1 unrelatedMethodsPreserved=387\n",
+      "patchedJarSha256": "f5fbc5191d1efbd146431842672b6634d5130d9b9e6c9885531773d32df5df39",
+      "unchangedEntries": 204504
+    },
+    "agent-31-1": {
+      "issue": 1427,
+      "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+      "label": "agent-31-1",
+      "originalJarSha256": "aecf0ed2ec616cc5925c716e9f30bb51039000f5d54662adaa3ca99a9d088cd0",
+      "classHashes": {
+        "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation.class": "95383e64a6ba9c4cd3b39ef8fa3063adb0c349a5c429c840756c329ba563b257",
+        "com/cloud/hypervisor/kvm/storage/Gfs2AllocationCommandRunner.class": "1bb8b8996fe1a0052b3aa81788b2290bea7b40bc73107f56bc585a15a2ae4d8c"
+      },
+      "methodPreservationProof": "GFS_RUNNER_PATCH_PASS constructor=1 added=1 unrelatedMethodsPreserved=20\n",
+      "patchedJarSha256": "d6a8f15097fb6fc1d2b53778adacbb0f754012fdd09feb8c2140b01bad7343c1",
+      "unchangedEntries": 521
+    },
+    "agent-31-2": {
+      "issue": 1427,
+      "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+      "label": "agent-31-2",
+      "originalJarSha256": "74a0c26b2de32e8f1ee00e4f25b99f4d3c6ebeb59d2378b210beb64660bdf224",
+      "classHashes": {
+        "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation.class": "95383e64a6ba9c4cd3b39ef8fa3063adb0c349a5c429c840756c329ba563b257",
+        "com/cloud/hypervisor/kvm/storage/Gfs2AllocationCommandRunner.class": "1bb8b8996fe1a0052b3aa81788b2290bea7b40bc73107f56bc585a15a2ae4d8c"
+      },
+      "methodPreservationProof": "GFS_RUNNER_PATCH_PASS constructor=1 added=1 unrelatedMethodsPreserved=20\n",
+      "patchedJarSha256": "f1e71151265c426c86d5e9681537c9777da7f84f889ed92845de32b4b8e13e6e",
+      "unchangedEntries": 521
+    },
+    "agent-31-3": {
+      "issue": 1427,
+      "sourceCommit": "70610aea823a38580a70c061b85586d4c5cbdb5c",
+      "label": "agent-31-3",
+      "originalJarSha256": "57659bbc2bfdc30be507bbd5b5a5c6ce624ffd459ba1526dbe33e52670b4eb55",
+      "classHashes": {
+        "com/cloud/hypervisor/kvm/storage/Gfs2VolumeAllocation.class": "95383e64a6ba9c4cd3b39ef8fa3063adb0c349a5c429c840756c329ba563b257",
+        "com/cloud/hypervisor/kvm/storage/Gfs2AllocationCommandRunner.class": "1bb8b8996fe1a0052b3aa81788b2290bea7b40bc73107f56bc585a15a2ae4d8c"
+      },
+      "methodPreservationProof": "GFS_RUNNER_PATCH_PASS constructor=1 added=1 unrelatedMethodsPreserved=20\n",
+      "patchedJarSha256": "27db06e313b03f46bd13e226348dd93f3329ecad51a614b610458509756ef8b2",
+      "unchangedEntries": 521
+    }
+  },
+  "finalPhysicalCleanup": {
+    "31": {
+      "remainingOwnedImagesOrStages": [],
+      "remainingOwnedSnapshotFiles": []
+    },
+    "32": {
+      "remainingOwnedImagesOrStages": [],
+      "remainingOwnedSnapshotFiles": [],
+      "nativeDomainObservation": {
+        "host": 3,
+        "addedExistingDomain": "i-2-61-VM",
+        "baselineCloudState": "Running",
+        "finalNativeState": "running",
+        "originalNativeDomainsPreserved": true,
+        "vmMutationCommandsIssuedByThisTask": false,
+        "causeNotEstablished": true
+      }
+    }
+  },
+  "schemasAndWebinfPreserved": true,
+  "protectedFtDiffPreserved": true,
+  "rollbackBackup": "/root/volume-1427-70610aea823",
+  "resources": {
+    "31": {
+      "readyDataVolumes": 7,
+      "explicitPolicies": 6,
+      "diskOfferings": 22,
+      "snapshots": 1,
+      "failedCreationHistory": 3,
+      "finalVolumes": [
+        {
+          "id": "1798b762-5e59-4d2c-ba89-a45ca23b0972",
+          "name": "VOL1427-31-20261020-qcow2-metadata",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-qcow2-metadata-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "metadata",
+            "requestedformat": "qcow2",
+            "policyorigin": "explicit",
+            "fixedpolicy": "metadata",
+            "effectivepolicy": "metadata",
+            "appliedmethod": "qemu-preallocation-metadata",
+            "actualformat": "qcow2",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "348160",
+            "observedat": "2026-10-20T06:30:15.406294670Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "4367c807-db2f-4ca3-bb52-1f4e93370327",
+          "name": "VOL1427-31-20261020-qcow2-falloc",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-qcow2-falloc-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "falloc",
+            "requestedformat": "qcow2",
+            "policyorigin": "explicit",
+            "fixedpolicy": "falloc",
+            "effectivepolicy": "falloc",
+            "appliedmethod": "qemu-preallocation-falloc",
+            "actualformat": "qcow2",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "1076203520",
+            "observedat": "2026-10-20T06:31:45.574511189Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "ee64776e-de78-419a-ab5b-e18917ba24bd",
+          "name": "VOL1427-31-20261020-qcow2-full",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-qcow2-full-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "full",
+            "requestedformat": "qcow2",
+            "policyorigin": "explicit",
+            "fixedpolicy": "full",
+            "effectivepolicy": "full",
+            "appliedmethod": "qemu-preallocation-full",
+            "actualformat": "qcow2",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "1076203520",
+            "observedat": "2026-10-20T06:31:51.078094105Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "64201c3d-a3ad-4d9c-b4af-62a88a25a9ed",
+          "name": "VOL1427-31-20261020-raw-off",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-raw-off-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "off",
+            "requestedformat": "raw",
+            "policyorigin": "explicit",
+            "fixedpolicy": "off",
+            "effectivepolicy": "off",
+            "appliedmethod": "qemu-preallocation-off",
+            "actualformat": "raw",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "12288",
+            "observedat": "2026-10-20T06:31:53.531106712Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "ca6b1680-4bef-43e3-936c-81c8dad7a908",
+          "name": "VOL1427-31-20261020-raw-falloc",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-raw-falloc-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "falloc",
+            "requestedformat": "raw",
+            "policyorigin": "explicit",
+            "fixedpolicy": "falloc",
+            "effectivepolicy": "falloc",
+            "appliedmethod": "qemu-preallocation-falloc",
+            "actualformat": "raw",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "1075871744",
+            "observedat": "2026-10-20T06:45:42.110897091Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "11495357-4492-490f-b322-6a2c9d3ff8fb",
+          "name": "VOL1427-31-20261020-raw-full",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-raw-full-same",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "full",
+            "requestedformat": "raw",
+            "policyorigin": "explicit",
+            "fixedpolicy": "full",
+            "effectivepolicy": "full",
+            "appliedmethod": "qemu-preallocation-full",
+            "actualformat": "raw",
+            "evidence": "verified",
+            "appliedbackend": "GFS2",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "1075871744",
+            "observedat": "2026-10-20T06:45:47.834492805Z",
+            "observedsource": "stat-st-blocks-times-512"
+          }
+        },
+        {
+          "id": "6346d9e6-2547-47c8-9eb4-7d818809a1f9",
+          "name": "VOL1427-31-20261020-legacy-thin",
+          "size": 3221225472,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-31-20261020-legacy-thin-same",
+          "miniops": null,
+          "maxiops": null,
+          "allocation": {
+            "contractversion": "legacy",
+            "requestedpolicy": "thin",
+            "requestedformat": "unspecified",
+            "policyorigin": "legacy",
+            "fixedpolicy": "unknown",
+            "effectivepolicy": "unknown",
+            "appliedmethod": "unknown",
+            "actualformat": "qcow2",
+            "evidence": "unverified"
+          }
+        }
+      ]
+    },
+    "32": {
+      "readyDataVolumes": 3,
+      "explicitPolicies": 2,
+      "diskOfferings": 10,
+      "snapshots": 1,
+      "failedCreationHistory": 0,
+      "finalVolumes": [
+        {
+          "id": "9411c958-334a-4745-a49f-15648aac08e7",
+          "name": "VOL1427-32-20261020-raw-off",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-32-20261020-raw-off-qos",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "off",
+            "requestedformat": "raw",
+            "policyorigin": "explicit",
+            "fixedpolicy": "off",
+            "effectivepolicy": "off",
+            "appliedmethod": "rbd-thin",
+            "actualformat": "raw",
+            "evidence": "verified",
+            "appliedbackend": "RBD",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "0",
+            "observedat": "2026-10-20T06:46:09.558791503Z",
+            "observedsource": "rbd-du-exact-image-used-size"
+          }
+        },
+        {
+          "id": "7afaab36-940c-41b8-a625-547eab3f03a9",
+          "name": "VOL1427-32-20261020-raw-full",
+          "size": 1073741824,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-32-20261020-raw-full-same",
+          "miniops": 110,
+          "maxiops": 180,
+          "allocation": {
+            "contractversion": "1",
+            "requestedpolicy": "full",
+            "requestedformat": "raw",
+            "policyorigin": "explicit",
+            "fixedpolicy": "full",
+            "effectivepolicy": "full",
+            "appliedmethod": "rbd-thick-create",
+            "actualformat": "raw",
+            "evidence": "verified",
+            "appliedbackend": "RBD",
+            "appliedoperation": "create",
+            "evidencescope": "creation-or-copy-time",
+            "observedallocatedbytes": "1073741824",
+            "observedat": "2026-10-20T06:46:34.837337537Z",
+            "observedsource": "rbd-du-exact-image-used-size"
+          }
+        },
+        {
+          "id": "69d87731-2875-4507-9b08-3be6d048ee25",
+          "name": "VOL1427-32-20261020-legacy-thin",
+          "size": 3221225472,
+          "state": "Ready",
+          "diskofferingname": "VOL1427-32-20261020-legacy-thin-same",
+          "miniops": null,
+          "maxiops": null,
+          "allocation": {
+            "contractversion": "legacy",
+            "requestedpolicy": "thin",
+            "requestedformat": "unspecified",
+            "policyorigin": "legacy",
+            "fixedpolicy": "unknown",
+            "effectivepolicy": "unknown",
+            "appliedmethod": "unknown",
+            "actualformat": "raw",
+            "evidence": "unverified"
+          }
+        }
+      ]
+    }
+  },
+  "knownOpenDefect": {
+    "issue": 1437,
+    "cloudCreateFailures": 3,
+    "nativeFailures": "31.2 64MiB compare/zero-read failures, then a separate 121-check success; initial failures are not counted as passes",
+    "causeEstablished": false,
+    "notFixedByCommandRunner": true
+  },
+  "nativeEnvironment": [
+    "qemu-img version 10.1.0 (qemu-kvm-10.1.0-17.el9_8.5)",
+    "5.14.0-687.42.1.el9_8.x86_64",
+    "gfs2   /mnt/glue-gfs"
+  ],
+  "limitations": [
+    "No cross-pool migration: one pool per cluster; entry rejection does not establish actual migration",
+    "Explicit physical resize/restore/migrate/clone remain unsupported, including explicit Thin; ordinary legacy Thin expansion remains available",
+    "Cloud IOPS metadata change does not promise live guest QoS/cache application",
+    "No guest OS workload, Running VM guest-device recognition, full role matrix, UI standardization, or full Cloud/Release CI",
+    "No new qemu/ftctl packages or UI assets deployed"
+  ],
+  "testRunnerCorrections": [
+    {
+      "errorcode": 432,
+      "error": "Min IOPS customization not supported",
+      "reason": "Test fixture used iscustomizediops instead of customizediops API request parameter",
+      "fix": "Create compatible same-policy QoS offering with customizediops=true",
+      "productDefect": false
+    },
+    {
+      "reason": "Snapshot API returned initial Allocated response before asynchronous backup completed; runner now polls BackedUp",
+      "initialAssertion": {
+        "name": "VOL1427-31-20261020-snapshot-created",
+        "pass": false,
+        "evidence": {
+          "snapshot": "1d7fdf50-f253-4afe-92ca-626f6d946a45"
+        }
+      },
+      "productDefect": false
+    },
+    {
+      "reason": "Single qemu-io read of a 3GiB target tail exceeded the maximum individual request; reader now verifies every range in <=64MiB chunks",
+      "productDefect": false
+    }
+  ]
+}

@@ -43,6 +43,7 @@
             <template #content v-if="visibleFilter">
               <a-form
                 style="min-width: 170px"
+                :class="{ 'storage-standard-search-form': ['listVolumes', 'listServiceOfferings', 'listDiskOfferings'].includes(apiName) }"
                 :ref="formRef"
                 :model="form"
                 :rules="rules"
@@ -1898,6 +1899,14 @@ export default {
 </script>
 
 <style scoped lang="less">
+.storage-standard-search-form {
+  width: min(320px, calc(100vw - 64px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+}
+
 .input-search {
   margin-left: 10px;
 }

@@ -1,0 +1,2605 @@
+[
+  {
+    "label": "before-migrate",
+    "body": {
+      "bottom": 482.84375,
+      "height": 255.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 227.15625
+    },
+    "footer": {
+      "bottom": 547.84375,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 482.84375
+    },
+    "form": {
+      "bottom": 452.84375,
+      "height": 201.6875,
+      "right": 689,
+      "width": 500,
+      "x": 189,
+      "y": 251.15625
+    },
+    "modal": {
+      "bottom": 548.84375,
+      "height": 377.6875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 171.15625
+    },
+    "selects": [
+      {
+        "rect": {
+          "bottom": 359.15625,
+          "height": 32,
+          "right": 689,
+          "width": 500,
+          "x": 189,
+          "y": 327.15625
+        },
+        "width": "500px"
+      }
+    ],
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "before-recurring",
+    "body": {
+      "bottom": 622,
+      "height": 534,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "form": {
+      "bottom": 717.859375,
+      "height": 605.859375,
+      "right": 989,
+      "width": 800,
+      "x": 189,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 688,
+      "height": 656,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "selects": [
+      {
+        "rect": {
+          "bottom": 422,
+          "height": 32,
+          "right": 989,
+          "width": 800,
+          "x": 189,
+          "y": 390
+        },
+        "width": "800px"
+      },
+      {
+        "rect": {
+          "bottom": 544.4375,
+          "height": 32,
+          "right": 989,
+          "width": 800,
+          "x": 189,
+          "y": 512.4375
+        },
+        "width": "800px"
+      }
+    ],
+    "tabs": [
+      "스케줄",
+      "정기 스냅샷"
+    ],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "before-change-offering",
+    "body": {
+      "bottom": 589.421875,
+      "height": 474.53125,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 114.890625
+    },
+    "footer": {
+      "bottom": 660.109375,
+      "height": 70.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 589.421875
+    },
+    "form": {
+      "bottom": 565.421875,
+      "height": 426.53125,
+      "right": 689,
+      "width": 500,
+      "x": 189,
+      "y": 138.890625
+    },
+    "modal": {
+      "bottom": 661.109375,
+      "height": 602.21875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 58.890625
+    },
+    "selects": [
+      {
+        "rect": {
+          "bottom": 246.890625,
+          "height": 32,
+          "right": 689,
+          "width": 500,
+          "x": 189,
+          "y": 214.890625
+        },
+        "width": "500px"
+      }
+    ],
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-31-recurring-1280",
+    "body": {
+      "bottom": 622,
+      "height": 534,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "bodyContentWidth": 892,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 1081,
+          "width": 440,
+          "x": 641,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 406,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 374
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 529.34375,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 497.34375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 639
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 639
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 691.859375,
+      "height": 579.859375,
+      "right": 1081,
+      "width": 892,
+      "x": 189,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 688,
+      "height": 656,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-31-recurring-weekly-1280",
+    "body": {
+      "bottom": 622,
+      "height": 534,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "bodyContentWidth": 892,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 1081,
+          "width": 440,
+          "x": 641,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 406,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 374
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 474,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 442
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 597.34375,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 565.34375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 639
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 639
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 759.859375,
+      "height": 647.859375,
+      "right": 1081,
+      "width": 892,
+      "x": 189,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 688,
+      "height": 656,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-31-migrate-1280",
+    "body": {
+      "bottom": 482.84375,
+      "height": 255.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 227.15625
+    },
+    "bodyContentWidth": 902,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 359.15625,
+          "height": 32,
+          "right": 1091,
+          "width": 902,
+          "x": 189,
+          "y": 327.15625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 547.84375,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 482.84375
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 531.84375,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 499.84375
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 531.84375,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 499.84375
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 452.84375,
+      "height": 201.6875,
+      "right": 1091,
+      "width": 902,
+      "x": 189,
+      "y": 251.15625
+    },
+    "modal": {
+      "bottom": 548.84375,
+      "height": 377.6875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 171.15625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-31-change-offering-1280",
+    "body": {
+      "bottom": 589.421875,
+      "height": 474.53125,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 114.890625
+    },
+    "bodyContentWidth": 902,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 246.890625,
+          "height": 32,
+          "right": 1091,
+          "width": 902,
+          "x": 189,
+          "y": 214.890625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 660.109375,
+      "height": 70.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 589.421875
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 641.265625,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 609.265625
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 641.265625,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 609.265625
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 565.421875,
+      "height": 426.53125,
+      "right": 1091,
+      "width": 902,
+      "x": 189,
+      "y": 138.890625
+    },
+    "modal": {
+      "bottom": 661.109375,
+      "height": 602.21875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 58.890625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-31-recurring-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyContentWidth": 322,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 354,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 322
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 422,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 390
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 490,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 458
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 648.4375,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 616.4375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 783
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 783
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 813.4375,
+      "height": 729.4375,
+      "right": 351,
+      "width": 322,
+      "x": 29,
+      "y": 84
+    },
+    "modal": {
+      "bottom": 832,
+      "height": 820,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-31-recurring-weekly-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyContentWidth": 322,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 354,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 322
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 422,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 390
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 490,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 458
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 558,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 526
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 716.4375,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 684.4375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 783
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 783
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 881.4375,
+      "height": 797.4375,
+      "right": 351,
+      "width": 322,
+      "x": 29,
+      "y": 84
+    },
+    "modal": {
+      "bottom": 832,
+      "height": 820,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-31-migrate-390",
+    "body": {
+      "bottom": 536.84375,
+      "height": 239.6875,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 297.15625
+    },
+    "bodyContentWidth": 332,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 421.15625,
+          "height": 32,
+          "right": 361,
+          "width": 332,
+          "x": 29,
+          "y": 389.15625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 601.84375,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 536.84375
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 585.84375,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 553.84375
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 585.84375,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 553.84375
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 514.84375,
+      "height": 201.6875,
+      "right": 361,
+      "width": 332,
+      "x": 29,
+      "y": 313.15625
+    },
+    "modal": {
+      "bottom": 602.84375,
+      "height": 361.6875,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 241.15625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-31-change-offering-390",
+    "body": {
+      "bottom": 682.421875,
+      "height": 555.375,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 127.046875
+    },
+    "bodyContentWidth": 332,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 251.046875,
+          "height": 32,
+          "right": 361,
+          "width": 332,
+          "x": 29,
+          "y": 219.046875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 771.953125,
+      "height": 89.53125,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 682.421875
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 743.6875,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 711.6875
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 743.6875,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 711.6875
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 666.421875,
+      "height": 523.375,
+      "right": 361,
+      "width": 332,
+      "x": 29,
+      "y": 143.046875
+    },
+    "modal": {
+      "bottom": 772.953125,
+      "height": 701.90625,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 71.046875
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-31-recurring-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 360,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 328
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 428,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 396
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 496,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 464
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 636.46875,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 604.46875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 801.46875,
+      "height": 689.46875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-31-recurring-weekly-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 261,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 229
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 329,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 297
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 397,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 365
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 465,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 433
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 605.46875,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 573.46875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 770.46875,
+      "height": 757.46875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 13
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-31-migrate-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 220,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 188
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 313.6875,
+      "height": 201.6875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-31-change-offering-640",
+    "body": {
+      "bottom": 256.3125,
+      "height": 168.3125,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 220,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 188
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 70.6875,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 256.3125
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 308.15625,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 276.15625
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 308.15625,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 276.15625
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 538.53125,
+      "height": 426.53125,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-32-recurring-1280",
+    "body": {
+      "bottom": 622,
+      "height": 534,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "bodyContentWidth": 892,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 1081,
+          "width": 440,
+          "x": 641,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 406,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 374
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 529.34375,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 497.34375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 639
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 639
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 691.859375,
+      "height": 579.859375,
+      "right": 1081,
+      "width": 892,
+      "x": 189,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 688,
+      "height": 656,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-32-recurring-weekly-1280",
+    "body": {
+      "bottom": 622,
+      "height": 534,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 88
+    },
+    "bodyContentWidth": 892,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 338,
+          "height": 32,
+          "right": 1081,
+          "width": 440,
+          "x": 641,
+          "y": 306
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 406,
+          "height": 32,
+          "right": 629,
+          "width": 440,
+          "x": 189,
+          "y": 374
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 474,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 442
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 597.34375,
+          "height": 32,
+          "right": 1081,
+          "width": 892,
+          "x": 189,
+          "y": 565.34375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 687,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 622
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 639
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 671,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 639
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 759.859375,
+      "height": 647.859375,
+      "right": 1081,
+      "width": 892,
+      "x": 189,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 688,
+      "height": 656,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-32-migrate-1280",
+    "body": {
+      "bottom": 482.84375,
+      "height": 255.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 227.15625
+    },
+    "bodyContentWidth": 902,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 359.15625,
+          "height": 32,
+          "right": 1091,
+          "width": 902,
+          "x": 189,
+          "y": 327.15625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 547.84375,
+      "height": 65,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 482.84375
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 531.84375,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 499.84375
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 531.84375,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 499.84375
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 452.84375,
+      "height": 201.6875,
+      "right": 1091,
+      "width": 902,
+      "x": 189,
+      "y": 251.15625
+    },
+    "modal": {
+      "bottom": 548.84375,
+      "height": 377.6875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 171.15625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-32-change-offering-1280",
+    "body": {
+      "bottom": 589.421875,
+      "height": 474.53125,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 114.890625
+    },
+    "bodyContentWidth": 902,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 246.890625,
+          "height": 32,
+          "right": 1091,
+          "width": 902,
+          "x": 189,
+          "y": 214.890625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 660.109375,
+      "height": 70.6875,
+      "right": 1119,
+      "width": 958,
+      "x": 161,
+      "y": 589.421875
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 641.265625,
+          "height": 32,
+          "right": 1025.234375,
+          "width": 57.765625,
+          "x": 967.46875,
+          "y": 609.265625
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 641.265625,
+          "height": 32,
+          "right": 1091,
+          "width": 57.765625,
+          "x": 1033.234375,
+          "y": 609.265625
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 565.421875,
+      "height": 426.53125,
+      "right": 1091,
+      "width": 902,
+      "x": 189,
+      "y": 138.890625
+    },
+    "modal": {
+      "bottom": 661.109375,
+      "height": 602.21875,
+      "right": 1120,
+      "width": 960,
+      "x": 160,
+      "y": 58.890625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  {
+    "label": "final-32-recurring-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyContentWidth": 322,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 354,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 322
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 422,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 390
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 490,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 458
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 648.4375,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 616.4375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 783
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 783
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 813.4375,
+      "height": 729.4375,
+      "right": 351,
+      "width": 322,
+      "x": 29,
+      "y": 84
+    },
+    "modal": {
+      "bottom": 832,
+      "height": 820,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-32-recurring-weekly-390",
+    "body": {
+      "bottom": 766,
+      "height": 698,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 68
+    },
+    "bodyContentWidth": 322,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 354,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 322
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 422,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 390
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 490,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 458
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 558,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 526
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 716.4375,
+          "height": 32,
+          "right": 351,
+          "width": 322,
+          "x": 29,
+          "y": 684.4375
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 831,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 766
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 783
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 815,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 783
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 881.4375,
+      "height": 797.4375,
+      "right": 351,
+      "width": 322,
+      "x": 29,
+      "y": 84
+    },
+    "modal": {
+      "bottom": 832,
+      "height": 820,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 12
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-32-migrate-390",
+    "body": {
+      "bottom": 536.84375,
+      "height": 239.6875,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 297.15625
+    },
+    "bodyContentWidth": 332,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 421.15625,
+          "height": 32,
+          "right": 361,
+          "width": 332,
+          "x": 29,
+          "y": 389.15625
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 601.84375,
+      "height": 65,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 536.84375
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 585.84375,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 553.84375
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 585.84375,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 553.84375
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 514.84375,
+      "height": 201.6875,
+      "right": 361,
+      "width": 332,
+      "x": 29,
+      "y": 313.15625
+    },
+    "modal": {
+      "bottom": 602.84375,
+      "height": 361.6875,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 241.15625
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-32-change-offering-390",
+    "body": {
+      "bottom": 691.84375,
+      "height": 555.375,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 136.46875
+    },
+    "bodyContentWidth": 332,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 260.46875,
+          "height": 32,
+          "right": 361,
+          "width": 332,
+          "x": 29,
+          "y": 228.46875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 762.53125,
+      "height": 70.6875,
+      "right": 377,
+      "width": 364,
+      "x": 13,
+      "y": 691.84375
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 743.6875,
+          "height": 32,
+          "right": 295.234375,
+          "width": 57.765625,
+          "x": 237.46875,
+          "y": 711.6875
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 743.6875,
+          "height": 32,
+          "right": 361,
+          "width": 57.765625,
+          "x": 303.234375,
+          "y": 711.6875
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 675.84375,
+      "height": 523.375,
+      "right": 361,
+      "width": 332,
+      "x": 29,
+      "y": 152.46875
+    },
+    "modal": {
+      "bottom": 763.53125,
+      "height": 683.0625,
+      "right": 378,
+      "width": 366,
+      "x": 12,
+      "y": 80.46875
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "final-32-recurring-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 360,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 328
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 428,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 396
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 496,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 464
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 636.46875,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 604.46875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 801.46875,
+      "height": 689.46875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-32-recurring-weekly-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 261,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 229
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 329,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 297
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 397,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 365
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 465,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 433
+        }
+      },
+      {
+        "label": null,
+        "rect": {
+          "bottom": 605.46875,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 573.46875
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "확인"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 770.46875,
+      "height": 757.46875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 13
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-32-migrate-640",
+    "body": {
+      "bottom": 262,
+      "height": 174,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 220,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 188
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 65,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 262
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 279
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": true,
+        "rect": {
+          "bottom": 311,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 279
+        },
+        "text": "이동"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 313.6875,
+      "height": 201.6875,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  },
+  {
+    "label": "final-32-change-offering-640",
+    "body": {
+      "bottom": 256.3125,
+      "height": 168.3125,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 88
+    },
+    "bodyContentWidth": 524,
+    "controls": [
+      {
+        "label": null,
+        "rect": {
+          "bottom": 220,
+          "height": 32,
+          "right": 577,
+          "width": 524,
+          "x": 53,
+          "y": 188
+        }
+      }
+    ],
+    "footer": {
+      "bottom": 327,
+      "height": 70.6875,
+      "right": 615,
+      "width": 590,
+      "x": 25,
+      "y": 256.3125
+    },
+    "footerButtons": [
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 308.15625,
+          "height": 32,
+          "right": 521.234375,
+          "width": 57.765625,
+          "x": 463.46875,
+          "y": 276.15625
+        },
+        "text": "취소"
+      },
+      {
+        "disabled": false,
+        "rect": {
+          "bottom": 308.15625,
+          "height": 32,
+          "right": 587,
+          "width": 57.765625,
+          "x": 529.234375,
+          "y": 276.15625
+        },
+        "text": "변경"
+      }
+    ],
+    "footerCount": 1,
+    "form": {
+      "bottom": 538.53125,
+      "height": 426.53125,
+      "right": 577,
+      "width": 524,
+      "x": 53,
+      "y": 112
+    },
+    "modal": {
+      "bottom": 328,
+      "height": 296,
+      "right": 616,
+      "width": 592,
+      "x": 24,
+      "y": 32
+    },
+    "tableCount": 0,
+    "tabs": [],
+    "viewport": [
+      640,
+      360
+    ]
+  }
+]

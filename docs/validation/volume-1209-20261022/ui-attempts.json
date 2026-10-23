@@ -1,0 +1,18 @@
+[
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "created-VM-volume-tab-ROOT-DATA-1GiB",
+    "text": "생성 및 연결\n기존 볼륨 연결\n업데이트\n이름\t상태\t유형\t볼륨 번호 (Device ID)\t크기\t스토리지\tKMS 키\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nROOT-720\n기존 호환 값: thin\n\t\n Allocated\tROOT\t0\t100.00 GB\t\t\t\n디스크 분리\n\nDATA-720-1\n기존 호환 값: thin\n\t\n Allocated\tDATADISK\t1\t1.00 GB\t\t\t\n디스크 분리",
+    "pass": false,
+    "reason": "검증 스크립트가 GiB 문구를 기대했으나 기존 UI는 1.00 GB로 표시한다. API/DB는 1073741824 bytes로 별도 대조했다."
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "created-VM-volume-tab-ROOT-DATA-1GiB",
+    "text": "생성 및 연결\n기존 볼륨 연결\n업데이트\n이름\t상태\t유형\t볼륨 번호 (Device ID)\t크기\t스토리지\tKMS 키\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nROOT-201\n기존 호환 값: thin\n\t\n Allocated\tROOT\t0\t100.00 GB\t\t\t\n디스크 분리\n\nDATA-201-1\n기존 호환 값: thin\n\t\n Allocated\tDATADISK\t1\t1.00 GB\t\t\t\n디스크 분리",
+    "pass": false,
+    "reason": "검증 스크립트가 GiB 문구를 기대했으나 기존 UI는 1.00 GB로 표시한다. API/DB는 1073741824 bytes로 별도 대조했다."
+  }
+]

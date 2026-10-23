@@ -1,0 +1,196 @@
+[
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "487cf645-fa40-4b89-9133-9c7a53d13810",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Admin",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": true,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "487cf645-fa40-4b89-9133-9c7a53d13810",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "DomainAdmin",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "487cf645-fa40-4b89-9133-9c7a53d13810",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "User",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "487cf645-fa40-4b89-9133-9c7a53d13810",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "actor": "Project",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 31,
+    "case": "DB-active-general-offerings",
+    "counts": {
+      "normal": 23,
+      "computeOnly": 0
+    },
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "ea088297-d534-477e-a499-55a6b1a9791b",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Admin",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": true,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "ea088297-d534-477e-a499-55a6b1a9791b",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "DomainAdmin",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "ea088297-d534-477e-a499-55a6b1a9791b",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "User",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "API-three-pages-count-and-keyword",
+    "count": 23,
+    "pageLengths": [
+      10,
+      10,
+      3
+    ],
+    "allIdsMatch": true,
+    "searchLastId": "ea088297-d534-477e-a499-55a6b1a9791b",
+    "emptyCount": 0,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "actor": "Project",
+    "case": "scope-foreign-domain-disk-visibility",
+    "visible": false,
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "case": "DB-active-general-offerings",
+    "counts": {
+      "normal": 23,
+      "computeOnly": 0
+    },
+    "pass": true
+  }
+]

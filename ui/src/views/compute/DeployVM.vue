@@ -353,6 +353,10 @@
                             <disk-offering-selection
                               v-if="showOverrideDiskOfferingOption"
                               :items="options.diskOfferings"
+                              all-items
+                              :scope-key="diskOfferingQueryScope"
+                              :error="diskOfferingsError"
+                              @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
                               :row-count="rowCount.diskOfferings"
                               :zoneId="zoneId"
                               :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
@@ -435,6 +439,10 @@
                             <disk-offering-selection
                               v-if="showOverrideDiskOfferingOption"
                               :items="options.diskOfferings"
+                              all-items
+                              :scope-key="diskOfferingQueryScope"
+                              :error="diskOfferingsError"
+                              @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
                               :row-count="rowCount.diskOfferings"
                               :zoneId="zoneId"
                               :value="overrideDiskOffering ? overrideDiskOffering.id : ''"
@@ -507,6 +515,10 @@
                         <disk-offering-selection
                           v-else
                           :items="options.diskOfferings"
+                          all-items
+                          :scope-key="diskOfferingQueryScope"
+                          :error="diskOfferingsError"
+                          @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
                           :row-count="rowCount.diskOfferings"
                           :zoneId="zoneId"
                           :value="diskOffering ? diskOffering.id : ''"
@@ -573,6 +585,10 @@
                   <div v-if="zoneSelected && !isTemplateHypervisorExternal">
                     <disk-offering-selection
                       :items="options.diskOfferings"
+                      all-items
+                      :scope-key="diskOfferingQueryScope"
+                      :error="diskOfferingsError"
+                      @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
                       :row-count="rowCount.diskOfferings"
                       :zoneId="zoneId"
                       :value="diskOffering ? diskOffering.id : ''"
@@ -619,6 +635,10 @@
                   <iso-additional-data-disks
                     v-model:value="isoDataDiskSelection"
                     :items="options.diskOfferings"
+                    all-items
+                    :scope-key="diskOfferingQueryScope"
+                    :error="diskOfferingsError"
+                    @retry="fetchOptions(params.diskOfferings, 'diskOfferings')"
                     :zone-id="zoneId"
                     :loading="loading.diskOfferings"
                     :kms-keys="options.kmsKeys"
@@ -1225,6 +1245,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { Button, message } from 'ant-design-vue'
 import { affinitySelectionIds, affinitySelectionGroups, fetchAffinityGroupOptions } from '@/utils/affinityGroupSelection'
 import { getAPI, postAPI } from '@/api'
+import { deploymentDiskOfferingScope, fetchDeploymentDiskOfferings } from '@/utils/deploymentDiskOfferings'
 import { isAdmin } from '@/role'
 import _ from 'lodash'
 import { mixin, mixinDevice } from '@/utils/mixin.js'
@@ -1385,6 +1406,9 @@ export default {
         storagePoolObjects: [],
         kmsKeys: []
       },
+      diskOfferingsError: '',
+      diskOfferingLookupToken: null,
+      diskOfferingLookupScope: '',
       rowCount: {},
       loading: {
         deploy: false,
@@ -1605,7 +1629,9 @@ export default {
         networkIds: this.form.networkids || []
       })
     },
+    diskOfferingQueryScope () { return deploymentDiskOfferingScope(this.params.diskOfferings.options, this.$store) },
     diskPlanIncomplete () {
+      if (this.loading?.diskOfferings || this.diskOfferingsError) return true
       if (this.additionalIsoConfigDriveConflict) return true
       if (this.isCreationSource) {
         return !this.creationSourceOwnerReady || !this.selectedCreationSource?.allowed || this.sourceLoading || this.sourceOperationPending ||
@@ -3650,6 +3676,7 @@ export default {
       })
     },
     fetchOptions (param, name, exclude) {
+      if (name === 'diskOfferings' && !exclude?.includes(name)) return fetchDeploymentDiskOfferings(this, param)
       if (name === 'affinityGroups' && !exclude?.includes(name)) return fetchAffinityGroupOptions(this, param)
       return new Promise((resolve, reject) => {
         if (exclude && exclude.length > 0 && exclude.includes(name)) {

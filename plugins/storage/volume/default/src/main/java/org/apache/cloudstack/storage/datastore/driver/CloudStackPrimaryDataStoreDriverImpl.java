@@ -528,11 +528,11 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
             resizeCmd.setContextParam(DiskTO.PROTOCOL_TYPE, Storage.StoragePoolType.DatastoreCluster.toString());
         }
         try {
-            ResizeVolumeAnswer answer;
+            Answer answer;
             if (ClvmPoolManager.isClvmPoolType(pool.getPoolType())) {
                 // For CLVM, send only to the determined host, without falling through to other hosts
                 try {
-                    answer = (ResizeVolumeAnswer) agentMgr.send(endpointsToRunResize[0], resizeCmd);
+                    answer = agentMgr.send(endpointsToRunResize[0], resizeCmd);
                 } catch (AgentUnavailableException | OperationTimedoutException e) {
                     logger.error("CLVM resize failed to reach host {} for volume {}: {}",
                             endpointsToRunResize[0], vol.getUuid(), e.getMessage());
@@ -541,21 +541,25 @@ public class CloudStackPrimaryDataStoreDriverImpl implements PrimaryDataStoreDri
                     return;
                 }
             } else {
-                answer = (ResizeVolumeAnswer) storageMgr.sendToPool(pool, endpointsToRunResize, resizeCmd);
+                answer = storageMgr.sendToPool(pool, endpointsToRunResize, resizeCmd);
             }
-            if (answer != null && answer.getResult()) {
-                long finalSize = answer.getNewSize();
+            result.setAnswer(answer);
+            if (answer == null) {
+                result.setResult("No answer received while resizing volume " + vol.getUuid());
+            } else if (!answer.getResult()) {
+                result.setResult(answer.getDetails() == null || answer.getDetails().trim().isEmpty()
+                        ? "Agent rejected resize for volume " + vol.getUuid() : answer.getDetails());
+            } else if (!(answer instanceof ResizeVolumeAnswer)) {
+                result.setResult("Unexpected resize response type " + answer.getClass().getSimpleName() + " for volume " + vol.getUuid());
+            } else {
+                ResizeVolumeAnswer resizeAnswer = (ResizeVolumeAnswer) answer;
+                long finalSize = resizeAnswer.getNewSize();
                 logger.debug("Resize: volume started at size: " + toHumanReadableSize(vol.getSize()) + " and ended at size: " + toHumanReadableSize(finalSize));
 
                 vol.setSize(finalSize);
                 vol.update();
 
-                updateVolumePathDetails(vol, answer);
-            } else if (answer != null) {
-                result.setResult(answer.getDetails());
-            } else {
-                logger.debug("return a null answer, mark it as failed for unknown reason");
-                result.setResult("return a null answer, mark it as failed for unknown reason");
+                updateVolumePathDetails(vol, resizeAnswer);
             }
         } catch (Exception e) {
             logger.debug("sending resize command failed", e);

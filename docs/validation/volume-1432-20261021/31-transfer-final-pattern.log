@@ -1,0 +1,2 @@
+read 65536/65536 bytes at offset 0
+64 KiB, 1 ops; 00.00 sec (815.512 MiB/sec and 13048.1870 ops/sec)

@@ -17,7 +17,8 @@
 
 <template>
   <div class="form-layout" v-ctrl-enter="handleSubmit">
-    <a-spin :spinning="loading">
+    <a-spin :spinning="loading || sourceLoading">
+      <a-alert v-if="sourceError" type="error" :message="sourceError" show-icon><template #description><a-button @click="fetchSourceOffering">{{ $t('label.retry') }}</a-button></template></a-alert>
       <a-alert
          v-if="resource"
          type="info"
@@ -45,10 +46,10 @@
         <!-- form content is provided by ComputeOfferingForm component -->
         <template #form-actions>
           <br/>
-          <div :span="24" class="action-button">
+          <MoldDialogActions :span="24" :busy="loading || sourceLoading">
             <a-button @click="closeAction">{{ $t('label.cancel') }}</a-button>
-            <a-button :loading="loading" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
-          </div>
+            <a-button :loading="loading" :disabled="sourceLoading || !sourceReady" ref="submit" type="primary" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+          </MoldDialogActions>
         </template>
       </ComputeOfferingForm>
      </a-spin>
@@ -56,9 +57,15 @@
  </template>
 
 <script>
+import storageDialogContext from '@/utils/storageDialogContext'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import ComputeOfferingForm from '@/components/offering/ComputeOfferingForm'
 import { ref, reactive } from 'vue'
-import { getAPI, postAPI } from '@/api'
+import { postAPI } from '@/api'
+import { getAPI } from '@/utils/storageApi'
+import { performanceParams, qosForm } from '@/utils/offeringQos'
+import { allocationParams, allocationForm } from '@/utils/volumeAllocation'
+import { getFilteredExternalDetails } from '@/utils/extension'
 import AddDiskOffering from '@/views/offering/AddDiskOffering'
 import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
@@ -69,8 +76,9 @@ import store from '@/store'
 
 export default {
   name: 'CloneComputeOffering',
-  mixins: [mixinForm],
+  mixins: [storageDialogContext, mixinForm],
   components: {
+    MoldDialogActions,
     ComputeOfferingForm,
     AddDiskOffering,
     ResourceIcon,
@@ -140,6 +148,9 @@ export default {
       leaseexpiryaction: undefined,
       vgpuProfiles: [],
       vgpuProfileLoading: false,
+      sourceLoading: false,
+      sourceReady: false,
+      sourceError: '',
       externalDetailsEnabled: false
     }
   },
@@ -163,45 +174,26 @@ export default {
     this.fetchSourceOffering()
   },
   methods: {
-    fetchSourceOffering () {
-      if (!this.resource?.id) {
-        this.populateFormFromResource()
-        return
-      }
-
-      const params = {
-        id: this.resource.id,
-        listall: true,
-        details: 'all'
-      }
-      if (this.isSystem) {
-        params.issystem = true
-      }
-
-      getAPI('listServiceOfferings', params).then(json => {
-        const offering = json?.listserviceofferingsresponse?.serviceoffering?.[0]
-        const sourceOffering = offering || this.resource
-        this.populateFormFromResource(sourceOffering)
-        this.resolveComputeOnlyState(sourceOffering)
-      }).catch(() => {
-        this.populateFormFromResource()
-        this.resolveComputeOnlyState(this.resource)
-      })
+    async fetchSourceOffering () {
+      this.sourceLoading = true
+      this.sourceReady = false
+      this.sourceError = ''
+      try {
+        const response = await getAPI('listServiceOfferings', { id: this.resource.id, listall: true, state: 'all', details: 'all', issystem: this.isSystem })
+        const source = response.listserviceofferingsresponse?.serviceoffering?.find(row => row.id === this.resource.id)
+        if (!source) throw new Error(this.$t('message.offering.not.found'))
+        this.populateFormFromResource(source)
+        this.resolveComputeOnlyState(source)
+        this.sourceReady = true
+      } catch (error) {
+        this.sourceError = error?.response?.data?.errortext || error?.message || this.$t('message.offering.not.found')
+      } finally { this.sourceLoading = false }
     },
     resolveComputeOnlyState (sourceResource) {
-      if (!sourceResource?.diskofferingid) {
-        return
-      }
-
-      getAPI('listDiskOfferings', {
-        id: sourceResource.diskofferingid,
-        listall: true
-      }).then(json => {
-        const diskOffering = json?.listdiskofferingsresponse?.diskoffering?.[0]
-        const isComputeOnly = !diskOffering
-        this.form.computeonly = isComputeOnly
-        this.computeonly = isComputeOnly
-      })
+      if (sourceResource.diskofferingcomputeonly === undefined) throw new Error(this.$t('message.offering.not.found'))
+      const dedicated = sourceResource.diskofferingcomputeonly === true || sourceResource.diskofferingcomputeonly === 'true'
+      this.form.computeonly = dedicated
+      this.computeonly = dedicated
     },
     initForm () {
       this.formRef = ref()
@@ -261,10 +253,6 @@ export default {
         ],
         networkrate: [this.naturalNumberRule],
         rootdisksize: [this.naturalNumberRule],
-        diskbytesreadrate: [this.naturalNumberRule],
-        diskbyteswriterate: [this.naturalNumberRule],
-        diskiopsreadrate: [this.naturalNumberRule],
-        diskiopswriterate: [this.naturalNumberRule],
         diskiopsmin: [this.naturalNumberRule],
         diskiopsmax: [this.naturalNumberRule],
         hypervisorsnapshotreserve: [this.naturalNumberRule],
@@ -311,6 +299,7 @@ export default {
 
       // Pre-fill form with source offering values
       const r = sourceResource
+      Object.assign(this.form, allocationForm(r))
       const isTrueValue = value => value === true || value === 'true' || value === 1 || value === '1'
       const offeringDetails = r.serviceofferingdetails || {}
       this.form.name = r.name + ' - Clone'
@@ -381,24 +370,15 @@ export default {
         this.form.shareable = isTrueValue(r.shareable)
       }
 
-      if (r.diskBytesReadRate || r.diskBytesWriteRate || r.diskIopsReadRate || r.diskIopsWriteRate) {
-        this.qosType = 'hypervisor'
-        this.form.qostype = 'hypervisor'
-        if (r.diskBytesReadRate) this.form.diskbytesreadrate = r.diskBytesReadRate
-        if (r.diskBytesWriteRate) this.form.diskbyteswriterate = r.diskBytesWriteRate
-        if (r.diskIopsReadRate) this.form.diskiopsreadrate = r.diskIopsReadRate
-        if (r.diskIopsWriteRate) this.form.diskiopswriterate = r.diskIopsWriteRate
-      } else if (r.miniops || r.maxiops) {
-        this.qosType = 'storage'
-        this.form.qostype = 'storage'
-        if (r.miniops) this.form.diskiopsmin = r.miniops
-        if (r.maxiops) this.form.diskiopsmax = r.maxiops
-        if (r.hypervisorsnapshotreserve) this.form.hypervisorsnapshotreserve = r.hypervisorsnapshotreserve
-      }
-      if (r.iscustomizediops !== undefined) {
-        this.form.iscustomizeddiskiops = r.iscustomizediops
-        this.isCustomizedDiskIops = r.iscustomizediops
-      }
+      Object.assign(this.form, qosForm(r))
+      const hasHypervisorQos = Object.values(qosForm(r)).some(value => value !== '' && Number(value) > 0)
+      this.qosType = hasHypervisorQos ? 'hypervisor' : (isTrueValue(r.iscustomizediops) || Number(r.miniops) > 0 || Number(r.maxiops) > 0 ? 'storage' : '')
+      this.form.qostype = this.qosType
+      this.form.iscustomizeddiskiops = isTrueValue(r.iscustomizediops)
+      this.isCustomizedDiskIops = this.form.iscustomizeddiskiops
+      if (r.miniops !== undefined) this.form.diskiopsmin = String(r.miniops)
+      if (r.maxiops !== undefined) this.form.diskiopsmax = String(r.maxiops)
+      if (r.hypervisorsnapshotreserve !== undefined) this.form.hypervisorsnapshotreserve = String(r.hypervisorsnapshotreserve)
 
       if (r.rootdisksize) this.form.rootdisksize = r.rootdisksize
 
@@ -434,10 +414,9 @@ export default {
         this.handleDeploymentPlannerChange(r.deploymentplanner)
       }
 
-      if (r.serviceofferingdetails && Object.keys(r.serviceofferingdetails).length > 0) {
-        this.externalDetailsEnabled = true
-        this.form.externaldetails = r.serviceofferingdetails
-      }
+      const externalDetails = getFilteredExternalDetails(r.serviceofferingdetails) || {}
+      this.externalDetailsEnabled = Object.keys(externalDetails).length > 0
+      this.form.externaldetails = this.externalDetailsEnabled ? externalDetails : undefined
     },
     fetchGPUCards () {
       this.gpuCardLoading = true
@@ -532,15 +511,15 @@ export default {
       if (e && e.preventDefault) {
         e.preventDefault()
       }
-      if (this.loading) return
+      if (this.loading || this.sourceLoading || !this.sourceReady) return
 
       this.formRef.value.validate().then((values) => {
+        if (this.loading || (this.dialogCurrent && !this.dialogCurrent())) return
         var params = {
           issystem: this.isSystem,
           name: values.name,
           displaytext: values.displaytext,
           storagetype: values.storagetype,
-          provisioningtype: values.provisioningtype,
           cachemode: values.cachemode,
           customized: values.offeringtype !== 'fixed',
           offerha: values.offerha === true,
@@ -597,35 +576,9 @@ export default {
         if (values.rootdisksize != null && values.rootdisksize.length > 0) {
           params.rootdisksize = values.rootdisksize
         }
-        if (values.qostype === 'storage') {
-          var customIops = values.iscustomizeddiskiops === true
-          params.customizediops = customIops
-          if (!customIops) {
-            if (values.diskiopsmin != null && values.diskiopsmin.length > 0) {
-              params.miniops = values.diskiopsmin
-            }
-            if (values.diskiopsmax != null && values.diskiopsmax.length > 0) {
-              params.maxiops = values.diskiopsmax
-            }
-            if (values.hypervisorsnapshotreserve !== undefined &&
-               values.hypervisorsnapshotreserve != null && values.hypervisorsnapshotreserve.length > 0) {
-              params.hypervisorsnapshotreserve = values.hypervisorsnapshotreserve
-            }
-          }
-        } else if (values.qostype === 'hypervisor') {
-          if (values.diskbytesreadrate != null && values.diskbytesreadrate.length > 0) {
-            params.bytesreadrate = values.diskbytesreadrate
-          }
-          if (values.diskbyteswriterate != null && values.diskbyteswriterate.length > 0) {
-            params.byteswriterate = values.diskbyteswriterate
-          }
-          if (values.diskiopsreadrate != null && values.diskiopsreadrate.length > 0) {
-            params.iopsreadrate = values.diskiopsreadrate
-          }
-          if (values.diskiopswriterate != null && values.diskiopswriterate.length > 0) {
-            params.iopswriterate = values.diskiopswriterate
-          }
-        }
+        delete params.cachemode
+        delete params.cacheMode
+        Object.assign(params, performanceParams(values, values.computeonly === false, true))
         if (values.storagetags != null && values.storagetags.length > 0) {
           var tags = values.storagetags.join(',')
           params.tags = tags
@@ -697,6 +650,8 @@ export default {
         }
 
         params.sourceofferingid = this.resource.id
+        Object.assign(params, allocationParams(values, values.computeonly === false))
+        if (values.computeonly !== false) delete params.diskofferingid
         this.loading = true
         postAPI('cloneServiceOffering', params).then(json => {
           const message = this.isSystem

@@ -717,7 +717,8 @@
               <div class="resource-detail-item__label">{{ $t('label.vmname') }}</div>
               <div class="resource-detail-item__details">
                 <desktop-outlined />
-                <router-link :to="{ path: createPathBasedOnVmType(resource.vmtype || resource.virtualmachinetype, resource.virtualmachineid) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
+                <router-link v-if="volumeVmPath(resource, $router)" :to="{ path: volumeVmPath(resource, $router) }">{{ resource.vmname || resource.vm || resource.virtualmachinename || resource.virtualmachineid }} </router-link>
+                <span v-else>{{ resource.vmname || resource.virtualmachinename || resource.virtualmachineid }}</span>
                 <status class="status status--end" :text="resource.vmstate" v-if="resource.vmstate"/>
               </div>
             </div>
@@ -1173,6 +1174,7 @@
 </template>
 
 <script>
+import { volumeVmPath } from '@/utils/storageUi'
 import { creationVmOsName } from '@/utils/creationVmPresentation'
 import AffinityGroupPolicy from '@/views/compute/AffinityGroupPolicy'
 import { sshKeyPairNameLink, sshKeyPairVmQuery } from '@/utils/sshKeyPairIdentity'
@@ -1413,6 +1415,7 @@ export default {
     }
   },
   methods: {
+    volumeVmPath,
     sshKeyPairNameLink,
     createPathBasedOnVmType: createPathBasedOnVmType,
     updateResourceAdditionalData () {

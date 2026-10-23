@@ -408,8 +408,8 @@
         {{ text }}
       </template>
       <template v-if="column.key === 'vmname'">
-        <router-link :to="{ path: createPathBasedOnVmType(record.vmtype, record.virtualmachineid) }">{{ text
-          }}</router-link>
+        <router-link v-if="volumeVmPath(record, $router)" :to="{ path: volumeVmPath(record, $router) }">{{ text || record.virtualmachineid }}</router-link>
+        <span v-else>{{ text || '—' }}</span>
       </template>
       <template v-if="column.key === 'virtualmachinename'">
         <router-link v-if="record.virtualmachineid" :to="{ path: getVmRouteUsingType(record) + record.virtualmachineid }">{{ text }}</router-link>
@@ -705,8 +705,7 @@
         <span v-else>{{ text }}</span>
       </template>
       <template v-if="column.key === 'diskofferingname'">
-        <router-link v-if="record.diskofferingname && record.diskofferingcomputeonly !== true" :to="{ path: '/diskoffering/' + record.diskofferingid }">{{ text }}</router-link>
-        <span v-else>{{ text }}</span>
+        <LinkedDiskOffering :resource="record" />
       </template>
       <template v-for="(value, name) in thresholdMapping" :key="name">
         <template v-if="column.key === name">
@@ -1216,11 +1215,13 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 import CopyLabel from '@/components/widgets/CopyLabel'
 import { cniDetailLink } from '@/utils/cniDeletion'
 import AffinityGroupPolicy from '@/views/compute/AffinityGroupPolicy'
+import LinkedDiskOffering from '@/components/offering/LinkedDiskOffering'
 import GuestNetworkSummary from '@/components/view/GuestNetworkSummary'
 import ResourceLabel from '@/components/widgets/ResourceLabel'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import { createPathBasedOnVmType } from '@/utils/plugins'
 import { validateLinks } from '@/utils/links'
+import { volumeVmPath } from '@/utils/storageUi'
 import cronstrue from 'cronstrue/i18n'
 import moment from 'moment-timezone'
 import { timeZoneName } from '@/utils/timezone'
@@ -1230,6 +1231,7 @@ export default {
   name: 'ListView',
   components: {
     BackupProgress,
+    LinkedDiskOffering,
     AffinityGroupPolicy,
     AutoScaleListCell,
     InstanceGroupSummary,
@@ -1435,6 +1437,7 @@ export default {
     }
   },
   methods: {
+    volumeVmPath,
     cniDetailLink,
     sshKeyPairLink,
     canLinkProject (record) {

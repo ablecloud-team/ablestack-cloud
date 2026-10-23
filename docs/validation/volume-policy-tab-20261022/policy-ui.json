@@ -1,0 +1,598 @@
+[
+  {
+    "label": "final-31-created-auto-refresh",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "96f3f79a-d182-4394-8819-bd802f0e53d6",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/8dfa3284-86a8-40d1-a784-62bedf42c9a3?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-created-auto-refresh",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "a366d8a7-7252-4047-b1f7-d0022746a8da",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/23c37d56-02dc-46ab-b2a9-221fdbe1beb1?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-31-refresh-failed",
+    "bodyText": "업데이트\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n재시도\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "96f3f79a-d182-4394-8819-bd802f0e53d6",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/8dfa3284-86a8-40d1-a784-62bedf42c9a3?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-31-retry-recovered",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "96f3f79a-d182-4394-8819-bd802f0e53d6",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/8dfa3284-86a8-40d1-a784-62bedf42c9a3?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-refresh-failed",
+    "bodyText": "업데이트\n목록을 갱신하지 못했습니다. 마지막 정상 데이터를 표시하며 자동으로 다시 시도합니다.\n재시도\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "a366d8a7-7252-4047-b1f7-d0022746a8da",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/23c37d56-02dc-46ab-b2a9-221fdbe1beb1?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-retry-recovered",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "a366d8a7-7252-4047-b1f7-d0022746a8da",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/23c37d56-02dc-46ab-b2a9-221fdbe1beb1?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-31-empty-volume",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\n데이터 없음",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": null,
+        "text": "데이터 없음"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/9ac7bfee-6e44-4439-a0e2-1aa45dbd128c?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-31-history-restored",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "96f3f79a-d182-4394-8819-bd802f0e53d6",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/8dfa3284-86a8-40d1-a784-62bedf42c9a3?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-empty-volume",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n\n\n데이터 없음",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": null,
+        "text": "데이터 없음"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/4f603ba1-3aae-48f3-8700-94d1dde2c7e8?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-history-restored",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t\n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "a366d8a7-7252-4047-b1f7-d0022746a8da",
+        "text": "매일\t\n23:58\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/23c37d56-02dc-46ab-b2a9-221fdbe1beb1?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-31-daily-deleted",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "c7a43b91-c1e5-4d9a-9747-d93599e83e4d",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/volume/8dfa3284-86a8-40d1-a784-62bedf42c9a3?tab=recurringsnapshots"
+  },
+  {
+    "label": "final-32-daily-deleted",
+    "bodyText": "업데이트\n간격 유형\t시간\t시간대\t유지\tZone\t스토리지\t태그\t작업\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\n매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t",
+    "headers": [
+      "간격 유형",
+      "시간",
+      "시간대",
+      "유지",
+      "Zone",
+      "스토리지",
+      "태그",
+      "작업"
+    ],
+    "rows": [
+      {
+        "id": null,
+        "text": " \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n "
+      },
+      {
+        "id": "c2b02619-cf42-4bf3-be94-37a59c054816",
+        "text": "매월\t\n23:59\n매월 28일\n\tUTC [Coordinated Universal Time]\t2\t\nZone\n\t\nPrimary\n\t\t"
+      }
+    ],
+    "tabs": [
+      {
+        "selected": "false",
+        "text": "상세"
+      },
+      {
+        "selected": "false",
+        "text": "스냅샷"
+      },
+      {
+        "selected": "true",
+        "text": "정기스냅샷"
+      },
+      {
+        "selected": "false",
+        "text": "이벤트"
+      },
+      {
+        "selected": "false",
+        "text": "코멘트"
+      }
+    ],
+    "url": "http://10.10.32.10:8080/client/#/volume/23c37d56-02dc-46ab-b2a9-221fdbe1beb1?tab=recurringsnapshots"
+  }
+]

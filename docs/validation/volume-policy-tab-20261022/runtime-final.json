@@ -1,0 +1,48 @@
+{
+  "31": {
+    "protectedHashesPreserved": true,
+    "staticHashesMatched": true,
+    "staticFileCount": 914,
+    "markers": [
+      "volume-policy-tab",
+      "blockingLoadingState",
+      "fetchSyncProgress",
+      "extractJobId",
+      "mold-dialog-actions",
+      "storage-related-resources",
+      "storage-query-error"
+    ],
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "taskTemporaryFilesRemoved": [
+      "volume-policy-tab-ui.tgz",
+      "volume-policy-tab-ui.py",
+      "volume-policy-tab-ui-manifest.json"
+    ],
+    "backupPreserved": "/root/volume-policy-tab-ui-04a5b31a27c-1792678586"
+  },
+  "32": {
+    "protectedHashesPreserved": true,
+    "staticHashesMatched": true,
+    "staticFileCount": 914,
+    "markers": [
+      "volume-policy-tab",
+      "blockingLoadingState",
+      "fetchSyncProgress",
+      "extractJobId",
+      "mold-dialog-actions",
+      "storage-related-resources",
+      "storage-query-error"
+    ],
+    "mold": "active",
+    "clientHttp": 200,
+    "extraImagePreserved": true,
+    "taskTemporaryFilesRemoved": [
+      "volume-policy-tab-ui.tgz",
+      "volume-policy-tab-ui.py",
+      "volume-policy-tab-ui-manifest.json"
+    ],
+    "backupPreserved": "/root/volume-policy-tab-ui-04a5b31a27c-1792678589"
+  }
+}

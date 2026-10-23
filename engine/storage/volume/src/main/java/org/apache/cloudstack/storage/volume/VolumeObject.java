@@ -93,6 +93,8 @@ import java.util.function.Function;
 import org.apache.cloudstack.utils.reflectiontostringbuilderutils.ReflectionToStringBuilderUtils;
 
 public class VolumeObject implements VolumeInfo {
+    @Inject private com.cloud.storage.VolumeAllocationService allocationService;
+
     protected Logger logger = LogManager.getLogger(getClass());
     protected VolumeVO volumeVO;
     private StateMachine2<Volume.State, Volume.Event, Volume> _volStateMachine;
@@ -677,6 +679,23 @@ public class VolumeObject implements VolumeInfo {
         if (to == null) {
             to = new VolumeObjectTO(this);
         }
+        if (to instanceof VolumeObjectTO) {
+            Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.validateStored(volumeDetailsDao.listDetailsKeyPairs(getId()));
+            ((VolumeObjectTO) to).setAllocation(intent);
+            if (isPrimaryDataStore() && getPath() == null) {
+                org.apache.cloudstack.storage.to.PrimaryDataStoreTO store = (org.apache.cloudstack.storage.to.PrimaryDataStoreTO) to.getDataStore();
+                if (store.getPoolType() == Storage.StoragePoolType.RBD && intent.isEmpty()) {
+                    com.cloud.storage.VolumeAllocationPolicy.requireRbdLegacyThin(getProvisioningType());
+                }
+                if (!intent.isEmpty()) {
+                    if (!List.of(Storage.StoragePoolType.RBD, Storage.StoragePoolType.SharedMountPoint).contains(store.getPoolType()) ||
+                            ((VolumeObjectTO) to).requiresEncryption() || getMigrationOptions() != null) {
+                        throw new com.cloud.exception.InvalidParameterValueException("ALLOCATION_BACKEND_UNSUPPORTED: explicit creation requires qualified unencrypted GFS2/RBD without migration options");
+                    }
+                    allocationService.validateCreate(intent, getProvisioningType(), getDataCenterId(), getDataStore().getId(), null);
+                }
+            }
+        }
         return to;
     }
 
@@ -735,6 +754,7 @@ public class VolumeObject implements VolumeInfo {
     }
 
     protected void updateVolumeInfo(VolumeObjectTO newVolume, VolumeVO volumeVo, boolean setVolumeSize, boolean setFormat) {
+        validateAllocationResult(newVolume, volumeVo);
         String previousValues = ReflectionToStringBuilderUtils.reflectOnlySelectedFields(volumeVo, "path", "size", "format", "encryptFormat", "poolId");
 
         volumeVo.setPath(newVolume.getPath());
@@ -753,6 +773,47 @@ public class VolumeObject implements VolumeInfo {
 
         String newValues = ReflectionToStringBuilderUtils.reflectOnlySelectedFields(volumeVo, "path", "size", "format", "encryptFormat", "poolId");
         logger.debug(String.format("Updated %s from %s to %s ", volumeVo.getVolumeDescription(), previousValues, newValues));
+    }
+
+    /** Fail closed before path/format/Ready updates if an old Agent ignores the new request. */
+    protected void validateAllocationResult(VolumeObjectTO result, VolumeVO volume) {
+        Map<String, String> intent = com.cloud.storage.VolumeAllocationPolicy.validateStored(volumeDetailsDao.listDetailsKeyPairs(volume.getId()));
+        if (intent.isEmpty()) {
+            return;
+        }
+        String prefix = "ALLOCATION_EVIDENCE_INVALID: ";
+        Storage.ImageFormat expectedFormat = Storage.ImageFormat.valueOf(intent.get(com.cloud.storage.VolumeAllocationPolicy.FORMAT).toUpperCase(java.util.Locale.ROOT));
+        String backend = getDataStore() instanceof org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore &&
+                ((org.apache.cloudstack.engine.subsystem.api.storage.PrimaryDataStore) getDataStore()).getPoolType() == Storage.StoragePoolType.SharedMountPoint ? "GFS2" : "RBD";
+        if (result == null || result.getFormat() != expectedFormat || result.getSize() == null ||
+                !result.getSize().equals(volume.getSize()) || !volume.getUuid().equals(result.getPath()) ||
+                !(result.getDataStore() instanceof org.apache.cloudstack.storage.to.PrimaryDataStoreTO) ||
+                !getDataStore().getUuid().equals(((org.apache.cloudstack.storage.to.PrimaryDataStoreTO) result.getDataStore()).getUuid())) {
+            throw new com.cloud.utils.exception.CloudRuntimeException(prefix + "image identity, pool, size or format does not match");
+        }
+        Map<String, String> supplied = result.getAllocation();
+        if (!intent.equals(com.cloud.storage.VolumeAllocationPolicy.validateStored(supplied)) ||
+                !backend.equals(supplied.get(com.cloud.storage.VolumeAllocationPolicy.BACKEND)) ||
+                !List.of("create", "copy").contains(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION))) {
+            throw new com.cloud.utils.exception.CloudRuntimeException(prefix + "missing or mismatched request and operation receipt");
+        }
+        try {
+            long observed = Long.parseLong(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OBSERVED_BYTES));
+            java.time.Instant at = java.time.Instant.parse(supplied.get(com.cloud.storage.VolumeAllocationPolicy.OBSERVED_AT));
+            String source = supplied.get(com.cloud.storage.VolumeAllocationPolicy.OBSERVED_SOURCE);
+            Map<String, String> verified = com.cloud.storage.VolumeAllocationPolicy.evidence(intent, backend,
+                    supplied.get(com.cloud.storage.VolumeAllocationPolicy.OPERATION), supplied.get(com.cloud.storage.VolumeAllocationPolicy.METHOD),
+                    observed, at, source);
+            if (!verified.equals(supplied) || !("GFS2".equals(backend) ? "stat-st-blocks-times-512" : "rbd-du-exact-image-used-size").equals(source) ||
+                    (List.of("full", "falloc").contains(intent.get(com.cloud.storage.VolumeAllocationPolicy.POLICY)) && observed < volume.getSize())) {
+                throw new IllegalArgumentException("Full allocation or receipt is incomplete");
+            }
+            for (Map.Entry<String, String> entry : verified.entrySet()) {
+                volumeDetailsDao.addDetail(volume.getId(), entry.getKey(), entry.getValue(), false);
+            }
+        } catch (RuntimeException invalid) {
+            throw new com.cloud.utils.exception.CloudRuntimeException(prefix + "unverified image allocation", invalid);
+        }
     }
 
     protected void updateResourceCount(VolumeObjectTO newVolume, VolumeVO oldVolume) {

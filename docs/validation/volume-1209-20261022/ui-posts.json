@@ -1,0 +1,36 @@
+[
+  {
+    "cluster": 31,
+    "requests": [
+      {
+        "command": "deployVirtualMachine",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "templateid": "e3d8677e-70f0-44bd-917e-6068636b97a8",
+        "startvm": "false",
+        "serviceofferingid": "acdb6303-db4d-4e90-bd08-0fa26f047aaa",
+        "datadisksdetails[0].diskofferingid": "487cf645-fa40-4b89-9133-9c7a53d13810",
+        "datadisksdetails[0].deviceid": "1",
+        "datadisksdetails[0].size": "1",
+        "name": "VOL1209-31-vm",
+        "displayname": "VOL1209-31-vm"
+      }
+    ]
+  },
+  {
+    "cluster": 32,
+    "requests": [
+      {
+        "command": "deployVirtualMachine",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "templateid": "b31d2c92-67b9-40c4-a137-4ff9778c6b0d",
+        "startvm": "false",
+        "serviceofferingid": "89bd20b9-2560-4300-9195-64cd2dc34d8d",
+        "datadisksdetails[0].diskofferingid": "ea088297-d534-477e-a499-55a6b1a9791b",
+        "datadisksdetails[0].deviceid": "1",
+        "datadisksdetails[0].size": "1",
+        "name": "VOL1209-32-vm",
+        "displayname": "VOL1209-32-vm"
+      }
+    ]
+  }
+]

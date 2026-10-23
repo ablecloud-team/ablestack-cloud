@@ -1,0 +1,251 @@
+Browser tab: 20, Title: "컴퓨트 오퍼링 - ABLESTACK-Mold", URL: "http://10.10.31.10:8080/client/#/computeoffering/3a3cca2f-10a5-414d-8351-4a790e46abce".
+1 AXWebArea 컴퓨트 오퍼링 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/computeoffering/3a3cca2f-10a5-414d-8351-4a790e46abce
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 10.10.31.10:8080/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 10.10.31.10:8080/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 10.10.31.10:8080/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 10.10.31.10:8080/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 10.10.31.10:8080/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 10.10.31.10:8080/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				255 content list sub_menu_7_$$_/offering-popup
+					256 cloud 컴퓨트 오퍼링
+						257 link Description: cloud 컴퓨트 오퍼링, Value: 10.10.31.10:8080/client/#/computeoffering
+					258 setting 시스템 오퍼링
+						259 link Description: setting 시스템 오퍼링, Value: 10.10.31.10:8080/client/#/systemoffering
+					260 hdd 디스크 오퍼링
+						261 link Description: hdd 디스크 오퍼링, Value: 10.10.31.10:8080/client/#/diskoffering
+					262 wifi 네트워크 오퍼링
+						263 link Description: wifi 네트워크 오퍼링, Value: 10.10.31.10:8080/client/#/networkoffering
+					264 deployment-unit VPC 오퍼링
+						265 link Description: deployment-unit VPC 오퍼링, Value: 10.10.31.10:8080/client/#/vpcoffering
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 10.10.31.10:8080/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 10.10.31.10:8080/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 image
+					73 container
+						74 radio button (settable, integer) Description:  , Value: 1
+					75 image check
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (disabled, settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (disabled, settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 image bell
+			123 container
+				124 text AC admin cloud
+		125 container
+			126 container
+				127 container
+					128 link Description: home, Value: 10.10.31.10:8080/client/#/
+					129 text /
+					130 link Description: 컴퓨트 오퍼링, Value: 10.10.31.10:8080/client/#/computeoffering
+					131 text / VOL1431-DETAILSTYLE-31-20261020-linked
+					132 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/service_offerings.html#compute-and-disk-service-offerings
+					133 button reload 업데이트
+						266 image reload
+						135 text 업데이트
+				136 button down 작업
+					137 image down
+					138 text 작업
+			267 container
+				268 image cloud
+				269 heading VOL1431-DETAILSTYLE-31-20261020-linked, Value: 4
+					270 text VOL1431-DETAILSTYLE-31-20261020-linked
+				271 text 상태 정상 아이디
+				272 button barcode
+					273 image barcode
+				274 link Description: 3a3cca2f-10a5-414d-8351-4a790e46abce , Value: javascript:;
+				275 text CPU 1 CPU x 1.00 GHz 
+				276 image question-circle
+				277 text 메모리 512 MB 메모리 생성일
+				278 image calendar
+				279 text 2026. 10. 20. 오후 8:42:48
+				280 link Description: cloud-server 가상머신 보기, Value: 10.10.31.10:8080/client/#/vm?serviceofferingid=3a3cca2f-10a5-414d-8351-4a790e46abce
+			281 container
+				282 tab group
+					283 container
+						284 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-3-tab-details
+						285 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-3-tab-events
+						286 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-3-tab-comments
+				287 container Description: 상세, ID: rc-tabs-3-panel-details
+					288 content list
+						289 container
+							290 text 이름
+							291 text VOL1431-DETAILSTYLE-31-20261020-linked
+						292 container
+							293 text 아이디
+							294 text 3a3cca2f-10a5-414d-8351-4a790e46abce
+						295 container
+							296 text 설명
+							297 text VOL1431-DETAILSTYLE-31-20261020-linked
+						298 container
+							299 text HA 제공
+							300 text false
+						301 container
+							302 text 프로비저닝 유형
+							303 text sparse
+						304 container
+							305 text 스토리지 유형
+							306 text shared
+						307 container
+							308 text 사용자지정 디스크 크기
+							309 text false
+						310 container
+							311 text CPU 제한
+							312 text false
+						313 container
+							314 text CPU 코어
+							315 text 1
+						316 container
+							317 text 루트 디스크 사이즈(GB)
+							318 text 1 GB
+						319 container
+							320 text CPU(MHz)
+							321 text 1000
+						322 container
+							323 text 메모리
+							324 text 512
+						325 container
+							326 text 디스크 오퍼링 이름
+							327 text VOL1431-DETAILSTYLE-31-20261020-explicit
+						328 container
+							329 text 스토리지 태그
+							330 text glue-gfs
+						331 container
+							332 text 생성일
+							333 text 2026. 10. 20. 오후 8:42:48
+						334 container
+							335 text Dynamic Scaling 활성화
+							336 text true
+						337 container
+							338 text 디스크 오퍼링 엄격성
+							339 text false
+						340 container
+							341 text 암호화 루트 디스크
+							342 text false
+						343 container
+							344 text 공유 볼륨
+							345 text false
+						346 container
+							347 text 압축/중복제거
+							348 text false
+						349 container
+							350 text 요청 정책 / 형식
+							351 image question-circle
+							352 text Thin (metadata) · QCOW2
+						353 container
+							354 text 확정 정책
+							355 text 알 수 없음
+						356 container
+							357 text 실제 적용 정책
+							358 text 알 수 없음
+						359 container
+							360 text 실제 적용 방식
+							361 text 알 수 없음
+						362 container
+							363 text 실제 이미지 형식
+							364 text 알 수 없음
+						365 container
+							366 text 관측 할당량
+							367 text 알 수 없음
+						368 container
+							369 text 관측 시각
+							370 text 알 수 없음
+						371 container
+							372 text 할당 증거
+							373 text 미검증
+	252 container
+		253 image info-circle
+		254 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+
+The focused UI element is 1 AXWebArea 컴퓨트 오퍼링 - ABLESTACK-Mold, URL: 10.10.31.10:8080/client/#/computeoffering/3a3cca2f-10a5-414d-8351-4a790e46abce

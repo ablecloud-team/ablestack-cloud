@@ -1,0 +1,812 @@
+{
+  "issue": 1434,
+  "epic": 1422,
+  "pullRequest": 1435,
+  "branch": "dhslove/epic-1422-volume-offerings",
+  "evidenceCodeHead": "4f4094723ef03776d3567ada512a9858af3e46e6",
+  "verdict": "complete",
+  "epicClosureEligible": true,
+  "epicState": "open",
+  "pullRequestState": "draft-open-unmerged",
+  "fullCloudOrReleaseBuildStarted": false,
+  "fullCloudCiClaimed": false,
+  "matrix": [
+    {
+      "cluster": 31,
+      "combination": "qcow2-metadata",
+      "rootBytes": 107374182400,
+      "rootVolume": "f98ca3d8-6af8-4cb2-b82b-a93e361b207b",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "metadata",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "metadata",
+        "effectivepolicy": "metadata",
+        "appliedmethod": "qemu-preallocation-metadata",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "2767065088",
+        "observedat": "2026-10-22T16:57:33.027699113Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "baa6d4bb-154f-4bf5-91fe-a3b33d217b4f",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "039b003d688ae7274de3b09f956f606fdd1005e81cf71dbade3305184b9211c4",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 31,
+      "combination": "qcow2-falloc",
+      "rootBytes": 107374182400,
+      "rootVolume": "07a5127d-70d3-4920-bf86-46928b99dc4a",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "107602178048",
+        "observedat": "2026-10-22T17:02:01.713756055Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "9ba9e762-901f-4875-b5e7-61462941ef99",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "bc930ef101a77a27b07b3d141e59e3ec04f375fdb173cdd7fc267bd26f380126",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 31,
+      "combination": "qcow2-full",
+      "rootBytes": 107374182400,
+      "rootVolume": "81cdca36-911f-4f33-ae66-131b6101257c",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "qcow2",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "qcow2",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "107602178048",
+        "observedat": "2026-10-22T17:03:03.107142097Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "e9b72c21-24ec-42f9-8abd-ccc30b5f8780",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "21143f1d0b43ac30dc7c6381dc28856ac138703a4f969a348cedf53e8540a8cc",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 31,
+      "combination": "raw-off",
+      "rootBytes": 107374182400,
+      "rootVolume": "1a1014c1-9a87-494f-bba9-521a895ccab7",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "off",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "off",
+        "effectivepolicy": "off",
+        "appliedmethod": "qemu-preallocation-off",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "2738470912",
+        "observedat": "2026-10-22T17:07:48.727378347Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "51dafcfb-75c6-406f-8712-83a84e88d8ea",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "ae29f24c92020a370589d50f982f3999416cad12b4d34589eb8bed9a397b9e8d",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 31,
+      "combination": "raw-falloc",
+      "rootBytes": 107374182400,
+      "rootVolume": "414df0df-0ff6-4f6e-9c0a-fb577f9078eb",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "falloc",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "falloc",
+        "effectivepolicy": "falloc",
+        "appliedmethod": "qemu-preallocation-falloc",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "107585560576",
+        "observedat": "2026-10-22T17:10:49.728076851Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "46958320-8133-4801-a31d-adb39bf5396e",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "00d4c4c1e4dd598276b9c9e4f060fc31ca05f994a080b71a61ee1be5b403da82",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 31,
+      "combination": "raw-full",
+      "rootBytes": 107374182400,
+      "rootVolume": "b68d050b-8a4f-4763-971b-4be47466b941",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "qemu-preallocation-full",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "GFS2",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "107585560576",
+        "observedat": "2026-10-22T17:15:04.898985570Z",
+        "observedsource": "stat-st-blocks-times-512"
+      },
+      "dataVolume": "683273b4-ee78-4bce-bf57-10d4c7ad9629",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "3dafb877924532be16a9836d6840d550492533f513490fd03f81ea42bc4f50bc",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 32,
+      "combination": "raw-off",
+      "rootBytes": 107374182400,
+      "rootVolume": "d49b7727-abae-424c-8543-3cb6b57018cf",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "off",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "off",
+        "effectivepolicy": "off",
+        "appliedmethod": "rbd-thin",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "RBD",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "2798243840",
+        "observedat": "2026-10-22T16:57:34.284852596Z",
+        "observedsource": "rbd-du-exact-image-used-size"
+      },
+      "dataVolume": "2287bc8d-9193-4f11-9e6e-ef3bb1cd8999",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "d9a0d1bfe7a5dc8ab467766eb813081470af2bd35a29b74216d611897115116a",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    },
+    {
+      "cluster": 32,
+      "combination": "raw-full",
+      "rootBytes": 107374182400,
+      "rootVolume": "0a67c835-4a72-4db5-9aa9-897a6fd972b2",
+      "allocation": {
+        "contractversion": "1",
+        "requestedpolicy": "full",
+        "requestedformat": "raw",
+        "policyorigin": "explicit",
+        "fixedpolicy": "full",
+        "effectivepolicy": "full",
+        "appliedmethod": "rbd-thick-convert-n-S0",
+        "actualformat": "raw",
+        "evidence": "verified",
+        "appliedbackend": "RBD",
+        "appliedoperation": "copy",
+        "evidencescope": "creation-or-copy-time",
+        "observedallocatedbytes": "107374182400",
+        "observedat": "2026-10-22T17:11:48.226201703Z",
+        "observedsource": "rbd-du-exact-image-used-size"
+      },
+      "dataVolume": "09943536-2eca-4a55-9c44-ebe1fa49d2a8",
+      "dataBytes": 1073741824,
+      "wholeZeroBefore": true,
+      "wholeDataSha256AfterWrite": "38bb9d87b99dd5fe49f3ea277103eb15d5f8f790026cebf4406a712abeb86c88",
+      "sameSha256AfterStopStart": true,
+      "guestRootCanaryBytes": 65536,
+      "guestOs": "Rocky Linux 9.5"
+    }
+  ],
+  "checks": {
+    "ui": {
+      "passedSuites": 22,
+      "passedTests": 321,
+      "lint": true
+    },
+    "server": {
+      "changedModule": "server",
+      "passedTests": 96,
+      "scopedJavaCheckstyleViolations": 0,
+      "broadCheckstylePreExistingWildcardImportFailures": 15
+    },
+    "script": {
+      "passedTests": 12,
+      "realHostMatrixCases": 18,
+      "bashSyntax": true
+    },
+    "existingAgentRuntime": {
+      "31": {
+        "perHost": 90,
+        "hosts": 3
+      },
+      "32": {
+        "perHost": 38,
+        "hosts": 3,
+        "oneOldApiEarlyRejectionMessageHandledBySeparateCompatibleHarness": true
+      }
+    },
+    "finalManagementRuntime": {
+      "31": 96,
+      "32": 96
+    }
+  },
+  "uiBuild": {
+    "sourceCommit": "1c0307d3cc8618ae62c31923736f8349b05f196e",
+    "ui-build": 0,
+    "seconds": 456,
+    "node": "v14.21.3",
+    "kind": "optimized-production",
+    "webpackSourceCommit": "89ca85c96a15a9340e2810c68e63c4b805ea70b3",
+    "staticOnlyUpdates": []
+  },
+  "uiDeployment": {
+    "31": {
+      "files": 914,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "extraImagePreserved": true,
+      "extraImageStat": null,
+      "clientHttp": 200,
+      "backup": "/root/volume-1434-ui-1c0307d3cc8-1792693909",
+      "sourceCommit": "1c0307d3cc8618ae62c31923736f8349b05f196e",
+      "payloadSha256": "1f0f38c444572cee1a2eaf5b291bb598c898fc7460d25937de8a2b031238761d"
+    },
+    "32": {
+      "files": 914,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "extraImagePreserved": true,
+      "extraImageStat": [
+        29194321920,
+        1791859614464247580,
+        27209289
+      ],
+      "clientHttp": 200,
+      "backup": "/root/volume-1434-ui-1c0307d3cc8-1792693913",
+      "sourceCommit": "1c0307d3cc8618ae62c31923736f8349b05f196e",
+      "payloadSha256": "1f0f38c444572cee1a2eaf5b291bb598c898fc7460d25937de8a2b031238761d"
+    }
+  },
+  "managementDeployment": {
+    "31": {
+      "sourceCommit": "f5be0f7dd40979a554e5b1ba075012675c57ba94",
+      "builtSourceSha256": "523ab454cc06b381c2f996401a431ab8d01a8bc2a33b25c80240f5834331c6ac",
+      "changedEntries": [
+        "com/cloud/api/query/dao/VolumeJoinDaoImpl.class"
+      ],
+      "classSha256": "52300333de84d95146794949c81b68a28522925ba0a98c3bb1719c70fa6fa859",
+      "originalJarSha256": "bca5fddd753ab8b0394592f332c3e1c58034dd95766a22f78c00092647aedda1",
+      "previousManagerPatchPreserved": true,
+      "bytecodeOnlyTwoGetterChanges": true,
+      "unrelatedMethodsByteIdentical": true,
+      "unchangedEntries": 204522,
+      "patchedJarSha256": "7db511d01fd3584096c18e21c0c6dbed2d7c21302dd7b6db200ea40602c98676",
+      "runtimeExit": 0,
+      "runtimeSummary": [
+        "",
+        "OK (96 tests)",
+        ""
+      ],
+      "backup": "/root/volume-1434-f5be0f7dd40-final",
+      "http": 200,
+      "mold": "active",
+      "schemaPreserved": true,
+      "webappPreserved": true,
+      "configPreserved": true,
+      "otherJarsPreserved": true,
+      "activeVmVolumeRowsPreserved": true
+    },
+    "32": {
+      "sourceCommit": "f5be0f7dd40979a554e5b1ba075012675c57ba94",
+      "builtSourceSha256": "523ab454cc06b381c2f996401a431ab8d01a8bc2a33b25c80240f5834331c6ac",
+      "changedEntries": [
+        "com/cloud/api/query/dao/VolumeJoinDaoImpl.class"
+      ],
+      "classSha256": "52300333de84d95146794949c81b68a28522925ba0a98c3bb1719c70fa6fa859",
+      "originalJarSha256": "65ef8da0a4da4805ffafbb08dda0178316b1fee2c87b087f6f8e2780c3bb06bd",
+      "previousManagerPatchPreserved": true,
+      "bytecodeOnlyTwoGetterChanges": true,
+      "unrelatedMethodsByteIdentical": true,
+      "unchangedEntries": 204516,
+      "patchedJarSha256": "db81a64d9397dbbe996045fa73908e93b486cc1d0a2b7ed7d875f99c9c5763fa",
+      "runtimeExit": 0,
+      "runtimeSummary": [
+        "",
+        "OK (96 tests)",
+        ""
+      ],
+      "backup": "/root/volume-1434-f5be0f7dd40-final",
+      "http": 200,
+      "mold": "active",
+      "schemaPreserved": true,
+      "webappPreserved": true,
+      "configPreserved": true,
+      "otherJarsPreserved": true,
+      "activeVmVolumeRowsPreserved": true
+    }
+  },
+  "scriptArtifact": {
+    "sourceCommit": "4f4094723ef03776d3567ada512a9858af3e46e6",
+    "files": {
+      "scripts/storage/qcow2/createtmplt.sh": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "test/unit/test_createtmplt.py": "18bf779d17b9f215dbc6318dd51d2bd7ab2630bec18e0f748a7664b09ab771d2"
+    },
+    "artifactSha256": "92a8714f59d217580196a1e4bce913ee48e5d26a3115d9423229608bd5c34152"
+  },
+  "scriptDeployment": {
+    "31-1": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    },
+    "31-2": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    },
+    "31-3": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    },
+    "32-1": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    },
+    "32-2": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    },
+    "32-3": {
+      "before": "ee7a338b68bf08a575d5e80aedeadd0ff2db87424a7e9238870b5f7541695b47",
+      "after": "4a9f02101e07207972610bf57f5338549de5f544c36d327a90898b6d11960c8c",
+      "backup": "/root/volume-1434-template-1c0307d3cc8",
+      "serviceRestart": false
+    }
+  },
+  "additionalPreservation": {
+    "31": {
+      "baseRolePermissionsEqual": true,
+      "testRolesRemoved": true,
+      "templatePhysicalCheck": {
+        "templateRowsChecked": 1,
+        "imageResidual": 0
+      },
+      "noTemplateFaultMount": true
+    },
+    "32": {
+      "baseRolePermissionsEqual": true,
+      "testRolesRemoved": true,
+      "templatePhysicalCheck": {
+        "templateRowsChecked": 1,
+        "imageResidual": 0
+      },
+      "noTemplateFaultMount": true
+    }
+  },
+  "preservation": {
+    "31": {
+      "operational": {
+        "volumes": {
+          "before": 152,
+          "after": 152,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "vms": {
+          "before": 115,
+          "after": 115,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "diskofferings": {
+          "before": 9,
+          "after": 9,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "computes": {
+          "before": 16,
+          "after": 16,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        }
+      },
+      "activeDatabaseResidual": {
+        "volumes": 0,
+        "vms": 0,
+        "offerings": 0,
+        "policies": 0,
+        "snapshots": 0,
+        "templates": 0,
+        "annotations": 0,
+        "accounts": 0,
+        "projects": 0,
+        "domains": 0,
+        "networks": 0,
+        "pools": 0
+      },
+      "hosts": {
+        "1": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": true,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 0,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        },
+        "2": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": true,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 0,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        },
+        "3": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": true,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 0,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        }
+      }
+    },
+    "32": {
+      "operational": {
+        "volumes": {
+          "before": 48,
+          "after": 48,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "vms": {
+          "before": 48,
+          "after": 48,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "diskofferings": {
+          "before": 6,
+          "after": 6,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        },
+        "computes": {
+          "before": 4,
+          "after": 4,
+          "identitiesEqual": true,
+          "protectedFieldsEqual": true
+        }
+      },
+      "activeDatabaseResidual": {
+        "volumes": 0,
+        "vms": 0,
+        "offerings": 0,
+        "policies": 0,
+        "snapshots": 0,
+        "templates": 0,
+        "annotations": 0,
+        "accounts": 0,
+        "projects": 0,
+        "domains": 0,
+        "networks": 0,
+        "pools": 0
+      },
+      "hosts": {
+        "1": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": true,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 0,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        },
+        "2": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": true,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 0,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        },
+        "3": {
+          "agentActive": true,
+          "pidAndJarsPreserved": true,
+          "originalDomainInventoryPreserved": false,
+          "originalDomainsStillPresent": true,
+          "additionalExistingDomainCount": 1,
+          "qemuVersionPreserved": true,
+          "templateScriptHashVerified": true
+        }
+      }
+    },
+    "storage": {
+      "gfsOriginalNamesAndInodesPreserved": true,
+      "rbdOriginalImagesPreserved": true,
+      "originalCephPoolsConfigurationPreserved": true,
+      "monDeleteFlagFalse": true,
+      "testPoolAndFailureSlotRemoved": true
+    }
+  },
+  "operationalDomainObservation": {
+    "cluster": 32,
+    "host": 3,
+    "preExistingVmId": 61,
+    "addedDomainCount": 1,
+    "originalDomainsStillPresent": true,
+    "cloudApiStateAndPlacementUnchanged": true,
+    "testApiMutationRequestsTargetingVm": 0,
+    "causeNotEstablished": true,
+    "leftUntouched": true
+  },
+  "temporaryFilesCleanup": true,
+  "protectedFtWorkspace": {
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diffSha256": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e",
+    "statusEntries": 1389,
+    "exactSnapshotRestored": true,
+    "strayHarnessFileArchivedAndRemoved": true
+  },
+  "templateCapacityRegression": {
+    "apiFailureNoReady": true,
+    "isolatedFilesystemBytes": 1048576,
+    "sameSourceRetryWholeLogicalCompare": true,
+    "productScriptsRestored": true,
+    "sharedNfsNotFilled": true
+  },
+  "qosApi": {
+    "31": {
+      "diskBytesReadRate": 5242880,
+      "diskBytesWriteRate": 4194304,
+      "diskIopsReadRate": 100,
+      "diskIopsWriteRate": 75
+    },
+    "32": {
+      "diskBytesReadRate": 5242880,
+      "diskBytesWriteRate": 4194304,
+      "diskIopsReadRate": 100,
+      "diskIopsWriteRate": 75
+    }
+  },
+  "uiLayout": {
+    "conditions": 40,
+    "widths": [
+      320,
+      390,
+      736,
+      1280
+    ],
+    "dark": 24,
+    "light": 16,
+    "pageOverflow": 0,
+    "overflowingFields": 0
+  },
+  "uiTabTimings": [
+    {
+      "cluster": 31,
+      "resource": "project-volume",
+      "tab": "이벤트",
+      "ms": 569,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "project-volume",
+      "tab": "코멘트",
+      "ms": 488,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "user-volume",
+      "tab": "이벤트",
+      "ms": 659,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "user-volume",
+      "tab": "코멘트",
+      "ms": 443,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "compute",
+      "tab": "이벤트",
+      "ms": 598,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "compute",
+      "tab": "코멘트",
+      "ms": 539,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "compute",
+      "tab": "이벤트",
+      "ms": 610,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "compute",
+      "tab": "코멘트",
+      "ms": 539,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "vm",
+      "tab": "이벤트",
+      "ms": 610,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "vm",
+      "tab": "코멘트",
+      "ms": 484,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "vm",
+      "tab": "이벤트",
+      "ms": 643,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "vm",
+      "tab": "코멘트",
+      "ms": 485,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "disk",
+      "tab": "이벤트",
+      "ms": 590,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "disk",
+      "tab": "코멘트",
+      "ms": 511,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "disk",
+      "tab": "이벤트",
+      "ms": 586,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "disk",
+      "tab": "코멘트",
+      "ms": 509,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "volume-admin",
+      "tab": "이벤트",
+      "ms": 609,
+      "spinners": 0
+    },
+    {
+      "cluster": 31,
+      "resource": "volume-admin",
+      "tab": "코멘트",
+      "ms": 533,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "volume-admin",
+      "tab": "이벤트",
+      "ms": 609,
+      "spinners": 0
+    },
+    {
+      "cluster": 32,
+      "resource": "volume-admin",
+      "tab": "코멘트",
+      "ms": 578,
+      "spinners": 0
+    }
+  ],
+  "conditionalExclusions": {
+    "activeKvdoEngine": "No KVDO-enabled template on either cluster; inactive display and action gating verified",
+    "independentPhysicalFailureDomain": "Dedicated second logical pools share physical layers",
+    "rbdPermanentReservationOrCowClone": "Not provided or claimed"
+  },
+  "snapshotHistory": {
+    "32": {
+      "destroyedRowsWithRemovedNull": 2,
+      "activeRows": 0,
+      "primaryOrNfsImageResidual": 0
+    }
+  },
+  "knownUnresolvedProductDefectsInEpicScope": []
+}

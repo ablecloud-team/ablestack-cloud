@@ -34,17 +34,18 @@ default-icon="hdd-outlined"
 :allow-clear="true"
 :placeholder="$t('label.diskoffering')" />
     </a-form-item>
-    <div class="action-button">
+    <MoldDialogActions :busy="loading">
       <a-button :disabled="loading" @click="$emit('close-action')">{{ $t('label.cancel') }}</a-button>
       <a-button type="primary" :loading="loading" :disabled="!path.trim()" @click="submit">{{ $t('label.creation.source.import') }}</a-button>
-    </div>
+    </MoldDialogActions>
   </a-form>
 </template>
 <script>
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { postAPI } from '@/api'
 import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect.vue'
 export default {
-  components: { InfiniteScrollSelect },
+  components: { MoldDialogActions, InfiniteScrollSelect },
   props: { resource: { type: Object, required: true }, initialPath: { type: String, default: '' } },
   emits: ['close-action'],
   data () { return { path: this.initialPath, name: '', offering: undefined, loading: false } },

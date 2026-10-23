@@ -1,0 +1,111 @@
+{
+  "31": {
+    "testVmsExpunged": 3,
+    "testVolumesRemoved": 13,
+    "imagesRemoved": 12,
+    "imageResiduals": 0,
+    "vmDefinitionResiduals": 0,
+    "testRouterDefinitionsRemaining": 0,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "computeOfferingsInactive": 1,
+    "generalDiskOfferingsInactive": 3,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0
+    },
+    "operationalInventoryUnchanged": false,
+    "nonPlacementInventoryUnchanged": true,
+    "concurrentPlacementChanges": [
+      {
+        "vm": "09822f0b-c43f-4743-90e3-1d411e83a27e",
+        "name": "tj-sparse-vm-3",
+        "beforeHost": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "afterHost": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "state": "Running",
+        "separateAdminMigrationJob": 14977,
+        "completedUtc": "2026-10-22 06:15:23",
+        "verificationDidNotInvokeMigration": true
+      }
+    ],
+    "hostsUp": 3,
+    "finalManagementJarVerified": true,
+    "managementRestartedForDeployment": true,
+    "runtime": {
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "volume-attach-vm-identity": true
+      },
+      "preservedFileCounts": {
+        "ui": 13172,
+        "webinf": 1,
+        "config": 7,
+        "other-jars": 8
+      },
+      "webInf": true,
+      "mold": "active",
+      "client": "200",
+      "uploadServerRemoved": true,
+      "temporaryDeployFilesRemoved": 0
+    },
+    "productHistoryAndBackupsPreserved": true
+  },
+  "32": {
+    "testVmsExpunged": 3,
+    "testVolumesRemoved": 13,
+    "imagesRemoved": 12,
+    "imageResiduals": 0,
+    "vmDefinitionResiduals": 0,
+    "testRouterDefinitionsRemaining": 0,
+    "networksRemoved": 2,
+    "projectsRemoved": 1,
+    "accountsRemoved": 2,
+    "domainsRemoved": 1,
+    "computeOfferingsInactive": 1,
+    "generalDiskOfferingsInactive": 3,
+    "activeResiduals": {
+      "vms": 0,
+      "disks": 0,
+      "domains": 0,
+      "volumes": 0,
+      "accounts": 0,
+      "computes": 0,
+      "networks": 0
+    },
+    "operationalInventoryUnchanged": true,
+    "nonPlacementInventoryUnchanged": true,
+    "concurrentPlacementChanges": [],
+    "hostsUp": 3,
+    "finalManagementJarVerified": true,
+    "managementRestartedForDeployment": true,
+    "runtime": {
+      "markers": {
+        "blockingLoadingState": true,
+        "fetchSyncProgress": true,
+        "extractJobId": true,
+        "volume-attach-vm-identity": true
+      },
+      "preservedFileCounts": {
+        "ui": 5530,
+        "webinf": 1,
+        "config": 7,
+        "other-jars": 8
+      },
+      "webInf": true,
+      "mold": "active",
+      "client": "200",
+      "uploadServerRemoved": true,
+      "temporaryDeployFilesRemoved": 4
+    },
+    "productHistoryAndBackupsPreserved": true
+  }
+}

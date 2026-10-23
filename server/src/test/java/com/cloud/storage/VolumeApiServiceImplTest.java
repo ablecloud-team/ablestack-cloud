@@ -169,6 +169,8 @@ public class VolumeApiServiceImplTest {
     @Mock
     private VolumeDetailsDao _volsDetailsDao;
     @Mock
+    private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao allocationOfferingDetailsDao;
+    @Mock
     private BackupDao backupDaoMock;
 
     @Mock

@@ -1,0 +1,125 @@
+{
+  "issue": 1209,
+  "epic": 1422,
+  "pr": 1435,
+  "sourceCommit": "70dd965b2b662a15362f4c9ad2f2cdc92174017a",
+  "uiSuites": 6,
+  "uiTests": 65,
+  "apiDbRecords": 18,
+  "vmApiDbRecords": 2,
+  "browserRecords": 52,
+  "browserFunctionalRecords": 50,
+  "browserLiveResponseFunctionalRecords": 49,
+  "browserControlledResponseRecords": 1,
+  "browserEnvironmentRestoreRecords": 2,
+  "originalBugReproducedOn": [
+    31,
+    32
+  ],
+  "uiDeployment": {
+    "31": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1209-ui-70dd965b2b6-1792607071",
+      "sourceCommit": "70dd965b2b662a15362f4c9ad2f2cdc92174017a",
+      "payloadSha256": "65180a8c21fbdd6732019c3222b80a0a376ef1b6993ae9983c84afefe647fac5"
+    },
+    "32": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1209-ui-70dd965b2b6-1792607074",
+      "sourceCommit": "70dd965b2b662a15362f4c9ad2f2cdc92174017a",
+      "payloadSha256": "65180a8c21fbdd6732019c3222b80a0a376ef1b6993ae9983c84afefe647fac5"
+    }
+  },
+  "cleanup": {
+    "31": {
+      "testVmExpunged": 1,
+      "volumesRemoved": 2,
+      "allocatedVolumesHadNoPoolOrPath": true,
+      "storageMaterializationOrGuestIoClaimed": false,
+      "networkRemoved": 1,
+      "computeOfferingsInactive": 1,
+      "generalDiskOfferingsInactive": 24,
+      "privateDiskOfferingsInactive": 1,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 2,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "networks": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "backupsAndProductHistoryPreserved": true
+    },
+    "32": {
+      "testVmExpunged": 1,
+      "volumesRemoved": 2,
+      "allocatedVolumesHadNoPoolOrPath": true,
+      "storageMaterializationOrGuestIoClaimed": false,
+      "networkRemoved": 1,
+      "computeOfferingsInactive": 1,
+      "generalDiskOfferingsInactive": 24,
+      "privateDiskOfferingsInactive": 1,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 2,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "networks": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "backupsAndProductHistoryPreserved": true
+    }
+  },
+  "javaChanges": false,
+  "mavenBuild": "not applicable; UI module only",
+  "fullCloudCi": false,
+  "guestBootIoAndStorageMaterializationVerified": false,
+  "nextIssue": 1210,
+  "remainingIssues": [
+    1210,
+    1433,
+    1434
+  ],
+  "prMerged": false,
+  "epicClosed": false
+}

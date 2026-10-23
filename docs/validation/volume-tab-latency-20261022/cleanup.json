@@ -1,0 +1,38 @@
+{
+  "31": {
+    "volumesRemoved": 2,
+    "computeOfferingInactive": 1,
+    "diskOfferingInactive": 1,
+    "commentsRemoved": 3,
+    "activeResiduals": {
+      "disks": 0,
+      "volumes": 0,
+      "comments": 0,
+      "computes": 0,
+      "linkedRootDisks": 0
+    },
+    "noPrimaryImagesAllocated": true,
+    "operationalInventoryUnchanged": true,
+    "jarAndPidPreserved": true,
+    "hostsUp": 3,
+    "productHistoryPreserved": true
+  },
+  "32": {
+    "volumesRemoved": 2,
+    "computeOfferingInactive": 1,
+    "diskOfferingInactive": 1,
+    "commentsRemoved": 3,
+    "activeResiduals": {
+      "disks": 0,
+      "volumes": 0,
+      "comments": 0,
+      "computes": 0,
+      "linkedRootDisks": 0
+    },
+    "noPrimaryImagesAllocated": true,
+    "operationalInventoryUnchanged": true,
+    "jarAndPidPreserved": true,
+    "hostsUp": 3,
+    "productHistoryPreserved": true
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "issue": 1210,
+  "scope": "display-name search and UUID selection in AttachVolume",
+  "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+  "date": "2026-10-22",
+  "implementationAndScopedQualificationComplete": true,
+  "epicOrPrMerged": false,
+  "build": {
+    "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+    "testNode": "v20.20.2",
+    "mavenModules": [],
+    "javaChanged": false,
+    "fullCloudCiExecuted": false,
+    "buildNode": "v14.21.3",
+    "ui-lint": 0,
+    "ui-tests": 0,
+    "testSuites": 3,
+    "tests": 61,
+    "ui-build": 0
+  },
+  "apiChecks": {
+    "coreAndRole": 32,
+    "realAttachVerified": 6,
+    "detachPreparationVerified": 2
+  },
+  "uiChecks": {
+    "functionalPasses": 53,
+    "realResponseFunctional": 51,
+    "controlledResponseFunctional": 2,
+    "restoreAndLogout": 2,
+    "originalBugReproducedOn": [
+      31,
+      32
+    ],
+    "attachPosts": 8,
+    "successfulAttachOutcomes": 6,
+    "failedAttachOutcomes": 2
+  },
+  "knownSeparateBackendDefect": {
+    "issue": 1471,
+    "open": true,
+    "reproducedOn": [
+      31,
+      32
+    ],
+    "trigger": "never-started Stopped VM with null pod and ROOT Allocated + DATA Allocated",
+    "failure": "NPE unboxing getPodIdToDeployIn",
+    "fixedByThisIssue": false,
+    "subsequentProjectSuccessHasDifferentFixturePreconditions": true
+  },
+  "deployment": {
+    "31": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1210-ui-5c9a982064d-1792609644",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "payloadSha256": "f603b563ab98e8eeaef3ecfbbeed45068fe04b47abd20860d628529fab6b94fb"
+    },
+    "32": {
+      "files": 908,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "clientHttp": 200,
+      "backup": "/root/volume-1210-ui-5c9a982064d-1792609647",
+      "sourceCommit": "5c9a982064df4f05ad9b5623520a1cb2dbe3f9ad",
+      "payloadSha256": "f603b563ab98e8eeaef3ecfbbeed45068fe04b47abd20860d628529fab6b94fb"
+    }
+  },
+  "cleanup": {
+    "31": {
+      "testVmsExpunged": 3,
+      "testVolumesRemoved": 5,
+      "imagesRemoved": 4,
+      "imageResiduals": 0,
+      "vmDefinitionResiduals": 0,
+      "testRouterDefinitionsRemaining": 0,
+      "networksRemoved": 2,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 1,
+      "computeOfferingsInactive": 1,
+      "generalDiskOfferingsInactive": 1,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "networks": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "productHistoryAndBackupsPreserved": true
+    },
+    "32": {
+      "testVmsExpunged": 3,
+      "testVolumesRemoved": 5,
+      "imagesRemoved": 4,
+      "imageResiduals": 0,
+      "vmDefinitionResiduals": 0,
+      "testRouterDefinitionsRemaining": 0,
+      "networksRemoved": 2,
+      "projectsRemoved": 1,
+      "accountsRemoved": 2,
+      "domainsRemoved": 1,
+      "computeOfferingsInactive": 1,
+      "generalDiskOfferingsInactive": 1,
+      "activeResiduals": {
+        "vms": 0,
+        "disks": 0,
+        "domains": 0,
+        "volumes": 0,
+        "accounts": 0,
+        "computes": 0,
+        "networks": 0
+      },
+      "operationalInventoryUnchanged": true,
+      "hostsUp": 3,
+      "jarAndPidPreserved": true,
+      "runtime": {
+        "staticHashesMatch": true,
+        "markers": true,
+        "webInf": true,
+        "mold": "active",
+        "client": "200"
+      },
+      "temporaryFilesRemoved": 3,
+      "productHistoryAndBackupsPreserved": true
+    }
+  },
+  "protectedWorktree": {
+    "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+    "diffSha256": "db27ddd8eaf8f8fe3f48e017d75633649f8391d3d8fe8152ad10a1e6b322319e",
+    "headUnchanged": true,
+    "statusUnchanged": true,
+    "diffUnchanged": true
+  },
+  "limitations": [
+    "No full Cloud or Release CI",
+    "No Java/Maven/JAR/Agent/qemu changes or builds",
+    "More than 100 real VMs not created; multi-page/late/error cases covered by focused unit tests and API paging contract",
+    "Guest IO and graceful shutdown not qualified; project fixture preparation used first boot and forced host stop",
+    "Open #1471 remains mandatory before final Epic qualification; successful prepared-VM path does not resolve it",
+    "RBD kernel RAW path only; no falloc/lazy-thick or permanent-reservation claims"
+  ]
+}

@@ -380,6 +380,7 @@ export default {
     this.statsRequestId++
   },
   computed: {
+    statsContext () { return JSON.stringify([this.resource?.id, this.resourceType, this.$store?.getters?.userInfo?.id, this.$store?.state?.user?.token, this.$store?.getters?.project?.id]) },
     statsRetentionTime () {
       if (this.resourceType === 'Volume') {
         return this.$store.getters.features.instancesdisksstatsretentiontime
@@ -411,10 +412,11 @@ export default {
     }
   },
   watch: {
-    resource: function (newItem) {
-      if (!newItem || !newItem.id) {
+    statsContext: function () {
+      if (!this.resource?.id) {
         return
       }
+      this.statsResourceId = null
       this.fetchData()
     },
     refreshTime: function () {
@@ -509,7 +511,7 @@ export default {
       if (this.endDate) {
         params.endDate = moment(this.endDate).format()
       }
-      return getAPI(this.resourceStatsApi, params).then(response => {
+      return getAPI(this.resourceStatsApi, params, { preserveOnFailure: true }).then(response => {
         if (requestId !== this.statsRequestId) return
         this.handleStatsResponse(response)
         this.statsRefreshFailed = false

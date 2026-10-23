@@ -1,0 +1,16 @@
+[
+  {
+    "cluster": 31,
+    "command": "listServiceOfferings",
+    "responseField": "diskofferingcomputeonly",
+    "type": "boolean",
+    "pass": true
+  },
+  {
+    "cluster": 32,
+    "command": "listServiceOfferings",
+    "responseField": "diskofferingcomputeonly",
+    "type": "boolean",
+    "pass": true
+  }
+]

@@ -1,0 +1,1080 @@
+[
+  {
+    "stage": "before-31",
+    "kind": "volume",
+    "tab": "이벤트",
+    "elapsedMs": 660,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "f8b243c0-8a0b-4635-885f-47420d220765",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 252,
+        "responseMs": 17,
+        "finishedMs": 9,
+        "status": 200,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "stage": "before-31",
+    "kind": "volume",
+    "tab": "코멘트",
+    "elapsedMs": 628,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "f8b243c0-8a0b-4635-885f-47420d220765",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 250,
+        "responseMs": 19,
+        "finishedMs": 8,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-31-warm",
+    "kind": "other-volume",
+    "tab": "이벤트",
+    "elapsedMs": 10215,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 145,
+        "responseMs": 101,
+        "status": 200,
+        "count": 4
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10151,
+        "responseMs": 9,
+        "status": 200,
+        "count": 4
+      }
+    ]
+  },
+  {
+    "stage": "before-31-warm",
+    "kind": "other-volume",
+    "tab": "코멘트",
+    "elapsedMs": 10247,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 137,
+        "responseMs": 109,
+        "status": 200,
+        "count": 0
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10138,
+        "responseMs": 9,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "before-31",
+    "kind": "disk",
+    "tab": "이벤트",
+    "elapsedMs": 10254,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 149,
+        "responseMs": 108,
+        "status": 200,
+        "count": 2
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10142,
+        "responseMs": 11,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "before-31",
+    "kind": "disk",
+    "tab": "코멘트",
+    "elapsedMs": 10253,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 145,
+        "responseMs": 102,
+        "status": 200,
+        "count": 1
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10146,
+        "responseMs": 10,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-31-warm",
+    "kind": "compute",
+    "tab": "이벤트",
+    "elapsedMs": 10206,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 127,
+        "responseMs": 98,
+        "status": 200,
+        "count": 2
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10126,
+        "responseMs": 10,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "before-31-warm",
+    "kind": "compute",
+    "tab": "코멘트",
+    "elapsedMs": 10231,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 119,
+        "responseMs": 107,
+        "status": 200,
+        "count": 1
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10119,
+        "responseMs": 11,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-31",
+    "kind": "vm-comparison",
+    "tab": "이벤트",
+    "elapsedMs": 674,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "comparison-vm",
+          "resourcetype": "VirtualMachine",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 126,
+        "responseMs": 13,
+        "status": 200,
+        "count": 22
+      }
+    ]
+  },
+  {
+    "stage": "before-31",
+    "kind": "vm-comparison",
+    "tab": "코멘트",
+    "elapsedMs": 556,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "comparison-vm",
+          "entitytype": "VM",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 107,
+        "responseMs": 10,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "before-32-cold",
+    "kind": "volume",
+    "tab": "이벤트",
+    "elapsedMs": 962,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "f1439841-8d41-4990-9297-76a04eef2357",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 521,
+        "responseMs": 20,
+        "status": 200,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "stage": "before-32-cold",
+    "kind": "volume",
+    "tab": "코멘트",
+    "elapsedMs": 665,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "f1439841-8d41-4990-9297-76a04eef2357",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 270,
+        "responseMs": 21,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-32-warm",
+    "kind": "other-volume",
+    "tab": "이벤트",
+    "elapsedMs": 10219,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 135,
+        "responseMs": 102,
+        "status": 200,
+        "count": 4
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10139,
+        "responseMs": 16,
+        "status": 200,
+        "count": 4
+      }
+    ]
+  },
+  {
+    "stage": "before-32-warm",
+    "kind": "other-volume",
+    "tab": "코멘트",
+    "elapsedMs": 10232,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 154,
+        "responseMs": 123,
+        "status": 200,
+        "count": 0
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10153,
+        "responseMs": 10,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "compute",
+    "tab": "이벤트",
+    "elapsedMs": 10247,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 140,
+        "responseMs": 113,
+        "status": 200,
+        "count": 2
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10126,
+        "responseMs": 16,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "compute",
+    "tab": "코멘트",
+    "elapsedMs": 10246,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 117,
+        "responseMs": 113,
+        "status": 200,
+        "count": 1
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10120,
+        "responseMs": 12,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "disk",
+    "tab": "이벤트",
+    "elapsedMs": 10245,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 130,
+        "responseMs": 96,
+        "status": 200,
+        "count": 2
+      },
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10133,
+        "responseMs": 13,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "disk",
+    "tab": "코멘트",
+    "elapsedMs": 10181,
+    "initiallyLoading": true,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 136,
+        "responseMs": 105,
+        "status": 200,
+        "count": 1
+      },
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 10137,
+        "responseMs": 14,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "vm-comparison",
+    "tab": "이벤트",
+    "elapsedMs": 668,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "comparison-vm",
+          "resourcetype": "VirtualMachine",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 124,
+        "responseMs": 17,
+        "status": 200,
+        "count": 21
+      }
+    ]
+  },
+  {
+    "stage": "before-32",
+    "kind": "vm-comparison",
+    "tab": "코멘트",
+    "elapsedMs": 586,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "comparison-vm",
+          "entitytype": "VM",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 129,
+        "responseMs": 12,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "after-31-cold",
+    "kind": "volume",
+    "tab": "이벤트",
+    "elapsedMs": 641,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "f8b243c0-8a0b-4635-885f-47420d220765",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 249,
+        "responseMs": 16,
+        "status": 200,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "stage": "after-31-cold",
+    "kind": "volume",
+    "tab": "코멘트",
+    "elapsedMs": 585,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "f8b243c0-8a0b-4635-885f-47420d220765",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 222,
+        "responseMs": 19,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-31-warm",
+    "kind": "other-volume",
+    "tab": "이벤트",
+    "elapsedMs": 660,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 143,
+        "responseMs": 97,
+        "status": 200,
+        "count": 4
+      }
+    ]
+  },
+  {
+    "stage": "after-31-warm",
+    "kind": "other-volume",
+    "tab": "코멘트",
+    "elapsedMs": 573,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "b177d8d8-aab5-4014-9b50-79a589b3f9d7",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 94,
+        "responseMs": 113,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "compute",
+    "tab": "이벤트",
+    "elapsedMs": 662,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 158,
+        "responseMs": 94,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "compute",
+    "tab": "코멘트",
+    "elapsedMs": 576,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "daf2c603-2d9e-4b83-89d3-2ce24a770be5",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 97,
+        "responseMs": 99,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "disk",
+    "tab": "이벤트",
+    "elapsedMs": 599,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 106,
+        "responseMs": 100,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "disk",
+    "tab": "코멘트",
+    "elapsedMs": 597,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "04f7573d-47ef-4cc9-bff7-9930817fe7a8",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 115,
+        "responseMs": 97,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-32-cold",
+    "kind": "volume",
+    "tab": "이벤트",
+    "elapsedMs": 645,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "f1439841-8d41-4990-9297-76a04eef2357",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 226,
+        "responseMs": 16,
+        "status": 200,
+        "count": 5
+      }
+    ]
+  },
+  {
+    "stage": "after-32-cold",
+    "kind": "volume",
+    "tab": "코멘트",
+    "elapsedMs": 637,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "f1439841-8d41-4990-9297-76a04eef2357",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 234,
+        "responseMs": 19,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-32-warm",
+    "kind": "other-volume",
+    "tab": "이벤트",
+    "elapsedMs": 691,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "resourcetype": "Volume",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 153,
+        "responseMs": 101,
+        "status": 200,
+        "count": 4
+      }
+    ]
+  },
+  {
+    "stage": "after-32-warm",
+    "kind": "other-volume",
+    "tab": "코멘트",
+    "elapsedMs": 576,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "36d3872f-0688-4e80-a4cf-c1e5a1e8023f",
+          "entitytype": "VOLUME",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 100,
+        "responseMs": 111,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "compute",
+    "tab": "이벤트",
+    "elapsedMs": 651,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "resourcetype": "ServiceOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 130,
+        "responseMs": 106,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "compute",
+    "tab": "코멘트",
+    "elapsedMs": 588,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "3bc44489-1bbc-4a2c-a2a2-6938319a7150",
+          "entitytype": "SERVICE_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 93,
+        "responseMs": 105,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "disk",
+    "tab": "이벤트",
+    "elapsedMs": 635,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "resourcetype": "DiskOffering",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 143,
+        "responseMs": 89,
+        "status": 200,
+        "count": 2
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "disk",
+    "tab": "코멘트",
+    "elapsedMs": 588,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "fc66f0a3-fcb8-4703-a662-af8001bee1ac",
+          "entitytype": "DISK_OFFERING",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 107,
+        "responseMs": 97,
+        "status": 200,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "vm-comparison",
+    "tab": "이벤트",
+    "elapsedMs": 621,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "comparison-vm",
+          "resourcetype": "VirtualMachine",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 108,
+        "responseMs": 16,
+        "status": 200,
+        "count": 21
+      }
+    ]
+  },
+  {
+    "stage": "after-32",
+    "kind": "vm-comparison",
+    "tab": "코멘트",
+    "elapsedMs": 520,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "comparison-vm",
+          "entitytype": "VM",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 111,
+        "responseMs": 11,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "vm-comparison",
+    "tab": "이벤트",
+    "elapsedMs": 673,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listEvents",
+        "fields": {
+          "resourceid": "comparison-vm",
+          "resourcetype": "VirtualMachine",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 154,
+        "responseMs": 12,
+        "status": 200,
+        "count": 22
+      }
+    ]
+  },
+  {
+    "stage": "after-31",
+    "kind": "vm-comparison",
+    "tab": "코멘트",
+    "elapsedMs": 520,
+    "initiallyLoading": false,
+    "finallyLoading": false,
+    "requests": [
+      {
+        "command": "listAnnotations",
+        "fields": {
+          "entityid": "comparison-vm",
+          "entitytype": "VM",
+          "page": "1",
+          "pagesize": "10"
+        },
+        "startOffsetMs": 99,
+        "responseMs": 9,
+        "status": 200,
+        "count": 0
+      }
+    ]
+  }
+]

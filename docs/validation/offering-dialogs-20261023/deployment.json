@@ -1,0 +1,32 @@
+{
+  "31": {
+    "files": 914,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": null,
+    "clientHttp": 200,
+    "backup": "/root/offering-dialogs-ui-2b244f6dd77-1792686430",
+    "sourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "payloadSha256": "da7ddd86aa5f407c3a168ff96e8a1ad520e6f6f94f842ca7e0715c8500364af4"
+  },
+  "32": {
+    "files": 914,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": [
+      29194321920,
+      1791859614464247580,
+      27209289
+    ],
+    "clientHttp": 200,
+    "backup": "/root/offering-dialogs-ui-2b244f6dd77-1792686433",
+    "sourceCommit": "2b244f6dd778f37f367ab83915d0e700d6b2b928",
+    "payloadSha256": "da7ddd86aa5f407c3a168ff96e8a1ad520e6f6f94f842ca7e0715c8500364af4"
+  }
+}

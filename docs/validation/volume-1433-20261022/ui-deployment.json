@@ -1,0 +1,32 @@
+{
+  "31": {
+    "files": 911,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": null,
+    "clientHttp": 200,
+    "backup": "/root/volume-1433-ui-4e1016a6c40-1792675064",
+    "sourceCommit": "4e1016a6c401333d4ee49d73477b087e553a51f2",
+    "payloadSha256": "281161e29f812371127a6741bfb7c92782f66fd1b266edff5639e631b9aa0d59"
+  },
+  "32": {
+    "files": 911,
+    "allHashesMatched": true,
+    "protectedPreserved": true,
+    "jarPreserved": true,
+    "pidPreserved": true,
+    "extraImagePreserved": true,
+    "extraImageStat": [
+      29194321920,
+      1791859614464247580,
+      27209289
+    ],
+    "clientHttp": 200,
+    "backup": "/root/volume-1433-ui-4e1016a6c40-1792675067",
+    "sourceCommit": "4e1016a6c401333d4ee49d73477b087e553a51f2",
+    "payloadSha256": "281161e29f812371127a6741bfb7c92782f66fd1b266edff5639e631b9aa0d59"
+  }
+}

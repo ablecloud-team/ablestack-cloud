@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "04a5b31a27cb957bf8e05e9ec8aae57523478134",
+  "lint": 0,
+  "jest": {
+    "suites": 6,
+    "tests": 95,
+    "failed": 0
+  },
+  "productionUiBuild": {
+    "sourceCommit": "04a5b31a27cb957bf8e05e9ec8aae57523478134",
+    "node": "v14.21.3",
+    "ui-build": 0,
+    "seconds": 452,
+    "kind": "optimized-production"
+  },
+  "layoutCases": 24,
+  "clusters": [
+    "31 GFS2 qcow2",
+    "32 RBD raw"
+  ],
+  "activeBundle": {
+    "js/app.f41477a4.js": "29d8e8d3a73ec67c7620b2d586143c560f162ade39516de4a58e92877400887f"
+  },
+  "policyUiApiDbMatched": true,
+  "seedPoliciesPreservedDuringTest": true,
+  "fixtures": {
+    "volumesRemoved": 4,
+    "diskOfferingsInactive": 2,
+    "activeResiduals": 0,
+    "imageResiduals": 0
+  },
+  "runtimePreserved": true,
+  "fullCloudBuildRun": false,
+  "actualNativeZoomControlled": false,
+  "nextIssue": 1434,
+  "pr": 1435,
+  "prMerged": false
+}
