@@ -1,0 +1,122 @@
+{
+  "before": {
+    "bootId": "fb2c7d61-a348-42d3-acd0-8c58c5e0630c",
+    "preparation": {
+      "bootId": "fb2c7d61-a348-42d3-acd0-8c58c5e0630c",
+      "operationId": "7cc088b2-3e79-3d8f-b658-5f38691d494c",
+      "volumeUuid": "c97204ba-f0d0-41da-b142-0fbd1d863241",
+      "phase": "PREPARED",
+      "status": "PREPARED",
+      "filesystemUuid": "3ebc32a1-9c1e-4759-8111-71c22fa906be",
+      "formatCount": 1,
+      "formatEverStarted": true,
+      "formatStartedAt": 1792735921.283511,
+      "formatDeadlineAt": 1792737841.283511,
+      "finishedAt": 1792737785.7251973
+    },
+    "files": [
+      {
+        "path": "/export/f10en/preserve.txt",
+        "sha256": "f7ba5fca0ba80fad7f96622c785c982f2717dbe7d4eb5879fc9864f7ad2e2c07",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/export/f10en\",\n         \"source\": \"/dev/sdb[/export/f10en]\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241/export/f10es/preserve.txt",
+        "sha256": "f5aa52813d6e5dff6e08bb223cb6a775be703bc6372ff4aafad15e803fc308f0",
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0o660",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241/export/f10en/preserve.txt",
+        "sha256": "f7ba5fca0ba80fad7f96622c785c982f2717dbe7d4eb5879fc9864f7ad2e2c07",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      }
+    ],
+    "lsblk": {
+      "rc": 0,
+      "stdout": "{\n   \"blockdevices\": [\n      {\n         \"name\": \"sda\",\n         \"size\": 5242880000,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"d3006ce46c1a4f2abce2\",\n         \"mountpoints\": [\n             null\n         ],\n         \"children\": [\n            {\n               \"name\": \"sda1\",\n               \"size\": 398458880,\n               \"fstype\": \"ext2\",\n               \"uuid\": \"02a28a52-ae70-46b5-8f12-3636640c9a99\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/boot\"\n               ]\n            },{\n               \"name\": \"sda2\",\n               \"size\": 1024,\n               \"fstype\": null,\n               \"uuid\": null,\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda5\",\n               \"size\": 510656512,\n               \"fstype\": \"swap\",\n               \"uuid\": \"c30f6d3c-fe8f-41df-99b0-52cb823c014c\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda6\",\n               \"size\": 4329570304,\n               \"fstype\": \"ext4\",\n               \"uuid\": \"91b8366d-a5de-42ad-a420-2e26aa755c3d\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/\"\n               ]\n            }\n         ]\n      },{\n         \"name\": \"sdb\",\n         \"size\": 10995116277760,\n         \"fstype\": \"ext4\",\n         \"uuid\": \"3ebc32a1-9c1e-4759-8111-71c22fa906be\",\n         \"serial\": \"c97204baf0d041dab142\",\n         \"mountpoints\": [\n             \"/export/f10en\", \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\"\n         ]\n      },{\n         \"name\": \"sr0\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00003\",\n         \"mountpoints\": [\n             null\n         ]\n      },{\n         \"name\": \"sr1\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00004\",\n         \"mountpoints\": [\n             null\n         ]\n      }\n   ]\n}\n",
+      "stderr": ""
+    }
+  },
+  "after": {
+    "bootId": "2178fcbe-062d-4591-802e-bd8df7269f34",
+    "preparation": {
+      "bootId": "fb2c7d61-a348-42d3-acd0-8c58c5e0630c",
+      "operationId": "7cc088b2-3e79-3d8f-b658-5f38691d494c",
+      "volumeUuid": "c97204ba-f0d0-41da-b142-0fbd1d863241",
+      "phase": "PREPARED",
+      "status": "PREPARED",
+      "filesystemUuid": "3ebc32a1-9c1e-4759-8111-71c22fa906be",
+      "formatCount": 1,
+      "formatEverStarted": true,
+      "formatStartedAt": 1792735921.283511,
+      "formatDeadlineAt": 1792737841.283511,
+      "finishedAt": 1792737785.7251973
+    },
+    "files": [
+      {
+        "path": "/export/f10en/preserve.txt",
+        "sha256": "f7ba5fca0ba80fad7f96622c785c982f2717dbe7d4eb5879fc9864f7ad2e2c07",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/export/f10en\",\n         \"source\": \"/dev/sdb[/export/f10en]\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241/export/f10es/preserve.txt",
+        "sha256": "f5aa52813d6e5dff6e08bb223cb6a775be703bc6372ff4aafad15e803fc308f0",
+        "uid": 1001,
+        "gid": 1001,
+        "mode": "0o660",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      },
+      {
+        "path": "/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241/export/f10en/preserve.txt",
+        "sha256": "f7ba5fca0ba80fad7f96622c785c982f2717dbe7d4eb5879fc9864f7ad2e2c07",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o640",
+        "findmnt": {
+          "rc": 0,
+          "stdout": "{\n   \"filesystems\": [\n      {\n         \"target\": \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\",\n         \"source\": \"/dev/sdb\",\n         \"fstype\": \"ext4\",\n         \"options\": \"rw,relatime\"\n      }\n   ]\n}\n",
+          "stderr": ""
+        }
+      }
+    ],
+    "lsblk": {
+      "rc": 0,
+      "stdout": "{\n   \"blockdevices\": [\n      {\n         \"name\": \"sda\",\n         \"size\": 5242880000,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"d3006ce46c1a4f2abce2\",\n         \"mountpoints\": [\n             null\n         ],\n         \"children\": [\n            {\n               \"name\": \"sda1\",\n               \"size\": 398458880,\n               \"fstype\": \"ext2\",\n               \"uuid\": \"02a28a52-ae70-46b5-8f12-3636640c9a99\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/boot\"\n               ]\n            },{\n               \"name\": \"sda2\",\n               \"size\": 1024,\n               \"fstype\": null,\n               \"uuid\": null,\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda5\",\n               \"size\": 510656512,\n               \"fstype\": \"swap\",\n               \"uuid\": \"c30f6d3c-fe8f-41df-99b0-52cb823c014c\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   null\n               ]\n            },{\n               \"name\": \"sda6\",\n               \"size\": 4329570304,\n               \"fstype\": \"ext4\",\n               \"uuid\": \"91b8366d-a5de-42ad-a420-2e26aa755c3d\",\n               \"serial\": null,\n               \"mountpoints\": [\n                   \"/\"\n               ]\n            }\n         ]\n      },{\n         \"name\": \"sdb\",\n         \"size\": 10995116277760,\n         \"fstype\": \"ext4\",\n         \"uuid\": \"3ebc32a1-9c1e-4759-8111-71c22fa906be\",\n         \"serial\": \"c97204baf0d041dab142\",\n         \"mountpoints\": [\n             \"/export/f10en\", \"/srv/ablestack-storage/volumes/c97204ba-f0d0-41da-b142-0fbd1d863241\"\n         ]\n      },{\n         \"name\": \"sr0\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00003\",\n         \"mountpoints\": [\n             null\n         ]\n      },{\n         \"name\": \"sr1\",\n         \"size\": 1073741312,\n         \"fstype\": null,\n         \"uuid\": null,\n         \"serial\": \"QM00004\",\n         \"mountpoints\": [\n             null\n         ]\n      }\n   ]\n}\n",
+      "stderr": ""
+    }
+  },
+  "result": "PASS",
+  "note": "Readonly guest evidence supplements actual UI and noVNC console. NFS public/canonical paths alias same file."
+}

@@ -1,0 +1,9 @@
+{
+  "fault": "authorized management restart while 10TiB XFS UI RUNNING",
+  "startedAt": 1792733375.4515116,
+  "finishedAt": 1792733406.1600785,
+  "before": "MainPID=3236818\nActiveState=active\n",
+  "after": "MainPID=3239405\nActiveState=active\n",
+  "rc": 0,
+  "stderr": ""
+}
