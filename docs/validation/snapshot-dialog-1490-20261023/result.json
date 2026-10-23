@@ -1,0 +1,451 @@
+{
+  "build": {
+    "sourceCommit": "e35c162bd5b8759b42e73caa7d9fd039c99eec3d",
+    "uiBuildExit": 0,
+    "seconds": 550,
+    "node": "v14.21.3",
+    "kind": "optimized-production",
+    "uiTests": 74,
+    "lint": true,
+    "uiTreeMatchesTested69987306d1d": true
+  },
+  "tests": {
+    "numPassedTests": 74,
+    "numFailedTests": 0,
+    "numPassedTestSuites": 4,
+    "numFailedTestSuites": 0
+  },
+  "deployment": {
+    "31": {
+      "files": 914,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "extraImagePreserved": true,
+      "extraImageStat": null,
+      "clientHttp": 200,
+      "backup": "/root/snapshot-dialog-1490-ui-e35c162bd5b-1792728598",
+      "sourceCommit": "e35c162bd5b8759b42e73caa7d9fd039c99eec3d",
+      "payloadSha256": "3edfcb347ee40020cf6e4ae0354ac14eb9cec526d5b8ab310499b775bf69bb47"
+    },
+    "32": {
+      "files": 914,
+      "allHashesMatched": true,
+      "protectedPreserved": true,
+      "jarPreserved": true,
+      "pidPreserved": true,
+      "extraImagePreserved": true,
+      "extraImageStat": [
+        29194321920,
+        1791859614464247580,
+        27209289
+      ],
+      "clientHttp": 200,
+      "backup": "/root/snapshot-dialog-1490-ui-e35c162bd5b-1792728601",
+      "sourceCommit": "e35c162bd5b8759b42e73caa7d9fd039c99eec3d",
+      "payloadSha256": "3edfcb347ee40020cf6e4ae0354ac14eb9cec526d5b8ab310499b775bf69bb47"
+    }
+  },
+  "browser": {
+    "cases": [
+      {
+        "cluster": 31,
+        "case": "recurring-normal",
+        "loading": false,
+        "nativeExcluded": true,
+        "replicationVisible": false,
+        "storagePoolVisible": false,
+        "network": [
+          {
+            "id": "38600.1730",
+            "command": "listSnapshotPolicies",
+            "params": {
+              "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+            },
+            "status": 200
+          },
+          {
+            "id": "38600.1731",
+            "command": "listZones",
+            "params": {},
+            "status": 200
+          }
+        ]
+      },
+      {
+        "cluster": 31,
+        "case": "recurring-503",
+        "loading": false,
+        "inlineError": true,
+        "loginPreserved": true,
+        "inputs": [
+          "59",
+          "1"
+        ]
+      },
+      {
+        "cluster": 31,
+        "case": "recurring-retry",
+        "errorCleared": true,
+        "inputPreserved": true
+      },
+      {
+        "cluster": 32,
+        "case": "snapshot-timeout",
+        "observedAtMs": 27467,
+        "dom": {
+          "error": true,
+          "loading": false,
+          "name": "V1490-32-SNAP"
+        }
+      },
+      {
+        "cluster": 31,
+        "case": "snapshot-normal",
+        "dom": {
+          "loading": false,
+          "replication": false
+        }
+      },
+      {
+        "cluster": 32,
+        "case": "snapshot-retry",
+        "dom": {
+          "error": false,
+          "loading": false,
+          "name": "V1490-32-SNAP"
+        }
+      }
+    ],
+    "network": {
+      "31": [
+        {
+          "id": "38600.1730",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1731",
+          "command": "listZones",
+          "params": {},
+          "status": 200
+        },
+        {
+          "id": "38600.1734",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1741",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1742",
+          "command": "listZones",
+          "params": {},
+          "status": 503
+        },
+        {
+          "id": "38600.1747",
+          "command": "listZones",
+          "params": {},
+          "status": 200
+        },
+        {
+          "id": "38600.1750",
+          "command": "createSnapshotPolicy",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655",
+            "intervaltype": "hourly",
+            "timezone": "UTC",
+            "maxsnaps": "1",
+            "usestoragereplication": "false",
+            "schedule": "59"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1751",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1755",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1761",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1765",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1768",
+          "command": "listZones",
+          "params": {},
+          "status": 200
+        },
+        {
+          "id": "38600.1773",
+          "command": "createSnapshot",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655",
+            "name": "V1490-31-SNAP",
+            "usestoragereplication": "false"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1777",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1779",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        },
+        {
+          "id": "38600.1783",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "42e04d89-9d2c-452d-a6eb-dcfb99d63655"
+          },
+          "status": 200
+        }
+      ],
+      "32": [
+        {
+          "id": "844.1622",
+          "command": "createSnapshotPolicy",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1",
+            "intervaltype": "hourly",
+            "timezone": "UTC",
+            "maxsnaps": "1",
+            "usestoragereplication": "false",
+            "schedule": "59"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1623",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1630",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1636",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1641",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1644",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1649",
+          "command": "listZones",
+          "params": {}
+        },
+        {
+          "id": "844.1658",
+          "command": "listZones",
+          "params": {},
+          "status": 200
+        },
+        {
+          "id": "844.1662",
+          "command": "createSnapshot",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1",
+            "name": "V1490-32-SNAP",
+            "usestoragereplication": "false"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1668",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1670",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        },
+        {
+          "id": "844.1673",
+          "command": "listSnapshotPolicies",
+          "params": {
+            "volumeid": "b8239384-2fc0-4729-a987-05bb966802a1"
+          },
+          "status": 200
+        }
+      ]
+    }
+  },
+  "functional": {
+    "31": {
+      "volume": "42e04d89-9d2c-452d-a6eb-dcfb99d63655",
+      "policy": {
+        "id": "2ff54c9f-b8e8-4737-a792-82e7099a810a",
+        "intervaltype": 0,
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 1
+      },
+      "snapshot": {
+        "id": "58cd1096-32f9-443c-8a9e-0d1fe196fcb3",
+        "name": "V1490-31-SNAP",
+        "state": "BackedUp",
+        "volumename": "V1490-31-ZONE"
+      },
+      "refs": [
+        {
+          "path": "snapshots/2/971/0ee04b9e-b147-43ba-8c50-1f0d1d8cb40e",
+          "role": "Image",
+          "state": "Ready",
+          "store": 1,
+          "snapshot": "58cd1096-32f9-443c-8a9e-0d1fe196fcb3"
+        }
+      ]
+    },
+    "32": {
+      "volume": "b8239384-2fc0-4729-a987-05bb966802a1",
+      "policy": {
+        "id": "b91c2979-adb3-425d-9e05-69327de0ec12",
+        "intervaltype": 0,
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 1
+      },
+      "snapshot": {
+        "id": "a852f567-5489-4b85-a30b-8f3de480685f",
+        "name": "V1490-32-SNAP",
+        "state": "BackedUp",
+        "volumename": "V1490-32-ZONE"
+      },
+      "refs": [
+        {
+          "path": "rbd/b8239384-2fc0-4729-a987-05bb966802a1/45ada31a-9981-4f3c-9d87-671442716670",
+          "role": "Primary",
+          "state": "Ready",
+          "store": 3,
+          "snapshot": "a852f567-5489-4b85-a30b-8f3de480685f"
+        },
+        {
+          "path": "snapshots/2/320/45ada31a-9981-4f3c-9d87-671442716670",
+          "role": "Image",
+          "state": "Ready",
+          "store": 1,
+          "snapshot": "a852f567-5489-4b85-a30b-8f3de480685f"
+        }
+      ]
+    }
+  },
+  "cleanup": {
+    "31": {
+      "backup": "/nfs/secondary/snapshots/2/971/0ee04b9e-b147-43ba-8c50-1f0d1d8cb40e",
+      "primary": "/mnt/glue-gfs/42e04d89-9d2c-452d-a6eb-dcfb99d63655",
+      "activeApiCounts": {
+        "policies": 0,
+        "snapshots": 0,
+        "volumes": 0
+      },
+      "activeDbCounts": [
+        "0",
+        "0",
+        "0"
+      ],
+      "snapshotDeletionSemantics": "Destroyed status is terminal even if removed timestamp remains NULL",
+      "backupAfter": "ABSENT",
+      "primaryAfter": "ABSENT",
+      "inventoryUnchanged": true
+    },
+    "32": {
+      "backup": "/nfs/secondary/snapshots/2/320/45ada31a-9981-4f3c-9d87-671442716670",
+      "primary": "rbd/b8239384-2fc0-4729-a987-05bb966802a1",
+      "activeApiCounts": {
+        "policies": 0,
+        "snapshots": 0,
+        "volumes": 0
+      },
+      "activeDbCounts": [
+        "0",
+        "0",
+        "0"
+      ],
+      "snapshotDeletionSemantics": "Destroyed status is terminal even if removed timestamp remains NULL",
+      "backupAfter": "ABSENT",
+      "primaryAfter": "ABSENT",
+      "inventoryUnchanged": true
+    }
+  },
+  "ftWorktreesPreserved": true
+}

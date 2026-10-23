@@ -37,7 +37,7 @@
             :placeholder="$t('label.snapshot.name')"
             v-focus="true" />
         </a-form-item>
-        <a-form-item ref="zoneids" name="zoneids" :required="(!isAdmin && form.useStorageReplication)">
+        <a-form-item ref="zoneids" name="zoneids" >
           <template #label>
             <tooltip-label :title="$t('label.zones')" :tooltip="''"/>
           </template>
@@ -56,6 +56,8 @@
               return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }"
             :loading="zoneLoading"
+                  :disabled="zoneLoading || zoneError"
+                  :notFoundContent="$t('message.snapshot.zones.empty')"
             :placeholder="''">
             <a-select-option v-for="opt in zones" :key="opt.id" :label="opt.name || opt.description">
               <span>
@@ -65,36 +67,9 @@
               </span>
             </a-select-option>
           </a-select>
-        </a-form-item>
-        <a-form-item name="useStorageReplication" ref="useStorageReplication">
-          <template #label>
-            <tooltip-label :title="$t('label.usestoragereplication')" :tooltip="apiParams.usestoragereplication.description" />
-          </template>
-          <a-switch v-model:checked="form.useStorageReplication" />
-        </a-form-item>
-        <a-form-item v-if="isAdmin && form.useStorageReplication" ref="storageids" name="storageids">
-          <template #label>
-            <tooltip-label :title="$t('label.storagepools')" :tooltip="''"/>
-          </template>
-          <a-select
-            id="storagepool-selection"
-            v-model:value="form.storageids"
-            mode="multiple"
-            showSearch
-            optionFilterProp="label"
-            :filterOption="(input, option) => {
-              return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }"
-            :loading="storagePoolLoading"
-            :placeholder="''">
-            <a-select-option v-for="opt in storagePools" :key="opt.id" :label="opt.name || opt.description">
-              <span>
-                <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
-                <global-outlined v-else style="margin-right: 5px" />
-                {{ opt.name || opt.description }}
-              </span>
-            </a-select-option>
-          </a-select>
+          <a-alert v-if="zoneError" type="error" show-icon :message="$t('message.snapshot.zones.failed')">
+            <template #description><a-button size="small" @click="fetchZoneData">{{ $t('label.retry') }}</a-button></template>
+          </a-alert>
         </a-form-item>
           <a-form-item name="asyncbackup" ref="asyncbackup" v-if="!supportsStorageSnapshot">
             <template #label>
@@ -158,10 +133,9 @@
 <script>
 import storageDialogContext from '@/utils/storageDialogContext'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
+import snapshotZones from '@/utils/snapshotZones'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
-import { getAPI } from '@/utils/storageApi'
-import { isAdmin } from '@/role'
 import { mixinForm } from '@/utils/mixin'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
@@ -169,7 +143,7 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
   name: 'TakeSnapshot',
-  mixins: [storageDialogContext, mixinForm],
+  mixins: [storageDialogContext, mixinForm, snapshotZones],
   components: {
     MoldDialogActions,
     TooltipButton,
@@ -195,10 +169,6 @@ export default {
       inputValue: '',
       inputKey: '',
       inputVisible: '',
-      zones: [],
-      zoneLoading: false,
-      storagePools: [],
-      storagePoolLoading: false,
       tags: [],
       dataSource: []
     }
@@ -214,14 +184,11 @@ export default {
     }
 
     this.supportsStorageSnapshot = this.resource.supportsstoragesnapshot
-    this.fetchData()
+    this.fetchZoneData()
   },
   computed: {
     formattedAdditionalZoneMessage () {
       return `${this.$t('message.snapshot.additional.zones').replace('%x', this.resource.zonename)}`
-    },
-    isAdmin () {
-      return isAdmin()
     }
   },
   methods: {
@@ -229,45 +196,10 @@ export default {
       this.formRef = ref()
       this.form = reactive({
         name: undefined,
-        useStorageReplication: false,
         asyncbackup: undefined,
         quiescevm: false
       })
       this.rules = reactive({})
-    },
-    fetchData () {
-      this.fetchZoneData()
-      if (isAdmin()) {
-        this.fetchStoragePoolData()
-      }
-    },
-    fetchZoneData () {
-      const params = {}
-      params.showicon = true
-      this.zoneLoading = true
-      getAPI('listZones', params).then(json => {
-        const listZones = json.listzonesresponse.zone
-        if (listZones) {
-          this.zones = listZones
-          this.zones = this.zones.filter(zone => zone.type !== 'Edge' && zone.id !== this.resource.zoneid)
-        }
-      }).finally(() => {
-        this.zoneLoading = false
-      })
-    },
-    fetchStoragePoolData () {
-      const params = {}
-      params.showicon = true
-      this.storagePoolsLoading = true
-      getAPI('listStoragePools', params).then(json => {
-        const listStoragePools = json.liststoragepoolsresponse.storagepool
-        if (listStoragePools) {
-          this.storagePools = listStoragePools
-          this.storagePools = this.storagePools.filter(pool => pool.storagecapabilities.CAN_COPY_SNAPSHOT_BETWEEN_ZONES_AND_SAME_POOL_TYPE && pool.zoneid !== this.resource.zoneid)
-        }
-      }).finally(() => {
-        this.storagePoolsLoading = false
-      })
     },
     handleSubmit (e) {
       if (e && e.preventDefault) e.preventDefault()
@@ -283,9 +215,6 @@ export default {
           params.name = values.name
         }
         params.useStorageReplication = false
-        if (values.useStorageReplication) {
-          params.useStorageReplication = values.useStorageReplication
-        }
         params.asyncBackup = false
         if (values.asyncbackup) {
           params.asyncBackup = values.asyncbackup
@@ -296,9 +225,6 @@ export default {
         }
         if (values.zoneids && values.zoneids.length > 0) {
           params.zoneids = values.zoneids.join()
-        }
-        if (values.storageids && values.storageids.length > 0) {
-          params.storageids = values.storageids.join()
         }
         for (let i = 0; i < this.tags.length; i++) {
           const formattedTagData = {}

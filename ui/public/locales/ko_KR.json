@@ -3876,6 +3876,8 @@
   "message.shared.network.unsupported.for.nsx": "NSX 지원 영역에서는 공유 네트워크가 지원되지 않습니다.",
   "message.shutdown.triggered": "종료가 트리거되었습니다. ABLESTACK은 새 작업을 수락하지 않습니다.",
   "message.snapshot.additional.zones": "스냅샷은 항상 기본 영역(%x)에서 생성됩니다. 여기에서 생성 시 복사될 추가 영역을 선택할 수 있습니다.",
+  "message.snapshot.zones.failed": "추가 Zone을 불러오지 못했습니다. 다시 시도하거나 추가 Zone 없이 계속할 수 있습니다.",
+  "message.snapshot.zones.empty": "선택할 수 있는 추가 Zone이 없습니다.",
   "message.sourcenatip.change.warning": "경고: 네트워크의 sourcenat IP 주소를 변경하면 네트워크에 NIC가 있는 VM의 연결이 중단됩니다.",
   "message.sourcenatip.change.inhibited": "sourcenat를 네트워크의 이 IP로 이 주소로 변경하는 것은 방화벽 규칙이 정의되어 있으므로 금지되어 있습니다. 여기에는 포트 포워딩 또는 로드 밸런싱 규칙이 포함될 수 있습니다.\n - 이것이 격리된 네트워크는 updateNetwork를 사용하거나 편집 버튼을 클릭하십시오.\n - VPC인 경우 먼저 이 주소에 대한 다른 모든 규칙을 지우십시오.",
   "message.specify.tag.key": "태그 키를 지정하십시오.",

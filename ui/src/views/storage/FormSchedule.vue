@@ -143,7 +143,7 @@
               </a-form-item>
             </a-col>
             <a-col :xs="24" :md="24" :lg="24" v-if="resourceType === 'Volume'">
-              <a-form-item ref="zoneids" name="zoneids" :required="(!isAdmin && form.useStorageReplication)">
+              <a-form-item ref="zoneids" name="zoneids" >
                 <template #label>
                   <tooltip-label :title="$t('label.zones')" :tooltip="''"/>
                 </template>
@@ -162,6 +162,8 @@
                     return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
                   }"
                   :loading="zoneLoading"
+                  :disabled="zoneLoading || zoneError"
+                  :notFoundContent="$t('message.snapshot.zones.empty')"
                   :placeholder="''">
                   <a-select-option v-for="opt in this.zones" :key="opt.id" :label="opt.name || opt.description">
                     <span>
@@ -171,40 +173,12 @@
                     </span>
                   </a-select-option>
                 </a-select>
+                <a-alert v-if="zoneError" type="error" show-icon :message="$t('message.snapshot.zones.failed')">
+                  <template #description><a-button size="small" @click="fetchZoneData">{{ $t('label.retry') }}</a-button></template>
+                </a-alert>
               </a-form-item>
             </a-col>
-            <a-col :xs="24" :md="24" :lg="24" v-if="resourceType === 'Volume'">
-              <a-form-item name="useStorageReplication" ref="useStorageReplication">
-                <template #label>
-                  <tooltip-label :title="$t('label.usestoragereplication')" :tooltip="apiParams.usestoragereplication.description" />
-                </template>
-                <a-switch v-model:checked="form.useStorageReplication" />
-              </a-form-item>
-              <a-form-item v-if="isAdmin && form.useStorageReplication" ref="storageids" name="storageids">
-                <template #label>
-                  <tooltip-label :title="$t('label.storagepools')" :tooltip="''"/>
-                </template>
-                <a-select
-                  id="storagepool-selection"
-                  v-model:value="form.storageids"
-                  mode="multiple"
-                  showSearch
-                  optionFilterProp="label"
-                  :filterOption="(input, option) => {
-                    return  option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  }"
-                  :loading="storagePoolLoading"
-                  :placeholder="''">
-                  <a-select-option v-for="opt in this.storagePools" :key="opt.id" :label="opt.name || opt.description">
-                    <span>
-                      <resource-icon v-if="opt.icon" :image="opt.icon.base64image" size="1x" style="margin-right: 5px"/>
-                      <global-outlined v-else style="margin-right: 5px"/>
-                      {{ opt.name || opt.description }}
-                    </span>
-                  </a-select-option>
-                </a-select>
-              </a-form-item>
-            </a-col>
+
           </a-row>
           <a-divider/>
           <div class="tagsTitle">{{ $t('label.tags') }}</div>
@@ -260,10 +234,9 @@
 
 <script>
 import MoldDialogActions from '@/components/view/MoldDialogActions'
+import snapshotZones from '@/utils/snapshotZones'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
-import { getAPI } from '@/utils/storageApi'
-import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { timeZone } from '@/utils/timezone'
@@ -273,7 +246,7 @@ import debounce from 'lodash/debounce'
 
 export default {
   name: 'FormSchedule',
-  mixins: [mixinForm, storageDialogContext],
+  mixins: [mixinForm, storageDialogContext, snapshotZones],
   components: {
     MoldDialogActions,
     TooltipButton,
@@ -315,9 +288,7 @@ export default {
       dayOfMonth: [],
       timeZoneMap: [],
       fetching: false,
-      listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
-      zones: [],
-      storagePools: []
+      listDayOfWeek: ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
     }
   },
   beforeCreate () {
@@ -340,9 +311,6 @@ export default {
   computed: {
     formattedAdditionalZoneMessage () {
       return `${this.$t('message.snapshot.additional.zones').replace('%x', this.resource.zonename)}`
-    },
-    isAdmin () {
-      return isAdmin()
     }
   },
   watch: {
@@ -369,8 +337,7 @@ export default {
         'day-of-week': undefined,
         'day-of-month': undefined,
         maxsnaps: undefined,
-        timezone: undefined,
-        useStorageReplication: false
+        timezone: undefined
       })
       this.rules = reactive({
         time: [{ type: 'number', required: true, message: this.$t('message.error.required.input') }],
@@ -382,36 +349,7 @@ export default {
       })
       if (this.resourceType === 'Volume') {
         this.fetchZoneData()
-        this.fetchStoragePoolData()
       }
-    },
-    fetchZoneData () {
-      const params = {}
-      params.showicon = true
-      this.zoneLoading = true
-      getAPI('listZones', params).then(json => {
-        const listZones = json.listzonesresponse.zone
-        if (listZones) {
-          this.zones = listZones
-          this.zones = this.zones.filter(zone => zone.type !== 'Edge' && zone.id !== this.resource.zoneid)
-        }
-      }).finally(() => {
-        this.zoneLoading = false
-      })
-    },
-    fetchStoragePoolData () {
-      const params = {}
-      params.showicon = true
-      this.storagePoolsLoading = true
-      getAPI('listStoragePools', params).then(json => {
-        const listStoragePools = json.liststoragepoolsresponse.storagepool
-        if (listStoragePools) {
-          this.storagePools = listStoragePools
-          this.storagePools = this.storagePools.filter(pool => pool.storagecapabilities.CAN_COPY_SNAPSHOT_BETWEEN_ZONES_AND_SAME_POOL_TYPE && pool.zoneid !== this.resource.zoneid)
-        }
-      }).finally(() => {
-        this.storagePoolsLoading = false
-      })
     },
     fetchTimeZone (value) {
       this.timeZoneMap = []
@@ -528,12 +466,9 @@ export default {
         params.intervaltype = values.intervaltype
         params.timezone = values.timezone
         params.maxsnaps = values.maxsnaps
-        params.useStorageReplication = values.useStorageReplication
+        params.useStorageReplication = false
         if (values.zoneids && values.zoneids.length > 0) {
           params.zoneids = values.zoneids.join()
-        }
-        if (values.storageids && values.storageids.length > 0) {
-          params.storageids = values.storageids.join()
         }
         switch (values.intervaltype) {
           case 'hourly':
