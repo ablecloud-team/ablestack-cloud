@@ -1,0 +1,9 @@
+test_explicit_values_are_not_silently_ignored (__main__.InitialNfsPosixTest) ... ok
+test_initial_import_preserves_real_directory_and_file (__main__.InitialNfsPosixTest) ... ok
+test_new_or_later_share_keeps_legacy_initialization (__main__.InitialNfsPosixTest) ... ok
+test_read_only_legacy_does_not_change_permissions (__main__.InitialNfsPosixTest) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.004s
+
+OK

@@ -1,0 +1,286 @@
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+
+sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: E402
+
+payload_path = sys.argv[1]
+with open(payload_path, "r", encoding="utf-8") as payload_fp:
+    payload = json.load(payload_fp)
+
+def run(args):
+    return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=20)
+
+def lsblk():
+    result = run(["lsblk", "-b", "-J", "-o", "NAME,PATH,TYPE,FSTYPE,UUID,SERIAL,SIZE,MOUNTPOINT"])
+    if result.returncode != 0:
+        raise SystemExit(result.stderr.strip() or "lsblk failed")
+    return json.loads(result.stdout).get("blockdevices", [])
+
+def walk(devices, parent_disk_path=None, parent_path=None):
+    for dev in devices:
+        dev["_parentDiskPath"] = dev.get("path") if dev.get("type") == "disk" else parent_disk_path
+        dev["_parentPath"] = parent_path
+        yield dev
+        for child in dev.get("children") or []:
+            yield from walk([child], dev.get("_parentDiskPath"), dev.get("path"))
+
+def compact(value):
+    return "".join(ch for ch in str(value or "").lower() if ch.isalnum())
+
+def token_matches(value, tokens):
+    candidate = compact(value)
+    if not candidate:
+        return False
+    for token in tokens:
+        if len(token) >= 8 and (token in candidate or candidate in token):
+            return True
+    return False
+
+def parse_size(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+def size_matches(dev, expected_size):
+    if expected_size <= 0:
+        return False
+    actual_size = parse_size(dev.get("size"))
+    if actual_size <= 0:
+        return False
+    tolerance = max(1024 * 1024, expected_size // 100)
+    return abs(actual_size - expected_size) <= tolerance
+
+devices = list(walk(lsblk()))
+device_by_path = {dev.get("path"): dev for dev in devices if dev.get("path")}
+import_mode = str(payload.get("importMode") or "MOUNT_EXISTING").upper()
+format_modes = {"FORMAT_EMPTY", "FORMAT_IF_EMPTY"}
+expected_size = parse_size(payload.get("volumeSizeBytes"))
+identity_tokens = [compact(v) for v in (payload.get("volumeUuid"), payload.get("volumeName")) if compact(v)]
+root_disk_paths = {
+    dev.get("_parentDiskPath")
+    for dev in devices
+    if dev.get("_parentDiskPath") and (dev.get("mountpoint") in ("/", "/boot", "/boot/efi") or dev.get("fstype") == "swap")
+}
+
+def is_root_disk_tree(dev):
+    return dev.get("_parentDiskPath") in root_disk_paths
+
+def has_child_filesystem_or_mount(dev):
+    path = dev.get("path")
+    if not path:
+        return False
+    for child in devices:
+        if child.get("_parentDiskPath") == path and child.get("path") != path and (child.get("fstype") or child.get("mountpoint")):
+            return True
+    return False
+
+def device_matches_identity(dev):
+    if not identity_tokens:
+        return False
+    return any(token_matches(dev.get(key), identity_tokens) for key in ("name", "path", "serial", "uuid"))
+
+def safe_candidate(dev, allow_mounted_match=False):
+    if not dev or not dev.get("path"):
+        return False
+    if dev.get("type") not in ("disk", "part"):
+        return False
+    if is_root_disk_tree(dev):
+        return False
+    if dev.get("mountpoint") and not (allow_mounted_match and device_matches_identity(dev)):
+        return False
+    if import_mode in format_modes:
+        return dev.get("type") == "disk" and not dev.get("fstype") and not dev.get("mountpoint") and not has_child_filesystem_or_mount(dev)
+    return True
+
+def select_single(candidates, reason):
+    unique = []
+    seen = set()
+    for dev in candidates:
+        path = dev.get("path")
+        if path and path not in seen:
+            unique.append(dev)
+            seen.add(path)
+    if len(unique) == 1:
+        return unique[0].get("path")
+    if len(unique) > 1:
+        paths = ", ".join(dev.get("path") for dev in unique)
+        raise SystemExit(f"Ambiguous Storage Service volume device candidates for {reason}: {paths}")
+    return None
+
+config = payload.get("config") or {}
+inspection = config.get("lastInspection") or config.get("lastinspection") or {}
+configured_mount_path = config.get("volumeMountPath") or payload.get("mountPath")
+mounted_source = None
+if configured_mount_path:
+    mounted = run(["findmnt", "-n", "-o", "SOURCE", "--target", configured_mount_path])
+    if mounted.returncode == 0 and mounted.stdout.strip():
+        mounted_source = mounted.stdout.strip().splitlines()[0]
+try:
+    resolved_device = resolve_volume_device(
+        lsblk(),
+        volume_uuid=payload.get("volumeUuid"),
+        volume_name=payload.get("volumeName"),
+        filesystem_uuid=(inspection.get("filesystemUuid") or inspection.get("fsUuid")
+                         or config.get("filesystemUuid") or config.get("fsUuid")),
+        mount_source=mounted_source,
+        expected_size=expected_size,
+        allow_blank_size_fallback=import_mode in format_modes,
+    )
+except VolumeIdentityError as error:
+    raise SystemExit(str(error))
+device = resolved_device["devicePath"]
+device_info = next((dev for dev in devices if dev.get("path") == device), {})
+existing_filesystem = device_info.get("fstype")
+requested_filesystem = str(payload.get("filesystem") or existing_filesystem or "xfs").lower()
+filesystem = existing_filesystem or requested_filesystem
+supported_filesystems = {"xfs", "ext4"}
+mount_path = config.get("volumeMountPath") or payload.get("mountPath") or f"/srv/ablestack-storage/volumes/{payload.get('volumeUuid') or payload.get('shareUuid')}"
+relative_share_path = str(config.get("relativeSharePath") or payload.get("path") or "").strip().strip("/")
+create_directory = bool(config.get("createDirectory", True))
+share_uuid = str(payload.get("shareUuid") or payload.get("shareId") or payload.get("volumeUuid") or "unknown")
+managed_marker = f"ablestack-storage:{share_uuid}:backing"
+
+def fstab_escape(value):
+    return str(value).replace("\\", "\\\\").replace(" ", "\\040").replace("\t", "\\011")
+
+def update_fstab(marker, entry=None):
+    fstab_path = "/etc/fstab"
+    lines = []
+    if os.path.exists(fstab_path):
+        with open(fstab_path, "r", encoding="utf-8") as fstab_fp:
+            for line in fstab_fp:
+                if marker not in line:
+                    lines.append(line)
+    if entry:
+        lines.append(entry.rstrip("\n") + "\n")
+    directory = os.path.dirname(fstab_path)
+    fd, tmp_path = tempfile.mkstemp(prefix=".fstab.", dir=directory, text=True)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as tmp_fp:
+            tmp_fp.writelines(lines)
+        os.replace(tmp_path, fstab_path)
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+def daemon_reload():
+    if shutil.which("systemctl"):
+        subprocess.run(["systemctl", "daemon-reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False, timeout=20)
+
+def blkid_value(path, field):
+    result = run(["blkid", "-s", field, "-o", "value", path])
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip().splitlines()[0]
+    return ""
+
+def persist_backing_mount(device, target_path, fs):
+    fs_uuid = blkid_value(device, "UUID")
+    if not fs_uuid:
+        raise SystemExit(f"Unable to resolve filesystem UUID for Storage Service backing volume {device}")
+    fstype = fs or blkid_value(device, "TYPE") or "auto"
+    options = "defaults,nofail,x-systemd.device-timeout=30"
+    entry = f"UUID={fstab_escape(fs_uuid)} {fstab_escape(target_path)} {fstab_escape(fstype)} {options} 0 2 # {managed_marker}"
+    update_fstab(managed_marker, entry)
+    daemon_reload()
+    return fs_uuid
+
+def format_empty_device():
+    fs = str(requested_filesystem or "xfs").lower()
+    allowed = {"xfs", "ext4"}
+    if fs not in allowed:
+        raise SystemExit(f"Unsupported filesystem for empty backing volume format: {fs}")
+    tool = f"mkfs.{fs}"
+    if not shutil.which(tool):
+        raise SystemExit(f"Missing filesystem formatter: {tool}")
+    result = run([tool, "-f", device] if fs == "xfs" else [tool, "-F", device])
+    if result.returncode != 0:
+        raise SystemExit(result.stderr.strip() or f"failed to format {device} as {fs}")
+    return fs
+
+if import_mode != "INSPECT_ONLY":
+    if existing_filesystem and import_mode == "FORMAT_EMPTY":
+        raise SystemExit(f"Refusing to format {device}: filesystem {existing_filesystem} already exists")
+    if existing_filesystem and existing_filesystem not in supported_filesystems:
+        raise SystemExit(f"Unsupported filesystem for existing Storage Service backing volume: {existing_filesystem}. Supported filesystems: xfs, ext4")
+    if not existing_filesystem and import_mode in format_modes:
+        filesystem = format_empty_device()
+    elif not filesystem:
+        raise SystemExit(f"No filesystem was detected on {device}; format workflows are not part of existing-volume import")
+    if filesystem and filesystem not in supported_filesystems:
+        raise SystemExit(f"Unsupported filesystem for Storage Service backing volume: {filesystem}. Supported filesystems: xfs, ext4")
+    os.makedirs(mount_path, exist_ok=True)
+    target = run(["findmnt", "-n", "-o", "SOURCE", "--mountpoint", mount_path])
+    if target.returncode == 0 and target.stdout.strip():
+        mounted_source = target.stdout.strip().splitlines()[0]
+        if os.path.realpath(mounted_source) != os.path.realpath(device):
+            raise SystemExit(f"Mount path {mount_path} is already used by another device: {mounted_source}")
+    desired_mount_path = mount_path
+    current = run(["findmnt", "-n", "-o", "TARGET", "--source", device])
+    current_targets = [line.strip() for line in current.stdout.splitlines() if line.strip()] if current.returncode == 0 else []
+    if desired_mount_path in current_targets:
+        mount_path = desired_mount_path
+    else:
+        mount_result = run(["mount", device, mount_path])
+        if mount_result.returncode != 0:
+            raise SystemExit(mount_result.stderr.strip() or f"failed to mount {device}")
+        mount_path = desired_mount_path
+    fs_uuid = persist_backing_mount(device, mount_path, filesystem)
+else:
+    if existing_filesystem and existing_filesystem not in supported_filesystems:
+        raise SystemExit(f"Unsupported filesystem for existing Storage Service backing volume: {existing_filesystem}. Supported filesystems: xfs, ext4")
+    fs_uuid = blkid_value(device, "UUID")
+
+def resolve_backing_path(volume_mount_path, relative_path, create_missing):
+    if not relative_path:
+        return volume_mount_path
+    cleaned = relative_path.strip().strip("/")
+    if not cleaned or cleaned == "." or cleaned.startswith("..") or "/../" in f"/{cleaned}/":
+        raise SystemExit(f"Invalid backing volume relative share path: {relative_path}")
+    if cleaned == "export":
+        raise SystemExit("The legacy /export root cannot be used as a share backing directory")
+    if cleaned.startswith("export/") and cleaned.count("/") != 1:
+        raise SystemExit(f"Storage Service share path must be a direct child of /export: /{cleaned}")
+    root = os.path.realpath(volume_mount_path)
+    target = os.path.realpath(os.path.join(volume_mount_path, cleaned))
+    if target != root and not target.startswith(root + os.sep):
+        raise SystemExit(f"Backing volume relative share path escapes the mounted volume: {relative_path}")
+    if os.path.exists(target) and not os.path.isdir(target):
+        raise SystemExit(f"Backing volume relative share path exists and is not a directory: {relative_path}")
+    if not os.path.exists(target):
+        if not create_missing:
+            raise SystemExit(f"Backing volume relative share path does not exist: {relative_path}")
+        os.makedirs(target, exist_ok=True)
+    return target
+
+backing_path = resolve_backing_path(mount_path, relative_share_path, create_directory)
+
+print(json.dumps({
+    "success": True,
+    "status": "ok",
+    "schemaVersion": 2,
+    "volumeUuid": payload.get("volumeUuid"),
+    "devicePath": device,
+    "observedDevicePath": device,
+    "matchedBy": resolved_device.get("matchedBy"),
+    "serial": resolved_device.get("serial"),
+    "filesystem": filesystem,
+    "filesystemSupported": filesystem in supported_filesystems,
+    "supportsInitialPosixPreservation": True,
+    "fsUuid": fs_uuid,
+    "filesystemUuid": fs_uuid,
+    "observedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    "bootId": open("/proc/sys/kernel/random/boot_id", "r", encoding="utf-8").read().strip() if os.path.exists("/proc/sys/kernel/random/boot_id") else "",
+    "mountPath": mount_path,
+    "volumeMountPath": mount_path,
+    "relativeSharePath": relative_share_path,
+    "backingPath": backing_path,
+    "persistentMount": import_mode != "INSPECT_ONLY",
+    "importMode": import_mode,
+}, sort_keys=True))

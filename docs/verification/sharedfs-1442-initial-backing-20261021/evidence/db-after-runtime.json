@@ -1,0 +1,142 @@
+{
+  "rows": [
+    {
+      "kind": "schema",
+      "type": "text",
+      "column": "creation_context",
+      "nullable": "YES"
+    },
+    {
+      "kind": "schema",
+      "type": "varchar(36)",
+      "column": "creation_request_id",
+      "nullable": "YES"
+    },
+    {
+      "kind": "index",
+      "name": "uk_sharedfs_creation_owner",
+      "column": "account_id",
+      "unique": 0
+    },
+    {
+      "kind": "index",
+      "name": "uk_sharedfs_creation_owner",
+      "column": "creation_request_id",
+      "unique": 0
+    },
+    {
+      "kind": "migration",
+      "name": "europa-sharedfs-initial-backing-v1",
+      "state": "Complete"
+    },
+    {
+      "id": "7268de5b-2f68-4a0c-93c1-499a462a13c3",
+      "kind": "sharedfs",
+      "name": "epic1438-basic-nfs-20261021-01",
+      "path": "3767e512-c324-4389-a6dc-d371a391be64",
+      "size": 21474836480,
+      "vmId": "8a2ef0b9-9663-47b5-b3ab-ea4c58d7f706",
+      "state": "Ready",
+      "domain": "i-2-101-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "3767e512-c324-4389-a6dc-d371a391be64",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "e2d9ea22-2809-4ca0-ae7e-87ab4dce5e24",
+      "kind": "sharedfs",
+      "name": "epic1438-1439-nfs-20261021-01",
+      "path": "8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+      "size": 21474836480,
+      "vmId": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+      "state": "Ready",
+      "domain": "i-2-102-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "d9d58c22-50c4-4b38-8d46-33081c812f34",
+      "kind": "sharedfs",
+      "name": "epic1438-1440-nfs-20261021-01",
+      "path": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "size": 21474836480,
+      "vmId": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+      "state": "Ready",
+      "domain": "i-2-103-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+      "kind": "sharedfs",
+      "name": "epic1438-1441-fixed-sfs-20261021-01",
+      "path": "3af8261e-6877-4479-8815-0b64a1b50910",
+      "size": 21474836480,
+      "vmId": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+      "state": "Ready",
+      "domain": "i-2-105-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "3af8261e-6877-4479-8815-0b64a1b50910",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+      "kind": "sharedfs",
+      "name": "epic1438-1441-free-sfs-20261021-01",
+      "path": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+      "size": 21474836480,
+      "vmId": "92d99386-9157-4abe-b427-98829770a15d",
+      "state": "Ready",
+      "domain": "i-2-106-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+      "kind": "sharedfs",
+      "name": "epic1438-1441-range-sfs-20261021-01",
+      "path": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+      "size": 21474836480,
+      "vmId": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+      "state": "Ready",
+      "domain": "i-2-107-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "volumeId": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+      "filesystem": "XFS"
+    },
+    {
+      "id": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "kind": "source",
+      "name": "epic1438-1442-existing-xfs-20261021-01",
+      "path": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "size": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "poolId": 1,
+      "attachedVm": null,
+      "offeringId": 16
+    },
+    {
+      "id": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "kind": "source",
+      "name": "epic1438-1442-existing-ext4-20261021-01",
+      "path": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "size": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "poolId": 1,
+      "attachedVm": null,
+      "offeringId": 16
+    }
+  ],
+  "protectedFilesUnchanged": true
+}

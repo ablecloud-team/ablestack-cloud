@@ -1,0 +1,7 @@
+{
+  "actualFilesystem": "XFS",
+  "fixtureFilesystem": "EXT4",
+  "kind": "deployed methods invoked on plain isolated context with EXT4 fixture; no production forms used",
+  "nfsDefault": "xfs",
+  "smbDefault": "xfs"
+}

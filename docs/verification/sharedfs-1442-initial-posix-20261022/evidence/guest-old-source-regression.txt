@@ -1,0 +1,24 @@
+test_explicit_values_are_not_silently_ignored (__main__.InitialNfsPosixTest) ... ok
+test_initial_import_preserves_real_directory_and_file (__main__.InitialNfsPosixTest) ... FAIL
+test_new_or_later_share_keeps_legacy_initialization (__main__.InitialNfsPosixTest) ... ok
+test_read_only_legacy_does_not_change_permissions (__main__.InitialNfsPosixTest) ... ok
+
+======================================================================
+FAIL: test_initial_import_preserves_real_directory_and_file (__main__.InitialNfsPosixTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/work/ablestack-cloud/systemvm/test/test_initial_nfs_posix.py", line 53, in test_initial_import_preserves_real_directory_and_file
+    self.assertEqual((1234, 2345, 0o750), self.metadata(self.directory))
+AssertionError: Tuples differ: (1234, 2345, 488) != (65534, 65534, 509)
+
+First differing element 0:
+1234
+65534
+
+- (1234, 2345, 488)
++ (65534, 65534, 509)
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.006s
+
+FAILED (failures=1)

@@ -1,0 +1,73 @@
+{
+  "suites": [
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSPreparationContractTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.634",
+      "file": "api/target/surefire-reports/TEST-org.apache.cloudstack.storage.sharedfs.SharedFSPreparationContractTest.xml"
+    },
+    {
+      "name": "com.cloud.api.response.SharedFSPreparationWireTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.022",
+      "file": "server/target/surefire-reports/TEST-com.cloud.api.response.SharedFSPreparationWireTest.xml"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSStaticNetworkBootstrapTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "4.236",
+      "file": "server/target/surefire-reports/TEST-org.apache.cloudstack.storage.sharedfs.SharedFSStaticNetworkBootstrapTest.xml"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest",
+      "tests": "14",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.452",
+      "file": "server/target/surefire-reports/TEST-org.apache.cloudstack.storage.sharedfs.SharedFSCreationFlowTest.xml"
+    },
+    {
+      "name": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+      "tests": "36",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.104",
+      "file": "server/target/surefire-reports/TEST-org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest.xml"
+    },
+    {
+      "name": "com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.13",
+      "file": "plugins/hypervisors/kvm/target/surefire-reports/TEST-com.cloud.hypervisor.kvm.resource.wrapper.LibvirtStorageServiceHostCommandWrapperTest.xml"
+    }
+  ],
+  "total": 78,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "uiMergeTests": 31,
+  "uiPreparationTests": 19,
+  "guestTestsPerRuntime": 54,
+  "guestRuntimes": [
+    "WSL Python 3.9",
+    "SystemVM Python 3.11.2"
+  ],
+  "mavenPackage": "BUILD SUCCESS",
+  "uiProductionBuild": "BUILD SUCCESS",
+  "checkstyle": "PASS without skipping",
+  "javaLogicChanges": false
+}

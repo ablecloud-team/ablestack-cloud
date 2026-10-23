@@ -1,0 +1,1 @@
+제품 구현이 아닌 설계 성격화 코드입니다. guest 코드는 조사 VM의 실제 함수와 장치 응답 fixture를 사용하며 실 mkfs는 실행하지 않습니다. 실행 위치와 DATA 경로를 확인한 격리 조사에만 사용합니다. 분리 기동은 sleep transient unit이며 --collect로 정리됩니다. Node는 실제 UI 메서드의 API 스텁 시험이며 제품 API에 접속하지 않습니다.

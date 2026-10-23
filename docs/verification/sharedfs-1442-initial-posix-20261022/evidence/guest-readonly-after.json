@@ -1,0 +1,258 @@
+[
+  {
+    "sharedfs": "5946ec3f-fe20-4672-98d5-bb4fa6606bd0",
+    "name": "epic1438-1442-new-xfs-sfs-20261022-01",
+    "domain": "i-2-113-VM",
+    "guest": {
+      "storagectlSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+      "directory": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o775"
+      },
+      "write.txt": {
+        "sha256": "c1861e114bb0644206e1db2357dbcb3bf9ff0131cc3898e92bfd4a3bab10b58b",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644"
+      },
+      "findmnt": {
+        "filesystems": [
+          {
+            "source": "/dev/sdb",
+            "target": "/srv/ablestack-storage/volumes/ec9641ac-62b3-474e-8f25-38b9f45d48f9",
+            "fstype": "xfs",
+            "uuid": "72368fcc-560b-495b-8909-88abdc705d66"
+          }
+        ]
+      }
+    },
+    "disks": [
+      {
+        "path": "/mnt/glue-gfs/5a782727-a941-4245-8646-d44bcc921bb3",
+        "serial": "5a782727a94142458646",
+        "device": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 5242880000,
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1642184704
+      },
+      {
+        "path": "/mnt/glue-gfs/ec9641ac-62b3-474e-8f25-38b9f45d48f9",
+        "serial": "ec9641ac62b3474e8f25",
+        "device": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 21474836480,
+        "fileBytes": 21478375424,
+        "allocatedBytes": 6369280
+      }
+    ]
+  },
+  {
+    "sharedfs": "3d2dc764-5b17-49cf-9ae0-cc55bda79891",
+    "name": "epic1438-1442-posix-xfs-sfs-20261022-01",
+    "domain": "i-2-111-VM",
+    "guest": {
+      "storagectlSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+      "directory": {
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o750"
+      },
+      "preserve.txt": {
+        "sha256": "ead2a2a6bd9d0ce16af687aca6e92b9ddc07bf72f1bb07c0f31b3371fb6cf1c8",
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o640"
+      },
+      "owner-write.txt": {
+        "sha256": "5b566e0f90b8b111e31e8abd2565861d7e712aee6a1ab568cbc7b9058b1ed2e8",
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o644"
+      },
+      "findmnt": {
+        "filesystems": [
+          {
+            "source": "/dev/sdb",
+            "target": "/srv/ablestack-storage/volumes/adfcb5e8-1e32-49ce-9f39-20d7ecf6fafd",
+            "fstype": "xfs",
+            "uuid": "f99cf101-0d76-4009-9768-0d0a9a431032"
+          }
+        ]
+      }
+    },
+    "disks": [
+      {
+        "path": "/mnt/glue-gfs/e74e9f3d-cd24-4cb8-8ece-46e0a1429410",
+        "serial": "e74e9f3dcd244cb88ece",
+        "device": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 5242880000,
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1642262528
+      },
+      {
+        "path": "/mnt/glue-gfs/adfcb5e8-1e32-49ce-9f39-20d7ecf6fafd",
+        "serial": "adfcb5e81e3249ce9f39",
+        "device": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 21474836480,
+        "fileBytes": 21478375424,
+        "allocatedBytes": 6369280
+      }
+    ]
+  },
+  {
+    "sharedfs": "1556abd4-ee34-4378-8ebb-448f7431938d",
+    "name": "epic1438-1442-posix-ext4-sfs-20261022-01",
+    "domain": "i-2-112-VM",
+    "guest": {
+      "storagectlSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+      "directory": {
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o750"
+      },
+      "preserve.txt": {
+        "sha256": "09df9a6d745892c7391ed661f5d9f5c75b3ece9c8206da41c19439113c6c9d4b",
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o640"
+      },
+      "owner-write.txt": {
+        "sha256": "aaf1cfab22d0387380fc0348b6c8154ebabdc255e13212a7361e107c20e9dd3b",
+        "uid": 1234,
+        "gid": 2345,
+        "mode": "0o644"
+      },
+      "findmnt": {
+        "filesystems": [
+          {
+            "source": "/dev/sdb",
+            "target": "/srv/ablestack-storage/volumes/c8aef987-45a4-47aa-a1b9-37ab54c5d629",
+            "fstype": "ext4",
+            "uuid": "7dabd6e5-1c68-44ff-8b23-2894ed1195bf"
+          }
+        ]
+      }
+    },
+    "disks": [
+      {
+        "path": "/mnt/glue-gfs/452696a8-cd4d-45ca-867c-4827b4f843c9",
+        "serial": "452696a8cd4d45ca867c",
+        "device": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 5242880000,
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1642344448
+      },
+      {
+        "path": "/mnt/glue-gfs/c8aef987-45a4-47aa-a1b9-37ab54c5d629",
+        "serial": "c8aef98745a447aaa1b9",
+        "device": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 21474836480,
+        "fileBytes": 21478375424,
+        "allocatedBytes": 9981952
+      }
+    ]
+  },
+  {
+    "sharedfs": "dacd4977-e4b8-47b8-919e-522ba3a5d636",
+    "name": "epic1438-1442-new-ext4-sfs-20261022-01",
+    "domain": "i-2-114-VM",
+    "guest": {
+      "storagectlSha256": "7bc6d441378cfc57e95cf05faead9c5cee2115eb88a676753ad0d4b15407f489",
+      "directory": {
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o775"
+      },
+      "write.txt": {
+        "sha256": "a54c5cac9ff1bb46d7898da3943b1a2a7fefcdc7bbfb59dd9692d67168bef696",
+        "uid": 65534,
+        "gid": 65534,
+        "mode": "0o644"
+      },
+      "findmnt": {
+        "filesystems": [
+          {
+            "source": "/dev/sdb",
+            "target": "/srv/ablestack-storage/volumes/3cf2ca0a-b7bb-486f-be93-e62c57ff1039",
+            "fstype": "ext4",
+            "uuid": "819bbbdd-b850-476c-bd69-2d4b029ac4cf"
+          }
+        ]
+      }
+    },
+    "disks": [
+      {
+        "path": "/mnt/glue-gfs/66043b23-2175-4b74-ab0c-f565d454fbcd",
+        "serial": "66043b2321754b74ab0c",
+        "device": "sda",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "writeback",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 5242880000,
+        "fileBytes": 5243928576,
+        "allocatedBytes": 1642151936
+      },
+      {
+        "path": "/mnt/glue-gfs/3cf2ca0a-b7bb-486f-be93-e62c57ff1039",
+        "serial": "3cf2ca0ab7bb486fbe93",
+        "device": "sdb",
+        "driver": {
+          "name": "qemu",
+          "type": "qcow2",
+          "cache": "none",
+          "discard": "unmap"
+        },
+        "qcowMagic": true,
+        "virtualBytes": 21474836480,
+        "fileBytes": 21478375424,
+        "allocatedBytes": 9850880
+      }
+    ]
+  }
+]

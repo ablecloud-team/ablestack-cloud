@@ -93,6 +93,10 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    String operateInitialBackingPreparation(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String action);
+
+    String prepareInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String mode);
+    void releaseInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS);
     StorageServiceInstanceResponse createStorageServiceInstance(CreateStorageServiceInstanceCmd cmd);
 
     ListResponse<StorageServiceInstanceResponse> listStorageServiceInstances(ListStorageServiceInstancesCmd cmd);

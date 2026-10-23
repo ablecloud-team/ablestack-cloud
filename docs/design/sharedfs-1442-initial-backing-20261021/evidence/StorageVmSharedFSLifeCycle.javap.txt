@@ -1,0 +1,1171 @@
+Compiled from "StorageVmSharedFSLifeCycle.java"
+public class org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycle implements org.apache.cloudstack.storage.sharedfs.SharedFSLifeCycle {
+  private static final java.lang.String STORAGE_VM_CONFIG_RESOURCE;
+
+  protected org.apache.logging.log4j.Logger logger;
+
+  private com.cloud.user.AccountManager accountMgr;
+
+  protected com.cloud.resource.ResourceManager resourceMgr;
+
+  private com.cloud.vm.VirtualMachineManager virtualMachineManager;
+
+  private com.cloud.storage.VolumeApiService volumeApiService;
+
+  protected com.cloud.vm.UserVmService userVmService;
+
+  protected com.cloud.vm.UserVmManager userVmManager;
+
+  private com.cloud.dc.dao.DataCenterDao dataCenterDao;
+
+  private com.cloud.storage.dao.VMTemplateDao templateDao;
+
+  com.cloud.storage.dao.VolumeDao volumeDao;
+
+  private com.cloud.vm.dao.UserVmDao userVmDao;
+
+  com.cloud.vm.dao.NicDao nicDao;
+
+  com.cloud.service.dao.ServiceOfferingDao serviceOfferingDao;
+
+  protected com.cloud.storage.dao.LaunchPermissionDao launchPermissionDao;
+
+  private com.cloud.service.dao.ServiceOfferingDetailsDao serviceOfferingDetailsDao;
+
+  private com.cloud.storage.dao.DiskOfferingDao diskOfferingDao;
+
+  private org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao diskOfferingDetailsDao;
+
+  private com.cloud.storage.VolumeAllocationService allocationService;
+
+  public org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycle();
+    Code:
+       0: aload_0
+       1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+       4: aload_0
+       5: aload_0
+       6: invokevirtual #9                  // Method java/lang/Object.getClass:()Ljava/lang/Class;
+       9: invokestatic  #13                 // Method org/apache/logging/log4j/LogManager.getLogger:(Ljava/lang/Class;)Lorg/apache/logging/log4j/Logger;
+      12: putfield      #19                 // Field logger:Lorg/apache/logging/log4j/Logger;
+      15: return
+
+  protected int creationMaxCpu();
+    Code:
+       0: getstatic     #25                 // Field com/cloud/configuration/ConfigurationManagerImpl.VM_SERVICE_OFFERING_MAX_CPU_CORES:Lorg/apache/cloudstack/framework/config/ConfigKey;
+       3: invokevirtual #31                 // Method org/apache/cloudstack/framework/config/ConfigKey.value:()Ljava/lang/Object;
+       6: checkcast     #37                 // class java/lang/Integer
+       9: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+      12: ireturn
+
+  protected int creationMaxRam();
+    Code:
+       0: getstatic     #43                 // Field com/cloud/configuration/ConfigurationManagerImpl.VM_SERVICE_OFFERING_MAX_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+       3: invokevirtual #31                 // Method org/apache/cloudstack/framework/config/ConfigKey.value:()Ljava/lang/Object;
+       6: checkcast     #37                 // class java/lang/Integer
+       9: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+      12: ireturn
+
+  protected java.lang.String creationArchitecture(java.lang.Long);
+    Code:
+       0: getstatic     #46                 // Field com/cloud/resource/ResourceManager.SystemVmPreferredArchitecture:Lorg/apache/cloudstack/framework/config/ConfigKey;
+       3: aload_1
+       4: invokevirtual #51                 // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+       7: checkcast     #55                 // class java/lang/String
+      10: invokestatic  #57                 // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.normalizeArchitecture:(Ljava/lang/String;)Ljava/lang/String;
+      13: areturn
+
+  protected boolean hasReadyCreationTemplate(java.lang.Long, java.lang.String);
+    Code:
+       0: aload_2
+       1: ifnonnull     6
+       4: iconst_0
+       5: ireturn
+       6: aload_0
+       7: getfield      #63                 // Field resourceMgr:Lcom/cloud/resource/ResourceManager;
+      10: aload_1
+      11: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      14: iconst_0
+      15: aconst_null
+      16: invokeinterface #73,  5           // InterfaceMethod com/cloud/resource/ResourceManager.getSupportedHypervisorTypes:(JZLjava/lang/Long;)Ljava/util/List;
+      21: astore_3
+      22: aload_3
+      23: ifnonnull     28
+      26: iconst_0
+      27: ireturn
+      28: aload_3
+      29: invokeinterface #77,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+      34: astore        4
+      36: aload         4
+      38: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+      43: ifeq          112
+      46: aload         4
+      48: invokeinterface #89,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+      53: checkcast     #92                 // class com/cloud/hypervisor/Hypervisor$HypervisorType
+      56: astore        5
+      58: aload_0
+      59: getfield      #94                 // Field templateDao:Lcom/cloud/storage/dao/VMTemplateDao;
+      62: aload_1
+      63: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      66: aload         5
+      68: aload_2
+      69: invokeinterface #98,  5           // InterfaceMethod com/cloud/storage/dao/VMTemplateDao.findSystemVMReadyTemplate:(JLcom/cloud/hypervisor/Hypervisor$HypervisorType;Ljava/lang/String;)Lcom/cloud/storage/VMTemplateVO;
+      74: astore        6
+      76: aload         6
+      78: ifnull        109
+      81: aload         6
+      83: invokevirtual #104                // Method com/cloud/storage/VMTemplateVO.getArch:()Lcom/cloud/cpu/CPU$CPUArch;
+      86: ifnull        109
+      89: aload_2
+      90: aload         6
+      92: invokevirtual #104                // Method com/cloud/storage/VMTemplateVO.getArch:()Lcom/cloud/cpu/CPU$CPUArch;
+      95: invokevirtual #110                // Method com/cloud/cpu/CPU$CPUArch.getType:()Ljava/lang/String;
+      98: invokestatic  #57                 // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.normalizeArchitecture:(Ljava/lang/String;)Ljava/lang/String;
+     101: invokevirtual #116                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     104: ifeq          109
+     107: iconst_1
+     108: ireturn
+     109: goto          36
+     112: iconst_0
+     113: ireturn
+
+  public org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility getCreationOfferingEligibility(com.cloud.dc.DataCenter, java.lang.Long);
+    Code:
+       0: aload_0
+       1: getfield      #120                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+       4: aload_2
+       5: invokeinterface #124,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      10: checkcast     #130                // class com/cloud/service/ServiceOfferingVO
+      13: astore_3
+      14: aload_3
+      15: ifnonnull     32
+      18: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      21: dup
+      22: aload_2
+      23: invokedynamic #134,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/Long;)Ljava/lang/String;
+      28: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      31: athrow
+      32: aload_0
+      33: getfield      #141                // Field serviceOfferingDetailsDao:Lcom/cloud/service/dao/ServiceOfferingDetailsDao;
+      36: aload_2
+      37: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      40: invokeinterface #145,  3          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDetailsDao.listDetailsKeyPairs:(J)Ljava/util/Map;
+      45: astore        4
+      47: new           #58                 // class org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility
+      50: dup
+      51: aload_3
+      52: aload         4
+      54: ifnonnull     63
+      57: invokestatic  #151                // Method java/util/Collections.emptyMap:()Ljava/util/Map;
+      60: goto          65
+      63: aload         4
+      65: getstatic     #157                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;
+      68: aload_1
+      69: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+      74: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      77: invokevirtual #51                 // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+      80: checkcast     #37                 // class java/lang/Integer
+      83: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+      86: getstatic     #171                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+      89: aload_1
+      90: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+      95: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      98: invokevirtual #51                 // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+     101: checkcast     #37                 // class java/lang/Integer
+     104: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+     107: aload_0
+     108: invokevirtual #174                // Method creationMaxCpu:()I
+     111: aload_0
+     112: invokevirtual #177                // Method creationMaxRam:()I
+     115: invokespecial #180                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility."<init>":(Lcom/cloud/offering/ServiceOffering;Ljava/util/Map;IIII)V
+     118: astore        5
+     120: aload_3
+     121: invokevirtual #183                // Method com/cloud/service/ServiceOfferingVO.getState:()Lcom/cloud/offering/ServiceOffering$State;
+     124: getstatic     #187                // Field com/cloud/offering/ServiceOffering$State.Active:Lcom/cloud/offering/ServiceOffering$State;
+     127: if_acmpeq     139
+     130: aload         5
+     132: ldc           #193                // String OFFERING_INACTIVE
+     134: ldc           #195                // String serviceofferingid
+     136: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     139: aload_0
+     140: getfield      #201                // Field diskOfferingDao:Lcom/cloud/storage/dao/DiskOfferingDao;
+     143: aload_3
+     144: invokevirtual #205                // Method com/cloud/service/ServiceOfferingVO.getDiskOfferingId:()Ljava/lang/Long;
+     147: invokeinterface #209,  2          // InterfaceMethod com/cloud/storage/dao/DiskOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+     152: checkcast     #212                // class com/cloud/storage/DiskOfferingVO
+     155: astore        6
+     157: aload         6
+     159: ifnonnull     174
+     162: aload         5
+     164: ldc           #214                // String ROOT_POLICY_UNKNOWN
+     166: ldc           #195                // String serviceofferingid
+     168: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     171: goto          404
+     174: aload_0
+     175: getfield      #216                // Field diskOfferingDetailsDao:Lorg/apache/cloudstack/resourcedetail/dao/DiskOfferingDetailsDao;
+     178: aload         6
+     180: invokevirtual #220                // Method com/cloud/storage/DiskOfferingVO.getId:()J
+     183: invokeinterface #221,  3          // InterfaceMethod org/apache/cloudstack/resourcedetail/dao/DiskOfferingDetailsDao.listDetailsKeyPairs:(J)Ljava/util/Map;
+     188: invokestatic  #224                // Method com/cloud/storage/VolumeAllocationPolicy.validateStored:(Ljava/util/Map;)Ljava/util/Map;
+     191: astore        7
+     193: aload         7
+     195: invokeinterface #230,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+     200: ifeq          226
+     203: aload         6
+     205: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     208: ifnonnull     215
+     211: aconst_null
+     212: goto          238
+     215: aload         6
+     217: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     220: invokevirtual #239                // Method com/cloud/storage/Storage$ProvisioningType.toString:()Ljava/lang/String;
+     223: goto          238
+     226: aload         7
+     228: ldc           #244                // String allocation.requested.policy
+     230: invokeinterface #246,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+     235: checkcast     #55                 // class java/lang/String
+     238: astore        8
+     240: aload         5
+     242: aload         6
+     244: invokevirtual #250                // Method com/cloud/storage/DiskOfferingVO.getUuid:()Ljava/lang/String;
+     247: aload         8
+     249: aload         7
+     251: invokeinterface #230,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+     256: ifeq          264
+     259: ldc           #253                // String legacy
+     261: goto          266
+     264: ldc           #255                // String allocation
+     266: invokevirtual #257                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.setRoot:(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+     269: aload         7
+     271: invokeinterface #230,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+     276: ifeq          337
+     279: aload         6
+     281: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     284: getstatic     #261                // Field com/cloud/storage/Storage$ProvisioningType.THIN:Lcom/cloud/storage/Storage$ProvisioningType;
+     287: if_acmpne     303
+     290: aload         5
+     292: ldc_w         #265                // String ROOT_POLICY_THIN
+     295: ldc           #195                // String serviceofferingid
+     297: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     300: goto          389
+     303: aload         6
+     305: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     308: getstatic     #267                // Field com/cloud/storage/Storage$ProvisioningType.SPARSE:Lcom/cloud/storage/Storage$ProvisioningType;
+     311: if_acmpeq     389
+     314: aload         6
+     316: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     319: getstatic     #270                // Field com/cloud/storage/Storage$ProvisioningType.FAT:Lcom/cloud/storage/Storage$ProvisioningType;
+     322: if_acmpeq     389
+     325: aload         5
+     327: ldc           #214                // String ROOT_POLICY_UNKNOWN
+     329: ldc           #195                // String serviceofferingid
+     331: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     334: goto          389
+     337: ldc_w         #273                // String off
+     340: aload         8
+     342: invokevirtual #116                // Method java/lang/String.equals:(Ljava/lang/Object;)Z
+     345: ifeq          361
+     348: aload         5
+     350: ldc_w         #265                // String ROOT_POLICY_THIN
+     353: ldc           #195                // String serviceofferingid
+     355: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     358: goto          389
+     361: aload_0
+     362: getfield      #275                // Field allocationService:Lcom/cloud/storage/VolumeAllocationService;
+     365: aload         7
+     367: aload         6
+     369: invokevirtual #235                // Method com/cloud/storage/DiskOfferingVO.getProvisioningType:()Lcom/cloud/storage/Storage$ProvisioningType;
+     372: aload_1
+     373: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+     378: aconst_null
+     379: aload         6
+     381: invokevirtual #279                // Method com/cloud/storage/DiskOfferingVO.getTagsArray:()[Ljava/lang/String;
+     384: invokeinterface #283,  7          // InterfaceMethod com/cloud/storage/VolumeAllocationService.validateCreate:(Ljava/util/Map;Lcom/cloud/storage/Storage$ProvisioningType;JLjava/lang/Long;[Ljava/lang/String;)V
+     389: goto          404
+     392: astore        8
+     394: aload         5
+     396: ldc_w         #289                // String ROOT_POLICY_UNAVAILABLE
+     399: ldc           #195                // String serviceofferingid
+     401: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     404: aload_0
+     405: aload_1
+     406: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+     411: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     414: invokevirtual #291                // Method creationArchitecture:(Ljava/lang/Long;)Ljava/lang/String;
+     417: astore        7
+     419: aload         5
+     421: aload         7
+     423: invokevirtual #294                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.setArchitecture:(Ljava/lang/String;)V
+     426: aload_0
+     427: aload_1
+     428: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+     433: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     436: aload         7
+     438: invokevirtual #297                // Method hasReadyCreationTemplate:(Ljava/lang/Long;Ljava/lang/String;)Z
+     441: ifne          454
+     444: aload         5
+     446: ldc_w         #301                // String SYSTEMVM_ARCH_UNAVAILABLE
+     449: ldc           #195                // String serviceofferingid
+     451: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     454: aload         5
+     456: areturn
+    Exception table:
+       from    to  target type
+         174   389   392   Class com/cloud/exception/InvalidParameterValueException
+
+  public java.util.Map<java.lang.String, java.lang.String> checkCreationPrerequisites(com.cloud.dc.DataCenter, java.lang.Long, java.util.Map<java.lang.String, java.lang.String>);
+    Code:
+       0: aload_0
+       1: getfield      #120                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+       4: aload_2
+       5: invokeinterface #124,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      10: checkcast     #130                // class com/cloud/service/ServiceOfferingVO
+      13: astore        4
+      15: aload         4
+      17: ifnonnull     34
+      20: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      23: dup
+      24: aload_2
+      25: invokedynamic #134,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/Long;)Ljava/lang/String;
+      30: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      33: athrow
+      34: aload_0
+      35: getfield      #303                // Field accountMgr:Lcom/cloud/user/AccountManager;
+      38: invokestatic  #307                // Method org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+      41: invokevirtual #313                // Method org/apache/cloudstack/context/CallContext.getCallingAccount:()Lcom/cloud/user/Account;
+      44: aload         4
+      46: aload_1
+      47: invokeinterface #317,  4          // InterfaceMethod com/cloud/user/AccountManager.checkAccess:(Lcom/cloud/user/Account;Lcom/cloud/offering/ServiceOffering;Lcom/cloud/dc/DataCenter;)V
+      52: aload_0
+      53: aload_1
+      54: aload_2
+      55: invokevirtual #323                // Method getCreationOfferingEligibility:(Lcom/cloud/dc/DataCenter;Ljava/lang/Long;)Lorg/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility;
+      58: astore        5
+      60: aload         5
+      62: aload_3
+      63: invokevirtual #327                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.validateCustomValues:(Ljava/util/Map;)Ljava/util/Map;
+      66: astore        6
+      68: aload         4
+      70: invokevirtual #330                // Method com/cloud/service/ServiceOfferingVO.isDynamic:()Z
+      73: ifeq          134
+      76: aload_0
+      77: getfield      #333                // Field userVmManager:Lcom/cloud/vm/UserVmManager;
+      80: aload         4
+      82: aload         6
+      84: invokeinterface #337,  3          // InterfaceMethod com/cloud/vm/UserVmManager.validateCustomParameters:(Lcom/cloud/service/ServiceOfferingVO;Ljava/util/Map;)V
+      89: goto          109
+      92: astore        7
+      94: aload         5
+      96: ldc_w         #343                // String CUSTOM_VALUES_INVALID
+      99: ldc           #195                // String serviceofferingid
+     101: invokevirtual #197                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.reject:(Ljava/lang/String;Ljava/lang/String;)V
+     104: aload         5
+     106: invokevirtual #345                // Method org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibility.requireSelectable:()V
+     109: aload_0
+     110: getfield      #120                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+     113: aload         4
+     115: aload         6
+     117: invokeinterface #348,  3          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.getComputeOffering:(Lcom/cloud/service/ServiceOfferingVO;Ljava/util/Map;)Lcom/cloud/service/ServiceOfferingVO;
+     122: astore        7
+     124: aload_0
+     125: aload_1
+     126: aload         7
+     128: invokevirtual #352                // Method checkResourcePrerequisites:(Lcom/cloud/dc/DataCenter;Lcom/cloud/offering/ServiceOffering;)V
+     131: goto          141
+     134: aload_0
+     135: aload_1
+     136: aload         4
+     138: invokevirtual #352                // Method checkResourcePrerequisites:(Lcom/cloud/dc/DataCenter;Lcom/cloud/offering/ServiceOffering;)V
+     141: aload         6
+     143: areturn
+    Exception table:
+       from    to  target type
+          76    89    92   Class com/cloud/exception/InvalidParameterValueException
+
+  private java.lang.String readResourceFile(java.lang.String);
+    Code:
+       0: aload_1
+       1: ifnull        22
+       4: aload_1
+       5: ldc_w         #356                // String /
+       8: invokevirtual #358                // Method java/lang/String.startsWith:(Ljava/lang/String;)Z
+      11: ifeq          22
+      14: aload_1
+      15: iconst_1
+      16: invokevirtual #362                // Method java/lang/String.substring:(I)Ljava/lang/String;
+      19: goto          23
+      22: aload_1
+      23: astore_2
+      24: aload_2
+      25: invokestatic  #366                // Method com/cloud/utils/FileUtil.readResourceFile:(Ljava/lang/String;)Ljava/lang/String;
+      28: areturn
+      29: astore_3
+      30: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+      33: dup
+      34: ldc_w         #375                // String Unable to read the user data resource file [%s]: resource was not found on classpath
+      37: iconst_1
+      38: anewarray     #4                  // class java/lang/Object
+      41: dup
+      42: iconst_0
+      43: aload_2
+      44: aastore
+      45: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      48: aload_3
+      49: invokespecial #381                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+      52: athrow
+      53: astore_3
+      54: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+      57: dup
+      58: ldc_w         #386                // String Unable to read the user data resource file [%s] due to exception %s
+      61: iconst_2
+      62: anewarray     #4                  // class java/lang/Object
+      65: dup
+      66: iconst_0
+      67: aload_2
+      68: aastore
+      69: dup
+      70: iconst_1
+      71: aload_3
+      72: invokevirtual #388                // Method java/io/IOException.getMessage:()Ljava/lang/String;
+      75: aastore
+      76: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      79: aload_3
+      80: invokespecial #381                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+      83: athrow
+    Exception table:
+       from    to  target type
+          24    28    29   Class java/lang/NullPointerException
+          24    28    53   Class java/io/IOException
+
+  private java.lang.String getStorageVmConfig();
+    Code:
+       0: aload_0
+       1: ldc_w         #391                // String conf/fsvm-init.yml
+       4: invokevirtual #393                // Method readResourceFile:(Ljava/lang/String;)Ljava/lang/String;
+       7: areturn
+
+  private java.lang.String getStorageVmPrefix(java.lang.String);
+    Code:
+       0: ldc_w         #394                // String %s-%s
+       3: iconst_2
+       4: anewarray     #4                  // class java/lang/Object
+       7: dup
+       8: iconst_0
+       9: ldc_w         #396                // String sharedfs
+      12: aastore
+      13: dup
+      14: iconst_1
+      15: aload_1
+      16: aastore
+      17: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      20: astore_2
+      21: aload_2
+      22: iconst_1
+      23: invokestatic  #398                // Method com/cloud/utils/net/NetUtils.verifyDomainNameLabel:(Ljava/lang/String;Z)Z
+      26: ifne          40
+      29: aload_2
+      30: ldc_w         #404                // String [^a-zA-Z0-9-]
+      33: ldc_w         #406                // String
+      36: invokevirtual #408                // Method java/lang/String.replaceAll:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+      39: astore_2
+      40: aload_2
+      41: areturn
+
+  private java.lang.String getStorageVmName(java.lang.String);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: invokevirtual #412                // Method getStorageVmPrefix:(Ljava/lang/String;)Ljava/lang/String;
+       5: astore_2
+       6: invokestatic  #415                // Method java/lang/System.currentTimeMillis:()J
+       9: invokestatic  #420                // Method java/lang/Long.toHexString:(J)Ljava/lang/String;
+      12: astore_3
+      13: aload_2
+      14: invokevirtual #424                // Method java/lang/String.length:()I
+      17: aload_3
+      18: invokevirtual #424                // Method java/lang/String.length:()I
+      21: iadd
+      22: ldc_w         #396                // String sharedfs
+      25: invokevirtual #424                // Method java/lang/String.length:()I
+      28: iadd
+      29: istore        4
+      31: iload         4
+      33: bipush        63
+      35: if_icmple     58
+      38: aload_2
+      39: invokevirtual #424                // Method java/lang/String.length:()I
+      42: iload         4
+      44: bipush        63
+      46: isub
+      47: isub
+      48: istore        5
+      50: aload_2
+      51: iconst_0
+      52: iload         5
+      54: invokevirtual #427                // Method java/lang/String.substring:(II)Ljava/lang/String;
+      57: astore_2
+      58: ldc_w         #394                // String %s-%s
+      61: iconst_2
+      62: anewarray     #4                  // class java/lang/Object
+      65: dup
+      66: iconst_0
+      67: aload_2
+      68: aastore
+      69: dup
+      70: iconst_1
+      71: aload_3
+      72: aastore
+      73: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      76: areturn
+
+  private com.cloud.uservm.UserVm deploySharedFSVM(java.lang.Long, com.cloud.user.Account, java.util.List<java.lang.Long>, java.lang.String, java.lang.Long, java.lang.Long, org.apache.cloudstack.storage.sharedfs.SharedFS$FileSystemType, java.lang.Long, java.lang.Long, java.lang.Long, org.apache.cloudstack.storage.sharedfs.SharedFS$NetworkMode, java.lang.String, java.util.Map<java.lang.String, java.lang.String>) throws com.cloud.exception.OperationTimedoutException, com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException, com.cloud.exception.ResourceAllocationException;
+    Code:
+       0: aload_0
+       1: getfield      #120                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+       4: aload         5
+       6: invokeinterface #124,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      11: checkcast     #430                // class com/cloud/offering/ServiceOffering
+      14: astore        14
+      16: aload_0
+      17: getfield      #432                // Field dataCenterDao:Lcom/cloud/dc/dao/DataCenterDao;
+      20: aload_1
+      21: invokeinterface #436,  2          // InterfaceMethod com/cloud/dc/dao/DataCenterDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      26: checkcast     #163                // class com/cloud/dc/DataCenter
+      29: astore        15
+      31: aload_0
+      32: getfield      #63                 // Field resourceMgr:Lcom/cloud/resource/ResourceManager;
+      35: aload_1
+      36: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      39: iconst_0
+      40: aconst_null
+      41: invokeinterface #73,  5           // InterfaceMethod com/cloud/resource/ResourceManager.getSupportedHypervisorTypes:(JZLjava/lang/Long;)Ljava/util/List;
+      46: astore        16
+      48: aload         16
+      50: invokeinterface #439,  1          // InterfaceMethod java/util/List.size:()I
+      55: ifle          66
+      58: aload         16
+      60: invokestatic  #442                // Method java/util/Collections.shuffle:(Ljava/util/List;)V
+      63: goto          92
+      66: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+      69: dup
+      70: ldc_w         #446                // String No supported hypervisor found for zone %s.
+      73: iconst_1
+      74: anewarray     #4                  // class java/lang/Object
+      77: dup
+      78: iconst_0
+      79: aload         15
+      81: invokevirtual #448                // Method java/lang/Object.toString:()Ljava/lang/String;
+      84: aastore
+      85: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+      88: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+      91: athrow
+      92: aload_0
+      93: aload         4
+      95: invokevirtual #450                // Method getStorageVmName:(Ljava/lang/String;)Ljava/lang/String;
+      98: astore        17
+     100: new           #453                // class com/cloud/network/Network$IpAddresses
+     103: dup
+     104: aload         11
+     106: getstatic     #455                // Field org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.STATIC:Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+     109: if_acmpne     117
+     112: aload         12
+     114: goto          118
+     117: aconst_null
+     118: aconst_null
+     119: invokespecial #461                // Method com/cloud/network/Network$IpAddresses."<init>":(Ljava/lang/String;Ljava/lang/String;)V
+     122: astore        18
+     124: new           #463                // class java/util/HashMap
+     127: dup
+     128: aload         13
+     130: invokespecial #465                // Method java/util/HashMap."<init>":(Ljava/util/Map;)V
+     133: astore        19
+     135: aload         9
+     137: ifnull        172
+     140: aload         19
+     142: ldc_w         #468                // String minIopsDo
+     145: aload         9
+     147: invokevirtual #470                // Method java/lang/Long.toString:()Ljava/lang/String;
+     150: invokeinterface #471,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     155: pop
+     156: aload         19
+     158: ldc_w         #475                // String maxIopsDo
+     161: aload         10
+     163: invokevirtual #470                // Method java/lang/Long.toString:()Ljava/lang/String;
+     166: invokeinterface #471,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+     171: pop
+     172: new           #477                // class java/util/ArrayList
+     175: dup
+     176: invokespecial #479                // Method java/util/ArrayList."<init>":()V
+     179: astore        20
+     181: aload_0
+     182: aload_1
+     183: invokevirtual #291                // Method creationArchitecture:(Ljava/lang/Long;)Ljava/lang/String;
+     186: astore        21
+     188: aload         16
+     190: invokeinterface #77,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     195: astore        22
+     197: aload         22
+     199: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+     204: ifeq          538
+     207: aload         22
+     209: invokeinterface #89,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     214: checkcast     #92                 // class com/cloud/hypervisor/Hypervisor$HypervisorType
+     217: astore        23
+     219: aload_0
+     220: getfield      #94                 // Field templateDao:Lcom/cloud/storage/dao/VMTemplateDao;
+     223: aload_1
+     224: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+     227: aload         23
+     229: aload         21
+     231: invokeinterface #98,  5           // InterfaceMethod com/cloud/storage/dao/VMTemplateDao.findSystemVMReadyTemplate:(JLcom/cloud/hypervisor/Hypervisor$HypervisorType;Ljava/lang/String;)Lcom/cloud/storage/VMTemplateVO;
+     236: astore        24
+     238: aload         24
+     240: ifnonnull     287
+     243: aload         22
+     245: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+     250: ifne          287
+     253: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+     256: dup
+     257: ldc_w         #480                // String Unable to find the systemvm template for %s or it was not downloaded in %s.
+     260: iconst_2
+     261: anewarray     #4                  // class java/lang/Object
+     264: dup
+     265: iconst_0
+     266: aload         23
+     268: invokevirtual #482                // Method com/cloud/hypervisor/Hypervisor$HypervisorType.toString:()Ljava/lang/String;
+     271: aastore
+     272: dup
+     273: iconst_1
+     274: aload         15
+     276: invokevirtual #448                // Method java/lang/Object.toString:()Ljava/lang/String;
+     279: aastore
+     280: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+     283: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+     286: athrow
+     287: aload_0
+     288: getfield      #483                // Field launchPermissionDao:Lcom/cloud/storage/dao/LaunchPermissionDao;
+     291: aload         24
+     293: invokevirtual #487                // Method com/cloud/storage/VMTemplateVO.getId:()J
+     296: aload_2
+     297: invokeinterface #488,  1          // InterfaceMethod com/cloud/user/Account.getId:()J
+     302: invokeinterface #491,  5          // InterfaceMethod com/cloud/storage/dao/LaunchPermissionDao.findByTemplateAndAccount:(JJ)Lcom/cloud/storage/LaunchPermissionVO;
+     307: astore        25
+     309: aload         25
+     311: ifnonnull     346
+     314: new           #497                // class com/cloud/storage/LaunchPermissionVO
+     317: dup
+     318: aload         24
+     320: invokevirtual #487                // Method com/cloud/storage/VMTemplateVO.getId:()J
+     323: aload_2
+     324: invokeinterface #488,  1          // InterfaceMethod com/cloud/user/Account.getId:()J
+     329: invokespecial #499                // Method com/cloud/storage/LaunchPermissionVO."<init>":(JJ)V
+     332: astore        26
+     334: aload_0
+     335: getfield      #483                // Field launchPermissionDao:Lcom/cloud/storage/dao/LaunchPermissionDao;
+     338: aload         26
+     340: invokeinterface #502,  2          // InterfaceMethod com/cloud/storage/dao/LaunchPermissionDao.persist:(Ljava/lang/Object;)Ljava/lang/Object;
+     345: pop
+     346: aconst_null
+     347: astore        26
+     349: aconst_null
+     350: astore        27
+     352: aload         11
+     354: getstatic     #505                // Field org/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode.DHCP:Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+     357: if_acmpne     379
+     360: aload_0
+     361: invokevirtual #508                // Method getStorageVmConfig:()Ljava/lang/String;
+     364: astore        28
+     366: aload         28
+     368: invokestatic  #511                // Method com/cloud/utils/StringUtils.getPreferredCharset:()Ljava/nio/charset/Charset;
+     371: invokevirtual #517                // Method java/lang/String.getBytes:(Ljava/nio/charset/Charset;)[B
+     374: invokestatic  #521                // Method org/apache/commons/codec/binary/Base64.encodeBase64String:([B)Ljava/lang/String;
+     377: astore        27
+     379: invokestatic  #307                // Method org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+     382: getstatic     #527                // Field org/apache/cloudstack/api/ApiCommandResourceType.VirtualMachine:Lorg/apache/cloudstack/api/ApiCommandResourceType;
+     385: invokestatic  #533                // Method org/apache/cloudstack/context/CallContext.register:(Lorg/apache/cloudstack/context/CallContext;Lorg/apache/cloudstack/api/ApiCommandResourceType;)Lorg/apache/cloudstack/context/CallContext;
+     388: astore        28
+     390: aload_0
+     391: getfield      #537                // Field userVmService:Lcom/cloud/vm/UserVmService;
+     394: aload         15
+     396: aload         14
+     398: aload         24
+     400: aload_3
+     401: aload_2
+     402: aload         17
+     404: aload         17
+     406: aload         6
+     408: aload         8
+     410: aconst_null
+     411: aconst_null
+     412: getstatic     #541                // Field com/cloud/hypervisor/Hypervisor$HypervisorType.None:Lcom/cloud/hypervisor/Hypervisor$HypervisorType;
+     415: getstatic     #545                // Field org/apache/cloudstack/api/BaseCmd$HTTPMethod.POST:Lorg/apache/cloudstack/api/BaseCmd$HTTPMethod;
+     418: aload         27
+     420: aconst_null
+     421: aconst_null
+     422: aload         20
+     424: aconst_null
+     425: aload         18
+     427: aconst_null
+     428: aconst_null
+     429: aconst_null
+     430: aload         19
+     432: aconst_null
+     433: aconst_null
+     434: aconst_null
+     435: aconst_null
+     436: iconst_1
+     437: ldc_w         #551                // String sharedfsvm
+     440: aconst_null
+     441: aconst_null
+     442: aconst_null
+     443: aconst_null
+     444: invokeinterface #553,  34         // InterfaceMethod com/cloud/vm/UserVmService.createAdvancedVirtualMachine:(Lcom/cloud/dc/DataCenter;Lcom/cloud/offering/ServiceOffering;Lcom/cloud/template/VirtualMachineTemplate;Ljava/util/List;Lcom/cloud/user/Account;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/List;Ljava/lang/String;Lcom/cloud/hypervisor/Hypervisor$HypervisorType;Lorg/apache/cloudstack/api/BaseCmd$HTTPMethod;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Lcom/cloud/network/Network$IpAddresses;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/util/Map;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Ljava/util/Map;ZLjava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Lcom/cloud/storage/Volume;Lcom/cloud/storage/Snapshot;)Lcom/cloud/uservm/UserVm;
+     449: astore        26
+     451: aload         28
+     453: aload         26
+     455: invokeinterface #559,  1          // InterfaceMethod com/cloud/uservm/UserVm.getId:()J
+     460: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     463: invokevirtual #562                // Method org/apache/cloudstack/context/CallContext.setEventResourceId:(Ljava/lang/Long;)V
+     466: aload_0
+     467: getfield      #537                // Field userVmService:Lcom/cloud/vm/UserVmService;
+     470: aload         26
+     472: aconst_null
+     473: invokeinterface #566,  3          // InterfaceMethod com/cloud/vm/UserVmService.startVirtualMachine:(Lcom/cloud/uservm/UserVm;Lcom/cloud/deploy/DeploymentPlan;)V
+     478: invokestatic  #570                // Method org/apache/cloudstack/context/CallContext.unregister:()Lorg/apache/cloudstack/context/CallContext;
+     481: pop
+     482: goto          535
+     485: astore        29
+     487: aload         26
+     489: ifnull        506
+     492: aload_0
+     493: aload         26
+     495: invokeinterface #559,  1          // InterfaceMethod com/cloud/uservm/UserVm.getId:()J
+     500: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     503: invokevirtual #575                // Method expungeVm:(Ljava/lang/Long;)V
+     506: aload         22
+     508: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+     513: ifeq          523
+     516: invokestatic  #570                // Method org/apache/cloudstack/context/CallContext.unregister:()Lorg/apache/cloudstack/context/CallContext;
+     519: pop
+     520: goto          197
+     523: aload         29
+     525: athrow
+     526: astore        30
+     528: invokestatic  #570                // Method org/apache/cloudstack/context/CallContext.unregister:()Lorg/apache/cloudstack/context/CallContext;
+     531: pop
+     532: aload         30
+     534: athrow
+     535: aload         26
+     537: areturn
+     538: aconst_null
+     539: areturn
+    Exception table:
+       from    to  target type
+         390   478   485   Class com/cloud/exception/InsufficientCapacityException
+         390   478   526   any
+         485   516   526   any
+         523   528   526   any
+
+  public void checkPrerequisites(com.cloud.dc.DataCenter, java.lang.Long);
+    Code:
+       0: aload_0
+       1: getfield      #120                // Field serviceOfferingDao:Lcom/cloud/service/dao/ServiceOfferingDao;
+       4: aload_2
+       5: invokeinterface #124,  2          // InterfaceMethod com/cloud/service/dao/ServiceOfferingDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      10: checkcast     #430                // class com/cloud/offering/ServiceOffering
+      13: astore_3
+      14: aload_3
+      15: ifnonnull     32
+      18: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      21: dup
+      22: aload_2
+      23: invokedynamic #134,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/Long;)Ljava/lang/String;
+      28: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      31: athrow
+      32: aload_0
+      33: aload_1
+      34: aload_3
+      35: invokevirtual #352                // Method checkResourcePrerequisites:(Lcom/cloud/dc/DataCenter;Lcom/cloud/offering/ServiceOffering;)V
+      38: return
+
+  private void checkResourcePrerequisites(com.cloud.dc.DataCenter, com.cloud.offering.ServiceOffering);
+    Code:
+       0: aload_2
+       1: invokeinterface #578,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;
+       6: ifnonnull     20
+       9: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      12: dup
+      13: ldc_w         #582                // String Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.
+      16: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      19: athrow
+      20: aload_2
+      21: invokeinterface #584,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;
+      26: ifnonnull     40
+      29: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      32: dup
+      33: ldc_w         #587                // String Service offering must have a fixed RAM size for SharedFS VM. Custom RAM offerings are not supported.
+      36: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      39: athrow
+      40: aload_2
+      41: invokeinterface #578,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getCpu:()Ljava/lang/Integer;
+      46: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+      49: getstatic     #157                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;
+      52: aload_1
+      53: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+      58: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+      61: invokevirtual #51                 // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+      64: checkcast     #37                 // class java/lang/Integer
+      67: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+      70: if_icmpge     92
+      73: new           #132                // class com/cloud/exception/InvalidParameterValueException
+      76: dup
+      77: getstatic     #157                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_CPU_COUNT:Lorg/apache/cloudstack/framework/config/ConfigKey;
+      80: invokevirtual #589                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;
+      83: invokedynamic #592,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      88: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+      91: athrow
+      92: aload_2
+      93: invokeinterface #584,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.getRamSize:()Ljava/lang/Integer;
+      98: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+     101: getstatic     #171                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+     104: aload_1
+     105: invokeinterface #162,  1          // InterfaceMethod com/cloud/dc/DataCenter.getId:()J
+     110: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     113: invokevirtual #51                 // Method org/apache/cloudstack/framework/config/ConfigKey.valueIn:(Ljava/lang/Long;)Ljava/lang/Object;
+     116: checkcast     #37                 // class java/lang/Integer
+     119: invokevirtual #39                 // Method java/lang/Integer.intValue:()I
+     122: if_icmpge     144
+     125: new           #132                // class com/cloud/exception/InvalidParameterValueException
+     128: dup
+     129: getstatic     #171                // Field org/apache/cloudstack/storage/sharedfs/provider/StorageVmSharedFSProvider.SHAREDFSVM_MIN_RAM_SIZE:Lorg/apache/cloudstack/framework/config/ConfigKey;
+     132: invokevirtual #589                // Method org/apache/cloudstack/framework/config/ConfigKey.key:()Ljava/lang/String;
+     135: invokedynamic #594,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+     140: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+     143: athrow
+     144: aload_2
+     145: invokeinterface #595,  1          // InterfaceMethod com/cloud/offering/ServiceOffering.isOfferHA:()Z
+     150: ifne          164
+     153: new           #132                // class com/cloud/exception/InvalidParameterValueException
+     156: dup
+     157: ldc_w         #598                // String Service offering\'s should be HA enabled
+     160: invokespecial #138                // Method com/cloud/exception/InvalidParameterValueException."<init>":(Ljava/lang/String;)V
+     163: athrow
+     164: return
+
+  public com.cloud.utils.Pair<java.lang.Long, java.lang.Long> deploySharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException, com.cloud.exception.ResourceAllocationException, com.cloud.exception.OperationTimedoutException;
+    Code:
+       0: aload_0
+       1: aload_1
+       2: aload_2
+       3: aload_3
+       4: aload         4
+       6: aload         5
+       8: aload         6
+      10: aload         7
+      12: invokestatic  #151                // Method java/util/Collections.emptyMap:()Ljava/util/Map;
+      15: invokevirtual #600                // Method deploySharedFS:(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;)Lcom/cloud/utils/Pair;
+      18: areturn
+
+  public com.cloud.utils.Pair<java.lang.Long, java.lang.Long> deploySharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.util.Map<java.lang.String, java.lang.String>) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException, com.cloud.exception.ResourceAllocationException, com.cloud.exception.OperationTimedoutException;
+    Code:
+       0: aload_0
+       1: getfield      #303                // Field accountMgr:Lcom/cloud/user/AccountManager;
+       4: aload_1
+       5: invokeinterface #604,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getAccountId:()J
+      10: invokeinterface #607,  3          // InterfaceMethod com/cloud/user/AccountManager.getActiveAccountById:(J)Lcom/cloud/user/Account;
+      15: astore        9
+      17: aload_0
+      18: aload_1
+      19: invokeinterface #611,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getDataCenterId:()Ljava/lang/Long;
+      24: aload         9
+      26: aload_2
+      27: invokestatic  #614                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+      30: aload_1
+      31: invokeinterface #618,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getName:()Ljava/lang/String;
+      36: aload_1
+      37: invokeinterface #621,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getServiceOfferingId:()Ljava/lang/Long;
+      42: aload_3
+      43: aload_1
+      44: invokeinterface #624,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getFsType:()Lorg/apache/cloudstack/storage/sharedfs/SharedFS$FileSystemType;
+      49: aload         5
+      51: aload         6
+      53: aload         7
+      55: aload_1
+      56: invokeinterface #628,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getNetworkMode:()Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;
+      61: aload_1
+      62: invokeinterface #632,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getIpAddress:()Ljava/lang/String;
+      67: aload         8
+      69: invokevirtual #635                // Method deploySharedFSVM:(Ljava/lang/Long;Lcom/cloud/user/Account;Ljava/util/List;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/Long;Lorg/apache/cloudstack/storage/sharedfs/SharedFS$FileSystemType;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Lorg/apache/cloudstack/storage/sharedfs/SharedFS$NetworkMode;Ljava/lang/String;Ljava/util/Map;)Lcom/cloud/uservm/UserVm;
+      72: astore        10
+      74: aload_0
+      75: getfield      #639                // Field volumeDao:Lcom/cloud/storage/dao/VolumeDao;
+      78: aload         10
+      80: invokeinterface #559,  1          // InterfaceMethod com/cloud/uservm/UserVm.getId:()J
+      85: invokeinterface #643,  3          // InterfaceMethod com/cloud/storage/dao/VolumeDao.findByInstance:(J)Ljava/util/List;
+      90: astore        11
+      92: aconst_null
+      93: astore        12
+      95: aload         11
+      97: invokeinterface #77,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+     102: astore        13
+     104: aload         13
+     106: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+     111: ifeq          187
+     114: aload         13
+     116: invokeinterface #89,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+     121: checkcast     #649                // class com/cloud/storage/VolumeVO
+     124: astore        14
+     126: aload         14
+     128: invokevirtual #651                // Method com/cloud/storage/VolumeVO.getName:()Ljava/lang/String;
+     131: astore        15
+     133: aload         15
+     135: invokedynamic #652,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+     140: astore        16
+     142: aload         14
+     144: aload         16
+     146: invokevirtual #653                // Method com/cloud/storage/VolumeVO.setName:(Ljava/lang/String;)V
+     149: aload_0
+     150: getfield      #639                // Field volumeDao:Lcom/cloud/storage/dao/VolumeDao;
+     153: aload         14
+     155: invokevirtual #656                // Method com/cloud/storage/VolumeVO.getId:()J
+     158: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     161: aload         14
+     163: invokeinterface #657,  3          // InterfaceMethod com/cloud/storage/dao/VolumeDao.update:(Ljava/io/Serializable;Ljava/lang/Object;)Z
+     168: pop
+     169: aload         14
+     171: invokevirtual #661                // Method com/cloud/storage/VolumeVO.getVolumeType:()Lcom/cloud/storage/Volume$Type;
+     174: getstatic     #665                // Field com/cloud/storage/Volume$Type.DATADISK:Lcom/cloud/storage/Volume$Type;
+     177: if_acmpne     184
+     180: aload         14
+     182: astore        12
+     184: goto          104
+     187: aload         12
+     189: ifnonnull     203
+     192: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+     195: dup
+     196: ldc_w         #671                // String SharedFS VM was deployed without an initial data volume
+     199: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+     202: athrow
+     203: aload         4
+     205: ifnull        274
+     208: aload         12
+     210: invokevirtual #673                // Method com/cloud/storage/VolumeVO.getPoolId:()Ljava/lang/Long;
+     213: ifnull        274
+     216: aload         4
+     218: aload         12
+     220: invokevirtual #673                // Method com/cloud/storage/VolumeVO.getPoolId:()Ljava/lang/Long;
+     223: invokevirtual #676                // Method java/lang/Long.equals:(Ljava/lang/Object;)Z
+     226: ifne          274
+     229: aload_0
+     230: aload         10
+     232: invokeinterface #559,  1          // InterfaceMethod com/cloud/uservm/UserVm.getId:()J
+     237: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     240: invokevirtual #575                // Method expungeVm:(Ljava/lang/Long;)V
+     243: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+     246: dup
+     247: ldc_w         #677                // String Initial SharedFS backing volume was allocated on storage pool %s instead of selected storage pool %s
+     250: iconst_2
+     251: anewarray     #4                  // class java/lang/Object
+     254: dup
+     255: iconst_0
+     256: aload         12
+     258: invokevirtual #673                // Method com/cloud/storage/VolumeVO.getPoolId:()Ljava/lang/Long;
+     261: aastore
+     262: dup
+     263: iconst_1
+     264: aload         4
+     266: aastore
+     267: invokestatic  #377                // Method java/lang/String.format:(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+     270: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+     273: athrow
+     274: new           #679                // class com/cloud/utils/Pair
+     277: dup
+     278: aload         12
+     280: invokevirtual #656                // Method com/cloud/storage/VolumeVO.getId:()J
+     283: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     286: aload         10
+     288: invokeinterface #559,  1          // InterfaceMethod com/cloud/uservm/UserVm.getId:()J
+     293: invokestatic  #167                // Method java/lang/Long.valueOf:(J)Ljava/lang/Long;
+     296: invokespecial #681                // Method com/cloud/utils/Pair."<init>":(Ljava/lang/Object;Ljava/lang/Object;)V
+     299: areturn
+
+  public com.cloud.utils.Pair<java.lang.Long, java.lang.Long> deploySharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long, java.lang.Long) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException, com.cloud.exception.ResourceAllocationException, com.cloud.exception.OperationTimedoutException;
+    Code:
+       0: aload_0
+       1: aload_1
+       2: aload_2
+       3: aload_3
+       4: aconst_null
+       5: aload         4
+       7: aload         5
+       9: aload         6
+      11: invokevirtual #684                // Method deploySharedFS:(Lorg/apache/cloudstack/storage/sharedfs/SharedFS;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;Ljava/lang/Long;)Lcom/cloud/utils/Pair;
+      14: areturn
+
+  public void startSharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS) throws com.cloud.exception.OperationTimedoutException, com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException;
+    Code:
+       0: aload_0
+       1: getfield      #687                // Field userVmDao:Lcom/cloud/vm/dao/UserVmDao;
+       4: aload_1
+       5: invokeinterface #691,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVmId:()Ljava/lang/Long;
+      10: invokeinterface #694,  2          // InterfaceMethod com/cloud/vm/dao/UserVmDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      15: checkcast     #697                // class com/cloud/vm/UserVmVO
+      18: astore_2
+      19: aload_0
+      20: getfield      #537                // Field userVmService:Lcom/cloud/vm/UserVmService;
+      23: aload_2
+      24: aconst_null
+      25: invokeinterface #566,  3          // InterfaceMethod com/cloud/vm/UserVmService.startVirtualMachine:(Lcom/cloud/uservm/UserVm;Lcom/cloud/deploy/DeploymentPlan;)V
+      30: return
+
+  public boolean stopSharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS, java.lang.Boolean);
+    Code:
+       0: aload_0
+       1: getfield      #333                // Field userVmManager:Lcom/cloud/vm/UserVmManager;
+       4: aload_1
+       5: invokeinterface #691,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVmId:()Ljava/lang/Long;
+      10: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      13: getstatic     #699                // Field java/lang/Boolean.TRUE:Ljava/lang/Boolean;
+      16: aload_2
+      17: invokevirtual #705                // Method java/lang/Boolean.equals:(Ljava/lang/Object;)Z
+      20: invokeinterface #706,  4          // InterfaceMethod com/cloud/vm/UserVmManager.stopVirtualMachine:(JZ)Lcom/cloud/uservm/UserVm;
+      25: pop
+      26: iconst_1
+      27: ireturn
+
+  private void expungeVm(java.lang.Long);
+    Code:
+       0: aload_0
+       1: getfield      #687                // Field userVmDao:Lcom/cloud/vm/dao/UserVmDao;
+       4: aload_1
+       5: invokeinterface #694,  2          // InterfaceMethod com/cloud/vm/dao/UserVmDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      10: checkcast     #697                // class com/cloud/vm/UserVmVO
+      13: astore_2
+      14: aload_2
+      15: ifnonnull     19
+      18: return
+      19: aload_0
+      20: getfield      #537                // Field userVmService:Lcom/cloud/vm/UserVmService;
+      23: aload_2
+      24: invokevirtual #710                // Method com/cloud/vm/UserVmVO.getId:()J
+      27: iconst_1
+      28: invokeinterface #711,  4          // InterfaceMethod com/cloud/vm/UserVmService.destroyVm:(JZ)Lcom/cloud/uservm/UserVm;
+      33: astore_3
+      34: aload_0
+      35: getfield      #333                // Field userVmManager:Lcom/cloud/vm/UserVmManager;
+      38: aload_2
+      39: invokeinterface #714,  2          // InterfaceMethod com/cloud/vm/UserVmManager.expunge:(Lcom/cloud/vm/UserVmVO;)Z
+      44: ifne          64
+      47: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+      50: dup
+      51: aload_2
+      52: invokevirtual #718                // Method com/cloud/vm/UserVmVO.toString:()Ljava/lang/String;
+      55: invokedynamic #719,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      60: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+      63: athrow
+      64: goto          85
+      67: astore_3
+      68: new           #373                // class com/cloud/utils/exception/CloudRuntimeException
+      71: dup
+      72: aload_2
+      73: invokevirtual #718                // Method com/cloud/vm/UserVmVO.toString:()Ljava/lang/String;
+      76: invokedynamic #719,  0            // InvokeDynamic #4:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+      81: invokespecial #449                // Method com/cloud/utils/exception/CloudRuntimeException."<init>":(Ljava/lang/String;)V
+      84: athrow
+      85: aload_0
+      86: getfield      #687                // Field userVmDao:Lcom/cloud/vm/dao/UserVmDao;
+      89: aload_1
+      90: invokeinterface #722,  2          // InterfaceMethod com/cloud/vm/dao/UserVmDao.remove:(Ljava/io/Serializable;)Z
+      95: pop
+      96: return
+    Exception table:
+       from    to  target type
+          19    64    67   Class com/cloud/exception/ResourceUnavailableException
+
+  public boolean deleteSharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS);
+    Code:
+       0: aload_1
+       1: invokeinterface #691,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVmId:()Ljava/lang/Long;
+       6: astore_2
+       7: aload_1
+       8: invokeinterface #726,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVolumeId:()Ljava/lang/Long;
+      13: astore_3
+      14: aload_2
+      15: ifnull        23
+      18: aload_0
+      19: aload_2
+      20: invokevirtual #575                // Method expungeVm:(Ljava/lang/Long;)V
+      23: aload_3
+      24: ifnonnull     29
+      27: iconst_1
+      28: ireturn
+      29: aload_0
+      30: getfield      #639                // Field volumeDao:Lcom/cloud/storage/dao/VolumeDao;
+      33: aload_3
+      34: invokeinterface #729,  2          // InterfaceMethod com/cloud/storage/dao/VolumeDao.findById:(Ljava/io/Serializable;)Ljava/lang/Object;
+      39: checkcast     #649                // class com/cloud/storage/VolumeVO
+      42: astore        4
+      44: iconst_0
+      45: invokestatic  #730                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+      48: astore        5
+      50: iconst_0
+      51: invokestatic  #730                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+      54: astore        6
+      56: aload         4
+      58: invokevirtual #733                // Method com/cloud/storage/VolumeVO.getState:()Lcom/cloud/storage/Volume$State;
+      61: getstatic     #736                // Field com/cloud/storage/Volume$State.Allocated:Lcom/cloud/storage/Volume$State;
+      64: if_acmpne     79
+      67: iconst_1
+      68: invokestatic  #730                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+      71: astore        5
+      73: iconst_1
+      74: invokestatic  #730                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+      77: astore        6
+      79: aload_0
+      80: getfield      #742                // Field volumeApiService:Lcom/cloud/storage/VolumeApiService;
+      83: aload         4
+      85: invokevirtual #656                // Method com/cloud/storage/VolumeVO.getId:()J
+      88: invokestatic  #307                // Method org/apache/cloudstack/context/CallContext.current:()Lorg/apache/cloudstack/context/CallContext;
+      91: invokevirtual #313                // Method org/apache/cloudstack/context/CallContext.getCallingAccount:()Lcom/cloud/user/Account;
+      94: aload         5
+      96: invokevirtual #746                // Method java/lang/Boolean.booleanValue:()Z
+      99: aload         6
+     101: invokevirtual #746                // Method java/lang/Boolean.booleanValue:()Z
+     104: aconst_null
+     105: invokeinterface #749,  7          // InterfaceMethod com/cloud/storage/VolumeApiService.destroyVolume:(JLcom/cloud/user/Account;ZZLjava/lang/Boolean;)Lcom/cloud/storage/Volume;
+     110: pop
+     111: iconst_1
+     112: ireturn
+
+  public boolean reDeploySharedFS(org.apache.cloudstack.storage.sharedfs.SharedFS) throws com.cloud.exception.ResourceUnavailableException, com.cloud.exception.InsufficientCapacityException, com.cloud.exception.ResourceAllocationException, com.cloud.exception.OperationTimedoutException;
+    Code:
+       0: aload_0
+       1: getfield      #755                // Field virtualMachineManager:Lcom/cloud/vm/VirtualMachineManager;
+       4: aload_1
+       5: invokeinterface #691,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVmId:()Ljava/lang/Long;
+      10: invokevirtual #67                 // Method java/lang/Long.longValue:()J
+      13: aconst_null
+      14: aconst_null
+      15: iconst_1
+      16: aconst_null
+      17: invokeinterface #759,  7          // InterfaceMethod com/cloud/vm/VirtualMachineManager.restoreVirtualMachine:(JLjava/lang/Long;Ljava/lang/Long;ZLjava/util/Map;)Lcom/cloud/uservm/UserVm;
+      22: astore_2
+      23: aload_2
+      24: ifnull        31
+      27: iconst_1
+      28: goto          32
+      31: iconst_0
+      32: ireturn
+
+  public boolean changeSharedFSServiceOffering(org.apache.cloudstack.storage.sharedfs.SharedFS, java.lang.Long) throws com.cloud.exception.ManagementServerException, com.cloud.exception.ResourceUnavailableException, com.cloud.exception.VirtualMachineMigrationException;
+    Code:
+       0: aload_0
+       1: getfield      #333                // Field userVmManager:Lcom/cloud/vm/UserVmManager;
+       4: aload_1
+       5: invokeinterface #691,  1          // InterfaceMethod org/apache/cloudstack/storage/sharedfs/SharedFS.getVmId:()Ljava/lang/Long;
+      10: aload_2
+      11: new           #463                // class java/util/HashMap
+      14: dup
+      15: invokespecial #765                // Method java/util/HashMap."<init>":()V
+      18: invokeinterface #766,  4          // InterfaceMethod com/cloud/vm/UserVmManager.upgradeVirtualMachine:(Ljava/lang/Long;Ljava/lang/Long;Ljava/util/Map;)Z
+      23: ireturn
+}

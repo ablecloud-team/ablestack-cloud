@@ -31,6 +31,16 @@ import com.cloud.network.Network;
 import com.cloud.offering.ServiceOffering;
 import com.cloud.resource.ResourceManager;
 import com.cloud.service.dao.ServiceOfferingDao;
+import com.cloud.service.dao.ServiceOfferingDetailsDao;
+import com.cloud.service.ServiceOfferingVO;
+import com.cloud.storage.DiskOfferingVO;
+import com.cloud.storage.Storage;
+import com.cloud.storage.VolumeAllocationPolicy;
+import com.cloud.storage.VolumeAllocationService;
+import com.cloud.storage.dao.DiskOfferingDao;
+import org.apache.cloudstack.resourcedetail.dao.DiskOfferingDetailsDao;
+import org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibility;
+import com.cloud.configuration.ConfigurationManagerImpl;
 import com.cloud.storage.LaunchPermissionVO;
 import com.cloud.storage.VMTemplateVO;
 import com.cloud.storage.Volume;
@@ -118,6 +128,116 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     @Inject
     protected LaunchPermissionDao launchPermissionDao;
 
+    @Inject
+    private ServiceOfferingDetailsDao serviceOfferingDetailsDao;
+
+    @Inject
+    private DiskOfferingDao diskOfferingDao;
+
+    @Inject
+    private DiskOfferingDetailsDao diskOfferingDetailsDao;
+
+    @Inject
+    private VolumeAllocationService allocationService;
+
+    protected int creationMaxCpu() {
+        return ConfigurationManagerImpl.VM_SERVICE_OFFERING_MAX_CPU_CORES.value();
+    }
+
+    protected int creationMaxRam() {
+        return ConfigurationManagerImpl.VM_SERVICE_OFFERING_MAX_RAM_SIZE.value();
+    }
+
+    protected String creationArchitecture(Long zoneId) {
+        return SharedFSOfferingEligibility.normalizeArchitecture(ResourceManager.SystemVmPreferredArchitecture.valueIn(zoneId));
+    }
+
+    protected boolean hasReadyCreationTemplate(Long zoneId, String architecture) {
+        if (architecture == null) return false;
+        List<Hypervisor.HypervisorType> hypervisors = resourceMgr.getSupportedHypervisorTypes(zoneId, false, null);
+        if (hypervisors == null) return false;
+        for (Hypervisor.HypervisorType hypervisor : hypervisors) {
+            VMTemplateVO template = templateDao.findSystemVMReadyTemplate(zoneId, hypervisor, architecture);
+            if (template != null && template.getArch() != null
+                    && architecture.equals(SharedFSOfferingEligibility.normalizeArchitecture(template.getArch().getType()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public SharedFSOfferingEligibility getCreationOfferingEligibility(DataCenter zone, Long offeringId) {
+        ServiceOfferingVO offering = serviceOfferingDao.findById(offeringId);
+        if (offering == null) {
+            throw new InvalidParameterValueException("Unable to find service offering with id " + offeringId);
+        }
+        Map<String, String> details = serviceOfferingDetailsDao.listDetailsKeyPairs(offeringId);
+        SharedFSOfferingEligibility result = new SharedFSOfferingEligibility(offering,
+                details == null ? Collections.emptyMap() : details,
+                SHAREDFSVM_MIN_CPU_COUNT.valueIn(zone.getId()), SHAREDFSVM_MIN_RAM_SIZE.valueIn(zone.getId()),
+                creationMaxCpu(), creationMaxRam());
+        if (offering.getState() != ServiceOffering.State.Active) {
+            result.reject("OFFERING_INACTIVE", "serviceofferingid");
+        }
+        DiskOfferingVO root = diskOfferingDao.findById(offering.getDiskOfferingId());
+        if (root == null) {
+            result.reject("ROOT_POLICY_UNKNOWN", "serviceofferingid");
+        } else {
+            Map<String, String> intent;
+            try {
+                intent = VolumeAllocationPolicy.validateStored(diskOfferingDetailsDao.listDetailsKeyPairs(root.getId()));
+                String policy = intent.isEmpty() ? (root.getProvisioningType() == null ? null : root.getProvisioningType().toString())
+                        : intent.get(VolumeAllocationPolicy.POLICY);
+                result.setRoot(root.getUuid(), policy, intent.isEmpty() ? "legacy" : "allocation");
+                if (intent.isEmpty()) {
+                    if (root.getProvisioningType() == Storage.ProvisioningType.THIN) {
+                        result.reject("ROOT_POLICY_THIN", "serviceofferingid");
+                    } else if (root.getProvisioningType() != Storage.ProvisioningType.SPARSE
+                            && root.getProvisioningType() != Storage.ProvisioningType.FAT) {
+                        result.reject("ROOT_POLICY_UNKNOWN", "serviceofferingid");
+                    }
+                } else if ("off".equals(policy)) {
+                    result.reject("ROOT_POLICY_THIN", "serviceofferingid");
+                } else {
+                    allocationService.validateCreate(intent, root.getProvisioningType(), zone.getId(), null, root.getTagsArray());
+                }
+            } catch (InvalidParameterValueException e) {
+                result.reject("ROOT_POLICY_UNAVAILABLE", "serviceofferingid");
+            }
+        }
+        String architecture = creationArchitecture(zone.getId());
+        result.setArchitecture(architecture);
+        if (!hasReadyCreationTemplate(zone.getId(), architecture)) {
+            result.reject("SYSTEMVM_ARCH_UNAVAILABLE", "serviceofferingid");
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, String> checkCreationPrerequisites(DataCenter zone, Long offeringId, Map<String, String> customValues) {
+        ServiceOfferingVO offering = serviceOfferingDao.findById(offeringId);
+        if (offering == null) {
+            throw new InvalidParameterValueException("Unable to find service offering with id " + offeringId);
+        }
+        accountMgr.checkAccess(CallContext.current().getCallingAccount(), offering, zone);
+        SharedFSOfferingEligibility result = getCreationOfferingEligibility(zone, offeringId);
+        Map<String, String> normalized = result.validateCustomValues(customValues);
+        if (offering.isDynamic()) {
+            try {
+                userVmManager.validateCustomParameters(offering, normalized);
+            } catch (InvalidParameterValueException e) {
+                result.reject("CUSTOM_VALUES_INVALID", "serviceofferingid");
+                result.requireSelectable();
+            }
+            ServiceOfferingVO resolved = serviceOfferingDao.getComputeOffering(offering, normalized);
+            checkResourcePrerequisites(zone, resolved);
+        } else {
+            checkResourcePrerequisites(zone, offering);
+        }
+        return normalized;
+    }
+
     private String readResourceFile(String resource) {
         String normalizedResource = resource != null && resource.startsWith("/") ? resource.substring(1) : resource;
         try {
@@ -154,7 +274,7 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
     }
 
     private UserVm deploySharedFSVM(Long zoneId, Account owner, List<Long> networkIds, String name, Long serviceOfferingId, Long diskOfferingId,
-            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp) throws OperationTimedoutException,
+            SharedFS.FileSystemType fileSystem, Long size, Long minIops, Long maxIops, SharedFS.NetworkMode networkMode, String requestedIp, Map<String, String> customValues, String plannedVmUuid, boolean start) throws OperationTimedoutException,
             ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException {
         ServiceOffering serviceOffering = serviceOfferingDao.findById(serviceOfferingId);
         DataCenter zone = dataCenterDao.findById(zoneId);
@@ -166,15 +286,15 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
             throw new CloudRuntimeException(String.format("No supported hypervisor found for zone %s.", zone.toString()));
         }
 
-        String hostName = getStorageVmName(name);
+        String hostName = plannedVmUuid == null ? getStorageVmName(name) : "sharedfs-" + plannedVmUuid;
         Network.IpAddresses addrs = new Network.IpAddresses(networkMode == SharedFS.NetworkMode.STATIC ? requestedIp : null, null);
-        Map<String, String> customParameterMap = new HashMap<String, String>();
+        Map<String, String> customParameterMap = new HashMap<>(customValues);
         if (minIops != null) {
             customParameterMap.put("minIopsDo", minIops.toString());
             customParameterMap.put("maxIopsDo", maxIops.toString());
         }
         List<String> keypairs = new ArrayList<String>();
-        String preferredArchitecture = ResourceManager.SystemVmPreferredArchitecture.valueIn(zoneId);
+        String preferredArchitecture = creationArchitecture(zoneId);
 
         for (final Iterator<Hypervisor.HypervisorType> iter = hypervisors.iterator(); iter.hasNext();) {
             final Hypervisor.HypervisorType hypervisor = iter.next();
@@ -200,10 +320,10 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
                 vm = userVmService.createAdvancedVirtualMachine(zone, serviceOffering, template, networkIds, owner, hostName, hostName,
                         diskOfferingId, size, null, null, Hypervisor.HypervisorType.None, BaseCmd.HTTPMethod.POST, base64UserData,
                         null, null, keypairs, null, addrs, null, null, null,
-                        customParameterMap, null, null, null, null,
+                        customParameterMap, plannedVmUuid, null, null, null,
                         true, UserVmManager.SHAREDFSVM, null, null, null, null);
                 vmContext.setEventResourceId(vm.getId());
-                userVmService.startVirtualMachine(vm, null);
+                if (start) userVmService.startVirtualMachine(vm, null);
             } catch (InsufficientCapacityException ex) {
                 if (vm != null) {
                     expungeVm(vm.getId());
@@ -227,6 +347,10 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
         if (serviceOffering == null) {
             throw new InvalidParameterValueException("Unable to find service offering with id " + serviceOfferingId);
         }
+        checkResourcePrerequisites(zone, serviceOffering);
+    }
+
+    private void checkResourcePrerequisites(DataCenter zone, ServiceOffering serviceOffering) {
         if (serviceOffering.getCpu() == null) {
             throw new InvalidParameterValueException("Service offering must have a fixed CPU count for SharedFS VM. Custom CPU offerings are not supported.");
         }
@@ -246,9 +370,16 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        return deploySharedFS(sharedFS, networkId, diskOfferingId, storageId, size, minIops, maxIops, Collections.emptyMap());
+    }
+
+    @Override
+    public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size,
+            Long minIops, Long maxIops, Map<String, String> customValues) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
         UserVm vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(), sharedFS.getServiceOfferingId(), diskOfferingId,
-                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress());
+                sharedFS.getFsType(), size, minIops, maxIops, sharedFS.getNetworkMode(), sharedFS.getIpAddress(), customValues, null, true);
 
         List<VolumeVO> volumes = volumeDao.findByInstance(vm.getId());
         VolumeVO dataVol = null;
@@ -274,6 +405,34 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     public Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
         return deploySharedFS(sharedFS, networkId, diskOfferingId, null, size, minIops, maxIops);
+    }
+
+    @Override
+    public Long allocateInitialSharedFSVm(SharedFS sharedFS, Long networkId, Map<String, String> compute, String vmUuid)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        UserVmVO existing = userVmDao.findByUuid(vmUuid);
+        if (existing != null) {
+            if (existing.getRemoved() != null || existing.getAccountId() != sharedFS.getAccountId()
+                    || existing.getDataCenterId() != sharedFS.getDataCenterId()
+                    || !UserVmManager.SHAREDFSVM.equals(existing.getUserVmType()))
+                throw new CloudRuntimeException("Planned SharedFS VM UUID belongs to a different allocation");
+            return existing.getId();
+        }
+        Account owner = accountMgr.getActiveAccountById(sharedFS.getAccountId());
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext context = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        UserVm vm = deploySharedFSVM(sharedFS.getDataCenterId(), owner, List.of(networkId), sharedFS.getName(),
+                sharedFS.getServiceOfferingId(), context.existing ? null : context.diskOfferingId, sharedFS.getFsType(),
+                context.existing ? null : context.size, context.minIops, context.maxIops,
+                sharedFS.getNetworkMode(), sharedFS.getIpAddress(), compute, vmUuid, false);
+        return vm.getId();
+    }
+
+    @Override
+    public void cleanupImportedSharedFSVm(SharedFS sharedFS) {
+        if (sharedFS.getVmId() == null) return;
+        if (volumeDao.findByInstance(sharedFS.getVmId()).stream().anyMatch(v -> v.getVolumeType() != Volume.Type.ROOT))
+            throw new CloudRuntimeException("Existing DATA must be detached before cleaning up the owned SharedFS VM");
+        expungeVm(sharedFS.getVmId());
     }
 
     @Override
@@ -306,6 +465,9 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean deleteSharedFS(SharedFS sharedFS) {
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        if (c != null && c.existing && !c.cancelled)
+            throw new CloudRuntimeException("Imported DATA is protected; cancel initial preparation before deleting the allocation");
         Long vmId = sharedFS.getVmId();
         Long volumeId = sharedFS.getVolumeId();
         if (vmId != null) {
@@ -328,6 +490,8 @@ public class StorageVmSharedFSLifeCycle implements SharedFSLifeCycle {
 
     @Override
     public boolean reDeploySharedFS(SharedFS sharedFS) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+        if (c != null && c.existing) throw new CloudRuntimeException("Cleanup redeploy is unavailable for imported backing DATA");
         UserVm vm =  virtualMachineManager.restoreVirtualMachine(sharedFS.getVmId(), null, null, true, null);
         return (vm != null);
     }

@@ -1,0 +1,95 @@
+[
+  {
+    "uuid": "1cc21184-9d80-4a67-a561-67739e5c6ebe",
+    "path": "/mnt/glue-gfs/1cc21184-9d80-4a67-a561-67739e5c6ebe",
+    "inode": 4752026,
+    "fileBytes": 107390828544,
+    "allocatedBytes": 2477518848
+  },
+  {
+    "uuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+    "path": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+    "inode": 4920565,
+    "fileBytes": 21478375424,
+    "allocatedBytes": 6369280,
+    "image": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 21478375424,
+            "filename": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "format": "file",
+            "actual-size": 6369280,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 21474836480,
+      "filename": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 6369280,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    }
+  },
+  {
+    "uuid": "213c0fe3-30f4-4412-b433-52c23e416393",
+    "path": "/mnt/glue-gfs/213c0fe3-30f4-4412-b433-52c23e416393",
+    "inode": 5775922,
+    "fileBytes": 21478375424,
+    "allocatedBytes": 9850880,
+    "image": {
+      "children": [
+        {
+          "name": "file",
+          "info": {
+            "children": [],
+            "virtual-size": 21478375424,
+            "filename": "/mnt/glue-gfs/213c0fe3-30f4-4412-b433-52c23e416393",
+            "format": "file",
+            "actual-size": 9850880,
+            "format-specific": {
+              "type": "file",
+              "data": {}
+            },
+            "dirty-flag": false
+          }
+        }
+      ],
+      "virtual-size": 21474836480,
+      "filename": "/mnt/glue-gfs/213c0fe3-30f4-4412-b433-52c23e416393",
+      "cluster-size": 65536,
+      "format": "qcow2",
+      "actual-size": 9850880,
+      "format-specific": {
+        "type": "qcow2",
+        "data": {
+          "compat": "1.1",
+          "compression-type": "zlib",
+          "lazy-refcounts": false,
+          "refcount-bits": 16,
+          "corrupt": false,
+          "extended-l2": false
+        }
+      },
+      "dirty-flag": false
+    }
+  }
+]

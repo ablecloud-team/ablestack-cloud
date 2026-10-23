@@ -1,0 +1,27 @@
+{
+  "issue": 1443,
+  "sourceCommit": "cf5351e0557063780c4392b45e72b88333cd30da",
+  "sharedfs": "d66f715d-5658-451a-92f9-a63a8eff1c6e",
+  "vm": "dd732018-0e3c-38cd-bb5e-61ca2008fbd9",
+  "domain": "i-2-117-VM",
+  "host": "10.10.13.3",
+  "name": "epic1438-1443-xfs-10t-20261023-02",
+  "ip": "10.10.13.251",
+  "offering": "80ea41ff-feec-4eb8-9919-7bb850b6e503",
+  "template": "2a8fa5b1-faac-4576-a2cd-14c1938bebd8",
+  "filesystem": "xfs",
+  "sizeBytes": 10995116277760,
+  "protocols": [
+    "NFSv4.1",
+    "SMB3.1.1 LOCAL"
+  ],
+  "inputCorrection": {
+    "rejectedReservation": "25496d2e-497a-4ed8-9aef-d205dc4a0f61",
+    "customMaxGiB": 4096,
+    "fixedGiB": 10240,
+    "managementConfigChanged": false,
+    "rejectedReservationDeletedThroughUi": true,
+    "disksCreatedByRejectedRequest": 0,
+    "reason": "Operator test offering selection exceeded customized size policy; corrected to existing valid fixed SPARSE offering without altering policy."
+  }
+}

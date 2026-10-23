@@ -1,0 +1,717 @@
+[
+  {
+    "label": "cancel-corrupt-request",
+    "truncated": true
+  },
+  {
+    "label": "cancel-corrupt-request",
+    "command": "resumeSharedFileSystemCreation",
+    "method": "POST",
+    "request": {
+      "command": "resumeSharedFileSystemCreation",
+      "response": "json",
+      "id": "64305194-2694-4e90-9bb2-afe487891342",
+      "requestid": "1d57fe5e-ea94-48fa-9d7c-4a04c2dca9ae",
+      "action": "CANCEL_PREPARATION",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "resumesharedfilesystemcreationresponse": {
+        "jobid": "cb5bbc96-1e69-4c32-8385-a345e8dc3368"
+      }
+    }
+  },
+  {
+    "label": "xfs-request-inflight",
+    "command": "createSharedFileSystem",
+    "method": "POST",
+    "request": {
+      "command": "createSharedFileSystem",
+      "response": "json",
+      "name": "epic1438-1442-xfs-20261022-01",
+      "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+      "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+      "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "importmode": "MOUNT_EXISTING",
+      "filesystem": "AUTO",
+      "requestid": "96b54dbf-eda7-4339-bbb5-77edb26a2bb2",
+      "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+      "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+      "account": "admin",
+      "networkmode": "STATIC",
+      "ipcidr": "10.10.13.245/16",
+      "gateway": "10.10.0.1",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "createsharedfilesystemresponse": {
+        "id": "5fd41a4d-5778-4c09-911a-557d12b618ab",
+        "jobid": "5e7015d4-8fca-4f28-9ebd-e95b728e021f"
+      }
+    }
+  },
+  {
+    "label": "xfs-request-inflight",
+    "command": "enableStorageServiceProtocol",
+    "method": "POST",
+    "request": {
+      "command": "enableStorageServiceProtocol",
+      "response": "json",
+      "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+      "protocol": "NFS",
+      "port": "2049",
+      "protocolmode": "V4_ONLY",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "enablestorageserviceprotocolresponse": {
+        "jobid": "22dc66cf-ccac-4aeb-8de2-80bd01093fc2"
+      }
+    }
+  },
+  {
+    "label": "xfs-request-inflight",
+    "command": "createStorageNfsExport",
+    "method": "POST",
+    "request": {
+      "command": "createStorageNfsExport",
+      "response": "json",
+      "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+      "name": "f1442xfs",
+      "path": "/export/f1442xfs",
+      "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "filesystem": "xfs",
+      "importmode": "MOUNT_EXISTING",
+      "createdirectory": "true",
+      "protocolmode": "V4_ONLY",
+      "readonly": "false",
+      "rootsquash": "true",
+      "recursivepermission": "false",
+      "sync": "true",
+      "secure": "false",
+      "deferapply": "true",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "createstoragenfsexportresponse": {
+        "jobid": "ef15b8fa-26b9-469c-abc0-da6873d7299a"
+      }
+    }
+  },
+  {
+    "label": "xfs-initial-services",
+    "command": "createStorageNfsAcl",
+    "method": "POST",
+    "request": {
+      "command": "createStorageNfsAcl",
+      "response": "json",
+      "exportid": "8b3d7ac6-544e-4f19-aa83-a6537db1163b",
+      "principaltype": "CIDR",
+      "principal": "10.10.254.200/32",
+      "permission": "READ_WRITE",
+      "rootsquash": "true",
+      "sync": "true",
+      "secure": "false",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "createstoragenfsaclresponse": {
+        "jobid": "638023aa-bc58-4a56-abbe-35c167a8f2b5"
+      }
+    }
+  },
+  {
+    "label": "undo-out-of-scope-test-acl",
+    "command": "deleteStorageNfsAcl",
+    "method": "POST",
+    "request": {
+      "command": "deleteStorageNfsAcl",
+      "response": "json",
+      "id": "6442c741-cc7b-45f7-ba8d-8c731fcb9c24",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "deletestoragenfsaclresponse": {
+        "jobid": "7b0fe296-194a-437a-bbc6-ad7458553721"
+      }
+    }
+  },
+  {
+    "label": "reset-only-failed-test-export",
+    "truncated": true
+  },
+  {
+    "label": "reset-only-failed-test-export",
+    "command": "deleteStorageNfsExport",
+    "method": "POST",
+    "request": {
+      "command": "deleteStorageNfsExport",
+      "response": "json",
+      "id": "8b3d7ac6-544e-4f19-aa83-a6537db1163b",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "deletestoragenfsexportresponse": {
+        "jobid": "2fd7045a-dfa8-405f-bd00-121e9abd26e0"
+      }
+    }
+  },
+  {
+    "label": "xfs-default-nfs-current-volume-create",
+    "command": "createStorageNfsExport",
+    "method": "POST",
+    "request": {
+      "command": "createStorageNfsExport",
+      "response": "json",
+      "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+      "name": "f1442xfs",
+      "path": "/export/f1442xfs",
+      "createdirectory": "true",
+      "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "filesystem": "xfs",
+      "protocolmode": "V4_ONLY",
+      "importmode": "MOUNT_EXISTING",
+      "readonly": "false",
+      "rootsquash": "true",
+      "allsquash": "false",
+      "recursivepermission": "false",
+      "sync": "true",
+      "secure": "false",
+      "endpointmode": "LISTENER_GROUP",
+      "listenerports": "2049",
+      "cleanupvolumeonfailure": "false",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "createstoragenfsexportresponse": {
+        "jobid": "78c6e6e3-338a-4489-b1af-c46aa1825a16"
+      }
+    }
+  },
+  {
+    "label": "stop-confirmed-directory-permission-regression",
+    "truncated": true
+  },
+  {
+    "label": "cancel-corrupt-request",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "cb5bbc96-1e69-4c32-8385-a345e8dc3368",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.ResumeSharedFSCreationCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "sharedfs": {
+            "id": "64305194-2694-4e90-9bb2-afe487891342",
+            "name": "epic1438-1442-existing-xfs-sfs-20261021-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "size": 0,
+            "iscustomdiskoffering": false,
+            "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+            "serviceofferingname": "epic1438-1441-fixed-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.245/16",
+            "ipaddress": "10.10.13.245",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "path": "/export",
+            "state": "Error",
+            "provider": "SHAREDFSVM",
+            "filesystem": "AUTO",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "creationrequestid": "1d57fe5e-ea94-48fa-9d7c-4a04c2dca9ae",
+            "creationstage": "CANCELLED",
+            "backingmode": "EXISTING",
+            "creationerrorcode": "CREATION_JOURNAL_INVALID"
+          }
+        },
+        "created": "2026-10-22T00:10:09+0900",
+        "completed": "2026-10-22T00:10:09+0900",
+        "jobid": "cb5bbc96-1e69-4c32-8385-a345e8dc3368",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-request-inflight",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "5e7015d4-8fca-4f28-9ebd-e95b728e021f",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "sharedfs": {
+            "id": "5fd41a4d-5778-4c09-911a-557d12b618ab",
+            "name": "epic1438-1442-xfs-20261022-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+            "vmstate": "Running",
+            "volumename": "epic1438-1442-existing-xfs-20261021-01",
+            "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+            "serviceofferingname": "epic1438-1441-fixed-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.245/16",
+            "ipaddress": "10.10.13.245",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "530f2ea9-1997-4464-b3fd-eda1fd467a59",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "creationrequestid": "96b54dbf-eda7-4339-bbb5-77edb26a2bb2",
+            "creationstage": "READY",
+            "backingmode": "EXISTING",
+            "expectedfilesystem": "AUTO",
+            "observedfilesystem": "xfs",
+            "creationjobid": "5e7015d4-8fca-4f28-9ebd-e95b728e021f"
+          }
+        },
+        "jobinstancetype": "Volume",
+        "jobinstanceid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+        "created": "2026-10-22T00:10:36+0900",
+        "completed": "2026-10-22T00:10:51+0900",
+        "jobid": "5e7015d4-8fca-4f28-9ebd-e95b728e021f",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-request-inflight",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "22dc66cf-ccac-4aeb-8de2-80bd01093fc2",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "storageserviceprotocol": {
+            "id": "2f82cafa-df91-4049-9d52-15c42c590dbb",
+            "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+            "protocol": "NFS",
+            "enabled": true,
+            "port": 2049,
+            "state": "Ready",
+            "protocolmode": "V4_ONLY",
+            "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+            "listenertype": "WILDCARD",
+            "runtimeprimaryip": "10.10.13.245",
+            "identitystatus": "DRIFT",
+            "identitywarning": "Persisted primary IPv4 - differs from runtime primary IPv4 10.10.13.245",
+            "effectiveendpoints": [
+              {
+                "ipaddress": "10.10.13.245",
+                "port": 2049,
+                "role": "PRIMARY"
+              }
+            ],
+            "runtimestate": "READY",
+            "linkedresourcecount": 0
+          }
+        },
+        "created": "2026-10-22T00:10:52+0900",
+        "completed": "2026-10-22T00:10:54+0900",
+        "jobid": "22dc66cf-ccac-4aeb-8de2-80bd01093fc2",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-initial-services",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "ef15b8fa-26b9-469c-abc0-da6873d7299a",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "storagenfsexport": {
+            "id": "8b3d7ac6-544e-4f19-aa83-a6537db1163b",
+            "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+            "name": "f1442xfs",
+            "path": "/export/f1442xfs",
+            "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "volumeuuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "filesystemuuid": "f6b2849b-3c7c-4bf2-9789-0df8a519028b",
+            "volumemountpath": "/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "mappingstatus": "UNMAPPED",
+            "filesystem": "xfs",
+            "state": "Allocated",
+            "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"endpointMode\":\"LISTENER_GROUP\",\"listenerGroupPorts\":[2049],\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"attachedVolumeName\":\"epic1438-1442-existing-xfs-20261021-01\",\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\",\"bootId\":\"9e053db4-d89e-4b55-9d32-08652e4216da\",\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"observedAt\":\"2026-10-21T15:10:54.386607Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/f1442xfs\",\"schemaVersion\":2,\"serial\":\"124a8aa718d647cbbc7a\",\"status\":\"ok\",\"success\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"volumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\"},\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\"}",
+            "listenerports": "2049",
+            "endpointmode": "LISTENER_GROUP",
+            "protocolmode": "V4_ONLY",
+            "configvalid": true
+          }
+        },
+        "created": "2026-10-22T00:10:54+0900",
+        "completed": "2026-10-22T00:10:56+0900",
+        "jobid": "ef15b8fa-26b9-469c-abc0-da6873d7299a",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-initial-services",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "638023aa-bc58-4a56-abbe-35c167a8f2b5",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsAclCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Failed to apply NFS desired state on Storage Service System VM: Storage Service command failed with exit code 1: Traceback (most recent call last):\n  File \"<stdin>\", line 1182, in <module>\nRuntimeError: nfs-ganesha export visibility probe failed: 0.0.0.0:2049 f1442xfs host-selection -> /f1442xfs: no local IPv4 address is allowed by export clients: 10.10.254.200/32\n"
+        },
+        "created": "2026-10-22T00:10:56+0900",
+        "completed": "2026-10-22T00:10:58+0900",
+        "jobid": "638023aa-bc58-4a56-abbe-35c167a8f2b5",
+        "jobstatus": 2
+      }
+    }
+  },
+  {
+    "label": "xfs-default-nfs-result",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "7b0fe296-194a-437a-bbc6-ad7458553721",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageNfsAclCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "created": "2026-10-22T00:13:24+0900",
+        "completed": "2026-10-22T00:13:25+0900",
+        "jobid": "7b0fe296-194a-437a-bbc6-ad7458553721",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-default-nfs-current-volume-create",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "2fd7045a-dfa8-405f-bd00-121e9abd26e0",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.DeleteStorageNfsExportCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "success": true
+        },
+        "created": "2026-10-22T00:18:31+0900",
+        "completed": "2026-10-22T00:18:32+0900",
+        "jobid": "2fd7045a-dfa8-405f-bd00-121e9abd26e0",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "xfs-default-nfs-job-observe",
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "request": {
+      "jobId": "78c6e6e3-338a-4489-b1af-c46aa1825a16",
+      "command": "queryAsyncJobResult",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "queryasyncjobresultresponse": {
+        "accountid": "6fb7f5cb-bd56-11f1-b573-002481560363",
+        "account": "admin",
+        "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+        "domainpath": "ROOT",
+        "userid": "6fb85c33-bd56-11f1-b573-002481560363",
+        "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsExportCmd",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "storagenfsexport": {
+            "id": "7d9d9ed8-d47e-4f2b-a004-2360cf22cf68",
+            "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+            "name": "f1442xfs",
+            "path": "/export/f1442xfs",
+            "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "volumeuuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "filesystemuuid": "f6b2849b-3c7c-4bf2-9789-0df8a519028b",
+            "volumemountpath": "/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "runtimedevicepath": "/dev/sdb",
+            "runtimeobservedat": "2026-10-21T15:20:44Z",
+            "runtimebootid": "9e053db4-d89e-4b55-9d32-08652e4216da",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"listenerGroupPorts\":[2049],\"endpointMode\":\"LISTENER_GROUP\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"attachedVolumeName\":\"epic1438-1442-existing-xfs-20261021-01\",\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\",\"bootId\":\"9e053db4-d89e-4b55-9d32-08652e4216da\",\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"observedAt\":\"2026-10-21T15:20:42.679613Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/f1442xfs\",\"schemaVersion\":2,\"serial\":\"124a8aa718d647cbbc7a\",\"status\":\"ok\",\"success\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"volumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\"},\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\"}",
+            "listenerports": "2049",
+            "endpointmode": "LISTENER_GROUP",
+            "protocolmode": "V4_ONLY",
+            "configvalid": true
+          }
+        },
+        "created": "2026-10-22T00:20:42+0900",
+        "completed": "2026-10-22T00:20:46+0900",
+        "jobid": "78c6e6e3-338a-4489-b1af-c46aa1825a16",
+        "jobstatus": 1
+      }
+    }
+  },
+  {
+    "label": "stop-confirmed-directory-permission-regression",
+    "command": "listSharedFileSystems",
+    "method": "GET",
+    "request": {
+      "listall": "true",
+      "tab": "nfs",
+      "id": "5fd41a4d-5778-4c09-911a-557d12b618ab",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSharedFileSystems",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "listsharedfilesystemsresponse": {
+        "count": 1,
+        "sharedfs": [
+          {
+            "id": "5fd41a4d-5778-4c09-911a-557d12b618ab",
+            "name": "epic1438-1442-xfs-20261022-01",
+            "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+            "zonename": "13-Zone",
+            "virtualmachineid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+            "vmstate": "Running",
+            "volumename": "epic1438-1442-existing-xfs-20261021-01",
+            "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "storage": "Primary Storage",
+            "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+            "size": 21474836480,
+            "sizegb": "20.00 GiB",
+            "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+            "diskofferingname": "사용자 정의 디스크 오퍼링",
+            "iscustomdiskoffering": true,
+            "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+            "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+            "serviceofferingname": "epic1438-1441-fixed-20261021",
+            "networkmode": "STATIC",
+            "ipcidr": "10.10.13.245/16",
+            "ipaddress": "10.10.13.245",
+            "cidr": "10.10.0.0/16",
+            "gateway": "10.10.0.1",
+            "nic": [
+              {
+                "id": "530f2ea9-1997-4464-b3fd-eda1fd467a59",
+                "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+                "networkname": "L2-Network",
+                "ipaddress": "10.10.254.117"
+              }
+            ],
+            "path": "/export",
+            "state": "Ready",
+            "provider": "SHAREDFSVM",
+            "filesystem": "XFS",
+            "account": "admin",
+            "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+            "domain": "ROOT",
+            "domainpath": "/",
+            "provisioningtype": "sparse",
+            "diskioread": 0,
+            "diskiowrite": 0,
+            "diskkbsread": 0,
+            "diskkbswrite": 0,
+            "virtualsize": 21474836480,
+            "physicalsize": 6369280,
+            "utilization": "0.0%",
+            "creationrequestid": "96b54dbf-eda7-4339-bbb5-77edb26a2bb2",
+            "creationstage": "READY",
+            "backingmode": "EXISTING",
+            "expectedfilesystem": "AUTO",
+            "observedfilesystem": "xfs",
+            "creationjobid": "5e7015d4-8fca-4f28-9ebd-e95b728e021f"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "label": "stop-confirmed-directory-permission-regression",
+    "command": "listStorageNfsExports",
+    "method": "GET",
+    "request": {
+      "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+      "command": "listStorageNfsExports",
+      "response": "json",
+      "sessionkey": "<redacted>"
+    },
+    "status": 200,
+    "response": {
+      "liststoragenfsexportsresponse": {
+        "count": 1,
+        "storagenfsexport": [
+          {
+            "id": "7d9d9ed8-d47e-4f2b-a004-2360cf22cf68",
+            "instanceid": "47bca45d-7ccc-4990-bf45-ea428b121607",
+            "name": "f1442xfs",
+            "path": "/export/f1442xfs",
+            "volumeid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "volumeuuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "filesystemuuid": "f6b2849b-3c7c-4bf2-9789-0df8a519028b",
+            "volumemountpath": "/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "runtimedevicepath": "/dev/sdb",
+            "runtimeobservedat": "2026-10-21T15:27:25Z",
+            "runtimebootid": "9e053db4-d89e-4b55-9d32-08652e4216da",
+            "runtimematchedby": "VOLUME_SERIAL",
+            "mappingstatus": "EXACT",
+            "filesystem": "xfs",
+            "state": "Ready",
+            "config": "{\"readOnly\":false,\"rootSquash\":true,\"allSquash\":false,\"sync\":true,\"secure\":false,\"recursivePermission\":false,\"protocolMode\":\"V4_ONLY\",\"listenerGroupPorts\":[2049],\"endpointMode\":\"LISTENER_GROUP\",\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"createDirectory\":true,\"volumeMode\":\"EXISTING_VOLUME\",\"importMode\":\"MOUNT_EXISTING\",\"attachedVolumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"attachedVolumeName\":\"epic1438-1442-existing-xfs-20261021-01\",\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"lastInspection\":{\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\",\"bootId\":\"9e053db4-d89e-4b55-9d32-08652e4216da\",\"filesystem\":\"xfs\",\"filesystemSupported\":true,\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"importMode\":\"MOUNT_EXISTING\",\"matchedBy\":\"VOLUME_SERIAL\",\"mountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"observedAt\":\"2026-10-21T15:20:42.679613Z\",\"observedDevicePath\":\"/dev/sdb\",\"persistentMount\":true,\"relativeSharePath\":\"export/f1442xfs\",\"schemaVersion\":2,\"serial\":\"124a8aa718d647cbbc7a\",\"status\":\"ok\",\"success\":true,\"volumeMountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"volumeUuid\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\"},\"backingPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6/export/f1442xfs\"}",
+            "listenerports": "2049",
+            "endpointmode": "LISTENER_GROUP",
+            "protocolmode": "V4_ONLY",
+            "configvalid": true
+          }
+        ]
+      }
+    }
+  }
+]

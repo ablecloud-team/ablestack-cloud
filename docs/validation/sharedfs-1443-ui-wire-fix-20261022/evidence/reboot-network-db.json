@@ -1,0 +1,38 @@
+{
+  "rows": [
+    {
+      "id": "a88c8813-d8de-4648-8f92-352970bb3602",
+      "vm": "492c6b13-4500-3f94-8be7-76f146d9ba49",
+      "data": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "host": "10.10.13.3",
+      "kind": "sharedfs",
+      "name": "epic1438-1443-xfs-2t-20261022-01",
+      "path": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "size": 2199023255552,
+      "state": "Ready",
+      "domain": "i-2-116-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "poolId": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "poolPath": "/mnt/glue-gfs",
+      "filesystem": "XFS",
+      "journalValid": true,
+      "creationRequest": "f01711af-1721-41a4-ac6a-a1eb690cbfe0"
+    },
+    {
+      "vm": "492c6b13-4500-3f94-8be7-76f146d9ba49",
+      "nic": "8f44c060-a4c5-46ee-a88b-7de0caa647bd",
+      "cidr": "10.10.0.0/16",
+      "host": "10.10.13.3",
+      "kind": "test-network",
+      "nicIP": "10.10.254.198",
+      "domain": "i-2-116-VM",
+      "nicMAC": "02:0d:00:cc:00:48",
+      "gateway": "10.10.13.1",
+      "vmState": "Running",
+      "sharedfsIP": "10.10.13.250",
+      "networkMode": "STATIC"
+    }
+  ],
+  "protectedFilesUnchanged": true
+}

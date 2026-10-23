@@ -1,0 +1,5 @@
+{
+  "before": "사용자가 자유롭게 CPU/Memory 크기 설정\n자유 입력 · ROOT 생성 정책: sparse",
+  "after": "사용자가 자유롭게 CPU/Memory 크기 설정\n자유 입력 · ROOT 생성 정책: sparse",
+  "unchanged": true
+}
