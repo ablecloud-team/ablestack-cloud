@@ -50,6 +50,14 @@ cleanup_runtime_backup_paths() {
 
   while IFS= read -r backup_path; do
     [[ -z "${backup_path}" ]] && continue
+    if [[ -f "${backup_path}/.volume-bootstrap" ]]; then
+      local bootstrap_id
+      bootstrap_id="$(cat -- "${backup_path}/.volume-bootstrap")"
+      python3 "${SCRIPT_DIR}/thirdparty_bootstrap.py" retire --payload-root "${NETBACKUP_PARENT_PAYLOAD_PATH}" \
+        --backup-uuid "$bootstrap_id" || return 1
+      log -ne "Volume pipeline owns staging cleanup for ${backup_path}"
+      continue
+    fi
     staged_paths+=("${backup_path}")
     if [[ -e "${backup_path}" ]]; then
       if rm -rf "${backup_path}"; then
@@ -87,12 +95,16 @@ update_netbackup_backup_ids() {
   local member_count=0
   local final_status="${1:-BackedUp}"
 
-  [[ -n "${BACKUP_ID:-}" ]] || fail "NetBackup BACKUP_ID is empty; cannot update backup_details"
   member_count="$(read_runtime_count "success_count" 2>/dev/null || echo 0)"
   [[ "${member_count}" =~ ^[0-9]+$ ]] || member_count=0
 
   while IFS=$'\t' read -r vm_id backup_path; do
     [[ -z "${vm_id}" || -z "${backup_path}" ]] && continue
+    if [[ -f "${backup_path}/.volume-bootstrap" ]]; then
+      log -ne "Volume pipeline owns artifact catalog completion for ${backup_path}"
+      continue
+    fi
+    [[ -n "${BACKUP_ID:-}" ]] || fail "NetBackup BACKUP_ID is empty; cannot update backup_details"
     if ! response="$(invoke_mold_api "POST" "${MOLD_CREATE_BACKUP_API_URL}" "updateNetBackup" \
       "virtualmachineid" "${vm_id}" \
       "backupid" "${BACKUP_ID}" \
@@ -135,15 +147,30 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
+incoming_backup_id="${BACKUP_ID:-}"
+incoming_job_id="${NETBACKUP_JOB_ID:-}"
+resolve_context "${1:-}" "${2:-}" "${3:-}" ""
+if [[ "${SCHEDULE_NAME}" == mold-transfer || "${POLICY_NAME}" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]]; then
+  exit 0
+fi
+JOB_STATUS="$(resolve_status "$@")"
+if [[ "$JOB_STATUS" == 73 || "$JOB_STATUS" == 74 ]]; then
+  log -ne "Skipping NetBackup POST for failed/timed-out PRE status=${JOB_STATUS}; preserving prior context and Mold-owned staging"
+  exit 0
+fi
 ensure_runtime_dirs
 cleanup_stale_transient_state
-resolve_context "${1:-}" "${2:-}" "${3:-}" ""
 cleanup_runtime_history
-JOB_STATUS="$(resolve_status "$@")"
 acquire_lock
 
 if ! load_state_file "${CONTEXT_FILE}"; then
   fail "NetBackup post-backup cleanup could not find context state: ${CONTEXT_FILE}"
+fi
+
+if [[ -n "$incoming_backup_id" && "$incoming_backup_id" != "${BACKUP_ID:-}" ]] \
+    || [[ -n "$incoming_job_id" && -n "${NETBACKUP_JOB_ID:-}" && "$incoming_job_id" != "$NETBACKUP_JOB_ID" ]]; then
+  log -ne "Skipping NetBackup POST because its Job/Backup ID differs from the saved context; no previous backup is modified"
+  exit 0
 fi
 
 BACKUP_ID="${BACKUPID:-${BACKUP_ID:-}}"

@@ -19,13 +19,12 @@
 
 package org.apache.cloudstack.backup;
 
-import com.cloud.agent.api.Command;
 import com.cloud.vm.VirtualMachine;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 
 import java.util.List;
 
-public class AblestackVeeamRestoreBackupCommand extends Command {
+public class AblestackVeeamRestoreBackupCommand extends AblestackRestoreBackupCommand {
     private String vmName;
     private String backupPath;
     private List<String> backupVolumesUUIDs;
@@ -42,6 +41,12 @@ public class AblestackVeeamRestoreBackupCommand extends Command {
     private Integer timeout;
     private String cacheMode;
     private String checkpointName;
+    private String restoreJobId;
+    private ThirdPartyBackupRestore.Plan volumeRestorePlan;
+
+    public ThirdPartyBackupRestore.Plan getVolumeRestorePlan() { return volumeRestorePlan; }
+    public void setVolumeRestorePlan(ThirdPartyBackupRestore.Plan plan) { volumeRestorePlan = plan; }
+    private boolean waitForCompletion = true;
 
     public AblestackVeeamRestoreBackupCommand() {
         super();
@@ -174,6 +179,22 @@ public class AblestackVeeamRestoreBackupCommand extends Command {
 
     public void setCheckpointName(final String checkpointName) {
         this.checkpointName = checkpointName;
+    }
+
+    public String getRestoreJobId() {
+        return restoreJobId;
+    }
+
+    public void setRestoreJobId(final String restoreJobId) {
+        this.restoreJobId = restoreJobId;
+    }
+
+    public boolean isWaitForCompletion() {
+        return waitForCompletion;
+    }
+
+    public void setWaitForCompletion(final boolean waitForCompletion) {
+        this.waitForCompletion = waitForCompletion;
     }
 
     @Override

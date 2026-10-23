@@ -61,6 +61,11 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
         final VirtualMachineTO vmSpec = command.getVirtualMachine();
         vmSpec.setVncAddr(command.getHostIp());
         final String vmName = vmSpec.getName();
+        try {
+            LibvirtAblestackRestoreTransaction.assertStartAllowed(vmName);
+        } catch (com.cloud.utils.exception.CloudRuntimeException e) {
+            return new StartAnswer(command, e.getMessage());
+        }
         LibvirtVMDef vm = null;
 
         DomainState  state = DomainState.VIR_DOMAIN_SHUTOFF;
@@ -73,6 +78,7 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
 
             vm = libvirtComputingResource.createVMFromSpec(vmSpec);
             conn = libvirtUtilitiesHelper.getConnectionByType(vm.getHvsType());
+            com.cloud.hypervisor.kvm.resource.LibvirtQ35PcieTopology.prepare(vmSpec, vm, conn);
 
             final NicTO[] nics = vmSpec.getNics();
 
@@ -151,6 +157,13 @@ public final class LibvirtStartCommandWrapper extends CommandWrapper<StartComman
 
             state = DomainState.VIR_DOMAIN_RUNNING;
             return new StartAnswer(command);
+        } catch (final com.cloud.utils.exception.CloudRuntimeException e) {
+            logger.warn("VM start configuration is unavailable for [{}]: {}", vmName, e.getMessage());
+            StartAnswer answer = new StartAnswer(command, e.getMessage());
+            if (e.getMessage() != null && e.getMessage().contains(com.cloud.hypervisor.kvm.resource.LibvirtQ35PcieTopology.UNKNOWN)) {
+                answer.setContextParam("stopRetry", "true");
+            }
+            return answer;
         } catch (final LibvirtException e) {
             logger.warn("LibvirtException ", e);
             if (conn != null) {

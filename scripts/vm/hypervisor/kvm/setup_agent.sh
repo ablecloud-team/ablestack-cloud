@@ -87,13 +87,14 @@ install_cloud_agent() {
 # Install Ablestack Veeam backup pre/post hooks (idempotent).
 install_mold_veeam_backup_hooks() {
     local candidates="
-        /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/install.sh
-        $(dirname "$0")/veeam/install.sh
+        /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam-host-config.py
+        $(dirname "$0")/veeam-host-config.py
     "
     local installer
     for installer in $candidates; do
-        if [ -x "$installer" ]; then
-            "$installer" && return 0
+        if [ -f "$installer" ]; then
+            python3 "$installer" --install-only
+            return $?
         fi
     done
     printf "Note: mold Veeam backup installer not found (skip)\n"

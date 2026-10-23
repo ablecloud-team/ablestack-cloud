@@ -28,9 +28,10 @@ Type=oneshot
 # Veeam SSH cleanup can hang forever without this; timer must stay schedulable.
 TimeoutStartSec=120
 TimeoutStopSec=30
+Environment=ABLESTACK_VEEAM_ETC_DIR=/etc/ablestack/veeam
+Environment=ABLESTACK_VEEAM_STATE_DIR=/var/lib/ablestack/veeam
 EnvironmentFile=-/etc/ablestack/veeam/mold-backup.env
-Environment="MOLD_BACKUP_CONF=/etc/ablestack/veeam/Mold_Host_Backup.conf"
-ExecStart=/etc/ablestack/veeam/mold-veeam-restore-agent.sh
+ExecStart=/usr/bin/bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/mold-veeam-restore-agent.sh
 
 [Install]
 WantedBy=multi-user.target

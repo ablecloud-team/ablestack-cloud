@@ -49,6 +49,15 @@ public class LibvirtAblestackDeleteBackupCommandWrapper extends CommandWrapper<A
         int timeout = command.getWait() > 0 ? command.getWait() * 1000 : libvirtComputingResource.getCmdsTimeout();
 
         List<String[]> commands = new ArrayList<>();
+        if (List.of("ablestack-commvault", "ablestack-netbackup", "ablestack-veeam").stream()
+                .anyMatch(provider -> provider.equalsIgnoreCase(backupProvider))) {
+            try {
+                LibvirtAblestackStagingCleanup.validate(backupProvider.toLowerCase(java.util.Locale.ROOT),
+                        java.nio.file.Path.of(backupPath), null);
+            } catch (java.io.IOException | RuntimeException e) {
+                return new BackupAnswer(command, false, "Unsafe staging delete path: " + e.getMessage());
+            }
+        }
         if ("ablestack-commvault".equalsIgnoreCase(backupProvider)) {
             List<String> deleteCommand = new ArrayList<>();
             deleteCommand.add(libvirtComputingResource.getAbleCvtBackupPath());

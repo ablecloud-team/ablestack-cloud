@@ -1,0 +1,105 @@
+{
+  "browseResponses": [
+    {
+      "respType": 0,
+      "workerId": "30",
+      "doClientSideSortingAndPaging": false,
+      "session": {
+        "sessionId": "1791946392-30"
+      },
+      "browseResult": {
+        "hasMoreData": false,
+        "useLazyPaginationMode": false,
+        "queryId": "dataQuery",
+        "dataResultSet": [
+          {
+            "displayName": "root.79ea9909-2abc-4941-b008-52a750654224.qcow2",
+            "displayPath": "/mnt/glue-gfs/ablestack-commvault/i-2-220-VM/2026.10.12.16.55.52.320/root.79ea9909-2abc-4941-b008-52a750654224.qcow2",
+            "path": "/mnt/glue-gfs/ablestack-commvault/i-2-220-VM/2026.10.12.16.55.52.320/root.79ea9909-2abc-4941-b008-52a750654224.qcow2",
+            "size": 12427919360,
+            "modificationTime": 1791791797,
+            "name": "root.79ea9909-2abc-4941-b008-52a750654224.qcow2",
+            "flags": {
+              "isPseudo": false,
+              "file": true,
+              "isFake": false,
+              "snap": false
+            },
+            "advancedData": {
+              "backupJobId": 1127,
+              "mediaSize": 3767945020,
+              "jobFlags": 0,
+              "referenceTime": 1791791864,
+              "jobType": 1,
+              "offset": 0,
+              "archiveGroupId": 4,
+              "objectGuid": "0f0b0ef8cba12b31f7cc13680202fb1f",
+              "backupTime": 1791791864,
+              "archiveFileId": 1130,
+              "subclient": {
+                "_type_": 7,
+                "_SubclType_": 0,
+                "applicationId": 30
+              },
+              "sourceCommServer": {
+                "_type_": 1,
+                "commCellId": 2
+              },
+              "advConfig": {
+                "recallByPathRequest": false,
+                "doCrossComponentBrowseNarrowing": true,
+                "recallRequest": false,
+                "browseAdvancedConfigResp": {
+                  "commcellNumber": 106450773
+                }
+              },
+              "browseMetaData": {
+                "fsData": {
+                  "sparseFile": true
+                },
+                "indexing": {
+                  "fileChangeTime": 1791791797
+                },
+                "fileInfo": {
+                  "mimeClassification": 0
+                },
+                "dmStubData": {
+                  "guid": "8d0280111f80e24537d91284e66c2142"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "respType": 0,
+      "workerId": "30",
+      "doClientSideSortingAndPaging": false,
+      "session": {
+        "sessionId": "1791946392-30"
+      },
+      "browseResult": {
+        "hasMoreData": false,
+        "useLazyPaginationMode": false,
+        "queryId": "countQuery",
+        "aggrResultSet": [
+          {
+            "result": 1,
+            "groupbyValue": "",
+            "clientName": "",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "respType": 5,
+      "workerId": "30",
+      "doClientSideSortingAndPaging": false,
+      "session": {
+        "sessionId": "1791946392-30"
+      }
+    }
+  ]
+}

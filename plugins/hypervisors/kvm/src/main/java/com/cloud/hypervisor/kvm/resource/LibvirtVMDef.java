@@ -753,9 +753,18 @@ public class LibvirtVMDef {
         private static final int PCIE_ROOT_PORT_COUNT = 32;
         private String _machineType;
         private String _emulator;
+        private boolean _reserveQ35PciePorts;
 
         public void setMachineType(String machineType) {
             _machineType = machineType;
+        }
+
+        public boolean isQ35() {
+            return _guestType == GuestDef.GuestType.KVM && LibvirtQ35PcieTopology.isQ35(_machineType);
+        }
+
+        public void setReserveQ35PciePorts(boolean reserveQ35PciePorts) {
+            _reserveQ35PciePorts = reserveQ35PciePorts;
         }
         private GuestDef.GuestType _guestType;
         private final Map<String, List<?>> devices = new HashMap<String, List<?>>();
@@ -806,7 +815,7 @@ public class LibvirtVMDef {
                 }
             }
 
-            boolean q35 = _guestType == GuestDef.GuestType.KVM && _machineType != null
+            boolean q35 = _reserveQ35PciePorts && _guestType == GuestDef.GuestType.KVM && _machineType != null
                     && ("q35".equals(_machineType) || _machineType.startsWith("pc-q35-"));
             boolean existingPcieArchitecture = _emulator != null && (_emulator.endsWith("aarch64") || _emulator.endsWith("s390x"));
             // libvirt otherwise creates only enough root ports for boot devices, leaving none for NIC hotplug.
@@ -2864,7 +2873,8 @@ public class LibvirtVMDef {
         GuestDef guest = (GuestDef) components.get(GuestDef.class.toString());
         for (Object o : components.values()) {
             if (o instanceof DevicesDef && guest != null) {
-                ((DevicesDef) o).setMachineType(guest.getMachineType());
+                DevicesDef devices = (DevicesDef) o;
+                devices.setMachineType(guest.getMachineType());
             }
             vmBuilder.append(o.toString());
         }

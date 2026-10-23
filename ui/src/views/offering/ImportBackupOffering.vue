@@ -98,7 +98,7 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isSingleOfferingProvider">
+      <a-form-item name="allowuserdrivenbackups" ref="allowuserdrivenbackups" v-if="!isUserDrivenBackupsFixedProvider">
         <template #label>
           <tooltip-label :title="$t('label.allowuserdrivenbackups')" :tooltip="apiParams.allowuserdrivenbackups.description"/>
         </template>
@@ -209,14 +209,21 @@ export default {
   },
   computed: {
     isCommvaultProvider () {
-      return this.selectedProviderName && this.selectedProviderName.toLowerCase() === 'commvault'
+      return this.selectedProviderName && this.selectedProviderName.toLowerCase() === 'ablestack-commvault'
     },
     isNetBackupProvider () {
       return this.selectedProviderName &&
-        ['netbackup', 'ablestack-netbackup'].includes(this.selectedProviderName.toLowerCase())
+        this.selectedProviderName.toLowerCase() === 'ablestack-netbackup'
+    },
+    isVeeamProvider () {
+      return this.selectedProviderName &&
+        this.selectedProviderName.toLowerCase() === 'ablestack-veeam'
     },
     isSingleOfferingProvider () {
       return this.isCommvaultProvider || this.isNetBackupProvider
+    },
+    isUserDrivenBackupsFixedProvider () {
+      return this.isCommvaultProvider || this.isNetBackupProvider || this.isVeeamProvider
     },
     retentionPeriodInDays () {
       const value = parseInt(this.form.retentionPeriodValue)
@@ -375,7 +382,7 @@ export default {
         if (this.isCommvaultProvider) {
           params.retentionperiod = this.retentionPeriodInDays
           params.allowuserdrivenbackups = true
-        } else if (this.isNetBackupProvider) {
+        } else if (this.isNetBackupProvider || this.isVeeamProvider) {
           params.allowuserdrivenbackups = false
         } else {
           params.allowuserdrivenbackups = values.allowuserdrivenbackups

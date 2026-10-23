@@ -53,9 +53,13 @@ cleanup_failed_pre_run() {
   exit ${rc}
 }
 
+resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
+# Transfer jobs (and pre-upgrade artifact policies) must never recursively request a VM backup.
+if [[ "${SCHEDULE_NAME}" == mold-transfer || "${POLICY_NAME}" =~ ^ABLESTACK-[[:xdigit:]-]{36}-(metadata|[[:xdigit:]-]{36})$ ]]; then
+  exit 0
+fi
 ensure_runtime_dirs
 cleanup_stale_transient_state
-resolve_context "${1:-}" "${2:-}" "${3:-}" "${4:-}"
 cleanup_runtime_history
 load_policy_schedule_config
 acquire_lock
@@ -72,6 +76,7 @@ write_state_file "${CONTEXT_FILE}" \
   CLIENT_NAME "${CLIENT_NAME}" \
   SESSION_TIMESTAMP "${SESSION_TIMESTAMP}" \
   BACKUP_ID "${BACKUP_ID}" \
+  NETBACKUP_JOB_ID "${NETBACKUP_JOB_ID}" \
   BACKUP_TIME "${BACKUP_TIME}" \
   UNIX_BACKUP_TIME "${UNIX_BACKUP_TIME}" \
   RUNTIME_FILE "${RUNTIME_FILE}"

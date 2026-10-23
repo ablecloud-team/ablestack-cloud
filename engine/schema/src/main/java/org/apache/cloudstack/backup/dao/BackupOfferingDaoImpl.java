@@ -25,7 +25,6 @@ import com.cloud.domain.dao.DomainDao;
 import org.apache.cloudstack.api.ApiConstants;
 import org.apache.cloudstack.api.response.BackupOfferingResponse;
 import org.apache.cloudstack.backup.BackupOffering;
-import org.apache.cloudstack.backup.BackupProviderNameUtils;
 import org.apache.cloudstack.backup.BackupOfferingDetailsVO;
 import org.apache.cloudstack.backup.BackupOfferingVO;
 
@@ -73,7 +72,7 @@ public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long
         response.setName(offering.getName());
         response.setDescription(offering.getDescription());
         response.setExternalId(offering.getExternalId());
-        response.setProvider(BackupProviderNameUtils.toDisplayName(offering.getProvider()));
+        response.setProvider(offering.getProvider());
         response.setUserDrivenBackups(offering.isUserDrivenBackupAllowed());
         if (zone != null) {
             response.setZoneId(zone.getUuid());
@@ -97,7 +96,6 @@ public class BackupOfferingDaoImpl extends GenericDaoBase<BackupOfferingVO, Long
         if (offering.getRetentionPeriod() != null) {
             response.setRetentionPeriod(offering.getRetentionPeriod());
         }
-        response.setProvider(BackupProviderNameUtils.toDisplayName(offering.getProvider()));
         details.removeIf(backupOfferingDetailsVO -> ApiConstants.DOMAIN_ID.equals(backupOfferingDetailsVO.getName()));
         Map<String, String> detailString = new HashMap<>();
         for (BackupOfferingDetailsVO detail : details) {
