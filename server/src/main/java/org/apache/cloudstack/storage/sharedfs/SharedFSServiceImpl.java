@@ -23,7 +23,6 @@ import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSCleanupInt
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSFeatureEnabled;
 import static org.apache.cloudstack.storage.sharedfs.SharedFS.SharedFSExpungeWorkers;
 
-import org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
