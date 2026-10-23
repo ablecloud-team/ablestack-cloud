@@ -90,6 +90,18 @@ class NetBackupRestoreWatcherTest(unittest.TestCase):
             self.watcher.poll_once(state)
         return state, notify
 
+    def test_offline_raw_full_metadata_is_valid_without_restoring_disk_payloads(self):
+        self.manifest["volumes"][0]["engine"] = "OFFLINE_FILE"
+        self.manifest["volumes"][0]["chain"][0]["path"] = str(self.root / "root.raw")
+        self.manifest["offlineGuard"] = {"version": 1, "operation": "BACKUP", "jobId": "backup-test", "vmUuid": "vm-test"}
+        self.write_manifest()
+        result = self.watcher.verify_partial_restore_metadata(self.job(), self.selections)
+        self.assertEqual("backup-test", result["backupUuid"])
+        self.manifest["backupType"] = "INCREMENTAL"
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "independent Full"):
+            self.watcher.verify_partial_restore_metadata(self.job(), self.selections)
+
     def test_supported_release_terminal_status_matrix(self):
         for release in ("10.5", "11.1"):
             for code, state, outcome in ((0, "DONE", "SUCCESS"), (1, "DONE", "PARTIAL"), (5, "DONE", "FAILED"),

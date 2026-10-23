@@ -70,9 +70,17 @@ public class LibvirtAblestackNasRestoreBackupCommandWrapper extends CommandWrapp
             + "($4 ~ /^(vd|sd|hd)[a-z]+$/) {print $4}' | sort -V | tail -n 1";
     @Override
     public Answer execute(AblestackNasRestoreBackupCommand command, LibvirtComputingResource serverResource) {
-        try (var provisioning = LibvirtAblestackRestoreProvisioning.begin(command.getRestoreVolumeProvisioningTypes())) {
+        try (var rawLease = LibvirtAblestackSharedRawGuard.restore(serverResource, command.getRestoreJobId(),
+                command.isWaitForCompletion(), command.getRestoreVolumePools(), command.getRestoreVolumePaths(), command.getRestoreVolumeAllocation());
+                var provisioning = LibvirtAblestackRestoreProvisioning.begin(command.getRestoreVolumeProvisioningTypes(),
+                command.getRestoreVolumeAllocation(), command.getRestoreJobId())) {
+            try {
+                if (command.getRestoreVolumeAllocation() != null && !command.getRestoreVolumeAllocation().isEmpty()) {
+                    LibvirtAblestackRestoreAllocation.check(serverResource.getStoragePoolMgr(), command.getRestoreVolumeAllocation());
+                }
+            } catch (Exception failure) { return new BackupAnswer(command, false, failure.getMessage()); }
             return executeRestore(command, serverResource);
-        }
+        } catch (Exception failure) { return new BackupAnswer(command, false, failure.getMessage()); }
     }
 
     private Answer executeRestore(AblestackNasRestoreBackupCommand command, LibvirtComputingResource serverResource) {
@@ -129,8 +137,14 @@ public class LibvirtAblestackNasRestoreBackupCommandWrapper extends CommandWrapp
                 validateResolvedChainPaths(getMountedBackupPaths(mountDirectory, backupPath, backupFile, backupFileChain), volumePath);
                 int lastIndex = volumePath.lastIndexOf("/");
                 newVolumeId = volumePath.substring(lastIndex + 1);
-                restoreVolume(backupPath, volumePath, backupFile, backupFileChain, new Pair<>(vmName, command.getVmState()),
-                        mountDirectory, timeout, storagePoolMgr, restoreVolumePools.get(0), cacheMode, restorePlan);
+                if (command.getRestoreVolumeAllocation() != null && !command.getRestoreVolumeAllocation().isEmpty()) {
+                    restoreVmVolumes(vmName, restoreVolumePaths, backupPath, backupFiles, backupFileChains, volumeChainStates,
+                            mountDirectory, timeout, storagePoolMgr, restoreVolumePools);
+                    // The management server attaches the verified volume after completion.
+                } else {
+                    restoreVolume(backupPath, volumePath, backupFile, backupFileChain, new Pair<>(vmName, command.getVmState()),
+                            mountDirectory, timeout, storagePoolMgr, restoreVolumePools.get(0), cacheMode, restorePlan);
+                }
             } else {
                 restoreVmVolumes(vmName, restoreVolumePaths, backupPath, backupFiles, backupFileChains, volumeChainStates,
                         mountDirectory, timeout, storagePoolMgr, restoreVolumePools);

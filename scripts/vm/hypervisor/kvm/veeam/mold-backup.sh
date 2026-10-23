@@ -135,7 +135,7 @@ run_pre() {
     echo "[DRY-RUN] ablestack_veeam_pre_notify.sh ${CLIENT} ${JOB_NAME}"
     return 0
   fi
-  "${ABLESTACK_VEEAM_ETC_DIR}/ablestack_veeam_pre_notify.sh" "$CLIENT" "$JOB_NAME"
+  bash "${SCRIPT_DIR}/ablestack_veeam_pre_notify.sh" "$CLIENT" "$JOB_NAME"
 }
 
 run_post() {
@@ -144,7 +144,7 @@ run_post() {
     echo "[DRY-RUN] ablestack_veeam_post_notify.sh ${CLIENT} ${JOB_NAME}"
     return 0
   fi
-  "${ABLESTACK_VEEAM_ETC_DIR}/ablestack_veeam_post_notify.sh" "$CLIENT" "$JOB_NAME"
+  bash "${SCRIPT_DIR}/ablestack_veeam_post_notify.sh" "$CLIENT" "$JOB_NAME"
 }
 
 # Mold-initiated bidirectional (mode C): after a Mold backup, start the matching Veeam
@@ -181,7 +181,7 @@ run_restore() {
     echo "[DRY-RUN] ablestack_veeam_restore_notify.sh"
     return 0
   fi
-  "${ABLESTACK_VEEAM_ETC_DIR}/ablestack_veeam_restore_notify.sh" "$CLIENT" "$JOB_NAME"
+  bash "${SCRIPT_DIR}/ablestack_veeam_restore_notify.sh" "$CLIENT" "$JOB_NAME"
 }
 
 # Veeam UI에서 직접 수행한 복원을 감지해 Mold 상태(registry/로그)에 반영.
@@ -200,7 +200,7 @@ run_restore_watch() {
   mold_backup_watch_veeam_restores "$JOB_NAME" "$SINCE_MIN" "$TRIGGER_MOLD"
   local safe_job reg events
   safe_job="$(mold_backup_safe_job_name "$JOB_NAME")"
-  reg="${ABLESTACK_VEEAM_ETC_DIR}/registry/${safe_job}.restore.log"
+  reg="$(mold_backup_registry_dir)/${safe_job}.restore.log"
   events="$(mold_backup_events_log_file 2>/dev/null || echo "")"
   if [[ -f "$reg" ]]; then
     echo "=== restore registry (last 10) ==="
@@ -218,7 +218,7 @@ run_restore_event() {
     echo "[DRY-RUN] ablestack_veeam_restore_event.sh $*"
     return 0
   fi
-  "${ABLESTACK_VEEAM_ETC_DIR}/ablestack_veeam_restore_event.sh" "$@"
+  bash "${SCRIPT_DIR}/ablestack_veeam_restore_event.sh" "$@"
 }
 
 # Veeam UI에서 직접 수행한 백업을 감지해 Mold 상태(registry/로그)에 반영.
@@ -236,7 +236,7 @@ run_backup_watch() {
   mold_backup_watch_veeam_backups "$JOB_NAME" "$SINCE_MIN"
   local safe_job reg
   safe_job="$(mold_backup_safe_job_name "$JOB_NAME")"
-  reg="${ABLESTACK_VEEAM_ETC_DIR}/registry/${safe_job}.log"
+  reg="$(mold_backup_registry_dir)/${safe_job}.log"
   if [[ -f "$reg" ]]; then
     echo "=== backup registry (last 10) ==="
     tail -10 "$reg"
@@ -273,7 +273,7 @@ except Exception as e:
   done < <(mold_backup_list_target_domains || true)
   local safe_job reg
   safe_job="$(mold_backup_safe_job_name "$JOB_NAME")"
-  reg="${ABLESTACK_VEEAM_ETC_DIR}/registry/${safe_job}.log"
+  reg="$(mold_backup_registry_dir)/${safe_job}.log"
   if [[ -f "$reg" ]]; then
     echo "=== registry (last backup_id per VM) ==="
     tail -30 "$reg"
@@ -326,10 +326,10 @@ run_status() {
   echo "BackedUp chain count: ${cnt}"
   local safe_job reg
   safe_job="$(mold_backup_safe_job_name "$JOB_NAME")"
-  reg="${ABLESTACK_VEEAM_ETC_DIR}/registry/${safe_job}.log"
+  reg="$(mold_backup_registry_dir)/${safe_job}.log"
   echo "=== registry ==="
   [[ -f "$reg" ]] && grep "vm=${VM_NAME:-}" "$reg" 2>/dev/null | tail -5 || tail -10 "$reg" 2>/dev/null || echo "(none)"
-  local rreg="${ABLESTACK_VEEAM_ETC_DIR}/registry/${safe_job}.restore.log"
+  local rreg="$(mold_backup_registry_dir)/${safe_job}.restore.log"
   echo "=== restore registry (Veeam UI 복원 반영) ==="
   if [[ -f "$rreg" ]]; then
     grep "vm=${VM_NAME:-}" "$rreg" 2>/dev/null | tail -5 || tail -10 "$rreg" 2>/dev/null

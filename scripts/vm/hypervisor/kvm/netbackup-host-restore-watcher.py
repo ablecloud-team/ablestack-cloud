@@ -494,16 +494,25 @@ def verify_partial_restore_metadata(job: dict[str, Any], selections: list[str]) 
     ids = set()
     for volume in volumes:
         if (not isinstance(volume, dict) or not volume.get("uuid") or volume["uuid"] in ids
-                or volume.get("engine") not in {"QCOW2", "RBD_DIFF"} or not volume.get("chain")):
+                or volume.get("engine") not in {"QCOW2", "RBD_DIFF", "OFFLINE_FILE"} or not volume.get("chain")):
             raise ValueError("Restored manifest contains an invalid volume restore plan")
         ids.add(volume["uuid"])
         artifact = volume["chain"][-1]
         if (artifact.get("backupUuid") != manifest["backupUuid"] or Path(artifact.get("path", "")).parent != source_root
                 or artifact.get("completed") is not True or not artifact.get("externalId") or not artifact.get("jobId")):
             raise ValueError("Restored manifest has an unconfirmed or mismatched volume artifact")
+    if any(volume.get("engine") == "OFFLINE_FILE" for volume in volumes):
+        guard = manifest.get("offlineGuard") or {}
+        if (manifest.get("backupType") != "FULL" or manifest.get("parentBackupUuid")
+                or guard.get("version") != 1 or guard.get("operation") != "BACKUP"
+                or guard.get("jobId") != manifest["backupUuid"] or not guard.get("vmUuid")
+                or any(len(volume["chain"]) != 1 for volume in volumes)):
+            raise ValueError("Offline RAW metadata is not a protected independent Full")
     domain = ET.fromstring(texts[1])
     if domain.tag != "domain" or domain.findtext("name") != manifest["vmName"] or not domain.findtext("uuid"):
         raise ValueError("Restored domain XML is invalid or belongs to another VM")
+    if manifest.get("offlineGuard") and domain.findtext("uuid") != manifest["offlineGuard"].get("vmUuid"):
+        raise ValueError("Offline VM descriptor differs from the recorded Mold identity")
     if expected is not None and (manifest["backupUuid"] != expected.get("id")
             or manifest["vmName"] != expected.get("vmname") or manifest["timestamp"] != expected.get("timestamp")
             or domain.findtext("uuid") != expected.get("virtualmachineid")):

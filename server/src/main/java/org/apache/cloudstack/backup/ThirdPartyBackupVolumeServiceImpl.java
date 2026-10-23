@@ -51,6 +51,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
     @Inject private com.cloud.host.dao.HostDao hostDao;
     @Inject private com.cloud.storage.dao.StoragePoolHostDao poolHostDao;
     @Inject private VMInstanceDao vmDao;
+    @Inject private com.cloud.storage.dao.VolumeDao volumeDao;
+    @Inject private BackupVolumeAllocationService volumeAllocationService;
+    @Inject private AblestackSharedRawBackupService sharedRaw;
     @Inject private com.cloud.user.ResourceLimitService resourceLimitService;
     private final Map<Long, java.util.concurrent.ScheduledFuture<?>> pending = new ConcurrentHashMap<>();
     private final Map<String, java.util.concurrent.ScheduledFuture<?>> restores = new ConcurrentHashMap<>();
@@ -222,6 +225,21 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             }
             if (start.cancelRequestedAt > 0) { throw new CloudRuntimeException("Backup cancellation is pending; no start command was sent"); }
             requireBackupWorker(backup, host);
+            if (start.plan.manifest.getVolumes().stream().anyMatch(volume -> volume.allocation != null
+                    && "GFS2".equals(volume.allocation.backend) && "raw".equals(volume.allocation.format))) {
+                java.util.List<com.cloud.storage.VolumeVO> currentVolumes = new java.util.ArrayList<>(volumeDao.findByInstance(backup.getVmId()));
+                currentVolumes.sort(java.util.Comparator.comparing(com.cloud.storage.Volume::getDeviceId));
+                if (currentVolumes.size() != start.plan.manifest.getVolumes().size()) throw new CloudRuntimeException("Offline RAW source disk inventory changed");
+                for (int i = 0; i < currentVolumes.size(); i++) {
+                    var current = currentVolumes.get(i); var recorded = start.plan.manifest.getVolumes().get(i);
+                    if (!current.getUuid().equals(recorded.uuid) || current.getSize() != recorded.provisionedBytes
+                            || !java.util.Objects.equals(current.getDeviceId(), recorded.deviceId))
+                        throw new CloudRuntimeException("Offline RAW source disk identity changed");
+                }
+                start.plan.manifest.setOfflineGuard(volumeAllocationService.protectBackup(backup, host, currentVolumes));
+                backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.DETAIL_KEY, start.plan.manifest.toJson(), false);
+                saveBackupStart(backup.getId(), start);
+            }
             registerAdmission(backup.getId(), host, backup.getUuid(), "BACKUP");
             ThirdPartyBackupStart.Receipt receipt = backupStartControl(host, start.plan, "BACKUP_START_PREPARE");
             if (!"PREPARED".equals(receipt.state)) { throw new CloudRuntimeException("Backup start preparation was not accepted"); }
@@ -229,6 +247,9 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             start.checkedAt = receipt.checkedAt;
             saveBackupStart(backup.getId(), start);
             String json = new Gson().toJson(start.plan);
+            if (command instanceof AblestackCommvaultTakeBackupCommand) { ((AblestackCommvaultTakeBackupCommand) command).setVolumeStagingManifest(start.plan.manifest.toJson()); }
+            else if (command instanceof AblestackNetBackupTakeBackupCommand) { ((AblestackNetBackupTakeBackupCommand) command).setVolumeStagingManifest(start.plan.manifest.toJson()); }
+            else if (command instanceof AblestackVeeamTakeBackupCommand) { ((AblestackVeeamTakeBackupCommand) command).setVolumeStagingManifest(start.plan.manifest.toJson()); }
             if (command instanceof AblestackCommvaultTakeBackupCommand) { ((AblestackCommvaultTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
             else if (command instanceof AblestackNetBackupTakeBackupCommand) { ((AblestackNetBackupTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
             else if (command instanceof AblestackVeeamTakeBackupCommand) { ((AblestackVeeamTakeBackupCommand) command).setVolumeBackupStartPlan(json); }
@@ -1128,7 +1149,16 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                     return;
                 }
                 ThirdPartyBackupAdmission.PrimaryCapacity current = new Gson().fromJson(capacity.getDetails(), ThirdPartyBackupAdmission.PrimaryCapacity.class);
-                if ("RESTORE".equals(operation)) { validatePrimaryClaims(entry, restorePlan(backup), current); }
+                if ("RESTORE".equals(operation)) {
+                    long allocationBytes = 0;
+                    var allocation = backupDetailsDao.findDetail(backup.getId(), BackupVolumeAllocation.restoreKey(entry.jobId));
+                    if (allocation != null) {
+                        var allocationRequest = new Gson().fromJson(allocation.getValue(), BackupVolumeAllocation.Result.class);
+                        if (!entry.jobId.equals(allocationRequest.jobId)) throw new CloudRuntimeException("Allocation capacity owner differs from the restore job");
+                        for (var policy : allocationRequest.policies.values()) { policy.validate(); allocationBytes = Math.addExact(allocationBytes, policy.bytes); }
+                    }
+                    validatePrimaryClaims(entry, restorePlan(backup), current, allocationBytes);
+                }
                 else {
                     int buffer = ((Number) request.getOrDefault("bufferPercent", 0)).intValue();
                     if (buffer < 0 || buffer > 100) { throw new CloudRuntimeException("Invalid backup staging buffer"); }
@@ -1226,7 +1256,12 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
 
     private void validatePrimaryClaims(ThirdPartyBackupAdmission.Entry entry, ThirdPartyBackupRestore.Plan plan,
             ThirdPartyBackupAdmission.PrimaryCapacity current) {
-        long expected = 0;
+        validatePrimaryClaims(entry, plan, current, 0);
+    }
+
+    private void validatePrimaryClaims(ThirdPartyBackupAdmission.Entry entry, ThirdPartyBackupRestore.Plan plan,
+            ThirdPartyBackupAdmission.PrimaryCapacity current, long allocationBytes) {
+        long expected = allocationBytes;
         long largest = 0;
         for (int i = 0; i < plan.volumeUuids.size(); i++) {
             String uuid = plan.volumeUuids.get(i);
@@ -2291,6 +2326,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             operation.vmResultError = null;
         }
         writeRestoreOperation(backup.getId(), operation);
+        if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.restoreKey(plan.jobId)) != null)
+            sharedRaw.release(backup, plan.jobId, "RESTORE");
         releaseAdmission(backup.getId(), "RESTORE", plan.jobId);
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
             backupDetailsDao.addDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_STATE_DETAIL, operation.hostState, false);
@@ -2862,6 +2899,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             if (ensureRestoreOperation(backup, plan).cancelRequestedAt == 0 || !restoreRecords(backup, plan).isEmpty()) {
                 transfer.cleanup(plan);
             }
+            if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.restoreKey(plan.jobId)) != null)
+                sharedRaw.release(backup, plan.jobId, "RESTORE");
             releaseAdmission(backup.getId(), "RESTORE", plan.jobId);
         }
         saveRestoreCleanup(backup.getId(), plan.jobId, done ? "COMPLETED" : "WAITING", done ? null
@@ -2975,6 +3014,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
         backup.getDetails().put("thirdparty.volume.failure", start.cancelRequestedAt > 0
                 ? "Backup canceled before Host engine initialization" : start.reason);
         final ThirdPartyBackupStart.Operation failedStart = start;
+        if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.BACKUP_KEY) != null)
+            volumeAllocationService.releaseBackup(backup);
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) transaction -> {
             if (!backupDao.update(backup.getId(), backup)) { throw new CloudRuntimeException("Unable to persist confirmed backup start failure"); }
             saveBackupStart(backup.getId(), failedStart);
@@ -3397,6 +3438,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 backupDetailsDao.addDetail(backup.getId(), ThirdPartyBackupManifest.SOURCE_CLEANUP_STATE_KEY, "WAITING", false);
                 trackSourceCleanup(backup.getId());
             }
+            if (manifest.getOfflineGuard() != null || backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.BACKUP_KEY) != null)
+                volumeAllocationService.releaseBackup(backup);
             releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
             com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) status -> {
                 backup.setStatus(Backup.Status.BackedUp);
@@ -3502,6 +3545,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
             }
             if ("COMPLETED".equals(backup.getDetail(ThirdPartyBackupManifest.CLEANUP_STATE_KEY))) {
                 // Recover older completions interrupted between physical cleanup and DB release.
+                if (manifest.getOfflineGuard() != null || backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.BACKUP_KEY) != null)
+                volumeAllocationService.releaseBackup(backup);
                 releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
                 cleanupTerminalBackupRecords(backup, host);
                 return;
@@ -3564,6 +3609,8 @@ public class ThirdPartyBackupVolumeServiceImpl extends ManagerBase implements Th
                 throw new CloudRuntimeException(cleanup == null ? "Host cleanup returned no response" : cleanup.getDetails());
             }
             // Physical cleanup has proved that no reader/writer retains capacity.
+            if (manifest.getOfflineGuard() != null || backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.BACKUP_KEY) != null)
+                volumeAllocationService.releaseBackup(backup);
             // Persist release before completion so a restart still schedules a retry.
             releaseAdmission(backup.getId(), "BACKUP", backup.getUuid());
             saveCleanupState(backup.getId(), "COMPLETED", null);

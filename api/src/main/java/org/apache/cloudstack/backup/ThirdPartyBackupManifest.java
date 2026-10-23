@@ -63,6 +63,7 @@ public class ThirdPartyBackupManifest {
     private String backupType;
     private String parentBackupUuid;
     private boolean complete;
+    private AblestackSharedRawBackup.Plan offlineGuard;
     private List<Volume> volumes = new ArrayList<>();
     private Artifact metadata;
 
@@ -85,6 +86,7 @@ public class ThirdPartyBackupManifest {
     }
 
     public static class Volume {
+        public BackupVolumeAllocation allocation;
         public String uuid;
         public long deviceId;
         public long provisionedBytes;
@@ -129,7 +131,7 @@ public class ThirdPartyBackupManifest {
         try {
             ThirdPartyBackupManifest manifest = fromJson(parent.getDetail(DETAIL_KEY));
             manifest.validate(true);
-            return provider.equals(manifest.provider) && vmName.equals(manifest.vmName)
+            return manifest.offlineGuard == null && provider.equals(manifest.provider) && vmName.equals(manifest.vmName)
                     && sourceVolumes.size() == manifest.volumes.size()
                     && sourceVolumes.stream().allMatch(source -> manifest.volumes.stream().anyMatch(volume ->
                             volume.uuid.equals(source.getUuid()) && volume.deviceId == source.getDeviceId()
@@ -163,11 +165,13 @@ public class ThirdPartyBackupManifest {
             volume.deviceId = info.getDeviceId();
             volume.provisionedBytes = info.getSize();
             volume.engine = engine;
+            volume.allocation = info.getAllocation();
             if (parent != null) {
                 Volume previous = parent.volumes.stream().filter(v -> v.uuid.equals(info.getUuid())).findFirst()
                         .orElseThrow(() -> new CloudRuntimeException("Incremental volume has no parent artifact"));
                 if (previous.provisionedBytes != info.getSize() || previous.deviceId != info.getDeviceId()
-                        || !engine.equals(previous.engine)) {
+                        || !engine.equals(previous.engine) || (previous.allocation != null && volume.allocation != null
+                            && (!previous.allocation.intent.equals(volume.allocation.intent) || !previous.allocation.format.equals(volume.allocation.format)))) {
                     throw new CloudRuntimeException("Incremental source volume changed since its parent backup");
                 }
                 volume.chain.addAll(previous.chain);
@@ -186,6 +190,10 @@ public class ThirdPartyBackupManifest {
     }
 
     public void validate(boolean requireComplete) {
+        if (offlineGuard != null && (!"FULL".equalsIgnoreCase(backupType) || parentBackupUuid != null
+                || offlineGuard.version != 1 || !java.util.Objects.equals(backupUuid, offlineGuard.jobId) || !"BACKUP".equals(offlineGuard.operation))) {
+            throw new CloudRuntimeException("GFS2_RAW_INCREMENTAL_UNSUPPORTED: offline shared RAW requires an independent FULL backup");
+        }
         if (version != VERSION || !ThirdPartyBackupStagingService.isStagingProvider(provider)
                 || blank(backupUuid) || blank(vmName) || blank(timestamp) || volumes == null || volumes.isEmpty()) {
             throw new CloudRuntimeException("Invalid third-party volume backup manifest");
@@ -196,6 +204,12 @@ public class ThirdPartyBackupManifest {
             if (volume == null || blank(volume.uuid) || !ids.add(volume.uuid) || !devices.add(volume.deviceId)
                     || volume.provisionedBytes <= 0 || blank(volume.engine) || volume.chain == null || volume.chain.isEmpty()) {
                 throw new CloudRuntimeException("Invalid or duplicate volume in backup manifest");
+            }
+            if (volume.allocation != null) {
+                volume.allocation.validate();
+                if (!volume.uuid.equals(volume.allocation.volumeUuid) || volume.provisionedBytes != volume.allocation.bytes) {
+                    throw new CloudRuntimeException("Backup allocation differs from the source volume");
+                }
             }
             final Set<String> paths = new HashSet<>();
             for (Artifact artifact : volume.chain) {
@@ -270,6 +284,8 @@ public class ThirdPartyBackupManifest {
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String value) { timestamp = value; }
     public String getBackupType() { return backupType; }
+    public AblestackSharedRawBackup.Plan getOfflineGuard() { return offlineGuard; }
+    public void setOfflineGuard(AblestackSharedRawBackup.Plan guard) { offlineGuard = guard; }
     public void setBackupType(String value) { backupType = value; }
     public String getParentBackupUuid() { return parentBackupUuid; }
     public void setParentBackupUuid(String value) { parentBackupUuid = value; }

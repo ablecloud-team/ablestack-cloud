@@ -44,6 +44,7 @@ mount_point="$TEST_JOB_DIR/mount"
 dest="$mount_point/child"
 mkdir -p "$mount_point/parent"
 printf '<domaincheckpoint />' > "$mount_point/$PARENT_CHECKPOINT_PATH"
+check_backup_sources() { :; }
 mount_operation() { :; }
 mark_backup_in_progress() { :; }
 parent_qcow2_bitmap_exists_on_all_disks() { return 0; }

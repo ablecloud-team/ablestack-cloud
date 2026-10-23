@@ -69,6 +69,18 @@ public class ThirdPartyBackupRestoreCapacityTest {
         assertEquals(size + size / 5, BackupRestoreCapacity.requiredBytes(size, null));
     }
 
+    @Test
+    public void explicitAllocationReservesASecondPreparedImage() {
+        ThirdPartyBackupRestore.Plan plan = plan("ablestack-netbackup");
+        ThirdPartyBackupAdmission.PrimaryCapacity report = report("file:primary", 2300 * GIB);
+        report.primaryClaims.get(0).volumeBytes = 2000 * GIB;
+        report.primaryClaims.get(0).availableBytes = 2500 * GIB;
+        ThirdPartyBackupAdmission.Entry entry = new ThirdPartyBackupAdmission.Entry();
+        entry.jobId = plan.jobId; entry.stagingStorageKey = "staging"; entry.requiredBytes = 1200 * GIB;
+        ReflectionTestUtils.invokeMethod(new ThirdPartyBackupVolumeServiceImpl(), "validatePrimaryClaims", entry, plan, report, 1000 * GIB);
+        assertThrows(CloudRuntimeException.class, () -> validate(plan, report, 1200 * GIB));
+    }
+
     private ThirdPartyBackupRestore.Plan plan(String provider) {
         ThirdPartyBackupRestore.Plan plan = new ThirdPartyBackupRestore.Plan();
         plan.jobId = "restore-job";

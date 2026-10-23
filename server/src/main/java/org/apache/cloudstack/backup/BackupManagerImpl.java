@@ -236,6 +236,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     @Inject
     private BackupSnapshotGuard backupSnapshotGuard;
 
+    @Inject private BackupVolumeAllocationService backupVolumeAllocationService;
+
     @Inject
     private ThirdPartyBackupStagingService thirdPartyBackupStagingService;
 
@@ -862,6 +864,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             DiskOfferingVO diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
             Backup.VolumeInfo volumeInfo = new Backup.VolumeInfo(vol.getUuid(), vol.getPath(), vol.getVolumeType(), vol.getSize(),
                 vol.getDeviceId(), diskOffering.getUuid(), vol.getMinIops(), vol.getMaxIops());
+            volumeInfo.setAllocation(backupVolumeAllocationService.capture(vol));
             list.add(volumeInfo);
         }
         return new Gson().toJson(list.toArray(), Backup.VolumeInfo[].class);
@@ -902,6 +905,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 throw new CloudRuntimeException("Failed to get the backup provider for the zone, please contact the administrator");
             }
 
+            backupSnapshotGuard.checkBackupSource(vmId, offering.getProvider());
             if (BackupProviderNameUtils.isCommvaultFamily(offering.getProvider())) {
                 return assignAblestackCommvaultBackupOffering(vm, offering, backupProvider);
             }
@@ -1110,6 +1114,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             if (offering == null || !allowsUserDefinedBackupSchedule(offering)) {
                 throw new CloudRuntimeException("The selected backup offering does not allow user-defined backup schedule");
             }
+
+            backupSnapshotGuard.checkBackupSource(vmId, offering.getProvider());
 
             final int maxBackups = validateAndGetDefaultBackupRetentionIfRequired(cmd.getMaxBackups(), offering, vm);
 
@@ -1377,6 +1383,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 throw new CloudRuntimeException("Instance backup provider not found for the Offering");
             }
 
+            backupSnapshotGuard.checkBackupSource(vmId, offering.getProvider());
+
             Long backupScheduleId = getBackupScheduleId(job);
             boolean isScheduledBackup = backupScheduleId != null;
 
@@ -1479,6 +1487,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             accountManager.checkAccess(caller, null, true, vm);
             final Long scheduleId = cmd.getScheduleId() != null ? cmd.getScheduleId() : getBackupScheduleId(job);
             backupSnapshotGuard.checkBackup(vmId);
+            backupSnapshotGuard.checkBackupSource(vmId, BackupProviderNameUtils.ABLESTACK_VEEAM);
             checkNoActiveFastCloneFlattenForBackup(vmId);
             final BackupScheduleVO schedule = validateExternalBackupExecution(vm, BackupProviderNameUtils.ABLESTACK_VEEAM,
                     cmd.getVeeamJobName(), cmd.getSelectionMode(), cmd.getHostId(), cmd.getBackupOfferingId(), scheduleId, cmd.getVmScheduleBackup());
@@ -1752,6 +1761,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             accountManager.checkAccess(caller, null, true, vm);
 
             backupSnapshotGuard.checkBackup(vmId);
+            backupSnapshotGuard.checkBackupSource(vmId, BackupProviderNameUtils.ABLESTACK_NETBACKUP);
             checkNoActiveFastCloneFlattenForBackup(vm.getId());
             final BackupScheduleVO schedule = validateExternalBackupExecution(vm, BackupProviderNameUtils.ABLESTACK_NETBACKUP,
                     cmd.getPolicyId(), cmd.getSelectionMode(), cmd.getHostId(), cmd.getBackupOfferingId(), backupScheduleId, cmd.getVmScheduleBackup());
@@ -2729,6 +2739,10 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         // Recovery records are failure history, not additional retained backup chains.
         // The common coordinator owns their cleanup; preserve other providers' retention behavior.
         final List<BackupVO> retainedBackups = backups.stream().filter(backup -> {
+            // Offline RAW Fulls count only after success. A queued/failed replacement
+            // must never consume a retention slot and evict a usable recovery point.
+            if (backup.getStatus() != Backup.Status.BackedUp && backup.getStatus() != Backup.Status.Restoring
+                    && backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.BACKUP_KEY) != null) return false;
             if (backup.getStatus() != Backup.Status.Failed && backup.getStatus() != Backup.Status.Error && backup.getStatus() != Backup.Status.Canceled) { return true; }
             backupDao.loadDetails(backup);
             return backup.getDetails() == null || StringUtils.isBlank(backup.getDetail(AblestackBackupFrameworkUtils.BACKUP_CLEANUP_STATE_DETAIL));
@@ -2987,6 +3001,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             }
             tryRestoreVM(backup, vm, offering, backupDetailsInMessage, quickRestore, hostId);
             persistRestoreOperationPhase(backup.getId(), "RUNNING", "FINALIZING", 95);
+            backupVolumeAllocationService.completeRestore(backup);
             updateStates(vm, backupProvider, quickRestore);
 
             final boolean imported = importRestoredVM(vm.getDataCenterId(), vm.getDomainId(), vm.getAccountId(), vm.getUserId(),
@@ -3152,6 +3167,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 final boolean imported = importRestoredVM(vm.getDataCenterId(), vm.getDomainId(), vm.getAccountId(), vm.getUserId(),
                         vm.getInstanceName(), vm.getHypervisorType(), backup, offering);
                 if (imported) {
+                    backupVolumeAllocationService.completeRestore(backup);
                     getBackupProvider(offering.getProvider()).onVmRestoreCompleted(vm, backup);
                     netBackupRestoreCoordinator.persistRestoreState(backup, vm, resolution.getRequestIdentifier(), RestorePhase.COMPLETED);
                     netBackupRestoreCoordinator.completeSession(vm.getId(), resolution.getRequestIdentifier());
@@ -3188,6 +3204,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                 final boolean imported = importRestoredVM(vm.getDataCenterId(), vm.getDomainId(), vm.getAccountId(), vm.getUserId(),
                         vm.getInstanceName(), vm.getHypervisorType(), backup, offering);
                 if (imported) {
+                    backupVolumeAllocationService.completeRestore(backup);
                     getBackupProvider(offering.getProvider()).onVmRestoreCompleted(vm, backup);
                     netBackupRestoreCoordinator.persistRestoreState(backup, vm, resolution.getRequestIdentifier(), RestorePhase.COMPLETED);
                     netBackupRestoreCoordinator.completeSession(vm.getId(), resolution.getRequestIdentifier());
@@ -3984,6 +4001,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             return true;
         }
         try {
+            backupVolumeAllocationService.completeRestore(backup);
             persistRestoreOperationPhase(backup.getId(), "RUNNING", "ATTACH_VOLUME", 85);
             if (netBackupRestore) {
                 netBackupRestoreCoordinator.persistRestoreContext(backup, netBackupRestoreMarkerVm, netBackupRestoreRequestIdentifier,
@@ -4109,6 +4127,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
     }
 
     private void runPostRestoreMaintenance(final BackupProvider backupProvider, final VirtualMachine vm, final Backup backup, final boolean volumeOnly) {
+        backupVolumeAllocationService.completeRestore(backup);
         if (!backupProvider.supportsPostRestoreMaintenance()) {
             return;
         }
@@ -5024,6 +5043,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         try {
                             reconcileInterruptedRestoreJobs(backupProvider, dataCenter);
                             reconcileBackingUpBackups(backupProvider, dataCenter);
+                            reconcileAblestackOfflineRetention(backupProvider, dataCenter);
                         } catch (Exception e) {
                             logger.error("Failed to reconcile active backup/restore jobs for provider {} in zone {} from [{}]: {}",
                                     backupProvider.getName(), dataCenter.getId(), source, e.getMessage(), e);
@@ -5149,6 +5169,7 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
             } else if ("COMPLETED".equalsIgnoreCase(restoreState)) {
                 persistRestoreOperationPhase(backup.getId(), "RUNNING", "FINALIZING", 95);
                 try {
+                    backupVolumeAllocationService.completeRestore(backup);
                     finalizeDetachedRestoreOperation(backupProvider, offering, backup, vm, operationType);
                 } catch (Exception e) {
                     backupDao.loadDetails(backup);
@@ -5330,8 +5351,13 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                     if (provider != null) { provider.reconcileRestoreJob(backup); }
                     continue;
                 }
-                if (host != null && cleanupBackupJobFiles(host.getId(), cleanupDetail.getValue(), "restore")) {
-                    completeRestoreJobFileCleanup(backup);
+                try {
+                    if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.restoreKey(cleanupDetail.getValue())) != null)
+                        backupVolumeAllocationService.releaseRestore(backup, cleanupDetail.getValue());
+                    if (host != null && cleanupBackupJobFiles(host.getId(), cleanupDetail.getValue(), "restore"))
+                        completeRestoreJobFileCleanup(backup);
+                } catch (RuntimeException pending) {
+                    logger.warn("Shared RAW restore cleanup remains pending for [{}]: {}", cleanupDetail.getValue(), pending.getMessage());
                 }
             }
         }
@@ -5432,6 +5458,30 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
                         logger.warn("Post-restore maintenance retry {} scheduled for provider {}, VM {}, backup {} due to: {}",
                                 task.retryCount, task.providerName, task.vmId, task.backupId, e.getMessage());
                     }
+                }
+            }
+        }
+
+        protected void reconcileAblestackOfflineRetention(final BackupProvider provider, final DataCenter zone) {
+            if (!isAblestackHostSideRestoreProvider(provider.getName())) return;
+            // A durable pending flag covers asynchronous completion and management restarts.
+            for (BackupDetailVO detail : backupDetailsDao.findDetails(AblestackSharedRawBackup.RETENTION_PENDING, "true", false)) {
+                try {
+                    BackupVO backup = backupDao.findById(detail.getResourceId());
+                    if (backup == null || backup.getZoneId() != zone.getId()) continue;
+                    BackupOffering offering = backupOfferingDao.findByIdIncludingRemoved(backup.getBackupOfferingId());
+                    if (offering == null || !isMatchingBackupProvider(provider.getName(), offering.getProvider())) continue;
+                    if (backup.getStatus() != Backup.Status.BackedUp) continue;
+                    Long scheduleId = backup.getBackupScheduleId();
+                    BackupSchedule schedule = scheduleId == null ? null : backupScheduleDao.findById(scheduleId);
+                    if (schedule != null && schedule.getMaxBackups() > 0) {
+                        deleteOldestBackupFromScheduleIfRequired(backup.getVmId(), scheduleId);
+                        // Expiration may be deferred by the provider; keep retrying until settled.
+                        if (getBackupChainsForSchedule(backupDao.listBySchedule(scheduleId)).size() > schedule.getMaxBackups()) continue;
+                    }
+                    backupDetailsDao.removeDetail(backup.getId(), AblestackSharedRawBackup.RETENTION_PENDING);
+                } catch (Exception e) {
+                    logger.warn("Offline RAW schedule retention remains pending for backup [{}]: {}", detail.getResourceId(), e.getMessage());
                 }
             }
         }
@@ -6319,6 +6369,8 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         }
         boolean cleanedAny = false;
         for (final String restoreJobId : restoreJobIds) {
+            if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.restoreKey(restoreJobId)) != null)
+                backupVolumeAllocationService.releaseRestore(backup, restoreJobId);
             cleanedAny |= cleanupBackupJobFiles(restoreHost.getId(), restoreJobId, provider + " restore");
         }
         return cleanedAny;
@@ -6580,6 +6632,14 @@ public class BackupManagerImpl extends ManagerBase implements BackupManager {
         if (StringUtils.isNotBlank(backup.getDetail(ThirdPartyBackupRestore.PLAN_KEY))
                 && !"COMPLETED".equals(backup.getDetail(ThirdPartyBackupRestore.CLEANUP_STATE_KEY))) {
             persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL, restoreJobId);
+            return;
+        }
+        try {
+            if (backupDetailsDao.findDetail(backup.getId(), AblestackSharedRawBackup.restoreKey(restoreJobId)) != null)
+                backupVolumeAllocationService.releaseRestore(backup, restoreJobId);
+        } catch (RuntimeException unconfirmed) {
+            persistBackupDetail(backup.getId(), AblestackBackupFrameworkUtils.RESTORE_JOB_CLEANUP_ID_DETAIL, restoreJobId);
+            logger.warn("Shared RAW restore guard cleanup remains pending for [{}]: {}", restoreJobId, unconfirmed.getMessage());
             return;
         }
         if (cleanupBackupJobFiles(restoreHost.getId(), restoreJobId, provider + " restore")) {

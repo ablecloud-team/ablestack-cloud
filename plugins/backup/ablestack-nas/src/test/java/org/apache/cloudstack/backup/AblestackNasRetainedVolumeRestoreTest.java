@@ -60,6 +60,8 @@ import org.mockito.Mockito;
 @RunWith(MockitoJUnitRunner.class)
 public class AblestackNasRetainedVolumeRestoreTest {
     @InjectMocks private AblestackNasBackupProvider provider;
+    @Mock private BackupVolumeAllocationService backupVolumeAllocationService;
+    @Mock private ThirdPartyBackupVolumeService thirdPartyBackupVolumeService;
     @Mock private BackupDao backupDao;
     @Mock private BackupDetailsDao backupDetailsDao;
     @Mock private BackupRepositoryDao backupRepositoryDao;
@@ -77,6 +79,7 @@ public class AblestackNasRetainedVolumeRestoreTest {
                 Volume.Type.DATADISK, 64L * 1024 * 1024 * 1024, 1L, "disk-offering", null, null);
         BackupVO full = backup("full", "/source-vm/full", saved);
         BackupVO incremental = backup("inc", "/source-vm/inc", saved);
+        when(backupDao.findById(incremental.getId())).thenReturn(incremental);
         incremental.getDetails().put("nas.parent.backup.uuid", full.getUuid());
         when(backupDao.findByUuid(full.getUuid())).thenReturn(full);
         when(backupDao.listByVmIdAndOffering(0L, 42L, 0L)).thenReturn(List.of(full, incremental));

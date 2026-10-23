@@ -120,6 +120,7 @@ import static org.apache.cloudstack.backup.BackupManager.BackupQosBandwidthLimit
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
 public class AblestackCommvaultBackupProvider extends AdapterBase implements BackupProvider, Configurable, AblestackBackupOfferingLifecycle {
+    @Inject private BackupVolumeAllocationService backupVolumeAllocationService;
 
     private static final Logger LOG = LogManager.getLogger(AblestackCommvaultBackupProvider.class);
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
@@ -380,7 +381,7 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths = getVolumePoolsAndPaths(vmVolumes);
         validateVolumePoolTypes(volumePoolsAndPaths.first());
         final Backup latestBackup = getLatestBackedUpBackup(vm, backupScheduleId);
-        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, vmHost, vmVolumes, backupScheduleId)
+        final boolean incrementalBackup = !backupVolumeAllocationService.requiresOfflineFull(vmVolumes) && shouldUseIncrementalBackup(vm, latestBackup, vmHost, vmVolumes, backupScheduleId)
                 && ThirdPartyBackupManifest.canContinue(latestBackup, getName(), vm.getInstanceName(),
                         areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2, vmVolumes);
         BackupExecutionResult result = executeBackup(vm, quiesceVM, vmHost, vmHostVO, client, planId, backupPath, backupContentPath, vmVolumes, volumePoolsAndPaths,
@@ -747,7 +748,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                                                 Pair<List<PrimaryDataStoreTO>, List<String>> volumePoolsAndPaths, Backup latestBackup,
                                                 boolean incrementalBackup, boolean retryAsFullOnFailure) {
         final String checkpointName = backupPath.substring(backupPath.lastIndexOf("/") + 1);
-        final String backupEngine = areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
+        final String backupEngine = backupVolumeAllocationService.requiresOfflineFull(vmVolumes) ? AblestackSharedRawBackup.ENGINE
+                : areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
         validateBackupStageCapacity(vmHostVO, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
@@ -896,6 +898,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             if (BACKUP_ENGINE_RBD_DIFF.equals(backupEngine)) {
                 String suffix = incrementalBackup ? ".rbdiff" : ".raw";
                 backupFiles.add(String.format("%s.%s%s", diskPrefix, volume.getUuid(), suffix));
+            } else if (AblestackSharedRawBackup.ENGINE.equals(backupEngine) && volume.getFormat() == Storage.ImageFormat.RAW) {
+                backupFiles.add(String.format("%s.%s.raw", diskPrefix, volume.getUuid()));
             } else {
                 backupFiles.add(String.format("%s.%s.qcow2", diskPrefix, volume.getUuid()));
             }
@@ -909,8 +913,10 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
             VolumeVO vol = volumes.get(i);
             DiskOffering diskOffering = diskOfferingDao.findById(vol.getDiskOfferingId());
             String diskOfferingUuid = diskOffering != null ? diskOffering.getUuid() : null;
-            infoList.add(new Backup.VolumeInfo(vol.getUuid(), backupFiles.get(i), vol.getVolumeType(), vol.getSize(),
-                    vol.getDeviceId(), diskOfferingUuid, vol.getMinIops(), vol.getMaxIops()));
+            Backup.VolumeInfo info = new Backup.VolumeInfo(vol.getUuid(), backupFiles.get(i), vol.getVolumeType(), vol.getSize(),
+                    vol.getDeviceId(), diskOfferingUuid, vol.getMinIops(), vol.getMaxIops());
+            info.setAllocation(backupVolumeAllocationService.capture(vol));
+            infoList.add(info);
         }
         return new com.google.gson.Gson().toJson(infoList.toArray(), Backup.VolumeInfo[].class);
     }
@@ -1282,6 +1288,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
         command.setRestoreVolumePools(destinations.first());
         command.setRestoreVolumePaths(destinations.second());
         command.setRestoreVolumeProvisioningTypes(targets, destinations.second());
+        command.setRestoreVolumeAllocation(backupVolumeAllocationService.configureRestore(backup, host,
+                command.getRestoreJobId(), targets, destinations.second()));
         command.setBackupVolumesUUIDs(sourceUuids);
         command.setVmExists(singleVolume ? null : vm.getRemoved() == null);
         command.setVmState(vm.getState());
@@ -1636,6 +1644,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                 restoreCommand.setRestoreVolumePools(volumePoolsAndPaths.first());
                 restoreCommand.setRestoreVolumePaths(volumePoolsAndPaths.second());
                 restoreCommand.setRestoreVolumeProvisioningTypes(restoreVolumes, volumePoolsAndPaths.second());
+                restoreCommand.setRestoreVolumeAllocation(backupVolumeAllocationService.configureRestore(backup, restoreHost,
+                        restoreCommand.getRestoreJobId(), restoreVolumes, volumePoolsAndPaths.second()));
                 restoreCommand.setVmExists(vm.getRemoved() == null);
                 restoreCommand.setVmState(vm.getState());
                 restoreCommand.setRestorePlan(createRestorePlan(false));
@@ -1858,6 +1868,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
                     restoreCommand.setVolumeChainStates(getVolumeChainStates(Collections.singletonList(matchingVolume), backup));
                     restoreCommand.setRestoreVolumePaths(Collections.singletonList(String.format("%s/%s", getVolumePathPrefix(pool), volumeUUID)));
                     restoreCommand.setRestoreVolumeProvisioningTypes(Collections.singletonList(restoredVolume), restoreCommand.getRestoreVolumePaths());
+                    restoreCommand.setRestoreVolumeAllocation(backupVolumeAllocationService.configureRestore(backup, vmHost,
+                            restoreCommand.getRestoreJobId(), Collections.singletonList(restoredVolume), restoreCommand.getRestoreVolumePaths()));
                     DataStore dataStore = dataStoreMgr.getDataStore(pool.getId(), DataStoreRole.Primary);
                     if (dataStore == null) {
                         throw new CloudRuntimeException(String.format("Unable to get primary datastore TO for pool [%s] while restoring volume [%s]",
@@ -2644,7 +2656,8 @@ public class AblestackCommvaultBackupProvider extends AdapterBase implements Bac
 
             @Override
             public void completed(final Backup current) {
-                if (BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))
+                if (ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY)).getOfflineGuard() == null
+                        && BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))
                         && StringUtils.isBlank(getBackupDetail(current, DETAIL_CHECKPOINT_XML))) {
                     final String xml = readFileContentsOnHost((HostVO) host, getBackupDetail(current, DETAIL_CHECKPOINT_PATH));
                     if (StringUtils.isBlank(xml)) {

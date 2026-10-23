@@ -166,6 +166,8 @@ public class BackupManagerTest {
     private org.apache.cloudstack.backup.BackupVolumeGuard backupVolumeGuard;
     @Mock
     private BackupSnapshotGuard backupSnapshotGuard;
+
+    @Mock private BackupVolumeAllocationService backupVolumeAllocationService;
     @Mock
     private AblestackBackupVmRemovalGuard ablestackBackupVmRemovalGuard;
     @Mock
@@ -4134,6 +4136,74 @@ public class BackupManagerTest {
         List<List<BackupVO>> chains = ReflectionTestUtils.invokeMethod(backupManager, "getBackupChainsForSchedule", List.of(valid, failed, pending));
         assertEquals(1, chains.size());
         assertEquals(Collections.singletonList(valid), chains.get(0));
+    }
+
+    private BackupVO offlineFull(long id, Backup.Status status) {
+        BackupVO backup = new BackupVO();
+        ReflectionTestUtils.setField(backup, "id", id);
+        ReflectionTestUtils.setField(backup, "uuid", "offline-full-" + id); backup.setVmId(1L); backup.setZoneId(1L);
+        backup.setBackupOfferingId(1L); backup.setBackupScheduleId(10L);
+        backup.setDate(new Date(id)); backup.setType("FULL"); backup.setStatus(status);
+        backup.setDetails(new HashMap<>());
+        when(backupDetailsDao.findDetail(id, AblestackSharedRawBackup.BACKUP_KEY))
+                .thenReturn(new BackupDetailVO(id, AblestackSharedRawBackup.BACKUP_KEY, "{}", false));
+        return backup;
+    }
+
+    @Test public void offlineFullRetentionKeepsTwoEvenWhenGlobalIncrementalIsEnabled() throws Exception {
+        Object previous = ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "_value");
+        ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", Boolean.TRUE);
+        try (MockedStatic<ActionEventUtils> events = Mockito.mockStatic(ActionEventUtils.class)) {
+            assertTrue(BackupManager.KvmIncrementalBackup.value());
+            BackupVO oldest = offlineFull(1, Backup.Status.BackedUp);
+            BackupVO second = offlineFull(2, Backup.Status.BackedUp);
+            BackupVO third = offlineFull(3, Backup.Status.BackedUp);
+            when(backupScheduleDao.findById(10L)).thenReturn(backupScheduleVOMock);
+            when(backupScheduleVOMock.getMaxBackups()).thenReturn(2);
+            when(backupDao.listBySchedule(10L)).thenReturn(List.of(third, oldest, second));
+            doReturn(true).when(backupManager).deleteBackup(1L, false);
+            backupManager.deleteOldestBackupFromScheduleIfRequired(1L, 10L);
+            verify(backupManager).deleteBackup(1L, false);
+            verify(backupManager, never()).deleteBackup(2L, false);
+            verify(backupManager, never()).deleteBackup(3L, false);
+        } finally { ReflectionTestUtils.setField(BackupManager.KvmIncrementalBackup, "_value", previous); }
+    }
+
+    @Test public void offlineReplacementDoesNotEvictUsableBackupsBeforeSuccess() throws Exception {
+        for (Backup.Status state : List.of(Backup.Status.BackingUp, Backup.Status.Failed, Backup.Status.Canceled)) {
+            Mockito.reset(backupDetailsDao);
+            BackupVO first = offlineFull(1, Backup.Status.BackedUp);
+            BackupVO second = offlineFull(2, Backup.Status.BackedUp);
+            BackupVO replacement = offlineFull(3, state);
+            when(backupScheduleDao.findById(10L)).thenReturn(backupScheduleVOMock);
+            when(backupScheduleVOMock.getMaxBackups()).thenReturn(2);
+            when(backupDao.listBySchedule(10L)).thenReturn(List.of(first, second, replacement));
+            backupManager.deleteOldestBackupFromScheduleIfRequired(1L, 10L);
+        }
+        verify(backupManager, never()).deleteBackup(anyLong(), eq(false));
+    }
+
+    @Test public void offlineRetentionRunsAfterAsynchronousCompletionAndRetriesDeferredExpiration() throws Exception {
+        BackupVO backup = offlineFull(3, Backup.Status.BackedUp);
+        when(backupDao.findById(3L)).thenReturn(backup);
+        when(backupDetailsDao.findDetails(AblestackSharedRawBackup.RETENTION_PENDING, "true", false))
+                .thenReturn(List.of(new BackupDetailVO(3L, AblestackSharedRawBackup.RETENTION_PENDING, "true", false)));
+        when(backupOfferingDao.findByIdIncludingRemoved(1L)).thenReturn(backupOfferingVOMock);
+        when(backupOfferingVOMock.getProvider()).thenReturn("ablestack-netbackup");
+        BackupProvider provider = mock(BackupProvider.class); when(provider.getName()).thenReturn("ablestack-netbackup");
+        DataCenter zone = mock(DataCenter.class); when(zone.getId()).thenReturn(1L);
+        when(backupScheduleDao.findById(10L)).thenReturn(backupScheduleVOMock);
+        when(backupScheduleVOMock.getMaxBackups()).thenReturn(2);
+        BackupVO oldest = offlineFull(1, Backup.Status.Restoring);
+        BackupVO second = offlineFull(2, Backup.Status.BackedUp);
+        when(backupDao.listBySchedule(10L)).thenReturn(List.of(oldest, second, backup));
+        doReturn(false).when(backupManager).deleteBackup(1L, false);
+        BackupManagerImpl.BackupSyncTask task = backupManager.new BackupSyncTask(backupManager);
+        task.reconcileAblestackOfflineRetention(provider, zone);
+        verify(backupDetailsDao, never()).removeDetail(3L, AblestackSharedRawBackup.RETENTION_PENDING);
+        when(backupDao.listBySchedule(10L)).thenReturn(List.of(second, backup));
+        task.reconcileAblestackOfflineRetention(provider, zone);
+        verify(backupDetailsDao).removeDetail(3L, AblestackSharedRawBackup.RETENTION_PENDING);
     }
 
 }

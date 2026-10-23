@@ -26,19 +26,22 @@
 #   → exact metadata artifact resolution → Mold restoreBackupArtifact
 #
 # Manual:
-#   bash /etc/ablestack/veeam/mold-veeam-restore-agent.sh
-#   bash /etc/ablestack/veeam/mold-backup.sh restore-watch --job 'ablecube2' --trigger-mold --since-min 30
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/mold-veeam-restore-agent.sh
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/mold-backup.sh restore-watch --job 'ablecube2' --trigger-mold --since-min 30
 
 # Avoid set -e: Stopped VMs make virsh fail and would abort the FLR→Mold path.
 set -uo pipefail
 
 ETC_DIR="${ABLESTACK_VEEAM_ETC_DIR:-/etc/ablestack/veeam}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${ETC_DIR}/mold-backup.env"
 SINCE_MIN="${VEEAM_RESTORE_WATCH_WINDOW_MIN:-30}"
-MOLD_BACKUP_SH="${ETC_DIR}/mold-backup.sh"
+MOLD_BACKUP_SH="${SCRIPT_DIR}/mold-backup.sh"
 
 [[ -f "$ENV_FILE" ]] && { set -a; # shellcheck source=/dev/null
   source "$ENV_FILE"; set +a; }
+STATE_DIR="${ABLESTACK_VEEAM_STATE_DIR:-/var/lib/ablestack/veeam}"
+export ABLESTACK_VEEAM_STATE_DIR="$STATE_DIR"
 
 # Unset stale KVM_HOSTNAME from env so ownership uses live hostname.
 unset KVM_HOSTNAME || true
@@ -48,7 +51,7 @@ if [[ "${MOLD_BACKUP_CONF_FORCE:-false}" != "true" ]]; then
   unset MOLD_BACKUP_CONF || true
 fi
 
-mkdir -p "${ETC_DIR}/events" "${ETC_DIR}/registry" "${ETC_DIR}/state" 2>/dev/null || true
+mkdir -p "${STATE_DIR}/events" "${STATE_DIR}/registry" "${STATE_DIR}/state" 2>/dev/null || true
 
 job_name_from_conf() {
   # Generated configurations are root-owned shell assignments, including quoted Job names.
@@ -74,7 +77,7 @@ run_restore_watch() {
   if ! grep -qE '^RESTORE_AUTO_STOP=' "$conf" 2>/dev/null; then
     export RESTORE_AUTO_STOP=true
   fi
-  "${MOLD_BACKUP_SH}" restore-watch \
+  bash "${MOLD_BACKUP_SH}" restore-watch \
     --job "$job" \
     --since-min "${SINCE_MIN}" \
     --trigger-mold || true
@@ -97,14 +100,14 @@ for conf in "${job_confs[@]}"; do
 done
 
 echo "=== mold-backup.sh restore-watch done ==="
-if [[ -d "${ETC_DIR}/registry" ]]; then
+if [[ -d "${STATE_DIR}/registry" ]]; then
   echo "=== restore registry (last 10) ==="
-  find "${ETC_DIR}/registry" -name '*.log' -type f -printf '%T@ %p\n' 2>/dev/null \
+  find "${STATE_DIR}/registry" -name '*.log' -type f -printf '%T@ %p\n' 2>/dev/null \
     | sort -rn | head -3 | while read -r _ p; do
         tail -n 5 "$p" 2>/dev/null || true
       done
 fi
-if [[ -f "${ETC_DIR}/events/restore.log" ]]; then
+if [[ -f "${STATE_DIR}/events/restore.log" ]]; then
   echo "=== restore events (last 10) ==="
-  tail -n 10 "${ETC_DIR}/events/restore.log" 2>/dev/null || true
+  tail -n 10 "${STATE_DIR}/events/restore.log" 2>/dev/null || true
 fi

@@ -113,6 +113,21 @@ fi
         proof = dict(self.proof, details=[dict(status="Warning", message="Failed to restore file permissions on domain-config.xml")])
         self.assertIn("API restoreBackupArtifact", self.watch(proof=proof))
 
+    def test_warning_offline_raw_full_metadata_accepts_mold_vm_descriptor(self):
+        self.manifest["backupType"] = "FULL"
+        self.manifest["volumes"][0]["engine"] = "OFFLINE_FILE"
+        self.manifest["volumes"][0]["chain"][0]["path"] = str(self.root / "root.raw")
+        self.manifest["offlineGuard"] = {"version": 1, "operation": "BACKUP", "jobId": "backup-test", "vmUuid": "vm-test"}
+        self.write_metadata()
+        self.assertIn("API restoreBackupArtifact", self.watch())
+
+    def test_offline_raw_incremental_metadata_is_rejected(self):
+        self.manifest["backupType"] = "INCREMENTAL"
+        self.manifest["volumes"][0]["engine"] = "OFFLINE_FILE"
+        self.manifest["offlineGuard"] = {"version": 1, "operation": "BACKUP", "jobId": "backup-test", "vmUuid": "vm-test"}
+        self.write_metadata()
+        self.assertIn("independent Full", self.assert_blocked())
+
     def test_warning_rbd_metadata_does_not_require_disk_payloads(self):
         self.manifest["volumes"][0]["engine"] = "RBD_DIFF"
         self.manifest["volumes"][0]["chain"][0]["path"] = str(self.root / "root.root-volume.raw")

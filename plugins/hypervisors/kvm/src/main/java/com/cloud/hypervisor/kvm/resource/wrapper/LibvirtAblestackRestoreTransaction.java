@@ -92,6 +92,8 @@ final class LibvirtAblestackRestoreTransaction {
                 if (available == null || volumeBytes <= 0) {
                     throw new CloudRuntimeException("Unable to validate primary storage capacity for " + targets.get(i));
                 }
+                var allocation = LibvirtAblestackRestoreProvisioning.allocation(targets.get(i));
+                if (allocation != null) volumeBytes = Math.addExact(volumeBytes, allocation.bytes);
                 preparedBytes.merge(key, volumeBytes, Math::addExact);
                 availableBytes.put(key, available);
             }
@@ -170,6 +172,19 @@ final class LibvirtAblestackRestoreTransaction {
                     state.setProperty(i + ".prepared", target + "-csrestore-prepared-" + id);
                     state.setProperty(i + ".original", target + "-csrestore-original-" + id);
                     state.setProperty(i + ".hadOriginal", String.valueOf(backends.get(i).exists(target)));
+                    var allocation = LibvirtAblestackRestoreProvisioning.allocation(targets.get(i));
+                    if (allocation != null) {
+                        if (LibvirtAblestackRestoreProvisioning.jobId() == null) throw new CloudRuntimeException("Missing allocation restore job ID");
+                        if (!allocation.poolUuid.equals(pools.get(i).getUuid())) throw new CloudRuntimeException("Restore allocation pool differs from its disk plan");
+                        state.setProperty("allocation.job", LibvirtAblestackRestoreProvisioning.jobId());
+                        String uuid = UUID.nameUUIDFromBytes((id + ":" + i).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+                        state.setProperty(i + ".allocation.uuid", uuid);
+                        String allocated = LibvirtAblestackRestoreAllocation.allocatedPath(manager, allocation, uuid);
+                        if (backends.get(i).exists(allocated)) throw new CloudRuntimeException("Allocation destination is already occupied");
+                        state.setProperty(i + ".allocated", allocated);
+                        state.setProperty(i + ".allocation.path", targets.get(i));
+                        state.setProperty(i + ".allocation.request", new com.google.gson.Gson().toJson(allocation));
+                    }
                 }
                 save(journal, state);
                 try {
@@ -186,6 +201,15 @@ final class LibvirtAblestackRestoreTransaction {
                         }
                         if (!backends.get(i).exists(state.getProperty(i + ".prepared"))) {
                             throw new CloudRuntimeException("Prepared restore volume is missing: " + targets.get(i));
+                        }
+                        if (state.getProperty(i + ".allocation.request") != null) {
+                            var allocation = new com.google.gson.Gson().fromJson(state.getProperty(i + ".allocation.request"), org.apache.cloudstack.backup.BackupVolumeAllocation.class);
+                            var evidence = LibvirtAblestackRestoreAllocation.materialize(manager, allocation, state.getProperty(i + ".prepared"),
+                                    state.getProperty(i + ".allocation.uuid"), timeout);
+                            state.setProperty(i + ".allocation.evidence", new com.google.gson.Gson().toJson(evidence));
+                            save(journal, state);
+                            backends.get(i).delete(state.getProperty(i + ".prepared"));
+                            backends.get(i).move(state.getProperty(i + ".allocated"), state.getProperty(i + ".prepared"));
                         }
                         state.setProperty(i + ".ready", "true");
                         stamp(state, i + ".preparedAt");
@@ -410,6 +434,10 @@ final class LibvirtAblestackRestoreTransaction {
             final String target = state.getProperty(i + ".target");
             final String original = state.getProperty(i + ".original");
             final String prepared = state.getProperty(i + ".prepared");
+            if (state.getProperty(i + ".allocated") != null && backend.exists(state.getProperty(i + ".allocated"))) {
+                if (state.getProperty(i + ".allocation.evidence") == null) throw new IOException("Allocation copy ownership is unconfirmed; retain it for recovery");
+                backend.delete(state.getProperty(i + ".allocated"));
+            }
             stamp(state, i + ".rollbackStartedAt");
             save(journal, state);
             if (Boolean.parseBoolean(state.getProperty(i + ".rolledBack"))) {
@@ -483,6 +511,7 @@ final class LibvirtAblestackRestoreTransaction {
     private static void deleteJournal(final Path journal, final Properties state) throws IOException {
         // A crash or receipt write failure must leave the journal available to re-archive the outcome.
         LibvirtAblestackRestoreOutcome.publish(state);
+        LibvirtAblestackRestoreAllocation.publish(state);
         Files.delete(journal);
         try (FileChannel directory = FileChannel.open(journal.getParent(), StandardOpenOption.READ)) {
             directory.force(true);
@@ -518,6 +547,7 @@ final class LibvirtAblestackRestoreTransaction {
         try (FileChannel directory = FileChannel.open(path.getParent(), StandardOpenOption.READ)) {
             directory.force(true);
         }
+        LibvirtAblestackRestoreAllocation.publish(state);
         try { LibvirtAblestackRestoreOutcome.publish(state); }
         catch (Exception e) { AUDIT_LOGGER.warn("Restore outcome publication is pending; retaining journal [{}]", path, e); }
     }

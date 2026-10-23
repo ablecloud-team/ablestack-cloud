@@ -159,6 +159,9 @@ public interface Backup extends ControlledEntity, InternalIdentity, Identity {
     }
 
     class VolumeInfo implements Serializable {
+        private BackupVolumeAllocation allocation;
+        public BackupVolumeAllocation getAllocation() { return allocation; }
+        public void setAllocation(BackupVolumeAllocation value) { allocation = value; }
         private String uuid;
         private Volume.Type type;
         private Long size;

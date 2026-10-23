@@ -45,11 +45,12 @@ import uuid
 
 from ablestack_backup_secret import decrypt_secret, write_secret
 from ablestack_backup_secret_key import SecretKeyError, ensure_key
+from veeam_script_deploy import ScriptDeploymentError, deploy_hooks, deployment_directory, validate_deployment
 
 
 PROVIDER = "ablestack-veeam"
 SCRIPT_DIR = Path(__file__).resolve().parent
-RUNTIME_DIR = SCRIPT_DIR / "veeam" if (SCRIPT_DIR / "veeam").is_dir() else SCRIPT_DIR
+RUNTIME_DIR = SCRIPT_DIR / "veeam"
 RUNTIME_FILES = (
     "mold-backup.lib.sh", "mold-backup.sh", "mold-backup-secret.sh", "mold-backup-secret.py",
     "install-ablestack-secret-key.sh", "diagnose-mold-veeam-offering.sh",
@@ -57,7 +58,8 @@ RUNTIME_FILES = (
     "ablestack_veeam_restore_notify.sh", "ablestack_veeam_restore_event.sh",
     "mold-veeam-restore-agent.sh",
 )
-COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py", "veeam-host-config.py")
+COMMON_FILES = ("ablestack_backup_secret_key.py", "ablestack_backup_secret.py", "thirdparty_bootstrap.py",
+                "veeam_script_deploy.py", "veeam-host-config.py")
 UNIT_FILES = ("mold-veeam-restore-agent.service", "mold-veeam-restore-agent.timer")
 
 
@@ -85,7 +87,7 @@ def safe_name(value):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--install-only", action="store_true", help="RPM: install runtime files without configuring Mold or enabling the timer")
+    parser.add_argument("--install-only", action="store_true", help="RPM: prepare directories and systemd units without configuring Mold or enabling the timer")
     parser.add_argument("--mold-url", help="Mold API URL; default: management host from agent.properties")
     parser.add_argument("--admin-apikey", "--api-key", dest="admin_apikey")
     parser.add_argument("--admin-secretkey", "--api-secret", dest="admin_secretkey")
@@ -95,7 +97,8 @@ def parse_args(argv=None):
     parser.add_argument("--veeam-password")
     parser.add_argument("--update-veeam-credentials", action="store_true", help="explicitly replace an existing encrypted Mold Veeam password")
     parser.add_argument("--veeam-ssh-user", help="default: --veeam-user")
-    parser.add_argument("--veeam-ssh-key", default="", help="optional SSH private key for the restore watcher")
+    parser.add_argument("--veeam-ssh-key", default="", help="optional SSH private key for the restore watcher and hook deployment")
+    parser.add_argument("--veeam-script-dir", help="create this directory on VBR and copy the generated Pre/Post wrappers over SSH; omit for manual copy")
     parser.add_argument("--kvm-hostname", default=socket.gethostname().split(".")[0], help="optional Mold host-name override")
     parser.add_argument("--kvm-ip", help="optional Mold host-IP override")
     parser.add_argument("--zone-id", help="optional verification of the discovered host Zone")
@@ -121,6 +124,13 @@ def parse_args(argv=None):
         parser.error("--script-timeout must be positive")
     if not args.secret_key_file.is_absolute():
         parser.error("--secret-key-file must be absolute")
+    if args.veeam_script_dir:
+        if args.install_only:
+            parser.error("--veeam-script-dir cannot be used with --install-only")
+        try:
+            deployment_directory(args.veeam_script_dir)
+        except ScriptDeploymentError as exc:
+            parser.error(str(exc))
     if args.agent_payload_path:
         payload = Path(args.agent_payload_path)
         if not payload.is_absolute() or payload == Path("/") or any(c in args.agent_payload_path for c in "\r\n"):
@@ -189,7 +199,20 @@ class MoldApi:
             with urlopen(request, timeout=300) as response:
                 result = json.load(response)
         except HTTPError as exc:
-            raise ConfigurationError(f"Mold API {command} returned HTTP {exc.code}") from None
+            detail = ""
+            if command == "listConfigurations":
+                try:
+                    error = json.load(exc).get("errorresponse", {})
+                    if isinstance(error, dict) and isinstance(error.get("errortext"), str):
+                        detail = error["errortext"]
+                except (OSError, ValueError, AttributeError):
+                    pass
+                for secret in (self.key, self.secret):
+                    if secret:
+                        detail = detail.replace(secret, "[redacted]")
+                detail = detail.replace("\r", " ").replace("\n", " ")[:500]
+            suffix = f": {detail}" if detail else ""
+            raise ConfigurationError(f"Mold API {command} returned HTTP {exc.code}{suffix}") from None
         except (URLError, OSError, ValueError):
             raise ConfigurationError(f"Mold API {command} failed or returned invalid JSON") from None
         body = result.get(command.lower() + "response") if isinstance(result, dict) else None
@@ -197,24 +220,33 @@ class MoldApi:
             raise ConfigurationError(f"Mold API {command} returned an error response")
         return body
 
-    def rows(self, command, name, **params):
+    def rows(self, command, entity, **params):
         page = 1
+        received = 0
+        seen_pages = set()
         while True:
-            rows = self.call(command, listall="true", pagesize=500, page=page, **params).get(name, [])
+            # Use the server's page size. A fixed 500 can exceed default.page.size.
+            body = self.call(command, listall="true", page=page, **params)
+            rows = body.get(entity, [])
             if isinstance(rows, dict):
                 rows = [rows]
-            if not isinstance(rows, list):
-                raise ConfigurationError(f"Mold API {command} returned invalid {name}")
+            if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+                raise ConfigurationError(f"Mold API {command} returned invalid {entity}")
+            if not rows:
+                return
+            fingerprint = json.dumps(rows, sort_keys=True)
+            if fingerprint in seen_pages:
+                raise ConfigurationError(f"Mold API {command} repeated a page; cannot confirm the complete {entity} list")
+            seen_pages.add(fingerprint)
             yield from rows
-            if len(rows) < 500:
+            received += len(rows)
+            count = body.get("count")
+            if isinstance(count, int) and not isinstance(count, bool) and count >= 0 and received >= count:
                 return
             page += 1
 
     def configuration(self, name, **scope):
-        rows = self.call("listConfigurations", name=name, listall="true", pagesize=500, **scope).get("configuration", [])
-        if isinstance(rows, dict):
-            rows = [rows]
-        for row in rows:
+        for row in self.rows("listConfigurations", "configuration", name=name, **scope):
             if row.get("name") == name:
                 return "" if row.get("value") is None else str(row["value"])
         raise ConfigurationError(f"Mold setting {name} is unavailable; apply the matching management-server version first")
@@ -393,6 +425,7 @@ class FileInstaller:
 def paths():
     return {
         "etc": Path(os.environ.get("ABLESTACK_VEEAM_ETC_DIR", "/etc/ablestack/veeam")),
+        "state": Path(os.environ.get("ABLESTACK_VEEAM_STATE_DIR", "/var/lib/ablestack/veeam")),
         "units": Path(os.environ.get("SYSTEMD_UNIT_DIR", "/etc/systemd/system")),
         "ini": Path(os.environ.get("VEEAM_INI_PATH", "/etc/veeam/veeam.ini")),
         "logs": Path(os.environ.get("MOLD_LOG_DIR", "/var/log/mold")),
@@ -410,7 +443,12 @@ def configuration_lock(etc):
         yield
 
 
+def systemd_quote(value):
+    return '"' + str(value).replace("\\", "\\\\").replace('"', '\\"').replace("%", "%%") + '"'
+
+
 def install_runtime(files, locations, args):
+    """Use package-owned executables in place; only units and mutable directories are installed."""
     etc = locations["etc"]
     for name in (*RUNTIME_FILES, *UNIT_FILES):
         source = RUNTIME_DIR / name
@@ -420,16 +458,24 @@ def install_runtime(files, locations, args):
         if not (SCRIPT_DIR / name).is_file():
             raise ConfigurationError(f"Common helper missing: {name}")
     ensure_key(args.secret_key_file, secret_directories=(etc / "secrets",))
-    for name in (*RUNTIME_FILES, *COMMON_FILES):
-        source = (RUNTIME_DIR if name in RUNTIME_FILES else SCRIPT_DIR) / name
-        files.write(etc / name, source.read_bytes(), 0o755 if name.endswith(".sh") or name == "veeam-host-config.py" else 0o644)
     for name in UNIT_FILES:
-        files.write(etc / name, (RUNTIME_DIR / name).read_bytes(), 0o644)
-        unit = (RUNTIME_DIR / name).read_text().replace("/etc/ablestack/veeam", str(etc))
+        unit = (RUNTIME_DIR / name).read_text()
+        if name.endswith(".service"):
+            unit = unit.replace("Environment=ABLESTACK_VEEAM_ETC_DIR=/etc/ablestack/veeam",
+                                "Environment=" + systemd_quote("ABLESTACK_VEEAM_ETC_DIR=" + str(etc)))
+            unit = unit.replace("Environment=ABLESTACK_VEEAM_STATE_DIR=/var/lib/ablestack/veeam",
+                                "Environment=" + systemd_quote("ABLESTACK_VEEAM_STATE_DIR=" + str(locations["state"])))
+            unit = unit.replace("EnvironmentFile=-/etc/ablestack/veeam/mold-backup.env",
+                                "EnvironmentFile=-" + systemd_quote(etc / "mold-backup.env"))
+            unit = unit.replace("ExecStart=/usr/bin/bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/mold-veeam-restore-agent.sh",
+                                "ExecStart=/usr/bin/bash " + systemd_quote(RUNTIME_DIR / "mold-veeam-restore-agent.sh"))
         files.write(locations["units"] / name, unit, 0o644)
-    for directory in ("state", "events", "registry", "hooks", "secrets"):
-        (etc / directory).mkdir(mode=0o700, exist_ok=True)
+    for directory in ("hooks", "secrets"):
+        (etc / directory).mkdir(mode=0o700, parents=True, exist_ok=True)
     (etc / "secrets").chmod(0o700)
+    locations["state"].mkdir(mode=0o700, parents=True, exist_ok=True)
+    for directory in ("state", "events", "registry"):
+        (locations["state"] / directory).mkdir(mode=0o700, exist_ok=True)
 
 
 def render_config(values):
@@ -447,6 +493,7 @@ def write_job(files, locations, args, host, stage, offering):
         "MOLD_API_URL": args.mold_url, "MOLD_API_KEY": args.admin_apikey,
         "MOLD_API_SECRET": "", "MOLD_API_SECRET_ENC_FILE": secret, "MOLD_SECRET_KEY_FILE": args.secret_key_file,
         "VEEAM_JOB_NAME": args.job_name, "ZONE_ID": host["zoneid"], "KVM_HOSTNAME": host["name"],
+        "ABLESTACK_VEEAM_STATE_DIR": locations["state"],
         "BACKUP_OFFERING_NAME": offering["name"], "VEEAM_PROVIDER_NAME": PROVIDER,
         "VM_SCHEDULE_BACKUP": str(args.vm_schedule_backup).lower(), "VM_INCLUDE": args.vm_include, "VM_EXCLUDE": args.vm_exclude,
         "VM_AUTO_EXCLUDE": "true", "BACKUP_MODE": "host", "VEEAM_BACKUP_INTERVAL_TYPE": "EXTERNAL",
@@ -463,11 +510,14 @@ def write_job(files, locations, args, host, stage, offering):
     files.write(etc / "mold-backup.env", "# Per-Job configuration: /etc/ablestack/veeam/<JOB>.conf\n")
     for hook in ("pre", "post"):
         target = etc / "hooks" / (hook + "-notify." + safe_job)
-        script = ("#!/usr/bin/bash\nset -euo pipefail\nexec " + shlex.quote(str(etc / ("ablestack_veeam_" + hook + "_notify.sh")))
+        script = ("#!/usr/bin/bash\nset -euo pipefail\nexport "
+                  + "ABLESTACK_VEEAM_ETC_DIR=" + shlex.quote(str(etc)) + "\nexport "
+                  + "ABLESTACK_VEEAM_STATE_DIR=" + shlex.quote(str(locations["state"]))
+                  + "\nexec bash " + shlex.quote(str(RUNTIME_DIR / ("ablestack_veeam_" + hook + "_notify.sh")))
                   + ' "$(hostname -s)" ' + shlex.quote(args.job_name) + ' default ""\n')
         files.write(target, script, 0o755)
         # VBR uploads this file to the Linux Agent; execution occurs locally on KVM.
-        files.write(etc / (safe_job + "-" + hook + "-notify.sh"), "#!/usr/bin/bash\nexec " + shlex.quote(str(target)) + '\n', 0o755)
+        files.write(etc / (safe_job + "-" + hook + "-notify.sh"), "#!/usr/bin/bash\nexec bash " + shlex.quote(str(target)) + '\n', 0o755)
     Path(payload).mkdir(parents=True, exist_ok=True)
     locations["logs"].mkdir(parents=True, exist_ok=True)
     return payload
@@ -522,6 +572,13 @@ def require_root():
         raise ConfigurationError("Run this script as root on the KVM host")
 
 
+def require_cryptography():
+    try:
+        from cryptography.hazmat.primitives.ciphers.aead import AESGCM  # noqa: F401
+    except ImportError:
+        raise ConfigurationError("Install python3-cryptography before configuring the Host") from None
+
+
 def main(argv=None):
     args = parse_args(argv)
     locations = paths()
@@ -531,21 +588,19 @@ def main(argv=None):
         require_root()
         if not args.install_only:
             select_vms(args)
-            try:
-                from cryptography.hazmat.primitives.ciphers.aead import AESGCM  # noqa: F401
-            except ImportError:
-                raise ConfigurationError("Install python3-cryptography before configuring the Host") from None
+            require_cryptography()
             if not locations["ini"].is_file():
                 raise ConfigurationError("Install Veeam Linux Agent first: /etc/veeam/veeam.ini is missing")
             if not shutil.which("systemctl"):
                 raise ConfigurationError("systemctl is required on the KVM host")
+            validate_deployment(args)
         with configuration_lock(locations["etc"]):
             if args.install_only:
                 phase = "install runtime"
                 install_runtime(files, locations, args)
                 if shutil.which("systemctl"):
                     systemctl("daemon-reload")
-                info("Runtime installed. Configure each host with veeam-host-config.py; timer activation requires completed configuration.")
+                info(f"Runtime verified at {RUNTIME_DIR}; directories and systemd units prepared. Configure each host with {SCRIPT_DIR / 'veeam-host-config.py'}; timer activation requires completed configuration.")
                 return 0
             api = MoldApi(args)
             args.mold_url = api.url
@@ -568,13 +623,23 @@ def main(argv=None):
             payload = write_job(files, locations, args, host, stage, offering)
             phase = "configure Veeam Linux Agent"
             agent_changed = set_agent_timeout(files, locations["ini"], args.script_timeout, locations["etc"] / ".agent-restart-required")
+            deployed = []
+            if args.veeam_script_dir:
+                phase = "deploy Veeam Pre/Post scripts"
+                deployed = deploy_hooks(args, locations["etc"], host)
             phase = "activate restore watcher"
             activate(files, locations, agent_changed)
             info("DONE: Veeam host configuration completed. Matching settings and files were reused.")
-            info(f"Veeam UI: upload {locations['etc']}/{safe_name(args.job_name)}-pre-notify.sh and -post-notify.sh under Guest Processing > Scripts.")
+            if deployed:
+                for hook, result in zip(("Pre-job", "Post-job"), deployed):
+                    action = "copied and verified" if result["changed"] else "unchanged and verified"
+                    info(f"Veeam UI {hook}: {result['path']} ({action}). Select this file under Guest Processing > Scripts.")
+                info("Keep this directory and use the same --veeam-script-dir on reruns. Job script registration is a Veeam UI step.")
+            else:
+                info(f"Veeam UI: copy {locations['etc']}/{safe_name(args.job_name)}-pre-notify.sh and -post-notify.sh to VBR and select them under Guest Processing > Scripts; --veeam-script-dir enables automatic copy.")
             info(f"Parent Job SelectedFiles: {payload}. Configure the Job and its host schedule in Veeam UI.")
             return 0
-    except (ConfigurationError, SecretKeyError, OSError, ValueError, configparser.Error) as exc:
+    except (ConfigurationError, SecretKeyError, ScriptDeploymentError, OSError, ValueError, configparser.Error) as exc:
         info(f"FAILED at {phase}: {exc}")
         info("Completed settings/offerings are retained. Changed local files have .bak copies; correct the failure and rerun the same command.")
         return 1

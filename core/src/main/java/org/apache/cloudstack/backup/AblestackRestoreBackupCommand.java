@@ -27,6 +27,10 @@ import java.util.Map;
 /** Persist destination allocation and primary capacity policies with each detached restore command. */
 public abstract class AblestackRestoreBackupCommand extends Command {
     private Integer primaryStorageCapacityBufferPercent;
+    private Map<String, BackupVolumeAllocation> restoreVolumeAllocation;
+    public Map<String, BackupVolumeAllocation> getRestoreVolumeAllocation() { return restoreVolumeAllocation; }
+    public void setRestoreVolumeAllocation(Map<String, BackupVolumeAllocation> value) { restoreVolumeAllocation = value; }
+
     private Map<String, Storage.ProvisioningType> restoreVolumeProvisioningTypes;
 
     /** Destination policy, serialized with detached commands rather than inferred from backup data. */

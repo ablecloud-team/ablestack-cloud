@@ -79,12 +79,14 @@ public class AblestackNetBackupBackupModeTest {
     private final StoragePoolVO pool = mock(StoragePoolVO.class);
     private final PrimaryDataStoreTO poolTo = mock(PrimaryDataStoreTO.class);
     private final HostVO host = mock(HostVO.class);
+    private final BackupVolumeAllocationService allocation = mock(BackupVolumeAllocationService.class);
     private ConfigDepotImpl originalDepot;
 
     @Before public void setup() {
         originalDepot = (ConfigDepotImpl) ReflectionTestUtils.getField(BackupManager.KvmIncrementalBackup, "s_depot");
         ConfigKey.init(depot);
         ReflectionTestUtils.setField(provider, "backupDao", backups);
+        ReflectionTestUtils.setField(provider, "backupVolumeAllocationService", allocation);
         ReflectionTestUtils.setField(provider, "volumeDao", volumes);
         ReflectionTestUtils.setField(provider, "primaryDataStoreDao", pools);
         ReflectionTestUtils.setField(provider, "hostDao", hosts);
@@ -227,6 +229,17 @@ public class AblestackNetBackupBackupModeTest {
             server.stubFor(get(urlEqualTo("/netbackup/catalog/images/" + artifact.externalId)).willReturn(aResponse().withStatus(404)));
             assertTrue(cleanup.getValue().delete(artifact, false, null, true).completed);
         } finally { server.stop(); }
+    }
+
+    @Test public void offlineRawStartsIndependentRawFullDespiteEnabledIncremental() {
+        enabled();
+        when(vm.getState()).thenReturn(VirtualMachine.State.Stopped);
+        when(vm.getLastHostId()).thenReturn(30L);
+        when(root.getFormat()).thenReturn(Storage.ImageFormat.RAW);
+        when(allocation.requiresOfflineFull(any())).thenReturn(true);
+        BackupVO previous = parent();
+        when(backups.listByVmIdAndOffering(1L, 10L, 2L)).thenReturn(List.of(previous));
+        assertFull(start(false), ".raw");
     }
 
     private void enabled() {

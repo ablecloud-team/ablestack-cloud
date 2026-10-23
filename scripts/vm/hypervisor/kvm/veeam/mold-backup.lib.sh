@@ -20,6 +20,7 @@
 # NetBackup-style configuration: /etc/ablestack/veeam/<job>.conf; common Mold staging.
 
 ABLESTACK_VEEAM_ETC_DIR="${ABLESTACK_VEEAM_ETC_DIR:-/etc/ablestack/veeam}"
+ABLESTACK_VEEAM_STATE_DIR="${ABLESTACK_VEEAM_STATE_DIR:-/var/lib/ablestack/veeam}"
 MOLD_BACKUP_ETC_DIR="${MOLD_BACKUP_ETC_DIR:-${ABLESTACK_VEEAM_ETC_DIR}}"
 MOLD_BACKUP_CONF="${MOLD_BACKUP_CONF:-}"
 VEEAM_HOST_BACKUP_PATH="${VEEAM_HOST_BACKUP_PATH:-/tmp/mold/veeam}"
@@ -241,13 +242,12 @@ mold_backup_resolve_api_secret() {
   if [[ -z "${MOLD_SECRET_KEY_FILE:-}" ]]; then
     MOLD_SECRET_KEY_FILE="${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}"
   fi
-  local secret_script="${MOLD_BACKUP_ETC_DIR}/mold-backup-secret.sh"
-  [[ -x "$secret_script" ]] || secret_script="$(dirname "${BASH_SOURCE[0]}")/mold-backup-secret.sh"
-  if [[ ! -x "$secret_script" ]]; then
+  local secret_script="$(dirname "${BASH_SOURCE[0]}")/mold-backup-secret.sh"
+  if [[ ! -f "$secret_script" ]]; then
     mold_backup_log warn "Cannot decrypt API secret: mold-backup-secret.sh not found"
     return 0
   fi
-  MOLD_API_SECRET=$("$secret_script" decrypt --enc-file "${MOLD_API_SECRET_ENC_FILE}" --key-file "${MOLD_SECRET_KEY_FILE}") \
+  MOLD_API_SECRET=$(bash "$secret_script" decrypt --enc-file "${MOLD_API_SECRET_ENC_FILE}" --key-file "${MOLD_SECRET_KEY_FILE}") \
     || mold_backup_die "Failed to decrypt MOLD_API_SECRET from ${MOLD_API_SECRET_ENC_FILE}"
   # OpenSSL decrypt may append a newline; breaks CloudStack API HMAC signature.
   MOLD_API_SECRET="${MOLD_API_SECRET//$'\r'/}"
@@ -456,7 +456,7 @@ mold_backup_notify_log() {
 }
 
 mold_backup_state_dir() {
-  echo "${ABLESTACK_VEEAM_ETC_DIR}/state"
+  echo "${ABLESTACK_VEEAM_STATE_DIR}/state"
 }
 
 mold_backup_state_file_for_job() {
@@ -959,7 +959,7 @@ mold_backup_safe_job_name() {
 }
 
 mold_backup_registry_dir() {
-  echo "${ABLESTACK_VEEAM_ETC_DIR}/registry"
+  echo "${ABLESTACK_VEEAM_STATE_DIR}/registry"
 }
 
 mold_backup_api_pick_vm_record() {
@@ -2360,7 +2360,7 @@ mold_backup_local_kvm_name() {
 }
 
 mold_backup_events_log_file() {
-  local d="${ABLESTACK_VEEAM_ETC_DIR:-/etc/ablestack/veeam}/events"
+  local d="${ABLESTACK_VEEAM_STATE_DIR}/events"
   mkdir -p "$d" 2>/dev/null || true
   echo "$d/restore.log"
 }
@@ -2479,13 +2479,20 @@ try:
     seen = set()
     for volume in volumes:
         if (not isinstance(volume, dict) or not volume.get('uuid') or volume['uuid'] in seen
-                or volume.get('engine') not in {'QCOW2', 'RBD_DIFF'} or not volume.get('chain')):
+                or volume.get('engine') not in {'QCOW2', 'RBD_DIFF', 'OFFLINE_FILE'} or not volume.get('chain')):
             raise ValueError('Invalid volume restore chain')
         seen.add(volume['uuid'])
         artifact = volume['chain'][-1]
         if (artifact.get('backupUuid') != manifest['backupUuid'] or artifact.get('completed') is not True
                 or not artifact.get('externalId') or not artifact.get('jobId') or Path(artifact.get('path', '')).parent != source_root):
             raise ValueError('Unconfirmed or mismatched volume artifact')
+    if any(volume.get('engine') == 'OFFLINE_FILE' for volume in volumes):
+        guard = manifest.get('offlineGuard') or {}
+        if (manifest.get('backupType') != 'FULL' or manifest.get('parentBackupUuid')
+                or guard.get('version') != 1 or guard.get('operation') != 'BACKUP'
+                or guard.get('jobId') != manifest['backupUuid'] or guard.get('vmUuid') != expected.get('virtualmachineid')
+                or any(len(volume['chain']) != 1 for volume in volumes)):
+            raise ValueError('Offline RAW metadata is not a protected independent Full')
     domain = ET.fromstring(read('domain-config.xml'))
     if (domain.tag != 'domain' or domain.findtext('name') != expected.get('vmname')
             or not expected.get('virtualmachineid') or domain.findtext('uuid') != expected['virtualmachineid']):
@@ -2883,11 +2890,7 @@ mold_backup_watch_veeam_backups() {
 
 mold_backup_bootstrap_helper() {
   local directory="${BASH_SOURCE[0]%/*}"
-  if [[ -f "$directory/thirdparty_bootstrap.py" ]]; then
-    printf '%s' "$directory/thirdparty_bootstrap.py"
-  else
-    printf '%s' "$directory/../thirdparty_bootstrap.py"
-  fi
+  printf '%s' "$directory/../thirdparty_bootstrap.py"
 }
 
 mold_backup_pre_notify() {

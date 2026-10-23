@@ -17,19 +17,16 @@
 # under the License.
 
 # Prepare the shared NetBackup/Veeam Host key without replacing existing material.
-# Safe to run from /etc/ablestack/veeam when full veeam-host-config.py is not present.
+# Uses the common helper from the package-owned KVM script directory.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KEY_FILE="${ABLESTACK_SECRET_KEY_FILE:-/root/.ssh/ablestack.key}"
 
-for helper in \
-  "${SCRIPT_DIR}/ablestack_backup_secret_key.py" \
-  "${SCRIPT_DIR}/../ablestack_backup_secret_key.py" \
-  "/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/ablestack_backup_secret_key.py"; do
-  [[ -f "$helper" ]] || continue
+helper="${SCRIPT_DIR}/../ablestack_backup_secret_key.py"
+if [[ -f "$helper" ]]; then
   exec python3 "$helper" ensure --key-file "$KEY_FILE" "$@"
-done
+fi
 echo "ERROR: common Host key helper not found; update the NetBackup/Veeam scripts together" >&2
 exit 1

@@ -28,6 +28,9 @@ final class LibvirtAblestackRestoreProvisioning implements AutoCloseable {
     private static final ThreadLocal<LibvirtAblestackRestoreProvisioning> CURRENT = new ThreadLocal<>();
     private final LibvirtAblestackRestoreProvisioning previous;
     private final Map<String, Storage.ProvisioningType> policies;
+    private Map<String, org.apache.cloudstack.backup.BackupVolumeAllocation> allocation;
+    private String jobId;
+
 
     private LibvirtAblestackRestoreProvisioning(Map<String, Storage.ProvisioningType> types) {
         policies = types == null ? null : new HashMap<>();
@@ -37,8 +40,27 @@ final class LibvirtAblestackRestoreProvisioning implements AutoCloseable {
     }
 
     static LibvirtAblestackRestoreProvisioning begin(Map<String, Storage.ProvisioningType> policies) {
-        return new LibvirtAblestackRestoreProvisioning(policies);
+        LibvirtAblestackRestoreProvisioning result = new LibvirtAblestackRestoreProvisioning(policies);
+        if (result.previous != null) { result.allocation = result.previous.allocation; result.jobId = result.previous.jobId; }
+        return result;
     }
+
+    static LibvirtAblestackRestoreProvisioning begin(Map<String, Storage.ProvisioningType> legacy,
+            Map<String, org.apache.cloudstack.backup.BackupVolumeAllocation> allocation, String jobId) {
+        LibvirtAblestackRestoreProvisioning result = new LibvirtAblestackRestoreProvisioning(legacy);
+        if (allocation != null) {
+            result.allocation = new HashMap<>();
+            allocation.forEach((path, policy) -> { policy.validate(); result.allocation.put(key(path), policy); });
+        }
+        result.jobId = jobId;
+        return result;
+    }
+
+    static org.apache.cloudstack.backup.BackupVolumeAllocation allocation(String path) {
+        var current = CURRENT.get();
+        return current == null || current.allocation == null ? null : current.allocation.get(key(path));
+    }
+    static String jobId() { return CURRENT.get() == null ? null : CURRENT.get().jobId; }
 
     static Storage.ProvisioningType type(String destination) {
         LibvirtAblestackRestoreProvisioning scope = CURRENT.get();
@@ -54,7 +76,13 @@ final class LibvirtAblestackRestoreProvisioning implements AutoCloseable {
         LibvirtAblestackRestoreProvisioning scope = CURRENT.get();
         Map<String, Storage.ProvisioningType> aliases = scope == null || scope.policies == null ? null : new HashMap<>(scope.policies);
         if (aliases != null) { aliases.put(key(temporary), type); }
-        return begin(aliases);
+        var result = begin(aliases);
+        if (scope != null && scope.allocation != null) {
+            result.allocation = new HashMap<>(scope.allocation);
+            var allocation = scope.allocation.get(key(destination));
+            if (allocation != null) result.allocation.put(key(temporary), allocation);
+        }
+        return result;
     }
 
     private static String key(String path) { return Path.of(path).toAbsolutePath().normalize().toString(); }

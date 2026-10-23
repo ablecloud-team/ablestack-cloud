@@ -215,7 +215,12 @@ run_rbd_export_with_progress() {
 
 ### Operation methods ###
 
+check_backup_sources() {
+  python3 "$(dirname "${BASH_SOURCE[0]}")/thirdparty_backup_source_support.py" --disk-paths "$DISK_PATHS"
+}
+
 backup_running_vm() {
+  check_backup_sources || exit 1
   mount_operation
   mkdir -p "$dest" || { echo "Failed to create backup directory $dest"; exit 1; }
   mkdir -p "$dest/checkpoints" || { echo "Failed to create checkpoint directory $dest/checkpoints"; exit 1; }

@@ -25,6 +25,8 @@ under the License.
 ## 목차
 
 - [운영자용 백업 구성 요약](#운영자용-백업-구성-요약)
+- [GFS2 RAW 정지 상태 FULL 백업](#gfs2-raw-정지-상태-full-백업)
+- [배포 정책을 보존하는 백업·복원](#배포-정책을-보존하는-백업복원)
 - [공통 스테이징 경로 변경](#공통-스테이징-경로-변경)
 - [백업 솔루션별 준비와 실행 순서](#백업-솔루션별-준비와-실행-순서)
 - [NetBackup VM별 스케줄 구성 시나리오](#netbackup-vm별-스케줄-구성-시나리오)
@@ -38,6 +40,109 @@ under the License.
 - [NetBackup 및 Veeam 서비스 운영](#netbackup-및-veeam-서비스-운영)
 - [NetBackup 및 Veeam 인증정보 관리](#netbackup-및-veeam-인증정보-관리)
 - [Veeam Host 구성과 배포](#veeam-host-구성과-배포)
+
+## GFS2 RAW 정지 상태 FULL 백업
+
+대상은 GFS2 파일시스템 내부의 RAW 이미지 파일을 VM에 연결하는 구성이다.
+파일명은 볼륨 UUID일 수 있으므로 확장자로 RAW 여부를 판단하지 않는다.
+LV·SAN LUN을 VM에 직접 연결하는 구성은 이 지원 범위에 포함하지 않는다.
+Mold NAS(`ablestack-nas`), Commvault, NetBackup, Veeam에 공통으로 적용한다.
+
+**GFS2 RAW가 하나라도 포함된 VM은 모든 연결 VM이 정지한 경우에만 독립 FULL 백업을 생성한다.**
+`kvm.incremental.backup=true`, 체인 길이 8이어도 RAW 포함 VM은 매번 부모 없는 FULL로 처리한다.
+RAW 증분 요청은 `GFS2_RAW_INCREMENTAL_UNSUPPORTED`로 거절한다.
+QCOW2 파일로 변환하더라도 원본 RAW에 대한 변경 추적이 생기는 것은 아니므로 checkpoint·bitmap 증분을 사용하지 않는다.
+
+처리 순서:
+
+1. 디스크 오퍼링의 공유 설정과 `(poolId, path)`가 같은 볼륨 연결을 모두 확인한다.
+   공유 설정이 false여도 실제 연결은 확인한다. VM·볼륨·Host 상태를 확인할 수 없으면 시작하지 않는다.
+2. 동일한 GFS2 클러스터의 모든 Host Agent에서 실행·일시정지된 VM의 실제 디스크 사용 여부와 형식·크기를 확인한다.
+   현재 오프라인 경로에서는 해당 VM의 모든 디스크가 같은 클러스터의 GFS2 파일이어야 한다. RBD/NFS와 혼합된 VM은 차단한다.
+3. 관리 서버에 디스크 소유 정보를 기록하고 공유 파일시스템에 보호 마커를 생성한다.
+   GFS2의 클러스터 POSIX 잠금을 사용하므로 `localflocks` 마운트는 허용하지 않는다.
+   보호 기간에는 관련 VM 시작, 디스크 연결·해제와 디스크 경로 변경을 차단한다.
+4. 원본을 변경하지 않고 `qemu-img convert`로 독립 파일을 만든 뒤 형식·가상 크기·데이터 일치를 검증한다.
+   **원본 RAW는 RAW로, 원본 QCOW2는 독립 QCOW2로 보관한다.** RAW를 QCOW2로 강제 변환하지 않는다.
+   RAW 예시는 다음과 같다. `-S 4k`는 0인 영역을 sparse로 저장하는 옵션이며 증분을 의미하지 않는다.
+
+   ```bash
+   qemu-img convert -p -f raw -O raw -S 4k <원본 RAW> <스테이징 RAW>
+   ```
+
+5. 외부 솔루션은 기존처럼 볼륨별 파일을 전송하고, 마지막으로 매니페스트·VM 구성·완료 마커를 저장한다.
+   NAS는 저장소에 독립 파일과 완료 마커를 저장한다.
+   정지 후 libvirt 정의가 제거된 VM은 Mold에 저장된 구성과 UUID를 사용한 식별용 `domain-config.xml`을 남긴다.
+   이 파일에는 `bootable=false`인 오프라인 구성임을 표시한다. 실제 VM 구성 재생성과 복원은 Mold가 저장된 백업 상세로 처리한다.
+6. 백업 성공 또는 실패 정리가 확인된 뒤 보호를 해제한다.
+   실행 프로세스·고아 reader가 남았거나 정리가 확인되지 않으면 보호를 유지하고 재시도한다.
+   관리 서버를 재시작해도 소유 정보는 유지한다. 보호 파일을 임의로 지우지 않는다.
+
+RAW 파일은 sparse여도 논리적 크기가 원본 가상 용량과 같을 수 있다.
+외부 솔루션의 sparse 처리에 따라 실제 전송량이 달라지므로 대용량 VM은 전송량·백업 시간·복원 시간을 함께 측정한다.
+복원 시에는 RAW 입력을 처리하고, 기존 공유 RAW 디스크에 덮어쓸 때도 모든 연결 VM이 정지했는지 다시 확인한다.
+임시 대상 생성·할당 정책 적용·데이터 검증·원본 교체 작업은 RAW 보관 여부와 관계없이 필요하다.
+
+### RAW FULL 스케줄 유지 개수
+
+스케줄의 **유지 항목 수(`maxbackups`)** 는 RAW의 독립 FULL 개수에 적용한다.
+전역 증분 설정이 true여도 RAW 백업은 서로 부모·자식 의존성이 없으므로 FULL 하나가 유지 항목 하나다.
+
+- 유지 개수 2: 세 번째 FULL이 **성공한 뒤** 가장 오래된 FULL을 삭제하고 최근 두 개를 유지한다.
+- 세 번째 백업이 대기·진행 중이거나 실패했다면 기존 정상 FULL 두 개를 유지한다.
+- NetBackup·Commvault·Veeam에서는 해당 FULL에 속한 볼륨 보관본과 마지막 metadata 보관본을 모두 삭제 대상으로 처리한다.
+  NAS는 해당 백업 디렉터리를 삭제한다.
+- 외부 만료가 지연되거나 삭제 확인에 실패하면 정리를 보류하고 백그라운드에서 재시도한다. 관리 서버 재시작 후에도 재시도한다.
+- 유지 개수 0은 스케줄 개수에 따른 자동 삭제를 사용하지 않는다는 뜻이다.
+  외부 솔루션 자체의 보존 기간·만료 설정은 별도로 적용된다.
+
+검증 시 `kvm.incremental.backup=true`, 체인 길이 8, 스케줄 유지 개수 2로 설정하고 FULL을 세 번 성공시킨다.
+각 백업이 FULL이며 부모가 없는지, 세 번째 성공 전에는 기존 정상 백업이 남아 있는지,
+성공 후 최초 FULL의 모든 외부 보관본이 정리되고 최근 두 백업은 복원 가능한지 확인한다.
+추가로 공유 VM 하나가 실행 중인 경우, 복사 중 VM 시작·디스크 연결 시도, 취소·재시작 후 정리 재시도를 검증한다.
+
+배포 시 관리 서버와 **해당 GFS2 클러스터의 모든 Host Agent·공통 스크립트**를 같은 버전으로 업데이트하고 재시작한다.
+`ablestack_shared_raw.py`, `thirdparty_volume_backup.py`, `thirdparty_backup_source_support.py`, `ablestack_nasbackup.sh`를 함께 배포한다.
+구형 Agent나 검사 불가능한 Host가 포함된 클러스터에서는 이 신규 백업을 시작하지 않는다.
+기존 GFS2 QCOW2·RBD RAW의 온라인 FULL·증분 백업은 해당 경로를 유지한다.
+
+## 배포 정책을 보존하는 백업·복원
+
+GFS2 RAW는 위의 정지 상태 FULL 조건을 적용하고, 할당 정책은 다음 조합을 지원한다.
+
+- GFS2 RAW: `off`, `falloc`, `full`
+- GFS2 QCOW2: `metadata`, `falloc`, `full`
+- RBD RAW: `off`, `full`
+
+백업에는 원본 볼륨의 실제 형식과 볼륨에 고정된 할당 정책을 함께 기록한다.
+스테이징 파일은 전송용 데이터이므로 원본의 선할당 상태를 그대로 복제할 필요는 없다.
+`Full / INCREMENTAL` 백업 유형은 `full` 할당 정책과 별개다.
+
+복원 시 기존 볼륨은 해당 볼륨에 고정된 정책을 사용한다.
+새 볼륨을 복원하는 경로는 선택한 디스크 오퍼링의 정책을 요청 시점에 고정한다.
+관리 서버가 정책을 Host에 전달하기 전에 새 프로토콜과 정확한 복사 방식의 지원 여부를 확인한다.
+호환되지 않는 Agent에는 신규 정책 복원을 요청하지 않는다.
+
+복원은 다음 순서로 처리한다.
+
+1. Full·증분 체인을 임시 볼륨에 모두 적용한다. 기존 볼륨은 유지한다.
+2. 복원된 데이터를 지정한 정책으로 생성한 별도 볼륨에 복사한다.
+   GFS2는 형식에 따라 RAW `off / falloc / full`, QCOW2 `metadata / falloc / full`을 구분하고,
+   RBD `full`은 thick 할당 후 할당 상태를 유지하는 복사를 수행한다.
+3. 디스크 형식·가상 크기·데이터 일치 여부와 실제 할당 결과를 검증한다.
+4. 모든 대상 볼륨이 검증된 뒤 원본과 교체한다. 실패하면 원본을 복구하고 해당 작업 소유의 임시 볼륨을 정리한다.
+5. 교체 완료가 기록된 작업의 검증 결과만 Mold 볼륨 상세에 저장한다.
+   과거 생성 시점의 검증 결과를 새 복원 결과로 재사용하지 않는다.
+
+신규 정책을 적용할 볼륨은 체인 복원용 임시 볼륨과 정책 적용용 볼륨의 공간을 함께 예약한다.
+두 볼륨의 크기가 같으면 **대상 크기의 두 배와 여유 공간**이 필요하다. 기존 정책의 볼륨은 기존 공간 계산을 유지한다.
+외부 백업의 스테이징은 기존처럼 볼륨 파일 하나씩 처리한다.
+기본스토리지와 스테이징이 같은 파일시스템이면 두 예약을 합산한다.
+
+기존 `thin / sparse / fat` 볼륨과 정책 정보가 없는 구형 백업은 기존 경로를 유지한다.
+신규 `falloc`과 `full`은 호환용 `fat` 컬럼만으로 판단하지 않으며 별도 계약 값을 전달한다.
+관리 서버, 모든 복원 Worker Host의 Agent·공통 스크립트를 함께 업데이트하고 각 서비스를 재시작해야 한다.
+실제 GFS2·Ceph 환경에서는 각 조합별 복원과 실제 할당량을 추가 확인한다. GFS2 RAW는 FULL만 시험한다.
 
 ## 운영자용 백업 구성 요약
 
@@ -1169,7 +1274,7 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
 3. `ablecube1`에서 다음 사전구성을 실행한다. 인증정보는 실제 환경 값으로 입력한다.
 
    ```bash
-   python3 /etc/ablestack/veeam/veeam-host-config.py \
+   python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam-host-config.py \
      --job-name 'veeam-ablecube1' \
      --kvm-hostname 'ablecube1' \
      --mold-url 'http://192.168.1.30:8080/client/api' \
@@ -1178,15 +1283,19 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
      --veeam-host '<VBR 주소>' \
      --veeam-user '<VBR 사용자>' \
      --veeam-password '<VBR 암호>' \
+     --veeam-script-dir 'C:/ablestack/veeam/veeam-ablecube1' \
      --vm-schedule-backup true \
      --incremental-backup true \
      --backup-chain-size 8
    ```
 
+   위 전송 경로는 Windows VBR 예시다. Linux VBR은 `/var/lib/veeam/scripts/ablestack/veeam-ablecube1`을 지정한다.
+   디렉터리는 SSH로 자동 생성한다. [자동 복사 안내](#veeam-서버로-prepost-파일-자동-복사)의 접속 조건도 확인한다.
    비동적 설정 변경으로 재시작 안내가 나오면 관리 서버에서 `mold.service`를 재시작하고 같은 명령을 다시 실행한다.
 4. 출력된 경로를 기준 Job의 SelectedFiles에 입력한다. staging 전체 디렉터리를 선택하지 않는다.
-   생성된 `<JOB>-pre-notify.sh`와 `<JOB>-post-notify.sh`를 VBR에 복사하고
+   자동 복사가 완료되면 출력된 VBR의 Pre/Post 파일 경로를
    **Guest Processing → Scripts의 Pre-job/Post-job**으로 등록한다.
+   `--veeam-script-dir`를 생략했으면 생성된 두 파일을 VBR에 수동 복사한 후 등록한다.
    실행 위치·설치 경로는 [Veeam 신규 구성 안내](#활성-상태와-로그-확인)를 따른다.
 5. 두 VM에 `VeeamBackup` 오퍼링을 연결하고 각각 매시 `50`분, `Asia/Seoul` 등 원하는 Mold 스케줄을 지정한다.
    기준 Job은 해당 시각 이후 허용 지연 안에 실행되도록 VBR 스케줄을 구성한다.
@@ -1208,7 +1317,7 @@ third-party 스테이징이 이미 구성된 환경에서 연동부터 백업·�
 결과에는 실제 VBR 빌드, VM·Mold 백업 UUID, Restore Point·Session GUID,
 Full/증분, Job 정리 전후와 보관본 존재 여부, Mold UI·Veeam UI 복원 결과를 함께 기록한다.
 Host 로그는 `/var/log/mold/veeam-hook.log`와 `/var/lib/ablestack/backup/jobs/<백업 UUID>/job.log`,
-외부 UI 복원은 `journalctl -u mold-veeam-restore-agent.service`와 `/etc/ablestack/veeam/events/restore.log`에서 확인한다.
+외부 UI 복원은 `journalctl -u mold-veeam-restore-agent.service`와 `/var/lib/ablestack/veeam/events/restore.log`에서 확인한다.
 
 ## NetBackup·Veeam 사전 구성 파라미터 비교
 
@@ -1238,6 +1347,7 @@ Full/증분 정책과 VM 선택 방식은 별개이다.
 | Host 자동 식별 | 현재 호스트 이름으로 정확히 조회. 필요할 때만 `--kvm-hostname` 또는 `--kvm-ip` 지정 | 동일. 외부 정책/Job 이름을 Host 조회 키로 사용하지 않음 |
 | Zone | 조회한 Host의 Zone | 조회한 Host의 Zone, `--zone-id` 지정 시 일치 검증 |
 | 복원 감시 접속 | NetBackup API | KVM → VBR SSH. `--veeam-ssh-user` 기본 Veeam 사용자, `--veeam-ssh-key` 선택 |
+| 서버에 Hook 전송 | 해당 없음 | `--veeam-script-dir` 지정 시 VBR 디렉터리를 생성하고 Pre/Post 래퍼만 전송·검증. 생략 시 수동 복사 |
 | 오퍼링 | 기본 `NetBackup` 자동 생성·재사용 | 기본 `VeeamBackup` 자동 생성·재사용. `--offering-name`은 신규 생성 이름에만 사용 |
 | 백업 데이터 스테이징 | Mold `backup.thirdparty.staging.*` | 동일. 로컬 datadisk/NAS 저장소 생성 옵션 제거 |
 | 부모 작업의 bootstrap 경로 | `<root>/ablestack-netbackup/bootstrap/<policy>` | 기본 `<root>/ablestack-veeam/bootstrap/<host>/<job>`. 명시적 경로가 필요할 때만 `--agent-payload-path` 사용 |
@@ -2364,7 +2474,7 @@ Job 이름은 Mold Host 이름과 별도로 지정할 수 있다. 아래는 `abl
 인증정보·Job conf·Hook·Agent timeout·복원 감시 서비스를 구성한다.
 
 ```bash
-python3 /etc/ablestack/veeam/veeam-host-config.py \
+python3 /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam-host-config.py \
   --job-name 'veeam-ablecube1' \
   --kvm-hostname 'ablecube1' \
   --mold-url 'http://<Mold>:8080/client/api' \
@@ -2372,6 +2482,7 @@ python3 /etc/ablestack/veeam/veeam-host-config.py \
   --admin-secretkey '<Mold Admin secret key>' \
   --veeam-host '<Veeam server address>' \
   --veeam-password '<Veeam password>' \
+  --veeam-script-dir 'C:/ablestack/veeam/veeam-ablecube1' \
   --vm-schedule-backup true \
   --incremental-backup true \
   --backup-chain-size 8
@@ -2389,9 +2500,12 @@ NetBackup과 Veeam은 각각 `ablestack-netbackup`, `ablestack-veeam`을
 체인 값을 생략하면 기존 Mold 설정을 보존한다. 실행 시 증분 여부와 체인 길이는 Mold 설정을 따른다.
 
 Veeam UI에 등록할 `<JOB>-pre-notify.sh`·`<JOB>-post-notify.sh`도 자동 생성한다.
-이 파일을 Veeam Backup Server에 복사하여 Job의 Guest Processing → Pre-job/Post-job에 등록한다.
+`--veeam-script-dir` 지정 시 Veeam Backup Server에 디렉터리를 생성하고 두 파일을 복사·검증한다.
+완료 메시지에 출력된 서버의 파일 경로를 Job의 Guest Processing → Pre-job/Post-job에 등록한다.
+이 옵션을 생략하면 두 파일을 수동 복사한 후 등록한다.
 Veeam은 파일을 KVM Linux Agent의 관리 경로로 업로드하여 root로 실행한다.
-래퍼는 KVM의 `hooks/pre-notify.<JOB>`·`hooks/post-notify.<JOB>`를 SSH 없이 직접 호출한다.
+래퍼는 KVM의 `/etc/ablestack/veeam/hooks/pre-notify.<JOB>`·`post-notify.<JOB>`를 SSH 없이 직접 호출한다.
+이 생성 Hook이 `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/`의 실행 스크립트를 호출한다.
 따라서 래퍼에 적힌 KVM Hook 경로는 사전구성에서 설치되어 있어야 한다.
 Veeam 서버에서 등록하는 파일 경로와 KVM에서 실행하는 경로를 동일하게 만들 필요는 없다.
 Storage → Advanced → Scripts는 Backup Server에서 실행하는 설정이므로 이 Agent Hook 등록과 구분한다.
@@ -2435,7 +2549,7 @@ systemctl is-enabled mold-veeam-restore-agent.timer
 systemctl status mold-veeam-restore-agent.timer --no-pager
 systemctl list-timers --all mold-veeam-restore-agent.timer
 journalctl -u mold-veeam-restore-agent.service -n 100 --no-pager
-tail -n 100 /etc/ablestack/veeam/events/restore.log
+tail -n 100 /var/lib/ablestack/veeam/events/restore.log
 tail -n 100 /var/log/mold/veeam-hook.log
 ```
 
@@ -2492,11 +2606,24 @@ Host의 `/root/.ssh/ablestack.key`는 API secret을 보호하는 암호화 키�
 | 목적 | 구성 도구 |
 | --- | --- |
 | 최초 구성·재구성 | [veeam-host-config.py](veeam-host-config.py) |
-| RPM 런타임 설치 | 같은 Python의 `--install-only`, RPM에서 호출 |
+| RPM 디렉터리·systemd 준비 | 같은 Python의 `--install-only`, RPM에서 호출. 실행 파일은 패키지 경로 유지 |
 | 백업 실행 Hook | [Pre](veeam/ablestack_veeam_pre_notify.sh), [Post](veeam/ablestack_veeam_post_notify.sh) |
 | 외부 UI 복원 감시 | [mold-veeam-restore-agent.sh](veeam/mold-veeam-restore-agent.sh) |
 
-Host 설치 경로는 `/etc/ablestack/veeam`이다. 최초 RPM 설치 후 이 경로의 Python을 실행한다.
+Veeam 실행 파일은 RPM이 설치한 패키지 경로에서 직접 실행한다. 신규 설치 기준이며 기존 경로의 자동 이전은 수행하지 않는다.
+
+- 사전구성: `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam-host-config.py`
+- Hook·공통 라이브러리·복원 감시기: `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/`
+- 공통 Python 모듈: `/usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/`
+- 생성된 Job `.conf`, `mold-backup.env`, `hooks/`, 업로드용 Pre/Post 래퍼, `secrets/`: `/etc/ablestack/veeam/`
+- 실행 상태 `state/`, 이벤트 `events/`, 백업·복원 참조 `registry/`: `/var/lib/ablestack/veeam/`
+- 실제 systemd service·timer: `/etc/systemd/system/`
+
+실행 스크립트와 Python 모듈은 `/etc`로 복사하지 않는다. 생성한 Hook은 패키지 경로의 스크립트를 호출하며,
+복원 감시 서비스도 같은 패키지 경로를 사용한다. 패키지 업데이트로 실행 파일을 갱신하고,
+설정이나 생성 Hook을 변경할 때 사전구성을 다시 실행한다.
+구성 디렉터리는 `ABLESTACK_VEEAM_ETC_DIR`, 상태 디렉터리는 `ABLESTACK_VEEAM_STATE_DIR`로 별도 지정할 수 있다.
+생성 Hook과 systemd 서비스에도 해당 경로를 반영한다.
 일반 사전구성에는 `--install-only`를 지정하지 않는다. Veeam UI의 Agent Job 생성과 Pre/Post 등록은 수동 단계다.
 Job 이름에 공백 등이 있으면 파일 이름에서는 `_`로 치환하고, 다른 Job과 파일 이름이 충돌하면 중단한다.
 Watcher는 설치된 모든 Job `.conf`를 조회하므로 사용자 지정 Job 이름도 처리한다.
@@ -2508,9 +2635,60 @@ Watcher는 설치된 모든 Job `.conf`를 조회하므로 사용자 지정 Job 
 3. `backup.framework.enabled` 또는 `kvm.incremental.backup`을 실제로 변경한 경우에만 관리 서버 재기동을 안내하고 중단한다.
    재기동 후 같은 명령을 다시 실행한다. 대상 범위의 값이 모두 같아 변경을 건너뛰면 안내 없이 다음 단계로 진행한다.
 4. 같은 Zone·`ablestack-veeam`·`externalid=veeam` 오퍼링이 있으면 재사용한다. 없으면 생성하고 완료를 확인한다.
-5. 런타임, 암호화한 API secret, Job conf, Pre/Post Hook과 업로드용 래퍼를 기록한다.
+5. 패키지 런타임의 존재를 확인하고 systemd 파일·디렉터리를 준비한다. 암호화한 API secret, Job conf, Pre/Post Hook과 업로드용 래퍼를 생성한다.
 6. Agent의 `timeoutPrePost`를 설정하고 변경 시 Agent 서비스를 재시작한다.
-7. systemd를 갱신하고 복원 감시 timer의 활성화를 확인한다.
+7. `--veeam-script-dir`가 있으면 VBR에 디렉터리를 생성하고 Pre/Post 래퍼 두 개를 전송·검증한다.
+8. systemd를 갱신하고 복원 감시 timer의 활성화를 확인한다. Veeam UI에서 출력된 Pre/Post 파일 경로를 등록한다.
+
+### Veeam 서버로 Pre/Post 파일 자동 복사
+
+호스트 사전구성 명령에 `--veeam-script-dir`를 추가하면 KVM에서 VBR로 SSH 접속하여
+지정한 최종 디렉터리를 자동 생성한다. OS의 임시 폴더가 아닌, Job에서 계속 사용할 경로를 지정한다.
+디렉터리는 사전에 수동 생성할 필요가 없으며 전송 후에도 유지한다.
+
+```bash
+# Windows VBR: 기존 사전구성 옵션에 추가
+--veeam-script-dir 'C:/ablestack/veeam/veeam-ablecube1'
+
+# Linux VBR: 같은 옵션에 Linux 경로 지정
+--veeam-script-dir '/var/lib/veeam/scripts/ablestack/veeam-ablecube1'
+
+# 별도 SSH 계정·키를 사용하는 경우 함께 지정
+--veeam-ssh-user '<VBR SSH 사용자>' --veeam-ssh-key '/root/.ssh/veeam_id_rsa'
+```
+
+- 경로 형식으로 실행 방식을 선택한다. Windows는 `C:/...` 또는 `C:\...`, Linux는 `/...` 형식이다.
+  접속한 서버에서도 실제 OS를 확인하며, 일치하지 않거나 필요한 원격 도구를 실행할 수 없으면 파일 생성 전에 중단한다.
+- KVM에는 OpenSSH 클라이언트가 필요하다. 비밀번호 인증은 `SSH_ASKPASS_REQUIRE=force`를 지원하는 OpenSSH 8.4 이상을 사용한다.
+  해당 환경 변수는 [OpenSSH 8.4 릴리스](https://www.openssh.org/releasenotes.html)부터 지원된다.
+  VBR은 SSH 접속이 가능해야 하고, 지정한 SSH 사용자에게 대상 디렉터리 생성·파일 교체 권한이 있어야 한다.
+  Windows VBR에서는 `powershell.exe`가, Linux VBR에서는 Python 3가 실행 가능해야 한다.
+- `--veeam-ssh-user`는 생략하면 `--veeam-user`를 사용한다. `--veeam-ssh-key`를 지정하면 해당 키로 인증한다.
+  키는 무인 실행에 사용할 수 있어야 한다. 키를 생략하면 `--veeam-password`를 SSH 비밀번호로 사용한다.
+  다른 SSH 계정을 사용한다면 해당 계정의 키 인증을 구성한다.
+- 호스트 키는 기존 `known_hosts`와 비교하고 최초 접속한 서버만 자동 등록한다. 서버 키가 변경되었으면 접속을 중단한다.
+- 생성된 `<JOB>-pre-notify.sh`와 `<JOB>-post-notify.sh`만 전송한다.
+  `.conf`, `.env`, API secret, Host 암호화 키와 기존 공통 실행 스크립트는 VBR로 전송하지 않는다.
+- 서버에서 같은 파일은 재사용한다. 내용이 변경되면 기존 파일을 `.bak.<UTC 시각>.<식별자>`로 보관하고
+  임시 파일에 기록한 뒤 최종 파일을 교체한다. SHA-256을 원본과 비교한 결과가 모두 일치해야 완료로 처리한다.
+- 대상 디렉터리의 잠금과 Host·Job 식별 파일로 동시 변경과 서로 다른 Host·Job의 파일 이름 충돌을 차단한다.
+  이 관리 파일은 전송 디렉터리에 유지한다.
+- SSH 실패·권한 오류·120초 전송 제한 초과·검증 실패 시 0이 아닌 종료 코드를 반환하고 실패 단계를 출력한다.
+  완료한 로컬 설정과 서버 파일은 보존하므로 원인을 수정하고 같은 명령을 재실행한다.
+  이후 재구성에도 **같은 `--veeam-script-dir`를 명시**해야 서버 사본이 갱신된다.
+- 자동 복사는 Veeam Job 설정을 변경하지 않는다. 성공 시 출력된 **VBR 서버 파일 경로**를
+  Guest Processing → Scripts의 Pre-job/Post-job에서 직접 선택한다.
+
+Windows 예시에서 출력되는 경로는 다음과 같다.
+
+```text
+Pre-job : C:\ablestack\veeam\veeam-ablecube1\veeam-ablecube1-pre-notify.sh
+Post-job: C:\ablestack\veeam\veeam-ablecube1\veeam-ablecube1-post-notify.sh
+```
+
+Linux VBR은 `/var/lib/veeam/scripts/` 아래에 보관한다. 서버에서 선택한 SH 스크립트는 백업 실행 시
+Veeam이 KVM Linux Agent로 업로드하여 실행한다.
+[Veeam 공식 문서](https://helpcenter.veeam.com/docs/vbr/userguide/agent_job_guest_scripts.html?ver=13)를 참고한다.
 
 **실패 후 재시도와 기존 파일**
 

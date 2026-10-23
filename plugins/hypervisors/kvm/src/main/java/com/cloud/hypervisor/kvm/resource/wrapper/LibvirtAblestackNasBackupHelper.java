@@ -96,6 +96,7 @@ class LibvirtAblestackNasBackupHelper {
         LOGGER.info("LibvirtNasBackupHelper executeBackup entered for vm=[{}], backupPath=[{}], backupType=[{}]",
                 command.getVmName(), command.getBackupPath(), command.getBackupType());
         List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
+        if (command.getOfflineGuard() != null) return executeOfflineRawBackup(command, diskPaths);
         BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
         LOGGER.debug("NAS backup execution mode=[{}], vm=[{}], backupType=[{}], diskPaths=[{}]",
                 executionMode, command.getVmName(), command.getBackupType(), diskPaths);
@@ -125,6 +126,7 @@ class LibvirtAblestackNasBackupHelper {
     }
 
     String[] buildDetachedBackupScriptCommand(AblestackNasTakeBackupCommand command) {
+        if (command.getOfflineGuard() != null) return null;
         List<String> diskPaths = resolveDiskPaths(command.getVolumePools(), command.getVolumePaths());
         BackupExecutionMode executionMode = determineExecutionMode(command.getVmName(), command.getVolumePools());
         if (BackupExecutionMode.STOPPED.equals(executionMode)) {
@@ -305,6 +307,46 @@ class LibvirtAblestackNasBackupHelper {
                     BACKUP_TRACE, command.getVmName(), dummyVmName, command.getBackupType(), command.getCheckpointName(),
                     System.currentTimeMillis() - startedAt);
             unmountRepository(command, mountPoint);
+        }
+    }
+
+    private Pair<Integer, String> executeOfflineRawBackup(AblestackNasTakeBackupCommand command, List<String> sources) {
+        Path mount = null;
+        Path destination = null;
+        Path payloadFile = null;
+        try {
+            var plan = command.getOfflineGuard();
+            if (!"FULL".equalsIgnoreCase(command.getBackupType()) || command.getParentBackupPath() != null
+                    || !command.getBackupJobId().equals(plan.jobId)
+                    || !LibvirtAblestackSharedRawGuard.paths(resource, plan).equals(sources))
+                throw new IOException("Offline RAW requires the exact protected FULL source plan");
+            mount = mountRepository(command);
+            destination = mount.resolve(command.getBackupPath()).normalize();
+            if (!destination.startsWith(mount) || destination.equals(mount)) throw new IOException("Invalid NAS backup destination");
+            Files.createDirectories(destination.getParent());
+            Files.createDirectory(destination);
+            markBackupInProgress(destination, command);
+            java.util.Map<String, Object> payload = new java.util.LinkedHashMap<>();
+            payload.put("plan", plan); payload.put("paths", sources);
+            payload.put("destination", destination.toString()); payload.put("files", command.getBackupFiles());
+            payload.put("timeout", command.getWait() > 0 ? command.getWait() : 43200);
+            payload.put("bandwidth", command.getBandwidthLimitMbps() == null ? 0 : command.getBandwidthLimitMbps());
+            payloadFile = Files.createTempFile("ablestack-offline-raw-", ".json");
+            Files.writeString(payloadFile, new com.google.gson.Gson().toJson(payload));
+            Path helper = Path.of(resource.getAbleCvtBackupPath()).getParent().resolve("ablestack_shared_raw.py");
+            var result = Script.executePipedCommands(List.<String[]>of(new String[] {"python3", helper.toString(),
+                    "--action", "EXPORT_NAS", "--plan-file", payloadFile.toString()}),
+                    TimeUnit.SECONDS.toMillis(command.getWait() > 0 ? command.getWait() + 60L : 43260L));
+            if (result.first() != 0) throw new IOException("Offline RAW export failed: " + result.second());
+            markBackupComplete(destination, command);
+            return result;
+        } catch (Exception failure) {
+            LOGGER.warn("Offline RAW NAS backup failed for [{}]: {}", command.getVmName(), failure.getMessage(), failure);
+            // Keep partial files until source termination and normal failed-backup cleanup are confirmed.
+            return new Pair<>(EXIT_CLEANUP_FAILED, failure.getMessage());
+        } finally {
+            if (payloadFile != null) try { Files.deleteIfExists(payloadFile); } catch (IOException ignored) { }
+            unmountRepository(command, mount);
         }
     }
 

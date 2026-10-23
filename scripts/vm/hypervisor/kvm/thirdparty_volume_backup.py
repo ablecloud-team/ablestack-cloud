@@ -37,6 +37,7 @@ import xml.etree.ElementTree as ET
 
 from thirdparty_staging_cleanup import validate_job_directory
 from thirdparty_qcow2_nbd import Connection, copy_volume, preflight
+from thirdparty_backup_source_support import require_supported_sources
 
 
 def diagnostic_tail(path):
@@ -186,6 +187,7 @@ class Backup:
     def __init__(self, plan_file):
         self.plan = json.loads(Path(plan_file).read_text())
         self.manifest = self.plan["manifest"]
+        self.offline = self.manifest.get("offlineGuard")
         self.root = Path(self.plan["backupPath"])
         self.job = Path(plan_file).parent
         self.timeout = max(300, self.plan["timeout"])
@@ -248,7 +250,7 @@ class Backup:
         required += (required * self.plan["bufferPercent"] + 99) // 100
         scratch = 0
         staging_key = filesystem_capacity(stage_root, True)["storageKey"]
-        if not self.plan["rbd"]:
+        if not self.plan["rbd"] and not self.offline:
             primary = prepare_backup_capacity(self.manifest["backupUuid"], stage_root, self.plan["diskPaths"],
                                               [v["provisionedBytes"] for v in self.manifest["volumes"]])
             atomic(self.job / "backup-primary-capacity.json", primary)
@@ -272,7 +274,7 @@ class Backup:
             "admission": True, "jobId": self.manifest["backupUuid"], "operation": "BACKUP",
             "requiredBytes": required + scratch, "stagingStorageKey": staging_key,
             "bufferPercent": self.plan["bufferPercent"],
-            "capacityVersion": 0 if self.plan["rbd"] else 1})
+            "capacityVersion": 0 if self.plan["rbd"] or self.offline else 1})
         # Notify the parent Hook before waiting for a Host slot. VM 1 may hold
         # that slot while waiting for the parent to finish submitting VM 2.
         # Only tiny ownership markers precede admission; no volume IO starts here.
@@ -544,6 +546,7 @@ class Backup:
                                (index + 1, self.count, volume["uuid"], phase, exc, diagnostics)) from exc
 
     def preflight_qcow2(self):
+        require_supported_sources(self.plan["diskPaths"])
         self.nbd = preflight(bool(self.plan.get("parentCheckpointName")))
         if self.plan.get("parentCheckpointName"):
             for volume in self.manifest["volumes"]:
@@ -593,7 +596,15 @@ class Backup:
         if (start != {"version": 1, "backupUuid": self.manifest["backupUuid"], "state": "NOT_STARTED"}
                 or self.engine.exists() or admission_closed_reason(self.job) is not None):
             raise RuntimeError("Backup engine was already initialized; its source start record is protected")
-        if not self.plan["rbd"]:
+        if self.offline:
+            if (self.plan["rbd"] or self.manifest.get("backupType") != "FULL" or self.manifest.get("parentBackupUuid")
+                    or self.offline.get("jobId") != self.manifest["backupUuid"] or self.offline.get("operation") != "BACKUP"
+                    or len(self.offline.get("disks", [])) != len(self.plan["diskPaths"])):
+                raise RuntimeError("GFS2_RAW_INCREMENTAL_UNSUPPORTED: offline source requires a protected independent FULL plan")
+            for path, disk, volume in zip(self.plan["diskPaths"], self.offline["disks"], self.manifest["volumes"]):
+                if Path(path).name != disk["path"] or disk["bytes"] != volume["provisionedBytes"]:
+                    raise RuntimeError("Offline Full source differs from its immutable plan")
+        elif not self.plan["rbd"]:
             self.preflight_qcow2()
         self.check_cancel()
         self.reserve()
@@ -619,6 +630,9 @@ class Backup:
         for command in ("dominfo", "domiflist", "domblklist"):
             with contextlib.suppress(RuntimeError):
                 atomic(self.root / (command + ".xml"), run(["virsh", "-c", "qemu:///system", command, self.vm]))
+        if self.offline:
+            self.execute_offline()
+            return
         if self.plan["rbd"]:
             self.begin_rbd()
         else:
@@ -649,6 +663,32 @@ class Backup:
                     "sourceHost": self.plan["sourceHost"], "completed": False}
         self.transfer(self.count, metadata, True)
         self.progress("FINALIZING", self.count, 1)
+
+    def execute_offline(self):
+        from ablestack_shared_raw import offline_sources, convert, capture_configuration
+        with offline_sources(self.plan["diskPaths"], self.manifest["backupUuid"]) as validate:
+            capture_configuration(self.offline, self.plan["diskPaths"], self.root)
+            for index, volume in enumerate(self.manifest["volumes"]):
+                self.check_cancel()
+                artifact = volume["chain"][-1]
+                target = Path(artifact["path"])
+                if target.parent != self.root or target.exists() or len(volume["chain"]) != 1:
+                    raise RuntimeError("Invalid offline FULL artifact or incremental chain")
+                source = self.plan["diskPaths"][index]
+                disk = self.offline["disks"][index]
+                convert(source, target, disk["format"], volume["provisionedBytes"], self.timeout,
+                        lambda fraction: self.progress("OFFLINE_FULL_EXPORT", index, fraction), self.check_cancel,
+                        int(self.bandwidth_file.read_text().strip()))
+                artifact["size"] = target.stat().st_size
+                self.transfer(index, artifact)
+            validate()
+            self.manifest["complete"] = True
+            atomic(self.root / "backup-manifest.json", self.manifest)
+            atomic(self.root / ".staging.complete", "volume_pipeline=true\nbackup_uuid=%s\n" % self.manifest["backupUuid"])
+            (self.root / ".staging.inprogress").unlink(missing_ok=True)
+            self.transfer(self.count, {"backupUuid": self.manifest["backupUuid"], "path": str(self.root),
+                                      "sourceHost": self.plan["sourceHost"], "completed": False}, True)
+            self.progress("FINALIZING", self.count, 1)
 
     def close(self):
         thaw_error = None
@@ -690,14 +730,14 @@ def validate_completed_transfers(plan, manifest):
     expected = plan["manifest"]
     if (manifest.get("version") != 1 or manifest.get("complete") is not True
             or any(manifest.get(key) != expected.get(key)
-                   for key in ("backupUuid", "provider", "vmName", "timestamp", "backupType", "parentBackupUuid"))):
+                   for key in ("backupUuid", "provider", "vmName", "timestamp", "backupType", "parentBackupUuid", "offlineGuard"))):
         raise RuntimeError("Transfer completion differs from the saved backup plan")
     volumes = manifest.get("volumes", [])
     if len(volumes) != len(expected["volumes"]):
         raise RuntimeError("Transfer completion has a different volume count")
     owned = []
     for volume, source in zip(volumes, expected["volumes"]):
-        if (any(volume.get(key) != source.get(key) for key in ("uuid", "deviceId", "provisionedBytes", "engine"))
+        if (any(volume.get(key) != source.get(key) for key in ("uuid", "deviceId", "provisionedBytes", "engine", "allocation"))
                 or len(volume.get("chain", [])) != len(source["chain"])):
             raise RuntimeError("Transfer completion has a different source volume")
         for artifact, original in zip(volume["chain"], source["chain"]):
@@ -988,6 +1028,10 @@ def thaw_owned_guest(receipt, vm):
 def cleanup_source(plan, job, receipt, keep_checkpoint=False):
     """Stop owned readers; preserve confirmed backups' current checkpoint."""
     manifest = plan["manifest"]
+    if manifest.get("offlineGuard"):
+        from ablestack_shared_raw import no_readers
+        no_readers(plan["diskPaths"] + [volume["chain"][-1]["path"] for volume in manifest["volumes"]])
+        return  # Offline RAW never creates or removes libvirt checkpoints/bitmaps or dummy guests.
     job_id = manifest["backupUuid"]
     thaw_owned_guest(receipt, plan["vmName"])
     # No owner process may remain, including children orphaned by an engine crash.

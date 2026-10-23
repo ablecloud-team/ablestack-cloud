@@ -92,6 +92,8 @@ final class LibvirtAblestackPrimaryRestoreCapacity {
                         ? destination.toRealPath().getParent() : destination.getParent().toRealPath()).toString();
             }
             target.volumeBytes = sizes.get(i);
+            var allocation = LibvirtAblestackRestoreProvisioning.allocation(paths.get(i));
+            if (allocation != null) target.volumeBytes = Math.addExact(target.volumeBytes, allocation.bytes);
             PrimaryClaim actual = current(resource, target, plan.timeout, true);
             target.storageKey = actual.storageKey;
             saved.targets.add(target);

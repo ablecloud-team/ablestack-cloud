@@ -17,8 +17,8 @@
 # under the License.
 
 # Diagnose / register Veeam backup offering against whatever provider MS actually has.
-#   bash /etc/ablestack/veeam/diagnose-mold-veeam-offering.sh
-#   bash /etc/ablestack/veeam/diagnose-mold-veeam-offering.sh --import
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/diagnose-mold-veeam-offering.sh
+#   bash /usr/share/cloudstack-common/scripts/vm/hypervisor/kvm/veeam/diagnose-mold-veeam-offering.sh --import
 set -euo pipefail
 set +H
 

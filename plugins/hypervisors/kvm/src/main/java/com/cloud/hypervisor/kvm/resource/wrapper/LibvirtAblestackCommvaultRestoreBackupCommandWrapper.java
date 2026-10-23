@@ -70,9 +70,17 @@ public class LibvirtAblestackCommvaultRestoreBackupCommandWrapper extends Comman
 
     @Override
     public Answer execute(AblestackCommvaultRestoreBackupCommand command, LibvirtComputingResource serverResource) {
-        try (var provisioning = LibvirtAblestackRestoreProvisioning.begin(command.getRestoreVolumeProvisioningTypes())) {
+        try (var rawLease = LibvirtAblestackSharedRawGuard.restore(serverResource, command.getRestoreJobId(),
+                command.isWaitForCompletion(), command.getRestoreVolumePools(), command.getRestoreVolumePaths(), command.getRestoreVolumeAllocation());
+                var provisioning = LibvirtAblestackRestoreProvisioning.begin(command.getRestoreVolumeProvisioningTypes(),
+                command.getRestoreVolumeAllocation(), command.getRestoreJobId())) {
+            try {
+                if (command.getRestoreVolumeAllocation() != null && !command.getRestoreVolumeAllocation().isEmpty()) {
+                    LibvirtAblestackRestoreAllocation.check(serverResource.getStoragePoolMgr(), command.getRestoreVolumeAllocation());
+                }
+            } catch (Exception failure) { return new BackupAnswer(command, false, failure.getMessage()); }
             return executeRestore(command, serverResource);
-        }
+        } catch (Exception failure) { return new BackupAnswer(command, false, failure.getMessage()); }
     }
 
     private Answer executeRestore(AblestackCommvaultRestoreBackupCommand command, LibvirtComputingResource serverResource) {
@@ -159,8 +167,13 @@ public class LibvirtAblestackCommvaultRestoreBackupCommandWrapper extends Comman
                 String volumePath = restoreVolumePaths.get(0);
                 int lastIndex = volumePath.lastIndexOf("/");
                 newVolumeId = volumePath.substring(lastIndex + 1);
+                if (command.getRestoreVolumeAllocation() != null && !command.getRestoreVolumeAllocation().isEmpty()) {
+                    restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs,
+                            backupPath, backupFiles, backupFileChains, volumeChainStates, timeout, restorePlan, command.getVmName());
+                } else {
                 restoreVolume(storagePoolMgr, backupPath, volumePool, volumePath, diskType, restoreVolumeUuid, backupFiles, backupFileChains, volumeChainStates,
                         new Pair<>(vmName, command.getVmState()), timeout, cacheMode, restorePlan);
+                }
             } else if (Boolean.TRUE.equals(vmExists)) {
                 restoreVolumesOfExistingVM(storagePoolMgr, restoreVolumePools, restoreVolumePaths, backedVolumeUUIDs, backupPath, backupFiles, backupFileChains,
                         volumeChainStates, timeout, restorePlan, vmName);

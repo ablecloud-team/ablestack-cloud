@@ -22,5 +22,5 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -f "${DIR}/veeam-host-config.py" ]]; then
   python3 "${DIR}/veeam-host-config.py" --install-only
 fi
-# Runtime installation preserves existing Host keys and Job configuration.
+# Runtime files stay in the RPM-owned script directory; prepare systemd units and mutable directories.
 # Configure each KVM host before enabling the restore watcher.

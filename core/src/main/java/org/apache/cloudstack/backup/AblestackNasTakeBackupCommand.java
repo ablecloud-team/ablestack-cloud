@@ -26,6 +26,9 @@ import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import java.util.List;
 
 public class AblestackNasTakeBackupCommand extends Command {
+    private AblestackSharedRawBackup.Plan offlineGuard;
+    public AblestackSharedRawBackup.Plan getOfflineGuard() { return offlineGuard; }
+    public void setOfflineGuard(AblestackSharedRawBackup.Plan plan) { offlineGuard = plan; }
     private String vmName;
     private String backupJobId;
     private String backupPath;

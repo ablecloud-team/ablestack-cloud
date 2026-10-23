@@ -113,6 +113,7 @@ import static org.apache.cloudstack.backup.BackupManager.BackupFrameworkEnabled;
 import static org.apache.cloudstack.backup.BackupManager.KvmIncrementalBackup;
 
 public class AblestackVeeamBackupProvider extends AdapterBase implements BackupProvider, Configurable {
+    @Inject private BackupVolumeAllocationService backupVolumeAllocationService;
 
     private static final Logger LOG = LogManager.getLogger(AblestackVeeamBackupProvider.class);
     private final ThreadLocal<Boolean> detachedRestoreStart = ThreadLocal.withInitial(() -> false);
@@ -283,7 +284,7 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
         final BackupVO latestBackup = isIncrementalBackupEnabled(vm) || StringUtils.isBlank(veeamJobName)
                 ? getLatestBackedUpBackup(vm) : null;
-        final boolean incrementalBackup = shouldUseIncrementalBackup(vm, latestBackup, backupScheduleId)
+        final boolean incrementalBackup = !backupVolumeAllocationService.requiresOfflineFull(vmVolumes) && shouldUseIncrementalBackup(vm, latestBackup, backupScheduleId)
                 && ThirdPartyBackupManifest.canContinue(latestBackup, getName(), vm.getInstanceName(),
                         areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2, vmVolumes);
         final String resolvedJobName = resolveVeeamJobName(veeamJobName, latestBackup);
@@ -324,7 +325,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         }
         final String backupPath = buildBackupPath(vm);
         final String checkpointName = backupPath.substring(backupPath.lastIndexOf("/") + 1);
-        final String backupEngine = areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
+        final String backupEngine = backupVolumeAllocationService.requiresOfflineFull(vmVolumes) ? AblestackSharedRawBackup.ENGINE
+                : areAllVolumesOnRbdPool(volumePoolsAndPaths.first()) ? BACKUP_ENGINE_RBD_DIFF : BACKUP_ENGINE_QCOW2;
         final String requestedBackupType = incrementalBackup ? BACKUP_TYPE_INCREMENTAL : BACKUP_TYPE_FULL;
         validateBackupStageCapacity(vmHost, getBackupStageRootPath(), vmVolumes, vm.getInstanceName(), requestedBackupType, backupEngine, true);
         final List<String> backupFiles = buildBackupFileNames(vmVolumes, backupEngine, incrementalBackup);
@@ -698,6 +700,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             if (BACKUP_ENGINE_RBD_DIFF.equals(backupEngine)) {
                 final String suffix = incrementalBackup ? ".rbdiff" : ".raw";
                 backupFiles.add(String.format("%s.%s%s", diskPrefix, volume.getUuid(), suffix));
+            } else if (AblestackSharedRawBackup.ENGINE.equals(backupEngine) && volume.getFormat() == Storage.ImageFormat.RAW) {
+                backupFiles.add(String.format("%s.%s.raw", diskPrefix, volume.getUuid()));
             } else {
                 backupFiles.add(String.format("%s.%s.qcow2", diskPrefix, volume.getUuid()));
             }
@@ -711,8 +715,10 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
             final VolumeVO volume = volumes.get(i);
             final DiskOffering diskOffering = diskOfferingDao.findById(volume.getDiskOfferingId());
             final String diskOfferingUuid = diskOffering != null ? diskOffering.getUuid() : null;
-            infoList.add(new Backup.VolumeInfo(volume.getUuid(), backupFiles.get(i), volume.getVolumeType(), volume.getSize(),
-                    volume.getDeviceId(), diskOfferingUuid, volume.getMinIops(), volume.getMaxIops()));
+            Backup.VolumeInfo info = new Backup.VolumeInfo(volume.getUuid(), backupFiles.get(i), volume.getVolumeType(), volume.getSize(),
+                    volume.getDeviceId(), diskOfferingUuid, volume.getMinIops(), volume.getMaxIops());
+            info.setAllocation(backupVolumeAllocationService.capture(volume));
+            infoList.add(info);
         }
         return new com.google.gson.Gson().toJson(infoList.toArray(), Backup.VolumeInfo[].class);
     }
@@ -1725,6 +1731,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
         command.setRestoreVolumePools(destinations.first());
         command.setRestoreVolumePaths(destinations.second());
         command.setRestoreVolumeProvisioningTypes(targets, destinations.second());
+        command.setRestoreVolumeAllocation(backupVolumeAllocationService.configureRestore(backup, host,
+                command.getRestoreJobId(), targets, destinations.second()));
         command.setBackupVolumesUUIDs(sourceUuids);
         command.setVmExists(singleVolume ? null : vm.getRemoved() == null);
         command.setVmState(vm.getState());
@@ -2102,7 +2110,8 @@ public class AblestackVeeamBackupProvider extends AdapterBase implements BackupP
 
             @Override
             public void completed(final Backup current) {
-                if (BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))
+                if (ThirdPartyBackupManifest.fromJson(current.getDetail(ThirdPartyBackupManifest.DETAIL_KEY)).getOfflineGuard() == null
+                        && BACKUP_ENGINE_QCOW2.equals(getBackupDetail(current, DETAIL_BACKUP_ENGINE))
                         && StringUtils.isBlank(getBackupDetail(current, DETAIL_CHECKPOINT_XML))) {
                     final String xml = readFileContentsOnHost(host.getId(), getBackupDetail(current, DETAIL_CHECKPOINT_PATH));
                     if (StringUtils.isBlank(xml)) {
