@@ -1,0 +1,17 @@
+{
+  "sharedfs": "4af5e8c3-ac8f-4a44-ac6f-8e270ac22e31",
+  "vm": "4e4bd682-8700-3b0c-8571-7790487d286d",
+  "host": "10.10.13.3",
+  "domain": "i-2-122-VM",
+  "template": "f6ae443d-9965-4f86-bd22-043c94dbcae6",
+  "root": "6aa9e350-6be5-43ad-ac4c-18b2d8397a08",
+  "data": "f77ce7e2-956d-4b56-b6d0-7774c30d02e5",
+  "ip": "10.10.13.252",
+  "operation": "f4853fa6-7dbd-345b-8377-747618861a7c",
+  "provisioning": "sparse",
+  "filesystem": "xfs",
+  "activeUiObservation": "PASS",
+  "formatterReadElapsed": 0.014068309999998974,
+  "formatCount": 1,
+  "fullLargeAcceptanceResumed": false
+}

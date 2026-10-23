@@ -1,0 +1,19 @@
+{
+  "files": [
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/sharedfs/GetSharedFSPreparationCmd.java",
+    "api/src/main/java/org/apache/cloudstack/api/command/user/storage/sharedfs/ResumeSharedFSCreationCmd.java",
+    "api/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSCreationContextTest.java",
+    "api/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSOfferingCatalogCmdTest.java",
+    "api/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSOfferingEligibilityTest.java",
+    "api/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSPreparationContractTest.java",
+    "engine/schema/src/main/java/com/cloud/upgrade/dao/EuropaSharedFSCreationUpgrade.java",
+    "engine/schema/src/test/java/com/cloud/upgrade/dao/EuropaSharedFSCreationUpgradeTest.java",
+    "engine/schema/src/test/java/org/apache/cloudstack/storage/sharedfs/dao/SharedFSCreationDaoRoundTripTest.java",
+    "server/src/main/java/org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.java",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceInitialBackingTest.java",
+    "server/src/test/java/org/apache/cloudstack/storage/dataservice/StorageServiceInitialPosixTest.java",
+    "server/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSCreationFlowTest.java",
+    "server/src/test/java/org/apache/cloudstack/storage/sharedfs/SharedFSStaticNetworkBootstrapTest.java"
+  ],
+  "nonImportSourceUnchanged": true
+}
