@@ -1,0 +1,9 @@
+{
+  "fault": "authorized management restart during UI 10TiB EXT4 FORMATTING",
+  "startedAt": 1792736001.780326,
+  "finishedAt": 1792736004.821583,
+  "before": "MainPID=3239405\nActiveState=active\n",
+  "after": "MainPID=3243795\nActiveState=active\n",
+  "rc": 0,
+  "stderr": ""
+}
