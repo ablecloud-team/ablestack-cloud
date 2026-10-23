@@ -1,0 +1,13 @@
+{
+  "target": "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+  "original_sha256": "eb151ee6b40aa6e957b17ce221448fe792fa2fb04cb81de8121654663a0f2713",
+  "candidate_sha256": "168350ffb5e9345b7ba2eee91a1e1c38d35cd47b209ab0caad58be7c0a97ec55",
+  "jar_name": "cloud-plugin-hypervisor-kvm-4.23.0.0.jar",
+  "candidate": "/root/work/epic1438-preparation/20261023/issue1443-static-bootstrap/cloud-plugin-hypervisor-kvm-4.23.0.0-static.jar",
+  "classes": [
+    "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class"
+  ],
+  "class_sha256": "2567b3a1a1a4abcdee295764f8f8d77116c340efe768d7e9791eb27648475f13",
+  "unchanged_entries": 524,
+  "unchanged_bytes_verified": true
+}

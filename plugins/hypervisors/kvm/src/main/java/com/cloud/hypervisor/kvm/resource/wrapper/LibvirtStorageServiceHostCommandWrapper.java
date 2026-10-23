@@ -91,9 +91,7 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
     private static final String SHAREDFS_NETWORK_UNIT_CONTENT = String.join("\n",
             "[Unit]",
             "Description=ABLESTACK SharedFS static network restore",
-            "After=local-fs.target",
-            "Before=network-pre.target network.target",
-            "Wants=network-pre.target",
+            "After=local-fs.target cloud-early-config.service",
             "ConditionPathExists=" + SHAREDFS_NETWORK_STATE,
             "",
             "[Service]",
@@ -103,6 +101,59 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
             "",
             "[Install]",
             "WantedBy=multi-user.target",
+            "");
+
+    private static final String SHAREDFS_BOOTSTRAP_GUARD_CONTENT = String.join("\n",
+            "import json",
+            "import subprocess",
+            "import sys",
+            "",
+            "UNITS = ('cloud-early-config.service', 'cloud-init-local.service', 'cloud-init.service')",
+            "PROPERTIES = ('Id', 'LoadState', 'ActiveState', 'SubState', 'Result', 'Job')",
+            "observations = {}",
+            "def finish(state, reason):",
+            "    snapshot = {'state': state, 'reason': reason, 'units': observations}",
+            "    if state == 'READY':",
+            "        return",
+            "    print(json.dumps({'sharedFsBootstrap': snapshot}, separators=(',', ':')))",
+            "    print('SHAREDFS_BOOTSTRAP_' + state + ': ' + json.dumps(snapshot, separators=(',', ':')), file=sys.stderr)",
+            "    sys.exit(75 if state == 'PENDING' else 76)",
+            "def inspect(unit):",
+            "    args = ['systemctl', 'show', unit]",
+            "    for prop in PROPERTIES:",
+            "        args.extend(['-p', prop])",
+            "    result = subprocess.run(args, text=True, capture_output=True, timeout=5)",
+            "    values = dict(line.split('=', 1) for line in result.stdout.splitlines() if '=' in line)",
+            "    required = PROPERTIES",
+            "    if any(key not in values for key in required):",
+            "        raise ValueError('Missing bootstrap unit properties: ' + unit)",
+            "    if result.returncode and values['LoadState'] != 'not-found':",
+            "        raise ValueError('Unable to inspect bootstrap unit: ' + unit)",
+            "    if any(len(values.get(key, '')) > 128 for key in PROPERTIES):",
+            "        raise ValueError('Invalid bootstrap unit property length: ' + unit)",
+            "    observations[unit] = {key: values.get(key, '') for key in PROPERTIES}",
+            "    return observations[unit]",
+            "try:",
+            "    for unit in UNITS:",
+            "        inspect(unit)",
+            "except subprocess.TimeoutExpired:",
+            "    finish('PENDING', 'UNIT_INSPECTION_TIMEOUT')",
+            "except (OSError, ValueError):",
+            "    finish('FAILED', 'UNIT_INSPECTION_FAILED')",
+            "early = observations[UNITS[0]]",
+            "if early['LoadState'] != 'loaded' or early['ActiveState'] == 'failed':",
+            "    finish('FAILED', 'EARLY_CONFIG_FAILED')",
+            "if early['Job'] not in ('', '0') or (early['ActiveState'], early['SubState'], early['Result']) != ('active', 'exited', 'success'):",
+            "    finish('PENDING', 'EARLY_CONFIG_RUNNING')",
+            "for unit in UNITS[1:]:",
+            "    stage = observations[unit]",
+            "    if stage['LoadState'] == 'not-found':",
+            "        continue",
+            "    if stage['LoadState'] != 'loaded':",
+            "        finish('FAILED', 'NETWORK_STAGE_UNAVAILABLE')",
+            "    if stage['Job'] not in ('', '0') or stage['ActiveState'] in ('activating', 'deactivating') or stage['SubState'] in ('running', 'start', 'start-pre', 'start-post'):",
+            "        finish('PENDING', 'NETWORK_STAGE_RUNNING')",
+            "finish('READY', 'NETWORK_INITIALIZATION_FINISHED')",
             "");
 
     @Override
@@ -214,8 +265,15 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 "printf '%s' '" + encodedUnit + "' | base64 -d > " + SHAREDFS_NETWORK_UNIT + ".tmp; " +
                 "mv " + SHAREDFS_NETWORK_UNIT + ".tmp " + SHAREDFS_NETWORK_UNIT + "; chmod 0644 " + SHAREDFS_NETWORK_UNIT + "; " +
                 "systemctl daemon-reload; systemctl enable ablestack-sharedfs-network.service >/dev/null; " +
+                buildSharedFsBootstrapGuard() +
                 "systemctl restart ablestack-sharedfs-network.service; systemctl --no-pager --full status ablestack-sharedfs-network.service >/dev/null; " +
                 SHAREDFS_NETWORK_HELPER + " " + SHAREDFS_NETWORK_STATE;
+    }
+
+    protected String buildSharedFsBootstrapGuard() {
+        // Preserve bootstrap ordering; do not apply STATIC while cloud-init can still change the NIC.
+        final String encoded = Base64.getEncoder().encodeToString(SHAREDFS_BOOTSTRAP_GUARD_CONTENT.getBytes(StandardCharsets.UTF_8));
+        return "python3 -c \"import base64;exec(base64.b64decode('" + encoded + "'))\"; ";
     }
 
     protected String decodeGuestData(final JsonObject response, final String field) {

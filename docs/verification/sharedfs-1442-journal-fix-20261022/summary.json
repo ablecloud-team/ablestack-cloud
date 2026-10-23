@@ -1,0 +1,29 @@
+{
+  "issue": 1442,
+  "state": "OPEN",
+  "implementationCommits": [
+    "265723427b665eb6a63d6075e82203e2bbb05fc8",
+    "019bc922012ae7b035b18325533f0581653fc131"
+  ],
+  "backendTests": 109,
+  "realDaoMariaDbTests": 4,
+  "uiTests": 38,
+  "journalFixActualUi": "PASS",
+  "corruptRowListHttp200": "PASS",
+  "corruptReservationUiCancel": "PASS",
+  "xfsJournalBytes": 718,
+  "xfsJournalJsonValid": true,
+  "xfsAttachMount": "PASS",
+  "xfsFileContentSha256": "PASS",
+  "xfsDirectoryPermissions": "FAIL",
+  "xfsOwnerWrite": "FAIL",
+  "ext4LiveAcceptance": "NOT_RUN",
+  "newBackingLiveRegression": "NOT_RUN",
+  "lostUiResultDuplicateAcceptance": "NOT_COMPLETE",
+  "existingServicesReady": 6,
+  "guestChangedThisTurn": false,
+  "manualPermissionResetAfterFailure": false,
+  "nextIssueStarted": false,
+  "scopeCorrection": "Removed own client-only /32 ACL test; existing known ACL probe limitation excluded; basic NFS config used",
+  "stoppedOnConfirmedDirectoryMutation": true
+}

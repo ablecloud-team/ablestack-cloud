@@ -1,0 +1,12 @@
+{
+  "id": "268b256e-bfd2-4a3f-9a3b-ce3f0ad78ecc",
+  "name": "epic1438-1443-client-20261022-01",
+  "instance": "i-2-115-VM",
+  "host": "10.10.13.2",
+  "template": "ad371aa1-504d-41ef-8de8-bc99eef9594c",
+  "serviceOffering": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+  "rootDiskOffering": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+  "rootPolicyRequested": "SPARSE",
+  "creationMethod": "actual Mold VM wizard",
+  "macOverride": false
+}

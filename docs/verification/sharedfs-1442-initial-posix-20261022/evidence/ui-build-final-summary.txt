@@ -1,0 +1,5 @@
+ WARNING  Compiled with 2 warnings1:08:56 AM
+  dist/js/error.f3761a8d.js               2.96 KiB          0.95 KiB
+  dist/css/error.be088387.css             0.73 KiB          0.31 KiB
+ DONE  Build complete. The dist directory is ready to be deployed.
+[SKIP] ABLESTACK_UI_BUILD_VERSION is not set; keeping buildVersion: V4.0-4.0.15

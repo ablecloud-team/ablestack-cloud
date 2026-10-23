@@ -1,0 +1,591 @@
+{
+  "host": "10.10.13.3",
+  "commit": "d69133fffd2ba86b9aeba761aad198812345f323",
+  "at_utc": "2026-10-23T01:30:02.560773+00:00",
+  "unit": "mold-agent.service",
+  "before_service": {
+    "MainPID": "3097524",
+    "ActiveState": "active"
+  },
+  "after_service": {
+    "MainPID": "4101335",
+    "ActiveState": "active"
+  },
+  "backup": "/var/tmp/epic1443-guard-d69133fffd2b-10-10-13-3-rollback",
+  "jar_sha256": {
+    "/usr/share/cloudstack-agent/lib/cloud-plugin-hypervisor-kvm-4.23.0.0.jar": "0be334b2e9d9a4ab8c15b92fdc97ab664abc60c2ddd208996fc6f1f61f517b66"
+  },
+  "before_domains": {
+    "i-2-102-VM": {
+      "uuid": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/11b51b40-58b4-4bd9-a440-2cd054ecfca8",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "11b51b4058b44bd9a440"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "8c5b14e0cc4f4798ae72"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:3a"
+      ]
+    },
+    "i-2-105-VM": {
+      "uuid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/95047027-fe5e-4ec4-8fb2-1ed7d41bd3ec",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "95047027fe5e4ec48fb2"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/3af8261e-6877-4479-8815-0b64a1b50910",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "3af8261e687744798815"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:3d"
+      ]
+    },
+    "i-2-109-VM": {
+      "uuid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/ae63d90a-7996-4f8d-80e0-b9b92b852f99",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "ae63d90a79964f8d80e0"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "124a8aa718d647cbbc7a"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:41"
+      ]
+    },
+    "i-2-111-VM": {
+      "uuid": "634178d0-3d06-31ec-84d3-9ec113093025",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/e74e9f3d-cd24-4cb8-8ece-46e0a1429410",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "e74e9f3dcd244cb88ece"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/adfcb5e8-1e32-49ce-9f39-20d7ecf6fafd",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "adfcb5e81e3249ce9f39"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:43"
+      ]
+    },
+    "i-2-112-VM": {
+      "uuid": "38e1cc60-9de7-3241-a62c-ec9aff998d21",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/452696a8-cd4d-45ca-867c-4827b4f843c9",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "452696a8cd4d45ca867c"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/c8aef987-45a4-47aa-a1b9-37ab54c5d629",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "c8aef98745a447aaa1b9"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:44"
+      ]
+    },
+    "i-2-114-VM": {
+      "uuid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/66043b23-2175-4b74-ab0c-f565d454fbcd",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "66043b2321754b74ab0c"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/3cf2ca0a-b7bb-486f-be93-e62c57ff1039",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "3cf2ca0ab7bb486fbe93"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:46"
+      ]
+    }
+  },
+  "after_domains": {
+    "i-2-102-VM": {
+      "uuid": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/11b51b40-58b4-4bd9-a440-2cd054ecfca8",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "11b51b4058b44bd9a440"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "8c5b14e0cc4f4798ae72"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:3a"
+      ]
+    },
+    "i-2-105-VM": {
+      "uuid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/95047027-fe5e-4ec4-8fb2-1ed7d41bd3ec",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "95047027fe5e4ec48fb2"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/3af8261e-6877-4479-8815-0b64a1b50910",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "3af8261e687744798815"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:3d"
+      ]
+    },
+    "i-2-109-VM": {
+      "uuid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/ae63d90a-7996-4f8d-80e0-b9b92b852f99",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "ae63d90a79964f8d80e0"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "124a8aa718d647cbbc7a"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:41"
+      ]
+    },
+    "i-2-111-VM": {
+      "uuid": "634178d0-3d06-31ec-84d3-9ec113093025",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/e74e9f3d-cd24-4cb8-8ece-46e0a1429410",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "e74e9f3dcd244cb88ece"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/adfcb5e8-1e32-49ce-9f39-20d7ecf6fafd",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "adfcb5e81e3249ce9f39"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:43"
+      ]
+    },
+    "i-2-112-VM": {
+      "uuid": "38e1cc60-9de7-3241-a62c-ec9aff998d21",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/452696a8-cd4d-45ca-867c-4827b4f843c9",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "452696a8cd4d45ca867c"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/c8aef987-45a4-47aa-a1b9-37ab54c5d629",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "c8aef98745a447aaa1b9"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:44"
+      ]
+    },
+    "i-2-114-VM": {
+      "uuid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+      "state": "running",
+      "disks": [
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/66043b23-2175-4b74-ab0c-f565d454fbcd",
+            "index": "4"
+          },
+          "target": {
+            "dev": "sda",
+            "bus": "scsi"
+          },
+          "serial": "66043b2321754b74ab0c"
+        },
+        {
+          "source": {
+            "file": "/mnt/glue-gfs/3cf2ca0a-b7bb-486f-be93-e62c57ff1039",
+            "index": "3"
+          },
+          "target": {
+            "dev": "sdb",
+            "bus": "scsi"
+          },
+          "serial": "3cf2ca0ab7bb486fbe93"
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdc",
+            "bus": "ide"
+          },
+          "serial": null
+        },
+        {
+          "source": {},
+          "target": {
+            "dev": "hdd",
+            "bus": "ide"
+          },
+          "serial": null
+        }
+      ],
+      "macs": [
+        "02:0d:00:cc:00:46"
+      ]
+    }
+  },
+  "existing_vm_identity_preserved": true,
+  "rollback": false,
+  "restart_command_code": 0,
+  "restart_command_stderr": "",
+  "stagedJvmVerified": true
+}

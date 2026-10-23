@@ -1,0 +1,14 @@
+{
+  "contents": {
+    "xfs": "issue1442-xfs-preserve-20261021\n",
+    "ext4": "issue1442-ext4-preserve-20261021\n"
+  },
+  "sha256": {
+    "xfs": "3b0777f7260fc9201959b3317c620d98bc146e47801292928d2211749838d76b",
+    "ext4": "4c0ee529a3bacb6ce13e73243b859ab5f43d82a71eb18fd928220d9780087cc6"
+  },
+  "uid": 1234,
+  "gid": 2345,
+  "directoryMode": "0750",
+  "fileMode": "0640"
+}

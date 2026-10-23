@@ -2679,7 +2679,14 @@ payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
+preparation = None
+if payload.get("preparationOperationId"):
+    from volume_preparation import PreparationContext
+    preparation = PreparationContext(payload)
+
 def run(args):
+    if preparation:
+        return preparation.run(args)
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=20)
 
 def lsblk():
@@ -2797,7 +2804,7 @@ try:
                          or config.get("filesystemUuid") or config.get("fsUuid")),
         mount_source=mounted_source,
         expected_size=expected_size,
-        allow_blank_size_fallback=import_mode in format_modes,
+        allow_blank_size_fallback=import_mode in format_modes and preparation is None,
     )
 except VolumeIdentityError as error:
     raise SystemExit(str(error))
@@ -2865,9 +2872,13 @@ def format_empty_device():
     tool = f"mkfs.{fs}"
     if not shutil.which(tool):
         raise SystemExit(f"Missing filesystem formatter: {tool}")
+    if preparation:
+        preparation.before_format(device, fs)
     result = run([tool, "-f", device] if fs == "xfs" else [tool, "-F", device])
     if result.returncode != 0:
         raise SystemExit(result.stderr.strip() or f"failed to format {device} as {fs}")
+    if preparation:
+        preparation.verify_formatted(device, fs)
     return fs
 
 if import_mode != "INSPECT_ONLY":
@@ -2881,6 +2892,8 @@ if import_mode != "INSPECT_ONLY":
         raise SystemExit(f"No filesystem was detected on {device}; format workflows are not part of existing-volume import")
     if filesystem and filesystem not in supported_filesystems:
         raise SystemExit(f"Unsupported filesystem for Storage Service backing volume: {filesystem}. Supported filesystems: xfs, ext4")
+    if preparation:
+        preparation.stage("MOUNTING")
     os.makedirs(mount_path, exist_ok=True)
     target = run(["findmnt", "-n", "-o", "SOURCE", "--mountpoint", mount_path])
     if target.returncode == 0 and target.stdout.strip():
@@ -2897,6 +2910,8 @@ if import_mode != "INSPECT_ONLY":
         if mount_result.returncode != 0:
             raise SystemExit(mount_result.stderr.strip() or f"failed to mount {device}")
         mount_path = desired_mount_path
+    if preparation:
+        preparation.stage("PERSISTING_MOUNT")
     fs_uuid = persist_backing_mount(device, mount_path, filesystem)
 else:
     if existing_filesystem and existing_filesystem not in supported_filesystems:
@@ -2938,6 +2953,7 @@ print(json.dumps({
     "serial": resolved_device.get("serial"),
     "filesystem": filesystem,
     "filesystemSupported": filesystem in supported_filesystems,
+    "supportsInitialPosixPreservation": True,
     "fsUuid": fs_uuid,
     "filesystemUuid": fs_uuid,
     "observedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -3428,6 +3444,8 @@ def effective_nfs_export_config(config):
         result["anonUid"] = 65534
     if result.get("anonGid") in (None, ""):
         result["anonGid"] = 65534
+    if result.get("posixPolicy") == "PRESERVE_EXISTING_INITIAL":
+        return result
     if result.get("ownerUid") in (None, ""):
         result["ownerUid"] = result.get("anonUid")
     if result.get("ownerGid") in (None, ""):
@@ -6519,7 +6537,13 @@ case "$command" in
     fi
     ;;
   volume)
-    if [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
+    if [[ "$subcommand" == "prepare" && ( "$action" == "start" || "$action" == "status" || "$action" == "resume" ) ]]; then
+      if [[ -z "$payload" || ! -r "$payload" ]]; then
+        emit_error "A readable payload file is required for initial volume preparation."
+        exit 2
+      fi
+      python3 /usr/local/lib/ablestack-storage/volume_preparation.py "$action" "$payload"
+    elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."
         exit 2

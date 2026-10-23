@@ -1,0 +1,63 @@
+{
+  "rows": [
+    {
+      "id": "a88c8813-d8de-4648-8f92-352970bb3602",
+      "vm": "492c6b13-4500-3f94-8be7-76f146d9ba49",
+      "data": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "host": "10.10.13.3",
+      "kind": "sharedfs",
+      "name": "epic1438-1443-xfs-2t-20261022-01",
+      "path": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "size": 2199023255552,
+      "state": "Ready",
+      "domain": "i-2-116-VM",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "poolId": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+      "poolPath": "/mnt/glue-gfs",
+      "filesystem": "XFS",
+      "journalValid": true,
+      "creationRequest": "f01711af-1721-41a4-ac6a-a1eb690cbfe0"
+    },
+    {
+      "id": "2f4550fa-6951-46fb-95a4-4d5b4b7d2b22",
+      "vm": "268b256e-bfd2-4a3f-9a3b-ce3f0ad78ecc",
+      "kind": "test-volume",
+      "name": "ROOT-115",
+      "path": "2f4550fa-6951-46fb-95a4-4d5b4b7d2b22",
+      "size": 107374182400,
+      "type": "ROOT",
+      "state": "Ready",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "vmName": "i-2-115-VM"
+    },
+    {
+      "id": "f155538f-6bac-412c-af02-b6620a2edb84",
+      "vm": "492c6b13-4500-3f94-8be7-76f146d9ba49",
+      "kind": "test-volume",
+      "name": "sharedfs-ROOT-116",
+      "path": "f155538f-6bac-412c-af02-b6620a2edb84",
+      "size": 5242880000,
+      "type": "ROOT",
+      "state": "Ready",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "vmName": "i-2-116-VM"
+    },
+    {
+      "id": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "vm": "492c6b13-4500-3f94-8be7-76f146d9ba49",
+      "kind": "test-volume",
+      "name": "sharedfs-DATA-116",
+      "path": "942aee61-490d-493e-b60d-8cb81ce8f9da",
+      "size": 2199023255552,
+      "type": "DATADISK",
+      "state": "Ready",
+      "format": "QCOW2",
+      "policy": "sparse",
+      "vmName": "i-2-116-VM"
+    }
+  ],
+  "protectedFilesUnchanged": true
+}

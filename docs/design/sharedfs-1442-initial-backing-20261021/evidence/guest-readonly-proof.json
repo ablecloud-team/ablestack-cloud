@@ -1,0 +1,125 @@
+{
+  "files": {
+    "/usr/local/bin/ablestack-storagectl": "c48dea1de2a4637292a26185af18a0bcd8aa6a1105a41269e92df371c107ca27",
+    "/usr/local/lib/ablestack-storage/volume_identity.py": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371"
+  },
+  "lsblk": {
+    "blockdevices": [
+      {
+        "name": "sda",
+        "path": "/dev/sda",
+        "type": "disk",
+        "fstype": null,
+        "uuid": null,
+        "serial": "95047027fe5e4ec48fb2",
+        "size": 5242880000,
+        "mountpoint": null,
+        "children": [
+          {
+            "name": "sda1",
+            "path": "/dev/sda1",
+            "type": "part",
+            "fstype": "ext2",
+            "uuid": "02a28a52-ae70-46b5-8f12-3636640c9a99",
+            "serial": null,
+            "size": 398458880,
+            "mountpoint": "/boot"
+          },
+          {
+            "name": "sda2",
+            "path": "/dev/sda2",
+            "type": "part",
+            "fstype": null,
+            "uuid": null,
+            "serial": null,
+            "size": 1024,
+            "mountpoint": null
+          },
+          {
+            "name": "sda5",
+            "path": "/dev/sda5",
+            "type": "part",
+            "fstype": "swap",
+            "uuid": "c30f6d3c-fe8f-41df-99b0-52cb823c014c",
+            "serial": null,
+            "size": 510656512,
+            "mountpoint": null
+          },
+          {
+            "name": "sda6",
+            "path": "/dev/sda6",
+            "type": "part",
+            "fstype": "ext4",
+            "uuid": "91b8366d-a5de-42ad-a420-2e26aa755c3d",
+            "serial": null,
+            "size": 4329570304,
+            "mountpoint": "/"
+          }
+        ]
+      },
+      {
+        "name": "sdb",
+        "path": "/dev/sdb",
+        "type": "disk",
+        "fstype": "xfs",
+        "uuid": "4bf840e2-e448-4d4b-bcab-be13ed50aea0",
+        "serial": "3af8261e687744798815",
+        "size": 21474836480,
+        "mountpoint": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910"
+      },
+      {
+        "name": "sr0",
+        "path": "/dev/sr0",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00003",
+        "size": 1073741312,
+        "mountpoint": null
+      },
+      {
+        "name": "sr1",
+        "path": "/dev/sr1",
+        "type": "rom",
+        "fstype": null,
+        "uuid": null,
+        "serial": "QM00004",
+        "size": 1073741312,
+        "mountpoint": null
+      }
+    ]
+  },
+  "mounts": {
+    "filesystems": [
+      {
+        "source": "/dev/sda6",
+        "target": "/",
+        "fstype": "ext4",
+        "children": [
+          {
+            "source": "/dev/sdb",
+            "target": "/srv/ablestack-storage/volumes/3af8261e-6877-4479-8815-0b64a1b50910",
+            "fstype": "xfs"
+          },
+          {
+            "source": "/dev/sdb[/export/nfs1441fixed]",
+            "target": "/export/nfs1441fixed",
+            "fstype": "xfs"
+          }
+        ]
+      }
+    ]
+  },
+  "localComparison": {
+    "/usr/local/bin/ablestack-storagectl": {
+      "source": "systemvm/debian/usr/local/bin/ablestack-storagectl",
+      "localSha256": "c48dea1de2a4637292a26185af18a0bcd8aa6a1105a41269e92df371c107ca27",
+      "matches": true
+    },
+    "/usr/local/lib/ablestack-storage/volume_identity.py": {
+      "source": "systemvm/debian/usr/local/lib/ablestack-storage/volume_identity.py",
+      "localSha256": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "matches": true
+    }
+  }
+}

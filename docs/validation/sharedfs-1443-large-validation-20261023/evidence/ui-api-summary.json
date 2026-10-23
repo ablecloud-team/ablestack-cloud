@@ -1,0 +1,2888 @@
+[
+  {
+    "kind": "createsharedfilesystemresponse",
+    "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+    "jobid": "3f89c4eb-8102-47a1-9ef9-347ea7a3c6b5"
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": null,
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "ALLOCATION_PENDING",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "3f89c4eb-8102-47a1-9ef9-347ea7a3c6b5",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:31:13+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "3f89c4eb-8102-47a1-9ef9-347ea7a3c6b5",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:31:13+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "3f89c4eb-8102-47a1-9ef9-347ea7a3c6b5",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:31:13+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "3f89c4eb-8102-47a1-9ef9-347ea7a3c6b5",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:31:13+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "47f25d75-0623-4a29-9658-ec60de2d66a9",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:15+0900",
+    "completed": null
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723035.3997962,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "47f25d75-0623-4a29-9658-ec60de2d66a9",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:15+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "47f25d75-0623-4a29-9658-ec60de2d66a9",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.EnableStorageServiceProtocolCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:15+0900",
+    "completed": "2026-10-23T11:37:19+0900"
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "f73f24fb-0dbc-441f-95d9-641870160702",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsAclCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:20+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "f73f24fb-0dbc-441f-95d9-641870160702",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageNfsAclCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:20+0900",
+    "completed": "2026-10-23T11:37:22+0900"
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "93d51f6b-1cfa-4229-ae24-7b0d4c4bd3d4",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbShareCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:22+0900",
+    "completed": null
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723042.7409823,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "93d51f6b-1cfa-4229-ae24-7b0d4c4bd3d4",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbShareCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:22+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "93d51f6b-1cfa-4229-ae24-7b0d4c4bd3d4",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.dataservice.CreateStorageSmbShareCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:37:22+0900",
+    "completed": "2026-10-23T11:37:26+0900"
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723048.971251,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723055.035788,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723061.1026726,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723067.1676073,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723073.2649755,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "capabilityVersion": 1,
+        "createdAt": 1792722832.7187912,
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "finishedAt": 1792722890.1276414,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792723312.8771975,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792722832.8771975,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792723079.3015473,
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "observationAvailable": true,
+        "observedFilesystem": "xfs",
+        "observedFilesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "phase": "PREPARED",
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "startedAt": 1792722832.7187912,
+        "status": "PREPARED",
+        "unit": "ablestack-sharedfs-prepare-09293eed-5690-38d9-8df1-0a99e6b71de5.service",
+        "version": 1,
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "restartsharedfilesystemresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf"
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Starting",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Starting",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Starting",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Starting",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "83089f97-ab04-4b81-89a4-84a54f11fbdf",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:40:39+0900",
+    "completed": "2026-10-23T11:43:04+0900"
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Ready",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "f395720b-e44a-45c7-bb5c-16d9ce7a5b31",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.StopSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:45:17+0900",
+    "completed": null
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "f395720b-e44a-45c7-bb5c-16d9ce7a5b31",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.StopSharedFSCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:45:17+0900",
+    "completed": "2026-10-23T11:45:20+0900"
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Stopped",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Stopped",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "destroysharedfilesystemresponse",
+    "jobid": "62cd9db1-0f9a-43f0-ae6b-087ea2ba6994"
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "62cd9db1-0f9a-43f0-ae6b-087ea2ba6994",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.DestroySharedFSCmd",
+    "jobstatus": 1,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:45:49+0900",
+    "completed": "2026-10-23T11:45:49+0900"
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Destroyed",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Destroyed",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Destroyed",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Destroyed",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "d401c6b4-da3a-406b-b3e6-f37576262128",
+      "virtualmachineid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+      "volumeid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+      "size": 2199023255552,
+      "state": "Destroyed",
+      "creationstage": "READY",
+      "creationrequestid": "7d926f69-29f0-4046-97b3-76af6741526b",
+      "preparation": {
+        "operationId": "09293eed-5690-38d9-8df1-0a99e6b71de5",
+        "vmUuid": "1d2f3d1e-d302-3357-aa5c-3c63721fa9e8",
+        "rootVolumeUuid": "f6ab50f9-15f4-4924-b8f5-13bc28b7bdb6",
+        "volumeUuid": "fcb8fa34-7d48-4087-8153-74a00c9ac4e3",
+        "volumeName": "sharedfs-DATA-120",
+        "volumeSizeBytes": 2199023255552,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 480,
+        "status": "PREPARED",
+        "phase": "PREPARED",
+        "formatEverStarted": true,
+        "formatCount": 1,
+        "createdAt": 1792722832.7187912,
+        "bootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "observationAvailable": true,
+        "capabilityVersion": 1,
+        "formatStartedAt": 1792722832.8771975,
+        "formatDeadlineAt": 1792723312.8771975,
+        "startedAt": 1792722832.7187912,
+        "deadlineAt": 1792723312.8771975,
+        "phaseStartedAt": 1792722889.8952014,
+        "phaseTimeoutSeconds": 120,
+        "heartbeatAt": 1792722890.1276417,
+        "lastObservedAt": 1792722891.8568041,
+        "observedFilesystem": "xfs",
+        "currentBootId": "dd10724d-75cd-4e92-9c0b-79729234b741",
+        "canResume": true,
+        "blockedReason": "WORKER_RUNNING",
+        "finishedAt": 1792722890.1276414,
+        "filesystemUuid": "47bdc00b-c2ae-4f88-af78-4819030f0376",
+        "mountPath": "/srv/ablestack-storage/volumes/fcb8fa34-7d48-4087-8153-74a00c9ac4e3"
+      }
+    }
+  },
+  {
+    "kind": "createsharedfilesystemresponse",
+    "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100"
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": null,
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "ALLOCATION_PENDING",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "queryasyncjobresultresponse",
+    "jobid": "77b9dbb5-d655-44b7-94c7-6b0cb6585100",
+    "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.CreateSharedFSCmd",
+    "jobstatus": 0,
+    "jobresultcode": 0,
+    "created": "2026-10-23T11:56:30+0900",
+    "completed": null
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": null,
+      "size": 0,
+      "state": "Allocated",
+      "creationstage": "VM_ALLOCATED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": null
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "PREPARING",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "REQUESTED",
+        "phase": "QUEUED"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "canResume": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "observationAvailable": false,
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "VERIFYING_IDENTITY",
+        "reason": "Command '['wipefs', '--no-act', '--json', '/dev/sdb']' timed out after 8 seconds",
+        "status": "RECOVERY_REQUIRED",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "PREPARING",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RUNNING",
+        "phase": "QUEUED",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": true,
+        "capabilityVersion": 1
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "PREPARING",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RUNNING",
+        "phase": "QUEUED",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": true,
+        "capabilityVersion": 1
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "RECOVERY_REQUIRED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RECOVERY_REQUIRED",
+        "phase": "VERIFYING_IDENTITY",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+        "canResume": false
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "RECOVERY_REQUIRED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RECOVERY_REQUIRED",
+        "phase": "VERIFYING_IDENTITY",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+        "canResume": false
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "canResume": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "observationAvailable": false,
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "VERIFYING_IDENTITY",
+        "reason": "Command '['wipefs', '--no-act', '--json', '/dev/sdb']' timed out after 8 seconds",
+        "status": "RECOVERY_REQUIRED",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "blockedReason": "WORKER_RUNNING",
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "canResume": false,
+        "capabilityVersion": 1,
+        "createdAt": 1792724392.0718033,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "deadlineAt": 1792726312.235266,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792724448.5308542,
+        "lastObservedAt": 1792724451.072779,
+        "observationAvailable": true,
+        "observedFilesystem": "",
+        "observedFilesystemUuid": "",
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "blockedReason": "WORKER_RUNNING",
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "canResume": false,
+        "capabilityVersion": 1,
+        "createdAt": 1792724392.0718033,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "deadlineAt": 1792726312.235266,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792724469.0573664,
+        "lastObservedAt": 1792724470.4021351,
+        "observationAvailable": true,
+        "observedFilesystem": "",
+        "observedFilesystemUuid": "",
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      }
+    }
+  },
+  {
+    "kind": "getsharedfilesystempreparationresponse",
+    "sharedfilesystempreparation": {
+      "preparation": {
+        "blockedReason": "WORKER_RUNNING",
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "canResume": false,
+        "capabilityVersion": 1,
+        "createdAt": 1792724392.0718033,
+        "currentBootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "deadlineAt": 1792726312.235266,
+        "formatCount": 1,
+        "formatDeadlineAt": 1792726312.235266,
+        "formatEverStarted": true,
+        "formatStartedAt": 1792724392.235266,
+        "heartbeatAt": 1792724484.5116377,
+        "lastObservedAt": 1792724485.6763732,
+        "observationAvailable": true,
+        "observedFilesystem": "",
+        "observedFilesystemUuid": "",
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "phase": "FORMATTING",
+        "phaseStartedAt": 1792724392.235266,
+        "phaseTimeoutSeconds": 1920,
+        "startedAt": 1792724392.0718033,
+        "status": "RUNNING",
+        "unit": "ablestack-sharedfs-prepare-4e8bf069-ae53-33b9-ac9a-a61030e38c0a.service",
+        "version": 1,
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707"
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "RECOVERY_REQUIRED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RECOVERY_REQUIRED",
+        "phase": "VERIFYING_IDENTITY",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+        "canResume": false
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "RECOVERY_REQUIRED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RECOVERY_REQUIRED",
+        "phase": "VERIFYING_IDENTITY",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+        "canResume": false
+      }
+    }
+  },
+  {
+    "kind": "listsharedfilesystemsresponse",
+    "sharedfs": {
+      "id": "ab23ee86-c019-4d4e-ae7c-786fea59162c",
+      "virtualmachineid": "093de0e0-0fe2-3faa-874b-53542640a372",
+      "volumeid": "09f6122a-3225-406e-8de1-66bcaff79707",
+      "size": 10995116277760,
+      "state": "Allocated",
+      "creationstage": "RECOVERY_REQUIRED",
+      "creationrequestid": "410ea20c-800d-4182-b38a-fc75ab113abe",
+      "preparation": {
+        "operationId": "4e8bf069-ae53-33b9-ac9a-a61030e38c0a",
+        "vmUuid": "093de0e0-0fe2-3faa-874b-53542640a372",
+        "rootVolumeUuid": "fcd7b575-935c-4d0c-af85-19271579e454",
+        "volumeUuid": "09f6122a-3225-406e-8de1-66bcaff79707",
+        "volumeName": "sharedfs-DATA-121",
+        "volumeSizeBytes": 10995116277760,
+        "filesystem": "xfs",
+        "formatTimeoutSeconds": 1920,
+        "status": "RECOVERY_REQUIRED",
+        "phase": "VERIFYING_IDENTITY",
+        "formatEverStarted": false,
+        "formatCount": 0,
+        "createdAt": 1792724392.0718033,
+        "bootId": "c590c155-fa54-4cee-8060-df470b50897d",
+        "observationAvailable": false,
+        "capabilityVersion": 1,
+        "errorCode": "OBSERVATION_FAILED",
+        "reason": "Command '['blkid', '-p', '-o', 'export', '/dev/sdb']' timed out after 8 seconds",
+        "canResume": false
+      }
+    }
+  }
+]

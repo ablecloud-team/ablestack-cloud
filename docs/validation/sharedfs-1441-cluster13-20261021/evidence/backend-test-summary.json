@@ -1,0 +1,43 @@
+{
+  "modules_packaged": 34,
+  "suites": [
+    {
+      "module": "api",
+      "suite": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingCatalogCmdTest",
+      "tests": 3,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "module": "api",
+      "suite": "org.apache.cloudstack.storage.sharedfs.SharedFSOfferingEligibilityTest",
+      "tests": 10,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "module": "server",
+      "suite": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+      "tests": 36,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    {
+      "module": "plugins/storage/sharedfs/storagevm",
+      "suite": "org.apache.cloudstack.storage.sharedfs.lifecycle.StorageVmSharedFSLifeCycleTest",
+      "tests": 16,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  ],
+  "totals": {
+    "tests": 65,
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0
+  }
+}

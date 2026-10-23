@@ -1,0 +1,53 @@
+[
+  {
+    "command": "updateStorageNfsAcl",
+    "method": "POST",
+    "params": {
+      "command": "updateStorageNfsAcl",
+      "id": "3976239f-27a0-4e84-bf1c-95e9c6ffc8a4",
+      "principal": "10.10.254.192/32",
+      "permission": "READ_WRITE",
+      "rootsquash": "false",
+      "allsquash": "false",
+      "sync": "true",
+      "secure": "false"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "reply": {
+      "jobid": "532ba6fc-be74-4afa-a253-d9cb68841c00"
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "params": {
+      "jobId": "532ba6fc-be74-4afa-a253-d9cb68841c00",
+      "command": "queryAsyncJobResult"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "reply": {
+      "jobid": "532ba6fc-be74-4afa-a253-d9cb68841c00",
+      "jobstatus": 0
+    }
+  },
+  {
+    "command": "queryAsyncJobResult",
+    "method": "GET",
+    "params": {
+      "jobId": "532ba6fc-be74-4afa-a253-d9cb68841c00",
+      "command": "queryAsyncJobResult"
+    },
+    "httpStatus": 200,
+    "finished": true,
+    "reply": {
+      "jobid": "532ba6fc-be74-4afa-a253-d9cb68841c00",
+      "jobstatus": 2,
+      "jobFailure": {
+        "errorcode": 530,
+        "errortext": "Failed to apply NFS desired state on Storage Service System VM: Storage Service command failed with exit code 1: Traceback (most recent call last):\n  File \"<stdin>\", line 1182, in <module>\nRuntimeError: nfs-ganesha export visibility probe failed: 0.0.0.0:2049 nfs1440 host-selection -> /nfs1440: no local IPv4 address is allowed by export clients: 10.10.254.192/32\n"
+      }
+    }
+  }
+]

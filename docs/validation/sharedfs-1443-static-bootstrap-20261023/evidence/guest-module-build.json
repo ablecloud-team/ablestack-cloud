@@ -1,0 +1,19 @@
+{
+  "baseCompressedSha256": "4a5a5cc1cf951f9af6a386f71c6b2b3ca075e5128a8b1f2e869429e022bf1804",
+  "installedModuleHashes": {
+    "opt/cloud/bin/setup/sharedfsvm.sh": "f6a4d913a92bf5a4c6cfbef4817b9740b47d508b5ceeded43819ce5055b9771f",
+    "usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": "91d522e0f81a1590bf1aee3c9e3cb4bd5a2153a230176324d00e19bd18734573"
+  },
+  "changedGuestPaths": [
+    "opt/cloud/bin/setup/sharedfsvm.sh",
+    "usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py"
+  ],
+  "unchangedGuestPathsVerified": 33922,
+  "hostAccountFilesUnchanged": true,
+  "image": "/root/work/epic1438-preparation/20261023/issue1443-static-bootstrap/systemvm-epic1443-static-bootstrap-20261023.qcow2",
+  "compressed": "/root/work/epic1438-preparation/20261023/issue1443-static-bootstrap/systemvm-epic1443-static-bootstrap-20261023.qcow2.bz2",
+  "compressedSha256": "1d1f4c05f3f719642c4c1d9a17a0ade58a97024281cf8921ecfceb37079d19d3",
+  "compressedBytes": 495749264,
+  "qemuImageCheck": "No errors were found on the image.\n27414/80000 = 34.27% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1797521408",
+  "buildKind": "scoped SharedFS STATIC bootstrap module overlay; formatter and volume journal unchanged"
+}
