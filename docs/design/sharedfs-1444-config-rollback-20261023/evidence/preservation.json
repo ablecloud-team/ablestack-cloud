@@ -1,0 +1,8 @@
+{
+  "codeConfigAccountHashesIdentical": true,
+  "filesChecked": 18,
+  "sameBootId": true,
+  "sameDaemonPidsAndActiveState": true,
+  "noLeftoverTemporaryDirectories": true,
+  "newVmOrDiskCount": 0
+}

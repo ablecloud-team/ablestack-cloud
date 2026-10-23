@@ -1,0 +1,152 @@
+{
+  "colors": [
+    {
+      "background": [
+        39,
+        46,
+        54,
+        1
+      ],
+      "color": "rgb(197, 204, 212)",
+      "contrast": 8.469986394935841,
+      "fontSize": "16px",
+      "selector": ".ant-modal-title"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47,
+        1
+      ],
+      "color": "rgba(255, 255, 255, 0.65)",
+      "contrast": 7.128935659391724,
+      "fontSize": "14px",
+      "selector": ".ant-form-item-label label"
+    },
+    {
+      "background": [
+        51,
+        42,
+        22,
+        1
+      ],
+      "color": "rgb(255, 231, 163)",
+      "contrast": 11.6015199533274,
+      "fontSize": "16px",
+      "selector": ".ant-alert-warning .ant-alert-message"
+    },
+    {
+      "background": [
+        51,
+        42,
+        22,
+        1
+      ],
+      "color": "rgb(255, 231, 163)",
+      "contrast": 11.6015199533274,
+      "fontSize": "14px",
+      "selector": ".ant-alert-warning .ant-alert-description"
+    },
+    {
+      "background": [
+        40.72,
+        61.84,
+        44.06,
+        1
+      ],
+      "color": "rgb(211, 244, 220)",
+      "contrast": 9.775120180423333,
+      "fontSize": "16px",
+      "selector": ".ant-alert-success .ant-alert-message"
+    },
+    {
+      "missing": true,
+      "selector": ".ant-alert-error .ant-alert-message"
+    },
+    {
+      "missing": true,
+      "selector": ".ant-alert-error .ant-alert-description"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40,
+        1
+      ],
+      "color": "rgb(240, 243, 246)",
+      "contrast": 14.56307547372849,
+      "fontSize": "14px",
+      "selector": ".ant-modal-body .ant-input"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47,
+        1
+      ],
+      "color": "rgb(197, 204, 212)",
+      "contrast": 9.176047597421212,
+      "fontSize": "13px",
+      "selector": ".summary-toolbar .help"
+    },
+    {
+      "background": [
+        9,
+        105,
+        218,
+        1
+      ],
+      "color": "rgb(255, 255, 255)",
+      "contrast": 5.192060987927794,
+      "fontSize": "14px",
+      "selector": ".ant-modal-footer .ant-btn-primary:not(:disabled)"
+    }
+  ],
+  "horizontalOverflow": false,
+  "rects": [
+    {
+      "clientHeight": 55,
+      "h": 56,
+      "overflowY": "visible",
+      "padding": "16px 24px",
+      "scrollHeight": 55,
+      "scrollTop": 0,
+      "selector": ".ant-modal-header",
+      "w": 958,
+      "x": 161,
+      "y": 33
+    },
+    {
+      "clientHeight": 533,
+      "h": 533,
+      "overflowY": "auto",
+      "padding": "24px 28px",
+      "scrollHeight": 1726,
+      "scrollTop": 0,
+      "selector": ".ant-modal-body",
+      "w": 958,
+      "x": 161,
+      "y": 89
+    },
+    {
+      "clientHeight": 64,
+      "h": 65,
+      "overflowY": "visible",
+      "padding": "16px 28px",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "selector": ".ant-modal-footer",
+      "w": 958,
+      "x": 161,
+      "y": 622
+    }
+  ],
+  "theme": "ant-scrolling-effect dark-mode",
+  "viewport": {
+    "h": 720,
+    "w": 1280
+  }
+}

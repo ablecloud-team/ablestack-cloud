@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "fontSize": "16px",
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "selector": ".ant-modal-title"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "fontSize": "14px",
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "selector": ".ant-form-item-label label"
+    },
+    {
+      "missing": true,
+      "selector": ".ant-alert-description"
+    },
+    {
+      "background": "rgb(24, 144, 255)",
+      "fontSize": "14px",
+      "foreground": "rgb(255, 255, 255)",
+      "selector": ".ant-modal-footer .ant-btn-primary"
+    }
+  ],
+  "theme": "dark-mode ant-scrolling-effect"
+}
