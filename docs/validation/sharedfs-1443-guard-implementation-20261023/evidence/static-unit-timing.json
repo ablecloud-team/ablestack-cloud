@@ -1,0 +1,54 @@
+{
+  "initial": {
+    "cloud-preinit.service": {
+      "ExecMainStartTimestampMonotonic": 3.505,
+      "ExecMainExitTimestampMonotonic": 5.55
+    },
+    "cloud-early-config.service": {
+      "ExecMainStartTimestampMonotonic": 5.56,
+      "ExecMainExitTimestampMonotonic": 130.241
+    },
+    "cloud-init-local.service": {
+      "ExecMainStartTimestampMonotonic": 8.076,
+      "ExecMainExitTimestampMonotonic": 9.774
+    },
+    "cloud-init.service": {
+      "ExecMainStartTimestampMonotonic": 9.8,
+      "ExecMainExitTimestampMonotonic": 130.189
+    },
+    "ssh.service": {
+      "ExecMainStartTimestampMonotonic": 130.22,
+      "ExecMainExitTimestampMonotonic": 0.0
+    },
+    "ablestack-sharedfs-network.service": {
+      "ExecMainStartTimestampMonotonic": 130.924,
+      "ExecMainExitTimestampMonotonic": 130.961
+    }
+  },
+  "restart": {
+    "cloud-preinit.service": {
+      "ExecMainStartTimestampMonotonic": 3.477,
+      "ExecMainExitTimestampMonotonic": 5.462
+    },
+    "cloud-early-config.service": {
+      "ExecMainStartTimestampMonotonic": 5.488,
+      "ExecMainExitTimestampMonotonic": 11.099
+    },
+    "cloud-init-local.service": {
+      "ExecMainStartTimestampMonotonic": 11.004,
+      "ExecMainExitTimestampMonotonic": 12.771
+    },
+    "cloud-init.service": {
+      "ExecMainStartTimestampMonotonic": 12.792,
+      "ExecMainExitTimestampMonotonic": 139.147
+    },
+    "ssh.service": {
+      "ExecMainStartTimestampMonotonic": 6.64,
+      "ExecMainExitTimestampMonotonic": 0.0
+    },
+    "ablestack-sharedfs-network.service": {
+      "ExecMainStartTimestampMonotonic": 146.8,
+      "ExecMainExitTimestampMonotonic": 146.838
+    }
+  }
+}
