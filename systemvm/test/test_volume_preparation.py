@@ -220,4 +220,162 @@ class WorkerTest(StoreTest):
         self.assertEqual(result["formatCount"],0)
 
 
+
+class ObservationPathTest(unittest.TestCase):
+    """Real 10TiB failure record; execute snapshot/identity/main, not a mocked inspect."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.record = json.loads((Path(__file__).parent / "fixtures/preparation_active_10t.json").read_text())
+        self.payload = self.record["payload"]
+        self.store = vp.Store(self.payload["volumeUuid"], Path(self.tmp.name) / "private")
+        self.store.update({}, self.record)
+        self.calls = []
+        self.active = True
+        self.fs = ""
+        self.fs_uuid = "prepared-uuid"
+        self.mount = None
+        self.devices = [
+            dict(name="sda", path="/dev/sda", type="disk", size=5242880000,
+                 serial=self.payload["rootVolumeUuid"].replace("-", "")[:20], mountpoint="/"),
+            dict(name="sdb", path="/dev/sdb", type="disk", size=10*1024**4,
+                 serial=self.payload["volumeUuid"].replace("-", "")[:20])]
+    def tearDown(self):
+        self.tmp.cleanup()
+    def command(self, args, timeout=20):
+        self.calls.append(args)
+        cmd = args[0]
+        if cmd == "systemctl":
+            return subprocess.CompletedProcess(args, 0 if self.active else 3,
+                                               "active\n" if self.active else "inactive\n", "")
+        if cmd == "lsblk":
+            return subprocess.CompletedProcess(args, 0, json.dumps({"blockdevices": self.devices}), "")
+        if cmd == "findmnt":
+            return subprocess.CompletedProcess(args, 0 if self.mount else 1, self.mount or "", "")
+        if cmd in ("blkid", "wipefs"):
+            if not self.fs:
+                # Exact observed failure: a read probe waits behind mkfs BLKDISCARD.
+                raise subprocess.TimeoutExpired(args, 8)
+            return subprocess.CompletedProcess(args, 0, "TYPE="+self.fs+"\nUUID="+self.fs_uuid+"\n", "")
+        raise AssertionError("Unexpected command: "+str(args))
+    def execute(self, cli=False):
+        from contextlib import redirect_stdout
+        import io
+        before = self.store.path.read_bytes()
+        with patch.object(vp, "run", side_effect=self.command), \
+             patch.object(vp, "boot_id", return_value=self.record["bootId"]), \
+             patch.object(vp, "ticks", return_value=self.record["workerStartTicks"]), \
+             patch("volume_identity.glob.glob", return_value=[]):
+            if cli:
+                payload = Path(self.tmp.name) / "request.json"
+                payload.write_text(json.dumps(self.payload))
+                output = io.StringIO()
+                with patch.object(vp, "Store", return_value=self.store), \
+                     patch.object(sys, "argv", ["volume_preparation.py", "status", str(payload)]), \
+                     redirect_stdout(output):
+                    vp.main()
+                result = json.loads(output.getvalue())
+            else:
+                result = vp.snapshot(self.payload, self.store)
+        self.assertEqual(self.store.path.read_bytes(), before)
+        self.assertFalse(any(args[0] in ("systemd-run", "mkfs.xfs", "mkfs.ext4", vp.HELPER) for args in self.calls))
+        return result
+    def test_active_10t_mkfs_never_probes_filesystem_and_preserves_progress(self):
+        result = self.execute()
+        self.assertEqual(result["status"], "RUNNING")
+        self.assertEqual(result["phase"], "FORMATTING")
+        for key in ("formatCount", "formatStartedAt", "formatDeadlineAt", "heartbeatAt", "operationId"):
+            self.assertEqual(result[key], self.record[key])
+        self.assertEqual(result["formatCount"], 1)
+        self.assertFalse(result["canResume"])
+        self.assertTrue(result["observationAvailable"])
+        self.assertNotIn("payload", result)
+        self.assertNotIn("workerPid", result)
+        self.assertFalse(any(args[0] in ("blkid", "wipefs") for args in self.calls))
+        columns = next(args[-1] for args in self.calls if args[0] == "lsblk").split(",")
+        self.assertNotIn("FSTYPE", columns)
+        self.assertNotIn("UUID", columns)
+    def test_active_cli_serialization_keeps_running_phase_and_count(self):
+        result = self.execute(cli=True)
+        self.assertEqual((result["status"], result["phase"], result["formatCount"]),
+                         ("RUNNING", "FORMATTING", 1))
+        self.assertFalse(result["canResume"])
+    def test_active_identity_mismatches_still_fail_closed_before_signature_probe(self):
+        changes = [("root", lambda: self.devices[0].update(serial="wrong-root")),
+                   ("data", lambda: self.devices[1].update(serial="wrong-data")),
+                   ("size", lambda: self.devices[1].update(size=10*1024**4+512)),
+                   ("foreign-mount", lambda: self.devices[1].update(mountpoint="/foreign")),
+                   ("partitions", lambda: self.devices[1].update(children=[dict(name="sdb1", type="part", path="/dev/sdb1", size=1)]))]
+        original = json.loads(json.dumps(self.devices))
+        for name, change in changes:
+            with self.subTest(name=name):
+                self.devices = json.loads(json.dumps(original)); self.calls.clear(); change()
+                result = self.execute(cli=True)
+                self.assertEqual(result["status"], "RECOVERY_REQUIRED")
+                self.assertFalse(result["canResume"])
+                self.assertFalse(any(args[0] in ("blkid", "wipefs") for args in self.calls))
+    def test_inactive_signature_timeout_cli_is_unavailable_not_formatter_failure(self):
+        self.active = False
+        result = self.execute(cli=True)
+        self.assertEqual(result["status"], "OBSERVATION_PENDING")
+        self.assertEqual(result["errorCode"], "OBSERVATION_TIMEOUT")
+        self.assertEqual(result["phase"], "FORMATTING")
+        self.assertEqual(result["formatCount"], 1)
+        self.assertEqual(result["heartbeatAt"], self.record["heartbeatAt"])
+        self.assertFalse(result["observationAvailable"]); self.assertFalse(result["canResume"])
+        self.assertTrue(any(args[0] == "blkid" for args in self.calls))
+    def test_active_identity_probe_timeout_preserves_journal_but_never_confirms_running(self):
+        original = self.command
+        def timeout(args, seconds=20):
+            if args[0] == "lsblk":
+                self.calls.append(args); raise subprocess.TimeoutExpired(args, 8)
+            return original(args, seconds)
+        self.command = timeout
+        result = self.execute(cli=True)
+        self.assertEqual(result["status"], "OBSERVATION_PENDING")
+        self.assertEqual(result["formatCount"], 1)
+        self.assertFalse(result["observationAvailable"]); self.assertFalse(result["canResume"])
+    def test_worker_exit_during_lightweight_observation_requires_full_signature_verification(self):
+        original = self.command
+        def exiting(args, timeout=20):
+            result = original(args, timeout)
+            if args[0] == "findmnt" and self.active:
+                self.active = False; self.fs = "xfs"; self.mount = "/dev/sdb"
+                self.store.update({"phase": "PREPARED", "filesystemUuid": self.fs_uuid})
+            return result
+        self.command = exiting
+        # The worker legitimately updates its own journal in this race fixture.
+        with patch.object(vp, "run", side_effect=self.command), \
+             patch.object(vp, "boot_id", return_value=self.record["bootId"]), \
+             patch.object(vp, "ticks", return_value=self.record["workerStartTicks"]):
+            result = vp.snapshot(self.payload, self.store)
+        self.assertEqual(result["status"], "PREPARED")
+        self.assertEqual(result["formatCount"], 1)
+        self.assertTrue(any(args[0] == "blkid" for args in self.calls))
+    def test_inactive_partial_signature_never_becomes_resumable(self):
+        self.active = False
+        original = self.command
+        def partial(args, timeout=20):
+            if args[0] == "blkid":
+                self.calls.append(args); return subprocess.CompletedProcess(args, 2, "", "")
+            if args[0] == "wipefs":
+                self.calls.append(args)
+                return subprocess.CompletedProcess(args, 0, '{"signatures":[{"type":"unknown"}]}', "")
+            return original(args, timeout)
+        self.command = partial
+        result = self.execute(cli=True)
+        self.assertEqual(result["status"], "RECOVERY_REQUIRED")
+        self.assertFalse(result["canResume"])
+    def test_inactive_changed_filesystem_uuid_remains_blocked(self):
+        self.active = False; self.fs = "xfs"; self.mount = "/dev/sdb"
+        self.store.update({"filesystemUuid": "original-uuid", "phase": "PREPARED"})
+        result = self.execute(cli=True)
+        self.assertEqual(result["errorCode"], "FILESYSTEM_IDENTITY_CHANGED")
+        self.assertFalse(result["canResume"])
+    def test_active_journal_payload_mismatch_does_not_query_or_launch(self):
+        self.store.update({"payload": dict(self.payload, rootVolumeUuid="00000000-0000-4000-8000-000000000001")})
+        result = self.execute(cli=True)
+        self.assertEqual(result["errorCode"], "IDENTITY_CHANGED")
+        self.assertFalse(result["canResume"]); self.assertFalse(self.calls)
+
+
 if __name__=="__main__":unittest.main()
