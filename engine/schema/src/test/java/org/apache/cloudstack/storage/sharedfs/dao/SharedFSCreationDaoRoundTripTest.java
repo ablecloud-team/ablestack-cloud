@@ -29,8 +29,13 @@ import org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext;
 import org.apache.cloudstack.api.response.SharedFSResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 /** Opt-in integration test. Use the dedicated loopback MariaDB described in docs;
  * persist, update and all reads use the real SharedFSDao/GenericDao implementation. */

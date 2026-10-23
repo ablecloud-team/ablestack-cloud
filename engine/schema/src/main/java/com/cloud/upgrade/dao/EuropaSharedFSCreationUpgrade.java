@@ -15,7 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.upgrade.dao;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import com.cloud.utils.exception.CloudRuntimeException;
 /** Additive same-version migration, resumable after every committed DDL step. */
 public final class EuropaSharedFSCreationUpgrade {

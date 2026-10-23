@@ -26,8 +26,12 @@ import org.apache.cloudstack.api.response.SharedFSServiceOfferingResponse;
 import org.apache.cloudstack.query.QueryService;
 import com.cloud.exception.InvalidParameterValueException;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 public class SharedFSOfferingCatalogCmdTest {
     private void field(Object target, String name, Object value) throws Exception {

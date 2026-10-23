@@ -15,12 +15,22 @@
 // specific language governing permissions and limitations
 // under the License.
 package com.cloud.upgrade.dao;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 public class EuropaSharedFSCreationUpgradeTest {
     private List<String> run(Set<String> existing) throws Exception {
         Connection c=mock(Connection.class);Statement ddl=mock(Statement.class);List<String> statements=new ArrayList<>();
