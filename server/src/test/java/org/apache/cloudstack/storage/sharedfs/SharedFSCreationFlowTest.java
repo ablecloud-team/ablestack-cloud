@@ -243,4 +243,30 @@ public class SharedFSCreationFlowTest {
         assertEquals(SharedFS.State.Allocated,state.get());verifyNoInteractions(volumeApiService);
         verify(life,never()).deleteSharedFS(any());
     }
+    @Test public void staticBootstrapPendingRetainsNewVmAndOwnedDataThenReplaysSameVm() throws Exception {
+        initial.existing=false;initial.prepareNewFileBacking=true;initial.expectedFilesystem="XFS";
+        initial.diskOfferingId=40L;initial.storageId=30L;initial.ownedVolumeIds=new ArrayList<>(List.of(9L,10L));
+        journal.set(initial.json());vmBinding.set(7L);attached.set(7L);
+        VolumeVO root=mock(VolumeVO.class);when(root.getId()).thenReturn(9L);
+        when(root.getVolumeType()).thenReturn(Volume.Type.ROOT);when(root.getName()).thenReturn("sharedfs-ROOT");
+        when(data.getDeviceId()).thenReturn(1L);when(data.getName()).thenReturn("sharedfs-DATA");
+        when(volumeDao.findByInstance(7L)).thenReturn(List.of(root,data));
+        doThrow(new SharedFSServiceImpl.SharedFsBootstrapPendingTimeoutException("still initializing"))
+                .doNothing().when(service).configureStaticNetwork(fs);
+        doReturn(true).when(service).prepareInitialNewData(eq(fs),any(),eq("CONTINUE"));
+        try {service.continueCreationStep(1L,"CONTINUE");fail();}
+        catch(SharedFSServiceImpl.SharedFsBootstrapPendingTimeoutException expected) { }
+        SharedFSCreationContext pending=SharedFSCreationContext.read(journal.get());
+        assertEquals("OBSERVATION_PENDING",pending.phase);assertFalse(pending.cancelled);
+        assertEquals(initial.plannedVmUuid,pending.plannedVmUuid);assertEquals(List.of(9L,10L),pending.ownedVolumeIds);
+        assertEquals(Long.valueOf(7L),vmBinding.get());assertEquals(SharedFS.State.Error,state.get());
+        verify(life,never()).deleteSharedFS(any());verify(life,never()).cleanupImportedSharedFSVm(any());
+        verify(service,never()).prepareInitialNewData(any(),any(),anyString());
+        service.continueCreationStep(1L,"CONTINUE");
+        assertEquals(SharedFS.State.Ready,state.get());assertEquals(Long.valueOf(7L),vmBinding.get());
+        verify(life,never()).allocateInitialSharedFSVm(any(),any(),anyMap(),anyString());
+        verify(volumeApiService,never()).attachVolumeToVM(any(),any(),any(),anyBoolean());
+        verify(service).prepareInitialNewData(eq(fs),any(),eq("CONTINUE"));
+    }
+
 }

@@ -137,6 +137,7 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
     private static final String CONFIGURE_SHAREDFS_STATIC_NETWORK = "configure-sharedfs-static-network";
     private static final int STATIC_NETWORK_QGA_ATTEMPTS = 30;
     private static final int STATIC_NETWORK_QGA_RETRY_MILLIS = 2000;
+    private static final int STATIC_NETWORK_BOOTSTRAP_TIMEOUT_SECONDS = 360;
 
     protected static class StaticNetworkConfiguration {
         final String ipAddress;
@@ -455,24 +456,93 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
             payload.addProperty("dns2", sharedFS.getDns2());
         }
 
+        final long started = staticNetworkNanoTime();
+        final long deadline = started + TimeUnit.SECONDS.toNanos(STATIC_NETWORK_BOOTSTRAP_TIMEOUT_SECONDS);
         String lastError = null;
-        for (int attempt = 1; attempt <= STATIC_NETWORK_QGA_ATTEMPTS; attempt++) {
+        String lastObservation = null;
+        boolean pending = false;
+        int ordinaryFailures = 0;
+        while (deadline - staticNetworkNanoTime() >= TimeUnit.SECONDS.toNanos(1)) {
+            int timeout = (int) Math.min(60, TimeUnit.NANOSECONDS.toSeconds(deadline - staticNetworkNanoTime()));
+            if (timeout < 1) {
+                break;
+            }
             StorageServiceGuestCommandResult result = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
-                    sharedFS.getVmId(), CONFIGURE_SHAREDFS_STATIC_NETWORK, payload.toString(), 60, Set.of()));
+                    sharedFS.getVmId(), CONFIGURE_SHAREDFS_STATIC_NETWORK, payload.toString(), timeout, Set.of()));
             if (result.isSuccess()) {
                 return;
             }
-            lastError = result.getDetails();
-            if (attempt < STATIC_NETWORK_QGA_ATTEMPTS) {
-                try {
-                    Thread.sleep(STATIC_NETWORK_QGA_RETRY_MILLIS);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new CloudRuntimeException("Interrupted while waiting for SharedFS QGA static network configuration", e);
-                }
+            lastError = boundedStaticDiagnostic(result.getDetails(), 2048);
+            String bootstrapState = staticBootstrapState(result);
+            lastObservation = boundedStaticDiagnostic(result.getResultJson(), 4096);
+            if ("FAILED".equals(bootstrapState)) {
+                throw new CloudRuntimeException("SharedFS guest bootstrap failed: " + lastError + " " + lastObservation);
+            }
+            pending = "PENDING".equals(bootstrapState);
+            // Ordinary command/transport failures retain the existing retry count.
+            if (!pending && ++ordinaryFailures >= STATIC_NETWORK_QGA_ATTEMPTS) {
+                break;
+            }
+            long remainingMillis = TimeUnit.NANOSECONDS.toMillis(deadline - staticNetworkNanoTime());
+            if (remainingMillis <= 0) {
+                break;
+            }
+            try {
+                sleepStaticNetworkRetry(Math.min(STATIC_NETWORK_QGA_RETRY_MILLIS, remainingMillis));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new CloudRuntimeException("Interrupted while waiting for SharedFS QGA static network configuration", e);
             }
         }
+        if (pending) {
+            long elapsed = TimeUnit.NANOSECONDS.toSeconds(staticNetworkNanoTime() - started);
+            throw new SharedFsBootstrapPendingTimeoutException("SharedFS STATIC bootstrap is still pending after "
+                    + elapsed + " seconds; preserve the same VM and request: " + lastError + " " + lastObservation);
+        }
         throw new CloudRuntimeException("Failed to configure static SharedFS network through QGA: " + lastError);
+    }
+
+    protected long staticNetworkNanoTime() {
+        return System.nanoTime();
+    }
+
+    protected void sleepStaticNetworkRetry(long millis) throws InterruptedException {
+        Thread.sleep(millis);
+    }
+
+    private static String boundedStaticDiagnostic(String value, int limit) {
+        return value == null ? "" : value.substring(0, Math.min(value.length(), limit));
+    }
+
+    private String staticBootstrapState(StorageServiceGuestCommandResult result) {
+        String json = result.getResultJson();
+        if (StringUtils.isNotBlank(json) && json.length() <= 8192) {
+            try {
+                JsonObject root = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
+                JsonObject observation = root.getAsJsonObject("sharedFsBootstrap");
+                if (observation != null && observation.has("state") && observation.get("state").isJsonPrimitive()
+                        && observation.get("state").getAsJsonPrimitive().isString()) {
+                    String state = observation.get("state").getAsString();
+                    if ("PENDING".equals(state) || "FAILED".equals(state)) {
+                        return state;
+                    }
+                }
+            } catch (RuntimeException ignored) {
+                // An invalid observation is never readiness or permission to extend ordinary retries.
+            }
+        }
+        // Rolling deployment compatibility with the previous dedicated guard only.
+        String details = result.getDetails();
+        return details != null && details.contains("exit code 75:") && details.contains("SHAREDFS_BOOTSTRAP_PENDING:")
+                ? "PENDING" : null;
+    }
+
+    protected static class SharedFsBootstrapPendingTimeoutException extends CloudRuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        SharedFsBootstrapPendingTimeoutException(String message) {
+            super(message);
+        }
     }
 
     @Override
@@ -873,7 +943,8 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                     saveCreation(fs, c, "OBSERVATION_PENDING");
                     throw e; // never clean DATA while guest work may still be active
                 }
-                if (e instanceof OperationTimedoutException || "ALLOCATION_PENDING".equals(c.phase)
+                if (e instanceof OperationTimedoutException || e instanceof SharedFsBootstrapPendingTimeoutException
+                        || "ALLOCATION_PENDING".equals(c.phase)
                         || "ATTACH_PENDING".equals(c.phase)) {
                     saveCreation(fs, c, "OBSERVATION_PENDING");
                 } else {
