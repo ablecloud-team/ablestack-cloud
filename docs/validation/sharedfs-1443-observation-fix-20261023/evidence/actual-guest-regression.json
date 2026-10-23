@@ -1,0 +1,11 @@
+{
+  "time": 1792728142.781363,
+  "python": "Python 3.11.2",
+  "sourceSha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+  "tests": 54,
+  "failures": 0,
+  "log": "......................................................\n----------------------------------------------------------------------\nRan 54 tests in 9.648s\n\nOK\n",
+  "testSourceSha256": "cbba5d0275376fa6178b04e62392cbd735184ecae656ef31b7fc736d795cf065",
+  "fixtureSha256": "0ee7a4adaa962231462735ab7e59cd427739aa12702bd4cb7d650764355653c4",
+  "guestSourceUnchanged": true
+}
