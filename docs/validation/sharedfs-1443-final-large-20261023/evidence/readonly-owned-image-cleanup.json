@@ -1,0 +1,45 @@
+{
+  "currentDisks": [
+    {
+      "serial": "d3006ce46c1a4f2abce2",
+      "target": "sda",
+      "source": "/mnt/glue-gfs/d3006ce4-6c1a-4f2a-bce2-48b71d475349",
+      "fileBytes": 5243928576,
+      "allocatedBytes": 1643622400,
+      "qcowMagic": "514649fb",
+      "virtualBytes": 5242880000
+    },
+    {
+      "serial": "c97204baf0d041dab142",
+      "target": "sdb",
+      "source": "/mnt/glue-gfs/c97204ba-f0d0-41da-b142-0fbd1d863241",
+      "fileBytes": 10996794392576,
+      "allocatedBytes": 1807642624,
+      "qcowMagic": "514649fb",
+      "virtualBytes": 10995116277760
+    }
+  ],
+  "previousTestImages": [
+    {
+      "id": "a9668815-23b6-42da-adbf-78ad2f2a7c78",
+      "path": "/mnt/glue-gfs/a9668815-23b6-42da-adbf-78ad2f2a7c78",
+      "exists": false
+    },
+    {
+      "id": "ebf678e6-2299-4030-9f8e-c5787e300af6",
+      "path": "/mnt/glue-gfs/ebf678e6-2299-4030-9f8e-c5787e300af6",
+      "exists": false
+    },
+    {
+      "id": "8a6a2385-22dc-4bbf-b926-e16af787d38d",
+      "path": "/mnt/glue-gfs/8a6a2385-22dc-4bbf-b926-e16af787d38d",
+      "exists": false
+    },
+    {
+      "id": "6aa40e0d-83e4-4382-a1cd-652fc2733247",
+      "path": "/mnt/glue-gfs/6aa40e0d-83e4-4382-a1cd-652fc2733247",
+      "exists": false
+    }
+  ],
+  "priorVm124Exists": false
+}
