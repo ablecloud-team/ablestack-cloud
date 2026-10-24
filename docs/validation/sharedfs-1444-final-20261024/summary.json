@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "productCommit": "f25235648a129aaa23c37224039dc9ca47814fba",
+  "preimplementationNativeCases": 4,
+  "identityRegressionSystemVM": {
+    "tests": 14,
+    "passed": 14,
+    "nativeConfigfsCases": 3
+  },
+  "identityRegressionWSL": {
+    "passed": 11,
+    "skippedNative": 3
+  },
+  "transactionRegressionWSL": 11,
+  "unchangedPreviousSystemVMRegressions": 19,
+  "uiRegression": {
+    "tests": 45,
+    "suites": 6,
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "backendTargetRegression": 6,
+  "operationStates": {
+    "ROLLED_BACK": 16,
+    "COMMITTED": 2
+  },
+  "finalInstance": {
+    "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+    "configurationprotection": false,
+    "revision": 2
+  },
+  "image": {
+    "baseCompressedSha256": "3333bd054a17a34d71120fdabcddcd9cf05aa1702da9dabd10ab7bc1a1f062b1",
+    "installedModuleHashes": {
+      "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+      "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+    },
+    "changedGuestPaths": [
+      "usr/local/bin/ablestack-storagectl",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py",
+      "usr/local/lib/ablestack-storage/nvmeof_identity.py"
+    ],
+    "unchangedGuestPathsVerified": 33922,
+    "hostAccountFilesUnchanged": true,
+    "image": "/root/work/epic1438-preparation/20261024/issue1444-nvme-boot-identity/systemvm-epic1444-nvme-identity-20261024.qcow2",
+    "compressed": "/root/work/epic1438-preparation/20261024/issue1444-nvme-boot-identity/systemvm-epic1444-nvme-identity-20261024.qcow2.bz2",
+    "compressedSha256": "de0b0cdc86db361e4a072a806f41f7c8ed3e2500a4b6aef9e0ab593721b13214",
+    "compressedBytes": 497389224,
+    "qemuImageCheck": "No errors were found on the image.\n27420/80000 = 34.27% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1797914624",
+    "buildKind": "scoped SharedFS configuration transaction module; formatter and bootstrap unchanged"
+  },
+  "uiIndexSha256": "72df1d943baf6026fc8e2a44990decf06ce6c74b019d24d3c5aa1e9bcee1fd1d",
+  "backendJarSha256": "8e911db81386034633e3f868c82699a32b5984ca8c798de5202ec49c1d7bcc71",
+  "newService": {
+    "id": "8f3aea43-fb7c-436d-a8ef-6ff00783800b",
+    "vm": "8bea5d1f-10e8-34c8-b2e2-371d2fc774a6",
+    "template": "c0dea1a6-14f8-441d-a308-0f1571d22931",
+    "ip": "10.10.13.239",
+    "mac": "02:0d:00:cc:00:54",
+    "volumes": [
+      {
+        "id": "cbe4aab3-66ca-4f93-a03d-694ba1fca3fd",
+        "type": "ROOT",
+        "size": 5242880000,
+        "provisioningtype": "sparse",
+        "diskofferingid": null
+      },
+      {
+        "id": "0798f6f0-5d36-4f60-bc09-f309cb1eba72",
+        "type": "DATADISK",
+        "size": 21474836480,
+        "provisioningtype": "sparse",
+        "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+      }
+    ],
+    "clientReadWrite": "PASS"
+  },
+  "rebootUuid": "c16a7f1f-5e65-49c0-a1f7-ab1ae9902ced",
+  "clientDataPreserved": true,
+  "nativeHooksRemoved": true,
+  "epicComplete": false,
+  "heldUiIssue": 1468
+}
