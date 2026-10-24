@@ -1,0 +1,6 @@
+{
+  "class": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+  "sha256": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+  "localCompiledSha256": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+  "identical": true
+}

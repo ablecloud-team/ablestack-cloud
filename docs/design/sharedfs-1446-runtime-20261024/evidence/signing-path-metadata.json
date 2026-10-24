@@ -1,0 +1,12 @@
+{
+  "repositoryDirectSecretMetadata": {
+    "accessible": true,
+    "matchingSecrets": []
+  },
+  "organizationSecretMetadata": {
+    "accessible": false,
+    "reason": "Current gh token lacks org secrets metadata permission (HTTP 403); effective inherited secret presence remains unknown."
+  },
+  "productionSignerValidated": false,
+  "privateKeyReadOrInstalled": false
+}

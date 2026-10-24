@@ -31,4 +31,8 @@ public interface SharedFSDao extends GenericDao<SharedFSVO, Long>, StateDao<Shar
     SharedFSVO findSharedFSByNameAccountDomain(String name, Long accountId, Long domainId);
 
     SharedFSVO findByVm(long vmId);
+
+    SharedFSVO findByCreationRequest(long accountId, String requestId);
+
+    List<SharedFSVO> listByBackingVolume(long volumeId);
 }

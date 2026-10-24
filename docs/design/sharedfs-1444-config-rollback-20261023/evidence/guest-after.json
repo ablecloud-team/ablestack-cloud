@@ -1,0 +1,32 @@
+{
+  "time": 1792749367.520731,
+  "bootId": "3134f88a-dd97-49ea-897f-ab5edac37fa0",
+  "files": {
+    "/usr/local/bin/ablestack-storagectl": "db4c648179c23f12b746d550e6b7ccf49a9be063c81b06c5117b601a948d61cb",
+    "/usr/local/lib/ablestack-storage/volume_preparation.py": "71842294cb2fd47e1a4f3a92446d17ec38e92ace3d2ef496a33ac725884739f0",
+    "/etc/fstab": "210296d983b10d34b3832b4411cd1d57369f35f5ebe4dfcf503535d36b67c0a8",
+    "/etc/passwd": "c5a4fec389968c40e059b0e04b70c5e7abbe8fd9655fcf11c542974409bb1549",
+    "/etc/group": "043b4508329b287506829a450729d05e22b3f71e3f4f1a7366261b46c6497ec6",
+    "/etc/shadow": "681b3d32a2fbba3b2032057d11d8dd35a2a8a7aca3c0289254412d5b082263c5",
+    "/etc/gshadow": "951acb8407d89409ce716bd6e79c9c905c0431785d97b681a24f9137a23c9d82",
+    "/etc/ablestack-storage/nfs-quotas.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "/etc/ablestack-storage/smb-quotas.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "/etc/ablestack-storage/sharedfs-network.json": "273c39d200577d4a6bc69f06dfddc052fb4118fd5c5739d9bf8b97beea74548e",
+    "/etc/ablestack-storage/nfs-export-aliases.json": "e989c722466566c38829daa570589842e9f18a72040e2b551b1dc797c3ac6960",
+    "/etc/ablestack-storage/smb-access.json": "796d71da104621c4cb89d8e9f35ecb9c0f8efde633c4d286672e26011d60be9a",
+    "/etc/ablestack-storage/runtime-trusted-keys/ablestack-runtime-dev.pem": "01bd6c60ce29c0ebc1ac028e34758d6530e9ca14076c84109b7ed2b3ae140766",
+    "/etc/ablestack-storage/desired-state/smb-share-apply.json": "b4547ef849f4ae7303d65de1474d1ea4e80a0abdb7ca7107738924c0b2933a22",
+    "/etc/ablestack-storage/desired-state/nfs-export-apply.json": "7ad83de9959e0651412538c1240d324c71e2e22d32a6a5e7f470e35cb71e1be0",
+    "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf": "4a496efc7f739b5a797679b74c97b4b019bb53452db50699350acbde9df6434b",
+    "/etc/samba/gdbcommands": "4067c1f725932fd50a3a7561cac3d7dce09431dcfa177792501dbaa48ea0914c",
+    "/etc/samba/smb.conf": "9c86a0d0ff312d3b98ef59be67653e36ba54a319f31d6ec7a335529e042986c5"
+  },
+  "units": "MainPID=1696\nId=smbd.service\nActiveState=active\n\nMainPID=1704\nId=nmbd.service\nActiveState=active\n\nMainPID=1708\nId=winbind.service\nActiveState=active\n\nMainPID=1406\nId=ablestack-storage-ganesha@0.0.0.0_2049.service\nActiveState=active\n",
+  "availableCommands": {
+    "testparm": "/usr/bin/testparm",
+    "ganesha.nfsd": "/usr/bin/ganesha.nfsd",
+    "targetcli": "/usr/bin/targetcli",
+    "nvmetcli": null
+  },
+  "leftoverTempDirs": []
+}

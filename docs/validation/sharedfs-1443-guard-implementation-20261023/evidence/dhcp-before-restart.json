@@ -1,0 +1,81 @@
+{
+  "operationId": "2e81effe-befc-3e9e-b7d6-fc37ea4845d6",
+  "status": "PREPARED",
+  "formatCount": 1,
+  "filesystemUuid": "83b98916-b5bc-456d-9a99-a3333936ba3c",
+  "mountPath": "/srv/ablestack-storage/volumes/a7a5adcc-f202-4103-a735-a32a8144c57d",
+  "bootId": "6fd666d0-b3a8-458b-9ed2-786062027035",
+  "addresses": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    },
+    {
+      "ifindex": 2,
+      "ifname": "eth0",
+      "flags": [
+        "BROADCAST",
+        "MULTICAST",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 1500,
+      "qdisc": "fq_codel",
+      "operstate": "UP",
+      "group": "default",
+      "txqlen": 1000,
+      "altnames": [
+        "enp0s3",
+        "ens3"
+      ],
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "10.1.1.222",
+          "prefixlen": 24,
+          "broadcast": "10.1.1.255",
+          "scope": "global",
+          "label": "eth0",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "staticStateExists": false,
+  "staticUnitExists": false,
+  "userdataSuccess": true,
+  "dhcpBootJournal": [
+    "[    6.527801] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 cloud-early-config[1231]: + dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0",
+    "[    6.554132] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 dhclient[1339]: DHCPACK of 10.1.1.222 from 10.1.1.1",
+    "[    6.554176] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 cloud-early-config[1339]: DHCPACK of 10.1.1.222 from 10.1.1.1",
+    "[    6.585517] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 cloud-early-config[1339]: bound to 10.1.1.222 -- renewal in 2147483648 seconds.",
+    "[    6.585554] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 dhclient[1339]: bound to 10.1.1.222 -- renewal in 2147483648 seconds.",
+    "[   11.441757] sharedfs-0c9f5ce2-2328-33a1-a290-b0d6a6619ba5 systemd[1]: Finished cloud-early-config.service - CloudStack post-boot patching service using cmdline."
+  ],
+  "fstab": [
+    "UUID=83b98916-b5bc-456d-9a99-a3333936ba3c /srv/ablestack-storage/volumes/a7a5adcc-f202-4103-a735-a32a8144c57d xfs defaults,nofail,x-systemd.device-timeout=30 0 2 # ablestack-storage:a7a5adcc-f202-4103-a735-a32a8144c57d:backing",
+    "/srv/ablestack-storage/volumes/a7a5adcc-f202-4103-a735-a32a8144c57d/export/g1443d /export/g1443d none bind,nofail,x-systemd.requires-mounts-for=/srv/ablestack-storage/volumes/a7a5adcc-f202-4103-a735-a32a8144c57d/export/g1443d 0 0 # ablestack-storage:31cffbfa-a084-4aca-ae5f-52367dcb98d3:alias"
+  ]
+}

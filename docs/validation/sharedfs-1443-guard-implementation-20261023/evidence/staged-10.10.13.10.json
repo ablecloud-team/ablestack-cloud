@@ -1,0 +1,4 @@
+{
+  "jarSha256": "7a00a376a686bb6fe120c617e77552867abcd71db2b35bf169c5e051d85853ee",
+  "verification": "org.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl$StaticNetworkConfiguration VERIFIED\norg.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl VERIFIED\norg.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl$SharedFSGarbageCollector VERIFIED\norg.apache.cloudstack.storage.sharedfs.SharedFSServiceImpl$SharedFsBootstrapPendingTimeoutException VERIFIED\n"
+}

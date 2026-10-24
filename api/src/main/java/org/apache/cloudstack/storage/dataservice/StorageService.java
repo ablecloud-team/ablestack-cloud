@@ -93,6 +93,19 @@ import org.apache.cloudstack.api.response.StorageServiceRuntimeUpgradeResponse;
 import org.apache.cloudstack.api.response.StorageSmbShareResponse;
 
 public interface StorageService {
+    org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse preflightStorageServiceConfiguration(
+        org.apache.cloudstack.api.command.user.storage.dataservice.PreflightStorageServiceConfigurationCmd cmd);
+
+    org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse getStorageServiceConfigurationOperation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceConfigurationOperationCmd cmd);
+    ListResponse<org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse> listStorageServiceConfigurationOperations(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigurationOperationsCmd cmd);
+    org.apache.cloudstack.api.response.StorageServiceConfigurationOperationResponse resumeStorageServiceConfigurationOperation(
+            org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd cmd);
+    String operateInitialBackingPreparation(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String action);
+
+    String prepareInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS, String mode);
+    void releaseInitialImportedBackingVolume(org.apache.cloudstack.storage.sharedfs.SharedFS sharedFS);
     StorageServiceInstanceResponse createStorageServiceInstance(CreateStorageServiceInstanceCmd cmd);
 
     ListResponse<StorageServiceInstanceResponse> listStorageServiceInstances(ListStorageServiceInstancesCmd cmd);

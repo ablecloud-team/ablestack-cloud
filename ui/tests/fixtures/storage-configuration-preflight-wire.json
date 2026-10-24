@@ -1,0 +1,1 @@
+{"preflightstorageserviceconfigurationresponse":{"configurationpreflight":{"status":"READY","revision":2,"observedat":"2026-10-24T17:07:34+0900","expiresat":"2026-10-24T17:08:04+0900","fingerprint":"impact","checks":[{"code":"MEMORY_AVAILABLE","blocking":false}],"impact":{"ackrequired":true},"profile":{},"cancellationsupported":false}}}

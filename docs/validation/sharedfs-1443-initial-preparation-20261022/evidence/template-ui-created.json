@@ -1,0 +1,13 @@
+{
+  "id": "c83b4e03-272a-4c51-a4a0-cf93cd758501",
+  "name": "Europa-SystemVM-1443-b3dbcd8c3790-20261022",
+  "kind": "SYSTEM",
+  "hypervisor": "KVM",
+  "format": "QCOW2",
+  "os": "Debian GNU/Linux 12 (64-bit)",
+  "crossZone": true,
+  "arch": "x86_64",
+  "compressedSha256": "4a5a5cc1cf951f9af6a386f71c6b2b3ca075e5128a8b1f2e869429e022bf1804",
+  "stateAtRegistration": "Pending",
+  "registration": "actual Mold URL template dialog"
+}

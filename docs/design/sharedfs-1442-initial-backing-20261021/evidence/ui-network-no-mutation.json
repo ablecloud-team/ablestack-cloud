@@ -1,0 +1,53 @@
+{
+  "kind": "final bounded UI query + injected design validation, observer explicitly enabled after reload",
+  "truncated": false,
+  "events": 13,
+  "checksPassed": 22,
+  "requests": [
+    {
+      "method": "GET",
+      "command": "listSharedFileSystems"
+    },
+    {
+      "method": "GET",
+      "command": "listZones"
+    },
+    {
+      "method": "GET",
+      "command": "listSharedFileSystemServiceOfferings"
+    },
+    {
+      "method": "GET",
+      "command": "listDiskOfferings"
+    },
+    {
+      "method": "GET",
+      "command": "listStoragePools"
+    },
+    {
+      "method": "GET",
+      "command": "listNetworks"
+    },
+    {
+      "method": "GET",
+      "command": "listVolumes"
+    },
+    {
+      "method": "GET",
+      "command": "listVolumes"
+    },
+    {
+      "method": "GET",
+      "command": "readyForShutdown"
+    },
+    {
+      "method": "GET",
+      "command": "readyForShutdown"
+    },
+    {
+      "method": "GET",
+      "command": "readyForShutdown"
+    }
+  ],
+  "mutations": []
+}

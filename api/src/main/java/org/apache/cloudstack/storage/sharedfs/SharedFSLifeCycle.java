@@ -17,6 +17,8 @@
 
 package org.apache.cloudstack.storage.sharedfs;
 
+import java.util.Map;
+
 import com.cloud.dc.DataCenter;
 import com.cloud.exception.InsufficientCapacityException;
 import com.cloud.exception.ManagementServerException;
@@ -29,7 +31,22 @@ import com.cloud.utils.Pair;
 public interface SharedFSLifeCycle {
     void checkPrerequisites(DataCenter zone, Long serviceOfferingId);
 
+    SharedFSOfferingEligibility getCreationOfferingEligibility(DataCenter zone, Long serviceOfferingId);
+
+    Map<String, String> checkCreationPrerequisites(DataCenter zone, Long serviceOfferingId, Map<String, String> customValues);
+
+    Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size,
+            Long minIops, Long maxIops, Map<String, String> customValues) throws ResourceUnavailableException,
+            InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
+
     Pair<Long, Long> deploySharedFS(SharedFS sharedFS, Long networkId, Long diskOfferingId, Long storageId, Long size, Long minIops, Long maxIops) throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException;
+
+    default Long allocateInitialSharedFSVm(SharedFS sharedFS, Long networkId, Map<String, String> compute, String vmUuid)
+            throws ResourceUnavailableException, InsufficientCapacityException, ResourceAllocationException, OperationTimedoutException {
+        throw new UnsupportedOperationException("Provider does not support existing backing volumes");
+    }
+
+    default void cleanupImportedSharedFSVm(SharedFS sharedFS) { throw new UnsupportedOperationException(); }
 
     void startSharedFS(SharedFS sharedFS) throws OperationTimedoutException, ResourceUnavailableException, InsufficientCapacityException;
 

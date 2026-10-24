@@ -2679,7 +2679,14 @@ payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
     payload = json.load(payload_fp)
 
+preparation = None
+if payload.get("preparationOperationId"):
+    from volume_preparation import PreparationContext
+    preparation = PreparationContext(payload)
+
 def run(args):
+    if preparation:
+        return preparation.run(args)
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=20)
 
 def lsblk():
@@ -2797,7 +2804,7 @@ try:
                          or config.get("filesystemUuid") or config.get("fsUuid")),
         mount_source=mounted_source,
         expected_size=expected_size,
-        allow_blank_size_fallback=import_mode in format_modes,
+        allow_blank_size_fallback=import_mode in format_modes and preparation is None,
     )
 except VolumeIdentityError as error:
     raise SystemExit(str(error))
@@ -2865,9 +2872,13 @@ def format_empty_device():
     tool = f"mkfs.{fs}"
     if not shutil.which(tool):
         raise SystemExit(f"Missing filesystem formatter: {tool}")
+    if preparation:
+        preparation.before_format(device, fs)
     result = run([tool, "-f", device] if fs == "xfs" else [tool, "-F", device])
     if result.returncode != 0:
         raise SystemExit(result.stderr.strip() or f"failed to format {device} as {fs}")
+    if preparation:
+        preparation.verify_formatted(device, fs)
     return fs
 
 if import_mode != "INSPECT_ONLY":
@@ -2881,6 +2892,8 @@ if import_mode != "INSPECT_ONLY":
         raise SystemExit(f"No filesystem was detected on {device}; format workflows are not part of existing-volume import")
     if filesystem and filesystem not in supported_filesystems:
         raise SystemExit(f"Unsupported filesystem for Storage Service backing volume: {filesystem}. Supported filesystems: xfs, ext4")
+    if preparation:
+        preparation.stage("MOUNTING")
     os.makedirs(mount_path, exist_ok=True)
     target = run(["findmnt", "-n", "-o", "SOURCE", "--mountpoint", mount_path])
     if target.returncode == 0 and target.stdout.strip():
@@ -2897,6 +2910,8 @@ if import_mode != "INSPECT_ONLY":
         if mount_result.returncode != 0:
             raise SystemExit(mount_result.stderr.strip() or f"failed to mount {device}")
         mount_path = desired_mount_path
+    if preparation:
+        preparation.stage("PERSISTING_MOUNT")
     fs_uuid = persist_backing_mount(device, mount_path, filesystem)
 else:
     if existing_filesystem and existing_filesystem not in supported_filesystems:
@@ -2938,6 +2953,7 @@ print(json.dumps({
     "serial": resolved_device.get("serial"),
     "filesystem": filesystem,
     "filesystemSupported": filesystem in supported_filesystems,
+    "supportsInitialPosixPreservation": True,
     "fsUuid": fs_uuid,
     "filesystemUuid": fs_uuid,
     "observedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -3428,6 +3444,8 @@ def effective_nfs_export_config(config):
         result["anonUid"] = 65534
     if result.get("anonGid") in (None, ""):
         result["anonGid"] = 65534
+    if result.get("posixPolicy") == "PRESERVE_EXISTING_INITIAL":
+        return result
     if result.get("ownerUid") in (None, ""):
         result["ownerUid"] = result.get("anonUid")
     if result.get("ownerGid") in (None, ""):
@@ -3821,10 +3839,8 @@ def render_ganesha_export(rendered):
     return "\n".join(lines)
 
 def write_ganesha_configs(endpoint_exports, port):
-    for name in os.listdir(ganesha_conf_dir):
-        if name.endswith(".conf"):
-            os.unlink(os.path.join(ganesha_conf_dir, name))
     configs = []
+    staged = []
     for (ip, endpoint_port), exports in sorted(endpoint_exports.items()):
         if not exports:
             continue
@@ -3859,9 +3875,28 @@ def write_ganesha_configs(endpoint_exports, port):
         ])
         rendered_exports = assign_ganesha_export_ids(exports)
         content.extend(render_ganesha_export(export) for export in rendered_exports)
-        with open(conf_path, "w", encoding="utf-8") as conf_fp:
-            conf_fp.write("\n\n".join(content) + "\n")
+        staged.append((conf_path, "\n\n".join(content) + "\n"))
         configs.append((key, conf_path, ip, endpoint_port, endpoint_mode))
+    staged_paths = []
+    try:
+        for conf_path, content in staged:
+            fd, tmp_path = tempfile.mkstemp(prefix=".candidate-", dir=ganesha_conf_dir)
+            with os.fdopen(fd, "w", encoding="utf-8") as conf_fp:
+                conf_fp.write(content)
+                conf_fp.flush()
+                os.fsync(conf_fp.fileno())
+            staged_paths.append((tmp_path, conf_path))
+        for tmp_path, conf_path in staged_paths:
+            os.replace(tmp_path, conf_path)
+        desired_paths = {path for path, _ in staged}
+        for name in os.listdir(ganesha_conf_dir):
+            path = os.path.join(ganesha_conf_dir, name)
+            if name.endswith(".conf") and path not in desired_paths:
+                os.unlink(path)
+    finally:
+        for tmp_path, _ in staged_paths:
+            if os.path.exists(tmp_path):
+                os.unlink(tmp_path)
     return configs
 
 
@@ -4925,8 +4960,19 @@ for share in payload.get("shares", []):
             "filesystem": share.get("filesystem"),
         }
 
-with open("/etc/samba/smb.conf", "w", encoding="utf-8") as smb_fp:
-    smb_fp.write("\n".join(lines) + "\n")
+import tempfile
+candidate_fd, candidate_path = tempfile.mkstemp(prefix=".ablestack-candidate-", dir="/etc/samba")
+try:
+    with os.fdopen(candidate_fd, "w", encoding="utf-8") as smb_fp:
+        smb_fp.write("\n".join(lines) + "\n")
+        smb_fp.flush()
+        os.fsync(smb_fp.fileno())
+    os.chmod(candidate_path, 0o644)
+    run(["testparm", "-s", candidate_path], stdout=subprocess.DEVNULL)
+    os.replace(candidate_path, "/etc/samba/smb.conf")
+finally:
+    if os.path.exists(candidate_path):
+        os.unlink(candidate_path)
 
 with open(os.path.join(state_dir, "smb-quotas.json"), "w", encoding="utf-8") as quota_fp:
     json.dump(quota_state, quota_fp, sort_keys=True, indent=2)
@@ -4934,7 +4980,6 @@ with open(os.path.join(state_dir, "smb-quotas.json"), "w", encoding="utf-8") as 
 with open(os.path.join(state_dir, "smb-access.json"), "w", encoding="utf-8") as access_fp:
     json.dump(access_state, access_fp, sort_keys=True, indent=2)
 
-run(["testparm", "-s"], stdout=subprocess.DEVNULL)
 print(json.dumps({"success": True, "shares": len(payload.get("shares", [])), "quotas": len(quota_state), "adJoined": ad_joined, "netbiosName": netbios_name, "access": access_state}))
 PY
 
@@ -5591,8 +5636,38 @@ def resolve_backstore(target, backstore_name):
     if mountpoint:
         raise SystemExit(f"backing device {path} is mounted at {mountpoint}; refusing iSCSI BLOCK backstore")
     validate_block_backstore_device(path)
-    require_targetcli("/backstores/block", "create", backstore_name, path)
-    return f"/backstores/block/{backstore_name}", path, "block"
+    from rtslib_fb import BlockStorageObject, RTSRoot
+    existing = next((item for item in RTSRoot().storage_objects
+                     if item.plugin == "block" and item.name == backstore_name), None)
+    if existing is not None:
+        if os.path.realpath(existing.udev_path) != os.path.realpath(path):
+            if os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION") != "1":
+                raise SystemExit("existing iSCSI backstore identity differs from the requested DATA")
+            from rtslib_fb import RTSRoot
+            if list(RTSRoot().sessions):
+                raise SystemExit("active iSCSI sessions prevent a backing change")
+            old_wwn = existing.wwn
+            for attached in list(existing.attached_luns):
+                if attached.parent_tpg.parent_target.wwn != target.get("targetName"):
+                    raise SystemExit("iSCSI backstore has an unexpected target owner")
+            for attached in list(existing.attached_luns):
+                attached.delete()
+            existing.delete()
+            require_targetcli("/backstores/block", "create", backstore_name, path)
+            BlockStorageObject(backstore_name).wwn = old_wwn
+    else:
+        require_targetcli("/backstores/block", "create", backstore_name, path)
+    restore = target.get("configurationRestoreBackstore")
+    if isinstance(restore, dict) and os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION") == "1":
+        native = BlockStorageObject(backstore_name)
+        if restore.get("name") != backstore_name or os.path.realpath(restore.get("dev", "")) != os.path.realpath(path):
+            raise SystemExit("iSCSI restoration backstore identity differs")
+        if restore.get("wwn") and native.wwn != restore["wwn"]:
+            native.wwn = restore["wwn"]
+        for attribute, value in (restore.get("attributes") or {}).items():
+            if str(native.get_attribute(attribute)) != str(value):
+                native.set_attribute(attribute, value)
+    return f"/backstores/block/{backstore_name}", path, "block", existing is None
 
 def port_listening(port):
     if not command_exists("ss"):
@@ -5839,7 +5914,39 @@ if enabled and command_exists("targetcli"):
     desired_iqns = set(active_targets_by_iqn(targets).keys())
     if os.environ.get("ABLESTACK_STORAGE_ISCSI_AUTHORITATIVE_REBUILD") == "1":
         clear_managed_iscsi_runtime()
-    cleanup_stale_managed_targets(desired_iqns)
+    from rtslib_fb import RTSRoot
+    root = RTSRoot()
+    session_targets = set()
+    for session in root.sessions:
+        node_acl = session.get("parent_nodeacl")
+        if node_acl is not None:
+            session_targets.add(node_acl.parent_tpg.parent_target.wwn)
+    previous_groups = active_targets_by_iqn(previous_payload.get("targets", []))
+    desired_groups = active_targets_by_iqn(targets)
+    for iqn in session_targets:
+        old_luns = {(str(v.get("lunOrNamespace") or "0"), v.get("volumeUuid")) for v in previous_groups.get(iqn, [])}
+        new_luns = {(str(v.get("lunOrNamespace") or "0"), v.get("volumeUuid")) for v in desired_groups.get(iqn, [])}
+        if old_luns - new_luns:
+            raise SystemExit("active iSCSI sessions prevent a destructive target/backing change")
+        old_portals = {(p.ip_address, p.port) for target in root.targets if target.wwn == iqn for tpg in target.tpgs for p in tpg.network_portals}
+        new_portals = {(v["listenIp"], int(v["port"])) for v in merged_listeners_for_targets(desired_groups.get(iqn, []), listeners)}
+        if old_portals - new_portals:
+            raise SystemExit("active iSCSI sessions prevent removal of a listener portal")
+    for iqn, group_targets in desired_groups.items():
+        previous_auth = previous_acl_auth_map(iqn)
+        merged_listeners_for_targets(group_targets, listeners)
+        for target in group_targets:
+            validate_block_backstore_device(find_backing_path(target))
+        for acl in merged_acls_for_targets(group_targets):
+            config = acl.get("config") or {}
+            secret = acl.get("secrets") or {}
+            old = previous_auth.get(acl.get("principal"), {})
+            if config.get("chapEnabled"):
+                require_chap_value("chapUsername", config.get("chapUsername"), iqn, acl.get("principal"))
+                require_chap_value("chapSecret", secret.get("chapSecret") or old.get("password"), iqn, acl.get("principal"))
+            if config.get("mutualChapEnabled"):
+                require_chap_value("mutualChapUsername", config.get("mutualChapUsername"), iqn, acl.get("principal"))
+                require_chap_value("mutualChapSecret", secret.get("mutualChapSecret") or old.get("mutual_password"), iqn, acl.get("principal"))
     created_iqns = []
     created_backstores = []
     for target in targets:
@@ -5849,21 +5956,22 @@ if enabled and command_exists("targetcli"):
     try:
         for iqn, group_targets in active_targets_by_iqn(targets).items():
             previous_auth = previous_acl_auth_map(iqn)
-            run_targetcli("/iscsi", "delete", iqn)
-            for target in group_targets:
-                run_targetcli("/backstores/block", "delete", f"ablestack-{target.get('uuid')}")
+            existing_target = (Path("/sys/kernel/config/target/iscsi") / iqn).exists()
             require_targetcli("/iscsi", "create", iqn)
-            created_iqns.append(iqn)
-            run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "delete", "0.0.0.0", "3260")
+            if not existing_target:
+                created_iqns.append(iqn)
             group_listeners = merged_listeners_for_targets(group_targets, listeners)
+            if not existing_target and not any(v["listenIp"] == "0.0.0.0" and v["port"] == 3260 for v in group_listeners):
+                run_targetcli(f"/iscsi/{iqn}/tpg1/portals", "delete", "0.0.0.0", "3260")
             required_ports.update({item["port"] for item in group_listeners})
             for listener in group_listeners:
                 create_iscsi_portal(iqn, listener["listenIp"], listener["port"])
             for target in group_targets:
                 lun = str(target.get("lunOrNamespace") or "0")
                 backstore = f"ablestack-{target.get('uuid')}"
-                backstore_path, backing_path, backstore_type = resolve_backstore(target, backstore)
-                created_backstores.append(backstore)
+                backstore_path, backing_path, backstore_type, created_backstore = resolve_backstore(target, backstore)
+                if created_backstore:
+                    created_backstores.append(backstore)
                 require_targetcli(f"/iscsi/{iqn}/tpg1/luns", "create", backstore_path, lun)
                 applied += 1
                 runtime_targets.append({
@@ -5910,16 +6018,37 @@ if enabled and command_exists("targetcli"):
                     run_targetcli(f"/iscsi/{iqn}/tpg1/acls/{initiator}", "set", "auth", "mutual_userid=")
                     run_targetcli(f"/iscsi/{iqn}/tpg1/acls/{initiator}", "set", "auth", "mutual_password=")
             require_targetcli(f"/iscsi/{iqn}/tpg1", "set", "attribute", f"authentication={1 if chap_required else 0}")
+            from rtslib_fb import FabricModule, Target, TPG
+            native_tpg = TPG(Target(FabricModule("iscsi"), iqn, mode="lookup"), 1, mode="lookup")
+            wanted_portals = {(v["listenIp"], int(v["port"])) for v in group_listeners}
+            for portal in list(native_tpg.network_portals):
+                if (portal.ip_address, portal.port) not in wanted_portals:
+                    portal.delete()
+            acl_root = Path("/sys/kernel/config/target/iscsi") / iqn / "tpgt_1" / "acls"
+            desired_initiators = {acl.get("principal") for acl in merged_acls_for_targets(group_targets)}
+            if acl_root.exists():
+                for old_acl in acl_root.iterdir():
+                    if old_acl.is_dir() and old_acl.name not in desired_initiators:
+                        require_targetcli(f"/iscsi/{iqn}/tpg1/acls", "delete", old_acl.name)
+            lun_root = Path("/sys/kernel/config/target/iscsi") / iqn / "tpgt_1" / "lun"
+            desired_luns = {str(target.get("lunOrNamespace") or "0") for target in group_targets}
+            if lun_root.exists():
+                for old_lun in lun_root.iterdir():
+                    number = old_lun.name.removeprefix("lun_")
+                    if old_lun.is_dir() and number not in desired_luns:
+                        require_targetcli(f"/iscsi/{iqn}/tpg1/luns", "delete", number)
+
     except BaseException:
         rollback_created(created_iqns, created_backstores)
         raise
+    cleanup_stale_managed_targets(desired_iqns)
     merge_and_persist_iscsi_secrets(payload)
     run_targetcli("saveconfig")
 else:
     skipped = len(payload.get("targets", []))
 
 if enabled and applied:
-    service_action("restart")
+    service_action("start")
     for port in required_ports:
         best_effort_firewall(port)
     for _ in range(10):
@@ -5935,7 +6064,7 @@ PY
 
   if command -v systemctl >/dev/null 2>&1; then
     systemctl enable --now target >/dev/null 2>&1 || systemctl enable --now rtslib-fb-targetctl >/dev/null 2>&1 || true
-    systemctl restart target >/dev/null 2>&1 || systemctl restart rtslib-fb-targetctl >/dev/null 2>&1 || true
+    systemctl start target >/dev/null 2>&1 || systemctl start rtslib-fb-targetctl >/dev/null 2>&1 || true
   fi
 }
 
@@ -5952,6 +6081,8 @@ import sys
 import glob
 import time
 import errno
+sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+from nvmeof_identity import NamespaceIdentityStore
 
 payload_path = sys.argv[1]
 with open(payload_path, "r", encoding="utf-8") as payload_fp:
@@ -5959,6 +6090,15 @@ with open(payload_path, "r", encoding="utf-8") as payload_fp:
 
 state_dir = "/etc/ablestack-storage"
 os.makedirs(state_dir, exist_ok=True)
+identity_store = NamespaceIdentityStore(os.path.join(state_dir, "nvmeof-namespace-identities.json"))
+configuration_transaction = os.environ.get("ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION") == "1"
+previous_payload = {}
+if configuration_transaction:
+    try:
+        with open(os.path.join(state_dir, "nvmeof-subsystems.json"), encoding="utf-8") as previous_fp:
+            previous_payload = json.load(previous_fp)
+    except FileNotFoundError:
+        pass
 
 def write_file(path, value):
     with open(path, "w", encoding="utf-8") as fp:
@@ -6011,6 +6151,8 @@ def redact_sensitive(value):
 
 def write_required_configfs(path, value, feature):
     if not value:
+        if os.path.exists(path) and read_file(path):
+            return
         raise SystemExit(f"{feature} is enabled but no secret was supplied in the runtime request")
     if not os.path.exists(path):
         raise SystemExit(f"{feature} is not supported by this System VM kernel/configfs: missing {path}")
@@ -6357,6 +6499,21 @@ if enabled:
 if enabled and os.path.isdir(base):
     listeners = desired_listeners()
     payload["subsystems"] = merge_nvmeof_subsystems(payload.get("subsystems") or [])
+    if configuration_transaction:
+        def namespace_identities(value):
+            return {(sub.get("targetName"), str(ns.get("lunOrNamespace") or "1"), ns.get("volumeUuid"))
+                    for sub in value.get("subsystems", []) for ns in sub.get("namespaces", [])
+                    if ns.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")}
+        removed_namespaces = namespace_identities(previous_payload) - namespace_identities(payload)
+        if removed_namespaces:
+            ports_before = {str(v.get("port") or 4420) for v in previous_payload.get("listeners", [])}
+            ports_before.add(str(previous_payload.get("port") or 4420))
+            sessions = run(["ss", "-H", "-tn", "state", "established"], timeout=8)
+            if sessions.returncode != 0:
+                raise SystemExit("unable to observe NVMe-oF sessions before a destructive change")
+            if any(len(row.split()) > 3 and row.split()[2].rsplit(":", 1)[-1] in ports_before
+                   for row in sessions.stdout.splitlines()):
+                raise SystemExit("active NVMe-oF sessions prevent a destructive namespace/backing change")
     active_subsystems = []
     for subsystem in payload.get("subsystems", []):
         if subsystem.get("state", "Ready") in ("Disabled", "Destroyed", "Error"):
@@ -6425,6 +6582,7 @@ if enabled and os.path.isdir(base):
             backing_path, backing_type = resolve_namespace_device(namespace)
             ns_dir = os.path.join(subsystem_dir, "namespaces", nsid)
             ensure_dir(ns_dir)
+            identity_store.prepare(ns_dir, nqn, namespace, backing_path)
             current_device = read_file(os.path.join(ns_dir, "device_path"))
             enabled_now = read_file(os.path.join(ns_dir, "enable")) == "1"
             if current_device != backing_path:
@@ -6436,7 +6594,17 @@ if enabled and os.path.isdir(base):
                         time.sleep(0.1)
                 write_if_changed(os.path.join(ns_dir, "device_path"), backing_path)
             write_if_changed(os.path.join(ns_dir, "enable"), "1")
+            identity_store.verify(ns_dir, nqn, namespace)
             namespace["runtime"] = {"backingPath": backing_path, "backingType": backing_type}
+        if configuration_transaction:
+            desired_nsids = {str(ns.get("lunOrNamespace") or "1") for ns in subsystem.get("namespaces", [])
+                             if ns.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")}
+            namespace_root = os.path.join(subsystem_dir, "namespaces")
+            for old_nsid in os.listdir(namespace_root):
+                if old_nsid not in desired_nsids:
+                    old_namespace = os.path.join(namespace_root, old_nsid)
+                    write_if_changed(os.path.join(old_namespace, "enable"), "0")
+                    os.rmdir(old_namespace)
         subsystem_ports = set(subsystem.get("runtimeListenerPorts") or listener_ports_for_subsystem(subsystem, active_listeners))
         for listener in active_listeners:
             listener_key = (str(listener["listenIp"]), int(listener["port"]))
@@ -6451,6 +6619,29 @@ if enabled and os.path.isdir(base):
         applied += 1
 else:
     skipped = len(payload.get("subsystems", []))
+
+if configuration_transaction:
+    desired_names = {sub.get("targetName") for sub in payload.get("subsystems", [])
+                     if sub.get("state", "Ready") not in ("Disabled", "Destroyed", "Error")}
+    previous_names = {sub.get("targetName") for sub in previous_payload.get("subsystems", [])}
+    for old_name in previous_names - desired_names:
+        if not old_name or "/" in old_name or not old_name.startswith("nqn."):
+            raise SystemExit("invalid owned NVMe-oF subsystem identity")
+        old_subsystem = os.path.join("/sys/kernel/config/nvmet/subsystems", old_name)
+        if not os.path.isdir(old_subsystem):
+            continue
+        ports_root = "/sys/kernel/config/nvmet/ports"
+        for port_id in os.listdir(ports_root):
+            link = os.path.join(ports_root, port_id, "subsystems", old_name)
+            if os.path.islink(link):
+                os.unlink(link)
+        for nsid in os.listdir(os.path.join(old_subsystem, "namespaces")):
+            directory = os.path.join(old_subsystem, "namespaces", nsid)
+            write_if_changed(os.path.join(directory, "enable"), "0")
+            os.rmdir(directory)
+        for host in os.listdir(os.path.join(old_subsystem, "allowed_hosts")):
+            os.unlink(os.path.join(old_subsystem, "allowed_hosts", host))
+        os.rmdir(old_subsystem)
 
 state_payload = redact_sensitive(dict(payload))
 state_payload["lastApply"] = {"success": True, "applied": applied, "skipped": skipped}
@@ -6467,6 +6658,19 @@ action="${3:-}"
 payload="${4:-}"
 
 case "$command" in
+  configuration)
+    if [[ "$subcommand" == "preflight" && "$action" == "show" && -r "$payload" ]]; then
+      exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py preflight show "$payload"
+    fi
+    if [[ "$subcommand" == "capability" && "$action" == "show" ]]; then
+      exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py capability show
+    fi
+    if [[ "$subcommand" != "operation" || ! "$action" =~ ^(apply|show|resume|commit)$ || -z "$payload" || ! -r "$payload" ]]; then
+      emit_error "Invalid configuration transaction operation."
+      exit 2
+    fi
+    exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py operation "$action" "$payload"
+    ;;
   apply)
     payload="${2:-}"
     if [[ -z "$payload" || ! -r "$payload" ]]; then
@@ -6519,7 +6723,13 @@ case "$command" in
     fi
     ;;
   volume)
-    if [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
+    if [[ "$subcommand" == "prepare" && ( "$action" == "start" || "$action" == "status" || "$action" == "resume" ) ]]; then
+      if [[ -z "$payload" || ! -r "$payload" ]]; then
+        emit_error "A readable payload file is required for initial volume preparation."
+        exit 2
+      fi
+      python3 /usr/local/lib/ablestack-storage/volume_preparation.py "$action" "$payload"
+    elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."
         exit 2

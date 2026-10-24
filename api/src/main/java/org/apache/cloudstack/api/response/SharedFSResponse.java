@@ -35,6 +35,7 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the shared filesystem")
     private String id;
+    public String getId() { return id; }
 
     @SerializedName(ApiConstants.NAME)
     @Param(description = "name of the shared filesystem")
@@ -219,6 +220,39 @@ public class SharedFSResponse extends BaseResponseWithTagInformation implements 
     @SerializedName(ApiConstants.UTILIZATION)
     @Param(description = "the disk utilization")
     private String utilization;
+
+    @SerializedName("creationrequestid") @Param(description = "Owner-scoped initial creation request UUID")
+    private String creationRequestId;
+    @SerializedName("creationstage") @Param(description = "Durable initial allocation stage")
+    private String creationStage;
+    @SerializedName("backingmode") @Param(description = "NEW or EXISTING initial backing")
+    private String backingMode;
+    @SerializedName("expectedfilesystem") @Param(description = "Requested format expectation")
+    private String expectedFilesystem;
+    @SerializedName("observedfilesystem") @Param(description = "Filesystem verified with its UUID and volume identity")
+    private String observedFilesystem;
+    @SerializedName("creationjobid") @Param(description = "Latest initial preparation job UUID")
+    private String creationJobId;
+    @SerializedName("creationerrorcode") @Param(description = "Safe initial preparation error code")
+    private String creationErrorCode;
+    @SerializedName("preparation") @Param(description="Last observed initial DATA preparation snapshot")
+    private java.util.Map<String,Object> preparation;
+    public void setCreation(SharedFS sharedFS) {
+        if (sharedFS == null || sharedFS.getCreationContext() == null) return;
+        creationRequestId = sharedFS.getCreationRequestId();
+        try {
+            org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext c = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.read(sharedFS.getCreationContext());
+            if (c == null) return;
+            if (c.preparation != null) preparation = new com.google.gson.Gson().fromJson(c.preparation, java.util.Map.class);
+            creationStage = c.phase;
+            backingMode = c.existing ? "EXISTING" : "NEW";
+            creationJobId = c.lastJobUuid;
+            expectedFilesystem = c.expectedFilesystem; observedFilesystem = c.observedFilesystem; creationErrorCode = c.errorCode;
+        } catch (org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.InvalidJournalException e) {
+            creationStage = "CORRUPT";
+            creationErrorCode = org.apache.cloudstack.storage.sharedfs.SharedFSCreationContext.INVALID_JOURNAL;
+        }
+    }
 
     @Override
     public void setAccountName(String accountName) {

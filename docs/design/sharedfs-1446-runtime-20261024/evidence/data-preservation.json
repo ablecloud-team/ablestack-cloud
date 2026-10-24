@@ -1,0 +1,34 @@
+{
+  "kind": "readonly native data preservation after isolated probes",
+  "data": {
+    "nfs": {
+      "sha256": "d4aa35f7d126e31d0e98c254513a80d8b8528b0b6544a44ec0de1af6234855ba",
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o640",
+      "matchesExistingBaseline": true
+    },
+    "smb": {
+      "sha256": "4db09637a676b95f7008b98c34be71219dbee588e38d7de6f174da82eb4fd350",
+      "uid": 1001,
+      "gid": 1001,
+      "mode": "0o660",
+      "matchesExistingBaseline": true
+    },
+    "iscsi": {
+      "volumeUuid": "3024c2f0-a429-42fe-8bf8-5d74b50ac85f",
+      "sha256": "d332e77b715bf506247a502afcccb683e42a44feca3386730176c88fc997ecc8",
+      "offset": 1048576,
+      "length": 4096,
+      "matchesExistingBaseline": true
+    },
+    "nvme": {
+      "volumeUuid": "8afeba62-cd52-4586-881f-bd63c0ecb831",
+      "sha256": "6f8d94ea27fd3e27ba660aac444ed169ae50d0c8ff268558e9fabf397cf8877d",
+      "offset": 1048576,
+      "length": 4096,
+      "matchesExistingBaseline": true
+    }
+  },
+  "notLiveUpgradeAcceptance": true
+}

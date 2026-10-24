@@ -1,0 +1,86 @@
+{
+  "time": 1792728005.559477,
+  "sourceSha256": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+  "snapshotElapsed": 0.014068309999998974,
+  "state": {
+    "bootId": "6fd69d30-5a50-471b-9cfb-5cc36a52b220",
+    "createdAt": 1792727903.2469923,
+    "deadlineAt": 1792729823.41203,
+    "errorCode": null,
+    "formatCount": 1,
+    "formatDeadlineAt": 1792729823.41203,
+    "formatEverStarted": true,
+    "formatStartedAt": 1792727903.41203,
+    "heartbeatAt": 1792728000.7114868,
+    "operationId": "f4853fa6-7dbd-345b-8377-747618861a7c",
+    "phase": "FORMATTING",
+    "phaseStartedAt": 1792727903.41203,
+    "phaseTimeoutSeconds": 1920,
+    "reason": null,
+    "startedAt": 1792727903.2469923,
+    "status": "RUNNING",
+    "unit": "ablestack-sharedfs-prepare-f4853fa6-7dbd-345b-8377-747618861a7c.service",
+    "version": 1,
+    "volumeUuid": "f77ce7e2-956d-4b56-b6d0-7774c30d02e5",
+    "capabilityVersion": 1,
+    "observationAvailable": true,
+    "lastObservedAt": 1792728005.4770281,
+    "canResume": false,
+    "progresspercent": null,
+    "currentBootId": "6fd69d30-5a50-471b-9cfb-5cc36a52b220",
+    "blockedReason": "WORKER_RUNNING"
+  },
+  "calls": [
+    {
+      "argv": [
+        "systemctl",
+        "is-active",
+        "ablestack-sharedfs-prepare-f4853fa6-7dbd-345b-8377-747618861a7c.service"
+      ],
+      "elapsed": 0.004942008000000442
+    },
+    {
+      "argv": [
+        "lsblk",
+        "-b",
+        "-J",
+        "-o",
+        "NAME,PATH,TYPE,SERIAL,SIZE,MOUNTPOINT"
+      ],
+      "elapsed": 0.0027531880000140063
+    },
+    {
+      "argv": [
+        "findmnt",
+        "-n",
+        "-o",
+        "SOURCE",
+        "--mountpoint",
+        "/srv/ablestack-storage/volumes/f77ce7e2-956d-4b56-b6d0-7774c30d02e5"
+      ],
+      "elapsed": 0.0012398830000108774
+    },
+    {
+      "argv": [
+        "systemctl",
+        "is-active",
+        "ablestack-sharedfs-prepare-f4853fa6-7dbd-345b-8377-747618861a7c.service"
+      ],
+      "elapsed": 0.004202782000021443
+    }
+  ],
+  "mkfs": [
+    {
+      "ps": "   5170    5161     102 mkfs.xfs",
+      "syscall": "16 0x4 0x1277 0x7ffea49076d0 0x7fb2bfde8fe8 0x335be4fb5a 0x55ce717cd720 0x7ffea4907660 0x7fb2bfed8d6b\n",
+      "wchan": "submit_bio_wait"
+    }
+  ],
+  "intentBeforeAfter": {
+    "operationId": "f4853fa6-7dbd-345b-8377-747618861a7c",
+    "volumeUuid": "f77ce7e2-956d-4b56-b6d0-7774c30d02e5",
+    "formatCount": 1,
+    "formatStartedAt": 1792727903.41203
+  },
+  "journalFormatCountUnchanged": true
+}

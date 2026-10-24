@@ -1,0 +1,53 @@
+[
+  {
+    "domain": "i-2-103-VM",
+    "uuid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+    "macs": [
+      "02:0d:00:cc:00:3b"
+    ],
+    "disks": [
+      {
+        "file": "/mnt/glue-gfs/5d5ef65b-37bd-4939-8664-0071e0745ef9",
+        "device": "sda",
+        "serial": "5d5ef65b37bd49398664",
+        "inode": 5775920,
+        "filesystem_device": 64772,
+        "format": "QCOW2",
+        "qcow2_version": 3,
+        "virtual_size": 5242880000,
+        "backing": null
+      },
+      {
+        "file": "/mnt/glue-gfs/290f07e2-41c5-4892-b58a-fe30ea21b522",
+        "device": "sdb",
+        "serial": "290f07e241c54892b58a",
+        "inode": 4457473,
+        "filesystem_device": 64772,
+        "format": "QCOW2",
+        "qcow2_version": 3,
+        "virtual_size": 21474836480,
+        "backing": null
+      }
+    ]
+  },
+  {
+    "domain": "i-2-104-VM",
+    "uuid": "fd6ecae3-ef41-40c0-bfa9-acf88b67b6e5",
+    "macs": [
+      "02:0d:00:cc:00:3c"
+    ],
+    "disks": [
+      {
+        "file": "/mnt/glue-gfs/fa8a39ae-9ce0-4573-89b0-912edc0713a6",
+        "device": "sda",
+        "serial": "fa8a39ae9ce0457389b0",
+        "inode": 5285145,
+        "filesystem_device": 64772,
+        "format": "QCOW2",
+        "qcow2_version": 3,
+        "virtual_size": 107374182400,
+        "backing": null
+      }
+    ]
+  }
+]

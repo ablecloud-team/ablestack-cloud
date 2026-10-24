@@ -1,0 +1,12 @@
+{
+  "sharedfsRowsUnchanged": 12,
+  "newResources": 0,
+  "deletedResources": 0,
+  "managementPidJarUiUnchanged": true,
+  "guestHelperIdentityFstabFileUidGidModeUnchanged": true,
+  "protectedManagementFilesUnchanged": true,
+  "sourceGuestProbeUsedOnlySleepAndCapturedFormatCalls": true,
+  "hostClassMatchesCompiledSource": true,
+  "ready": 11,
+  "historicalErrorReservation": 1
+}

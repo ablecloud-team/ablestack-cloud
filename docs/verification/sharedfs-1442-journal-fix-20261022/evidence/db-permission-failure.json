@@ -1,0 +1,131 @@
+{
+  "rows": [
+    {
+      "id": "5fd41a4d-5778-4c09-911a-557d12b618ab",
+      "host": "10.10.13.3",
+      "kind": "sharedfs",
+      "name": "epic1438-1442-xfs-20261022-01",
+      "path": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "pool": 1,
+      "vmId": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+      "bytes": 21474836480,
+      "state": "Ready",
+      "domain": "i-2-109-VM",
+      "policy": "sparse",
+      "context": "{\"version\":1,\"existing\":true,\"fingerprint\":\"52043be83ce60185fc1b4697bb8aa82c825fb9119847bfe7bc0c938d78bfa55b\",\"volumeId\":199,\"networkId\":204,\"ownedVolumeIds\":[201],\"originalPoolId\":1,\"originalPath\":\"124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"originalSize\":21474836480,\"originalDiskOfferingId\":16,\"compute\":{},\"expectedFilesystem\":\"AUTO\",\"importMode\":\"MOUNT_EXISTING\",\"plannedVmUuid\":\"0685be9d-b958-3d2a-a9ef-9e53a7c9ba07\",\"phase\":\"READY\",\"observedFilesystem\":\"xfs\",\"filesystemUuid\":\"f6b2849b-3c7c-4bf2-9789-0df8a519028b\",\"mountPath\":\"/srv/ablestack-storage/volumes/124a8aa7-18d6-47cb-bc7a-188ff3dc79f6\",\"bootId\":\"9e053db4-d89e-4b55-9d32-08652e4216da\",\"lastJobUuid\":\"5e7015d4-8fca-4f28-9ebd-e95b728e021f\",\"cancelled\":false}",
+      "offering": 16,
+      "volumeId": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "requestId": "96b54dbf-eda7-4339-bbb5-77edb26a2bb2",
+      "validJson": true,
+      "filesystem": "XFS",
+      "vmNumericId": 109,
+      "contextBytes": 718
+    },
+    {
+      "id": "64305194-2694-4e90-9bb2-afe487891342",
+      "host": null,
+      "kind": "sharedfs",
+      "name": "epic1438-1442-existing-xfs-sfs-20261021-01",
+      "path": null,
+      "pool": null,
+      "vmId": null,
+      "bytes": null,
+      "state": "Error",
+      "domain": null,
+      "policy": null,
+      "context": "{\"version\":1,\"existing\":true,\"volumeId\":199,\"ownedVolumeIds\":[],\"compute\":{},\"plannedVmUuid\":\"36fb3632-89f2-3a16-9fe2-76984f763984\",\"phase\":\"CANCELLED\",\"errorCode\":\"CREATION_JOURNAL_INVALID\",\"cancelled\":true}",
+      "offering": null,
+      "volumeId": null,
+      "requestId": "1d57fe5e-ea94-48fa-9d7c-4a04c2dca9ae",
+      "validJson": true,
+      "filesystem": "AUTO",
+      "vmNumericId": null,
+      "contextBytes": 208
+    },
+    {
+      "kind": "volume",
+      "name": "epic1438-1442-existing-xfs-20261021-01",
+      "path": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "pool": 1,
+      "type": "DATADISK",
+      "uuid": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+      "bytes": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "removed": null,
+      "offering": 16,
+      "vmNumericId": 109
+    },
+    {
+      "kind": "volume",
+      "name": "epic1438-1442-existing-ext4-20261021-01",
+      "path": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "pool": 1,
+      "type": "DATADISK",
+      "uuid": "213c0fe3-30f4-4412-b433-52c23e416393",
+      "bytes": 21474836480,
+      "state": "Ready",
+      "policy": "sparse",
+      "removed": null,
+      "offering": 16,
+      "vmNumericId": null
+    },
+    {
+      "kind": "volume",
+      "name": "ROOT-109",
+      "path": "ae63d90a-7996-4f8d-80e0-b9b92b852f99",
+      "pool": 1,
+      "type": "ROOT",
+      "uuid": "ae63d90a-7996-4f8d-80e0-b9b92b852f99",
+      "bytes": 5242880000,
+      "state": "Ready",
+      "policy": "sparse",
+      "removed": null,
+      "offering": 21,
+      "vmNumericId": 109
+    },
+    {
+      "kind": "baseline",
+      "uuid": "7268de5b-2f68-4a0c-93c1-499a462a13c3",
+      "vmId": 101,
+      "state": "Ready",
+      "volumeId": 185
+    },
+    {
+      "kind": "baseline",
+      "uuid": "e2d9ea22-2809-4ca0-ae7e-87ab4dce5e24",
+      "vmId": 102,
+      "state": "Ready",
+      "volumeId": 187
+    },
+    {
+      "kind": "baseline",
+      "uuid": "d9d58c22-50c4-4b38-8d46-33081c812f34",
+      "vmId": 103,
+      "state": "Ready",
+      "volumeId": 190
+    },
+    {
+      "kind": "baseline",
+      "uuid": "39a07f24-cb99-4784-aa2d-c45b858290c4",
+      "vmId": 105,
+      "state": "Ready",
+      "volumeId": 193
+    },
+    {
+      "kind": "baseline",
+      "uuid": "2b0cd79a-243c-4fba-bae2-7fefe06e54e8",
+      "vmId": 106,
+      "state": "Ready",
+      "volumeId": 195
+    },
+    {
+      "kind": "baseline",
+      "uuid": "f5ac9a11-55e0-4a97-8b2e-100e131ce7a0",
+      "vmId": 107,
+      "state": "Ready",
+      "volumeId": 197
+    }
+  ],
+  "protectedFilesUnchanged": true
+}

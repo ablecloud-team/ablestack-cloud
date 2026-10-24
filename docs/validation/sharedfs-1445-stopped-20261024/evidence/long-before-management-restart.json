@@ -1,0 +1,24 @@
+{
+  "launches": [
+    {
+      "private": "/var/lib/ablestack-storage/configuration-operations/3730ab80-bd6c-4e33-b2db-13b1a55ee691/4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "operation": "nfs export apply",
+      "delay": 310,
+      "time": 1792837805.7289648
+    }
+  ],
+  "progress": {
+    "cancellationSupported": false,
+    "child": {
+      "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+      "pid": 108426,
+      "start": "1129799"
+    },
+    "heartbeatAt": 1792837840.7920086,
+    "operation": "nfs export apply",
+    "softDeadlineAt": 1792838105.7309597,
+    "startedAt": 1792837805.7309597
+  },
+  "workerActive": true,
+  "elapsed": 36.45114254951477
+}

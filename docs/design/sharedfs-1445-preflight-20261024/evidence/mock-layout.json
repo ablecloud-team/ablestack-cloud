@@ -1,0 +1,36 @@
+{
+  "mockBefore": {
+    ".ant-modal-body": {
+      "height": 533,
+      "scrollTop": 0,
+      "y": 89
+    },
+    ".ant-modal-footer": {
+      "height": 65,
+      "scrollTop": 0,
+      "y": 622
+    },
+    ".ant-modal-header": {
+      "height": 56,
+      "scrollTop": 0,
+      "y": 33
+    }
+  },
+  "mockAfter": {
+    ".ant-modal-body": {
+      "height": 533,
+      "scrollTop": 156,
+      "y": 89
+    },
+    ".ant-modal-footer": {
+      "height": 65,
+      "scrollTop": 0,
+      "y": 622
+    },
+    ".ant-modal-header": {
+      "height": 56,
+      "scrollTop": 0,
+      "y": 33
+    }
+  }
+}

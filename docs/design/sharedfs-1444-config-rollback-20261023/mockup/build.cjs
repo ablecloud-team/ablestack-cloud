@@ -1,0 +1,1 @@
+const req=require('module').createRequire('/root/work/ablestack-cloud/ui/package.json');req('webpack')(require('./webpack.config.cjs'),(e,s)=>{if(e){console.error(e);process.exit(1)}console.log(s.toString({colors:false,modules:false}));process.exit(s.hasErrors()?1:0)});

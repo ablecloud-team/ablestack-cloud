@@ -33,7 +33,7 @@ function scope (vm, routeKey) {
 }
 
 // Explicit adapters only: never discover/invoke APIs from a table or API metadata.
-export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => vm.$route?.fullPath } = {}) {
+export function listRefreshMixin (methods, { interval = 10000, active = () => true, select = () => methods, reuseArgs = false, routeKey = vm => vm.$route?.fullPath, requestScope = vm => scope(vm, routeKey) } = {}) {
   return {
     data: () => ({ listRefreshing: 0, listRefreshFailed: false, listLastUpdated: null }),
     created () {
@@ -42,7 +42,7 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
       methods.forEach(name => {
         const original = this[name]
         this[name] = (...args) => {
-          const key = scope(this, routeKey)
+          const key = requestScope(this)
           const previous = this.listRefreshRequests.get(name)
           if (previous?.pending && previous.key === key) return previous.promise
           const request = { key, args, pending: true, loaded: previous?.loaded && previous.key === key }
@@ -54,7 +54,7 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
             if (this.isListRequestCurrent(name, request) && !request.failed && result?.then) {
               request.loaded = true
               this.listLastUpdated = Date.now()
-              this.listRefreshFailed = Array.from(this.listRefreshRequests.values()).some(item => item.failed && item.key === scope(this, routeKey))
+              this.listRefreshFailed = Array.from(this.listRefreshRequests.values()).some(item => item.failed && item.key === requestScope(this))
             }
             return value
           }).finally(() => {
@@ -81,14 +81,14 @@ export function listRefreshMixin (methods, { interval = 10000, active = () => tr
     },
     methods: {
       listRowKey,
-      listRefreshScope () { return scope(this, routeKey) },
+      listRefreshScope () { return requestScope(this) },
       listRequestToken (name) {
         const request = this.listRefreshRequests.get(name)
-        request.key = scope(this, routeKey)
+        request.key = requestScope(this)
         return request
       },
       isListRequestCurrent (name, token) {
-        return !this.listRefreshDisposed && token === this.listRefreshRequests.get(name) && token.key === scope(this, routeKey)
+        return !this.listRefreshDisposed && token === this.listRefreshRequests.get(name) && token.key === requestScope(this)
       }
     }
   }

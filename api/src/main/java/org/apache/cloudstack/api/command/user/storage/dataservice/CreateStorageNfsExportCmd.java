@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import org.apache.cloudstack.acl.RoleType;
 import org.apache.cloudstack.api.APICommand;
 import org.apache.cloudstack.api.ApiConstants;
-import org.apache.cloudstack.api.BaseAsyncCmd;
 import org.apache.cloudstack.api.Parameter;
 import org.apache.cloudstack.api.ServerApiException;
 import org.apache.cloudstack.api.ApiErrorCode;
@@ -39,7 +38,7 @@ import org.apache.cloudstack.storage.dataservice.StorageService;
         responseHasSensitiveInfo = false,
         since = "4.21.0",
         authorized = {RoleType.Admin, RoleType.ResourceAdmin, RoleType.DomainAdmin, RoleType.User})
-public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
+public class CreateStorageNfsExportCmd extends BaseStorageServiceConfigurationCmd implements UserCmd {
     @Inject
     StorageService storageService;
 
@@ -125,6 +124,12 @@ public class CreateStorageNfsExportCmd extends BaseAsyncCmd implements UserCmd {
     @Parameter(name = "deferapply", type = CommandType.BOOLEAN,
             description = "defer applying the NFS desired state until a later API call completes the initial export policy")
     private Boolean deferApply;
+
+    @Parameter(name = "initialcreationrequestid", type = CommandType.STRING,
+            description = "Original SharedFS creation UUID, only for its initial NFS export on an imported primary volume")
+    private String initialCreationRequestId;
+
+    public String getInitialCreationRequestId() { return initialCreationRequestId; }
 
     public Long getInstanceId() {
         return instanceId;

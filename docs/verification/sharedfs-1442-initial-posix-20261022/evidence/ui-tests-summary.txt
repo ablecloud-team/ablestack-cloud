@@ -1,0 +1,28 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/views/storage/SharedFSBacking.spec.js (9.126s)
+PASS tests/unit/views/storage/SharedFSOffering.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "AFormItem" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "AInputNumber" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "ARow" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "ACol" has already been registered in target app.
+
+PASS tests/unit/views/storage/CreateSharedFS.spec.js
+PASS tests/unit/views/storage/SharedFSLocale.spec.js
+
+Test Suites: 4 passed, 4 total
+Tests:       41 passed, 41 total
+Snapshots:   0 total
+Time:        18.788s
+Ran all test suites within paths "tests/unit/views/storage/SharedFSBacking.spec.js", "tests/unit/views/storage/SharedFSOffering.spec.js", "tests/unit/views/storage/CreateSharedFS.spec.js", "tests/unit/views/storage/SharedFSLocale.spec.js".

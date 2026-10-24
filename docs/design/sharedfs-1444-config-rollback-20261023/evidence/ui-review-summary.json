@@ -1,0 +1,65 @@
+{
+  "designOnly": true,
+  "viewport": {
+    "h": 720,
+    "w": 1280
+  },
+  "sampledContrast": {
+    "dark": {
+      "minimumSampledTextContrast": 5.192060987927794,
+      "viewport": {
+        "h": 720,
+        "w": 1280
+      },
+      "horizontalOverflow": false
+    },
+    "light": {
+      "minimumSampledTextContrast": 5.192060987927794,
+      "viewport": {
+        "h": 720,
+        "w": 1280
+      },
+      "horizontalOverflow": false
+    },
+    "recovery": {
+      "minimumSampledTextContrast": 7.128935659391724,
+      "viewport": {
+        "h": 720,
+        "w": 1280
+      },
+      "horizontalOverflow": false
+    }
+  },
+  "headerYBeforeAfter": [
+    33,
+    33
+  ],
+  "footerYBeforeAfter": [
+    622,
+    622
+  ],
+  "bodyScrollTop": 1193,
+  "toolbarButtonHeight": 32,
+  "toolbarGaps": [
+    8.0,
+    8.0,
+    8.0
+  ],
+  "primaryFirstAndWideLastInLeftGroup": true,
+  "diagnostic": {
+    "title": "\uc124\uc815 \uc791\uc5c5 \uc9c4\ub2e8\uc124\uacc4 \ubaa9\uc5c5",
+    "nameReadonly": true,
+    "confirmCount": 0
+  },
+  "recovery": {
+    "recoveryApplyDisabled": true,
+    "recoveryUpdateEnabled": true,
+    "recoveryMinContrast": 7.128935659391724
+  },
+  "pending": {
+    "confirmDisabled": true,
+    "updateEnabled": true,
+    "closeButtonCount": 0
+  },
+  "toolbarPrimaryForegroundContrast": 5.192060987927794
+}
