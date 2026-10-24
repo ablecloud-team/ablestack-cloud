@@ -937,15 +937,6 @@ export default {
           show: (record) => { return ['Stopped', 'Ready', 'Detached'].includes(record.state) }
         },
         {
-          api: 'getStorageServiceRuntimeUpgradeCapabilities',
-          icon: 'cloud-upload-outlined',
-          label: 'label.storage.service.runtime.upgrade',
-          dataView: true,
-          popup: true,
-          component: shallowRef(defineAsyncComponent(() => import('@/views/storage/StorageServiceRuntimeUpgrade.vue'))),
-          show: (record) => { return ['Ready', 'Stopped'].includes(record.state) }
-        },
-        {
           api: 'changeSharedFileSystemServiceOffering',
           icon: 'arrows-alt-outlined',
           docHelp: 'adminguide/storage.html#lifecycle-operations',

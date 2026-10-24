@@ -2,8 +2,13 @@
 
 set -euo pipefail
 
-STORAGECTL="${ABLESTACK_STORAGECTL:-/usr/local/bin/ablestack-storagectl}"
-MONITOR="${ABLESTACK_STORAGE_MONITOR:-/usr/local/bin/ablestack-storage-monitor}"
+runtime_release="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+STORAGECTL="${ABLESTACK_STORAGECTL:-${runtime_release}/ablestack-storagectl}"
+MONITOR="${ABLESTACK_STORAGE_MONITOR:-${runtime_release}/ablestack-storage-monitor}"
+exec 9>/run/lock/ablestack-storage-boot-reconcile.lock
+flock -n 9 || exit 1
+
 DESIRED_STATE_DIR="${ABLESTACK_STORAGE_DESIRED_STATE_DIR:-/etc/ablestack-storage/desired-state}"
 NFS_PAYLOAD="${ABLESTACK_STORAGE_NFS_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/nfs-export-apply.json}"
 SMB_PAYLOAD="${ABLESTACK_STORAGE_SMB_DESIRED_STATE_FILE:-${DESIRED_STATE_DIR}/smb-share-apply.json}"

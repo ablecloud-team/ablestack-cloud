@@ -20,6 +20,12 @@ package com.cloud.agent.api;
 public class StorageServiceRuntimeHostCommand extends Command {
     public static final int MAX_RAW_CHUNK_BYTES = 48 * 1024;
 
+    private String fileSha256;
+    private long totalSize;
+    public void setFileMetadata(String hash, long size) { fileSha256=hash; totalSize=size; }
+    public String getFileSha256() { return fileSha256; }
+    public long getTotalSize() { return totalSize; }
+
     private String vmName;
     private StorageServiceRuntimeOperation operation;
     private String transactionId;

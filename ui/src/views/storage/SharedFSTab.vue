@@ -1316,6 +1316,9 @@
         </div>
       </a-tab-pane>
 
+      <a-tab-pane v-if="'getStorageServiceRuntimeUpgradeCapabilities' in $store.getters.apis" tab="런타임" key="runtime">
+        <StorageServiceRuntimeUpgrade v-if="currentTab === 'runtime'" :resource="resource" />
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis"><NicsTab :resource="vm"/></a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="vmstats"><StatsTab :resource="vm"/></a-tab-pane>
@@ -2293,6 +2296,7 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
+import StorageServiceRuntimeUpgrade from '@/views/storage/StorageServiceRuntimeUpgrade'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
@@ -2505,6 +2509,7 @@ const CapacityInput = {
 export default {
   name: 'SharedFSTab',
   components: {
+    StorageServiceRuntimeUpgrade,
     MoldDialog,
     MoldDialogActions,
     StorageConfigurationOperationPanel,

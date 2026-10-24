@@ -43,8 +43,8 @@ on:
         type: string
     secrets:
       storage_runtime_signing_private_key:
-        description: Optional Ed25519 private key for release runtime bundles
-        required: false
+        description: Stable protected Ed25519 private key for published runtime bundles
+        required: true
 
 permissions:
   contents: read
@@ -82,8 +82,8 @@ jobs:
           if [ -n "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" ]; then
             printf '%s' "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY" > "$private_key"
           else
-            openssl genpkey -algorithm ED25519 -out "$private_key"
-            echo "::warning::Using an ephemeral CI key; configure storage_runtime_signing_private_key for release publication"
+            echo "::error::Stable storage_runtime_signing_private_key is required; refusing an ephemeral release key"
+            exit 1
           fi
           chmod 600 "$private_key"
           openssl pkey -in "$private_key" -pubout \
@@ -177,6 +177,26 @@ jobs:
           qemu-system-x86_64 --version
           qemu-img --version
 
+      - name: Build signed Storage Service runtime bundle
+        env:
+          ABLESTACK_STORAGE_RUNTIME_BUILD_TIME: ${{ inputs.release_display_version }}
+        run: |
+          export ABLESTACK_STORAGE_RUNTIME_BUILD_COMMIT="$(git rev-parse HEAD)"
+          runtime_version="${SYSTEMVM_VERSION}-${SYSTEMVM_BUILD_NUMBER}"
+          runtime_dir="dist/systemvm-kvm/release/storage-runtime"
+          tools/build/build-storage-runtime-bundle.sh \
+            --version "$runtime_version" \
+            --private-key "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE" \
+            --key-id "$STORAGE_RUNTIME_SIGNING_KEY_ID" \
+            --output-dir "$runtime_dir"
+          (cd "$runtime_dir" && sha256sum -c SHA256SUMS)
+          openssl pkeyutl -verify -pubin \
+            -inkey "systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" \
+            -sigfile "$runtime_dir/manifest.sig" -rawin -in "$runtime_dir/manifest.json"
+          install -d -m 0755 systemvm/debian/etc/ablestack-storage/runtime-default
+          install -m 0644 "$runtime_dir/manifest.json" systemvm/debian/etc/ablestack-storage/runtime-default/manifest.json
+          install -m 0644 "$runtime_dir/manifest.sig" systemvm/debian/etc/ablestack-storage/runtime-default/manifest.sig
+
       - name: Build KVM System VM template
         run: |
           mkdir -p dist/systemvm-kvm
@@ -264,22 +284,10 @@ jobs:
             echo "- Image: \`$image\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Build signed Storage Service runtime bundle
-        env:
-          ABLESTACK_STORAGE_RUNTIME_BUILD_COMMIT: ${{ github.sha }}
-          ABLESTACK_STORAGE_RUNTIME_BUILD_TIME: ${{ inputs.release_display_version }}
+      - name: Stage the same signed runtime payload
         run: |
           runtime_version="${SYSTEMVM_VERSION}-${SYSTEMVM_BUILD_NUMBER}"
           runtime_dir="dist/systemvm-kvm/release/storage-runtime"
-          tools/build/build-storage-runtime-bundle.sh \
-            --version "$runtime_version" \
-            --private-key "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE" \
-            --key-id "$STORAGE_RUNTIME_SIGNING_KEY_ID" \
-            --output-dir "$runtime_dir"
-          (cd "$runtime_dir" && sha256sum -c SHA256SUMS)
-          openssl pkeyutl -verify -pubin \
-            -inkey "systemvm/debian/etc/ablestack-storage/runtime-trusted-keys/${STORAGE_RUNTIME_SIGNING_KEY_ID}.pem" \
-            -sigfile "$runtime_dir/manifest.sig" -rawin -in "$runtime_dir/manifest.json"
           runtime_prefix="ablestack-storage-runtime-${runtime_version}"
           mv "$runtime_dir/manifest.json" "$runtime_dir/${runtime_prefix}.manifest.json"
           mv "$runtime_dir/manifest.sig" "$runtime_dir/${runtime_prefix}.manifest.sig"
@@ -309,3 +317,10 @@ jobs:
           path: |
             dist/systemvm-kvm/release/**
             dist/systemvm-kvm/systemvm-kvm-build.log
+
+      - name: Remove temporary signing material
+        if: always()
+        run: |
+          if [ -n "${STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE:-}" ]; then
+            rm -f -- "$STORAGE_RUNTIME_SIGNING_PRIVATE_KEY_FILE"
+          fi

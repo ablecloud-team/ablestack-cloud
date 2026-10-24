@@ -78,6 +78,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Inject private StorageServiceRuntimeHostDispatcher runtimeDispatcher;
     @Inject private StorageServiceGuestCommandDispatcher guestCommandDispatcher;
     @Inject private VMInstanceDao vmInstanceDao;
+    @Inject private org.apache.cloudstack.framework.jobs.dao.AsyncJobDao asyncJobDao;
 
     @Override
     public StorageServiceRuntimeBundleResponse register(final RegisterStorageServiceRuntimeBundleCmd cmd) {
@@ -145,6 +146,9 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             response.setRuntimeAbiVersion(stringValue(result, "runtimeAbiVersion"));
             response.setDesiredStateSchemaVersion(stringValue(result, "desiredStateSchemaVersion"));
             response.setEntrypointsManaged(booleanValue(result, "entrypointsManaged"));
+            response.setUpdaterVersion(result.has("updaterVersion") ? result.get("updaterVersion").getAsInt() : 1);
+            response.setHostTransportVersion(result.has("hostTransportVersion") ? result.get("hostTransportVersion").getAsInt() : 1);
+            response.setIntegrityJson(result.has("integrity") ? result.get("integrity").toString() : "{}");
             response.setDetails("Runtime updater is available");
         } catch (final RuntimeException error) {
             response.setAvailable(false);
@@ -158,18 +162,37 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     public StorageServiceRuntimeUpgradeResponse preflight(final PreflightStorageServiceRuntimeUpgradeCmd cmd) {
         final StorageServiceInstanceVO instance = requireInstance(cmd.getSharedFileSystemId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(cmd.getBundleId());
+        if (instance.getCurrentRuntimeBundleId()!=null && instance.getCurrentRuntimeBundleId().equals(bundle.getId()))
+            throw new CloudRuntimeException("RUNTIME_ALREADY_CURRENT");
         if (bundle.getServiceImpact() != StorageServiceRuntimeBundleVO.ServiceImpact.NONE) {
             throw new CloudRuntimeException("Runtime bundle requires SystemVM template maintenance: " + bundle.getServiceImpact());
         }
-        final StorageServiceRuntimeUpgradeVO active = upgradeDao.findActiveByInstanceId(instance.getId());
-        if (active != null) {
-            throw new CloudRuntimeException("Another Storage Service runtime upgrade is active: " + active.getUuid());
-        }
-        final String transactionId = "runtime-" + UUID.randomUUID().toString();
-        final StorageServiceRuntimeUpgradeVO upgrade = upgradeDao.persist(new StorageServiceRuntimeUpgradeVO(
-                instance.getId(), bundle.getId(), instance.getCurrentRuntimeBundleId(), transactionId,
-                CallContext.current().getCallingUserId()));
+        final String transactionId = cmd.getRequestId() == null ? "runtime-" + UUID.randomUUID() : cmd.getRequestId();
+        requireIdentifier(transactionId, "request ID");
+        final boolean[] created = {false};
+        final StorageServiceRuntimeUpgradeVO upgrade = com.cloud.utils.db.Transaction.execute(
+                (com.cloud.utils.db.TransactionCallback<StorageServiceRuntimeUpgradeVO>) ignored -> {
+            instanceDao.lockRow(instance.getId(), true);
+            final StorageServiceRuntimeUpgradeVO same = upgradeDao.findByTransactionId(transactionId);
+            if (same != null) {
+                if (same.getInstanceId()!=instance.getId() || same.getBundleId()!=bundle.getId())
+                    throw new CloudRuntimeException("Runtime request ID conflicts with an existing request");
+                return same;
+            }
+            final StorageServiceRuntimeUpgradeVO active = upgradeDao.findActiveByInstanceId(instance.getId());
+            if (active != null) throw new CloudRuntimeException("Another runtime operation is active: " + active.getUuid());
+            created[0]=true;
+            return upgradeDao.persist(new StorageServiceRuntimeUpgradeVO(instance.getId(), bundle.getId(),
+                    instance.getCurrentRuntimeBundleId(), transactionId, CallContext.current().getCallingUserId()));
+        });
+        if (!created[0]) return upgradeResponse(upgrade);
         CallContext.current().setEventResourceId(upgrade.getId());
+        JsonObject preparationOwner=new JsonObject();
+        org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext context=
+                org.apache.cloudstack.framework.jobs.AsyncJobExecutionContext.getCurrentExecutionContext();
+        if (context!=null && context.getJob()!=null) preparationOwner.addProperty("originalJobId",context.getJob().getId());
+        upgrade.setPreflightJson(preparationOwner.toString());
+        upgradeDao.update(upgrade.getId(),upgrade);
         try {
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "DOWNLOADING", 5);
             final byte[] archive = download(bundle.getArtifactUrl(), MAX_BUNDLE_BYTES);
@@ -194,7 +217,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             transfer(instance, transactionId, StorageServiceRuntimeFileType.MANIFEST, null, manifest, 40, 48, upgrade);
             transfer(instance, transactionId, StorageServiceRuntimeFileType.SIGNATURE, null, signature, 48, 52, upgrade);
             invoke(instance, StorageServiceRuntimeOperation.FINALIZE, transactionId, request(upgrade, bundle));
-            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 55);
+            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING_BUNDLE", 55);
             invoke(instance, StorageServiceRuntimeOperation.VERIFY, transactionId, request(upgrade, bundle));
             final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.PREFLIGHT, transactionId, request(upgrade, bundle));
             upgrade.setPreflightJson(result.toString());
@@ -209,73 +232,137 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
     @Override
     public StorageServiceRuntimeUpgradeResponse upgrade(final UpgradeStorageServiceRuntimeCmd cmd) {
         final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
-        if (upgrade.getState() != StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY) {
-            throw new CloudRuntimeException("Runtime upgrade is not ready for activation");
-        }
+        if (upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.COMPLETE ||
+                upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) return upgradeResponse(upgrade);
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
-        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
-            StorageServiceInstanceVO locked = instanceDao.lockRow(instance.getId(), true);
-            if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
-            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ACTIVATING", 70);
-            return true;
-        });
+        boolean activate = upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY;
+        if (!activate && upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING &&
+                !(upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.RUNNING &&
+                java.util.Arrays.asList("ACTIVATING","VERIFYING").contains(upgrade.getPhase())))
+            throw new CloudRuntimeException("Runtime upgrade is not ready for activation or observation");
+        reserveWriter(instance,upgrade,"ACTIVATING");
         try {
-            final JsonObject activated = invoke(instance, StorageServiceRuntimeOperation.ACTIVATE,
-                    upgrade.getTransactionId(), request(upgrade, bundle));
-            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
-            final StorageServiceGuestCommandResult health = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
-                    instance.getVmId(), "health", "", StorageServiceInstance.StorageServiceCommandTimeout.value(), Collections.emptySet()));
-            if (!health.isSuccess()) {
-                final JsonObject rolledBack = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
-                        upgrade.getTransactionId(), request(upgrade, bundle));
-                upgrade.setRollbackResultJson(rolledBack.toString());
-                update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
-                throw new CloudRuntimeException("Runtime activation health verification failed and previous runtime was restored: " + health.getDetails());
+            JsonObject activated = activate ? invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,
+                    upgrade.getTransactionId(),request(upgrade,bundle)) :
+                    invoke(instance,StorageServiceRuntimeOperation.STATUS,upgrade.getTransactionId(),request(upgrade,bundle));
+            if (!activate && activated.has("workerActive") && activated.get("workerActive").getAsBoolean()) {
+                observationPending(upgrade,new CloudRuntimeException("Native worker is still active"));
+                return upgradeResponse(upgrade);
             }
-            final Long previous = instance.getCurrentRuntimeBundleId();
-            instance.setPreviousRuntimeBundleId(previous);
+            String phase=stringValue(activated,"phase");
+            if ("ROLLED_BACK".equals(phase)) return finishRollback(instance,upgrade,activated);
+            if ("ROLLING_BACK".equals(phase)) return finishRollback(instance,upgrade,invoke(instance,
+                    StorageServiceRuntimeOperation.ROLLBACK,upgrade.getTransactionId(),request(upgrade,bundle)));
+            if ("REJECTED".equals(phase)) { fail(upgrade,new CloudRuntimeException("Native activation rejected before pointer switch")); return upgradeResponse(upgrade); }
+            if ("PREFLIGHT_OK".equals(phase)) {
+                update(upgrade,StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY,"PREFLIGHT_OK",60);
+                return upgradeResponse(upgrade);
+            }
+            if (!java.util.Arrays.asList("ACTIVATED","COMPLETE").contains(phase))
+                throw new CloudRuntimeException("Runtime native phase remains uncertain: " + phase);
+            update(upgrade,StorageServiceRuntimeUpgradeVO.State.RUNNING,"VERIFYING",85);
+            StorageServiceGuestCommandResult health=guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(
+                    instance.getVmId(),"health","",timeout(),Collections.emptySet()));
+            if (!health.isSuccess()) {
+                JsonObject rollback=request(upgrade,bundle);
+                rollback.addProperty("restoreConfiguration",true);
+                JsonObject result=invoke(instance,StorageServiceRuntimeOperation.ROLLBACK,upgrade.getTransactionId(),rollback);
+                finishRollback(instance,upgrade,result);
+                throw new CloudRuntimeException("Runtime health failed; previous code and configuration restored: " + health.getDetails());
+            }
+            JsonObject confirmation=request(upgrade,bundle);
+            confirmation.addProperty("confirmActivation",true);
+            JsonObject confirmed=invoke(instance,StorageServiceRuntimeOperation.ACTIVATE,upgrade.getTransactionId(),confirmation);
+            instance.setPreviousRuntimeBundleId(upgrade.getPreviousBundleId());
             instance.setCurrentRuntimeBundleId(bundle.getId());
-            instance.setRuntimeState("VERIFIED");
-            instance.setRuntimeVerifiedAt(new Date());
-            instanceDao.update(instance.getId(), instance);
-            final JsonObject verification = new JsonObject();
-            verification.add("activation", activated);
-            verification.addProperty("healthSuccess", true);
-            verification.addProperty("healthResult", health.getResultJson());
+            instance.setRuntimeState("VERIFIED");instance.setRuntimeVerifiedAt(new Date());
+            instanceDao.update(instance.getId(),instance);
+            JsonObject verification=new JsonObject();
+            verification.add("activation",confirmed);
+            verification.addProperty("healthSuccess",true);
             upgrade.setVerificationJson(verification.toString());
-            upgrade.setCompleted(new Date());
-            update(upgrade, StorageServiceRuntimeUpgradeVO.State.COMPLETE, "COMPLETE", 100);
+            upgrade.setErrorCode(null);upgrade.setErrorMessage(null);upgrade.setCompleted(new Date());
+            update(upgrade,StorageServiceRuntimeUpgradeVO.State.COMPLETE,"COMPLETE",100);
             return upgradeResponse(upgrade);
-        } catch (final RuntimeException error) {
-            if (upgrade.getState() != StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) fail(upgrade, error);
+        } catch (RuntimeException error) {
+            if (error instanceof NativeRuntimeRejected && upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) {
+                try {
+                    JsonObject nativeState=invoke(instance,StorageServiceRuntimeOperation.STATUS,upgrade.getTransactionId(),request(upgrade,bundle));
+                    String nativePhase=stringValue(nativeState,"phase");
+                    if ("ACTIVATED".equals(nativePhase) || "ACTIVATING".equals(nativePhase)) {
+                        JsonObject restore=request(upgrade,bundle);restore.addProperty("restoreConfiguration",true);
+                        finishRollback(instance,upgrade,invoke(instance,StorageServiceRuntimeOperation.ROLLBACK,upgrade.getTransactionId(),restore));
+                    } else if ("ROLLED_BACK".equals(nativePhase)) finishRollback(instance,upgrade,nativeState);
+                    else if ("PREFLIGHT_OK".equals(nativePhase) || "REJECTED".equals(nativePhase)) fail(upgrade,error);
+                    else observationPending(upgrade,error);
+                } catch (RuntimeException observationError) { observationPending(upgrade,observationError); }
+            } else if (upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) observationPending(upgrade,error);
+            if (upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) {
+                upgrade.setErrorCode("ACTIVATION_REJECTED_ROLLED_BACK");
+                upgrade.setErrorMessage(error.getMessage()==null?"Runtime verification failed":error.getMessage().substring(0,Math.min(1024,error.getMessage().length())));
+                upgradeDao.update(upgrade.getId(),upgrade);
+            }
             throw error;
         }
     }
 
-    @Override
-    public StorageServiceRuntimeUpgradeResponse rollback(final RollbackStorageServiceRuntimeUpgradeCmd cmd) {
-        final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
-        final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
-        final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
+    private void reserveWriter(StorageServiceInstanceVO instance,StorageServiceRuntimeUpgradeVO upgrade,String phase) {
         com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
-            StorageServiceInstanceVO locked = instanceDao.lockRow(instance.getId(), true);
+            StorageServiceInstanceVO locked=instanceDao.lockRow(instance.getId(),true);
             if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
-            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ROLLING_BACK", 70);
+            StorageServiceRuntimeUpgradeVO other=upgradeDao.findActiveByInstanceId(instance.getId());
+            if (other!=null && other.getId()!=upgrade.getId()) throw new CloudRuntimeException("RUNTIME_WRITER_ACTIVE");
+            update(upgrade,StorageServiceRuntimeUpgradeVO.State.RUNNING,phase,70);
             return true;
         });
-        final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
-                upgrade.getTransactionId(), request(upgrade, bundle));
-        final Long current = instance.getCurrentRuntimeBundleId();
-        instance.setCurrentRuntimeBundleId(instance.getPreviousRuntimeBundleId());
-        instance.setPreviousRuntimeBundleId(current);
-        instance.setRuntimeState("ROLLED_BACK");
-        instance.setRuntimeVerifiedAt(new Date());
-        instanceDao.update(instance.getId(), instance);
-        upgrade.setRollbackResultJson(result.toString());
-        upgrade.setCompleted(new Date());
-        update(upgrade, StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK, "ROLLED_BACK", 100);
+    }
+
+    private void observationPending(StorageServiceRuntimeUpgradeVO upgrade,RuntimeException error) {
+        upgrade.setErrorCode("RUNTIME_OBSERVATION_PENDING");
+        upgrade.setErrorMessage("Native result not confirmed; observe the same operation before any new change");
+        update(upgrade,StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING,"OBSERVATION_PENDING",
+                upgrade.getProgress()==null?70:upgrade.getProgress());
+    }
+
+    private StorageServiceRuntimeUpgradeResponse finishRollback(StorageServiceInstanceVO instance,
+            StorageServiceRuntimeUpgradeVO upgrade,JsonObject result) {
+        String version=stringValue(result,"currentVersion");
+        StorageServiceRuntimeBundleVO actual=version==null?null:bundleDao.findByVersion(version);
+        JsonObject preflight=upgrade.getPreflightJson()==null?new JsonObject():JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
+        if (actual==null && !(upgrade.getPreviousBundleId()==null && version!=null &&
+                version.equals(stringValue(preflight,"previousVersion")) &&
+                java.util.Arrays.asList("template-baseline","verified-baseline").contains(stringValue(result,"currentOrigin"))))
+            throw new CloudRuntimeException("Native rollback version has no verified template baseline mapping");
+        instance.setCurrentRuntimeBundleId(actual==null?null:actual.getId());
+        instance.setPreviousRuntimeBundleId(upgrade.getBundleId());
+        instance.setRuntimeState("ROLLED_BACK");instance.setRuntimeVerifiedAt(new Date());
+        instanceDao.update(instance.getId(),instance);
+        upgrade.setRollbackResultJson(result.toString());upgrade.setCompleted(new Date());
+        upgrade.setErrorCode(null);upgrade.setErrorMessage(null);
+        update(upgrade,StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK,"ROLLED_BACK",100);
         return upgradeResponse(upgrade);
+    }
+
+    @Override
+    public StorageServiceRuntimeUpgradeResponse rollback(final RollbackStorageServiceRuntimeUpgradeCmd cmd) {
+        StorageServiceRuntimeUpgradeVO upgrade=requireUpgrade(cmd.getUpgradeId());
+        if (upgrade.getState()==StorageServiceRuntimeUpgradeVO.State.ROLLED_BACK) return upgradeResponse(upgrade);
+        if (upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.COMPLETE &&
+                upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING)
+            throw new CloudRuntimeException("Only a confirmed current runtime operation can be rolled back");
+        StorageServiceInstanceVO instance=instanceDao.findById(upgrade.getInstanceId());
+        StorageServiceRuntimeBundleVO bundle=requireBundle(upgrade.getBundleId());
+        if (instance.getCurrentRuntimeBundleId()!=null && !instance.getCurrentRuntimeBundleId().equals(bundle.getId()))
+            throw new CloudRuntimeException("ROLLBACK_STALE_OPERATION");
+        reserveWriter(instance,upgrade,"ROLLING_BACK");
+        try {
+            return finishRollback(instance,upgrade,invoke(instance,StorageServiceRuntimeOperation.ROLLBACK,
+                    upgrade.getTransactionId(),request(upgrade,bundle)));
+        } catch (RuntimeException error) {
+            observationPending(upgrade,error);
+            throw error;
+        }
     }
 
     @Override
@@ -289,24 +376,76 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         } else {
             upgrades.addAll(upgradeDao.listAll());
         }
+        upgrades.sort(java.util.Comparator.comparingLong(StorageServiceRuntimeUpgradeVO::getId).reversed());
         final List<StorageServiceRuntimeUpgradeResponse> responses = new ArrayList<>();
-        for (final StorageServiceRuntimeUpgradeVO upgrade : upgrades) responses.add(upgradeResponse(upgrade));
+        for (final StorageServiceRuntimeUpgradeVO upgrade : upgrades) {
+            observeInterruptedPreparation(upgrade);
+            responses.add(upgradeResponse(upgradeDao.findById(upgrade.getId())));
+        }
         final ListResponse<StorageServiceRuntimeUpgradeResponse> response = new ListResponse<>();
         response.setResponses(responses, responses.size());
         return response;
+    }
+
+    private void observeInterruptedPreparation(StorageServiceRuntimeUpgradeVO upgrade) {
+        if (upgrade.getState()!=StorageServiceRuntimeUpgradeVO.State.RUNNING ||
+                java.util.Arrays.asList("ACTIVATING","VERIFYING","ROLLING_BACK").contains(upgrade.getPhase()) ||
+                upgrade.getPreflightJson()==null) return;
+        JsonObject owner=JsonParser.parseString(upgrade.getPreflightJson()).getAsJsonObject();
+        if (!owner.has("originalJobId")) return;
+        org.apache.cloudstack.framework.jobs.AsyncJob job=asyncJobDao.findById(owner.get("originalJobId").getAsLong());
+        if (job!=null && job.getStatus()==org.apache.cloudstack.jobs.JobInfo.Status.IN_PROGRESS) return;
+        StorageServiceInstanceVO instance=instanceDao.findById(upgrade.getInstanceId());
+        StorageServiceRuntimeBundleVO bundle=requireBundle(upgrade.getBundleId());
+        try {
+            JsonObject nativeState=invoke(instance,StorageServiceRuntimeOperation.STATUS,upgrade.getTransactionId(),request(upgrade,bundle));
+            if (nativeState.has("workerActive") && nativeState.get("workerActive").getAsBoolean()) return;
+            if ("PREFLIGHT_OK".equals(stringValue(nativeState,"phase"))) {
+                finishPreparationObservation(upgrade,nativeState);
+                return;
+            }
+        } catch (RuntimeException unavailable) {
+            // Only staging is reconciled here. No activation, rollback or native cleanup from a read.
+        }
+        finishPreparationObservation(upgrade,null);
+    }
+
+    private void finishPreparationObservation(StorageServiceRuntimeUpgradeVO snapshot,JsonObject nativeState) {
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
+            StorageServiceRuntimeUpgradeVO current=upgradeDao.lockRow(snapshot.getId(),true);
+            if (current==null || current.getState()!=snapshot.getState() ||
+                    !java.util.Objects.equals(current.getPhase(),snapshot.getPhase())) return false;
+            if (nativeState!=null) {
+                current.setPreflightJson(nativeState.toString());
+                update(current,StorageServiceRuntimeUpgradeVO.State.PREFLIGHT_READY,"PREFLIGHT_OK",60);
+            } else fail(current,new CloudRuntimeException("PREPARATION_INTERRUPTED: original async job ended before preflight completed; current runtime was not activated"));
+            return true;
+        });
     }
 
     protected void ensureBootstrap(final StorageServiceInstanceVO instance, final StorageServiceRuntimeBundleVO bundle,
             final String transactionId) {
         final StorageServiceRuntimeHostAnswer capability = runtimeDispatcher.dispatch(instance.getVmId(), new StorageServiceRuntimeHostCommand(
                 vmName(instance), StorageServiceRuntimeOperation.CAPABILITIES, transactionId, null, timeout()));
-        if (!capability.getResult()) {
+        if (!capability.getResult()) throw new CloudRuntimeException("Runtime updater unavailable; aligned SystemVM template maintenance required");
+        JsonObject observed = JsonParser.parseString(capability.getResultJson()).getAsJsonObject();
+        if (!observed.has("hostTransportVersion") || observed.get("hostTransportVersion").getAsInt()<2)
+            throw new CloudRuntimeException("Atomic runtime host transport version 2 is required");
+        byte[] updaterModule=resource("/storage-runtime/bootstrap/runtime_updater.py");
+        if (observed.has("updaterVersion") && observed.get("updaterVersion").getAsInt()>2)
+            throw new CloudRuntimeException("Newer trusted updater requires aligned management support");
+        if (!observed.has("updaterVersion") || observed.get("updaterVersion").getAsInt()<2 ||
+                !sha256(updaterModule).equals(stringValue(observed,"updaterSha256"))) {
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_MODULE, null,
-                    resource("/storage-runtime/bootstrap/runtime_updater.py"), 0, 4, null);
+                    updaterModule, 0, 4, null);
             transfer(instance, transactionId, StorageServiceRuntimeFileType.UPDATER_ENTRY, null,
                     resource("/storage-runtime/bootstrap/ablestack-storage-runtime-updater"), 4, 8, null);
-            invoke(instance, StorageServiceRuntimeOperation.BOOTSTRAP, transactionId, null);
         }
+        JsonObject bootstrap = new JsonObject();
+        bootstrap.addProperty("transactionId",transactionId);
+        bootstrap.add("baselineProfile", JsonParser.parseString(new String(
+                resource("/storage-runtime/bootstrap/runtime-baseline-profile.json"), java.nio.charset.StandardCharsets.UTF_8)));
+        invoke(instance, StorageServiceRuntimeOperation.BOOTSTRAP, transactionId, bootstrap);
         transfer(instance, transactionId, StorageServiceRuntimeFileType.TRUSTED_KEY, bundle.getSigningKeyId(),
                 resource("/storage-runtime/trusted-keys/" + bundle.getSigningKeyId() + ".pem"), 8, 10, null);
     }
@@ -322,6 +461,7 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
             final StorageServiceRuntimeHostCommand command = new StorageServiceRuntimeHostCommand(vmName(instance), transactionId,
                     type, keyId, offset, length, sha256(chunk), Base64.getEncoder().encodeToString(chunk),
                     offset == 0, offset + length == value.length, timeout());
+            command.setFileMetadata(sha256(value), value.length);
             final StorageServiceRuntimeHostAnswer answer = runtimeDispatcher.dispatch(instance.getVmId(), command);
             if (!answer.getResult()) throw new CloudRuntimeException(answer.getDetails());
             offset += length;
@@ -332,11 +472,23 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         }
     }
 
+    private static class NativeRuntimeRejected extends CloudRuntimeException {
+        NativeRuntimeRejected(String details) { super(details); }
+    }
+
     protected JsonObject invoke(final StorageServiceInstanceVO instance, final StorageServiceRuntimeOperation operation,
             final String transactionId, final JsonObject request) {
         final StorageServiceRuntimeHostAnswer answer = runtimeDispatcher.dispatch(instance.getVmId(), new StorageServiceRuntimeHostCommand(
                 vmName(instance), operation, transactionId, request == null ? null : request.toString(), timeout()));
-        if (!answer.getResult()) throw new CloudRuntimeException(answer.getDetails());
+        if (!answer.getResult()) {
+            if (answer.getResultJson()!=null) {
+                try {
+                    JsonObject rejected=JsonParser.parseString(answer.getResultJson()).getAsJsonObject();
+                    if (rejected.has("errorCode")) throw new NativeRuntimeRejected(answer.getDetails());
+                } catch (com.google.gson.JsonParseException ignored) { }
+            }
+            throw new CloudRuntimeException(answer.getDetails());
+        }
         if (answer.getResultJson() == null || answer.getResultJson().trim().isEmpty()) return new JsonObject();
         return new JsonParser().parse(answer.getResultJson().trim()).getAsJsonObject();
     }
@@ -417,6 +569,12 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final JsonObject request = new JsonObject();
         request.addProperty("transactionId", upgrade.getTransactionId());
         request.addProperty("bundleVersion", bundle.getVersion());
+        request.addProperty("keyId", bundle.getSigningKeyId());
+        request.addProperty("runtimeAbiVersion", bundle.getRuntimeAbiVersion());
+        request.addProperty("desiredStateSchemaVersion", bundle.getDesiredStateSchemaVersion());
+        request.addProperty("serviceImpact", bundle.getServiceImpact().name());
+        StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
+        request.addProperty("instanceUuid", instance.getUuid());
         return request;
     }
 

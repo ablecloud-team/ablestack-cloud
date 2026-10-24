@@ -68,8 +68,9 @@ final class StorageServiceConfigurationPreflight {
         return name;
     }
     static boolean runtimeWriting(StorageServiceRuntimeUpgradeVO value) {
-        return value != null && value.getState()==StorageServiceRuntimeUpgradeVO.State.RUNNING
-                && Arrays.asList("ACTIVATING","VERIFYING","ROLLING_BACK").contains(value.getPhase());
+        return value != null && (value.getState()==StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING ||
+                value.getState()==StorageServiceRuntimeUpgradeVO.State.RUNNING &&
+                Arrays.asList("ACTIVATING","VERIFYING","ROLLING_BACK").contains(value.getPhase()));
     }
     static JsonObject parseIntent(String raw) {
         if (raw == null || raw.getBytes(StandardCharsets.UTF_8).length>4096)

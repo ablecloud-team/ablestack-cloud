@@ -68,6 +68,9 @@ public class StorageConfigurationPreflightTest {
         when(ready.getState()).thenReturn(StorageServiceRuntimeUpgradeVO.State.RUNNING);
         when(ready.getPhase()).thenReturn("ACTIVATING");
         assertTrue(StorageServiceConfigurationPreflight.runtimeWriting(ready));
+        when(ready.getState()).thenReturn(StorageServiceRuntimeUpgradeVO.State.OBSERVATION_PENDING);
+        when(ready.getPhase()).thenReturn("OBSERVATION_PENDING");
+        assertTrue(StorageServiceConfigurationPreflight.runtimeWriting(ready));
     }
     @Test public void readOnlyProbeReturnsUnknownOnTransportLossWithoutMutatingDaos() {
         StorageFileShareDao shares=mock(StorageFileShareDao.class);
