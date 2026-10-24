@@ -1071,6 +1071,7 @@ import OwnershipSelection from '@/views/compute/wizard/OwnershipSelection.vue'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
 import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/sharedFsBacking'
+import { isConfigurationApi, observeConfigurationOperation, decodeConfigurationOperations } from '@/utils/storageConfigOperation'
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
 import MoldDialog from '@/components/view/MoldDialog'
 import SharedFSPreparationPanel from '@/views/storage/SharedFSPreparationPanel'
@@ -2594,6 +2595,42 @@ export default {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api }))
       }
       const clean = this.cleanParams(params)
+      if (isConfigurationApi(api)) {
+        if (params.instanceid) this.initialConfigurationInstanceId = params.instanceid
+        const publicParams = Object.fromEntries(Object.entries(clean).filter(([key]) => !/password|secret|chapkey|chapctrlkey/i.test(key)))
+        const identity = JSON.stringify([api, publicParams])
+        const pending = this.pendingCreation || this.readPendingCreation() || {}
+        const requests = { ...(pending.configurationRequests || {}) }
+        let requestid = requests[identity]
+        const instanceid = params.instanceid || this.initialConfigurationInstanceId
+        let prior
+        if (requestid && instanceid) {
+          prior = decodeConfigurationOperations(await getAPI('listStorageServiceConfigurationOperations', { instanceid, requestid }))[0]
+        }
+        if (!requestid || prior?.state === 'ROLLED_BACK') requestid = creationRequestId()
+        requests[identity] = requestid
+        this.savePendingCreation({ ...pending, configurationRequests: requests })
+        // ACL calls identify their instance through a previously created export/target.
+        if (!instanceid) throw new Error('CONFIGURATION_INSTANCE_REQUIRED')
+        this.initialConfigurationInstanceId = instanceid
+        let jobid
+        if (prior?.state !== 'COMMITTED' && (!prior || prior.state === 'ROLLED_BACK')) {
+          const wire = await postAPI(api, { ...clean, requestid })
+          jobid = wire[api.toLowerCase() + 'response']?.jobid
+        }
+        const operation = await observeConfigurationOperation({
+          get: getAPI,
+          instanceid,
+          requestid,
+          jobid,
+          changed: value => this.savePendingCreation({ ...(this.pendingCreation || pending), configurationRequests: requests, configurationOperation: value })
+        })
+        if (operation?.state !== 'COMMITTED') {
+          throw new Error(
+            [operation?.originalfailure?.code || operation?.state || 'CONFIGURATION_UNCONFIRMED', operation?.rollback?.state || ''].filter(Boolean).join(' · '))
+        }
+        return operation.result || {}
+      }
       const response = await postAPI(api, clean)
       const setupResponse = response[api.toLowerCase() + 'response'] || response
       if (setupResponse.jobid) {
