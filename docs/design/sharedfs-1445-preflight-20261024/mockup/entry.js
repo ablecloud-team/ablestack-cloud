@@ -1,0 +1,1 @@
+import {createApp} from 'vue';import Antd from 'ant-design-vue';import 'ant-design-vue/dist/antd.css';import '/root/work/ablestack-cloud/ui/src/style/index.less';import App from './App.vue';const a=createApp(App);a.use(Antd);a.config.globalProperties.$t=k=>({'label.close':'닫기'}[k]||k);a.mount('#app');
