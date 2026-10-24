@@ -59,6 +59,12 @@ public class StorageServiceInstanceResponse extends BaseResponse {
     @Param(description = "Storage Service instance state")
     private String state;
 
+    @SerializedName("configurationrevision") @Param(description = "committed configuration revision")
+    private long configurationRevision;
+    @SerializedName("configurationprotection") @Param(description = "configuration recovery reservation is active")
+    private boolean configurationProtection;
+    public void setConfigurationRevision(final long value) { configurationRevision = value; }
+    public void setConfigurationProtection(final boolean value) { configurationProtection = value; }
     public void setId(String id) {
         this.id = id;
     }
