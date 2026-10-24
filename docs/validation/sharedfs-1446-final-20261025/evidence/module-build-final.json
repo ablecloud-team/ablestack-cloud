@@ -1,0 +1,123 @@
+{
+  "management": {
+    "beforeSha256": "dec57446596524fd96789b8edead3311e76f4883a95e61ae92110f1a6ed8f4ed",
+    "afterSha256": "775e269b5fa2dab878c9edf865a4a3523fc902bd0a796e390a6bd024dee15531",
+    "changedEntries": [
+      {
+        "path": "storage-runtime/bootstrap/runtime_updater.py",
+        "after": "65618c2aa35db2ea8efb1cfb11dd5581ceac730c00f625074fcf9476234c3f40"
+      }
+    ],
+    "otherEntriesByteIdentical": true
+  },
+  "hosts": {
+    "10.10.13.1": {
+      "cloud-api-4.23.0.0.jar": {
+        "beforeSha256": "85812fd1f09015c43f97c120b66dddace4e452600d1e9e095fc7fa352e7ffbdf",
+        "afterSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+        "changedEntries": [
+          {
+            "path": "com/cloud/agent/api/StorageServiceRuntimeHostCommand.class",
+            "before": "264db6fb802e0196b6deb92ba5f89cde46af23a7b8f35f63fc5a63c86cf0a66b",
+            "after": "6070923b0f7138a4a5406de6a60ff1b8cad7bca31b23b9f217419df70026004b"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      },
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": {
+        "beforeSha256": "0be334b2e9d9a4ab8c15b92fdc97ab664abc60c2ddd208996fc6f1f61f517b66",
+        "afterSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper.class",
+            "before": "ef85a4f638a5f6faf2e0761c134044a6180795b252fa32bd582dc298ec9165b2",
+            "after": "8026057d4fb70d5ffe8eafe8b35bbf3b24dc4b82447061a7e4bc351342e32258"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$GuestExecResult.class",
+            "before": "b0da7408e3436bd4cbc299876cbed7b77dc9862f34b53310c153e2361dc9ded6",
+            "after": "29e0bc5210b148ffcdd36c4eeb943281e8dcf2f73b4c8b20da10b64691f6d5da"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$1.class",
+            "before": "30e401d7ad424f33b1b49e94f9030c03ca6b92717ba0efbffb4eabca983070fd",
+            "after": "8ecfd719d77a7c0a92b1d44ee24453ed1a804585a70081b5fefb9db3265eafc7"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      }
+    },
+    "10.10.13.2": {
+      "cloud-api-4.23.0.0.jar": {
+        "beforeSha256": "85812fd1f09015c43f97c120b66dddace4e452600d1e9e095fc7fa352e7ffbdf",
+        "afterSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+        "changedEntries": [
+          {
+            "path": "com/cloud/agent/api/StorageServiceRuntimeHostCommand.class",
+            "before": "264db6fb802e0196b6deb92ba5f89cde46af23a7b8f35f63fc5a63c86cf0a66b",
+            "after": "6070923b0f7138a4a5406de6a60ff1b8cad7bca31b23b9f217419df70026004b"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      },
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": {
+        "beforeSha256": "0be334b2e9d9a4ab8c15b92fdc97ab664abc60c2ddd208996fc6f1f61f517b66",
+        "afterSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper.class",
+            "before": "ef85a4f638a5f6faf2e0761c134044a6180795b252fa32bd582dc298ec9165b2",
+            "after": "8026057d4fb70d5ffe8eafe8b35bbf3b24dc4b82447061a7e4bc351342e32258"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$GuestExecResult.class",
+            "before": "b0da7408e3436bd4cbc299876cbed7b77dc9862f34b53310c153e2361dc9ded6",
+            "after": "29e0bc5210b148ffcdd36c4eeb943281e8dcf2f73b4c8b20da10b64691f6d5da"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$1.class",
+            "before": "30e401d7ad424f33b1b49e94f9030c03ca6b92717ba0efbffb4eabca983070fd",
+            "after": "8ecfd719d77a7c0a92b1d44ee24453ed1a804585a70081b5fefb9db3265eafc7"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      }
+    },
+    "10.10.13.3": {
+      "cloud-api-4.23.0.0.jar": {
+        "beforeSha256": "85812fd1f09015c43f97c120b66dddace4e452600d1e9e095fc7fa352e7ffbdf",
+        "afterSha256": "804d71c1fc7d110c3bdbc8f16fc9015a74c847b323443c07d5e518864e5be21c",
+        "changedEntries": [
+          {
+            "path": "com/cloud/agent/api/StorageServiceRuntimeHostCommand.class",
+            "before": "264db6fb802e0196b6deb92ba5f89cde46af23a7b8f35f63fc5a63c86cf0a66b",
+            "after": "6070923b0f7138a4a5406de6a60ff1b8cad7bca31b23b9f217419df70026004b"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      },
+      "cloud-plugin-hypervisor-kvm-4.23.0.0.jar": {
+        "beforeSha256": "0be334b2e9d9a4ab8c15b92fdc97ab664abc60c2ddd208996fc6f1f61f517b66",
+        "afterSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper.class",
+            "before": "ef85a4f638a5f6faf2e0761c134044a6180795b252fa32bd582dc298ec9165b2",
+            "after": "8026057d4fb70d5ffe8eafe8b35bbf3b24dc4b82447061a7e4bc351342e32258"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$GuestExecResult.class",
+            "before": "b0da7408e3436bd4cbc299876cbed7b77dc9862f34b53310c153e2361dc9ded6",
+            "after": "29e0bc5210b148ffcdd36c4eeb943281e8dcf2f73b4c8b20da10b64691f6d5da"
+          },
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceRuntimeHostCommandWrapper$1.class",
+            "before": "30e401d7ad424f33b1b49e94f9030c03ca6b92717ba0efbffb4eabca983070fd",
+            "after": "8ecfd719d77a7c0a92b1d44ee24453ed1a804585a70081b5fefb9db3265eafc7"
+          }
+        ],
+        "otherEntriesByteIdentical": true
+      }
+    }
+  }
+}

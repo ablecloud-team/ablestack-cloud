@@ -1,0 +1,10 @@
+{
+  "ownedFixtureDirectoriesRemoved": [
+    "/var/tmp/epic1446-candidate-20261025",
+    "/var/tmp/epic1446-candidate-20261025-r2",
+    "/var/tmp/epic1446-candidate-20261025-r3",
+    "/var/tmp/epic1446-candidate-20261025-r4",
+    "/var/tmp/epic1446-candidate-20261025-r5"
+  ],
+  "productJournalsRetained": true
+}

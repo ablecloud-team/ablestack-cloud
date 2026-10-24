@@ -58,6 +58,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
             "ABLESTACK_STORAGE_RUNTIME_TRUSTED_KEYS": str(self.trusted_keys),
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT": str(self.entrypoint_root),
             "ABLESTACK_STORAGE_RUNTIME_LOCK": str(self.lock_file),
+            "ABLESTACK_STORAGE_RUNTIME_DEFAULT": str(self.temp / "no-template-default"),
             "ABLESTACK_STORAGE_RUNTIME_HELPER_ROOT": str(ROOT / "debian/usr/local/lib/ablestack-storage"),
         })
         for name in ENTRYPOINTS:
@@ -250,6 +251,48 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
                 member = archive.getmember(item["path"])
                 self.assertEqual(member.size, item["bytes"])
                 self.assertEqual(member.uid, 0)
+
+    def test_signed_incompatible_metadata_and_unsafe_payloads_are_rejected_before_switch(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        cases = [
+            ("abi", lambda m: m.update(runtimeAbiVersion="2"), "RUNTIME_ABI_INCOMPATIBLE"),
+            ("schema", lambda m: m.update(desiredStateSchemaVersion="2"), "DESIRED_STATE_SCHEMA_INCOMPATIBLE"),
+            ("impact", lambda m: m.update(serviceImpact="MAINTENANCE"), "SERVICE_IMPACT_UNSUPPORTED"),
+            ("path", lambda m: m["files"][0].update(path="../outside"), "MANIFEST_PATH_UNSAFE"),
+            ("owner", lambda m: m["files"][0].update(owner="nobody"), "MANIFEST_MODE_UNSAFE"),
+            ("mode", lambda m: m["files"][0].update(mode="0777"), "MANIFEST_MODE_UNSAFE"),
+            ("incomplete", lambda m: m["files"].pop(), "MANIFEST_INVALID"),
+            ("key", lambda m: m.update(keyId="unknown-key"), "SIGNING_KEY_UNKNOWN"),
+            ("registered", lambda m: None, "REGISTERED_METADATA_MISMATCH"),
+        ]
+        for name, change, expected in cases:
+            with self.subTest(case=name):
+                version = "reject-" + name
+                archive = self.build_bundle(version)
+                manifest = self.output / "manifest.json"
+                signature = self.output / "manifest.sig"
+                value = json.loads(manifest.read_text())
+                change(value)
+                manifest.write_text(json.dumps(value, sort_keys=True) + "\n")
+                subprocess.run(["openssl","pkeyutl","-sign","-inkey",str(self.private_key),
+                    "-rawin","-in",str(manifest),"-out",str(signature)],check=True,capture_output=True)
+                request = {
+                    "transactionId": "tx-" + version, "bundleVersion": version,
+                    "archiveSha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+                    "manifestSha256": hashlib.sha256(manifest.read_bytes()).hexdigest(),
+                    "totalSize": archive.stat().st_size, "manifestSize": manifest.stat().st_size,
+                    "signatureSize": signature.stat().st_size
+                }
+                if name == "registered":
+                    request["keyId"] = "different-registered-key"
+                self.run_updater("begin", request)
+                target = self.state_root / request["transactionId"]
+                for source, filename in [(archive,"bundle.tar.gz"),(manifest,"manifest.json"),(signature,"manifest.sig")]:
+                    shutil.copy2(source,target / filename)
+                self.run_updater("finalize",request)
+                rejected = self.run_updater("verify",request,success=False)
+                self.assertEqual(expected,rejected["errorCode"])
+                self.assertEqual(baseline,self.run_updater("capabilities")["currentVersion"])
 
     def test_manifest_signature_tamper_is_rejected(self):
         self.run_updater("bootstrap")
