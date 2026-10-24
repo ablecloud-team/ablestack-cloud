@@ -72,6 +72,15 @@ public class StorageServiceInstanceVO implements StorageServiceInstance {
     @Enumerated(value = EnumType.STRING)
     private State state = State.Allocated;
 
+    @Column(name = "configuration_revision")
+    private long configurationRevision;
+    @Column(name = "active_configuration_operation_id")
+    private Long activeConfigurationOperationId;
+    public long getConfigurationRevision() { return configurationRevision; }
+    public void setConfigurationRevision(final long value) { configurationRevision = value; }
+    public Long getActiveConfigurationOperationId() { return activeConfigurationOperationId; }
+    public void setActiveConfigurationOperationId(final Long value) { activeConfigurationOperationId = value; }
+
     @Column(name = "current_runtime_bundle_id")
     private Long currentRuntimeBundleId;
 

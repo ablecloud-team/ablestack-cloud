@@ -1319,22 +1319,38 @@
       <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis"><NicsTab :resource="vm"/></a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="vmstats"><StatsTab :resource="vm"/></a-tab-pane>
+      <a-tab-pane
+v-if="storageService.instance && 'listStorageServiceConfigurationOperations' in $store.getters.apis"
+        :tab="$t('label.storage.configuration.history')"
+key="configurationoperations">
+        <StorageConfigurationOperationPanel history :instanceid="storageService.instance.id" @resume="resumeConfigurationOperation" />
+      </a-tab-pane>
       <a-tab-pane :tab="$t('label.events')" key="events" v-if="'listEvents' in $store.getters.apis"><events-tab :resource="resource" resourceType="SharedFS" :loading="loading" /></a-tab-pane>
     </a-tabs>
 
-    <a-modal
+    <MoldDialog
 :visible="actionModal.visible"
 :title="actionModalTitle"
 :confirmLoading="actionModal.loading"
 :maskClosable="false"
-:width="860"
-:centered="true"
+size="lg"
+form-actions
 :okText="actionModalOkText"
 :cancelText="$t('label.cancel')"
 :okButtonProps="actionModalOkButtonProps"
 wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
+      <StorageConfigurationOperationPanel
+v-if="configurationDisplayOperation"
+:operation="configurationDisplayOperation"
+        @refresh="refreshConfigurationOperation"
+@resume="resumeConfigurationOperation" />
+      <fieldset
+class="configuration-fields"
+:disabled="actionModal.loading || configurationProtected"
+        :inert="actionModal.loading || configurationProtected ? '' : null"
+:aria-busy="actionModal.loading">
       <div class="storage-modal-body"><a-form layout="vertical">
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
           <a-form-item required>
@@ -2215,7 +2231,12 @@ wrapClassName="storage-service-action-modal"
           </a-row>
         </div>
       </a-form></div>
-    </a-modal>
+      </fieldset>
+      <MoldDialogActions :busy="actionModal.loading">
+        <a-button @click="closeActionModal">{{ $t('label.cancel') }}</a-button>
+        <a-button type="primary" :loading="actionModal.loading" v-bind="actionModalOkButtonProps" @click="submitActionModal">{{ actionModalOkText }}</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
     <a-modal
       :visible="identityRepair.visible"
       :title="$t('label.storage.service.nic.identity.repair')"
@@ -2259,6 +2280,10 @@ import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
 import { backingFilesystem } from '@/utils/sharedFsBacking'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
+import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
+import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
   DeleteOutlined,
   DisconnectOutlined,
@@ -2465,6 +2490,9 @@ const CapacityInput = {
 export default {
   name: 'SharedFSTab',
   components: {
+    MoldDialog,
+    MoldDialogActions,
+    StorageConfigurationOperationPanel,
     DetailsTab,
     StatsTab,
     EventsTab,
@@ -2548,6 +2576,13 @@ export default {
         context: null,
         loading: false
       },
+      configurationOperation: null,
+      configurationGeneration: 0,
+      configurationProtectionRead: 0,
+      configurationProtectionLoading: false,
+      configurationProtectionUnavailable: false,
+      configurationRequest: null,
+      configurationResult: null,
       actionLoading: {},
       identityRepair: {
         visible: false,
@@ -3137,7 +3172,7 @@ export default {
       return items
     },
     nfsListenerGroupOptions () {
-      const ports = new Set([2049])
+      const ports = new Set()
       this.nfsRuntimeProtocolEntries().forEach(entry => {
         const port = Number(entry.port)
         if (Number.isFinite(port) && port > 0) ports.add(port)
@@ -3151,11 +3186,15 @@ export default {
           groups.forEach(group => addPorts(group?.port ?? group?.listenerPort ?? group?.listenerport))
         }
       }
-      (this.storageService.protocols || []).forEach(protocol => {
-        addPorts(protocol?.port ?? protocol?.listenPort ?? protocol?.listenport ?? protocol?.endpointPort)
-        addConfigPorts(this.parseStorageConfig(protocol.config))
-      })
+      (this.storageService.protocols || [])
+        .filter(protocol => String(protocol?.protocol || protocol?.name || '').trim().toUpperCase() === 'NFS')
+        .filter(protocol => protocol.enabled === undefined || this.boolValue(protocol.enabled))
+        .forEach(protocol => {
+          addPorts(protocol.port ?? protocol.listenPort ?? protocol.listenport ?? protocol.endpointPort)
+          addConfigPorts(this.parseStorageConfig(protocol.config))
+        })
       this.storageService.nfsExports.forEach(share => addConfigPorts(this.parseStorageConfig(share.config)))
+      if (!ports.size) ports.add(2049)
       return Array.from(ports).sort((a, b) => a - b).map(port => ({
         value: port,
         label: `${this.$t('label.port')} ${port} / ${this.formatNfsListenerGroupEndpoints([port])}`
@@ -4422,6 +4461,28 @@ export default {
     actionModalOkText () {
       return ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type) ? this.$t('label.ok') : this.$t('label.ok')
     },
+    configurationProtected () {
+      return this.configurationProtectionLoading || this.configurationProtectionUnavailable ||
+        this.boolValue(this.storageService.instance?.configurationprotection) ||
+        !!(this.configurationOperation && !configurationRetryAllowed(this.configurationOperation) &&
+          this.configurationOperation.state !== 'COMMITTED')
+    },
+    configurationDisplayOperation () {
+      const operation = this.configurationOperation
+      const protectedByServer = this.boolValue(this.storageService.instance?.configurationprotection)
+      if (operation && (!protectedByServer || !terminalConfigurationState(operation.state))) {
+        return this.configurationProtectionUnavailable ? { ...operation, observationwarning: true } : operation
+      }
+      if (this.configurationProtected) {
+        return {
+          instanceid: this.storageService.instance?.id,
+          state: 'OBSERVATION_UNAVAILABLE',
+          phase: 'OBSERVING',
+          observationwarning: this.configurationProtectionUnavailable
+        }
+      }
+      return operation
+    },
     actionModalOkButtonProps () {
       const deleteEndpointBlocked = this.actionModal.type === 'deleteEndpoint' && !this.deleteEndpointConfirmationMatched
       const resizeVolumeSize = Number(this.forms.resizeBackingVolume.size)
@@ -4434,7 +4495,7 @@ export default {
       )
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
-        disabled: (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+        disabled: !!this.configurationProtected || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
           resizeBackingVolumeBlocked ||
@@ -4526,13 +4587,32 @@ export default {
     window.addEventListener('popstate', this.storagePopstate)
   },
   beforeUnmount () {
+    this.configurationGeneration++
     this.cancelStorageRead()
     if (this._vmRead) this._vmRead.abort()
     if (this._volumeRead) this._volumeRead.abort()
     window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+    'actionModal.visible' (visible) {
+      if (visible) {
+        this.configurationResult = null
+        if (!this.configurationProtected) {
+          this.configurationGeneration++
+          this.configurationOperation = null
+          this.configurationRequest = null
+        }
+      }
+    },
+    'storageService.instance' (instance, previous) {
+      if (instance?.id !== previous?.id) this.resetConfigurationProtection()
+      if (instance && (this.boolValue(instance.configurationprotection) ||
+        this.boolValue(previous?.configurationprotection) || this.configurationProtected)) {
+        this.refreshConfigurationProtection()
+      }
+    },
     storageReadScope () {
+      this.resetConfigurationProtection()
       this.fetchStorageServiceData()
     },
     resource: {
@@ -5361,6 +5441,7 @@ export default {
       return (this.ipv4ToNumber(ip) & mask) === (this.ipv4ToNumber(baseIp) & mask)
     },
     async runStorageAction (key, api, params, title) {
+      if (isConfigurationApi(api)) return this.runConfigurationAction(key, api, params)
       if (!this.storageService.instance || this.actionLoading[key]) {
         return
       }
@@ -5391,6 +5472,135 @@ export default {
       } finally {
         this.actionLoading[key] = false
       }
+    },
+    resetConfigurationProtection () {
+      this.configurationGeneration++
+      this.configurationProtectionRead++
+      this.configurationOperation = null
+      this.configurationRequest = null
+      this.configurationResult = null
+      this.configurationProtectionLoading = false
+      this.configurationProtectionUnavailable = false
+      this.actionLoading = {}
+    },
+    async refreshConfigurationProtection (refreshInstance = false) {
+      const instanceid = this.storageService.instance?.id
+      if (!instanceid) return
+      const scope = this.storageReadScope
+      const generation = this.configurationGeneration
+      const read = ++this.configurationProtectionRead
+      const current = () => !this.listRefreshDisposed && scope === this.storageReadScope &&
+        generation === this.configurationGeneration && read === this.configurationProtectionRead &&
+        instanceid === this.storageService.instance?.id
+      this.configurationProtectionLoading = true
+      try {
+        if (refreshInstance) {
+          const wire = await getAPI('listStorageServiceInstances', { id: instanceid })
+          if (!current()) return
+          const instance = wire.liststorageserviceinstancesresponse?.storageserviceinstance?.find(value => value.id === instanceid)
+          if (!instance) throw new Error('Configuration instance observation unavailable')
+          Object.assign(this.storageService.instance, instance)
+        }
+        const protectedByServer = this.boolValue(this.storageService.instance.configurationprotection)
+        const previous = this.configurationOperation
+        const unresolved = previous && !configurationRetryAllowed(previous) && previous.state !== 'COMMITTED'
+        this.configurationProtectionUnavailable = false
+        if (!protectedByServer && !unresolved) return
+        if (!protectedByServer && !previous?.requestid) {
+          this.configurationOperation = null
+          return
+        }
+        const params = protectedByServer
+          ? { instanceid, page: 1, pagesize: 200 }
+          : { instanceid, requestid: previous.requestid }
+        const wire = await getAPI('listStorageServiceConfigurationOperations', params)
+        if (!current()) return
+        const rows = decodeConfigurationOperations(wire).filter(value => !value.instanceid || value.instanceid === instanceid)
+        const operation = protectedByServer
+          ? rows.find(value => value.canresume) || rows.find(value => !terminalConfigurationState(value.state))
+          : rows.find(value => value.requestid === previous.requestid || value.id === previous.id)
+        if (operation) {
+          // A read started before terminal observation cannot resurrect the same pending operation.
+          const latest = this.configurationOperation
+          if (!(latest?.id === operation.id && terminalConfigurationState(latest.state) &&
+            !terminalConfigurationState(operation.state))) {
+            this.configurationOperation = { ...operation, instanceid }
+          }
+        } else {
+          this.configurationProtectionUnavailable = true
+        }
+      } catch (error) {
+        if (current()) this.configurationProtectionUnavailable = true
+      } finally {
+        if (current()) this.configurationProtectionLoading = false
+      }
+    },
+    async runConfigurationAction (key, api, params) {
+      if (!this.storageService.instance || this.actionLoading[key] || this.configurationProtected) return
+      const instanceid = this.storageService.instance.id
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope
+      if (!this.configurationRequest || configurationRetryAllowed(this.configurationOperation)) this.configurationRequest = configurationRequestId()
+      const requestid = this.configurationRequest
+      this.actionLoading[key] = true
+      this.configurationOperation = { instanceid, requestid, state: 'QUEUED', phase: 'PREPARING' }
+      let jobid
+      try {
+        const response = await postAPI(api, this.cleanParams({
+          ...params,
+          requestid,
+          expectedrevision: this.storageService.instance.configurationrevision
+        }))
+        if (!current()) return
+        jobid = response[api.toLowerCase() + 'response']?.jobid
+      } catch (error) {
+        if (!current()) return
+        // A lost POST response does not prove that the operation failed. Keep the same key.
+        this.configurationOperation = { instanceid, requestid, state: 'SUBMISSION_UNCONFIRMED', phase: 'OBSERVING' }
+        this.$notifyError(error)
+      }
+      try {
+        const operation = await observeConfigurationOperation({
+          get: getAPI,
+          instanceid,
+          requestid,
+          jobid,
+          current,
+          changed: value => { if (current()) this.configurationOperation = { ...value, instanceid } }
+        })
+        if (!current()) return
+        if (terminalConfigurationState(operation?.state) || operation?.state === 'SUBMISSION_REJECTED') {
+          await this.refreshConfigurationProtection(true)
+          if (!current()) return
+        }
+        this.configurationResult = operation
+        if (operation?.state === 'COMMITTED') await this.refreshAfterStorageAction(key)
+        return operation
+      } finally { if (current()) this.actionLoading[key] = false }
+    },
+    async refreshConfigurationOperation () {
+      await this.refreshConfigurationProtection(true)
+    },
+    async resumeConfigurationOperation (operation) {
+      if (!operation?.canresume || !this.storageService.instance || this.actionModal.loading) return
+      const instanceid = this.storageService.instance.id
+      if (operation.instanceid && operation.instanceid !== instanceid) return
+      const generation = this.configurationGeneration
+      const scope = this.storageReadScope
+      const current = () => generation === this.configurationGeneration && scope === this.storageReadScope &&
+        instanceid === this.storageService.instance?.id
+      this.configurationOperation = { ...operation, instanceid }
+      this.actionModal.loading = true
+      try {
+        const wire = await postAPI('resumeStorageServiceConfigurationOperation', { instanceid, id: operation.id })
+        const jobid = wire.resumestorageserviceconfigurationoperationresponse?.jobid
+        if (jobid) await observeConfigurationJob({ get: getAPI, jobid, current })
+        if (!current()) return
+        await this.refreshConfigurationOperation()
+      } catch (error) {
+        if (current()) { this.configurationProtectionUnavailable = true; this.$notifyError(error) }
+      } finally { if (current()) this.actionModal.loading = false }
     },
     async refreshAfterStorageAction (key, actionTab = this.currentTab, actionWideLayout = this.protocolWideLayout) {
       if (!this.storageService.instance) {
@@ -6472,8 +6682,10 @@ export default {
       if (this.isNfsRuntimeDualMode) {
         return 2049
       }
+      const registered = this.protocolListenerEntries('NFS').map(entry => entry.port)
+      if (registered.length) return registered.includes(2049) ? 2049 : registered[0]
       const options = this.nfsListenerGroupOptions || []
-      return options[0]?.value || 2049
+      return options.find(option => option.value === 2049)?.value || options[0]?.value || 2049
     },
     nfsExportListenerPorts (share, config = null) {
       if (this.isNfsRuntimeDualMode || this.nfsExportProtocolMode(share, config) === 'V3V4_DUAL') {
@@ -7360,6 +7572,8 @@ export default {
       this.openDeleteModal(resourceType, record)
     },
     closeActionModal () {
+      if (this.actionModal.loading) return
+      if (!this.configurationProtected) this.configurationGeneration++
       this.actionModal.visible = false
       this.actionModal.type = ''
       this.actionModal.context = null
@@ -7404,8 +7618,19 @@ export default {
         return
       }
       this.actionModal.loading = true
-      await action.call(this)
-      this.closeActionModal()
+      this.configurationResult = null
+      const generation = this.configurationGeneration
+      try {
+        await action.call(this)
+        if (generation !== this.configurationGeneration) return
+        // Local validation/no POST and any non-committed configuration keep the form open.
+        const configurationTypes = ['enableProtocol', 'nfsExport', 'editNfsExport', 'nfsAcl', 'editNfsAcl',
+          'deleteConfirm', 'deleteEndpoint', 'smbShare', 'editSmbShare', 'smbAcl', 'editSmbAcl',
+          'iscsiTarget', 'editIscsiTarget', 'iscsiAcl', 'editIscsiAcl', 'nvmeSubsystem', 'editNvmeSubsystem',
+          'nvmeNamespace', 'editNvmeNamespace', 'nvmeHostAcl', 'editNvmeHostAcl']
+        this.actionModal.loading = false
+        if (!configurationTypes.includes(this.actionModal.type) || this.configurationResult?.state === 'COMMITTED') this.closeActionModal()
+      } finally { if (generation === this.configurationGeneration) this.actionModal.loading = false }
     },
     enableProtocol () {
       if (!this.validateListenIpSelection()) {
@@ -9016,4 +9241,11 @@ export default {
       grid-template-columns: 1fr;
     }
   }
+</style>
+
+<style scoped>
+.configuration-fields .storage-modal-body { overflow: visible; max-height: none; padding: 0; }
+.configuration-fields { border: 0; padding: 0; margin: 16px 0 0; min-width: 0; }
+.configuration-fields[inert] :deep(input),
+.configuration-fields[inert] :deep(.ant-select-selector) { color: var(--text-color); -webkit-text-fill-color: var(--text-color); opacity: 1; }
 </style>
