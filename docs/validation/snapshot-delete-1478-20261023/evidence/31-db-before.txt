@@ -1,0 +1,4 @@
+51	098ee6d1-3561-4fbf-ba90-ce429e18188c	SNAP1478-31-normal	BackedUp	93	Image	1	Ready	snapshots/2/972/5f098aa2-4aa0-483f-bd48-6ca0cb0a4beb	196624
+52	1d0b8d4b-1b85-4f84-aff1-53e32f832f5f	SNAP1478-31-residue	BackedUp	95	Image	1	Ready	snapshots/2/972/7499de48-5061-48bc-bf47-ab2c239c0a9a	196624
+53	2034db21-d0bf-4dac-8d0d-2ad81f0b8164	SNAP1478-31-partial	BackedUp	97	Image	1	Ready	snapshots/2/972/2f6e44a7-e5a3-4dbf-8a2e-57a63facacec	196624
+54	896083f2-0c9f-44a0-8449-c9bd4e81ff57	SNAP1478-31-control	BackedUp	99	Image	1	Ready	snapshots/2/972/e1860831-1a06-4099-8e5a-5670c93d098c	196624

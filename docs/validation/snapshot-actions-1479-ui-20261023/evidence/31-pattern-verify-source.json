@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+    "scenario": "source",
+    "image": "/mnt/glue-gfs/2978492b-2b64-48a7-8392-d6cefccd94c8",
+    "phase": "verify",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (787.162 MiB/sec and 787.1617 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

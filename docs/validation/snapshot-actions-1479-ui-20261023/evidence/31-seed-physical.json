@@ -1,0 +1,28 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/987/7376b457-d9a6-4035-a4df-71eef39fe896",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/988/c48a516b-5f06-4985-8f85-9c1ed262e107",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/989/c32f56d6-1a18-406a-a534-4e205f620bd4",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    }
+  ],
+  "templates": [],
+  "sourceVolumePaths": [
+    "/mnt/glue-gfs/2978492b-2b64-48a7-8392-d6cefccd94c8",
+    "/mnt/glue-gfs/1cdac293-2c4d-4ef0-b01d-3b7113eba9fb",
+    "/mnt/glue-gfs/bf7dd948-fe06-4781-90d7-8e0025631ba6"
+  ]
+}

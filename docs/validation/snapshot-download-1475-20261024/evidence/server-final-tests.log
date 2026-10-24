@@ -1,0 +1,83 @@
+[INFO] Scanning for projects...
+[WARNING]
+[WARNING] Some problems were encountered while building the effective model for org.apache.cloudstack:cloud-plugin-hypervisor-kvm:jar:4.23.0.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: org.json:json:jar -> duplicate declaration of version (?) @ line 130, column 21
+[WARNING]
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING]
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING]
+[INFO]
+[INFO] -----------------< org.apache.cloudstack:cloud-server >-----------------
+[INFO] Building Apache CloudStack Server 4.23.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- maven-checkstyle-plugin:3.6.0:check (cloudstack-checkstyle) @ cloud-server ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO]
+[INFO] --- maven-remote-resources-plugin:1.3:process (default) @ cloud-server ---
+[INFO]
+[INFO] --- maven-antrun-plugin:1.8:run (generate-resource) @ cloud-server ---
+[INFO] Executing tasks
+
+main:
+     [copy] Copying 4 files to /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/target/conf
+[INFO] Executed tasks
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:resources (default-resources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 30 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:compile (default-compile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 600 source files to /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/target/classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.5:testResources (default-testResources) @ cloud-server ---
+[debug] execute contextualize
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 32 resources
+[INFO] Copying 3 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.8.1:testCompile (default-testCompile) @ cloud-server ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 302 source files to /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/target/test-classes
+[INFO]
+[INFO] --- maven-surefire-plugin:2.22.2:test (default-test) @ cloud-server ---
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.cloud.storage.snapshot.SnapshotManagerTest
+07:49:58.999 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Extraction is disabled through [disable.extraction].
+07:49:59.918 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Unable to find active snapshot [snapshotMock] with id 3.
+07:49:59.994 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Snapshot [null] not found in any secondary storage. The snapshot may be on primary storage, where it cannot be downloaded.
+07:50:00.200 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Could not find any zone storages.
+07:50:00.900 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Invalid zone id [7].
+07:50:00.943 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Snapshot [null] not found in any secondary storage. The snapshot may be on primary storage, where it cannot be downloaded.
+07:50:01.211 [main] ERROR com.cloud.storage.snapshot.SnapshotManagerImpl - Unable to find active snapshot [null] with id 3.
+[INFO] Tests run: 50, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.685 s - in com.cloud.storage.snapshot.SnapshotManagerTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 50, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- maven-jar-plugin:3.2.0:jar (default-jar) @ cloud-server ---
+[INFO] Building jar: /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/target/cloud-server-4.23.0.0.jar
+[INFO]
+[INFO] --- maven-site-plugin:3.21.0:attach-descriptor (attach-descriptor) @ cloud-server ---
+[INFO] Skipping because packaging 'jar' is not pom.
+[INFO]
+[INFO] --- maven-install-plugin:2.3.1:install (default-install) @ cloud-server ---
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/target/cloud-server-4.23.0.0.jar to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.jar
+[INFO] Installing /home/ablecloud/work/dhslove/cloud-epic-1473-snapshots/server/pom.xml to /home/ablecloud/.m2/repository/org/apache/cloudstack/cloud-server/4.23.0.0/cloud-server-4.23.0.0.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:01 min
+[INFO] Finished at: 2026-10-24T07:50:03+09:00
+[INFO] ------------------------------------------------------------------------

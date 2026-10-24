@@ -16,7 +16,8 @@
 // under the License.
 
 <template>
-  <span :style="styleSearch">
+  <SnapshotSearch v-if="apiName === 'listSnapshots'" @search="$emit('search', $event)" />
+  <span v-else :style="styleSearch">
     <span v-if="!searchFilters || searchFilters.length === 0" style="display: flex;">
       <a-input-search
         v-model:value="searchQuery"
@@ -180,6 +181,7 @@ import { isAdmin } from '@/role'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import ResourceIcon from '@/components/view/ResourceIcon'
 import Status from '@/components/widgets/Status'
+import SnapshotSearch from '@/components/view/SnapshotSearch'
 import { i18n } from '@/locales'
 import { affinityOwnerOptions, affinityTypeOptions } from '@/utils/affinityGroupCreation'
 
@@ -188,7 +190,8 @@ export default {
   components: {
     TooltipButton,
     ResourceIcon,
-    Status
+    Status,
+    SnapshotSearch
   },
   props: {
     searchFilters: {

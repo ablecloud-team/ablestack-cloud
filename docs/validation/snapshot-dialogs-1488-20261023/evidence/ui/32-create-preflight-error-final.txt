@@ -1,0 +1,6 @@
+Browser tab: 23, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/c92c1e88-9e20-424d-a0b8-171ce9dd5823".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 1676-1687, 1698
++				1705 text 4
+~				1675 button (disabled) 생성
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot/c92c1e88-9e20-424d-a0b8-171ce9dd5823

@@ -1,0 +1,457 @@
+{
+  "cellStyle": {
+    "background": "rgb(34, 40, 47)",
+    "color": "rgb(197, 204, 212)",
+    "fontSize": "14px",
+    "lineHeight": "22.001px",
+    "padding": "12px 8px"
+  },
+  "headers": [
+    "",
+    "VM 표시 명",
+    "내부 이름",
+    "상태",
+    "할당 자원",
+    "에이전트 버전",
+    "IP 주소",
+    "템플릿 형식",
+    "백업 오퍼링 이름",
+    "CPU 아키텍처",
+    "호스트",
+    "계정",
+    "Zone",
+    ""
+  ],
+  "menuCount": 0,
+  "noOverlap": true,
+  "pageOverflowContained": true,
+  "pagination": "전체 116 개 항목 중 1-20 표시",
+  "rows": [
+    {
+      "cells": [
+        "",
+        "GFS-TEST-VM",
+        "i-2-7-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "10.1.0",
+        "10.10.254.105 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "05f940bb-5ca7-4f58-8e41-ed8440758f0b",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "W2025-GFS2-Sparse",
+        "i-2-13-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "110.2.3",
+        "10.10.254.210 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "36d5333d-670a-4644-8c68-1f1dc154ba3a",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse",
+        "i-2-14-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.209 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "2f35ea9a-7ff2-494f-a857-6527e0fb1976",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse-Clone1",
+        "i-2-15-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.114 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "708d87cd-1d8a-4911-b22a-4211cdf1634f",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse-Clone2",
+        "i-2-16-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.237 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-2",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "dbdefe41-64a0-4ab1-a596-5d5f5131517c",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse-Clone3",
+        "i-2-17-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.116 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "1fdd690d-b0ca-45bf-9088-8534e409b866",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse-Clone4",
+        "i-2-18-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.144 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "3f135c5e-a3cf-4eec-9e90-51f3148c406d",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "R10-Sparse-Clone5",
+        "i-2-19-VM",
+        "실행 중",
+        "8 CPU\n16384 MB",
+        "10.1.0",
+        "10.10.254.115 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "c475abf7-2346-4015-9cef-001a78472c25",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "VM-630888e1-bcef-4b40-9952-b3409a664bae",
+        "i-2-22-VM",
+        "실행 중",
+        "1 CPU\n1024 MB",
+        "8.2.0",
+        "10.10.254.204 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-2",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "630888e1-bcef-4b40-9952-b3409a664bae",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "W2025-Sparse-Clone1",
+        "i-2-25-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "110.2.3",
+        "10.10.254.121 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-2",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "f4be8cb2-f649-47ef-bcd2-7b59b71d5471",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "W2025-Sparse-Clone2",
+        "i-2-26-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "110.2.3",
+        "10.10.254.118 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-2",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "06c6d7a7-f4da-4c2f-9a9b-c43cd015f6d9",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "W2025-Sparse-Clone3",
+        "i-2-27-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "110.2.3",
+        "10.10.254.120/16 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "9a2a9ac1-088e-40d5-b753-197a559b06e3",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "U26-Sparse",
+        "i-2-28-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.2.1",
+        "10.10.254.145/16 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "4cb71960-fc75-43e1-9830-8f4ee198def7",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Koral-ISO-Build-VM",
+        "i-2-29-VM",
+        "실행 중",
+        "4 CPU\n8192 MB",
+        "10.1.0",
+        "10.10.254.7 \n+5",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "e7f843af-f39f-4a3e-b5fc-bcc458d40fe9",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Ubuntu22-Sparse",
+        "i-2-52-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "6.2.0",
+        "10.10.254.1/16 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-2",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "d3cd2c68-78e3-42dd-a944-7c5ce731e658",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Ubuntu24-Sparse",
+        "i-2-56-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "8.2.2",
+        "10.10.254.129/16 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "04125c04-cfa5-4f43-be41-39e3c7d536d3",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Debian12-Sparse",
+        "i-2-61-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "7.2.22",
+        "10.10.254.133/16 \n+11",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-1",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "40f046e8-7433-4cc8-a0f0-1bc60513d222",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Debian13-Sparse",
+        "i-2-62-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.0.13",
+        "10.10.254.135/16 \n+11",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "b51c954a-45fc-4fdd-a395-e1b3b5b5d367",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Rocky9-Sparse",
+        "i-2-69-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "10.1.0",
+        "10.10.254.136 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "c5ac0d8b-c004-4040-8334-d57586eee4c7",
+      "selected": false
+    },
+    {
+      "cells": [
+        "",
+        "Rocky8-Sparse",
+        "i-2-70-VM",
+        "실행 중",
+        "2 CPU\n4096 MB",
+        "6.2.0",
+        "10.10.254.137 \n+4",
+        "USER",
+        "",
+        "x86_64",
+        "ablecube31-3",
+        "admin",
+        "Zone",
+        ""
+      ],
+      "disabled": false,
+      "id": "2785322f-54d0-4a5d-bf42-59bef03635d4",
+      "selected": false
+    }
+  ],
+  "theme": "dark-mode",
+  "toolbar": [],
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

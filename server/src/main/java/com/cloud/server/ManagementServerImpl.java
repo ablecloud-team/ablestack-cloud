@@ -7041,6 +7041,7 @@ public class ManagementServerImpl extends MutualExclusiveIdsManagerBase implemen
         cmdList.add(DeleteSnapshotPoliciesCmd.class);
         cmdList.add(ListSnapshotPoliciesCmd.class);
         cmdList.add(ListSnapshotsCmd.class);
+        cmdList.add(org.apache.cloudstack.api.command.user.snapshot.ListSnapshotCopyTargetsCmd.class);
         cmdList.add(RevertSnapshotCmd.class);
         cmdList.add(CreateSSHKeyPairCmd.class);
         cmdList.add(DeleteSSHKeyPairCmd.class);

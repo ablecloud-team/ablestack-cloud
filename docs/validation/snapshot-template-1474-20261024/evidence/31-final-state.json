@@ -1,0 +1,134 @@
+{
+  "snapshots": 0,
+  "volumes": 0,
+  "vm_instance": 0,
+  "vm_template": 0,
+  "snapshotReferences": 0,
+  "primaryTemplateCache": [],
+  "usage": [
+    {
+      "name": "SNAPT1474-31-root",
+      "count": 1
+    },
+    {
+      "name": "SNAPT1474-31-negative",
+      "count": 1
+    },
+    {
+      "name": "SNAPT1474-31-raw",
+      "count": 1
+    },
+    {
+      "name": "SNAPT1474-31-native",
+      "count": 1
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 21
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1206229790736
+    }
+  ],
+  "secondary": [
+    {
+      "path": "/nfs/secondary/snapshots/2/1000/83d05d2c-ec1a-49b9-8a48-a097decd0719",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/1001/cb0c1c26-0b3f-4dfd-ba13-eade1698e27b",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/998/4e127751-19c8-4d11-b559-00922200f3ef",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/999/2b6d7dea-3513-4cdf-aa60-42d3be8c5ec6",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/400",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/401",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/402",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/403",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/404",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/405",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/406",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/407",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/408",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/409",
+      "exists": false,
+      "directory": false,
+      "children": []
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/410",
+      "exists": false,
+      "directory": false,
+      "children": []
+    }
+  ],
+  "primaryObjects": [],
+  "domains": {
+    "1": [],
+    "2": [],
+    "3": []
+  }
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "createSnapshot",
+    "jobid": "8a18972b-7ec6-48e1-b884-27283da51d9f",
+    "jobRows": 1,
+    "resource": "6acf107e-81fe-47a3-930f-fdf47019ed39",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "createVolume",
+    "jobid": "6ce97db7-ee65-4994-9e08-b6118beb18ef",
+    "jobRows": 1,
+    "resource": "083d7179-4e15-476e-a1fd-7cafbca8c8b4",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "createTemplate",
+    "jobid": "4a134d5c-abcf-44ff-a054-e53e435efcd2",
+    "jobRows": 1,
+    "resource": "1bbb9ce8-377f-46ad-a8e0-cc423bdbd598",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "UI socket drop/F5",
+    "jobid": "be72fead-2966-4577-a89c-b148042bb96c",
+    "jobRows": 1,
+    "resource": "24165be4-ed23-4c19-b4ee-d2893a038621",
+    "jobStatus": 1,
+    "resourceRows": 1
+  }
+]

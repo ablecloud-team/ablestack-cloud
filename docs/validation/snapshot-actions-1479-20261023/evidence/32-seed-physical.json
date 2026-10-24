@@ -1,0 +1,21 @@
+{
+  "images": [],
+  "sourceVolumes": [
+    {
+      "uuid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "exists": true,
+      "snapshots": []
+    },
+    {
+      "uuid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "exists": true,
+      "snapshots": []
+    },
+    {
+      "uuid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "exists": true,
+      "snapshots": []
+    }
+  ],
+  "fixtureClones": []
+}

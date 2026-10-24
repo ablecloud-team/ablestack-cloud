@@ -1,0 +1,419 @@
+{
+  "cursor": 4805,
+  "requests": [
+    {
+      "id": "22664.1458",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 4,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-job-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-read-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-late-held",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1459",
+      "command": "createTags",
+      "args": {
+        "command": "createTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "tags[0].key": "ui-owner",
+        "tags[0].value": "32"
+      },
+      "method": "POST",
+      "response": {
+        "createtagsresponse": {
+          "jobid": "8bd21a14-3f26-498d-99e3-61f55d595732"
+        }
+      }
+    },
+    {
+      "id": "22664.1460",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "8bd21a14-3f26-498d-99e3-61f55d595732",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "fbffb7c5-0de2-4c8f-b1e2-452960a1e36d",
+          "account": "SNAPTAG1484-32-owner",
+          "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+          "domainpath": "ROOT/SNAPTAG1484-32-domain",
+          "userid": "c17dd9a1-d233-4350-ab0d-2fac539fa40a",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T22:04:43+0900",
+          "jobid": "8bd21a14-3f26-498d-99e3-61f55d595732",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "22664.1461",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "8bd21a14-3f26-498d-99e3-61f55d595732",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "fbffb7c5-0de2-4c8f-b1e2-452960a1e36d",
+          "account": "SNAPTAG1484-32-owner",
+          "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+          "domainpath": "ROOT/SNAPTAG1484-32-domain",
+          "userid": "c17dd9a1-d233-4350-ab0d-2fac539fa40a",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T22:04:43+0900",
+          "completed": "2026-10-24T22:04:43+0900",
+          "jobid": "8bd21a14-3f26-498d-99e3-61f55d595732",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "22664.1462",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 5,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-job-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-read-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-late-held",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-owner",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1463",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 5,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-job-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-read-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-late-held",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-owner",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1464",
+      "command": "deleteTags",
+      "args": {
+        "command": "deleteTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "tags[0].key": "ui-owner",
+        "tags[0].value": "32"
+      },
+      "method": "POST",
+      "response": {
+        "deletetagsresponse": {
+          "jobid": "50be0a54-1ea4-45a6-87d9-cac92b49b535"
+        }
+      }
+    },
+    {
+      "id": "22664.1465",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "50be0a54-1ea4-45a6-87d9-cac92b49b535",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "fbffb7c5-0de2-4c8f-b1e2-452960a1e36d",
+          "account": "SNAPTAG1484-32-owner",
+          "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+          "domainpath": "ROOT/SNAPTAG1484-32-domain",
+          "userid": "c17dd9a1-d233-4350-ab0d-2fac539fa40a",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T22:04:44+0900",
+          "jobid": "50be0a54-1ea4-45a6-87d9-cac92b49b535",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "22664.1466",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "50be0a54-1ea4-45a6-87d9-cac92b49b535",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "fbffb7c5-0de2-4c8f-b1e2-452960a1e36d",
+          "account": "SNAPTAG1484-32-owner",
+          "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+          "domainpath": "ROOT/SNAPTAG1484-32-domain",
+          "userid": "c17dd9a1-d233-4350-ab0d-2fac539fa40a",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T22:04:44+0900",
+          "completed": "2026-10-24T22:04:45+0900",
+          "jobid": "50be0a54-1ea4-45a6-87d9-cac92b49b535",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "22664.1467",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 4,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-job-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-read-retry",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            },
+            {
+              "key": "ui-late-held",
+              "value": "32",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

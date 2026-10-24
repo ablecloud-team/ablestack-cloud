@@ -1,0 +1,392 @@
+Browser tab: 14, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot
+	2 container
+		403 container
+			404 image
+			405 menu
+				406 dashboard 대시보드
+					407 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				408 container
+					409 image cloud
+					410 text 컴퓨트
+				411 container
+					412 image hdd
+					413 text 스토리지
+				414 content list sub_menu_2_$$_/storage-popup
+					415 hdd 볼륨
+						416 link Description: hdd 볼륨, Value: localhost:18031/client/#/volume
+					417 build 스냅샷
+						418 link Description: build 스냅샷, Value: localhost:18031/client/#/snapshot
+					419 build 스냅샷 정책
+						420 link Description: build 스냅샷 정책, Value: localhost:18031/client/#/snapshotpolicy
+					421 funnel-plot 버킷
+						422 link Description: funnel-plot 버킷, Value: localhost:18031/client/#/buckets
+					423 file-text 공유 파일 시스템
+						424 link Description: file-text 공유 파일 시스템, Value: localhost:18031/client/#/sharedfs
+				425 container
+					426 image wifi
+					427 text 네트워크
+				428 container
+					429 image picture
+					430 text 이미지
+				431 container
+					432 image lock
+					433 text 키 관리
+				434 schedule 이벤트
+					435 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				436 project 프로젝트
+					437 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				438 team 계정
+					439 link Description: team 계정, Value: localhost:18031/client/#/account
+				440 global Zone
+					441 link Description: global Zone, Value: localhost:18031/client/#/zones
+				442 container
+					443 image shopping
+					444 text 서비스 오퍼링
+				445 container
+					446 image tool
+					447 text 도구
+				448 read API 문서
+					449 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			363 container
+				402 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				364 image project
+				365 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		718 button 알림 제거
+		60 container
+			580 container
+				581 container
+					582 link Description: home, Value: localhost:18031/client/#/
+					583 text /
+					584 link Description: 스냅샷, Value: localhost:18031/client/#/snapshot
+					733 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					734 button reload 업데이트
+						735 image reload
+						736 text 업데이트
+					737 switch 프로젝트, Value: 0
+						738 text 프로젝트
+				739 button 삭제 잔여 복구
+					740 image tool
+				741 container
+					742 button 고급 검색
+						743 image filter
+					744 text field (settable)
+					745 button search
+						746 image search
+			463 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				464 image right
+				465 text 스냅샷 작업 및 결과 확인
+			1179 text deleteSnapshot · SNAP1479-31-lost-reload-ui
+			1252 text 24165be4-ed23-4c19-b4ee-d2893a038621 · 접수 또는 결과 미확인 · 재제출 차단 · 2026-10-23T11:39:15.362Z
+			1181 text 요청 UUID: 18222563-f3f5-44ae-ba73-37a7cea972d7
+			1253 container
+				1254 image exclamation-circle
+				1255 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 이 알림을 클릭하면 결과를 다시 조회합니다.
+			1256 button 기존 작업 결과 조회
+			1257 link Description: 작업 이력 확인, Value: localhost:18031/client/#/event?resourceid=24165be4-ed23-4c19-b4ee-d2893a038621
+			1258 container
+				1259 text field (settable)
+				1260 checkbox (settable, integer) Description: 이 job의 작업 종류와 대상이 위 요청과 일치함을 이력에서 확인했습니다.  , Value: 0
+				1261 text 이 job의 작업 종류와 대상이 위 요청과 일치함을 이력에서 확인했습니다.
+				1262 button (disabled) 기존 작업 연결 후 결과 조회
+				1263 checkbox (settable, integer) Description: 작업/이벤트에서 기존 요청이 실행 중이거나 완료된 상태가 아님을 확인했습니다.  , Value: 0
+				1264 text 작업/이벤트에서 기존 요청이 실행 중이거나 완료된 상태가 아님을 확인했습니다.
+				1265 button (disabled) 확인한 미접수 요청 차단 해제
+			719 text createVolume · SNAP1479-31-tenant-snapshot
+			720 text db2a8229-b521-441f-9d1c-1fe4c44b0bce · 실행 전 검증 중단 · 2026-10-23T11:28:47.246Z
+			721 text 요청 UUID: 20bbf36c-619e-4a87-99c3-60dd16ba72ac
+			722 container
+				723 image close-circle
+				724 text Request failed with status code 530
+			466 text createSnapshot · SNAP1479-31-tenant-source
+			576 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:23:54.177Z
+			577 link Description: 상세, Value: localhost:18031/client/#/snapshot/b7ac6d09-2c86-43c4-8133-fec74a3c79cb
+			468 text 작업 ID: 38d0c071-c199-4ceb-8b2e-12415b360230
+			472 button 기존 작업 결과 조회
+			474 text createSnapshot · SNAP1479-31-tenant-source
+			475 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:16:50.480Z
+			476 text 작업 ID: be72fead-2966-4577-a89c-b148042bb96c
+			477 button 기존 작업 결과 조회
+			928 container
+				929 table
+					930 row
+						931 cell
+							932 container
+								933 checkbox (settable, integer) Description:  , Value: 0
+						934 cell
+							935 container
+								936 text 이름
+								937 image caret-up
+								938 image caret-down
+						939 cell
+							940 container
+								941 text 상태
+								942 image caret-up
+								943 image caret-down
+						944 cell
+							945 container
+								946 text 볼륨 이름
+								947 image caret-up
+								948 image caret-down
+						949 cell
+							950 container
+								951 text 간격 유형
+								952 image caret-up
+								953 image caret-down
+						954 cell
+							955 container
+								956 text 물리적 크기
+								957 image caret-up
+								958 image caret-down
+						959 cell
+							960 container
+								961 text 생성일
+								962 image caret-up
+								963 image caret-down
+						964 cell
+							965 container
+								966 text Zone
+								967 image caret-up
+								968 image caret-down
+						969 cell
+							970 button filter
+								971 image filter
+					972 row
+						973 cell
+							974 container
+								975 checkbox (settable, integer) Description:  , Value: 0
+						976 cell
+							977 link Description: SNAP1479-31-tenant-snapshot, Value: localhost:18031/client/#/snapshot/db2a8229-b521-441f-9d1c-1fe4c44b0bce
+						978 cell
+							979 text 백업 됨
+						980 cell
+							981 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						982 cell
+							983 text MANUAL
+						984 cell
+							985 text 0.00 GiB
+						986 cell
+							987 text 2026. 10. 23. 오후 7:21:36
+						988 cell
+							989 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+					990 row
+						991 cell
+							992 container
+								993 checkbox (settable, integer) Description:  , Value: 0
+						994 cell
+							995 link Description: SNAP1479-31-lost-ui, Value: localhost:18031/client/#/snapshot/d9f9b438-fd77-4600-8f62-8cda96171731
+						996 cell
+							997 text 백업 됨
+						998 cell
+							999 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1000 cell
+							1001 text MANUAL
+						1002 cell
+							1003 text 0.00 GiB
+						1004 cell
+							1005 text 2026. 10. 23. 오후 7:29:28
+						1006 cell
+							1007 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+					1008 row
+						1009 cell
+							1010 container
+								1011 checkbox (settable, integer) Description:  , Value: 0
+						1012 cell
+							1013 link Description: SNAP1479-31-lost-ui, Value: localhost:18031/client/#/snapshot/00476908-569b-4d56-a950-21004036d9fc
+						1014 cell
+							1015 text 할당 됨
+						1016 cell
+							1017 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1018 cell
+							1019 text MANUAL
+						1020 cell
+							1021 text 0
+						1022 cell
+							1023 text 2026. 10. 23. 오후 7:29:28
+						1024 cell
+							1025 link localhost:18031/client/#/zone/undefined
+					1026 row
+						1027 cell
+							1028 container
+								1029 checkbox (settable, integer) Description:  , Value: 0
+						1030 cell
+							1031 link Description: SNAP1479-31-dedupe-createSnapshot, Value: localhost:18031/client/#/snapshot/6acf107e-81fe-47a3-930f-fdf47019ed39
+						1032 cell
+							1033 text 백업 됨
+						1034 cell
+							1035 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1036 cell
+							1037 text MANUAL
+						1038 cell
+							1039 text 0.00 GiB
+						1040 cell
+							1041 text 2026. 10. 23. 오후 7:45:52
+						1042 cell
+							1043 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+					1044 row
+						1045 cell
+							1046 container
+								1047 checkbox (settable, integer) Description:  , Value: 0
+						1048 cell
+							1049 link Description: SNAP1479-31-lost-fixed-ui, Value: localhost:18031/client/#/snapshot/21e134fe-bc51-4aef-b76a-8e952ac34ea6
+						1050 cell
+							1051 text 백업 됨
+						1052 cell
+							1053 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1054 cell
+							1055 text MANUAL
+						1056 cell
+							1057 text 0.00 GiB
+						1058 cell
+							1059 text 2026. 10. 23. 오후 7:58:45
+						1060 cell
+							1061 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+					1062 row
+						1063 cell
+							1064 container
+								1065 checkbox (settable, integer) Description:  , Value: 1
+						1066 cell
+							1067 link Description: SNAP1479-31-lost-reload-ui, Value: localhost:18031/client/#/snapshot/24165be4-ed23-4c19-b4ee-d2893a038621
+						1068 cell
+							1069 text 백업 됨
+						1070 cell
+							1071 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1072 cell
+							1073 text MANUAL
+						1074 cell
+							1075 text 0.00 GiB
+						1076 cell
+							1077 text 2026. 10. 23. 오후 8:16:55
+						1078 cell
+							1079 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+					1080 row
+						1081 cell
+							1082 container
+								1083 checkbox (settable, integer) Description:  , Value: 1
+						1084 cell
+							1085 link Description: SNAP1479-31-query-project-ui, Value: localhost:18031/client/#/snapshot/b7ac6d09-2c86-43c4-8133-fec74a3c79cb
+						1086 cell
+							1087 text 백업 됨
+						1088 cell
+							1089 link Description: SNAP1479-31-tenant-source, Value: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						1090 cell
+							1091 text MANUAL
+						1092 cell
+							1093 text 0.00 GiB
+						1094 cell
+							1095 text 2026. 10. 23. 오후 8:23:59
+						1096 cell
+							1097 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				1098 text 2개 선택
+			916 content list
+				917 text 전체 7 개 항목 중 1-7 표시
+				918 container 이전 페이지
+					919 button (disabled) left
+						920 image left
+				921 text 1
+				922 container 다음 페이지
+					923 button (disabled) right
+						924 image right
+				925 container
+					926 combo box (settable) rc_select_4
+					927 text 20 / 쪽
+	728 container
+		729 image close-circle
+		730 text 요청 실패
+		731 link close
+			732 image close
+	1099 container
+		1100 container 스냅샷 삭제
+			1101 container
+				1102 button Close
+					1103 image close
+				1104 text 스냅샷 삭제
+				1105 container
+					1106 image exclamation-circle
+					1107 text 현재 스냅샷을 삭제하시겠습니까?
+					1267 image close-circle
+					1268 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 이 알림을 클릭하면 결과를 다시 조회합니다.
+					1269 container
+						1270 table
+							1271 row
+								1272 cell
+									1273 text 이름
+								1274 cell
+									1275 text SNAP1479-31-lost-reload-ui · 24165be4-ed23-4c19-b4ee-d2893a038621
+							1276 row
+								1277 cell
+									1278 text 상태
+								1279 cell
+									1280 text BackedUp
+							1281 row
+								1282 cell
+									1283 text 볼륨
+								1284 cell
+									1285 text SNAP1479-31-tenant-source · 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · Ready
+							1286 row
+								1287 cell
+									1288 text 가상머신
+								1289 cell
+									1290 text 없음
+							1291 row
+								1292 cell
+									1293 text 계정
+								1294 cell
+									1295 text snap1479-31-tenant · ROOT
+							1296 row
+								1297 cell
+									1298 text Zone
+								1299 cell
+									1300 text 모든 Zone 및 현재 사본 범위
+						1301 button 현재 대상 다시 확인
+					1302 container
+						1303 table
+							1304 row
+								1305 cell
+									1306 text 이름
+								1307 cell
+									1308 text SNAP1479-31-query-project-ui · b7ac6d09-2c86-43c4-8133-fec74a3c79cb
+							1309 row
+								1310 cell
+									1311 text 상태
+								1312 cell
+									1313 text BackedUp
+							1314 row
+								1315 cell
+									1316 text 볼륨
+								1317 cell
+									1318 text SNAP1479-31-tenant-source · 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · Ready
+							1319 row
+								1320 cell
+									1321 text 가상머신
+								1322 cell
+									1323 text 없음
+							1324 row
+								1325 cell
+									1326 text 계정
+								1327 cell
+									1328 text snap1479-31-tenant · ROOT
+							1329 row
+								1330 cell
+									1331 text Zone
+								1332 cell
+									1333 text 모든 Zone 및 현재 사본 범위
+						1334 button 현재 대상 다시 확인
+					1174 checkbox (disabled, settable, integer) Description: 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.  , Value: 0
+					1175 text 표시된 스냅샷·원본 볼륨/VM·소유자·Zone과 작업 영향을 확인했습니다.
+					1266 text SNAP1479-31-lost-reload-ui · 접수 또는 결과 미확인 · 재제출 차단 ·
+				1176 button 닫기
+				1177 button 현재 대상 다시 확인
+				1178 button (disabled) 스냅샷 삭제
+					1251 text 스냅샷 삭제
+
+The focused UI element is 1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: localhost:18031/client/#/snapshot

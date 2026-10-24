@@ -1,0 +1,80 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "ba62370e-1790-45c8-b9ab-26d8d079d877",
+    "name": "SNAP1477-32-force-secondary-missing",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 80,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready"
+      },
+      {
+        "referenceid": 81,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "49419217deaa3159814756da45532e00aa86ded5e701ee294499d48e1641f81e",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 80,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      },
+      {
+        "referenceid": 81,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "ba62370e-1790-45c8-b9ab-26d8d079d877",
+    "name": "SNAP1477-32-force-secondary-missing",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 80,
+        "role": "Primary",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      },
+      {
+        "referenceid": 81,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "ba62370e-1790-45c8-b9ab-26d8d079d877",
+    "name": "SNAP1477-32-force-secondary-missing",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "dcb2717b5307f97878b83c6790ee4ea62016cfeeb07fc02820a9cede4f24c483",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

@@ -65,3 +65,20 @@ test('lost create response blocks repeat submissions without claiming job failur
   await expect(AutogenView.methods.postSnapshotAwareAction.call(context, action, {})).rejects.toThrow('message.vmsnapshot.busy')
   expect(postAPI).toHaveBeenCalledTimes(1)
 })
+
+test('a storage restore dialog freezes its target and returns focus to the action trigger on close', () => {
+  const trigger = document.createElement('button')
+  const dialogButton = document.createElement('button')
+  document.body.append(trigger, dialogButton)
+  const row = { id: 'fixed-snapshot', name: 'selected snapshot' }
+  const view = { $route: { path: '/snapshot/fixed-snapshot', meta: { name: 'snapshot' } }, $refs: { detailActionsTrigger: { $el: trigger } }, resource: row, storageActionGeneration: 0, $nextTick: callback => callback() }
+  try {
+    AutogenView.methods.execAction.call(view, { api: 'revertSnapshot', storageSnapshotMode: true, resource: row }, false)
+    row.id = 'later-selection'
+    expect(view.currentAction.storageSnapshotTargets[0].id).toBe('fixed-snapshot')
+    dialogButton.focus()
+    AutogenView.methods.closeAction.call(view)
+    expect(document.activeElement).toBe(trigger)
+    expect(view.showAction).toBe(false)
+  } finally { trigger.remove(); dialogButton.remove() }
+})

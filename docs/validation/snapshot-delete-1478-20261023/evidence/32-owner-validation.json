@@ -1,0 +1,49 @@
+[
+  {
+    "name": "foreign diagnosis denied",
+    "status": "PASS"
+  },
+  {
+    "name": "foreign deletion denied",
+    "status": "PASS"
+  },
+  {
+    "name": "normal owner repairs Destroyed residuals and repeats safely",
+    "status": "PASS",
+    "before": {
+      "success": true,
+      "snapshotid": "c9501c7e-d15d-4c2c-ac7d-64d48a347a5e",
+      "name": "SNAP1478-32-tenant",
+      "state": "Destroyed",
+      "dryrun": true,
+      "reference": [
+        {
+          "referenceid": 53,
+          "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "storename": "Primary",
+          "role": "Primary",
+          "state": "Destroying",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+        },
+        {
+          "referenceid": 54,
+          "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+          "storename": "Secondary",
+          "role": "Image",
+          "state": "Destroying",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+        }
+      ],
+      "scopehash": "0863205af8481cb5bcae644ad69914e0599a5137de35dfc2ff4fbbb3c3a8d849"
+    },
+    "after": {
+      "success": true,
+      "snapshotid": "c9501c7e-d15d-4c2c-ac7d-64d48a347a5e",
+      "name": "SNAP1478-32-tenant",
+      "state": "Destroyed",
+      "dryrun": true,
+      "reference": [],
+      "scopehash": "b9f6ac2137c1efc2b3baeaacdc9d7f71a6e0a2350c480d01c8857e007fe43042"
+    }
+  }
+]

@@ -102,4 +102,56 @@ public class SnapshotDataFactoryImplTest {
             componentContextMockedStatic.verify(() -> ComponentContext.inject(SnapshotObject.class), Mockito.times(1));
         }
     }
+    @Test
+    public void duplicateStoreReferencesKeepTheirOwnIdentity() {
+        try (MockedStatic<ComponentContext> context = Mockito.mockStatic(ComponentContext.class)) {
+            context.when(() -> ComponentContext.inject(SnapshotObject.class)).thenAnswer(invocation -> new SnapshotObject());
+            SnapshotVO snapshot = Mockito.mock(SnapshotVO.class);
+            DataStore store = Mockito.mock(DataStore.class);
+            SnapshotDataStoreVO first = Mockito.mock(SnapshotDataStoreVO.class);
+            SnapshotDataStoreVO second = Mockito.mock(SnapshotDataStoreVO.class);
+            Mockito.when(first.getId()).thenReturn(41L);
+            Mockito.when(second.getId()).thenReturn(42L);
+            for (SnapshotDataStoreVO ref : List.of(first, second)) {
+                Mockito.when(ref.getDataStoreId()).thenReturn(9L);
+                Mockito.when(ref.getRole()).thenReturn(DataStoreRole.Image);
+            }
+            Mockito.when(snapshotDaoMock.findById(3L)).thenReturn(snapshot);
+            Mockito.when(snapshotStoreDaoMock.findBySnapshotIdWithNonDestroyedState(3L)).thenReturn(List.of(first, second));
+            Mockito.when(dataStoreManagerMock.getDataStore(9L, DataStoreRole.Image)).thenReturn(store);
+            List<SnapshotInfo> result = snapshotDataFactoryImpl.getSnapshots(3L, null);
+            Assert.assertEquals(Long.valueOf(41), result.get(0).getDataStoreRefId());
+            Assert.assertEquals(Long.valueOf(42), result.get(1).getDataStoreRefId());
+            Assert.assertNotSame(result.get(0), result.get(1));
+        }
+    }
+
+    @Test
+    public void forcedRetryResolvesTheExactDestroyedReference() {
+        try (MockedStatic<ComponentContext> context = Mockito.mockStatic(ComponentContext.class)) {
+            context.when(() -> ComponentContext.inject(SnapshotObject.class)).thenAnswer(call -> new SnapshotObject());
+            SnapshotVO snapshot = Mockito.mock(SnapshotVO.class);
+            SnapshotDataStoreVO ref = Mockito.mock(SnapshotDataStoreVO.class);
+            DataStore store = Mockito.mock(DataStore.class);
+            Mockito.when(snapshotDaoMock.findById(3L)).thenReturn(snapshot);
+            Mockito.when(snapshotStoreDaoMock.findById(42L)).thenReturn(ref);
+            Mockito.when(ref.getSnapshotId()).thenReturn(3L);
+            Mockito.when(ref.getDataStoreId()).thenReturn(9L);
+            Mockito.when(ref.getRole()).thenReturn(DataStoreRole.Image);
+            Mockito.when(dataStoreManagerMock.getDataStore(9L, DataStoreRole.Image)).thenReturn(store);
+            SnapshotInfo result = snapshotDataFactoryImpl.getSnapshotForStoreRef(3L, 42L);
+            Assert.assertEquals(Long.valueOf(42), result.getDataStoreRefId());
+        }
+    }
+    @Test
+    public void mismatchedReferenceCannotBeUsedForForcedCleanup() {
+        SnapshotVO snapshot = Mockito.mock(SnapshotVO.class);
+        SnapshotDataStoreVO ref = Mockito.mock(SnapshotDataStoreVO.class);
+        Mockito.when(snapshotDaoMock.findById(3L)).thenReturn(snapshot);
+        Mockito.when(snapshotStoreDaoMock.findById(42L)).thenReturn(ref);
+        Mockito.when(ref.getSnapshotId()).thenReturn(4L);
+        Assert.assertNull(snapshotDataFactoryImpl.getSnapshotForStoreRef(3L, 42L));
+        Mockito.verifyNoInteractions(dataStoreManagerMock);
+    }
+
 }

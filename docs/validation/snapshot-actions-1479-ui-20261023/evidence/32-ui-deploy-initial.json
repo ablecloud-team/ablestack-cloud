@@ -1,0 +1,17 @@
+{
+  "files": 920,
+  "verified": true,
+  "backup": "/root/snapshot-actions-1479-ui-notices-20261023-initial",
+  "cluster": "32",
+  "clientHttp": 200,
+  "moldActive": true,
+  "backendJarUnchanged": true,
+  "backendJarSha256": "18069c4dd03328b05ae5effb30afda906a9673c518ebfb84529b136c2d2a2546",
+  "markers": {
+    "snapshot-job-details": true,
+    "snapshot-notice-target": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true
+  }
+}

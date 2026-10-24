@@ -52,6 +52,22 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
     private DataStoreManager storeMgr;
 
     @Override
+    public SnapshotInfo getSnapshotForStoreRef(long snapshotId, long referenceId) {
+        SnapshotVO snapshot = snapshotDao.findById(snapshotId);
+        SnapshotDataStoreVO ref = snapshotStoreDao.findById(referenceId);
+        if (snapshot == null || ref == null || ref.getSnapshotId() != snapshotId) {
+            return null;
+        }
+        DataStore store = storeMgr.getDataStore(ref.getDataStoreId(), ref.getRole());
+        if (store == null) {
+            return null;
+        }
+        SnapshotObject info = SnapshotObject.getSnapshotObject(snapshot, store);
+        info.setDataStoreRefId(referenceId);
+        return info;
+    }
+
+    @Override
     public SnapshotInfo getSnapshot(long snapshotId, DataStore store) {
         SnapshotVO snapshot = snapshotDao.findById(snapshotId);
         SnapshotObject so = SnapshotObject.getSnapshotObject(snapshot, store);
@@ -107,6 +123,7 @@ public class SnapshotDataFactoryImpl implements SnapshotDataFactory {
             DataStore store = storeMgr.getDataStore(snapshotDataStoreVO.getDataStoreId(), snapshotDataStoreVO.getRole());
             SnapshotObject info = SnapshotObject.getSnapshotObject(snapshot, store);
 
+            info.setDataStoreRefId(snapshotDataStoreVO.getId());
             infos.add(info);
         }
         return infos;

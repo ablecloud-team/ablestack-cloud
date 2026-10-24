@@ -16,13 +16,36 @@
 // under the License.
 
 <template>
-  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup' }">
+  <div :class="{ 'autoscale-screen': $route.meta?.name === 'autoscalevmgroup', 'userdata-library': $route.meta?.name === 'userdata', 'affinity-library': $route.meta?.name === 'affinitygroup', 'snapshot-list-page': isSnapshotList }">
     <a-affix
-      :key="'affix-' + showSearchFilters + (isStorageUi ? '-' + storageHeaderWidth + '-' + device : ($route.meta?.name === 'userdata' ? '-' + device + '-' + selectedRowKeys.length : ''))"
+      :key="'affix-' + showSearchFilters + ((isStorageUi || isSnapshotList) ? '-' + storageHeaderWidth + '-' + device : ($route.meta?.name === 'userdata' ? '-' + device + '-' + selectedRowKeys.length : ''))"
       :offsetTop="this.$store.getters.maintenanceInitiated || this.$store.getters.shutdownTriggered ? 103 : 78"
     >
       <a-card class="breadcrumb-card" style="z-index: 10">
-        <a-row>
+        <template v-if="isSnapshotList">
+          <breadcrumb :resource="resource" />
+          <div class="snapshot-list-toolbar" data-testid="snapshot-list-toolbar">
+            <div class="snapshot-list-toolbar-actions">
+              <a-tooltip :title="$t('message.snapshot.list.create.volume')">
+                <a-button v-if="'createSnapshot' in $store.getters.apis && 'listVolumes' in $store.getters.apis" type="primary" shape="round" @click="$router.push(snapshotSourceVolumeRoute($route))">
+                  <plus-outlined /> {{ $t('label.snapshot.list.create') }}
+                </a-button>
+              </a-tooltip>
+              <action-button
+                v-if="visibleListActions.length"
+:actions="visibleListActions"
+:selectedRowKeys="selectedRowKeys"
+:selectedItems="selectedItems"
+:resource="resource"
+:dataView="false"
+                @exec-action="(action) => execAction(action, action.groupAction)" />
+              <a-switch v-if="!projectView && hasProjectId" :checked-children="$t('label.projects')" :un-checked-children="$t('label.projects')" :checked="$store.getters.listAllProjects" @change="checked => $store.dispatch('SetListAllProjects', checked)" />
+              <a-button shape="round" :loading="listRequestPending" :disabled="listRequestPending" @click="fetchData({ irefresh: true })"><reload-outlined /> {{ $t('label.refresh') }}</a-button>
+            </div>
+            <div class="snapshot-list-toolbar-search"><search-view :searchFilters="searchFilters" :searchParams="searchParams" :apiName="apiName" @search="onSearch" @change-filter="changeFilter" /></div>
+          </div>
+        </template>
+        <a-row v-else>
           <a-col
             :span="device === 'mobile' ? 24 : 12"
             style="padding-left: 12px; margin-top: 10px"
@@ -169,6 +192,7 @@
     <div v-show="showAction">
       <component
         v-if="showAction && currentAction.selfManagedDialog"
+        :key="currentAction.storageSnapshotMode ? storageActionGeneration : undefined"
         ref="selfManagedAction"
         :is="currentAction.component"
         :resource="resource"
@@ -177,12 +201,12 @@
         @refresh-data="fetchData"
         @close-action="closeAction"
       />
-      <keep-alive v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
+      <keep-alive :max="isStorageUi ? 1 : undefined" v-else-if="currentAction.component && (!currentAction.invokedAsGroupAction || currentAction.api === 'destroyVirtualMachine')">
         <component
-          :is="isStorageUi ? 'MoldDialog' : 'a-modal'"
-          :size="isStorageUi ? storageDialogSize(currentAction.api) : undefined"
+          :is="standardActionDialog ? 'MoldDialog' : 'a-modal'"
+          :size="currentAction.standardDialogSize || (isStorageUi ? storageDialogSize(currentAction.api) : undefined)"
           class="mold-dialog"
-          :class="{ 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': isStorageUi }"
+          :class="{ 'autoscale-dialog': $route.meta?.name === 'autoscalevmgroup', 'storage-standard-dialog': standardActionDialog, 'snapshot-standard-dialog': currentAction.snapshotStandardDialog }"
           centered
           :visible="showAction"
           :closable="true"
@@ -190,8 +214,8 @@
           :cancelText="$t('label.cancel')"
           @cancel="cancelAction"
           :confirmLoading="actionLoading"
-          :footer="isStorageUi ? undefined : null"
-          :form-actions="isStorageUi"
+          :footer="standardActionDialog ? undefined : null"
+          :form-actions="standardActionDialog"
           :width="currentAction.dialogWidth || 'auto'"
         >
           <template #title>
@@ -207,8 +231,9 @@
               <question-circle-outlined />
             </a>
           </template>
-          <keep-alive>
+          <keep-alive :max="isStorageUi ? 1 : undefined">
             <component
+              :key="isStorageUi ? storageActionGeneration : undefined"
               :is="currentAction.component"
               :resource="resource"
               :loading="loading"
@@ -821,8 +846,10 @@
         :updated="listLastUpdated"
         :retained="!!listLoadedScope"
         @retry="fetchData({ irefresh: true })" />
-      <a-alert v-if="isStorageUi && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
-        <template #description><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
+      <a-alert v-if="snapshotSearchFailure" class="storage-query-error" type="error" show-icon :message="$t('message.snapshot.search.' + snapshotSearchFailure)" />
+      <a-alert v-if="isSnapshotCopyList" class="storage-query-error" type="info" show-icon :message="$t('message.snapshot.search.copy.readonly')" />
+      <a-alert v-if="(isStorageUi || isSnapshotList) && listRefreshError" class="storage-query-error" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
+        <template #description><p v-if="isSnapshotList && snapshotListError">{{ snapshotListError.startsWith('message.') ? $t(snapshotListError) : snapshotListError }}</p><a-button size="small" :disabled="listRequestPending" @click="fetchData({ irefresh: true })">{{ $t('label.retry') }}</a-button></template>
       </a-alert>
       <div v-if="dataView">
         <a-spin v-if="isSshKeyPairDetail && !sshKeyPairDetailVisible" :spinning="loading">
@@ -859,13 +886,15 @@
         <a-alert v-if="listRefreshError && ($route.name === 'vmsnapshot' || $route.meta?.name === 'cniconfiguration')" type="error" show-icon :message="$t(listLoadedScope ? 'message.list.refresh.stale' : 'error.fetching.data')">
           <template #action><a-button size="small" @click="fetchData">{{ $t('label.refresh') }}</a-button></template>
         </a-alert>
-        <p v-else-if="listRefreshError && !isStorageUi && $route.meta?.name !== 'vmgroup'" role="status">{{ $t('message.list.refresh.stale') }}</p>
+        <p v-else-if="listRefreshError && !isStorageUi && !isSnapshotList && $route.meta?.name !== 'vmgroup'" role="status">{{ $t('message.list.refresh.stale') }}</p>
         <list-view
           :loading="loading"
           :emptyText="$route.meta?.name === 'vmgroup' ? vmGroupEmptyText : snapshotEmptyText"
           :columns="columns"
           :items="items"
-          :actions="$route.meta?.name === 'vmgroup' && !vmGroupQueryReady ? [] : actions"
+          :actions="isSnapshotCopyList || snapshotSearchFailure || (isSnapshotList && !storageActionReady) || ($route.meta?.name === 'vmgroup' && !vmGroupQueryReady) ? [] : actions"
+          :selectionDisabled="record => isSnapshotList && !storageActionReady"
+          :keyboardContextMenu="isSnapshotList"
           :currentPage="page"
           :pageSize="pageSize"
           :columnKeys="columnKeys"
@@ -877,7 +906,7 @@
           @table-change="handleTableChange"
         />
         <a-pagination
-          v-if="$route.meta?.name !== 'vmgroup' || listLoadedScope"
+          v-if="(!isSnapshotList && $route.meta?.name !== 'vmgroup') || listLoadedScope"
           class="row-element"
           style="margin-top: 10px"
           size="small"
@@ -917,6 +946,11 @@ import { ref, reactive, toRaw, h } from 'vue'
 import { Button } from 'ant-design-vue'
 import { getAPI, postAPI, callAPI } from '@/api'
 import { freshSnapshotContext } from '@/utils/vmSnapshotList'
+import { scopedSnapshotOperations, snapshotOperationAffectsRoute } from '@/utils/storageSnapshotNotices'
+import { snapshotSecurityScope as storageSnapshotSecurityScope } from '@/utils/storageSnapshotContext'
+import { snapshotListPage, snapshotSourceVolumeRoute, loadSnapshotListColumns, saveSnapshotListColumns } from '@/utils/storageSnapshotPresentation'
+import { storageSnapshotListQuery, storageSnapshotSortColumn, storageSnapshotSortQuery } from '@/utils/storageSnapshotList'
+import { normalizeSnapshotSearch, snapshotSearchError, snapshotSearchPermissionError, snapshotSearchQuery, snapshotCopyList, snapshotListRoute } from '@/utils/storageSnapshotSearch'
 import { snapshotBusy, snapshotSubmissions, trackUnknownSnapshotSubmission } from '@/utils/vmSnapshotActions'
 import VmSnapshotSummary from '@/components/view/VmSnapshotSummary'
 import { mixinDevice } from '@/utils/mixin.js'
@@ -977,7 +1011,7 @@ export default {
   provide: function () {
     return {
       parentFetchData: this.fetchData,
-      resourceActionReady: () => !this.isStorageUi || this.storageActionReady,
+      resourceActionReady: () => !(this.isStorageUi || this.isSnapshotList) || this.storageActionReady,
       parentExecuteAction: this.handleDataViewAction,
       parentToggleLoading: this.toggleLoading,
       parentStartLoading: this.startLoading,
@@ -990,6 +1024,7 @@ export default {
   },
   data () {
     return {
+      storageActionGeneration: 0,
       apiName: '',
       loading: false,
       // IntervalLoading: false,
@@ -1038,6 +1073,8 @@ export default {
       listSecurityScope: null,
       listCustomRender: {},
       listRefreshError: false,
+      snapshotListError: '',
+      snapshotSearchFailure: '',
       listLastUpdated: null,
       storageHeaderWidth: 0,
       vmGroupContextScope: null,
@@ -1177,11 +1214,13 @@ export default {
   },
   beforeRouteUpdate (to, from, next) {
     if (this.$refs.selfManagedAction?.blocksNavigation) { next(false); return }
+    if (to.path !== from.path && (storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot') && this.showAction) this.closeAction()
     this.currentPath = this.$route.fullPath
     next()
   },
   beforeRouteLeave (to, from, next) {
     if (this.$refs.selfManagedAction?.blocksNavigation) { next(false); return }
+    if ((storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot') && this.showAction) this.closeAction()
     console.log('DEBUG - Due to route change, ignoring results for any on-going API request', this.apiName)
     sourceToken.cancel()
     sourceToken.init()
@@ -1193,10 +1232,16 @@ export default {
     next()
   },
   watch: {
+    snapshotOperationCompletions (next, before = []) {
+      const previous = new Map(before.map(entry => [entry.id, entry.status]))
+      if (next.some(entry => previous.has(entry.id) && previous.get(entry.id) !== entry.status && ['complete', 'failed'].includes(entry.status) && snapshotOperationAffectsRoute(entry, this.$route))) this.fetchData({ irefresh: true })
+    },
     isStorageUi () { this.observeStorageHeader() },
+    isSnapshotList () { this.observeStorageHeader() },
     snapshotSecurityScope () {
-      if (this.$route.meta?.name === 'vmgroup' || this.isSshKeyPairDetail) this.fetchData()
+      if (this.$route.meta?.name === 'vmgroup' || this.isSshKeyPairDetail || snapshotListRoute(this.$route)) this.fetchData()
       if (['createVMSnapshot', 'revertToVMSnapshot', 'deleteVMSnapshot', 'createSnapshotFromVMSnapshot'].includes(this.currentAction.api)) this.closeAction()
+      if (this.showAction && (this.$route.meta?.name || this.$route.name) === 'snapshot') this.closeAction()
     },
     '$route' (to, from) {
       if (to.fullPath !== from.fullPath && !to.path.startsWith('/action/') && to?.query?.tab !== 'browser') {
@@ -1211,7 +1256,7 @@ export default {
           this.fetchData({ irefresh: true })
           return
         }
-        if (storageUiRoute(from) && this.showAction) this.closeAction()
+        if ((storageUiRoute(from) || (from.meta?.name || from.name) === 'snapshot') && this.showAction) this.closeAction()
         this.resetSelection()
         const page = Number(to.query.page)
         const pageSize = Number(to.query.pagesize)
@@ -1240,7 +1285,11 @@ export default {
     '$store.getters.metrics' (oldVal, newVal) {
       this.fetchData()
     },
-    '$store.getters.listAllProjects' (oldVal, newVal) {
+    '$store.getters.listAllProjects' (enabled) {
+      if (snapshotListRoute(this.$route) && !this.$store.getters.project?.id) {
+        const projectid = enabled ? '-1' : '0'
+        if (this.$route.query.projectid !== projectid) return this.$router.push({ query: { ...this.$route.query, projectid, page: '1' } })
+      }
       this.fetchData()
     },
     showAction (visible) {
@@ -1252,7 +1301,11 @@ export default {
     }
   },
   computed: {
+    snapshotOperationCompletions () { return scopedSnapshotOperations(storageSnapshotSecurityScope(this.$store)).map(entry => ({ ...entry })) },
     isStorageUi () { return storageUiRoute(this.$route) },
+    isSnapshotList () { return snapshotListRoute(this.$route) },
+    isSnapshotCopyList () { return snapshotCopyList(this.$route) },
+    standardActionDialog () { return this.isStorageUi || !!this.currentAction.standardDialogSize },
     storageActionReady () { return !this.listRequestPending && !this.listRefreshError && this.listLoadedScope === this.listScope() },
     isSshKeyPairDetail () { return isSshKeyPairDetailRoute(this.$route) },
     sshKeyPairDetailVisible () {
@@ -1269,11 +1322,12 @@ export default {
       return this.$t(filtered ? 'message.vm.group.query.no.results' : 'message.vm.group.query.empty')
     },
     snapshotEmptyText () {
+      if (this.$route.name === 'snapshot') return this.$t(this.listRefreshError ? 'message.snapshot.list.read.failed' : this.listRequestPending && !this.listLoadedScope ? 'label.loading' : 'message.snapshot.search.no.results')
       if (this.$route.name !== 'vmsnapshot') return ''
       const filtered = ['keyword', 'q', 'state', 'type', 'current', 'virtualmachineid', 'virtualmachineids', 'account', 'domainid'].some(key => this.$route.query[key] !== undefined && this.$route.query[key] !== '')
       return this.$t(filtered ? 'message.vmsnapshot.list.no.results' : 'message.vmsnapshot.list.empty')
     },
-    snapshotSecurityScope () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token]) },
+    snapshotSecurityScope () { return JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$store.state?.user?.token, this.$store.getters.userInfo?.roletype]) },
     activeFiltersList () {
       const queryParams = Object.assign({}, this.$route.query)
       const activeFilters = []
@@ -1365,6 +1419,7 @@ export default {
       })
     },
     visibleListActions () {
+      if (this.isSnapshotCopyList || this.snapshotSearchFailure || (this.isSnapshotList && !this.storageActionReady)) return []
       if (!this.actions || this.actions.length === 0 || this.dataView) {
         return []
       }
@@ -1398,7 +1453,7 @@ export default {
   methods: {
     observeStorageHeader () {
       if (this.storageHeaderObserver) this.storageHeaderObserver.disconnect()
-      if (!this.isStorageUi || !this.$el || typeof ResizeObserver === 'undefined') return
+      if ((!this.isStorageUi && !this.isSnapshotList) || !this.$el || typeof ResizeObserver === 'undefined') return
       // The sidebar and embedded browser can resize the container without
       // scrolling the window. Recreate Affix's cached placeholder width.
       this.storageHeaderObserver = new ResizeObserver(entries => {
@@ -1408,6 +1463,7 @@ export default {
       this.storageHeaderObserver.observe(this.$el)
     },
     storageDialogSize,
+    snapshotSourceVolumeRoute,
     documentationUrl,
     rejectSshKeyPairDetail (status) {
       this.sshKeyPairDetailStatus = status
@@ -1486,7 +1542,7 @@ export default {
       const routeKey = storageUiRoute(this.$route) && this.$route.params?.id
         ? storageDetailRouteKey(this.$route)
         : this.$route.meta?.name === 'cniconfiguration' && this.$route.params?.id ? cniHistoryRouteKey(this.$route) : this.$route.fullPath
-      return JSON.stringify([routeKey, this.$store.getters.project?.id,
+      return JSON.stringify([routeKey, ...(snapshotListRoute(this.$route) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token] : []), this.$store.getters.project?.id,
         this.$store.getters.userInfo?.id, this.$store.getters.metrics, this.$store.getters.listAllProjects])
     },
     getStyle () {
@@ -1548,7 +1604,28 @@ export default {
         return { props: { type: 'default' } }
       }
     },
+    async syncSnapshotProject (projectId) {
+      // The URL retains the scope. 0 is a UI-only default-view marker, never an API project ID.
+      if (typeof projectId !== 'string') return
+      const globalView = ['0', '-1'].includes(projectId)
+      if ((globalView ? !this.$store.getters.project?.id : projectId === this.$store.getters.project?.id) && !!this.$store.getters.listAllProjects === (projectId === '-1')) return
+      const scope = () => JSON.stringify([this.$route.fullPath, this.$store.getters.userInfo?.id, this.$store.state?.user?.token, this.$store.getters.project?.id, this.$store.getters.listAllProjects])
+      const captured = scope()
+      try {
+        let project = {}
+        if (!globalView) {
+          const json = await getAPI('listProjects', { id: projectId, listall: true, details: 'min', ignoreproject: true }, { preserveOnFailure: true, timeout: 20000 })
+          project = json?.listprojectsresponse?.project?.find(item => item.id === projectId)
+          if (!project) throw new Error(this.$t('message.snapshot.search.lookup.denied'))
+        }
+        if (!snapshotListRoute(this.$route) || captured !== scope() || this.$route.query.projectid !== projectId) return
+        await this.$store.dispatch('SetProject', project)
+        await this.$store.dispatch('SetListAllProjects', projectId === '-1')
+        this.fetchData({ irefresh: true })
+      } catch (error) { if (snapshotListRoute(this.$route) && captured === scope()) this.$notifyError(error) }
+    },
     switchProject (projectId) {
+      if (snapshotListRoute(this.$route)) return this.syncSnapshotProject(projectId)
       if (!projectId || !projectId.length || projectId.length !== 36) {
         return
       }
@@ -1566,6 +1643,19 @@ export default {
       })
     },
     fetchData (params = {}) {
+      if (this.$route.name === 'snapshot' && !this.$route.params.id) {
+        const projectId = this.$route.query.projectid || this.$store.getters.project?.id || (this.$store.getters.listAllProjects ? '-1' : '0')
+        const clean = storageSnapshotListQuery(normalizeSnapshotSearch({ ...this.$route.query, ...(projectId ? { projectid: projectId } : {}) }))
+        if (JSON.stringify(clean) !== JSON.stringify(this.$route.query)) return this.$router.replace({ query: clean })
+        this.snapshotSearchFailure = snapshotSearchError(clean) || snapshotSearchPermissionError(clean, this.$store.getters)
+        if (this.snapshotSearchFailure) {
+          this.listRequestVersion++; this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
+          this.listRequestPending = false; this.loading = false; this.listRefreshError = false; this.resetSelection()
+          return
+        }
+      } else {
+        this.snapshotSearchFailure = ''
+      }
       if (this.$route.meta?.name === 'affinitygroup') {
         const clean = affinityGroupQuery(this.$route.query)
         if (JSON.stringify(clean) !== JSON.stringify(this.$route.query)) {
@@ -1620,7 +1710,7 @@ export default {
           : null
         this.routeName = matchedRoute?.meta?.name || this.$route?.meta?.name || this.$route?.name || ''
       }
-      const securityScope = JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id])
+      const securityScope = JSON.stringify([this.$store.getters.userInfo?.id, this.$store.getters.project?.id, this.$route.params.id, ...(snapshotListRoute(this.$route) ? [this.$store.getters.userInfo?.roletype, this.$store.state?.user?.token] : [])])
       if (this.listSecurityScope !== securityScope) {
         this.items = []
         this.resource = {}
@@ -1635,7 +1725,13 @@ export default {
       }
       const version = ++this.listRequestVersion
       const sameList = this.listLoadedScope === scope
-      const schemaScope = JSON.stringify([this.$route.path, this.$i18n?.locale, this.$store.getters.metrics, this.$store.getters.listAllProjects, this.$store.getters.userInfo?.id])
+      if (snapshotListRoute(this.$route) && !sameList) {
+        this.items = []; this.resource = {}; this.itemCount = 0; this.listLoadedScope = null
+        this.snapshotListError = ''; this.listRefreshError = false
+        this.resetSelection()
+        if (this.$refs.listview) this.$refs.listview.resetSelection()
+      }
+      const schemaScope = JSON.stringify([this.$route.path, this.$i18n?.locale, this.$store.getters.metrics, this.$store.getters.listAllProjects, this.$store.getters.userInfo?.id, this.isSnapshotCopyList])
       const rebuildSchema = this.listSchemaScope !== schemaScope
       if (rebuildSchema) {
         this.apiName = ''
@@ -1684,6 +1780,9 @@ export default {
       if ((this.$route.name === 'vmsnapshot' || ['vmgroup', 'cniconfiguration'].includes(this.$route.meta?.name)) && !rebuildSchema) {
         this.columns.forEach(column => { column.sortOrder = (params.sortkey || (this.$route.name === 'vmsnapshot' ? 'created' : '')) === column.key ? (params.sortorder === 'asc' ? 'ascend' : 'descend') : null })
       }
+      if (this.$route.name === 'snapshot' && !this.dataView && !rebuildSchema) {
+        this.columns.forEach(column => Object.assign(column, storageSnapshotSortColumn(column.key, params)))
+      }
       delete params.q
       delete params.filter
       delete params.irefresh
@@ -1728,7 +1827,7 @@ export default {
           if (this.$route.meta.columns) {
             const columns = this.$route.meta.columns
             if (columns && typeof columns === 'function') {
-              this.columnKeys = asArray(columns(this.$store.getters))
+              this.columnKeys = asArray(columns(this.$store.getters, this.$route))
             } else {
               this.columnKeys = asArray(columns)
             }
@@ -1795,13 +1894,15 @@ export default {
             title: this.$t('label.' + String(title).toLowerCase()),
             dataIndex: key,
             sorter: this.$route.name === 'vmsnapshot' ? ['displayname', 'state', 'type', 'current', 'created'].includes(key) : sorter,
-            ...((this.$route.name === 'vmsnapshot' || ['vmgroup', 'cniconfiguration'].includes(this.$route.meta?.name)) ? { sortOrder: (this.$route.query.sortkey || (this.$route.name === 'vmsnapshot' ? 'created' : '')) === key ? (this.$route.query.sortorder === 'asc' ? 'ascend' : 'descend') : null } : {})
+            ...((this.$route.name === 'vmsnapshot' || ['vmgroup', 'cniconfiguration'].includes(this.$route.meta?.name)) ? { sortOrder: (this.$route.query.sortkey || (this.$route.name === 'vmsnapshot' ? 'created' : '')) === key ? (this.$route.query.sortorder === 'asc' ? 'ascend' : 'descend') : null } : {}),
+            ...(this.$route.name === 'snapshot' ? storageSnapshotSortColumn(key, this.$route.query) : {})
           })
           if (this.$route.name !== 'autoscalevmgroup' || defaultColumnKeys.some(column => (typeof column === 'object' ? column.field : column) === key)) this.selectedColumns.push(key)
         }
         this.allColumns = this.$route.name === 'autoscalevmgroup' ? [...this.columns] : this.columns
         if (this.$route.name === 'autoscalevmgroup') this.columns = this.allColumns.filter(column => this.selectedColumns.includes(column.dataIndex))
 
+        const requiredCopyColumns = this.isSnapshotCopyList ? this.columns.filter(column => ['copy', 'datastorename'].includes(column.key)) : []
         if (!store.getters.metrics) {
           if (!this.$store.getters.customColumns[this.$store.getters.userInfo.id]) {
             this.$store.getters.customColumns[this.$store.getters.userInfo.id] = {}
@@ -1825,6 +1926,15 @@ export default {
           }
         }
 
+        if (snapshotListRoute(this.$route) && this.$localStorage) {
+          const available = this.columnKeys.map(column => typeof column === 'object' ? column.field : column)
+          this.selectedColumns = loadSnapshotListColumns(this.$localStorage, this.$store.getters.userInfo.id, this.isSnapshotCopyList, this.selectedColumns, available)
+          this.updateSelectedColumns()
+        }
+        if (this.isSnapshotCopyList) {
+          this.selectedColumns = [...new Set([...this.selectedColumns, 'copy', 'datastorename'])]
+          requiredCopyColumns.forEach(column => { if (!this.columns.some(old => old.key === column.key)) this.columns.splice(1, 0, column) })
+        }
         if (this.$route.name === 'autoscalevmgroup' && !this.columns.some(column => column.key === 'filtercolumn')) this.updateSelectedColumns()
 
         this.chosenColumns = this.columns.filter(column => {
@@ -1910,8 +2020,9 @@ export default {
       }
 
       if (this.$store.getters.listAllProjects && !this.projectView) {
-        params.projectid = this.$route.meta?.name === 'affinitygroup' ? (this.$route.query.projectid || '-1') : '-1'
+        params.projectid = (this.$route.meta?.name === 'affinitygroup' || snapshotListRoute(this.$route)) ? (this.$route.query.projectid || '-1') : '-1'
       }
+      if (snapshotListRoute(this.$route) && params.projectid === '0') { delete params.projectid; params.ignoreproject = true }
 
       params.page = this.page
       params.pagesize = this.pageSize
@@ -1959,10 +2070,12 @@ export default {
         params = sshKeyPairVmParams(params, this.$route.query)
       }
       const cniQuery = ['cniconfiguration', 'affinitygroup'].includes(this.$route.meta?.name)
-      const response = vmGroups || sshDetail || cniQuery || storageUiRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
+      const response = vmGroups || sshDetail || cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route) ? getAPI(requestApi, params, { preserveOnFailure: true, timeout: 20000 }) : callAPI(requestApi, params)
       const request = response.then(async json => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         const groupResult = vmGroups ? vmGroupQueryRows(json) : null
+        const snapshotPage = snapshotListRoute(this.$route) ? snapshotListPage(json, this.$route, this.page, this.pageSize) : null
+        this.snapshotListError = ''
         if (sshDetail) {
           const result = sshKeyPairDetailResult(json, sshTarget)
           if (result.status !== 'ready') { this.rejectSshKeyPairDetail(result.status); return }
@@ -1995,6 +2108,7 @@ export default {
         }
 
         if (groupResult) apiItemCount = groupResult.count
+        if (snapshotPage) apiItemCount = snapshotPage.count
 
         const idFromRouteMatchesApiParameter = this.$route.params.id === params.id ||
           this.apiName === 'quotaSummary' && this.$route.params.id === params.accountid ||
@@ -2012,7 +2126,7 @@ export default {
             return
           }
         }
-        let responseItems = groupResult ? groupResult.rows : json[responseName][objectName]
+        let responseItems = snapshotPage ? snapshotPage.rows : groupResult ? groupResult.rows : json[responseName][objectName]
         if (this.$route.name === 'autoscalevmgroup' && !this.dataView && this.selectedColumns.includes('zonename')) {
           responseItems = await autoScaleInfrastructureRows(getAPI, responseItems || [], 'listNetworks' in this.$store.getters.apis)
           if (version !== this.listRequestVersion || scope !== this.listScope()) return
@@ -2077,7 +2191,8 @@ export default {
       }).catch(error => {
         if (version !== this.listRequestVersion || scope !== this.listScope()) return
         if (sshDetail) { this.rejectSshKeyPairDetail(sshKeyPairDetailFailure(error)); return }
-        if (cniQuery || storageUiRoute(this.$route)) {
+        if (cniQuery || storageUiRoute(this.$route) || snapshotListRoute(this.$route)) {
+          if (snapshotListRoute(this.$route)) this.snapshotListError = Object.values(error?.response?.data || {}).find(value => value?.errortext)?.errortext || (error.message?.startsWith('message.') ? error.message : 'message.snapshot.list.read.failed')
           this.listRefreshError = true
           if (cniQuery) {
             this.resetSelection()
@@ -2166,6 +2281,7 @@ export default {
       return request
     },
     closeAction (result) {
+      const snapshotDialog = this.currentAction?.storageSnapshotMode || this.currentAction?.snapshotStandardDialog
       const cniAction = this.currentAction?.api === 'deleteCniConfiguration' && this.currentAction.cniListScope === this.listScope()
       const cniLocation = this.currentAction?.cniListLocation
       const deletedCniDetail = cniAction && this.dataView && result?.removed?.includes(this.resource?.id)
@@ -2201,7 +2317,7 @@ export default {
       if (deletedUserDataDetail) this.$router.push('/userdata')
       // Clearing currentAction unmounts the legacy modal before AntD can restore focus.
       this.$nextTick(() => {
-        const replacement = this.isStorageUi && originPath === this.$route?.path
+        const replacement = (this.isStorageUi || snapshotDialog) && originPath === this.$route?.path
           ? (this.$refs?.detailActionsTrigger?.$el || (triggerLabel && Array.from(this.$el?.querySelectorAll('.autogen-toolbar-actions button') || []).find(button => button.getAttribute('aria-label') === triggerLabel)))
           : null
         const target = trigger?.isConnected ? trigger : replacement
@@ -2221,6 +2337,11 @@ export default {
         delete queryParams[`tags[${filter.tagIdx}].value`]
       } else {
         delete queryParams[filter.key]
+        if (this.$route.name === 'snapshot') {
+          if (filter.key === 'showunique') delete queryParams.locationtype
+          if (filter.key === 'snapshottype') delete queryParams.intervaltype
+          if (filter.key === 'domainid') delete queryParams.account
+        }
         if (this.$route.name === 'vmsnapshot' && filter.key === 'state') delete queryParams.filter
       }
       queryParams.page = '1'
@@ -2252,6 +2373,17 @@ export default {
       }
     },
     execAction (action, isGroupAction) {
+      if (snapshotListRoute(this.$route) && this.storageActionReady === false) return
+      if (storageUiRoute(this.$route) && (action.dataView || isGroupAction) && !this.storageActionReady) return
+      this.storageActionGeneration++
+      if (action.storageSnapshotMode) {
+        this.actionTrigger = this.$refs?.detailActionsTrigger?.$el || document.activeElement
+        this.actionTriggerLabel = this.actionTrigger?.getAttribute('aria-label')
+        this.actionOriginPath = this.$route?.path
+        this.currentAction = { ...action, invokedAsGroupAction: !!isGroupAction, storageSnapshotTargets: Object.freeze((isGroupAction ? this.selectedItems : [action.resource || this.resource]).filter(Boolean).map(row => Object.freeze({ ...row }))) }
+        this.resource = action.resource || {}; this.showAction = true
+        return
+      }
       if (storageUiRoute(this.$route) && (action.dataView || isGroupAction) && !this.storageActionReady) return
       if (isSshKeyPairDetailRoute(this.$route) && !this.canExecuteSshKeyPairAction(action)) return
       this.actionTrigger = document.activeElement
@@ -2991,6 +3123,8 @@ export default {
         }
       }
 
+      if (snapshotListRoute(this.$route) && name) saveSnapshotListColumns(this.$localStorage, this.$store.getters.userInfo.id, this.isSnapshotCopyList, this.selectedColumns)
+
       if (this.$route.name === 'autoscalevmgroup' && name === 'zonename' && this.selectedColumns.includes('zonename')) this.fetchData()
 
       this.columns = this.allColumns.filter(x => this.selectedColumns.includes(x.dataIndex))
@@ -3133,16 +3267,26 @@ export default {
       this.$router.push({ query })
     },
     onSearch (opts) {
+      if (this.$route.name === 'snapshot' && opts && Object.prototype.hasOwnProperty.call(opts, 'snapshotSearch')) {
+        const query = storageSnapshotListQuery(snapshotSearchQuery(this.$route.query, opts.snapshotSearch, this.pageSize))
+        this.searchParams = {}
+        if (JSON.stringify(query) === JSON.stringify(this.$route.query)) this.fetchData(query)
+        else this.$router.push({ query })
+        return
+      }
       const query = Object.assign({}, this.$route.query)
+      const snapshotKeywordSearch = this.$route.name === 'snapshot' && opts && Object.prototype.hasOwnProperty.call(opts, 'searchQuery')
       let searchFilters = this.$route?.meta?.searchFilters || []
       if (typeof searchFilters === 'function') {
         searchFilters = searchFilters()
       }
-      if (Array.isArray(searchFilters)) {
+      if (Array.isArray(searchFilters) && !snapshotKeywordSearch) {
         searchFilters.forEach(key => delete query[key])
       }
-      delete query.name
-      delete query.templatetype
+      if (!snapshotKeywordSearch) {
+        delete query.name
+        delete query.templatetype
+      }
       delete query.keyword
       delete query.q
       this.searchParams = {}
@@ -3183,11 +3327,15 @@ export default {
     },
     changePage (page, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = this.$route.meta?.name === 'cniconfiguration' && Number(pageSize) !== this.pageSize ? 1 : page
+      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot') && Number(pageSize) !== this.pageSize ? 1 : page
       query.pagesize = pageSize
       this.$router.push({ query })
     },
     handleTableChange (pagination, filters, sorter) {
+      if (this.$route.name === 'snapshot') {
+        this.$router.push({ query: storageSnapshotSortQuery(this.$route.query, sorter, this.pageSize) })
+        return
+      }
       if (['vmgroup', 'cniconfiguration'].includes(this.$route.meta?.name)) {
         const query = { ...this.$route.query }
         if (sorter?.order) { query.sortkey = sorter.field; query.sortorder = sorter.order === 'ascend' ? 'asc' : 'desc' } else { delete query.sortkey; delete query.sortorder }
@@ -3199,7 +3347,7 @@ export default {
     },
     changePageSize (currentPage, pageSize) {
       const query = Object.assign({}, this.$route.query)
-      query.page = this.$route.meta?.name === 'cniconfiguration' ? 1 : currentPage
+      query.page = (this.$route.meta?.name === 'cniconfiguration' || this.$route.name === 'snapshot') ? 1 : currentPage
       query.pagesize = pageSize
       this.$router.push({ query })
     },
@@ -3406,4 +3554,17 @@ export default {
 .hide {
   display: none !important;
 }
+
+.snapshot-list-page { min-width: 0; max-width: 100%; }
+.snapshot-list-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding-top: 12px; min-width: 0; }
+.snapshot-list-toolbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.snapshot-list-toolbar-actions :deep(.row-action-button) { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 !important; }
+.snapshot-list-toolbar-actions :deep(.ant-btn) { margin: 0; }
+.snapshot-list-toolbar-search { flex: 1 1 280px; max-width: 400px; margin-left: auto; min-width: 0; }
+.snapshot-list-page :deep(.ant-pagination) { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+@media (max-width: 767px) {
+  .snapshot-list-toolbar-search { flex-basis: 100%; max-width: none; width: 100%; }
+  .snapshot-list-page .breadcrumb-card { margin-left: -12px; margin-right: -12px; }
+}
+
 </style>

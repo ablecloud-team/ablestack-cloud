@@ -1,0 +1,56 @@
+[
+  {
+    "uuid": "e42db153-0e91-4e77-9fee-f81f20a73213",
+    "name": "SNAP1477-31-normal",
+    "role": "Image",
+    "path": "snapshots/2/975/36de84d0-e831-432f-a43c-b576552e2d68"
+  },
+  {
+    "uuid": "485ab229-76c1-4273-a557-4daa8c07a37b",
+    "name": "SNAP1477-31-residue",
+    "role": "Image",
+    "path": "snapshots/2/975/8344e461-d5a4-4534-b81b-4f1cf88a5f46"
+  },
+  {
+    "uuid": "951f5854-65c6-457e-bf09-8be34a675d84",
+    "name": "SNAP1477-31-partial",
+    "role": "Image",
+    "path": "snapshots/2/975/1f54285f-dd96-40de-bc5a-ef74825a49cb"
+  },
+  {
+    "uuid": "a5afa5d7-75a7-4073-82ea-77ff3fa718d6",
+    "name": "SNAP1477-31-control",
+    "role": "Image",
+    "path": "snapshots/2/975/69c72f57-d161-4a80-9f98-840f9cead61f"
+  },
+  {
+    "uuid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+    "name": "SNAP1477-31-force-path",
+    "role": "Image",
+    "path": "snapshots/2/975/c2415873-1b2a-405f-a05d-72ba03e36693"
+  },
+  {
+    "uuid": "077b9ecb-0ed4-4544-af68-96dedb387ad0",
+    "name": "SNAP1477-31-force-busy",
+    "role": "Image",
+    "path": "snapshots/2/975/9694e589-f5bc-421e-8bff-cb2339b5078c"
+  },
+  {
+    "uuid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+    "name": "SNAP1477-31-force-no-native",
+    "role": "Image",
+    "path": "snapshots/2/975/f11d8648-b2c1-4e5d-8507-1f325e16ef62"
+  },
+  {
+    "uuid": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+    "name": "SNAP1477-31-force-no-mapping",
+    "role": "Image",
+    "path": "snapshots/2/975/7a1bc4fc-2ab0-472b-820e-4981b6f40ce4"
+  },
+  {
+    "uuid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+    "name": "SNAP1477-31-tenant",
+    "role": "Image",
+    "path": "snapshots/249/976/56002d43-3f03-479e-87bd-12886652ecd0"
+  }
+]

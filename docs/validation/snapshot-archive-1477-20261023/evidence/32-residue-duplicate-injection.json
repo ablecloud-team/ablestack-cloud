@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-23T08:25:28.745022+00:00",
+  "cluster": "32",
+  "scenario": "residue",
+  "kind": "duplicate",
+  "snapshot": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+  "sourceReference": 76,
+  "injectedReference": 79,
+  "sourcePath": "snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+  "injectedPath": "snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+  "immutable": false
+}

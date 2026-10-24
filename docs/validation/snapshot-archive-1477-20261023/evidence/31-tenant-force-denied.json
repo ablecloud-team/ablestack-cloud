@@ -1,0 +1,56 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+    "name": "SNAP1477-31-tenant",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 127,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "b78ab274ecfc35bf7a47cf4c3d55522051c02435240409bfe32a3716e73fab8b",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "results": [
+    {
+      "dryrun": true,
+      "denied": true,
+      "failure": "{\"accountid\":\"4c32ca6b-dd9c-448b-a04c-cc9176181712\",\"account\":\"snap1477-31-tenant\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"97f84648-089f-487f-bc83-3a9aa8f860c5\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Forced snapshot cleanup requires a root administrator\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"4b279f50-7b1b-4358-ad5d-f1e4548037d1\",\"created\":\"2026-10-23T17:25:12+0900\",\"completed\":\"2026-10-23T17:25:12+0900\",\"jobid\":\"e5c8f267-6048-4971-b296-b59f9717ea37\",\"jobstatus\":2}"
+    },
+    {
+      "dryrun": false,
+      "denied": true,
+      "failure": "{\"accountid\":\"4c32ca6b-dd9c-448b-a04c-cc9176181712\",\"account\":\"snap1477-31-tenant\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"97f84648-089f-487f-bc83-3a9aa8f860c5\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Forced snapshot cleanup requires a root administrator\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"4b279f50-7b1b-4358-ad5d-f1e4548037d1\",\"created\":\"2026-10-23T17:25:12+0900\",\"completed\":\"2026-10-23T17:25:12+0900\",\"jobid\":\"ba71d752-763a-487f-a962-a379cb3af0b5\",\"jobstatus\":2}"
+    }
+  ],
+  "after": {
+    "success": true,
+    "snapshotid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+    "name": "SNAP1477-31-tenant",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 127,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "b78ab274ecfc35bf7a47cf4c3d55522051c02435240409bfe32a3716e73fab8b",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

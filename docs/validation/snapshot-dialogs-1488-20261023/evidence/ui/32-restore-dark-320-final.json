@@ -1,0 +1,199 @@
+{
+  "bodyOverflow": {
+    "clientHeight": 362,
+    "clientWidth": 294,
+    "scrollHeight": 362,
+    "scrollWidth": 294
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "text": "복원"
+    }
+  ],
+  "classes": "ant-modal snapshot-standard-dialog mold-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "스냅샷 복원"
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "contrast": 9.19,
+      "disabled": false,
+      "foreground": "rgb(255, 231, 163)",
+      "opacity": "1",
+      "text": "스냅샷 생성 이후의 변경 데이터가 사라집니다."
+    },
+    {
+      "background": [
+        64.24,
+        58.620000000000005,
+        43.22
+      ],
+      "contrast": 9.19,
+      "disabled": false,
+      "foreground": "rgb(255, 231, 163)",
+      "opacity": "1",
+      "text": "SNAPDIALOG-32-other 볼륨을 SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 13.35,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "복원 대상과 데이터 변경 영향을 확인했습니다."
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "취소"
+    },
+    {
+      "background": [
+        48,
+        54,
+        61
+      ],
+      "contrast": 10.96,
+      "disabled": true,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "복원"
+    }
+  ],
+  "contrastFailures": [],
+  "dark": true,
+  "documentOverflow": {
+    "clientWidth": 320,
+    "scrollWidth": 310
+  },
+  "fieldGaps": [],
+  "focus": "INPUT",
+  "minimumContrast": 7.13,
+  "modal": true,
+  "nestedForms": 0,
+  "overlaps": [],
+  "padding": {
+    "body": "16px",
+    "footer": "16px",
+    "header": "16px 24px"
+  },
+  "rect": {
+    "bottom": 642.140625,
+    "height": 484.28125,
+    "left": 12,
+    "right": 308,
+    "top": 157.859375,
+    "width": 296
+  },
+  "stackGaps": [
+    24
+  ],
+  "summaryTables": 0,
+  "text": "스냅샷 복원\n스냅샷 생성 이후의 변경 데이터가 사라집니다.\nSNAPDIALOG-32-other 볼륨을 SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name- 스냅샷 시점으로 되돌립니다.\n복원 대상과 데이터 변경 영향을 확인했습니다.\n취소\n복원",
+  "viewport": {
+    "height": 800,
+    "width": 320
+  },
+  "leafText": {
+    "failures": [],
+    "minimumContrast": 7.13,
+    "textNodes": [
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 7.13,
+        "foreground": "rgba(255, 255, 255, 0.65)",
+        "opacity": 1,
+        "text": "스냅샷 복원"
+      },
+      {
+        "background": [
+          64.24,
+          58.620000000000005,
+          43.22
+        ],
+        "contrast": 9.19,
+        "foreground": "rgb(255, 231, 163)",
+        "opacity": 1,
+        "text": "스냅샷 생성 이후의 변경 데이터가 사라집니다."
+      },
+      {
+        "background": [
+          64.24,
+          58.620000000000005,
+          43.22
+        ],
+        "contrast": 9.19,
+        "foreground": "rgb(255, 231, 163)",
+        "opacity": 1,
+        "text": "SNAPDIALOG-32-other 볼륨을 SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name- 스냅샷 시점으로 "
+      },
+      {
+        "background": [
+          34,
+          40,
+          47
+        ],
+        "contrast": 13.35,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "복원 대상과 데이터 변경 영향을 확인했습니다."
+      },
+      {
+        "background": [
+          39,
+          46,
+          54
+        ],
+        "contrast": 8.47,
+        "foreground": "rgb(197, 204, 212)",
+        "opacity": 1,
+        "text": "취소"
+      },
+      {
+        "background": [
+          48,
+          54,
+          61
+        ],
+        "contrast": 10.96,
+        "foreground": "rgb(240, 243, 246)",
+        "opacity": 1,
+        "text": "복원"
+      }
+    ]
+  }
+}

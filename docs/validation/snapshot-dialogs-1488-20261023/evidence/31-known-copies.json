@@ -1,0 +1,26 @@
+[
+  {
+    "uuid": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+    "name": "SNAPDIALOG-31-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/992/031ee175-ef6b-4ea3-9b2a-de25467b1ae1"
+  },
+  {
+    "uuid": "fa82668f-978e-4052-9688-b0d4500d8551",
+    "name": "SNAPDIALOG-31-other-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/993/8b46cd05-6f2f-4412-86e1-32b43ea1aab5"
+  },
+  {
+    "uuid": "a936f658-2ec0-470b-90e6-145bce23d7f1",
+    "name": "SNAPDIALOG-31-orphan-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/994/1c45cd7f-13d5-49ad-93bb-85e43b6df64c"
+  },
+  {
+    "uuid": "bb15af01-58a0-4529-947c-fcc9ccfaeef2",
+    "name": "SNAPDIALOG-31-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+    "role": "Image",
+    "path": "snapshots/2/993/579a4bb5-c5d8-48d4-94e0-b75ee671d181"
+  }
+]

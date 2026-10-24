@@ -1,0 +1,27 @@
+{
+  "database": {
+    "tags": 0,
+    "domains": 0,
+    "volumes": 0,
+    "accounts": 0,
+    "policies": 0,
+    "projects": 0,
+    "schedules": 0,
+    "snapshots": 0,
+    "references": 0,
+    "forcedCleanup": 0,
+    "domainAccounts": 0
+  },
+  "runtime": {
+    "webInf": true,
+    "mold": "active",
+    "clientHttp": 200
+  },
+  "physical": {
+    "secondaryFilesChecked": 27,
+    "primaryVolumesChecked": 3,
+    "remaining": [],
+    "rbdTrash": []
+  },
+  "normalApiCleanup": true
+}

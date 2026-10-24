@@ -1,0 +1,115 @@
+{
+  "label": "31-final-project-scope",
+  "network": {
+    "args": {
+      "listall": "true",
+      "keyword": "SNAPORD1482-31",
+      "projectid": "789545bb-1799-4d9f-a1d0-412525182ace",
+      "sortkey": "name",
+      "sortorder": "asc",
+      "page": "1",
+      "pagesize": "20",
+      "command": "listSnapshots",
+      "response": "json"
+    },
+    "id": "3232.2340",
+    "count": 3,
+    "rows": [
+      {
+        "id": "1159fc2b-e3f2-487b-a0b7-99370e8bbdc3",
+        "name": "SNAPORD1482-31-same",
+        "projectid": "789545bb-1799-4d9f-a1d0-412525182ace"
+      },
+      {
+        "id": "33e3946c-c56a-4e37-9978-f34ac2666350",
+        "name": "SNAPORD1482-31-same",
+        "projectid": "789545bb-1799-4d9f-a1d0-412525182ace"
+      },
+      {
+        "id": "a9718091-a7e8-4013-8e25-863d5f71b750",
+        "name": "SNAPORD1482-31-same",
+        "projectid": "789545bb-1799-4d9f-a1d0-412525182ace"
+      }
+    ]
+  },
+  "dom": {
+    "headers": [
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": "asc",
+        "sortable": true,
+        "text": "이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "상태"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "볼륨 이름"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "간격 유형"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "물리적 크기"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "생성일"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "계정"
+      },
+      {
+        "sort": null,
+        "sortable": true,
+        "text": "도메인"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "Zone"
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": ""
+      },
+      {
+        "sort": null,
+        "sortable": false,
+        "text": "레벨"
+      }
+    ],
+    "paging": "전체 3 개 항목 중 1-3 표시120 / 쪽",
+    "rows": [
+      {
+        "id": "1159fc2b-e3f2-487b-a0b7-99370e8bbdc3",
+        "name": "SNAPORD1482-31-same"
+      },
+      {
+        "id": "33e3946c-c56a-4e37-9978-f34ac2666350",
+        "name": "SNAPORD1482-31-same"
+      },
+      {
+        "id": "a9718091-a7e8-4013-8e25-863d5f71b750",
+        "name": "SNAPORD1482-31-same"
+      }
+    ],
+    "url": "http://10.10.31.10:8080/client/#/snapshot?keyword=SNAPORD1482-31&sortkey=name&sortorder=asc&page=1&pagesize=20"
+  }
+}

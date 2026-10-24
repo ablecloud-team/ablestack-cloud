@@ -1,0 +1,12 @@
+{
+  "cluster": "32",
+  "actual": {
+    "snapshot": 6,
+    "secondary_storage": 385674946576
+  },
+  "expected": {
+    "snapshot": 6,
+    "secondary_storage": 385674946576
+  },
+  "status": "PASS"
+}

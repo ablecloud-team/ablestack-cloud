@@ -1,0 +1,66 @@
+[
+  {
+    "name": "com.cloud.storage.snapshot.SnapshotManagerTest",
+    "tests": "40",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "7.946"
+  },
+  {
+    "name": "com.cloud.api.SnapshotDeletionSerializationTest",
+    "tests": "1",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "0.713"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.snapshot.DefaultSnapshotStrategyTest",
+    "tests": "37",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "6.137"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.snapshot.SnapshotDataFactoryImplTest",
+    "tests": "3",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "3.9"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.snapshot.SnapshotServiceImplTest",
+    "tests": "9",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "1.103"
+  },
+  {
+    "name": "org.apache.cloudstack.storage.datastore.SnapshotDeletionReferenceTest",
+    "tests": "2",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "3.103"
+  },
+  {
+    "name": "com.cloud.hypervisor.kvm.storage.RbdSnapshotDeletionTest",
+    "tests": "4",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "2.377"
+  },
+  {
+    "name": "com.cloud.hypervisor.kvm.storage.KVMStorageProcessorTest",
+    "tests": "48",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "4.025"
+  }
+]

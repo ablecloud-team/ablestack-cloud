@@ -1,0 +1,22 @@
+[
+  {
+    "id": 327,
+    "name": "ROOT-227",
+    "path": "bf9c90da-1048-440a-acd0-1ee805f03380",
+    "uuid": "bf9c90da-1048-440a-acd0-1ee805f03380",
+    "state": "Ready",
+    "poolid": 3,
+    "removed": null,
+    "instanceid": 227
+  },
+  {
+    "id": 328,
+    "name": "SNAP1479-32-source",
+    "path": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+    "uuid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+    "state": "Ready",
+    "poolid": 3,
+    "removed": null,
+    "instanceid": 227
+  }
+]

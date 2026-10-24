@@ -1,0 +1,8 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/df68f239-a62b-459a-9a0c-bf06b0afb91c".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 227, 238, 244, 255
++						257 text * Zone
++						258 text * 도메인
++						259 text * 계정
+~				254 button 생성
+The focused UI element is 225 text field (settable) 이름 info-circle, ID: form_item_name

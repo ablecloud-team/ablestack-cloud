@@ -28,6 +28,11 @@ public interface SnapshotInfo extends DataObject, Snapshot {
             + " backup primary storage Snapshot to secondary storage. Keeping Snapshots only on Primary storage is applicable for KVM + Ceph only.", false, ConfigKey.Scope.Global,
             null);
 
+    /** Exact store reference selected for a deletion; null for ordinary lookups. */
+    default Long getDataStoreRefId() {
+        return null;
+    }
+
     SnapshotInfo getParent();
 
     String getPath();

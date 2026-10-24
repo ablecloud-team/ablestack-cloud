@@ -1,0 +1,1295 @@
+{
+  "cases": [
+    {
+      "label": "global-name-asc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-name-desc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "desc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "6b60c0e1-2fe1-447d-8665-69007426b732"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-created-asc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "created",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-created-desc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-virtualsize-asc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "virtualsize",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-virtualsize-desc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "virtualsize",
+        "sortorder": "desc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-intervaltype-asc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "intervaltype",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "global-intervaltype-desc",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "intervaltype",
+        "sortorder": "desc",
+        "projectid": "-1",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "page-size-20",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 20
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "page-size-50",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "pagesize": 50
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "default-nonproject",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc"
+      },
+      "count": 24,
+      "pages": [
+        {
+          "page": 1,
+          "count": 24,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 24,
+          "ids": [
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "project",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "dc4cac58-ad42-4837-999c-24ceff196933"
+      },
+      "count": 2,
+      "pages": [
+        {
+          "page": 1,
+          "count": 2,
+          "ids": [
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "volume",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "volumeid": "91921dbf-1cce-48ff-b75f-e4fdaaada8e9"
+      },
+      "count": 23,
+      "pages": [
+        {
+          "page": 1,
+          "count": 23,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 23,
+          "ids": [
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "other-account",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "account": "SNAPLIST1485-31-other",
+        "domainid": "7c73f37e-6a17-419f-a5bc-9523de9125c2"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "manual",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "snapshottype": "MANUAL"
+      },
+      "count": 22,
+      "pages": [
+        {
+          "page": 1,
+          "count": 22,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82",
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 22,
+          "ids": [
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "recurring",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "snapshottype": "RECURRING"
+      },
+      "count": 4,
+      "pages": [
+        {
+          "page": 1,
+          "count": 4,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "interval-HOURLY",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "intervaltype": "HOURLY"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "interval-DAILY",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "intervaltype": "DAILY"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "923d9327-1280-4636-9d40-cfcdea58e4a9"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "interval-WEEKLY",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "interval-MONTHLY",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "07e25ca7-a48d-41c8-8712-44545503e320"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "tags",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "tags[0].key": "list-qa",
+        "tags[0].value": "SNAPLIST1485-31"
+      },
+      "count": 3,
+      "pages": [
+        {
+          "page": 1,
+          "count": 3,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "6a315db6-2d20-47c0-a624-864926627fc5"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "empty",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31-none",
+        "sortkey": "name",
+        "sortorder": "asc"
+      },
+      "count": 0,
+      "pages": [
+        {
+          "page": 1,
+          "count": 0,
+          "ids": []
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "copies-all",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "showunique": false,
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "88c1d1da-2dbe-3eeb-bf29-791995f752cf",
+            "c534cb86-24cd-355f-89c7-e9a2f96cf28d",
+            "168269ba-1958-3a62-a405-51885a366429",
+            "0680b3bb-f96a-3c9d-90b2-bf603058977c",
+            "b8a29fd7-b25d-3656-8f4b-95610486fe80",
+            "4871f969-4ca9-34fa-b411-a4f5503a85e4",
+            "861c37c1-e1eb-3dff-b730-d81e534a7168",
+            "7e67e6ef-ee7f-3a3b-b6da-5c425f2202e2",
+            "cb6b0074-217e-35a6-b232-df78e7838f26",
+            "95296c7d-af12-30e0-9fc6-194167de66ac"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "77e034c7-d1c3-3217-9d55-aeabfeb2f92d",
+            "7984f49c-2a68-3aca-80ab-d2c3431272a7",
+            "0a84be26-2062-3bfd-80b7-3054d0ef98f1",
+            "0665a0b0-3bd9-3417-bf61-ad416a70e6a0",
+            "de3b550e-eb0f-31ce-8f40-e65292fd9132",
+            "51df5f41-4545-399d-b315-c03f545adc4b",
+            "688be281-0241-31ee-919c-414980d2e8f5",
+            "c82225d5-d5c7-3812-b596-efcc8cd77679",
+            "7aa750de-e6a4-3be3-a26f-4523fdee1f76",
+            "05474155-1aab-3d1f-9ada-49f315739d8a"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "b5a1fa8a-bd28-30f4-8a49-e2c42f6de277",
+            "62516f85-3d05-347b-80ec-e791de78b8be",
+            "915775cf-eb4b-3222-ad9b-b34b7b01d0fa",
+            "7ac4f242-9260-32fc-b0ca-10c683e491c5",
+            "e5613f6c-225a-3419-a294-2c499c546208",
+            "009ffe5d-51e5-31ce-9329-181db644a919"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "perCopyPhysicalAvailable": false,
+      "missingMetricRenderedUnknown": true,
+      "pass": true
+    },
+    {
+      "label": "copies-primary",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "showunique": false,
+        "locationtype": "primary",
+        "pagesize": 10
+      },
+      "count": 0,
+      "pages": [
+        {
+          "page": 1,
+          "count": 0,
+          "ids": []
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "perCopyPhysicalAvailable": false,
+      "missingMetricRenderedUnknown": true,
+      "pass": true
+    },
+    {
+      "label": "copies-secondary",
+      "role": "admin",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1",
+        "showunique": false,
+        "locationtype": "secondary",
+        "pagesize": 10
+      },
+      "count": 26,
+      "pages": [
+        {
+          "page": 1,
+          "count": 26,
+          "ids": [
+            "88c1d1da-2dbe-3eeb-bf29-791995f752cf",
+            "c534cb86-24cd-355f-89c7-e9a2f96cf28d",
+            "168269ba-1958-3a62-a405-51885a366429",
+            "0680b3bb-f96a-3c9d-90b2-bf603058977c",
+            "b8a29fd7-b25d-3656-8f4b-95610486fe80",
+            "4871f969-4ca9-34fa-b411-a4f5503a85e4",
+            "861c37c1-e1eb-3dff-b730-d81e534a7168",
+            "7e67e6ef-ee7f-3a3b-b6da-5c425f2202e2",
+            "cb6b0074-217e-35a6-b232-df78e7838f26",
+            "95296c7d-af12-30e0-9fc6-194167de66ac"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 26,
+          "ids": [
+            "77e034c7-d1c3-3217-9d55-aeabfeb2f92d",
+            "7984f49c-2a68-3aca-80ab-d2c3431272a7",
+            "0a84be26-2062-3bfd-80b7-3054d0ef98f1",
+            "0665a0b0-3bd9-3417-bf61-ad416a70e6a0",
+            "de3b550e-eb0f-31ce-8f40-e65292fd9132",
+            "51df5f41-4545-399d-b315-c03f545adc4b",
+            "688be281-0241-31ee-919c-414980d2e8f5",
+            "c82225d5-d5c7-3812-b596-efcc8cd77679",
+            "7aa750de-e6a4-3be3-a26f-4523fdee1f76",
+            "05474155-1aab-3d1f-9ada-49f315739d8a"
+          ]
+        },
+        {
+          "page": 3,
+          "count": 26,
+          "ids": [
+            "b5a1fa8a-bd28-30f4-8a49-e2c42f6de277",
+            "62516f85-3d05-347b-80ec-e791de78b8be",
+            "915775cf-eb4b-3222-ad9b-b34b7b01d0fa",
+            "7ac4f242-9260-32fc-b0ca-10c683e491c5",
+            "e5613f6c-225a-3419-a294-2c499c546208",
+            "009ffe5d-51e5-31ce-9329-181db644a919"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "perCopyPhysicalAvailable": false,
+      "missingMetricRenderedUnknown": true,
+      "pass": true
+    },
+    {
+      "label": "owner-default",
+      "role": "owner",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc"
+      },
+      "count": 23,
+      "pages": [
+        {
+          "page": 1,
+          "count": 23,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 23,
+          "ids": [
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "owner-all-projects",
+      "role": "owner",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1"
+      },
+      "count": 25,
+      "pages": [
+        {
+          "page": 1,
+          "count": 25,
+          "ids": [
+            "11c549a7-37a3-4038-8d32-b5a5864856ba",
+            "923d9327-1280-4636-9d40-cfcdea58e4a9",
+            "ea29d355-0a87-4a19-8648-4d8e8975d16a",
+            "07e25ca7-a48d-41c8-8712-44545503e320",
+            "2b82eee6-9a6f-43cd-9d55-c755939dbfad",
+            "6b60c0e1-2fe1-447d-8665-69007426b732",
+            "58ff84db-99c6-4252-9f37-fb977fb2a455",
+            "24a867de-0af6-489d-9a68-ab5dcbdb7a75",
+            "53dd673b-8b7b-43e0-9de3-fe39918c75ab",
+            "2bab1ad7-36cb-4667-aa00-0f759c276321",
+            "3d02a88f-de23-476b-895a-02b6d291e2ad",
+            "b7f616db-ee53-4df3-92cc-3ead163c5c74",
+            "86788617-f4eb-4881-81c4-ee44004cd115",
+            "a6690c8b-f921-44a3-8479-f614c09b33cb",
+            "4977b44c-a18e-4b70-9a27-6c58296b54fc",
+            "bc37af4c-515a-410b-adab-87095b1d1ebf",
+            "f74fef3a-991c-4942-a041-8f6fadec6f53",
+            "aa800cd2-8250-4c74-bbcd-10b6bab3536c",
+            "598034e2-1478-4105-83df-6b67fb3f02eb",
+            "c1a98220-7541-428c-8fe1-aa66a1332d82"
+          ]
+        },
+        {
+          "page": 2,
+          "count": 25,
+          "ids": [
+            "241e61c0-bdb2-4aaa-aae6-7b60343e5fca",
+            "f43bfd3c-ce37-42ac-a940-b5f78c8d2139",
+            "cb7aa5b7-e4fd-493b-b4eb-b6951f88a80c",
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "owner-project",
+      "role": "owner",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "dc4cac58-ad42-4837-999c-24ceff196933"
+      },
+      "count": 2,
+      "pages": [
+        {
+          "page": 1,
+          "count": 2,
+          "ids": [
+            "6a315db6-2d20-47c0-a624-864926627fc5",
+            "cc6f50a3-6bda-43b3-ae20-5cf9de951147"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "other-default",
+      "role": "other",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    },
+    {
+      "label": "other-all-projects",
+      "role": "other",
+      "args": {
+        "listall": true,
+        "keyword": "SNAPLIST1485-31",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "projectid": "-1"
+      },
+      "count": 1,
+      "pages": [
+        {
+          "page": 1,
+          "count": 1,
+          "ids": [
+            "3fe8ee4e-6cd6-4651-830e-7e33269bf8bd"
+          ]
+        }
+      ],
+      "byteAndIntervalDbConsistent": true,
+      "pass": true
+    }
+  ]
+}

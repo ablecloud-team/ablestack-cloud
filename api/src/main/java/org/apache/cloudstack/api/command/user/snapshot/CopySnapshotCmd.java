@@ -103,6 +103,12 @@ public class CopySnapshotCmd extends BaseAsyncCmd implements UserCmd {
             description = "Enables the snapshot to be copied to the supported primary storages when the config 'use.storage.replication' is set to true for the storage or globally. " +
                     "This is supported only for StorPool storage for now.")
     protected Boolean useStorageReplication;
+    @Parameter(name = "expectedscopehash", type = CommandType.STRING,
+            description = "Source and destination revision returned by listSnapshotCopyTargets")
+    private String expectedScopeHash;
+
+    public String getExpectedScopeHash() { return expectedScopeHash; }
+
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////

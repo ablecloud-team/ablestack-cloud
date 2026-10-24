@@ -1,0 +1,86 @@
+[
+  {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "deletesnapshotresponse": {
+        "success": true,
+        "snapshotid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+        "name": "SNAP1477-32-force-path",
+        "state": "Destroyed",
+        "dryrun": false,
+        "reference": [],
+        "force": true,
+        "dbcleanupcomplete": true,
+        "physicalcleanupcomplete": false,
+        "pendingcleanup": 1,
+        "cleanupresult": [
+          {
+            "referenceid": 68,
+            "role": "Primary",
+            "action": "DB_ONLY",
+            "reason": "MISSING_TARGET_METADATA"
+          },
+          {
+            "referenceid": 69,
+            "role": "Image",
+            "action": "PHYSICAL_DELETED",
+            "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+          }
+        ]
+      }
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+    "created": "2026-10-23T17:26:44+0900",
+    "completed": "2026-10-23T17:26:45+0900",
+    "jobid": "1c4f9003-7915-49e7-9823-88614c01452b",
+    "jobstatus": 1
+  },
+  {
+    "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+    "account": "admin",
+    "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+    "domainpath": "ROOT",
+    "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "deletesnapshotresponse": {
+        "success": true,
+        "snapshotid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+        "name": "SNAP1477-32-force-path",
+        "state": "Destroyed",
+        "dryrun": false,
+        "reference": [],
+        "force": true,
+        "dbcleanupcomplete": true,
+        "physicalcleanupcomplete": true,
+        "pendingcleanup": 0,
+        "cleanupresult": [
+          {
+            "referenceid": 68,
+            "role": "Primary",
+            "action": "PHYSICAL_DELETED",
+            "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+          }
+        ]
+      }
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+    "created": "2026-10-23T17:27:31+0900",
+    "completed": "2026-10-23T17:27:32+0900",
+    "jobid": "741deab9-f329-4d4a-8858-f150218d8747",
+    "jobstatus": 1
+  }
+]

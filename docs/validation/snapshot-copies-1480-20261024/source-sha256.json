@@ -1,0 +1,50 @@
+[
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/response/SnapshotResponse.java",
+    "sha256": "f6a791395154a008621c4be84233103696f1fe7920749c75d00425fa1c5175df"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/ListSnapshotsCmd.java",
+    "sha256": "2eb3c772bacf614eb5e2f92ce7655c089cabf168c4f022e724f8d68c7e7a93b0"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java",
+    "sha256": "bf48b78a9a56d3723853cc619f884d1bae36cfb92d4ccaa3e615456091681355"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/dao/SnapshotJoinDaoImpl.java",
+    "sha256": "b7acabede88cacd4418b5930201fc545eb09d77b802ad70db3aac5c53e0de57d"
+  },
+  {
+    "path": "engine/schema/src/main/resources/META-INF/db/views/cloud.snapshot_view.sql",
+    "sha256": "c5057a54d3fbc1d0cae5f28814103dacf39605011f3999a3fd067012f4258433"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/SnapshotCopyContract.java",
+    "sha256": "8fbd5d5ec6a76779fc920344bdf3c432b74fef9914a42290fa3ee7fbadb97053"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/query/SnapshotCopyContractTest.java",
+    "sha256": "029d5ab9f939b7a8f71f41fea5146a9c146f39628341033c6a1a2fab1acdf3d3"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotZones.vue",
+    "sha256": "928d39dadb29bfbc748400dc84996dd240d7d87fa40967f7582b08639c926138"
+  },
+  {
+    "path": "ui/src/utils/snapshotCopies.js",
+    "sha256": "a6a64d30170855a9e2081136ad46cf5e35f857f35ca71e1a729e4edf3863f5e3"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotCopies.spec.js",
+    "sha256": "91e6304bfacf516926c45760634ad2ad31b3c8fc21bb36a53ff426b1e94ca387"
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "17f3c76689e1ae9a5a716bc16752cde0ced889773072ddd316501c6c4af604c4"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "b2d7f64574e3edff17726cb06c3dda9e2ecc127310ea6eb43f73ce9da78f595d"
+  }
+]

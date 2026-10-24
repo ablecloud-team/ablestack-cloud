@@ -1,0 +1,26 @@
+[
+  {
+    "file": "31-recovery-complete.png",
+    "sha256": "6fbea7b3210d93622887983fe7f968d5037608e000a7a4fdc540316f881e7097"
+  },
+  {
+    "file": "31-recovery-diagnosis.png",
+    "sha256": "5f7a5396d3110405c3611823218f8aa2d822c75b63f5bdccea8ffc4bcaf3ee0f"
+  },
+  {
+    "file": "32-baseline-delete-residual.png",
+    "sha256": "c1bd2e8a0f97e97676a35865e8e6db7fe9c4baf50b44090e72f6f405a7838abe"
+  },
+  {
+    "file": "32-normal-delete-complete.png",
+    "sha256": "05071ee7e9d1517dc8d935370cb7aabf40a575e1ceb6569d60500d0492d8aafb"
+  },
+  {
+    "file": "32-recovery-complete.png",
+    "sha256": "c33f6036999c7bdc84feedded51fb1aebbbf8ad46968a7405624312023a67467"
+  },
+  {
+    "file": "32-recovery-diagnosis.png",
+    "sha256": "8d50e061399e79489f4fe42de0e3f627cd14900fa83f4b094d244cd62bb133b3"
+  }
+]

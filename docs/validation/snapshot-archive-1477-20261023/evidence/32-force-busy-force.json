@@ -1,0 +1,95 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "1bd281e3-436c-41bf-b0bd-95efded5a1db",
+    "name": "SNAP1477-32-force-busy",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 70,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready"
+      },
+      {
+        "referenceid": 71,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "b02192e14672c7e6840bd34176e65ccb8140374754433dab9c5b3d8013246cf2",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 70,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      },
+      {
+        "referenceid": 71,
+        "role": "Image",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "1bd281e3-436c-41bf-b0bd-95efded5a1db",
+    "name": "SNAP1477-32-force-busy",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": false,
+    "pendingcleanup": 1,
+    "cleanupresult": [
+      {
+        "referenceid": 70,
+        "role": "Primary",
+        "action": "DB_ONLY",
+        "reason": "PHYSICAL_DELETE_FAILED"
+      },
+      {
+        "referenceid": 71,
+        "role": "Image",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "1bd281e3-436c-41bf-b0bd-95efded5a1db",
+    "name": "SNAP1477-32-force-busy",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 70,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Destroyed"
+      }
+    ],
+    "scopehash": "2008345576bb116e3209863257b14b9a604b592abc175071fe06be28ed20347f",
+    "force": true,
+    "pendingcleanup": 1,
+    "cleanupresult": [
+      {
+        "referenceid": 70,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+    "name": "SNAP1477-32-force-path",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 68,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      },
+      {
+        "referenceid": 69,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      }
+    ],
+    "scopehash": "d987322fdc7cbd129029999edeea9d62d94d6726b5d8c052ec1b5e4aa2fb6882",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  },
+  "failure": "{\"accountid\":\"6d3ebcb0-b23b-11f1-990e-0024811f8935\",\"account\":\"admin\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"6d3f209b-b23b-11f1-990e-0024811f8935\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":431,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":431,\"errortext\":\"INCOMPLETE_STORE_REFERENCE: run administrator force=true deletion diagnosis to inspect database-only cleanup\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"7ecd6308-4e8a-4757-ade0-7a115183ef8a\",\"created\":\"2026-10-23T17:19:58+0900\",\"completed\":\"2026-10-23T17:19:58+0900\",\"jobid\":\"2f7ac463-f5c5-4b99-ae27-6c89d4f6cdf3\",\"jobstatus\":2}",
+  "after": {
+    "success": true,
+    "snapshotid": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+    "name": "SNAP1477-32-force-path",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 68,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      },
+      {
+        "referenceid": 69,
+        "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+      }
+    ],
+    "scopehash": "d987322fdc7cbd129029999edeea9d62d94d6726b5d8c052ec1b5e4aa2fb6882",
+    "force": false,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

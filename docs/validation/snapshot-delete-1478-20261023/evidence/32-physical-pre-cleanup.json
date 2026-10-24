@@ -1,0 +1,39 @@
+[
+  {
+    "snapshot": "30234b2e-12fb-42b0-8cfe-ffbcb689d151",
+    "path": "snapshots/2/321/167f8682-f0dc-440a-b65f-44f507d04f38",
+    "preserved": true,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  },
+  {
+    "snapshot": "e2f5dfdf-faa3-4208-a5ca-cb837f868cd9",
+    "path": "snapshots/2/321/fb878c93-5b45-4117-bd32-c85d3ae5987f",
+    "absent": true
+  },
+  {
+    "snapshot": "c7f9c08c-8b20-460b-9fc8-05ad70f2126d",
+    "path": "snapshots/2/321/abefbeef-8cdf-4927-a565-12713fa82f1c",
+    "absent": true
+  },
+  {
+    "snapshot": "06a5da98-d091-4df6-8418-db5e460c6b26",
+    "path": "snapshots/2/321/63370bf9-4b6f-4ed8-8676-2380e4154bea",
+    "preserved": true,
+    "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+  },
+  {
+    "snapshot": "c9501c7e-d15d-4c2c-ac7d-64d48a347a5e",
+    "path": "snapshots/60/322/a0c6b06e-1845-49e5-96ca-bf1f490d02ee",
+    "absent": true
+  },
+  {
+    "snapshot": "4c4e0a3f-c872-4d1d-9d54-b6d86959364f",
+    "path": "snapshots/2/321/0b83d535-6ae4-4ed9-862d-cd43179870be",
+    "absent": true
+  },
+  {
+    "snapshot": "c41d6695-361f-4c41-8ffd-28cafb51d16c",
+    "path": "snapshots/2/321/10edb2e6-e879-4cac-9a21-f04d19394197",
+    "absent": true
+  }
+]

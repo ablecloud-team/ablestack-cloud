@@ -1,0 +1,4 @@
+{
+  "text": "스냅샷 복사\n다른 Zone의 세컨더리 스토리지로 복사하며 원본 사본은 유지합니다.\n원본: Zone / Secondary\n조회 가능한 다른 Zone이 없습니다. 관리자에게 대상 Zone과 세컨더리 스토리지 구성을 요청하세요.\n대상 Zone\nZone 선택\n대상 다시 조회\n취소\n스냅샷 복사",
+  "enabled": false
+}

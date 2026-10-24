@@ -1,0 +1,256 @@
+Browser tab: 27, Title: "템플릿 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/template/3b327842-c594-411d-a4b0-b2c70dcfdd27".
+0 AXWebArea 템플릿 - ABLESTACK-Mold, URL: 10.10.32.10:8080/client/#/template/3b327842-c594-411d-a4b0-b2c70dcfdd27
+	1 container
+		2 container
+			3 image
+			4 menu
+				5 dashboard 대시보드
+					6 link Description: dashboard 대시보드, Value: 10.10.32.10:8080/client/#/dashboard
+				7 container
+					8 image cloud
+					9 text 컴퓨트
+				10 container
+					11 image hdd
+					12 text 스토리지
+				13 container
+					14 image wifi
+					15 text 네트워크
+				16 container
+					17 image picture
+					18 text 이미지
+				632 content list sub_menu_4_$$_/image-popup
+					633 save 템플릿
+						634 link Description: save 템플릿, Value: 10.10.32.10:8080/client/#/template
+					635 usb ISO
+						636 link Description: usb ISO, Value: 10.10.32.10:8080/client/#/iso
+					637 쿠버네티스 ISO
+						638 link Description: 쿠버네티스 ISO, Value: 10.10.32.10:8080/client/#/kubernetesiso
+				19 container
+					20 image lock
+					21 text 키 관리
+				22 schedule 이벤트
+					23 link Description: schedule 이벤트, Value: 10.10.32.10:8080/client/#/event
+				24 project 프로젝트
+					25 link Description: project 프로젝트, Value: 10.10.32.10:8080/client/#/project
+				26 idcard 역할
+					27 link Description: idcard 역할, Value: 10.10.32.10:8080/client/#/role
+				28 team 계정
+					29 link Description: team 계정, Value: 10.10.32.10:8080/client/#/account
+				30 block 도메인
+					31 link Description: block 도메인, Value: 10.10.32.10:8080/client/#/domain
+				32 container
+					33 image bank
+					34 text 인프라스트럭쳐
+				35 container
+					36 image shopping
+					37 text 서비스 오퍼링
+				38 container
+					39 image setting
+					40 text 구성
+				41 appstore-add 확장
+					42 link Description: appstore-add 확장, Value: 10.10.32.10:8080/client/#/extension
+				43 container
+					44 image tool
+					45 text 도구
+				46 read API 문서
+					47 link Description: read API 문서, Value: 10.10.32.10:8080/client/#/apidocs/
+		48 container
+			49 text 페이지 스타일 설정
+			50 button 닫기
+				51 image close
+			52 container
+				53 heading 페이지 스타일 설정, Value: 3
+					54 text 페이지 스타일 설정
+				55 container
+					56 image
+					57 container
+						58 radio button (settable, integer) Description:  , Value: 0
+				59 container
+					60 image
+					61 container
+						62 radio button (settable, integer) Description:  , Value: 1
+					63 image check
+				64 heading 테마 색상, Value: 3
+					65 text 테마 색상
+				66 container
+					67 radio button (settable, integer) Description:  , Value: 0
+					68 image check
+				69 container
+					70 radio button (settable, integer) Description:  , Value: 0
+				71 container
+					72 radio button (settable, integer) Description:  , Value: 0
+				73 container
+					74 radio button (settable, integer) Description:  , Value: 0
+				75 container
+					76 radio button (settable, integer) Description:  , Value: 0
+				77 container
+					78 radio button (settable, integer) Description:  , Value: 0
+				79 container
+					80 radio button (settable, integer) Description:  , Value: 0
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 heading 네비게이션 설정, Value: 3
+					84 text 네비게이션 설정
+				85 container
+					86 container
+						87 text 배경색
+						88 color well (disabled, settable) #ffffff
+					89 container
+						90 text 텍스트 색상
+						91 color well (disabled, settable) #000000
+				92 image exclamation-circle
+				93 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				94 button download 세팅값 다운로드(json)
+					95 image download
+					96 text 세팅값 다운로드(json)
+				97 button undo 기본값으로 재설정
+					98 image undo
+					99 text 기본값으로 재설정
+		100 container
+			101 image menu-fold
+			102 container
+				103 combo box (settable) rc_select_0
+				104 image project
+				105 text 기본 보기
+			106 button 생성 down
+				107 text 생성
+				108 image down
+			109 image translation
+			110 button 알림
+				111 image bell
+				631 text 4
+			112 container
+				113 text AC admin cloud
+		114 container
+			198 container
+				199 link Description: home, Value: 10.10.32.10:8080/client/#/
+				200 text /
+				201 link Description: 템플릿, Value: 10.10.32.10:8080/client/#/template
+				202 text / SNAPT1474-32-root-raw-template
+				203 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/templates.html
+				204 button reload 업데이트
+					639 image reload
+					206 text 업데이트
+			640 button down 작업
+				641 image down
+				642 text 작업
+			643 container
+				644 image edit
+				645 heading SNAPT1474-32-root-raw-template, Value: 4
+					646 text SNAPT1474-32-root-raw-template
+				647 text x86_64 KVM
+				648 text 상태 사용 가능 아이디
+				649 button 아이디 복사
+					650 image barcode
+				651 link Description: 3b327842-c594-411d-a4b0-b2c70dcfdd27 , Value: javascript:;
+				652 text OS 유형 Rocky Linux 9 계정
+				653 image user
+				654 link Description: admin, Value: 10.10.32.10:8080/client/#/account?name=admin&domainid=2246448b-b23b-11f1-990e-0024811f8935
+				655 text 도메인
+				656 image block
+				657 link Description: ROOT, Value: 10.10.32.10:8080/client/#/domain/2246448b-b23b-11f1-990e-0024811f8935?tab=details
+				658 link Description: cloud-server 가상머신 보기, Value: 10.10.32.10:8080/client/#/vm?templateid=3b327842-c594-411d-a4b0-b2c70dcfdd27
+				659 button rocket 가상머신 생성
+					661 image rocket
+					662 text 가상머신 생성
+				663 button down
+					664 image down
+				665 container
+					666 text 태그
+					667 container
+						668 image plus
+						669 text  새 태그
+			670 container
+				671 tab group
+					672 container
+						673 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-6-tab-details
+						674 tab (selectable, settable, boolean) Zone, Value: 0, ID: rc-tabs-6-tab-zones
+						675 tab (selectable, settable, boolean) 설정, Value: 0, ID: rc-tabs-6-tab-settings
+						676 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-6-tab-events
+						677 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-6-tab-comments
+				678 container Description: 상세, ID: rc-tabs-6-panel-details
+					679 content list
+						680 container
+							681 text 이름
+							682 text SNAPT1474-32-root-raw-template
+						683 container
+							684 text 아이디
+							685 text 3b327842-c594-411d-a4b0-b2c70dcfdd27
+						686 container
+							687 text 설명
+							688 text SNAPT1474-32-root-raw-template
+						689 container
+							690 text 하이퍼바이저
+							691 text KVM
+						692 container
+							693 text CPU 아키텍처
+							694 text x86_64
+						695 container
+							696 text 형식
+							697 text RAW
+						698 container
+							699 text OS 유형
+							700 text Rocky Linux 9
+						701 container
+							702 text 크기
+							703 text 100.00 GiB
+						704 container
+							705 text 물리적 크기
+							706 text 100.00 GiB
+						707 container
+							708 text 준비
+							709 text true
+						710 container
+							711 text 비밀번호 관리 사용
+							712 text false
+						713 container
+							714 text 크로스 존
+							715 text false
+						716 container
+							717 text 템플릿 형식
+							718 text USER
+						719 container
+							720 text 직접 다운로드
+							721 text false
+						722 container
+							723 text 있는 그대로 배포
+							724 text false
+						725 container
+							726 text 공개
+							727 text false
+						728 container
+							729 text 추천
+							730 text false
+						731 container
+							732 text 추출 가능
+							733 text true
+						734 container
+							735 text 동적으로 확장 가능
+							736 text false
+						737 container
+							738 text 계정
+							739 text admin
+						740 container
+							741 text 도메인
+							742 text ROOT
+						743 container
+							744 text 생성일
+							745 text 2026. 10. 24. 오전 2:10:15
+						746 container
+							747 text CKS용
+							748 text false
+						749 container
+							750 text 템플릿 형식
+							751 text USER
+						752 container
+							753 text 압축/중복제거
+							754 text false
+	180 container
+		181 image exclamation-circle
+		182 text 조치가 필요한 경보 (1건) - 주요 시스템에서 리소스 임계치 초과 또는 상태 변경이 감지되어 확인이 필요합니다.
+		183 button 세부 경보 내용 확인
+		184 button 경보 규칙으로 이동
+		185 button 닫기
+			186 image close
+
+The focused UI element is 204 button reload 업데이트

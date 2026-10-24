@@ -1,0 +1,37 @@
+[
+  {
+    "uuid": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+    "name": "SNAPDIALOG-32-source",
+    "path": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a"
+  },
+  {
+    "uuid": "f5aa5429-c196-4518-98aa-bdde687c5c41",
+    "name": "SNAPDIALOG-32-other",
+    "path": "f5aa5429-c196-4518-98aa-bdde687c5c41"
+  },
+  {
+    "uuid": "006b063d-008c-4413-941d-77ef00a41c01",
+    "name": "SNAPDIALOG-32-orphan-source",
+    "path": "006b063d-008c-4413-941d-77ef00a41c01"
+  },
+  {
+    "uuid": "81929728-ba4a-43d9-945c-3d42e5ac30fe",
+    "name": "ROOT-229",
+    "path": "81929728-ba4a-43d9-945c-3d42e5ac30fe"
+  },
+  {
+    "uuid": "d5e05851-c863-470a-83c6-70a5e64539e2",
+    "name": "SNAPDIALOG-32-normal-ui-volume",
+    "path": "b53b146e-a98d-46ef-9785-b6041f209d2f"
+  },
+  {
+    "uuid": "72b80015-c76e-4e4b-a4ac-f10904acd4df",
+    "name": "SNAPDIALOG-32-lost-ui-volume",
+    "path": "df950eda-f365-43ac-b3e7-24257ffaf650"
+  },
+  {
+    "uuid": "748800ca-3dca-485d-ba09-6dab5aeca810",
+    "name": "SNAPDIALOG-32-keyboard-ui-volume",
+    "path": "654d34e0-063e-444c-a362-b9197063c183"
+  }
+]

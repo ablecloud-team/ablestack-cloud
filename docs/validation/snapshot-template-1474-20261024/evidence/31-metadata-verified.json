@@ -1,0 +1,62 @@
+[
+  {
+    "uuid": "6a927a79-d77b-4ebc-902c-7f7657c85b97",
+    "name": "SNAPT1474-31-native-after",
+    "format": "QCOW2",
+    "type": "DATADISK",
+    "virtualSize": 1073741824,
+    "fileLength": 2490368,
+    "allocatedBytes": 2428928,
+    "headerApiDbPropertiesExtensionAgree": true
+  },
+  {
+    "uuid": "a87bef1c-cf2a-45c9-9588-65f87358d040",
+    "name": "SNAPT1474-31-root-ui-template",
+    "format": "QCOW2",
+    "type": "ROOT",
+    "virtualSize": 107374182400,
+    "fileLength": 2419720192,
+    "allocatedBytes": 2411552768,
+    "headerApiDbPropertiesExtensionAgree": true
+  },
+  {
+    "uuid": "3e991194-b761-4e58-ba82-0f7bc5eb5b6f",
+    "name": "SNAPT1474-31-raw-after",
+    "format": "RAW",
+    "type": "DATADISK",
+    "virtualSize": 1073741824,
+    "fileLength": 1073741824,
+    "allocatedBytes": 2097152,
+    "headerApiDbPropertiesExtensionAgree": true
+  },
+  {
+    "uuid": "f76adac6-f378-47b0-8e9e-e89b653560b0",
+    "name": "SNAPT1474-31-native-orphan",
+    "format": "QCOW2",
+    "type": "DATADISK",
+    "virtualSize": 1073741824,
+    "fileLength": 2490368,
+    "allocatedBytes": 2428928,
+    "headerApiDbPropertiesExtensionAgree": true
+  },
+  {
+    "uuid": "ba8bc663-30cd-4283-aa23-ef1c7919bc8e",
+    "name": "SNAPT1474-31-native-final-code",
+    "format": "QCOW2",
+    "type": "DATADISK",
+    "virtualSize": 1073741824,
+    "fileLength": 2490368,
+    "allocatedBytes": 2428928,
+    "headerApiDbPropertiesExtensionAgree": true
+  },
+  {
+    "uuid": "cefa9533-4c1f-4df1-abf5-2c4a1863ea5d",
+    "name": "SNAPT1474-31-root-raw-template",
+    "format": "RAW",
+    "type": "ROOT",
+    "virtualSize": 107374182400,
+    "fileLength": 107374182400,
+    "allocatedBytes": 2410434560,
+    "headerApiDbPropertiesExtensionAgree": true
+  }
+]

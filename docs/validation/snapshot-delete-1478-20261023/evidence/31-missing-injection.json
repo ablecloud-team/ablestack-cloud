@@ -1,0 +1,14 @@
+{
+  "cluster": "31",
+  "scenario": "missing",
+  "kind": "missing",
+  "snapshot": "d84197a1-7865-49da-901e-aac28511739c",
+  "sourcePath": "snapshots/2/972/a4f8d187-557e-4dc5-aba8-9fc3cf5c85cf",
+  "imagePhysicalSize": 196624,
+  "countsBefore": {
+    "snapshot": 23,
+    "secondary_storage": 1207303729184
+  },
+  "sha256Before": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8",
+  "fileAbsentAfterInjection": true
+}

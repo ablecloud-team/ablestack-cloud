@@ -1,0 +1,170 @@
+{
+  "body": {
+    "bottom": 410,
+    "height": 342,
+    "left": 13,
+    "right": 446,
+    "top": 68,
+    "width": 433,
+    "x": 13,
+    "y": 68
+  },
+  "colors": [
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "크기"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "text": "1 GiB"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "디스크 오퍼링"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(31, 41, 55)",
+      "text": "Custom-GFS-Sparse"
+    },
+    {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(75, 85, 99)",
+      "text": "스냅샷 생성 시의 크기와 디스크 오퍼링을 상속합니다. 크기 변경은 복원 완료 후 볼륨에서 수행하세요."
+    }
+  ],
+  "footer": {
+    "bottom": 475,
+    "height": 65,
+    "left": 13,
+    "right": 446,
+    "top": 410,
+    "width": 433,
+    "x": 13,
+    "y": 410
+  },
+  "groups": [
+    {
+      "kind": "ant-row ant-form-item",
+      "rect": {
+        "bottom": -162,
+        "height": 62,
+        "left": 29,
+        "right": 420,
+        "top": -224,
+        "width": 391,
+        "x": 29,
+        "y": -224
+      }
+    },
+    {
+      "kind": "ant-row ant-form-item",
+      "rect": {
+        "bottom": -76,
+        "height": 62,
+        "left": 29,
+        "right": 420,
+        "top": -138,
+        "width": 391,
+        "x": 29,
+        "y": -138
+      }
+    },
+    {
+      "kind": "snapshot-volume-owner",
+      "rect": {
+        "bottom": 182,
+        "height": 234,
+        "left": 29,
+        "right": 420,
+        "top": -52,
+        "width": 391,
+        "x": 29,
+        "y": -52
+      }
+    },
+    {
+      "kind": "snapshot-restore-contract",
+      "rect": {
+        "bottom": 314,
+        "height": 108,
+        "left": 29,
+        "right": 420,
+        "top": 206,
+        "width": 391,
+        "x": 29,
+        "y": 206
+      }
+    },
+    {
+      "kind": "ant-row ant-form-item",
+      "rect": {
+        "bottom": 370,
+        "height": 32,
+        "left": 29,
+        "right": 420,
+        "top": 338,
+        "width": 391,
+        "x": 29,
+        "y": 338
+      }
+    }
+  ],
+  "header": {
+    "bottom": 68,
+    "height": 55,
+    "left": 13,
+    "right": 446,
+    "top": 13,
+    "width": 433,
+    "x": 13,
+    "y": 13
+  },
+  "inputs": [
+    {
+      "id": "form_item_name",
+      "type": "text",
+      "value": "SNAPR1476-31-restore-custom-ui"
+    },
+    {
+      "id": "form_item_zoneid",
+      "type": "search",
+      "value": ""
+    },
+    {
+      "id": "rc_select_7",
+      "type": "search",
+      "value": ""
+    },
+    {
+      "id": "rc_select_8",
+      "type": "search",
+      "value": ""
+    },
+    {
+      "id": "rc_select_9",
+      "type": "search",
+      "value": ""
+    }
+  ],
+  "modal": {
+    "bottom": 476,
+    "height": 464,
+    "left": 12,
+    "right": 447,
+    "top": 12,
+    "width": 435,
+    "x": 12,
+    "y": 12
+  },
+  "offeringInput": false,
+  "sizeField": false,
+  "text": "볼륨 생성\n원본 볼륨이 없어도 이 스냅샷에서 새 볼륨을 생성할 수 있습니다.\n이름\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\n크기\n1 GiB\n디스크 오퍼링\nCustom-GFS-Sparse\n\n스냅샷 생성 시의 크기와 디스크 오퍼링을 상속합니다. 크기 변경은 복원 완료 후 볼륨에서 수행하세요.\n\n가상머신에 연결\n취소\n생성",
+  "viewport": {
+    "height": 488,
+    "width": 459
+  }
+}

@@ -1,0 +1,1473 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runInBand tests/unit/utils/storageSnapshotPresentation.spec.js tests/unit/views/AutogenStorageSnapshotList.spec.js tests/unit/views/AutogenStorageSnapshotSearch.spec.js tests/unit/views/AutogenStorageSnapshotSort.spec.js tests/unit/components/view/ListViewSnapshotContext.spec.js tests/unit/views/AutogenSnapshotActions.spec.js tests/unit/utils/listRefresh.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/utils/storageSnapshotPresentation.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSearch.spec.js (9.942s)
+PASS tests/unit/components/view/ListViewSnapshotContext.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        { id: 'a', displayname: 'A', state: 'Ready' },
+        { id: 'b', displayname: 'B', state: 'Ready' },
+        { id: 'c', displayname: 'C', state: 'Ready' }
+      ] actions= [
+        {
+          api: 'createVMSnapshot',
+          icon: 'plus-outlined',
+          label: 'label.action.vmsnapshot.create',
+          listView: true,
+          popup: true,
+          snapshotMode: 'create',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'listVMSnapshot',
+          icon: 'branches-outlined',
+          label: 'label.vmsnapshot.relations',
+          dataView: true,
+          popup: true,
+          snapshotMode: 'relation',
+          selfManagedDialog: true,
+          menuGroup: 'STORAGE',
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'createSnapshotFromVMSnapshot',
+          selfManagedDialog: true,
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'camera-outlined',
+          label: 'label.action.create.snapshot.from.vmsnapshot',
+          message: 'message.action.create.snapshot.from.vmsnapshot',
+          dataView: true,
+          popup: true,
+          show: [Function: show],
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          }
+        },
+        {
+          api: 'revertToVMSnapshot',
+          snapshotMode: 'restore',
+          selfManagedDialog: true,
+          popup: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: undefined,
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'sync-outlined',
+          label: 'label.action.vmsnapshot.revert',
+          message: 'label.action.vmsnapshot.revert',
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] }
+        },
+        {
+          api: 'deleteVMSnapshot',
+          snapshotMode: 'delete',
+          selfManagedDialog: true,
+          component: RefImpl {
+            __v_isShallow: true,
+            dep: [Set],
+            __v_isRef: true,
+            _rawValue: [Object],
+            _value: [Object]
+          },
+          disabled: [Function: disabled],
+          tooltip: [Function: tooltip],
+          icon: 'delete-outlined',
+          label: 'label.action.vmsnapshot.delete',
+          message: [Function: message],
+          dataView: true,
+          show: [Function: show],
+          args: [ 'vmsnapshotid' ],
+          mapping: { vmsnapshotid: [Object] },
+          groupAction: true,
+          groupShow: [Function: groupShow],
+          popup: true,
+          groupMap: [Function: groupMap]
+        }
+      ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: true } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: true } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: false } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: false } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: true } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: true } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: QuickView
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: false } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [ { key: 'current', dataIndex: 'current' } ] items= [ { id: 'snapshot', current: false } ] ref="VTU_COMPONENT" >
+        at <VTUROOT>
+
+PASS tests/unit/views/AutogenStorageSnapshotList.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        {
+          id: '12345678-1234-1234-1234-123456789abc',
+          name: 'before',
+          account: 'admin',
+          domainid: '12345678-1234-1234-1234-123456789abc',
+          intervaltype: 'MANUAL',
+          physicalsize: 1373634,
+          virtualsize: 1073741824,
+          key: 0
+        }
+      ] actions= [ { api: 'deleteSnapshot', dataView: true, groupAction: true } ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        {
+          id: '12345678-1234-1234-1234-123456789abc',
+          name: 'before',
+          account: 'admin',
+          domainid: '12345678-1234-1234-1234-123456789abc',
+          intervaltype: 'MANUAL',
+          physicalsize: 1373634,
+          virtualsize: 1073741824,
+          key: 0
+        }
+      ] actions= [ { api: 'deleteSnapshot', dataView: true, groupAction: true } ]  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        {
+          id: '12345678-1234-1234-1234-123456789abc',
+          name: 'before',
+          account: 'admin',
+          domainid: '12345678-1234-1234-1234-123456789abc',
+          intervaltype: 'MANUAL',
+          physicalsize: 1373634,
+          virtualsize: 1073741824,
+          key: 0
+        }
+      ] actions= []  ... >
+        at <VTUROOT>
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Failed to resolve component: router-link
+      If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement.
+        at <ListView columns= [] items= [
+        {
+          id: '12345678-1234-1234-1234-123456789abc',
+          name: 'before',
+          account: 'admin',
+          domainid: '12345678-1234-1234-1234-123456789abc',
+          intervaltype: 'MANUAL',
+          physicalsize: 1373634,
+          virtualsize: 1073741824,
+          key: 0
+        }
+      ] actions= [ { api: 'deleteSnapshot', dataView: true, groupAction: true } ]  ... >
+        at <VTUROOT>
+
+PASS tests/unit/views/AutogenSnapshotActions.spec.js
+PASS tests/unit/views/AutogenStorageSnapshotSort.spec.js
+PASS tests/unit/utils/listRefresh.spec.js
+
+=============================== Coverage summary ===============================
+Statements   : 2% ( 1598/79756 )
+Branches     : 1.4% ( 999/71544 )
+Functions    : 0.68% ( 142/20795 )
+Lines        : 2.09% ( 1470/70346 )
+================================================================================
+
+Test Suites: 7 passed, 7 total
+Tests:       120 passed, 120 total
+Snapshots:   0 total
+Time:        129.589s
+Ran all test suites matching /tests\/unit\/utils\/storageSnapshotPresentation.spec.js|tests\/unit\/views\/AutogenStorageSnapshotList.spec.js|tests\/unit\/views\/AutogenStorageSnapshotSearch.spec.js|tests\/unit\/views\/AutogenStorageSnapshotSort.spec.js|tests\/unit\/components\/view\/ListViewSnapshotContext.spec.js|tests\/unit\/views\/AutogenSnapshotActions.spec.js|tests\/unit\/utils\/listRefresh.spec.js/i.

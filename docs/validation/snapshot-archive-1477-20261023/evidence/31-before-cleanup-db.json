@@ -1,0 +1,308 @@
+{
+  "snapshots": [
+    {
+      "id": 59,
+      "name": "SNAP1477-31-normal",
+      "path": "snapshots/2/975/36de84d0-e831-432f-a43c-b576552e2d68",
+      "role": "Image",
+      "uuid": "e42db153-0e91-4e77-9fee-f81f20a73213",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": "SECONDARY",
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 111
+    },
+    {
+      "id": 60,
+      "name": "SNAP1477-31-residue",
+      "path": "snapshots/2/975/8344e461-d5a4-4534-b81b-4f1cf88a5f46",
+      "role": "Image",
+      "uuid": "485ab229-76c1-4273-a557-4daa8c07a37b",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 113
+    },
+    {
+      "id": 60,
+      "name": "SNAP1477-31-residue",
+      "path": "snapshots/2/975/8344e461-d5a4-4534-b81b-4f1cf88a5f46",
+      "role": "Image",
+      "uuid": "485ab229-76c1-4273-a557-4daa8c07a37b",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 128
+    },
+    {
+      "id": 61,
+      "name": "SNAP1477-31-partial",
+      "path": "snapshots/2/975/1f54285f-dd96-40de-bc5a-ef74825a49cb",
+      "role": "Image",
+      "uuid": "951f5854-65c6-457e-bf09-8be34a675d84",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 115
+    },
+    {
+      "id": 62,
+      "name": "SNAP1477-31-control",
+      "path": "snapshots/2/975/69c72f57-d161-4a80-9f98-840f9cead61f",
+      "role": "Image",
+      "uuid": "a5afa5d7-75a7-4073-82ea-77ff3fa718d6",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Ready",
+      "referenceid": 117
+    },
+    {
+      "id": 63,
+      "name": "SNAP1477-31-force-path",
+      "path": "snapshots/2/975/c2415873-1b2a-405f-a05d-72ba03e36693",
+      "role": "Image",
+      "uuid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 119
+    },
+    {
+      "id": 64,
+      "name": "SNAP1477-31-force-busy",
+      "path": "snapshots/2/975/9694e589-f5bc-421e-8bff-cb2339b5078c",
+      "role": "Image",
+      "uuid": "077b9ecb-0ed4-4544-af68-96dedb387ad0",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 121
+    },
+    {
+      "id": 65,
+      "name": "SNAP1477-31-force-no-native",
+      "path": "snapshots/2/975/f11d8648-b2c1-4e5d-8507-1f325e16ef62",
+      "role": "Image",
+      "uuid": "4c000ed7-6abb-49d1-8d5f-3de681da94a2",
+      "state": "Destroyed",
+      "display": 0,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Destroyed",
+      "referenceid": 123
+    },
+    {
+      "id": 66,
+      "name": "SNAP1477-31-force-no-mapping",
+      "path": null,
+      "role": null,
+      "uuid": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0",
+      "state": "Destroyed",
+      "display": null,
+      "removed": null,
+      "storeid": null,
+      "location": null,
+      "physical": null,
+      "refstate": null,
+      "referenceid": null
+    },
+    {
+      "id": 67,
+      "name": "SNAP1477-31-tenant",
+      "path": "snapshots/249/976/56002d43-3f03-479e-87bd-12886652ecd0",
+      "role": "Image",
+      "uuid": "4b279f50-7b1b-4358-ad5d-f1e4548037d1",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": "SECONDARY",
+      "physical": 196624,
+      "refstate": "Ready",
+      "referenceid": 127
+    }
+  ],
+  "volumes": [
+    {
+      "id": 975,
+      "name": "SNAP1477-31-source",
+      "path": "c120edde-7725-4333-850c-a5aa9d11033c",
+      "uuid": "c120edde-7725-4333-850c-a5aa9d11033c",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null
+    },
+    {
+      "id": 976,
+      "name": "SNAP1477-31-tenant-source",
+      "path": "fb845cd5-3b6b-48e8-9414-3e61bac202b4",
+      "uuid": "fb845cd5-3b6b-48e8-9414-3e61bac202b4",
+      "state": "Ready",
+      "poolid": 1,
+      "removed": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 1,
+      "owner": "snap1477-31-tenant"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 196624,
+      "owner": "snap1477-31-tenant"
+    },
+    {
+      "type": "snapshot",
+      "count": 22,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 1206229987360,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [
+    {
+      "key": "snapshot.force-delete.unmapped",
+      "value": "No store reference mapping; physical absence could not be proven during explicit forced database cleanup",
+      "display": 0,
+      "snapshot": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0"
+    }
+  ],
+  "usageEvents": [
+    {
+      "name": "SNAP1477-31-control",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "a5afa5d7-75a7-4073-82ea-77ff3fa718d6"
+    },
+    {
+      "name": "SNAP1477-31-force-busy",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "077b9ecb-0ed4-4544-af68-96dedb387ad0"
+    },
+    {
+      "name": "SNAP1477-31-force-busy",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "077b9ecb-0ed4-4544-af68-96dedb387ad0"
+    },
+    {
+      "name": "SNAP1477-31-force-no-mapping",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0"
+    },
+    {
+      "name": "SNAP1477-31-force-no-mapping",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "4a1cd204-aa2a-4b0d-ae35-07f1c354ada0"
+    },
+    {
+      "name": "SNAP1477-31-force-no-native",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "4c000ed7-6abb-49d1-8d5f-3de681da94a2"
+    },
+    {
+      "name": "SNAP1477-31-force-no-native",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "4c000ed7-6abb-49d1-8d5f-3de681da94a2"
+    },
+    {
+      "name": "SNAP1477-31-force-path",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "31fe7ab0-41eb-49fb-919a-19187ecef81c"
+    },
+    {
+      "name": "SNAP1477-31-force-path",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "31fe7ab0-41eb-49fb-919a-19187ecef81c"
+    },
+    {
+      "name": "SNAP1477-31-normal",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "e42db153-0e91-4e77-9fee-f81f20a73213"
+    },
+    {
+      "name": "SNAP1477-31-normal",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "e42db153-0e91-4e77-9fee-f81f20a73213"
+    },
+    {
+      "name": "SNAP1477-31-partial",
+      "type": "SNAPSHOT.DELETE",
+      "count": 1,
+      "snapshot": "951f5854-65c6-457e-bf09-8be34a675d84"
+    },
+    {
+      "name": "SNAP1477-31-partial",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "951f5854-65c6-457e-bf09-8be34a675d84"
+    },
+    {
+      "name": "SNAP1477-31-residue",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "485ab229-76c1-4273-a557-4daa8c07a37b"
+    },
+    {
+      "name": "SNAP1477-31-tenant",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "4b279f50-7b1b-4358-ad5d-f1e4548037d1"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "snap1477-31-tenant",
+      "snapshot": 1,
+      "secondary_storage": 196624
+    },
+    {
+      "owner": "admin",
+      "snapshot": 22,
+      "secondary_storage": 1206229987360
+    }
+  ]
+}

@@ -18,6 +18,7 @@
 <template>
   <div class="take-snapshot" v-ctrl-enter="handleSubmit">
     <a-spin :spinning="loading || actionLoading">
+    <StorageSnapshotSafety v-if="snapshotSafetyTarget" :context="snapshotSafetyContext" :loading="snapshotSafetyLoading" :error="snapshotSafetyError" @refresh="refreshSnapshotSafety" />
       <a-alert type="warning">
         <template #message>
           <div v-html="$t('label.header.volume.take.snapshot')" />
@@ -118,6 +119,7 @@
           </a-button>
           <a-button
             v-if="handleShowButton()"
+            :disabled="snapshotSafetyBlocked"
             :loading="actionLoading"
             type="primary"
             ref="submit"
@@ -131,6 +133,7 @@
 </template>
 
 <script>
+import { storageSnapshotSafety } from '@/utils/storageSnapshotSafety'
 import storageDialogContext from '@/utils/storageDialogContext'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import snapshotZones from '@/utils/snapshotZones'
@@ -143,7 +146,7 @@ import ResourceIcon from '@/components/view/ResourceIcon'
 
 export default {
   name: 'TakeSnapshot',
-  mixins: [storageDialogContext, mixinForm, snapshotZones],
+  mixins: [storageDialogContext, storageSnapshotSafety('createSnapshot', 'volume', () => true), mixinForm, snapshotZones],
   components: {
     MoldDialogActions,
     TooltipButton,
@@ -203,8 +206,8 @@ export default {
     },
     handleSubmit (e) {
       if (e && e.preventDefault) e.preventDefault()
-      if (this.actionLoading) return
-      this.formRef.value.validate().then(() => {
+      if (this.actionLoading || this.snapshotSafetyBlocked) return
+      this.formRef.value.validate().then(async () => {
         if (this.actionLoading || (this.dialogCurrent && !this.dialogCurrent())) return
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
@@ -237,6 +240,13 @@ export default {
         this.actionLoading = true
         const title = this.$t('label.action.take.snapshot')
         const description = this.$t('label.volume') + ' ' + this.resource.id
+        if (this.snapshotSafetyTarget) {
+          try {
+            const operation = await this.submitSnapshotSafely(params)
+            if (operation.jobid && this.dialogCurrent()) this.closeAction()
+          } finally { this.actionLoading = false }
+          return
+        }
         postAPI('createSnapshot', params).then(json => {
           const jobId = json.createsnapshotresponse.jobid
           if (jobId) {
@@ -256,7 +266,8 @@ export default {
           this.actionLoading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     handleVisibleInterval (intervalType) {

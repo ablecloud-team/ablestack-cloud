@@ -1,0 +1,2451 @@
+{
+  "fixtures": {
+    "cluster": "31",
+    "prefix": "SNAPTR1481-31",
+    "snapshots": [
+      {
+        "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+        "name": "SNAPTR1481-31-main",
+        "scenario": "main",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": null
+      },
+      {
+        "id": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+        "name": "SNAPTR1481-31-archive",
+        "scenario": "archive",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": null
+      },
+      {
+        "id": "506c286e-5fdd-4169-b2ed-66628d44832b",
+        "name": "SNAPTR1481-31-qualified",
+        "scenario": "qualified",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": null
+      },
+      {
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "name": "SNAPTR1481-31-final",
+        "scenario": "final",
+        "account": "SNAPTR1481-31-other",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": null
+      }
+    ],
+    "volumes": [
+      {
+        "id": "36e6953f-8725-4c92-9e96-0fa381d3f904",
+        "name": "SNAPTR1481-31-main",
+        "scenario": "main",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "path": "36e6953f-8725-4c92-9e96-0fa381d3f904"
+      },
+      {
+        "id": "3d802f65-149b-44c4-8e44-5823d19bd012",
+        "name": "SNAPTR1481-31-archive",
+        "scenario": "archive",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "path": "3d802f65-149b-44c4-8e44-5823d19bd012"
+      },
+      {
+        "id": "4c63d988-c6f9-4290-9f57-a037800fae97",
+        "name": "SNAPTR1481-31-qualified",
+        "scenario": "qualified",
+        "account": "admin",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "path": "4c63d988-c6f9-4290-9f57-a037800fae97"
+      },
+      {
+        "id": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+        "name": "SNAPTR1481-31-final",
+        "scenario": "final",
+        "account": "SNAPTR1481-31-other",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "size": 1073741824,
+        "path": "6d7586c0-535b-4434-9f23-8eb21ca3fd27"
+      }
+    ],
+    "zones": [
+      {
+        "id": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "name": "SNAPTR1481-31-Zone-a",
+        "key": "a",
+        "store": {
+          "id": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "name": "SNAPTR1481-31-Secondary-a",
+          "url": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/a",
+          "protocol": "nfs",
+          "providername": "NFS",
+          "scope": "ZONE",
+          "readonly": false,
+          "hasannotations": false
+        },
+        "pod": {
+          "id": "a7d2d51a-aacd-4ffb-89d4-5d563c68a140",
+          "name": "SNAPTR1481-31-Pod-a",
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "gateway": "10.248.31.1",
+          "netmask": "255.255.255.0",
+          "ipranges": [
+            {
+              "startip": "10.248.31.2",
+              "endip": "10.248.31.3",
+              "forsystemvms": "0",
+              "vlanid": "vlan://untagged"
+            }
+          ],
+          "startip": [
+            "10.248.31.2"
+          ],
+          "endip": [
+            "10.248.31.3"
+          ],
+          "forsystemvms": [
+            "0"
+          ],
+          "vlanid": [
+            "vlan://untagged"
+          ],
+          "allocationstate": "Enabled",
+          "hasannotations": false
+        },
+        "physical": {
+          "id": "ab8e13b3-e002-4535-a461-5970c8a06b20",
+          "name": "SNAPTR1481-31-Physical-a",
+          "broadcastdomainrange": "ZONE",
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "state": "Disabled",
+          "isolationmethods": "VLAN"
+        }
+      },
+      {
+        "id": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "name": "SNAPTR1481-31-Zone-b",
+        "key": "b",
+        "store": {
+          "id": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "zonename": "SNAPTR1481-31-Zone-b",
+          "name": "SNAPTR1481-31-Secondary-b",
+          "url": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/b",
+          "protocol": "nfs",
+          "providername": "NFS",
+          "scope": "ZONE",
+          "readonly": false,
+          "hasannotations": false
+        },
+        "pod": {
+          "id": "aea153ba-8dab-4e28-b713-6a92aacec39d",
+          "name": "SNAPTR1481-31-Pod-b",
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "zonename": "SNAPTR1481-31-Zone-b",
+          "gateway": "10.248.31.1",
+          "netmask": "255.255.255.0",
+          "ipranges": [
+            {
+              "startip": "10.248.31.2",
+              "endip": "10.248.31.3",
+              "forsystemvms": "0",
+              "vlanid": "vlan://untagged"
+            }
+          ],
+          "startip": [
+            "10.248.31.2"
+          ],
+          "endip": [
+            "10.248.31.3"
+          ],
+          "forsystemvms": [
+            "0"
+          ],
+          "vlanid": [
+            "vlan://untagged"
+          ],
+          "allocationstate": "Enabled",
+          "hasannotations": false
+        },
+        "physical": {
+          "id": "2b0c7090-956e-4680-92d9-4b75791a160a",
+          "name": "SNAPTR1481-31-Physical-b",
+          "broadcastdomainrange": "ZONE",
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "zonename": "SNAPTR1481-31-Zone-b",
+          "state": "Disabled",
+          "isolationmethods": "VLAN"
+        }
+      }
+    ],
+    "boundaryZones": [
+      {
+        "id": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+        "name": "SNAPTR1481-31-Boundary-empty",
+        "dns1": "8.8.8.8",
+        "internaldns1": "10.10.31.10",
+        "guestcidraddress": "10.247.31.0/24",
+        "networktype": "Advanced",
+        "securitygroupsenabled": false,
+        "gputotal": 0,
+        "gpuused": 0,
+        "allocationstate": "Enabled",
+        "zonetoken": "fe426b92-6be8-33bd-a73b-a13a1673a1b8",
+        "dhcpprovider": "VirtualRouter",
+        "localstorageenabled": false,
+        "tags": [],
+        "allowuserspecifyvrmtu": false,
+        "routerprivateinterfacemaxmtu": 1500,
+        "routerpublicinterfacemaxmtu": 1500,
+        "type": "Core",
+        "isnsxenabled": false,
+        "ismultiarch": false,
+        "asnrange": "",
+        "routedmodeenabled": true,
+        "hasannotations": false,
+        "key": "empty"
+      },
+      {
+        "id": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+        "name": "SNAPTR1481-31-Boundary-edge",
+        "dns1": "8.8.8.8",
+        "internaldns1": "10.10.31.10",
+        "guestcidraddress": "10.247.31.0/24",
+        "networktype": "Advanced",
+        "securitygroupsenabled": false,
+        "gputotal": 0,
+        "gpuused": 0,
+        "allocationstate": "Enabled",
+        "zonetoken": "8ab89cbe-7d06-3577-acb2-48f3d856c411",
+        "dhcpprovider": "VirtualRouter",
+        "localstorageenabled": false,
+        "tags": [],
+        "allowuserspecifyvrmtu": false,
+        "routerprivateinterfacemaxmtu": 1500,
+        "routerpublicinterfacemaxmtu": 1500,
+        "type": "Edge",
+        "isnsxenabled": false,
+        "ismultiarch": false,
+        "asnrange": "",
+        "routedmodeenabled": true,
+        "hasannotations": false,
+        "key": "edge"
+      }
+    ],
+    "account": {
+      "id": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+      "name": "SNAPTR1481-31-other"
+    },
+    "project": {
+      "id": "0780f051-af1e-4f7c-a7a5-c8024ac73877",
+      "name": "SNAPTR1481-31-Project"
+    }
+  },
+  "conditions": {
+    "readOnly": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "0f894a31c44e5e74a03ecd42aa2e5986074856c70cc53ddc4c7b893f5698022d",
+      "destinations": [
+        {
+          "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+          "name": "SNAPTR1481-31-Boundary-empty",
+          "eligible": false,
+          "reason": "NO_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+          "name": "SNAPTR1481-31-Boundary-edge",
+          "eligible": false,
+          "reason": "EDGE_ZONE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": false,
+          "reason": "READ_ONLY_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": false,
+          "reason": "ALREADY_PRESENT",
+          "mode": "AlreadyPresent",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "available": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "faf4e863444befe3baab905a7776728ccf8b4898458bbf51f9374d31812272d0",
+      "destinations": [
+        {
+          "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+          "name": "SNAPTR1481-31-Boundary-empty",
+          "eligible": false,
+          "reason": "NO_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+          "name": "SNAPTR1481-31-Boundary-edge",
+          "eligible": false,
+          "reason": "EDGE_ZONE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": false,
+          "reason": "ALREADY_PRESENT",
+          "mode": "AlreadyPresent",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "archive": {
+      "main": {
+        "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+        "name": "SNAPTR1481-31-main",
+        "state": "BackedUp",
+        "eligible": false,
+        "reason": "AMBIGUOUS_REFERENCES",
+        "message": "Multiple or unsupported copy references require inspection before archiving",
+        "primaryreferences": 0,
+        "secondaryreferences": 2,
+        "scopehash": "dd08f06fb6693deab4b12288a8311288d16842f2d7a9eccf8abbcf197a31a2e5",
+        "dryrun": true
+      },
+      "archive": {
+        "snapshotid": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+        "name": "SNAPTR1481-31-archive",
+        "state": "BackedUp",
+        "eligible": true,
+        "reason": "ALREADY_ARCHIVED",
+        "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+        "primaryreferences": 0,
+        "secondaryreferences": 1,
+        "scopehash": "05ec0dfbb8345f11bcadff2f7e64e92d4bc5f021e8217c45235adb223e3cc6ff",
+        "dryrun": true
+      }
+    },
+    "denied": "{\"uuidList\":[],\"errorcode\":531,\"cserrorcode\":4365,\"errortext\":\"Caller does not have permission to operate with provided resource.\"}"
+  },
+  "stalePlan": {
+    "phase": "stale",
+    "before": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "59c4ba7d7506f7747be30d3240f8ee30529425b5ed15d9a01590aff7715c4dc7",
+      "destinations": [
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "disabled": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "07f28a66f88714ae6ebd5840f8644068b3340f4c476f08c11b3e698a4227da53",
+      "destinations": [
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": false,
+          "reason": "ZONE_DISABLED",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "rejected": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":431,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":431,\"errortext\":\"Snapshot copy source or destinations changed; refresh the target list\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"5e9e52a5-ff04-407c-9b2b-4db05ae728aa\",\"created\":\"2026-10-24T16:46:03+0900\",\"completed\":\"2026-10-24T16:46:03+0900\",\"jobid\":\"81e20916-55ce-4dfc-84e9-6bd561807dba\",\"jobstatus\":2}",
+    "after": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "59c4ba7d7506f7747be30d3240f8ee30529425b5ed15d9a01590aff7715c4dc7",
+      "destinations": [
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "copies": {
+      "count": 1,
+      "snapshot": [
+        {
+          "copy": {
+            "id": "4e4959eb-dbe5-36e1-bdad-de0ec6abe473",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "36e6953f-8725-4c92-9e96-0fa381d3f904",
+          "volumename": "SNAPTR1481-31-main",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T16:41:33+0900",
+          "name": "SNAPTR1481-31-main",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "snapshot-transfer-qa",
+              "value": "SNAPTR1481-31",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            },
+            {
+              "key": "snapshot-transfer-scenario",
+              "value": "main",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    }
+  },
+  "physicalVerificationFailure": {
+    "phase": "verifyfailed",
+    "before": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "2c7ba217161702361c2096b9a22bb5595ea6b820aee6d3cd2e908b6c94969437",
+      "destinations": [
+        {
+          "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+          "name": "SNAPTR1481-31-Boundary-empty",
+          "eligible": false,
+          "reason": "NO_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+          "name": "SNAPTR1481-31-Boundary-edge",
+          "eligible": false,
+          "reason": "EDGE_ZONE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": false,
+          "reason": "ALREADY_PRESENT",
+          "mode": "AlreadyPresent",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "rejected": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.CopySnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Snapshot copy failed. Completed destinations: . Failed destinations: SNAPTR1481-31-Zone-a (TRANSFER_OR_VERIFICATION_FAILED). Refresh destinations and retry failed Zones; completed copies are retained.\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"5e9e52a5-ff04-407c-9b2b-4db05ae728aa\",\"created\":\"2026-10-24T16:58:07+0900\",\"completed\":\"2026-10-24T16:58:07+0900\",\"jobid\":\"d112bea8-424d-475f-b9a3-40497547973d\",\"jobstatus\":2}",
+    "after": {
+      "snapshotid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "919d3e691f0910200157b008bf05e45d4535a50cbb68b4769554a039372aadb4",
+      "destinations": [
+        {
+          "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+          "name": "SNAPTR1481-31-Boundary-empty",
+          "eligible": false,
+          "reason": "NO_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+          "name": "SNAPTR1481-31-Boundary-edge",
+          "eligible": false,
+          "reason": "EDGE_ZONE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": true,
+          "reason": "",
+          "mode": "Copy",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": true,
+          "reason": "RETRY",
+          "mode": "Retry",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "copies": {
+      "count": 2,
+      "snapshot": [
+        {
+          "copy": {
+            "id": "4e4959eb-dbe5-36e1-bdad-de0ec6abe473",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "36e6953f-8725-4c92-9e96-0fa381d3f904",
+          "volumename": "SNAPTR1481-31-main",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T16:41:33+0900",
+          "name": "SNAPTR1481-31-main",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [
+            {
+              "key": "snapshot-transfer-qa",
+              "value": "SNAPTR1481-31",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            },
+            {
+              "key": "snapshot-transfer-scenario",
+              "value": "main",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "4f3743f6-9a61-36f4-b6e3-e3d5a97805fc",
+            "role": "Image",
+            "state": "Failed",
+            "datastoreknown": true,
+            "availability": "NotReady",
+            "virtualsize": 1073741824,
+            "downloadstate": "DOWNLOAD_ERROR",
+            "error": "Snapshot image verification failed; retry copying this Zone"
+          },
+          "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "36e6953f-8725-4c92-9e96-0fa381d3f904",
+          "volumename": "SNAPTR1481-31-main",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T16:41:33+0900",
+          "name": "SNAPTR1481-31-main",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "Snapshot image verification failed; retry copying this Zone",
+          "physicalsize": 0,
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "datastorename": "SNAPTR1481-31-Secondary-a",
+          "datastorestate": "Failed",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOAD_ERROR",
+            "downloadPercent": "100"
+          },
+          "tags": [
+            {
+              "key": "snapshot-transfer-qa",
+              "value": "SNAPTR1481-31",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            },
+            {
+              "key": "snapshot-transfer-scenario",
+              "value": "main",
+              "resourcetype": "Snapshot",
+              "resourceid": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+              "account": "admin",
+              "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+              "domain": "ROOT"
+            }
+          ],
+          "hasannotations": false
+        }
+      ]
+    }
+  },
+  "ownerPlan": {
+    "snapshotid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+    "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+    "sourcezonename": "Zone",
+    "eligible": true,
+    "reason": "",
+    "scopehash": "1cbe56cbe44706f98b03d8188873d4e51a7dd8825a091a8117a16fefb8d8041c",
+    "destinations": [
+      {
+        "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+        "name": "SNAPTR1481-31-Boundary-empty",
+        "eligible": false,
+        "reason": "NO_IMAGE_STORE",
+        "mode": "Unavailable",
+        "method": "SecondaryStorageVM"
+      },
+      {
+        "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+        "name": "SNAPTR1481-31-Boundary-edge",
+        "eligible": false,
+        "reason": "EDGE_ZONE",
+        "mode": "Unavailable",
+        "method": "SecondaryStorageVM"
+      },
+      {
+        "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "name": "SNAPTR1481-31-Zone-b",
+        "eligible": true,
+        "reason": "",
+        "mode": "Copy",
+        "method": "SecondaryStorageVM",
+        "protocol": "nfs"
+      },
+      {
+        "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "name": "SNAPTR1481-31-Zone-a",
+        "eligible": true,
+        "reason": "",
+        "mode": "Copy",
+        "method": "SecondaryStorageVM",
+        "protocol": "nfs"
+      }
+    ]
+  },
+  "archive": {
+    "snapshot": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+    "db": [
+      {
+        "path": "snapshots/2/1029/45b54c84-817a-40ca-8a97-674f91f3326f",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 1
+      }
+    ],
+    "secondaryUnchanged": true,
+    "secondarySha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f"
+  },
+  "finalBefore": {
+    "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+    "account": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+    "phase": "before",
+    "references": [
+      {
+        "id": 219,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 1,
+        "physical": 2490368
+      }
+    ],
+    "zoneReferences": [],
+    "usageEvents": [],
+    "secondaryUsage": 2490368,
+    "expectedPhysicalBytes": 2490368,
+    "pass": true
+  },
+  "finalPartial": {
+    "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+    "account": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+    "phase": "partial",
+    "references": [
+      {
+        "id": 219,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 1,
+        "physical": 2490368
+      },
+      {
+        "id": 220,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 12,
+        "physical": 2490368
+      }
+    ],
+    "zoneReferences": [
+      {
+        "zone": 3,
+        "removed": null
+      }
+    ],
+    "usageEvents": [
+      {
+        "id": 7772,
+        "type": "SNAPSHOT.COPY",
+        "zone": 3,
+        "virtual": 1073741824,
+        "physical": 2490368,
+        "resource": 103
+      }
+    ],
+    "secondaryUsage": 4980736,
+    "expectedPhysicalBytes": 4980736,
+    "pass": true
+  },
+  "finalComplete": {
+    "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+    "account": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+    "phase": "complete",
+    "references": [
+      {
+        "id": 219,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 1,
+        "physical": 2490368
+      },
+      {
+        "id": 220,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 12,
+        "physical": 2490368
+      },
+      {
+        "id": 222,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 13,
+        "physical": 2490368
+      }
+    ],
+    "zoneReferences": [
+      {
+        "zone": 3,
+        "removed": null
+      },
+      {
+        "zone": 4,
+        "removed": null
+      }
+    ],
+    "usageEvents": [
+      {
+        "id": 7772,
+        "type": "SNAPSHOT.COPY",
+        "zone": 3,
+        "virtual": 1073741824,
+        "physical": 2490368,
+        "resource": 103
+      },
+      {
+        "id": 7773,
+        "type": "SNAPSHOT.COPY",
+        "zone": 4,
+        "virtual": 1073741824,
+        "physical": 2490368,
+        "resource": 103
+      }
+    ],
+    "secondaryUsage": 7471104,
+    "expectedPhysicalBytes": 7471104,
+    "pass": true
+  },
+  "finalReplay": {
+    "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+    "account": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+    "phase": "replay",
+    "references": [
+      {
+        "id": 219,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 1,
+        "physical": 2490368
+      },
+      {
+        "id": 220,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 12,
+        "physical": 2490368
+      },
+      {
+        "id": 222,
+        "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "role": "Image",
+        "size": 1073741824,
+        "state": "Ready",
+        "store": 13,
+        "physical": 2490368
+      }
+    ],
+    "zoneReferences": [
+      {
+        "zone": 3,
+        "removed": null
+      },
+      {
+        "zone": 4,
+        "removed": null
+      }
+    ],
+    "usageEvents": [
+      {
+        "id": 7772,
+        "type": "SNAPSHOT.COPY",
+        "zone": 3,
+        "virtual": 1073741824,
+        "physical": 2490368,
+        "resource": 103
+      },
+      {
+        "id": 7773,
+        "type": "SNAPSHOT.COPY",
+        "zone": 4,
+        "virtual": 1073741824,
+        "physical": 2490368,
+        "resource": 103
+      }
+    ],
+    "secondaryUsage": 7471104,
+    "expectedPhysicalBytes": 7471104,
+    "pass": true
+  },
+  "replayApi": {
+    "before": {
+      "count": 3,
+      "snapshot": [
+        {
+          "copy": {
+            "id": "f427cc74-03b3-3297-8241-4697b341cfaf",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "5ec41270-4aa0-32d2-af9e-441c7efbca82",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824,
+            "downloadstate": "DOWNLOADED",
+            "error": ""
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "datastorename": "SNAPTR1481-31-Secondary-a",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOADED",
+            "downloadPercent": "100"
+          },
+          "tags": [],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "fc98f537-be77-369c-acf3-4f0c9045c444",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824,
+            "downloadstate": "DOWNLOADED",
+            "error": ""
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "zonename": "SNAPTR1481-31-Zone-b",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "datastorename": "SNAPTR1481-31-Secondary-b",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOADED",
+            "downloadPercent": "100"
+          },
+          "tags": [],
+          "hasannotations": false
+        }
+      ]
+    },
+    "plan": {
+      "snapshotid": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+      "sourcezoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "sourcezonename": "Zone",
+      "sourcestoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "sourcestorename": "Secondary",
+      "eligible": true,
+      "reason": "",
+      "scopehash": "c7b54d6be53255036d092fcb923a34fb1f3004f2279eeebc395c248512045aac",
+      "destinations": [
+        {
+          "zoneid": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+          "name": "SNAPTR1481-31-Boundary-empty",
+          "eligible": false,
+          "reason": "NO_IMAGE_STORE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+          "name": "SNAPTR1481-31-Boundary-edge",
+          "eligible": false,
+          "reason": "EDGE_ZONE",
+          "mode": "Unavailable",
+          "method": "SecondaryStorageVM"
+        },
+        {
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "name": "SNAPTR1481-31-Zone-b",
+          "eligible": false,
+          "reason": "ALREADY_PRESENT",
+          "mode": "AlreadyPresent",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "storename": "SNAPTR1481-31-Secondary-b"
+        },
+        {
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "name": "SNAPTR1481-31-Zone-a",
+          "eligible": false,
+          "reason": "ALREADY_PRESENT",
+          "mode": "AlreadyPresent",
+          "method": "SecondaryStorageVM",
+          "protocol": "nfs",
+          "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "storename": "SNAPTR1481-31-Secondary-a"
+        }
+      ]
+    },
+    "result": {
+      "snapshot": {
+        "copy": {
+          "role": "Image",
+          "datastoreknown": "true",
+          "downloadstate": "DOWNLOADED",
+          "id": "5ec41270-4aa0-32d2-af9e-441c7efbca82",
+          "state": "Ready",
+          "availability": "Ready",
+          "error": "",
+          "virtualsize": "1073741824"
+        },
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "account": "SNAPTR1481-31-other",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+        "volumename": "SNAPTR1481-31-final",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-24T17:15:56+0900",
+        "name": "SNAPTR1481-31-final",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "status": "BackedUp",
+        "physicalsize": 0,
+        "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "zonename": "SNAPTR1481-31-Zone-a",
+        "revertable": false,
+        "virtualsize": 1073741824,
+        "datastoreid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+        "datastorename": "SNAPTR1481-31-Secondary-a",
+        "datastorestate": "Ready",
+        "datastoretype": "Image",
+        "downloaddetails": {
+          "downloadState": "DOWNLOADED",
+          "downloadPercent": "100"
+        },
+        "tags": [],
+        "hasannotations": false
+      }
+    },
+    "after": {
+      "count": 3,
+      "snapshot": [
+        {
+          "copy": {
+            "id": "f427cc74-03b3-3297-8241-4697b341cfaf",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+          "zonename": "Zone",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+          "datastorename": "Secondary",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "",
+            "downloadPercent": "0"
+          },
+          "tags": [],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "5ec41270-4aa0-32d2-af9e-441c7efbca82",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824,
+            "downloadstate": "DOWNLOADED",
+            "error": ""
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+          "zonename": "SNAPTR1481-31-Zone-a",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+          "datastorename": "SNAPTR1481-31-Secondary-a",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOADED",
+            "downloadPercent": "100"
+          },
+          "tags": [],
+          "hasannotations": false
+        },
+        {
+          "copy": {
+            "id": "fc98f537-be77-369c-acf3-4f0c9045c444",
+            "role": "Image",
+            "state": "Ready",
+            "datastoreknown": true,
+            "availability": "Ready",
+            "virtualsize": 1073741824,
+            "downloadstate": "DOWNLOADED",
+            "error": ""
+          },
+          "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+          "account": "SNAPTR1481-31-other",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "volumeid": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+          "volumename": "SNAPTR1481-31-final",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-24T17:15:56+0900",
+          "name": "SNAPTR1481-31-final",
+          "intervaltype": "MANUAL",
+          "state": "BackedUp",
+          "status": "BackedUp",
+          "physicalsize": 0,
+          "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+          "zonename": "SNAPTR1481-31-Zone-b",
+          "revertable": false,
+          "virtualsize": 1073741824,
+          "datastoreid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+          "datastorename": "SNAPTR1481-31-Secondary-b",
+          "datastorestate": "Ready",
+          "datastoretype": "Image",
+          "downloaddetails": {
+            "downloadState": "DOWNLOADED",
+            "downloadPercent": "100"
+          },
+          "tags": [],
+          "hasannotations": false
+        }
+      ]
+    }
+  },
+  "physical": [
+    {
+      "id": 202,
+      "name": "SNAPTR1481-31-main",
+      "path": "snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "error": null,
+      "state": "Ready",
+      "storeId": 1,
+      "download": null,
+      "snapshot": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary",
+      "storeUUID": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.601 GiB/sec and 2663.4350 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.114 GiB/sec and 2164.5959 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 211,
+      "name": "SNAPTR1481-31-main",
+      "path": "snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 3,
+      "error": "",
+      "state": "Ready",
+      "storeId": 12,
+      "download": "DOWNLOADED",
+      "snapshot": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/a",
+      "storeUUID": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.575 GiB/sec and 2637.2490 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.377 GiB/sec and 2434.1798 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 212,
+      "name": "SNAPTR1481-31-main",
+      "path": "snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 4,
+      "error": "",
+      "state": "Ready",
+      "storeId": 13,
+      "download": "DOWNLOADED",
+      "snapshot": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/b",
+      "storeUUID": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1028/e730ad45-0e98-4d96-9c34-27880c5f7292",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.549 GiB/sec and 2610.3527 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.293 GiB/sec and 2347.7761 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 204,
+      "name": "SNAPTR1481-31-archive",
+      "path": "snapshots/2/1029/45b54c84-817a-40ca-8a97-674f91f3326f",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "error": null,
+      "state": "Ready",
+      "storeId": 1,
+      "download": null,
+      "snapshot": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary",
+      "storeUUID": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/snapshots/2/1029/45b54c84-817a-40ca-8a97-674f91f3326f",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/snapshots/2/1029/45b54c84-817a-40ca-8a97-674f91f3326f",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/snapshots/2/1029/45b54c84-817a-40ca-8a97-674f91f3326f",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.838 GiB/sec and 2906.6134 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.673 GiB/sec and 2737.2213 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 214,
+      "name": "SNAPTR1481-31-qualified",
+      "path": "snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "error": null,
+      "state": "Ready",
+      "storeId": 1,
+      "download": null,
+      "snapshot": "506c286e-5fdd-4169-b2ed-66628d44832b",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary",
+      "storeUUID": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.662 GiB/sec and 2726.2070 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.328 GiB/sec and 2384.0460 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 215,
+      "name": "SNAPTR1481-31-qualified",
+      "path": "snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 3,
+      "error": "",
+      "state": "Ready",
+      "storeId": 12,
+      "download": "DOWNLOADED",
+      "snapshot": "506c286e-5fdd-4169-b2ed-66628d44832b",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/a",
+      "storeUUID": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.508 GiB/sec and 2568.4888 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.346 GiB/sec and 2402.3793 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 217,
+      "name": "SNAPTR1481-31-qualified",
+      "path": "snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 4,
+      "error": "",
+      "state": "Ready",
+      "storeId": 13,
+      "download": "DOWNLOADED",
+      "snapshot": "506c286e-5fdd-4169-b2ed-66628d44832b",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/b",
+      "storeUUID": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/2/1030/6dbda829-0f0e-4467-b15b-0873322f105a",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.222 GiB/sec and 2275.5200 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.142 GiB/sec and 2193.0786 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 219,
+      "name": "SNAPTR1481-31-final",
+      "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 1,
+      "error": null,
+      "state": "Ready",
+      "storeId": 1,
+      "download": null,
+      "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary",
+      "storeUUID": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.814 GiB/sec and 3905.7008 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.795 GiB/sec and 3885.7436 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 220,
+      "name": "SNAPTR1481-31-final",
+      "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 3,
+      "error": "",
+      "state": "Ready",
+      "storeId": 12,
+      "download": "DOWNLOADED",
+      "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/a",
+      "storeUUID": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/a/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/a/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.589 GiB/sec and 2650.9659 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.688 GiB/sec and 2752.4400 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    },
+    {
+      "id": 222,
+      "name": "SNAPTR1481-31-final",
+      "path": "snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "role": "Image",
+      "size": 1073741824,
+      "zone": 4,
+      "error": "",
+      "state": "Ready",
+      "storeId": 13,
+      "download": "DOWNLOADED",
+      "snapshot": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+      "storeURL": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/b",
+      "storeUUID": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+      "physicalSize": 2490368,
+      "image": "/nfs/secondary/SNAPTR1481-31/b/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+      "info": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+              "format": "file",
+              "actual-size": 2490368,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/nfs/secondary/SNAPTR1481-31/b/snapshots/254/1031/3444690e-669c-4803-9687-3712e547b232",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2490368,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.846 GiB/sec and 2913.8378 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.487 GiB/sec and 2546.2332 ops/sec)",
+      "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+      "verified": true
+    }
+  ],
+  "runtime": {
+    "classes": [
+      {
+        "path": "com/cloud/storage/snapshot/SnapshotApiService.class",
+        "expected": "fd9c77a3f76ea3a1d5f42713ecea76a4dcdcb7cb1f05dc25e60f6fe857bffbe1",
+        "actual": "fd9c77a3f76ea3a1d5f42713ecea76a4dcdcb7cb1f05dc25e60f6fe857bffbe1"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/user/snapshot/CopySnapshotCmd.class",
+        "expected": "511f8d8f76edf1cf437fa9dfe4f2f3a559c512c457fec89f8ae8ad8cbdd78057",
+        "actual": "511f8d8f76edf1cf437fa9dfe4f2f3a559c512c457fec89f8ae8ad8cbdd78057"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/user/snapshot/ListSnapshotCopyTargetsCmd.class",
+        "expected": "0b4b09506a93b84e43f9d2fb6a0fc8d7d9e15fbaacea58001e281f1b133b270d",
+        "actual": "0b4b09506a93b84e43f9d2fb6a0fc8d7d9e15fbaacea58001e281f1b133b270d"
+      },
+      {
+        "path": "org/apache/cloudstack/api/response/SnapshotCopyTargetsResponse.class",
+        "expected": "a780582dcf635495f17fd5370ad12a3d67bc9821411ebff08aedd8c22bca39dc",
+        "actual": "a780582dcf635495f17fd5370ad12a3d67bc9821411ebff08aedd8c22bca39dc"
+      },
+      {
+        "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+        "expected": "2d2e891cdf086381cd252254cfa97e9d45f2f8787932b441232326e4487d8497",
+        "actual": "2d2e891cdf086381cd252254cfa97e9d45f2f8787932b441232326e4487d8497"
+      },
+      {
+        "path": "com/cloud/storage/snapshot/SnapshotCopyDestination.class",
+        "expected": "1abde8247328d501c4af3650b18d0005e70a3aa0f8116a661e95bddb3b96acbd",
+        "actual": "1abde8247328d501c4af3650b18d0005e70a3aa0f8116a661e95bddb3b96acbd"
+      },
+      {
+        "path": "com/cloud/server/ManagementServerImpl.class",
+        "expected": "f0935b5bf419531a8b925e96ba2550fb7983af983a6137e95b6d97e4c8c7faf2",
+        "actual": "f0935b5bf419531a8b925e96ba2550fb7983af983a6137e95b6d97e4c8c7faf2"
+      },
+      {
+        "path": "com/cloud/api/query/QueryManagerImpl.class",
+        "expected": "2a3fbd981de90dea1003379e4c585ccea4c5c71aca0795cb7a0b92ec6eb32f5f",
+        "actual": "2a3fbd981de90dea1003379e4c585ccea4c5c71aca0795cb7a0b92ec6eb32f5f"
+      }
+    ],
+    "staticFiles": 921,
+    "staticVerified": true,
+    "webInf": true,
+    "protectedServerFiles": 1,
+    "configPreserved": true,
+    "service": "active",
+    "http": 200
+  },
+  "cleanup": {
+    "copies": [
+      {
+        "command": "deleteSnapshot",
+        "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+        "zone": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+        "zone": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+        "zone": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+        "zone": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "506c286e-5fdd-4169-b2ed-66628d44832b",
+        "zone": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "506c286e-5fdd-4169-b2ed-66628d44832b",
+        "zone": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "zone": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "zone": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "complete": true
+      }
+    ],
+    "zones": [
+      {
+        "command": "deleteImageStore",
+        "id": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+        "complete": true
+      },
+      {
+        "command": "deletePhysicalNetwork",
+        "id": "ab8e13b3-e002-4535-a461-5970c8a06b20",
+        "complete": true
+      },
+      {
+        "command": "deletePod",
+        "id": "a7d2d51a-aacd-4ffb-89d4-5d563c68a140",
+        "complete": true
+      },
+      {
+        "command": "deleteZone",
+        "id": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+        "complete": true
+      },
+      {
+        "command": "deleteImageStore",
+        "id": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+        "complete": true
+      },
+      {
+        "command": "deletePhysicalNetwork",
+        "id": "2b0c7090-956e-4680-92d9-4b75791a160a",
+        "complete": true
+      },
+      {
+        "command": "deletePod",
+        "id": "aea153ba-8dab-4e28-b713-6a92aacec39d",
+        "complete": true
+      },
+      {
+        "command": "deleteZone",
+        "id": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+        "complete": true
+      },
+      {
+        "command": "deleteZone",
+        "id": "67d2ca64-e6a4-463f-8b20-ef95076e8ca4",
+        "complete": true
+      },
+      {
+        "command": "deleteZone",
+        "id": "a942f100-9e97-4a5d-af0d-29f4d47d2f4d",
+        "complete": true
+      }
+    ],
+    "sources": [
+      {
+        "command": "deleteSnapshot",
+        "id": "5e9e52a5-ff04-407c-9b2b-4db05ae728aa",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "f8762575-09ec-40d5-b286-145ed8c3d7c8",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "506c286e-5fdd-4169-b2ed-66628d44832b",
+        "complete": true
+      },
+      {
+        "command": "deleteSnapshot",
+        "id": "ee7f1db6-856b-4006-942a-64b33535a2b0",
+        "complete": true
+      },
+      {
+        "command": "deleteVolume",
+        "id": "36e6953f-8725-4c92-9e96-0fa381d3f904",
+        "complete": true
+      },
+      {
+        "command": "deleteVolume",
+        "id": "3d802f65-149b-44c4-8e44-5823d19bd012",
+        "complete": true
+      },
+      {
+        "command": "deleteVolume",
+        "id": "4c63d988-c6f9-4290-9f57-a037800fae97",
+        "complete": true
+      },
+      {
+        "command": "deleteVolume",
+        "id": "6d7586c0-535b-4434-9f23-8eb21ca3fd27",
+        "complete": true
+      }
+    ],
+    "objects": [
+      {
+        "command": "deleteProject",
+        "id": "0780f051-af1e-4f7c-a7a5-c8024ac73877",
+        "complete": true
+      },
+      {
+        "command": "deleteAccount",
+        "id": "30b27b5d-7daf-41f1-9075-5d505913eae6",
+        "complete": true
+      }
+    ]
+  },
+  "agentCleanup": {
+    "agents": [
+      {
+        "name": "SNAPTR1481-31-a",
+        "pid": 970911,
+        "stopped": true,
+        "mountsRemoved": true,
+        "physicalFilesBeforeUnmount": 0,
+        "originalIdentityNetworkAndCertificatesPreserved": true,
+        "generatedPropertiesHashChangedOnReconnect": true
+      },
+      {
+        "name": "SNAPTR1481-31-b",
+        "pid": 970939,
+        "stopped": true,
+        "mountsRemoved": true,
+        "physicalFilesBeforeUnmount": 0,
+        "originalIdentityNetworkAndCertificatesPreserved": true,
+        "generatedPropertiesHashChangedOnReconnect": true
+      }
+    ],
+    "originalAgentPid": "693272",
+    "originalAgentAlive": true,
+    "remainingNfs": {
+      "filesystems": [
+        {
+          "target": "/mnt/SecStorage/81fa5a45-c569-3c48-a1b4-bc07942a8866",
+          "source": "10.10.31.10:/nfs/secondary",
+          "fstype": "nfs4",
+          "options": "rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acdirmin=0,acdirmax=0,soft,proto=tcp,timeo=133,retrans=2147483647,sec=sys,clientaddr=10.10.31.8,local_lock=none,addr=10.10.31.10"
+        }
+      ]
+    }
+  },
+  "hostCleanup": [
+    {
+      "id": "f4cd8621-be0f-439e-bc77-fa3ed2eaddd4",
+      "name": "SNAPTR1481-31-a",
+      "deleted": true
+    },
+    {
+      "id": "1f71d3cc-3f3c-49ca-8b93-ae58b7f9b8a6",
+      "name": "SNAPTR1481-31-b",
+      "deleted": true
+    }
+  ],
+  "finalState": {
+    "database": {
+      "snapshots": 0,
+      "volumes": 0,
+      "references": 0,
+      "zones": 0,
+      "stores": 0,
+      "hosts": 0,
+      "accounts": 0,
+      "project": 0,
+      "pendingForcedCleanup": 0
+    },
+    "secondary": {
+      "checkedImages": 10,
+      "remaining": [],
+      "ownedNfsPrefixRemoved": true
+    },
+    "primary": {
+      "volumes": 4,
+      "remaining": []
+    }
+  },
+  "preservation": {
+    "cluster": "31",
+    "fixtureActive": [
+      {
+        "command": "listVolumes",
+        "count": 0
+      },
+      {
+        "command": "listSnapshots",
+        "count": 0
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 0
+      },
+      {
+        "command": "listTemplates",
+        "count": 0
+      },
+      {
+        "command": "listDiskOfferings",
+        "count": 0
+      },
+      {
+        "command": "listZones",
+        "count": 0
+      },
+      {
+        "command": "listImageStores",
+        "count": 0
+      },
+      {
+        "command": "listProjects",
+        "count": 0
+      }
+    ],
+    "preserved": [
+      {
+        "command": "listVolumes",
+        "count": 155,
+        "sha256": "873801360fe8601c1c34c88d14041d42111d9b1fe96b1df101faea38e8a7b37d",
+        "unchanged": true
+      },
+      {
+        "command": "listSnapshots",
+        "count": 23,
+        "sha256": "c315fafe7b43a279882ad1f6e528d31d8622ff514b20a8827f922e56b90e535d",
+        "unchanged": true
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 116,
+        "sha256": "fbf44c31c054d8c28ce76dfeba891872f7914f735b444fa8d0e43393a8ab1965",
+        "unchanged": true
+      },
+      {
+        "command": "listTemplates",
+        "count": 11,
+        "sha256": "67f4322ac9f0e645e46dbd60592e7f878763d089a4ea2dac9d87a027e253be61",
+        "unchanged": true
+      },
+      {
+        "command": "listDiskOfferings",
+        "count": 10,
+        "sha256": "df03edb38c90843ad917a597f1f0604fd14e38fd515406e64eb0d553b2b5463b",
+        "unchanged": true
+      },
+      {
+        "command": "listZones",
+        "count": 1,
+        "sha256": "6597cfd4cddd2bbf2334ee0d5fc75f5ea6c414869fc043d9de98571bfddf2a6f",
+        "unchanged": true
+      },
+      {
+        "command": "listImageStores",
+        "count": 1,
+        "sha256": "554c319fdfb15193c09062d1c45acb02261a1db88baab63817423fdc0e478c47",
+        "unchanged": true
+      },
+      {
+        "command": "listProjects",
+        "count": 4,
+        "sha256": "a0ac18cc305a84be3726ff90a6e63b7a616d5d4e91ad1ae09fbcaa581a642787",
+        "unchanged": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "quota": {
+    "calculated": {
+      "volumes": 19327352832,
+      "snapshots": 126100635664,
+      "templates": 1060801802240,
+      "logicalSnapshots": 21
+    },
+    "counts": {
+      "snapshot": 21,
+      "secondary_storage": 1206229790736
+    },
+    "secondaryMatches": true,
+    "snapshotMatches": true
+  },
+  "housekeeping": {
+    "rootSecondaryRecount": {
+      "count": 1,
+      "resourcecount": [
+        {
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourcetype": "11",
+          "resourcetypename": "secondary_storage",
+          "resourcecount": 1206229790736
+        }
+      ]
+    },
+    "archivedOwnedAlerts": [
+      {
+        "id": "37fc42d4-b89e-448f-9720-8ff9a6afff62",
+        "description": "Failed to copy snapshot: ee7f1db6-856b-4006-942a-64b33535a2b0 with error: null"
+      },
+      {
+        "id": "e860865c-0bda-484a-aa38-e7bc0652592c",
+        "description": "Failed to copy snapshot: 506c286e-5fdd-4169-b2ed-66628d44832b with error: null"
+      },
+      {
+        "id": "453917b0-1787-4a8c-9cf1-1c15c8566937",
+        "description": "Failed to copy snapshot: 5e9e52a5-ff04-407c-9b2b-4db05ae728aa with error: null"
+      },
+      {
+        "id": "515f8210-e08d-43e0-939d-b3e4d1298af7",
+        "description": "Failed to copy snapshot: 5e9e52a5-ff04-407c-9b2b-4db05ae728aa with error: null"
+      },
+      {
+        "id": "268e3723-55ff-4e40-a869-917458775a39",
+        "description": "Failed to copy snapshot: 5e9e52a5-ff04-407c-9b2b-4db05ae728aa with error: null"
+      },
+      {
+        "id": "7b02f972-5456-41bf-94e6-3498d26aa9e6",
+        "description": "Failed to copy snapshot: 5e9e52a5-ff04-407c-9b2b-4db05ae728aa with error: null"
+      },
+      {
+        "id": "2ff1386f-6f73-4618-9513-8aecb122bcb0",
+        "description": "Failed to copy snapshot: 5e9e52a5-ff04-407c-9b2b-4db05ae728aa with error: null"
+      },
+      {
+        "id": "9329f822-2b73-427a-9964-a0dee455a5b8",
+        "description": "System Alert: Low Available Secondary Storage in availability zone [SNAPTR1481-31-Zone-b]."
+      },
+      {
+        "id": "443bf0bc-7f57-42b4-a65d-33f0e5c9ba5d",
+        "description": "System Alert: Low Available Secondary Storage in availability zone [SNAPTR1481-31-Zone-a]."
+      }
+    ],
+    "originalHosts": [
+      {
+        "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "name": "ablecube31-1",
+        "state": "Up"
+      },
+      {
+        "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "name": "ablecube31-2",
+        "state": "Up"
+      },
+      {
+        "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "name": "ablecube31-3",
+        "state": "Up"
+      },
+      {
+        "id": "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+        "name": "v-174-VM",
+        "state": "Up"
+      },
+      {
+        "id": "21d8be40-391b-498b-aed5-a735562cae22",
+        "name": "s-173-VM",
+        "state": "Up"
+      }
+    ]
+  },
+  "dedicatedAgents": [
+    {
+      "pid": 970911,
+      "base": "/root/SNAPTR1481-31-a",
+      "mount": "/mnt/SNAPTR1481-31-a",
+      "zone": 3,
+      "pod": 2,
+      "originalPid": "693272",
+      "originalConfigAndCertificatesPreserved": true,
+      "mode": "dedicated-secondary-agent-process",
+      "tlsDisabled": false,
+      "key": "a",
+      "zoneid": "c0b03cb4-c8d7-41a3-9767-34c6fea6256f",
+      "storeid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5"
+    },
+    {
+      "pid": 970939,
+      "base": "/root/SNAPTR1481-31-b",
+      "mount": "/mnt/SNAPTR1481-31-b",
+      "zone": 4,
+      "pod": 3,
+      "originalPid": "693272",
+      "originalConfigAndCertificatesPreserved": true,
+      "mode": "dedicated-secondary-agent-process",
+      "tlsDisabled": false,
+      "key": "b",
+      "zoneid": "b996acc3-d67a-40ad-b70c-daee4b93c6d1",
+      "storeid": "4558087a-ad4e-4701-a0bd-393f6e54735c"
+    }
+  ],
+  "mountRegistration": [
+    {
+      "source": "/mnt/SNAPTR1481-31-a",
+      "target": "/mnt/SecStorage/SNAPTR1481-31-a",
+      "mounted": true,
+      "store": {
+        "id": 12,
+        "url": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/a",
+        "uuid": "ebe1da86-6ef5-4831-a570-bd3457bee5d5",
+        "parent": null
+      },
+      "registeredParent": "SNAPTR1481-31-a"
+    },
+    {
+      "source": "/mnt/SNAPTR1481-31-b",
+      "target": "/mnt/SecStorage/SNAPTR1481-31-b",
+      "mounted": true,
+      "store": {
+        "id": 13,
+        "url": "nfs://10.10.31.10/nfs/secondary/SNAPTR1481-31/b",
+        "uuid": "4558087a-ad4e-4701-a0bd-393f6e54735c",
+        "parent": null
+      },
+      "registeredParent": "SNAPTR1481-31-b"
+    }
+  ]
+}

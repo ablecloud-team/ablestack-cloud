@@ -1,0 +1,5 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/a936f658-2ec0-470b-90e6-145bce23d7f1".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 787
+~					781 button 기존 작업 결과 조회
+The focused UI element is 781 button 기존 작업 결과 조회

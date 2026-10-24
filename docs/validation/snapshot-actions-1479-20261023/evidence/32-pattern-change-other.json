@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+    "scenario": "other",
+    "image": "rbd:rbd/8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+    "phase": "change",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.01 sec (92.341 MiB/sec and 92.3407 ops/sec)",
+    "verifiedPattern": "0xa5"
+  }
+]

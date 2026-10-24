@@ -93,6 +93,22 @@ public class SnapshotObject implements SnapshotInfo {
     private String vmSnapshotName;
 
     private Long zoneId = null;
+    private Long dataStoreRefId;
+
+    @Override
+    public Long getDataStoreRefId() {
+        return dataStoreRefId;
+    }
+
+    void setDataStoreRefId(long referenceId) {
+        dataStoreRefId = referenceId;
+    }
+
+    private SnapshotDataStoreVO getStoreReference() {
+        return dataStoreRefId == null
+                ? snapshotStoreDao.findByStoreSnapshot(store.getRole(), store.getId(), snapshot.getId())
+                : snapshotStoreDao.findById(dataStoreRefId);
+    }
 
     public SnapshotObject() {
 
@@ -116,7 +132,7 @@ public class SnapshotObject implements SnapshotInfo {
     @Override
     public SnapshotInfo getParent() {
         logger.trace("Searching for parents of snapshot [{}], in store [{}] with role [{}].", snapshot.getSnapshotId(), store.getId(), store.getRole());
-        SnapshotDataStoreVO snapStoreVO = snapshotStoreDao.findByStoreSnapshot(store.getRole(), store.getId(), snapshot.getId());
+        SnapshotDataStoreVO snapStoreVO = getStoreReference();
         if (snapStoreVO != null) {
             long parentId = snapStoreVO.getParentSnapshotId();
             if (parentId != 0) {
@@ -203,6 +219,9 @@ public class SnapshotObject implements SnapshotInfo {
 
     @Override
     public long getPhysicalSize() {
+        if (dataStoreRefId != null) {
+            return getStoreReference().getPhysicalSize();
+        }
         long physicalSize = 0;
         for (DataStoreRole role : List.of(DataStoreRole.Image, DataStoreRole.Primary)) {
             logger.trace("Retrieving snapshot [{}] size from {} storage.", snapshot.getUuid(), role);
@@ -396,7 +415,7 @@ public class SnapshotObject implements SnapshotInfo {
     @Override
     public void processEvent(ObjectInDataStoreStateMachine.Event event, Answer answer) {
         try {
-            SnapshotDataStoreVO snapshotStore = snapshotStoreDao.findByStoreSnapshot(getDataStore().getRole(), getDataStore().getId(), getId());
+            SnapshotDataStoreVO snapshotStore = getStoreReference();
             if (answer instanceof CreateObjectAnswer) {
                 SnapshotObjectTO snapshotTO = (SnapshotObjectTO)((CreateObjectAnswer)answer).getData();
                 snapshotStore.setInstallPath(snapshotTO.getPath());
@@ -446,7 +465,7 @@ public class SnapshotObject implements SnapshotInfo {
         }
 
         if (store.getRole() == DataStoreRole.Image || store.getRole() == DataStoreRole.ImageCache) {
-            SnapshotDataStoreVO store = snapshotStoreDao.findByStoreSnapshot(this.store.getRole(), this.store.getId(), getId());
+            SnapshotDataStoreVO store = getStoreReference();
             store.incrRefCnt();
             store.setLastUpdated(new Date());
             snapshotStoreDao.update(store.getId(), store);
@@ -459,7 +478,7 @@ public class SnapshotObject implements SnapshotInfo {
             return;
         }
         if (store.getRole() == DataStoreRole.Image || store.getRole() == DataStoreRole.ImageCache) {
-            SnapshotDataStoreVO store = snapshotStoreDao.findByStoreSnapshot(this.store.getRole(), this.store.getId(), getId());
+            SnapshotDataStoreVO store = getStoreReference();
             store.decrRefCnt();
             store.setLastUpdated(new Date());
             snapshotStoreDao.update(store.getId(), store);
@@ -472,7 +491,7 @@ public class SnapshotObject implements SnapshotInfo {
             return null;
         }
         if (store.getRole() == DataStoreRole.Image || store.getRole() == DataStoreRole.ImageCache) {
-            SnapshotDataStoreVO store = snapshotStoreDao.findByStoreSnapshot(this.store.getRole(), this.store.getId(), getId());
+            SnapshotDataStoreVO store = getStoreReference();
             return store.getRefCnt();
         }
         return null;

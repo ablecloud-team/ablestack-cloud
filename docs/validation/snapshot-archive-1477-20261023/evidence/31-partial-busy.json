@@ -1,0 +1,18 @@
+{
+  "snapshot": "951f5854-65c6-457e-bf09-8be34a675d84",
+  "scenario": "partial",
+  "kind": "busy",
+  "before": [
+    {
+      "path": "snapshots/2/975/1f54285f-dd96-40de-bc5a-ef74825a49cb",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 975,
+      "snapshotid": 61,
+      "referenceid": 115
+    }
+  ],
+  "fixtureOnly": true,
+  "path": "/nfs/secondary/snapshots/2/975/1f54285f-dd96-40de-bc5a-ef74825a49cb"
+}

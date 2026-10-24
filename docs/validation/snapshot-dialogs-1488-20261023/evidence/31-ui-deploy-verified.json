@@ -1,0 +1,20 @@
+{
+  "files": 921,
+  "verified": true,
+  "backup": "/root/snapshot-dialogs-1488-20261023-verified",
+  "managementPidUnchanged": true,
+  "cluster": "31",
+  "clientHttp": 200,
+  "moldActive": true,
+  "backendJarUnchanged": true,
+  "backendJarSha256": "865a42e2b4de55c4c022dbf081f0e29703a684f895fab457b81d4ecd3b32041d",
+  "markers": {
+    "snapshot-job-details": true,
+    "snapshot-notice-target": true,
+    "blockingLoadingState": true,
+    "fetchSyncProgress": true,
+    "extractJobId": true,
+    "snapshot-restore-content": true,
+    "snapshot-volume-form": true
+  }
+}

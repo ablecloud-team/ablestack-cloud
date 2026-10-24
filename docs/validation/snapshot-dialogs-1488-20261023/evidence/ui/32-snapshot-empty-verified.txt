@@ -1,0 +1,3 @@
+Browser tab: 23, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot?keyword=SNAPDIALOG-32-&q=SNAPDIALOG-32-&page=1&pagesize=20".
+There has been no change in the accessibility tree.
+The focused UI element is 1102 text field (settable) SNAPDIALOG-32-

@@ -1,0 +1,14 @@
+{
+  "copyRows": [],
+  "dialog": null,
+  "links": [],
+  "root": "",
+  "url": "#/dashboard",
+  "zones": [],
+  "cluster": "32",
+  "phase": "project-scope",
+  "viewport": {
+    "width": 1680,
+    "height": 1200
+  }
+}

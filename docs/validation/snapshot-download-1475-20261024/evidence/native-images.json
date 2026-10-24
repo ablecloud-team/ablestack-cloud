@@ -1,0 +1,98 @@
+[
+  {
+    "file": "images/31-cleanup.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "d4b12e739c26123519b1530252a4b1779d80574710a27052b1a0b8f7f2a2c170",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/31-prepare-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "d5a33ab03bb4775236beadf04a29fb63e110f14c80edb48207afcdce58e52c1f",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/31-prepare-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "4f8b7d95701edeaea5912089ba2d2149a75cc4665ac3606c68ccf1c05171bd79",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/31-qcow2-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "0cdb496f4f9213807525d2c143fd8ecf9355f5fa9c7881d701c2a1d0763194bd",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/31-raw-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "9309a382e1d71abec19baea1173b8f445958991e1689c660e8e020f5c09a2ef8",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/31-raw-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "ddbddd3259d9478333e3f396688885495b3e0716a8db840ba3a75b211ecc9722",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-cleanup.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "a6955eb95d00d5fa229bedf5c08f573d38e9d5385470138d56a34d6d96570064",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-prepare-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "38127d3e72a31c2a89c6752c102ab8b82677a3ad97569f67aba24d37fe8bbc08",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-prepare-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "85738e760b7da679788c028b326836676cb83a6337fef9ef49d8cae0223cd456",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-qcow2-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "96f0b9dd1551ad8a8d6f329022b1be02db2d322e70652f65d89cc62b09de2b1e",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-raw-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "62f8621fe7116348447aefc090ce52f3555753fe1c8fa2c398602b1dcd32ac9a",
+    "originalScreenshotBytesPreserved": true
+  },
+  {
+    "file": "images/32-raw-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "10334094f4ff90f2d7ed98e19cbda76309d8e78e4cdc611cf850578bfabc3f0c",
+    "originalScreenshotBytesPreserved": true
+  }
+]

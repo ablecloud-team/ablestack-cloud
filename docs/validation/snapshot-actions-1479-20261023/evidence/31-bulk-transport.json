@@ -1,0 +1,67 @@
+{
+  "first": "24165be4-ed23-4c19-b4ee-d2893a038621",
+  "second": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb",
+  "posts": [
+    {
+      "at": "2026-10-23T11:39:15.515Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "24165be4-ed23-4c19-b4ee-d2893a038621",
+        "customjobid": "18222563-f3f5-44ae-ba73-37a7cea972d7"
+      },
+      "status": 200,
+      "jobid": "18222563-f3f5-44ae-ba73-37a7cea972d7",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T11:39:15.522Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "24165be4-ed23-4c19-b4ee-d2893a038621",
+        "customjobid": "18222563-f3f5-44ae-ba73-37a7cea972d7"
+      },
+      "status": 200,
+      "jobid": "18222563-f3f5-44ae-ba73-37a7cea972d7",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T11:39:15.535Z",
+      "cmd": "deleteSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "24165be4-ed23-4c19-b4ee-d2893a038621",
+        "customjobid": "18222563-f3f5-44ae-ba73-37a7cea972d7"
+      },
+      "status": 200,
+      "jobid": "18222563-f3f5-44ae-ba73-37a7cea972d7",
+      "fault": "submit-response-dropped-after-forward"
+    }
+  ],
+  "secondMutationCount": 0,
+  "secondDbRows": [
+    {
+      "id": 78,
+      "name": "SNAP1479-31-query-project-ui",
+      "path": "snapshots/250/982/1ecfabaa-496b-42db-b237-ccb4cf1902fa",
+      "role": "Image",
+      "uuid": "b7ac6d09-2c86-43c4-8133-fec74a3c79cb",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 196624,
+      "refstate": "Ready",
+      "referenceid": 148
+    }
+  ],
+  "secondPreserved": true
+}

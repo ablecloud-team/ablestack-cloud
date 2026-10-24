@@ -1,0 +1,881 @@
+{
+  "snapshots": [
+    {
+      "id": 134,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "84afcd30-2e61-494d-8e1a-5825322e5907",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 135,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "67bb23f6-d26b-4041-b262-aa1bb731eb10",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 136,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "f2037808-c803-4fcc-ac2f-28a9786d4173",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 137,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "50135cde-ad9c-425b-bb59-b81bda25d0d2",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 138,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "dc83e8ef-54cd-477d-829a-2bafd076b885",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 139,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "0933779c-39cb-4bc5-92c2-de85ff2440e6",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 140,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "06072c75-a2c3-4846-a138-56051d650c7f",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 141,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "ce5af77f-e6eb-4939-8a09-4bd409f4e3d9",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 142,
+      "name": "SNAPSEARCH1483-31-R-08",
+      "type": 0,
+      "uuid": "e21c0dbc-7f2f-47d0-a121-06b663382692",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 143,
+      "name": "SNAPSEARCH1483-31-Q-09",
+      "type": 0,
+      "uuid": "626a8348-6182-415e-9c33-3e5750e59ec7",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 144,
+      "name": "SNAPSEARCH1483-31-P-10",
+      "type": 0,
+      "uuid": "00c546f3-76ae-422b-8e5f-84309fc59ad5",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 145,
+      "name": "SNAPSEARCH1483-31-O-11",
+      "type": 0,
+      "uuid": "65987019-4867-4060-99d5-3400978ba439",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 146,
+      "name": "SNAPSEARCH1483-31-N-12",
+      "type": 0,
+      "uuid": "34dda192-7554-4d0a-8e9d-bae519c4af67",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 147,
+      "name": "SNAPSEARCH1483-31-M-13",
+      "type": 0,
+      "uuid": "1cebf065-f15f-49ba-8b8b-d4e9810d0b43",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 148,
+      "name": "SNAPSEARCH1483-31-L-14",
+      "type": 0,
+      "uuid": "01a709ec-7b0e-4ab1-817a-5a5473f8b8b8",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 149,
+      "name": "SNAPSEARCH1483-31-K-15",
+      "type": 0,
+      "uuid": "f7b4433d-321a-4726-809b-4d17c424ee57",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 150,
+      "name": "SNAPSEARCH1483-31-J-16",
+      "type": 0,
+      "uuid": "38b71aa8-67b3-4f7b-bc1f-3297c2470f27",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 151,
+      "name": "SNAPSEARCH1483-31-I-17",
+      "type": 0,
+      "uuid": "a15abee7-696a-4a7e-ad40-7183c8feb063",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 152,
+      "name": "SNAPSEARCH1483-31-H-18",
+      "type": 0,
+      "uuid": "aa32a47e-f493-4f67-9bf5-0197ac0cbff3",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 153,
+      "name": "SNAPSEARCH1483-31-G-19",
+      "type": 0,
+      "uuid": "0c90a49b-7f01-4b9b-aa7f-45f1a6866df6",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 154,
+      "name": "SNAPSEARCH1483-31-Z-20",
+      "type": 0,
+      "uuid": "ab4b6003-3992-4d30-8997-5538c9058cc8",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 155,
+      "name": "SNAPSEARCH1483-31-Y-21",
+      "type": 0,
+      "uuid": "2c34af99-e01b-4ca6-8d1e-f2fbde663a46",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 156,
+      "name": "SNAPSEARCH1483-31-X-22",
+      "type": 0,
+      "uuid": "18f3bf95-4f2d-4533-b86d-cc645b77a159",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 157,
+      "name": "SNAPSEARCH1483-31-W-23",
+      "type": 0,
+      "uuid": "0aff00bc-5d34-49ab-95cd-fc085bfab2ce",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 158,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "834d6391-37f4-4a8f-8855-552a3f37245e",
+      "state": "BackedUp",
+      "volume": 1037,
+      "removed": null
+    },
+    {
+      "id": 159,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "c4da6b5d-7615-4bb0-9274-27c16e5bd788",
+      "state": "BackedUp",
+      "volume": 1037,
+      "removed": null
+    },
+    {
+      "id": 160,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "575a113a-cbb9-45dd-bc7e-5c9698581723",
+      "state": "BackedUp",
+      "volume": 1038,
+      "removed": null
+    },
+    {
+      "id": 161,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "89bdfa87-efa6-4352-96ef-881a47b23454",
+      "state": "BackedUp",
+      "volume": 1039,
+      "removed": null
+    },
+    {
+      "id": 162,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "39f92179-cee5-4f86-a263-466675c528bc",
+      "state": "BackedUp",
+      "volume": 1039,
+      "removed": null
+    },
+    {
+      "id": 163,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "cc33ac3e-2977-450a-a445-eb7fbbf73ee2",
+      "state": "BackedUp",
+      "volume": 1039,
+      "removed": null
+    },
+    {
+      "id": 164,
+      "name": "SNAPSEARCH1483-31-same",
+      "type": 0,
+      "uuid": "81d92bad-338e-4aba-9a35-d3dfc3edec39",
+      "state": "BackedUp",
+      "volume": 1040,
+      "removed": null
+    },
+    {
+      "id": 165,
+      "name": "SNAPSEARCH1483-31-recurring-HOURLY",
+      "type": 8,
+      "uuid": "40bf596f-bbea-492c-8342-b01a430c323e",
+      "state": "Destroyed",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 166,
+      "name": "SNAPSEARCH1483-31-recurring-DAILY",
+      "type": 4,
+      "uuid": "82dfb3ca-23ab-45f5-a140-91e19a8acd77",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 167,
+      "name": "SNAPSEARCH1483-31-recurring-WEEKLY",
+      "type": 5,
+      "uuid": "fc149091-291b-4e60-b3e5-d9e8dd1f539b",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 168,
+      "name": "SNAPSEARCH1483-31-recurring-MONTHLY",
+      "type": 6,
+      "uuid": "702b72d5-47a3-4039-81be-f4e90d5cca13",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    },
+    {
+      "id": 169,
+      "name": "SNAPSEARCH1483-31-recurring-HOURLY",
+      "type": 3,
+      "uuid": "1d912e8d-06a8-48f9-9e1f-59a37b3f0286",
+      "state": "BackedUp",
+      "volume": 1036,
+      "removed": null
+    }
+  ],
+  "volumes": [
+    {
+      "id": 1054,
+      "path": "0f8f0dca-baf7-48af-bb48-407e05a82517",
+      "pool": 1,
+      "uuid": "0f8f0dca-baf7-48af-bb48-407e05a82517",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1063,
+      "path": "1621d5ce-66a6-4622-a476-f20bbb5ad58c",
+      "pool": 1,
+      "uuid": "1621d5ce-66a6-4622-a476-f20bbb5ad58c",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1042,
+      "path": "1f793510-70b8-465b-8ae8-be507ab5a7de",
+      "pool": 1,
+      "uuid": "1f793510-70b8-465b-8ae8-be507ab5a7de",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1040,
+      "path": "227f2142-cc94-4825-ad3f-975b36335579",
+      "pool": 1,
+      "uuid": "227f2142-cc94-4825-ad3f-975b36335579",
+      "state": "Expunged",
+      "removed": "2026-10-24 10:23:23.000000"
+    },
+    {
+      "id": 1047,
+      "path": "251d733b-6e49-475b-9433-12c7b121df62",
+      "pool": 1,
+      "uuid": "251d733b-6e49-475b-9433-12c7b121df62",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1041,
+      "path": "33d5751a-0c1c-4bbb-a8e5-fd76f4f6eeac",
+      "pool": 1,
+      "uuid": "33d5751a-0c1c-4bbb-a8e5-fd76f4f6eeac",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1059,
+      "path": "37d79002-8149-4542-8bd3-5ce9f2a2daeb",
+      "pool": 1,
+      "uuid": "37d79002-8149-4542-8bd3-5ce9f2a2daeb",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1061,
+      "path": "3ea4115d-ca4a-4cce-b205-a39f78b8d22d",
+      "pool": 1,
+      "uuid": "3ea4115d-ca4a-4cce-b205-a39f78b8d22d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1060,
+      "path": "4be2b6dc-c235-46b4-8ef0-505005e1a469",
+      "pool": 1,
+      "uuid": "4be2b6dc-c235-46b4-8ef0-505005e1a469",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1056,
+      "path": "4be5e225-d898-4642-b099-3ad98ee6274d",
+      "pool": 1,
+      "uuid": "4be5e225-d898-4642-b099-3ad98ee6274d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1044,
+      "path": "4e1b0798-a161-474d-b430-c5733011afd2",
+      "pool": 1,
+      "uuid": "4e1b0798-a161-474d-b430-c5733011afd2",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1050,
+      "path": "5532db7e-c05c-4f2a-8af5-aa3b24ff868d",
+      "pool": 1,
+      "uuid": "5532db7e-c05c-4f2a-8af5-aa3b24ff868d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1038,
+      "path": "5fb94de2-e5e2-4528-ab47-0545f4cf4420",
+      "pool": 1,
+      "uuid": "5fb94de2-e5e2-4528-ab47-0545f4cf4420",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1036,
+      "path": "89819506-d233-4ea1-af06-30c3edf79ae9",
+      "pool": 1,
+      "uuid": "89819506-d233-4ea1-af06-30c3edf79ae9",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1055,
+      "path": "8b95f237-6ccf-4795-9e4e-a806a211c71e",
+      "pool": 1,
+      "uuid": "8b95f237-6ccf-4795-9e4e-a806a211c71e",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1057,
+      "path": "97643455-fc45-4a6b-832f-6bc40187a0ca",
+      "pool": 1,
+      "uuid": "97643455-fc45-4a6b-832f-6bc40187a0ca",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1039,
+      "path": "a0a7b219-0357-4750-9a8d-ba024f88bc20",
+      "pool": 1,
+      "uuid": "a0a7b219-0357-4750-9a8d-ba024f88bc20",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1062,
+      "path": "a6682b00-395d-409b-b623-c2653ded33cc",
+      "pool": 1,
+      "uuid": "a6682b00-395d-409b-b623-c2653ded33cc",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1046,
+      "path": "ad987ae9-3740-4bd5-be3f-cafa98e0b0f5",
+      "pool": 1,
+      "uuid": "ad987ae9-3740-4bd5-be3f-cafa98e0b0f5",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1043,
+      "path": "b3c61658-76d6-4c8a-89d2-c114dca89cb8",
+      "pool": 1,
+      "uuid": "b3c61658-76d6-4c8a-89d2-c114dca89cb8",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1048,
+      "path": "be616405-1d31-42e9-bbd7-a9c8fbdc6df6",
+      "pool": 1,
+      "uuid": "be616405-1d31-42e9-bbd7-a9c8fbdc6df6",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1058,
+      "path": "bee9a5b1-7c0d-4737-8c8e-c50711dc0a8b",
+      "pool": 1,
+      "uuid": "bee9a5b1-7c0d-4737-8c8e-c50711dc0a8b",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1045,
+      "path": "bf9ba6f4-0afa-4c55-930f-1c71ca40b858",
+      "pool": 1,
+      "uuid": "bf9ba6f4-0afa-4c55-930f-1c71ca40b858",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1051,
+      "path": "cd250f8f-7ac5-4a0d-9a51-91446dc0fd92",
+      "pool": 1,
+      "uuid": "cd250f8f-7ac5-4a0d-9a51-91446dc0fd92",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1053,
+      "path": "dc07598a-6ff8-49f5-931d-fdcd446d05e0",
+      "pool": 1,
+      "uuid": "dc07598a-6ff8-49f5-931d-fdcd446d05e0",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1049,
+      "path": "ddd9dc3e-2ede-44ef-8345-86af80462252",
+      "pool": 1,
+      "uuid": "ddd9dc3e-2ede-44ef-8345-86af80462252",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1037,
+      "path": "ef3a6ede-a20a-4d84-8645-12cf20815cd1",
+      "pool": 1,
+      "uuid": "ef3a6ede-a20a-4d84-8645-12cf20815cd1",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 1052,
+      "path": "ef9ff430-c8b2-4503-a4b3-c26b99e11cb4",
+      "pool": 1,
+      "uuid": "ef9ff430-c8b2-4503-a4b3-c26b99e11cb4",
+      "state": "Ready",
+      "removed": null
+    }
+  ],
+  "references": [
+    {
+      "path": "snapshots/261/1036/0b163850-928a-41db-a6d1-6c5e15fa5602",
+      "role": "Image",
+      "uuid": "84afcd30-2e61-494d-8e1a-5825322e5907",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 134
+    },
+    {
+      "path": "snapshots/261/1036/080d7655-d004-4c1b-a716-6b884b1fa657",
+      "role": "Image",
+      "uuid": "67bb23f6-d26b-4041-b262-aa1bb731eb10",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 135
+    },
+    {
+      "path": "snapshots/261/1036/ad1ef159-52bd-42bb-9fd8-02d85fd94efb",
+      "role": "Image",
+      "uuid": "f2037808-c803-4fcc-ac2f-28a9786d4173",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 136
+    },
+    {
+      "path": "snapshots/261/1036/8f051a62-fd28-40bb-8a5f-1554d9e02dc6",
+      "role": "Image",
+      "uuid": "50135cde-ad9c-425b-bb59-b81bda25d0d2",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 137
+    },
+    {
+      "path": "snapshots/261/1036/474792fd-8fbb-4420-86fb-a163c4116ac2",
+      "role": "Image",
+      "uuid": "dc83e8ef-54cd-477d-829a-2bafd076b885",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 138
+    },
+    {
+      "path": "snapshots/261/1036/28a4aaea-b594-4182-9687-551dc7f312cc",
+      "role": "Image",
+      "uuid": "0933779c-39cb-4bc5-92c2-de85ff2440e6",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 139
+    },
+    {
+      "path": "snapshots/261/1036/101f9dce-2de5-4bb2-a576-10e831ed1dca",
+      "role": "Image",
+      "uuid": "06072c75-a2c3-4846-a138-56051d650c7f",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 140
+    },
+    {
+      "path": "snapshots/261/1036/efaa5464-fe23-4076-9a2e-e2234ecb4947",
+      "role": "Image",
+      "uuid": "ce5af77f-e6eb-4939-8a09-4bd409f4e3d9",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 141
+    },
+    {
+      "path": "snapshots/261/1036/be1e6298-a404-4daf-be63-23d3924ddccb",
+      "role": "Image",
+      "uuid": "e21c0dbc-7f2f-47d0-a121-06b663382692",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 142
+    },
+    {
+      "path": "snapshots/261/1036/49636f9c-1fe6-4406-b7bc-1508e5af0254",
+      "role": "Image",
+      "uuid": "626a8348-6182-415e-9c33-3e5750e59ec7",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 143
+    },
+    {
+      "path": "snapshots/261/1036/e4e5d5a4-5d29-43e1-8c3a-d7a7fc724994",
+      "role": "Image",
+      "uuid": "00c546f3-76ae-422b-8e5f-84309fc59ad5",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 144
+    },
+    {
+      "path": "snapshots/261/1036/7c3bf75f-1bb0-47e5-bd4c-72a330970ea0",
+      "role": "Image",
+      "uuid": "65987019-4867-4060-99d5-3400978ba439",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 145
+    },
+    {
+      "path": "snapshots/261/1036/cbc29105-c2e8-4c32-b919-efd9e0da7275",
+      "role": "Image",
+      "uuid": "34dda192-7554-4d0a-8e9d-bae519c4af67",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 146
+    },
+    {
+      "path": "snapshots/261/1036/2c388cfb-d249-488b-a65b-6d38a6936adf",
+      "role": "Image",
+      "uuid": "1cebf065-f15f-49ba-8b8b-d4e9810d0b43",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 147
+    },
+    {
+      "path": "snapshots/261/1036/74e612cc-fde8-4912-b449-9987554ade12",
+      "role": "Image",
+      "uuid": "01a709ec-7b0e-4ab1-817a-5a5473f8b8b8",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 148
+    },
+    {
+      "path": "snapshots/261/1036/87cb99f3-66e0-4c54-8585-d88e2c6a7c64",
+      "role": "Image",
+      "uuid": "f7b4433d-321a-4726-809b-4d17c424ee57",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 149
+    },
+    {
+      "path": "snapshots/261/1036/1685b7df-0edd-44e4-9276-76c29d07fa77",
+      "role": "Image",
+      "uuid": "38b71aa8-67b3-4f7b-bc1f-3297c2470f27",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 150
+    },
+    {
+      "path": "snapshots/261/1036/30e1db1f-c0ab-4b42-a95b-4040db38badd",
+      "role": "Image",
+      "uuid": "a15abee7-696a-4a7e-ad40-7183c8feb063",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 151
+    },
+    {
+      "path": "snapshots/261/1036/c9eee9b7-6112-4535-94e6-ff546f1ef2f0",
+      "role": "Image",
+      "uuid": "aa32a47e-f493-4f67-9bf5-0197ac0cbff3",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 152
+    },
+    {
+      "path": "snapshots/261/1036/ac5dbca8-38a1-4b58-94c9-02b86ad5d9c1",
+      "role": "Image",
+      "uuid": "0c90a49b-7f01-4b9b-aa7f-45f1a6866df6",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 153
+    },
+    {
+      "path": "snapshots/261/1036/0b466055-e9b1-4508-a0e0-dca27b2a9596",
+      "role": "Image",
+      "uuid": "ab4b6003-3992-4d30-8997-5538c9058cc8",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 154
+    },
+    {
+      "path": "snapshots/261/1036/c587b502-5830-4bb7-bb29-7fdfe8d90dba",
+      "role": "Image",
+      "uuid": "2c34af99-e01b-4ca6-8d1e-f2fbde663a46",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 155
+    },
+    {
+      "path": "snapshots/261/1036/cb96c22c-7ee3-4f79-8931-07a1f9527fbd",
+      "role": "Image",
+      "uuid": "18f3bf95-4f2d-4533-b86d-cc645b77a159",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 156
+    },
+    {
+      "path": "snapshots/261/1036/098a3dbd-1605-470c-924c-0f6075dcb926",
+      "role": "Image",
+      "uuid": "0aff00bc-5d34-49ab-95cd-fc085bfab2ce",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 157
+    },
+    {
+      "path": "snapshots/262/1037/345c94f6-1aa9-4ee5-810f-04a795c57513",
+      "role": "Image",
+      "uuid": "834d6391-37f4-4a8f-8855-552a3f37245e",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1037,
+      "snapshot": 158
+    },
+    {
+      "path": "snapshots/262/1037/a8b4f0d8-7139-4bb1-83bf-a712c4be5153",
+      "role": "Image",
+      "uuid": "c4da6b5d-7615-4bb0-9274-27c16e5bd788",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1037,
+      "snapshot": 159
+    },
+    {
+      "path": "snapshots/263/1038/224ef5f6-02c1-4560-aaba-931fcf2bfcfc",
+      "role": "Image",
+      "uuid": "575a113a-cbb9-45dd-bc7e-5c9698581723",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1038,
+      "snapshot": 160
+    },
+    {
+      "path": "snapshots/265/1039/a6f38c5b-efb4-4448-a7bc-d3482331ec9d",
+      "role": "Image",
+      "uuid": "89bdfa87-efa6-4352-96ef-881a47b23454",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1039,
+      "snapshot": 161
+    },
+    {
+      "path": "snapshots/265/1039/c7166652-720c-486e-af02-498deee19d4a",
+      "role": "Image",
+      "uuid": "39f92179-cee5-4f86-a263-466675c528bc",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1039,
+      "snapshot": 162
+    },
+    {
+      "path": "snapshots/265/1039/24d0e66a-d8db-47b8-8892-1151320e15cd",
+      "role": "Image",
+      "uuid": "cc33ac3e-2977-450a-a445-eb7fbbf73ee2",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1039,
+      "snapshot": 163
+    },
+    {
+      "path": "snapshots/261/1040/82a86899-ab36-431c-a93b-f00cd4f70d5f",
+      "role": "Image",
+      "uuid": "81d92bad-338e-4aba-9a35-d3dfc3edec39",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1040,
+      "snapshot": 164
+    },
+    {
+      "path": "snapshots/261/1036/c69690a5-2c4d-4213-bb3d-640e84d2c1a8",
+      "role": "Image",
+      "uuid": "40bf596f-bbea-492c-8342-b01a430c323e",
+      "state": "Destroyed",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 165
+    },
+    {
+      "path": "snapshots/261/1036/3fb2ed01-c3cd-4acc-99c7-b7f2fc6aee2f",
+      "role": "Image",
+      "uuid": "82dfb3ca-23ab-45f5-a140-91e19a8acd77",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 166
+    },
+    {
+      "path": "snapshots/261/1036/269defae-6a5f-4893-af10-73918223d859",
+      "role": "Image",
+      "uuid": "fc149091-291b-4e60-b3e5-d9e8dd1f539b",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 167
+    },
+    {
+      "path": "snapshots/261/1036/97742216-67d0-4c6c-940b-a1b7dfb14e61",
+      "role": "Image",
+      "uuid": "702b72d5-47a3-4039-81be-f4e90d5cca13",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 168
+    },
+    {
+      "path": "snapshots/261/1036/749e6e5a-904c-4392-8ca2-c143e1122c6f",
+      "role": "Image",
+      "uuid": "1d912e8d-06a8-48f9-9e1f-59a37b3f0286",
+      "state": "Ready",
+      "store": 1,
+      "volume": 1036,
+      "snapshot": 169
+    }
+  ],
+  "activePolicies": 0
+}

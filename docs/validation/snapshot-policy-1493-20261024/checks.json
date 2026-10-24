@@ -1,0 +1,25 @@
+{
+  "fullCloudBuild": false,
+  "actionsDispatched": false,
+  "uiSourceChanged": false,
+  "java": {
+    "api-build": {
+      "tests": 9,
+      "pass": true,
+      "checkstyle": "PASS",
+      "rawLogSha256": "e1c02264817f91847f153813af85bd87c130d5467a8c4b14e31ec8a71908c316"
+    },
+    "server-tests": {
+      "tests": 115,
+      "pass": true,
+      "checkstyle": "PASS",
+      "rawLogSha256": "a1cb26c531728decda006658c35ed30cf9bb4d90b0f1011f06135d54a0e3cae2"
+    }
+  },
+  "python": {
+    "tests": 12,
+    "pass": true,
+    "rawLogSha256": "8d792d81c28f14e81434cb2a175feb8a800363e60faf05e9aa008104cb37a9c2",
+    "alsoObservedOnWindows": true
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/328/c23a4881-f016-4489-b9c4-4029b02f8675",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/328/e865d1f6-ceff-4094-aa70-97e733fb3be8",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/329/57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/330/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/e5a86582-001e-4908-b26d-f64ba554cde7",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "sourceVolumes": [
+    {
+      "uuid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 151,
+          "name": "c23a4881-f016-4489-b9c4-4029b02f8675",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:05:40 2026"
+        },
+        {
+          "id": 154,
+          "name": "e865d1f6-ceff-4094-aa70-97e733fb3be8",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:11:14 2026"
+        }
+      ]
+    },
+    {
+      "uuid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 152,
+          "name": "57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:05:44 2026"
+        }
+      ]
+    },
+    {
+      "uuid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "79d18a72-db53-4186-9c84-c81347a6420d",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 156,
+          "name": "e5a86582-001e-4908-b26d-f64ba554cde7",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:21:38 2026"
+        }
+      ]
+    }
+  ],
+  "fixtureClones": []
+}

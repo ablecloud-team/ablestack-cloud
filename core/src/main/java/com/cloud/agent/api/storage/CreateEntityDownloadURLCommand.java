@@ -45,6 +45,11 @@ public class CreateEntityDownloadURLCommand extends AbstractDownloadCommand {
     private String parent;
     private String filenameInExtractURL;
     private String filepathInExtractURL;
+    // A metadata probe creates neither a URL nor an export directory.
+    private boolean inspectOnly;
+
+    public boolean isInspectOnly() { return inspectOnly; }
+    public void setInspectOnly(boolean inspectOnly) { this.inspectOnly = inspectOnly; }
 
     public DataTO getData() {
         return data;

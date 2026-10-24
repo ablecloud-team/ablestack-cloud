@@ -1,0 +1,16 @@
+30234b2e-12fb-42b0-8cfe-ffbcb689d151	SNAP1478-32-normal	BackedUp	44	Primary	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/167f8682-f0dc-440a-b65f-44f507d04f38
+30234b2e-12fb-42b0-8cfe-ffbcb689d151	SNAP1478-32-normal	BackedUp	45	Image	Ready	snapshots/2/321/167f8682-f0dc-440a-b65f-44f507d04f38
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	Destroyed	46	Primary	Destroyed	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/fb878c93-5b45-4117-bd32-c85d3ae5987f
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	Destroyed	47	Image	Destroyed	snapshots/2/321/fb878c93-5b45-4117-bd32-c85d3ae5987f
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	Destroyed	52	Image	Destroyed	snapshots/2/321
+c7f9c08c-8b20-460b-9fc8-05ad70f2126d	SNAP1478-32-partial	Destroyed	48	Primary	Destroyed	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/abefbeef-8cdf-4927-a565-12713fa82f1c
+c7f9c08c-8b20-460b-9fc8-05ad70f2126d	SNAP1478-32-partial	Destroyed	49	Image	Destroyed	snapshots/2/321/abefbeef-8cdf-4927-a565-12713fa82f1c
+06a5da98-d091-4df6-8418-db5e460c6b26	SNAP1478-32-control	BackedUp	50	Primary	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/63370bf9-4b6f-4ed8-8676-2380e4154bea
+06a5da98-d091-4df6-8418-db5e460c6b26	SNAP1478-32-control	BackedUp	51	Image	Ready	snapshots/2/321/63370bf9-4b6f-4ed8-8676-2380e4154bea
+c9501c7e-d15d-4c2c-ac7d-64d48a347a5e	SNAP1478-32-tenant	Destroyed	53	Primary	Destroyed	rbd/9658582c-564a-4a57-a11a-ccdc677dc67a/a0c6b06e-1845-49e5-96ca-bf1f490d02ee
+c9501c7e-d15d-4c2c-ac7d-64d48a347a5e	SNAP1478-32-tenant	Destroyed	54	Image	Destroyed	snapshots/60/322/a0c6b06e-1845-49e5-96ca-bf1f490d02ee
+4c4e0a3f-c872-4d1d-9d54-b6d86959364f	SNAP1478-32-missing	Destroyed	55	Primary	Destroyed	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/0b83d535-6ae4-4ed9-862d-cd43179870be
+4c4e0a3f-c872-4d1d-9d54-b6d86959364f	SNAP1478-32-missing	Destroyed	56	Image	Destroyed	snapshots/2/321/0b83d535-6ae4-4ed9-862d-cd43179870be
+32db55f6-5640-47b8-a9ea-ccde6612a772	SNAP1478-32-quota-final	Error	NULL	NULL	NULL	[empty]
+c41d6695-361f-4c41-8ffd-28cafb51d16c	SNAP1478-32-quota-final	Destroyed	58	Primary	Destroyed	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/10edb2e6-e879-4cac-9a21-f04d19394197
+c41d6695-361f-4c41-8ffd-28cafb51d16c	SNAP1478-32-quota-final	Destroyed	59	Image	Destroyed	snapshots/2/321/10edb2e6-e879-4cac-9a21-f04d19394197

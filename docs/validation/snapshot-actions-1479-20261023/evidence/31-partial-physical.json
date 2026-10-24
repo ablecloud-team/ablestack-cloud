@@ -1,0 +1,68 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/978/5e0b1bf7-06f9-4836-a748-1ff7154e05ff",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/979/c349e01d-f24a-4403-8f3e-45382fcb997d",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/980/32120945-1d45-4144-8aa9-aa54f439c369",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/1ecfabaa-496b-42db-b237-ccb4cf1902fa",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/1f37a755-79e1-4084-bcff-86e56466ec6f",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/5b8d166e-dc8e-4f0c-bf98-0ed07f03a10f",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/7aa2a13f-8acf-48cd-8876-36363b660eb5",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/c918fc02-e8b6-441e-b998-8d1a4fdfc760",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/250/982/ce5aea8d-7214-41d8-bc0b-01287872b5dc",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "templates": [],
+  "sourceVolumePaths": [
+    "/mnt/glue-gfs/0e51c938-b2c0-4101-8a7f-ba071ad20e53"
+  ]
+}

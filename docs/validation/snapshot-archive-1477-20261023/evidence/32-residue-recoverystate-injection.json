@@ -1,0 +1,8 @@
+{
+  "cluster": "32",
+  "scenario": "residue",
+  "kind": "recoverystate",
+  "snapshot": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+  "fixtureOnly": true,
+  "productRecoveryRequired": true
+}

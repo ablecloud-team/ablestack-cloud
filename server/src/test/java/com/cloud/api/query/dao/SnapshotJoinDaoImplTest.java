@@ -19,6 +19,7 @@ package com.cloud.api.query.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,6 +39,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.cloud.api.query.vo.SnapshotJoinVO;
+import com.cloud.api.query.SnapshotListOrdering;
 import com.cloud.utils.db.SearchBuilder;
 import com.cloud.utils.db.SearchCriteria;
 
@@ -58,6 +60,14 @@ public class SnapshotJoinDaoImplTest {
         when(mockSearchBuilder.entity()).thenReturn(mockSnap);
         doReturn(mockSearchBuilder).when(snapshotJoinDao).createSearchBuilder();
         when(mockSearchBuilder.create()).thenReturn(mockSearchCriteria);
+    }
+
+    @Test
+    public void groupedSnapshotRepresentativeHasMappedJdbcColumnLabel() {
+        SearchBuilder<SnapshotJoinVO> builder = new SearchBuilder<>(SnapshotJoinVO.class);
+        new SnapshotListOrdering("name", "asc").selectPage(builder, true);
+        String sql = snapshotJoinDao.createPartialSelectSql(builder.create(), false, false).toString();
+        assertTrue(sql.contains("MIN(snapshot_view.snapshot_store_pair) AS snapshot_store_pair"));
     }
 
     @Test

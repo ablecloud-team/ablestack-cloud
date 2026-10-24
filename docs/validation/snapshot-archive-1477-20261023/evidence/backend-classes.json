@@ -1,0 +1,106 @@
+[
+  {
+    "path": "com/cloud/storage/snapshot/SnapshotApiService.class",
+    "sha256": "035f43e8bab3dc3f2c80a6d6220dfca8c92fb69e1a3753ff5f262c5f5efe0a5d"
+  },
+  {
+    "path": "org/apache/cloudstack/api/command/user/snapshot/ArchiveSnapshotCmd.class",
+    "sha256": "07420698d1862547e3c0033c2b122b900839dce4caba5f144452c1a27401a946"
+  },
+  {
+    "path": "org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotCmd.class",
+    "sha256": "1bd4583e150dd8bb6728c2c0e28b27a9f313f10f2de2bb58757ade5f1d6fde0e"
+  },
+  {
+    "path": "org/apache/cloudstack/api/response/SnapshotArchiveResponse.class",
+    "sha256": "d8e11daa9360ad5a9a36b41cd1bcd3c5f03667e269e40c6645b0131ca6634a3a"
+  },
+  {
+    "path": "org/apache/cloudstack/api/response/SnapshotDeletionResponse$Reference.class",
+    "sha256": "fed00451bcb8130c776869b1314744150100fca8f83b81879f922b7a4b1caa6f"
+  },
+  {
+    "path": "org/apache/cloudstack/api/response/SnapshotDeletionResponse$CleanupResult.class",
+    "sha256": "b2b0dc7f628041d710f1d93686dff6c5a0399d44798561745cec1060f809768f"
+  },
+  {
+    "path": "org/apache/cloudstack/api/response/SnapshotDeletionResponse.class",
+    "sha256": "1ec1c70f5177026121aca32d1ea6aef766e0a78547007e1fb841dacf5064138f"
+  },
+  {
+    "path": "org/apache/cloudstack/engine/subsystem/api/storage/SnapshotDataFactory.class",
+    "sha256": "2f06cb36446d354c2019e73f7342ec484ba914215cbbba280ab320d30c916bf5"
+  },
+  {
+    "path": "org/apache/cloudstack/engine/subsystem/api/storage/SnapshotInfo.class",
+    "sha256": "ba3c2e674d8de429b75d7c92ff2b22908c72251ef3485b29272b090741746cb2"
+  },
+  {
+    "path": "org/apache/cloudstack/engine/subsystem/api/storage/SnapshotService.class",
+    "sha256": "7b1f9df6124f3de2e096bb4d1a7a5af1ee838245f1928fdca06c3b3c186758e1"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/DefaultSnapshotStrategy.class",
+    "sha256": "9849102901cafa4516bc784a38db2db2eca4414e61eafbc8a38b908bdbb5033c"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/DefaultSnapshotStrategy$1.class",
+    "sha256": "b31a760d8646f6e202a9ee86d84b581e85c0a0698550170ff82fdaebd8c5198c"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotDataFactoryImpl.class",
+    "sha256": "461c4b1acc651b6ef3eda196f712ef228b410a420e37d0a01b54755feb324af2"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotObject.class",
+    "sha256": "a5909a91b763d7ca975c5df4eabe82c2cf5d861c4f73a44b3b4db941066ca84f"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$PrepareCopySnapshotContext.class",
+    "sha256": "db5bff626fe70a659e23cbd242f1075869f7799f9388da729bc2d761208a081d"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$DeleteSnapshotContext.class",
+    "sha256": "94653e604de4b8accb03bd5ceedeef9031fc4df81ca911f2a4ef6b055af8b9ab"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CreateSnapshotContext.class",
+    "sha256": "6379487cc4ddc4df854e9483c4227eba11243a9c227f1f12cb07b949a72a1f49"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$RevertSnapshotContext.class",
+    "sha256": "004b518b1aae74dbc512ee8a9755d72839787dbf99504c0c6bd8fc4ca6f78e06"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl.class",
+    "sha256": "096f1b6954d992d9846963b5ee7acd280f6212775ac233deabafef508ad382c5"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$FlattenSnapshotContext.class",
+    "sha256": "9113cc04434f096a27a9cd6f2f585af2070c2aa981ea33d6e64c6fde7bab716b"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$CopySnapshotContext.class",
+    "sha256": "07cd7eed9da03b2fda424514891c561dd1071fb23c6c3d601cc3506ddf46bec0"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl$1.class",
+    "sha256": "277337cedb1562f5e75e4f541d22ff4a29d048d0b36dcfdd364f91a679c37830"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/datastore/ObjectInDataStoreManagerImpl$1.class",
+    "sha256": "8552f5eb609fa5f0b7b3219dcb748e0b0221d98744d2dabf599e3b8b009049b2"
+  },
+  {
+    "path": "org/apache/cloudstack/storage/datastore/ObjectInDataStoreManagerImpl.class",
+    "sha256": "20c819124363cc11af058ba4f2dcda3b66ccf14358517433fd37d5bf7ed291f2"
+  },
+  {
+    "path": "com/cloud/storage/snapshot/SnapshotManagerImpl.class",
+    "sha256": "aaa176db4dd2ed815aa52cf8935fcc121191852c71196bb2b6cfa4e07e65be44"
+  },
+  {
+    "path": "com/cloud/storage/snapshot/SnapshotManagerImpl$BackupSnapshotTask.class",
+    "sha256": "3d0243219e4f5119377034d129c63576cf5214b5e529909ede0c44aafcf5cb27"
+  }
+]

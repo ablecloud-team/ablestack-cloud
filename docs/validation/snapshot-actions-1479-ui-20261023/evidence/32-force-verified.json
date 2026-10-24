@@ -1,0 +1,9 @@
+{
+  "cluster": "32",
+  "snapshot": "095f433c-a37c-40f5-adaf-20ca86b19395",
+  "allReferencesTerminated": true,
+  "secondaryFileAbsent": true,
+  "sourceVolumeDataPreserved": true,
+  "status": "PASS",
+  "rbdSnapshotAbsent": true
+}

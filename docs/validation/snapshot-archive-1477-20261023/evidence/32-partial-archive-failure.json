@@ -1,0 +1,57 @@
+{
+  "baseline": {
+    "3": {
+      "count": 1,
+      "resourcecount": [
+        {
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourcetype": "3",
+          "resourcetypename": "snapshot",
+          "resourcecount": 14
+        }
+      ]
+    },
+    "11": {
+      "count": 1,
+      "resourcecount": [
+        {
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "resourcetype": "11",
+          "resourcetypename": "secondary_storage",
+          "resourcecount": 385676519568
+        }
+      ]
+    }
+  },
+  "before": {
+    "snapshotid": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+    "name": "SNAP1477-32-partial",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "REUSE_SECONDARY",
+    "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+    "primaryreferences": 1,
+    "secondaryreferences": 1,
+    "scopehash": "729037fe8ad628a40cf9488722a29269d564e39f139f2e03ee9bc6de6ae72959",
+    "dryrun": true
+  },
+  "failure": "{\"accountid\":\"6d3ebcb0-b23b-11f1-990e-0024811f8935\",\"account\":\"admin\",\"domainid\":\"2246448b-b23b-11f1-990e-0024811f8935\",\"domainpath\":\"ROOT\",\"userid\":\"6d3f209b-b23b-11f1-990e-0024811f8935\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.ArchiveSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"ARCHIVE_PRIMARY_CLEANUP_FAILED: verified secondary retained; retry archive to finish primary cleanup\"},\"created\":\"2026-10-23T16:57:39+0900\",\"completed\":\"2026-10-23T16:57:40+0900\",\"jobid\":\"6768af76-e872-4179-839e-b4e4e0453132\",\"jobstatus\":2}",
+  "after": {
+    "snapshotid": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+    "name": "SNAP1477-32-partial",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "RETRY_PRIMARY_CLEANUP",
+    "message": "Verify the existing secondary copy before removing the primary; no backup is allocated",
+    "primaryreferences": 1,
+    "secondaryreferences": 1,
+    "scopehash": "924c1c5e48cca9df161cc2586354d78c93cbdf747fb3bcc46fe6477964ca74a0",
+    "dryrun": true
+  }
+}

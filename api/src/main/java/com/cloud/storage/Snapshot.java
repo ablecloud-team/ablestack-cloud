@@ -72,7 +72,8 @@ public interface Snapshot extends ControlledEntity, Identity, InternalIdentity, 
     }
 
     public static final long MANUAL_POLICY_ID = 0L;
-    public static final long INTERNAL_POLICY_ID = 8L;
+    // Internal callers only. Persisted snapshot_policy IDs are positive; never use a Type ordinal here.
+    public static final long INTERNAL_POLICY_ID = -1L;
 
     @Override
     long getAccountId();

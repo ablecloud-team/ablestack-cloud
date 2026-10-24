@@ -1,0 +1,149 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/328/c23a4881-f016-4489-b9c4-4029b02f8675",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/328/e865d1f6-ceff-4094-aa70-97e733fb3be8",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/329/57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/330/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/34c7760a-ee1f-404e-a808-5af2443e9d43",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/5d04c4f1-dcbd-4ed6-9aa6-0e84e95b41b0",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/a0f5b1d8-65c5-4b31-aa0b-5cda517f3352",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/a8be42e4-8571-423c-90c5-6182258bcba9",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/e5a86582-001e-4908-b26d-f64ba554cde7",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/f7beccf2-08e7-4986-a444-3313d162b6f7",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    }
+  ],
+  "templates": [],
+  "sourceVolumes": [
+    {
+      "image": "4da91a5c-9ca6-4302-a54b-0c61308c9da1",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "5e30afc5-c5ae-4369-8063-4d3ccef9ed95",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "79d18a72-db53-4186-9c84-c81347a6420d",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "82bdaf03-413e-444b-a5a6-c2deddf960d1",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "b9d53e3b-7dfc-41fc-ac9b-d5931b1bc094",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "bf9c90da-1048-440a-acd0-1ee805f03380",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "c7ed1ddd-e590-4977-8ff0-6294e776290c",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "d3e4de23-6bed-4a97-a2c2-f52de800572e",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "d9ef447a-e5b7-45aa-983b-9f3eab46f1ad",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "f5d9860d-b3fe-41d7-b838-1a7113310c20",
+      "exists": false,
+      "snapshots": []
+    }
+  ],
+  "fixtureClones": []
+}

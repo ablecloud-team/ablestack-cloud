@@ -1,0 +1,299 @@
+{
+  "cursor": 6647,
+  "requests": [
+    {
+      "id": "22664.1687",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "UserVm",
+        "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-vm-admin",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1688",
+      "command": "createTags",
+      "args": {
+        "command": "createTags",
+        "response": "json",
+        "resourcetype": "UserVm",
+        "resourceids": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "tags[0].key": "ui-vm",
+        "tags[0].value": "32"
+      },
+      "method": "POST",
+      "response": {
+        "createtagsresponse": {
+          "jobid": "47221c5d-4776-449b-a777-d8e2211c05fa"
+        }
+      }
+    },
+    {
+      "id": "22664.1689",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "47221c5d-4776-449b-a777-d8e2211c05fa",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T22:05:58+0900",
+          "jobid": "47221c5d-4776-449b-a777-d8e2211c05fa",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "22664.1690",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "47221c5d-4776-449b-a777-d8e2211c05fa",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T22:05:58+0900",
+          "completed": "2026-10-24T22:05:58+0900",
+          "jobid": "47221c5d-4776-449b-a777-d8e2211c05fa",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "22664.1691",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "UserVm",
+        "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 2,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-vm-admin",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "ui-vm",
+              "value": "32",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1692",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "UserVm",
+        "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 2,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-vm-admin",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            },
+            {
+              "key": "ui-vm",
+              "value": "32",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.1693",
+      "command": "deleteTags",
+      "args": {
+        "command": "deleteTags",
+        "response": "json",
+        "resourcetype": "UserVm",
+        "resourceids": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "tags[0].key": "ui-vm",
+        "tags[0].value": "32"
+      },
+      "method": "POST",
+      "response": {
+        "deletetagsresponse": {
+          "jobid": "fa71455e-1ca5-456a-843d-894656b4e331"
+        }
+      }
+    },
+    {
+      "id": "22664.1694",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "fa71455e-1ca5-456a-843d-894656b4e331",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T22:06:00+0900",
+          "jobid": "fa71455e-1ca5-456a-843d-894656b4e331",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "22664.1696",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "fa71455e-1ca5-456a-843d-894656b4e331",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.DeleteTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T22:06:00+0900",
+          "completed": "2026-10-24T22:06:00+0900",
+          "jobid": "fa71455e-1ca5-456a-843d-894656b4e331",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "22664.1697",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "UserVm",
+        "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-vm-admin",
+              "resourcetype": "UserVm",
+              "resourceid": "5f5715da-a713-4740-a8a5-a3a79fe9d85b",
+              "account": "admin",
+              "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+              "domain": "ROOT",
+              "domainpath": "ROOT"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+Browser tab: 23, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/d6b637f5-e5a6-49b9-b015-e03e95314970".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 222-256
+~					218 image close
++				261 container
++					262 container
++						263 text 이름
++						264 image info-circle
++					265 text field (settable) 이름 info-circle, ID: form_item_name
++					266 container
++						267 text * Zone
++						268 image info-circle
++					269 container
++						270 combo box (settable) * Zone info-circle, ID: form_item_zoneid
++						271 image global
++						272 text  Zone
++					273 text 소유자 유형
++					274 container
++						275 combo box (settable) rc_select_2
++						276 text 계정
++					277 container
++						278 text * 도메인
++					279 container
++						280 combo box (settable) rc_select_3
++						281 image block
++						282 text  ROOT
++					283 container
++						284 text * 계정
++					285 container
++						286 combo box (settable) rc_select_4
++						287 image team
++						288 text  admin
++					289 container
++						290 text 인스턴스에 연결
++						291 image info-circle
++					292 switch Description: 인스턴스에 연결 info-circle, Value: 0, ID: form_item_attachVolume
+~				258 button loading 생성
+The focused UI element is 265 text field (settable) 이름 info-circle, ID: form_item_name

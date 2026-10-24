@@ -1,0 +1,31 @@
+[
+  {
+    "name": "Stopped attached source reverts",
+    "status": "PASS",
+    "details": {
+      "snapshot": {
+        "id": "35a571b5-eda8-4032-ade1-9109060b2216",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "snapshottype": "MANUAL",
+        "volumeid": "2978492b-2b64-48a7-8392-d6cefccd94c8",
+        "volumename": "SNAP1479UI-31-source",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T21:50:56+0900",
+        "name": "SNAP1479UI-31-source-snapshot",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 1376256,
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    }
+  }
+]

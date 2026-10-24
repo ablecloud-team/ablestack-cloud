@@ -1,0 +1,1196 @@
+{
+  "snapshots": [
+    {
+      "id": 111,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "4d33b458-690a-47c4-a090-7a0f24f97022",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 112,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "b7e83c5f-2880-4660-a9a4-85033e2b34e5",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 113,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "50d949c2-ee79-48bd-bcca-45e2c13a8ff7",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 114,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "9a282c01-2cc8-411c-a8a0-5fd91382afb6",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 115,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "aac10b48-fdc2-4605-ad83-232a8897ead7",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 116,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "3ced00e4-b12d-4b7b-b5a2-93004f891fa1",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 117,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "bc44a044-7205-4cc2-9c45-b9d4011c14cf",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 118,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "e4b10f58-f60d-4ed9-86a2-13566ccc0f20",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 119,
+      "name": "SNAPSEARCH1483-32-R-08",
+      "type": 0,
+      "uuid": "0788398e-2181-4566-b28b-c79456f78d62",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 120,
+      "name": "SNAPSEARCH1483-32-Q-09",
+      "type": 0,
+      "uuid": "d0288c76-679b-4105-a7e8-2979afee62f9",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 121,
+      "name": "SNAPSEARCH1483-32-P-10",
+      "type": 0,
+      "uuid": "840f7716-96fb-420e-91b8-69c111382b40",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 122,
+      "name": "SNAPSEARCH1483-32-O-11",
+      "type": 0,
+      "uuid": "d54fb51b-93dc-4c4f-9ab7-5911b15eb28b",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 123,
+      "name": "SNAPSEARCH1483-32-N-12",
+      "type": 0,
+      "uuid": "43ffe028-4a00-41a0-aa10-f2c410e39b37",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 124,
+      "name": "SNAPSEARCH1483-32-M-13",
+      "type": 0,
+      "uuid": "2a65da0a-8530-41c9-b8ea-8ec422588c06",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 125,
+      "name": "SNAPSEARCH1483-32-L-14",
+      "type": 0,
+      "uuid": "9ae35c7a-6b6c-4d30-9a7a-3de68c1abc32",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 126,
+      "name": "SNAPSEARCH1483-32-K-15",
+      "type": 0,
+      "uuid": "e52a6609-4511-4560-bfc5-257b60a2c871",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 127,
+      "name": "SNAPSEARCH1483-32-J-16",
+      "type": 0,
+      "uuid": "4d921286-69c9-4553-bf8a-804f81e9c54b",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 128,
+      "name": "SNAPSEARCH1483-32-I-17",
+      "type": 0,
+      "uuid": "3700e980-0c30-4f80-82ff-6bfca55f3b71",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 129,
+      "name": "SNAPSEARCH1483-32-H-18",
+      "type": 0,
+      "uuid": "caec4350-e72d-4208-8af1-2242a1204ae3",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 130,
+      "name": "SNAPSEARCH1483-32-G-19",
+      "type": 0,
+      "uuid": "4bc9ca92-131a-4d34-b95f-51e3579e1c83",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 131,
+      "name": "SNAPSEARCH1483-32-Z-20",
+      "type": 0,
+      "uuid": "59d71f43-ac22-4b47-ac0d-3102d3a6cbfe",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 132,
+      "name": "SNAPSEARCH1483-32-Y-21",
+      "type": 0,
+      "uuid": "d46865b4-6ed5-4e99-afc6-eaedaf698979",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 133,
+      "name": "SNAPSEARCH1483-32-X-22",
+      "type": 0,
+      "uuid": "b7034992-9b71-4c90-b1e5-e1b2b11a34d5",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 134,
+      "name": "SNAPSEARCH1483-32-W-23",
+      "type": 0,
+      "uuid": "71e79c26-6fad-4a95-a279-19894e966bc5",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 135,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "4633a949-49c5-4da5-9c3b-c9b849d9144c",
+      "state": "BackedUp",
+      "volume": 388,
+      "removed": null
+    },
+    {
+      "id": 136,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "f2ac74bb-1f1d-4e53-ad50-3b791a0c4605",
+      "state": "BackedUp",
+      "volume": 388,
+      "removed": null
+    },
+    {
+      "id": 137,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "b336b159-c089-4c35-a014-7719ee4d7d86",
+      "state": "BackedUp",
+      "volume": 389,
+      "removed": null
+    },
+    {
+      "id": 138,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "81b41251-8fb4-4ad2-974d-5f4d2ff41a67",
+      "state": "BackedUp",
+      "volume": 390,
+      "removed": null
+    },
+    {
+      "id": 139,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "bc36b1c3-f498-4fee-a8d0-87954e5cbe2c",
+      "state": "BackedUp",
+      "volume": 390,
+      "removed": null
+    },
+    {
+      "id": 140,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "001f363d-b141-4197-b3d1-166db603ca75",
+      "state": "BackedUp",
+      "volume": 390,
+      "removed": null
+    },
+    {
+      "id": 141,
+      "name": "SNAPSEARCH1483-32-same",
+      "type": 0,
+      "uuid": "510c7a54-f399-4d7e-b760-0f5d3991a383",
+      "state": "BackedUp",
+      "volume": 391,
+      "removed": null
+    },
+    {
+      "id": 142,
+      "name": "SNAPSEARCH1483-32-recurring-HOURLY",
+      "type": 3,
+      "uuid": "58973a3b-5c43-4ced-9606-36e29c522a48",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 143,
+      "name": "SNAPSEARCH1483-32-recurring-DAILY",
+      "type": 8,
+      "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "state": "Destroyed",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 144,
+      "name": "SNAPSEARCH1483-32-recurring-WEEKLY",
+      "type": 5,
+      "uuid": "ea48d633-2172-4570-8f75-9323275d84d2",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 145,
+      "name": "SNAPSEARCH1483-32-recurring-MONTHLY",
+      "type": 6,
+      "uuid": "2a75b16c-f350-485c-82e1-a0b6ccd21cb9",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    },
+    {
+      "id": 146,
+      "name": "SNAPSEARCH1483-32-recurring-DAILY",
+      "type": 4,
+      "uuid": "8130aee6-dce5-4c0b-a592-1ce5bcadd1b7",
+      "state": "BackedUp",
+      "volume": 387,
+      "removed": null
+    }
+  ],
+  "volumes": [
+    {
+      "id": 410,
+      "path": "03abffac-0148-4025-a971-a6a33bb0f776",
+      "pool": 3,
+      "uuid": "03abffac-0148-4025-a971-a6a33bb0f776",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 405,
+      "path": "11792150-1276-4407-99bd-5a5c30feadc1",
+      "pool": 3,
+      "uuid": "11792150-1276-4407-99bd-5a5c30feadc1",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 400,
+      "path": "14bf87cb-1584-4142-b76a-1e9e8e4a7c97",
+      "pool": 3,
+      "uuid": "14bf87cb-1584-4142-b76a-1e9e8e4a7c97",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 393,
+      "path": "1c82da8a-062f-4f38-b9e5-6cc7c3d4da7d",
+      "pool": 3,
+      "uuid": "1c82da8a-062f-4f38-b9e5-6cc7c3d4da7d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 403,
+      "path": "25ca3e15-9048-4514-897a-1a5fbd5adcee",
+      "pool": 3,
+      "uuid": "25ca3e15-9048-4514-897a-1a5fbd5adcee",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 389,
+      "path": "28057e0c-3e55-4eaf-8061-82529b7491d9",
+      "pool": 3,
+      "uuid": "28057e0c-3e55-4eaf-8061-82529b7491d9",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 390,
+      "path": "2c714dc1-859c-42ae-9fd9-9de3aec238f0",
+      "pool": 3,
+      "uuid": "2c714dc1-859c-42ae-9fd9-9de3aec238f0",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 388,
+      "path": "33627d28-975f-4718-93d6-fd0475a8c5eb",
+      "pool": 3,
+      "uuid": "33627d28-975f-4718-93d6-fd0475a8c5eb",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 406,
+      "path": "39d0e3a7-cd37-4b28-acba-746109fa7ca0",
+      "pool": 3,
+      "uuid": "39d0e3a7-cd37-4b28-acba-746109fa7ca0",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 404,
+      "path": "3bd3cfb0-577c-4b6b-9aa7-340990dc76bd",
+      "pool": 3,
+      "uuid": "3bd3cfb0-577c-4b6b-9aa7-340990dc76bd",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 387,
+      "path": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+      "pool": 3,
+      "uuid": "3f1e17f4-5b26-442d-a481-cf93d3eea822",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 412,
+      "path": "434f4ded-3017-417c-b8a6-5874e3bc53f0",
+      "pool": 3,
+      "uuid": "434f4ded-3017-417c-b8a6-5874e3bc53f0",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 411,
+      "path": "4749d931-d65f-4b35-81cf-a9378f5e1195",
+      "pool": 3,
+      "uuid": "4749d931-d65f-4b35-81cf-a9378f5e1195",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 392,
+      "path": "538016e7-8c59-48b0-8652-d0825c1f0d3d",
+      "pool": 3,
+      "uuid": "538016e7-8c59-48b0-8652-d0825c1f0d3d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 396,
+      "path": "7502c30b-21b2-46e0-94ba-964098ba8340",
+      "pool": 3,
+      "uuid": "7502c30b-21b2-46e0-94ba-964098ba8340",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 409,
+      "path": "7ecd0777-1931-4767-9e63-4844f73c5659",
+      "pool": 3,
+      "uuid": "7ecd0777-1931-4767-9e63-4844f73c5659",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 414,
+      "path": "852e12e5-3691-47be-a3b3-54666a1b6935",
+      "pool": 3,
+      "uuid": "852e12e5-3691-47be-a3b3-54666a1b6935",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 401,
+      "path": "853d613f-6201-4d68-85a9-f988c48f64ef",
+      "pool": 3,
+      "uuid": "853d613f-6201-4d68-85a9-f988c48f64ef",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 408,
+      "path": "89f35834-da3c-479d-93fe-b14326623bbe",
+      "pool": 3,
+      "uuid": "89f35834-da3c-479d-93fe-b14326623bbe",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 399,
+      "path": "90a99cfb-4fe9-4cee-8d78-649501cd1ac4",
+      "pool": 3,
+      "uuid": "90a99cfb-4fe9-4cee-8d78-649501cd1ac4",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 394,
+      "path": "a189cc37-9811-4359-b17d-e57ef19803e2",
+      "pool": 3,
+      "uuid": "a189cc37-9811-4359-b17d-e57ef19803e2",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 397,
+      "path": "a4870a61-7d79-49ef-a23c-638d595d011f",
+      "pool": 3,
+      "uuid": "a4870a61-7d79-49ef-a23c-638d595d011f",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 407,
+      "path": "c65c38fc-a992-42e8-ad61-26f41e125799",
+      "pool": 3,
+      "uuid": "c65c38fc-a992-42e8-ad61-26f41e125799",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 402,
+      "path": "c7eb6568-ee3c-4ac9-bac7-5df672ae8ae8",
+      "pool": 3,
+      "uuid": "c7eb6568-ee3c-4ac9-bac7-5df672ae8ae8",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 398,
+      "path": "e795cb52-0b9b-4ce0-953e-dbfd4d54aa0d",
+      "pool": 3,
+      "uuid": "e795cb52-0b9b-4ce0-953e-dbfd4d54aa0d",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 391,
+      "path": "e91c60b8-126c-44e6-90ed-c876221f7bff",
+      "pool": 3,
+      "uuid": "e91c60b8-126c-44e6-90ed-c876221f7bff",
+      "state": "Expunged",
+      "removed": "2026-10-24 10:23:47.000000"
+    },
+    {
+      "id": 413,
+      "path": "f53485ca-06a2-4fa9-a534-da0200c481fa",
+      "pool": 3,
+      "uuid": "f53485ca-06a2-4fa9-a534-da0200c481fa",
+      "state": "Ready",
+      "removed": null
+    },
+    {
+      "id": 395,
+      "path": "fd4efadc-08b4-484c-9b05-605acd8990bd",
+      "pool": 3,
+      "uuid": "fd4efadc-08b4-484c-9b05-605acd8990bd",
+      "state": "Ready",
+      "removed": null
+    }
+  ],
+  "references": [
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/59ab1182-374b-4f58-a4e0-143f3a9db4de",
+      "role": "Primary",
+      "uuid": "4d33b458-690a-47c4-a090-7a0f24f97022",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 111
+    },
+    {
+      "path": "snapshots/73/387/59ab1182-374b-4f58-a4e0-143f3a9db4de",
+      "role": "Image",
+      "uuid": "4d33b458-690a-47c4-a090-7a0f24f97022",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 111
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/c5374b3f-5b98-4ba1-833f-add52461523a",
+      "role": "Primary",
+      "uuid": "b7e83c5f-2880-4660-a9a4-85033e2b34e5",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 112
+    },
+    {
+      "path": "snapshots/73/387/c5374b3f-5b98-4ba1-833f-add52461523a",
+      "role": "Image",
+      "uuid": "b7e83c5f-2880-4660-a9a4-85033e2b34e5",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 112
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/45758b4a-8b2d-44d3-b891-56ff9e9f0f0f",
+      "role": "Primary",
+      "uuid": "50d949c2-ee79-48bd-bcca-45e2c13a8ff7",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 113
+    },
+    {
+      "path": "snapshots/73/387/45758b4a-8b2d-44d3-b891-56ff9e9f0f0f",
+      "role": "Image",
+      "uuid": "50d949c2-ee79-48bd-bcca-45e2c13a8ff7",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 113
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/9ad9f845-e295-466b-99d2-18bfd960e0f5",
+      "role": "Primary",
+      "uuid": "9a282c01-2cc8-411c-a8a0-5fd91382afb6",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 114
+    },
+    {
+      "path": "snapshots/73/387/9ad9f845-e295-466b-99d2-18bfd960e0f5",
+      "role": "Image",
+      "uuid": "9a282c01-2cc8-411c-a8a0-5fd91382afb6",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 114
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/0075d672-6ec3-4d6a-8635-42a4cf99d627",
+      "role": "Primary",
+      "uuid": "aac10b48-fdc2-4605-ad83-232a8897ead7",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 115
+    },
+    {
+      "path": "snapshots/73/387/0075d672-6ec3-4d6a-8635-42a4cf99d627",
+      "role": "Image",
+      "uuid": "aac10b48-fdc2-4605-ad83-232a8897ead7",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 115
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/1c6badb6-c422-45c5-bb50-9b84e12f2fb0",
+      "role": "Primary",
+      "uuid": "3ced00e4-b12d-4b7b-b5a2-93004f891fa1",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 116
+    },
+    {
+      "path": "snapshots/73/387/1c6badb6-c422-45c5-bb50-9b84e12f2fb0",
+      "role": "Image",
+      "uuid": "3ced00e4-b12d-4b7b-b5a2-93004f891fa1",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 116
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/a74d16bb-80e6-4a98-984f-ae515389330a",
+      "role": "Primary",
+      "uuid": "bc44a044-7205-4cc2-9c45-b9d4011c14cf",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 117
+    },
+    {
+      "path": "snapshots/73/387/a74d16bb-80e6-4a98-984f-ae515389330a",
+      "role": "Image",
+      "uuid": "bc44a044-7205-4cc2-9c45-b9d4011c14cf",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 117
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/cb50ac30-d1f3-4f92-825c-9cca323a11b1",
+      "role": "Primary",
+      "uuid": "e4b10f58-f60d-4ed9-86a2-13566ccc0f20",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 118
+    },
+    {
+      "path": "snapshots/73/387/cb50ac30-d1f3-4f92-825c-9cca323a11b1",
+      "role": "Image",
+      "uuid": "e4b10f58-f60d-4ed9-86a2-13566ccc0f20",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 118
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/8b70659c-d541-44f0-947b-dff15d157aaa",
+      "role": "Primary",
+      "uuid": "0788398e-2181-4566-b28b-c79456f78d62",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 119
+    },
+    {
+      "path": "snapshots/73/387/8b70659c-d541-44f0-947b-dff15d157aaa",
+      "role": "Image",
+      "uuid": "0788398e-2181-4566-b28b-c79456f78d62",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 119
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/eeb2b689-e01d-4e3b-935a-8c3cec95f5fc",
+      "role": "Primary",
+      "uuid": "d0288c76-679b-4105-a7e8-2979afee62f9",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 120
+    },
+    {
+      "path": "snapshots/73/387/eeb2b689-e01d-4e3b-935a-8c3cec95f5fc",
+      "role": "Image",
+      "uuid": "d0288c76-679b-4105-a7e8-2979afee62f9",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 120
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/c58c2dbd-c60e-4de6-bf85-493d8b17d009",
+      "role": "Primary",
+      "uuid": "840f7716-96fb-420e-91b8-69c111382b40",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 121
+    },
+    {
+      "path": "snapshots/73/387/c58c2dbd-c60e-4de6-bf85-493d8b17d009",
+      "role": "Image",
+      "uuid": "840f7716-96fb-420e-91b8-69c111382b40",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 121
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/b55cdb5b-af90-4fec-9005-73bc126033ba",
+      "role": "Primary",
+      "uuid": "d54fb51b-93dc-4c4f-9ab7-5911b15eb28b",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 122
+    },
+    {
+      "path": "snapshots/73/387/b55cdb5b-af90-4fec-9005-73bc126033ba",
+      "role": "Image",
+      "uuid": "d54fb51b-93dc-4c4f-9ab7-5911b15eb28b",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 122
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/6e44a9c0-3af8-41be-8206-7aee8e1f39a7",
+      "role": "Primary",
+      "uuid": "43ffe028-4a00-41a0-aa10-f2c410e39b37",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 123
+    },
+    {
+      "path": "snapshots/73/387/6e44a9c0-3af8-41be-8206-7aee8e1f39a7",
+      "role": "Image",
+      "uuid": "43ffe028-4a00-41a0-aa10-f2c410e39b37",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 123
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/a9dcbfeb-c577-48b3-b14e-2d133c6737fa",
+      "role": "Primary",
+      "uuid": "2a65da0a-8530-41c9-b8ea-8ec422588c06",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 124
+    },
+    {
+      "path": "snapshots/73/387/a9dcbfeb-c577-48b3-b14e-2d133c6737fa",
+      "role": "Image",
+      "uuid": "2a65da0a-8530-41c9-b8ea-8ec422588c06",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 124
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/7cac0b6a-124c-4d21-82c7-ca9037599d84",
+      "role": "Primary",
+      "uuid": "9ae35c7a-6b6c-4d30-9a7a-3de68c1abc32",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 125
+    },
+    {
+      "path": "snapshots/73/387/7cac0b6a-124c-4d21-82c7-ca9037599d84",
+      "role": "Image",
+      "uuid": "9ae35c7a-6b6c-4d30-9a7a-3de68c1abc32",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 125
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/043790c4-807f-4153-a86b-fdcd92ed6711",
+      "role": "Primary",
+      "uuid": "e52a6609-4511-4560-bfc5-257b60a2c871",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 126
+    },
+    {
+      "path": "snapshots/73/387/043790c4-807f-4153-a86b-fdcd92ed6711",
+      "role": "Image",
+      "uuid": "e52a6609-4511-4560-bfc5-257b60a2c871",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 126
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/fd2c101e-0729-4fa9-adfa-bbb05cf34fc5",
+      "role": "Primary",
+      "uuid": "4d921286-69c9-4553-bf8a-804f81e9c54b",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 127
+    },
+    {
+      "path": "snapshots/73/387/fd2c101e-0729-4fa9-adfa-bbb05cf34fc5",
+      "role": "Image",
+      "uuid": "4d921286-69c9-4553-bf8a-804f81e9c54b",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 127
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/0837599f-ad84-4eaf-aa1c-5908b83b1f39",
+      "role": "Primary",
+      "uuid": "3700e980-0c30-4f80-82ff-6bfca55f3b71",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 128
+    },
+    {
+      "path": "snapshots/73/387/0837599f-ad84-4eaf-aa1c-5908b83b1f39",
+      "role": "Image",
+      "uuid": "3700e980-0c30-4f80-82ff-6bfca55f3b71",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 128
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/48c4e8f8-08b0-48d3-aaee-b8bc4c4c5d43",
+      "role": "Primary",
+      "uuid": "caec4350-e72d-4208-8af1-2242a1204ae3",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 129
+    },
+    {
+      "path": "snapshots/73/387/48c4e8f8-08b0-48d3-aaee-b8bc4c4c5d43",
+      "role": "Image",
+      "uuid": "caec4350-e72d-4208-8af1-2242a1204ae3",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 129
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/471c047e-0609-449d-926f-0127d93b782e",
+      "role": "Primary",
+      "uuid": "4bc9ca92-131a-4d34-b95f-51e3579e1c83",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 130
+    },
+    {
+      "path": "snapshots/73/387/471c047e-0609-449d-926f-0127d93b782e",
+      "role": "Image",
+      "uuid": "4bc9ca92-131a-4d34-b95f-51e3579e1c83",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 130
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/ec7ee1e5-163d-46cb-b5e4-f655aa0aeb70",
+      "role": "Primary",
+      "uuid": "59d71f43-ac22-4b47-ac0d-3102d3a6cbfe",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 131
+    },
+    {
+      "path": "snapshots/73/387/ec7ee1e5-163d-46cb-b5e4-f655aa0aeb70",
+      "role": "Image",
+      "uuid": "59d71f43-ac22-4b47-ac0d-3102d3a6cbfe",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 131
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/de9feec8-7a46-42ec-8e57-6dd031a05b65",
+      "role": "Primary",
+      "uuid": "d46865b4-6ed5-4e99-afc6-eaedaf698979",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 132
+    },
+    {
+      "path": "snapshots/73/387/de9feec8-7a46-42ec-8e57-6dd031a05b65",
+      "role": "Image",
+      "uuid": "d46865b4-6ed5-4e99-afc6-eaedaf698979",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 132
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/da08dc5b-c9dc-4b2a-87be-e45d8ef40221",
+      "role": "Primary",
+      "uuid": "b7034992-9b71-4c90-b1e5-e1b2b11a34d5",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 133
+    },
+    {
+      "path": "snapshots/73/387/da08dc5b-c9dc-4b2a-87be-e45d8ef40221",
+      "role": "Image",
+      "uuid": "b7034992-9b71-4c90-b1e5-e1b2b11a34d5",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 133
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/62c57f86-395f-43ee-a425-55cb7c85d5f8",
+      "role": "Primary",
+      "uuid": "71e79c26-6fad-4a95-a279-19894e966bc5",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 134
+    },
+    {
+      "path": "snapshots/73/387/62c57f86-395f-43ee-a425-55cb7c85d5f8",
+      "role": "Image",
+      "uuid": "71e79c26-6fad-4a95-a279-19894e966bc5",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 134
+    },
+    {
+      "path": "rbd/33627d28-975f-4718-93d6-fd0475a8c5eb/71711326-e973-48db-ab27-f184eb61aa90",
+      "role": "Primary",
+      "uuid": "4633a949-49c5-4da5-9c3b-c9b849d9144c",
+      "state": "Ready",
+      "store": 3,
+      "volume": 388,
+      "snapshot": 135
+    },
+    {
+      "path": "snapshots/74/388/71711326-e973-48db-ab27-f184eb61aa90",
+      "role": "Image",
+      "uuid": "4633a949-49c5-4da5-9c3b-c9b849d9144c",
+      "state": "Ready",
+      "store": 1,
+      "volume": 388,
+      "snapshot": 135
+    },
+    {
+      "path": "rbd/33627d28-975f-4718-93d6-fd0475a8c5eb/2a175ca6-2e88-496e-9781-3183c2b80c4f",
+      "role": "Primary",
+      "uuid": "f2ac74bb-1f1d-4e53-ad50-3b791a0c4605",
+      "state": "Ready",
+      "store": 3,
+      "volume": 388,
+      "snapshot": 136
+    },
+    {
+      "path": "snapshots/74/388/2a175ca6-2e88-496e-9781-3183c2b80c4f",
+      "role": "Image",
+      "uuid": "f2ac74bb-1f1d-4e53-ad50-3b791a0c4605",
+      "state": "Ready",
+      "store": 1,
+      "volume": 388,
+      "snapshot": 136
+    },
+    {
+      "path": "rbd/28057e0c-3e55-4eaf-8061-82529b7491d9/6e97fde7-d280-43d8-a54d-1f0d15bf956a",
+      "role": "Primary",
+      "uuid": "b336b159-c089-4c35-a014-7719ee4d7d86",
+      "state": "Ready",
+      "store": 3,
+      "volume": 389,
+      "snapshot": 137
+    },
+    {
+      "path": "snapshots/75/389/6e97fde7-d280-43d8-a54d-1f0d15bf956a",
+      "role": "Image",
+      "uuid": "b336b159-c089-4c35-a014-7719ee4d7d86",
+      "state": "Ready",
+      "store": 1,
+      "volume": 389,
+      "snapshot": 137
+    },
+    {
+      "path": "rbd/2c714dc1-859c-42ae-9fd9-9de3aec238f0/8f87b82b-3238-40a2-b530-5b32e2c294d8",
+      "role": "Primary",
+      "uuid": "81b41251-8fb4-4ad2-974d-5f4d2ff41a67",
+      "state": "Ready",
+      "store": 3,
+      "volume": 390,
+      "snapshot": 138
+    },
+    {
+      "path": "snapshots/77/390/8f87b82b-3238-40a2-b530-5b32e2c294d8",
+      "role": "Image",
+      "uuid": "81b41251-8fb4-4ad2-974d-5f4d2ff41a67",
+      "state": "Ready",
+      "store": 1,
+      "volume": 390,
+      "snapshot": 138
+    },
+    {
+      "path": "rbd/2c714dc1-859c-42ae-9fd9-9de3aec238f0/de40b331-40e3-4a3b-862b-90d864239c67",
+      "role": "Primary",
+      "uuid": "bc36b1c3-f498-4fee-a8d0-87954e5cbe2c",
+      "state": "Ready",
+      "store": 3,
+      "volume": 390,
+      "snapshot": 139
+    },
+    {
+      "path": "snapshots/77/390/de40b331-40e3-4a3b-862b-90d864239c67",
+      "role": "Image",
+      "uuid": "bc36b1c3-f498-4fee-a8d0-87954e5cbe2c",
+      "state": "Ready",
+      "store": 1,
+      "volume": 390,
+      "snapshot": 139
+    },
+    {
+      "path": "rbd/2c714dc1-859c-42ae-9fd9-9de3aec238f0/b2dd298b-c983-4ae9-b436-ddb67ab33880",
+      "role": "Primary",
+      "uuid": "001f363d-b141-4197-b3d1-166db603ca75",
+      "state": "Ready",
+      "store": 3,
+      "volume": 390,
+      "snapshot": 140
+    },
+    {
+      "path": "snapshots/77/390/b2dd298b-c983-4ae9-b436-ddb67ab33880",
+      "role": "Image",
+      "uuid": "001f363d-b141-4197-b3d1-166db603ca75",
+      "state": "Ready",
+      "store": 1,
+      "volume": 390,
+      "snapshot": 140
+    },
+    {
+      "path": "snapshots/73/391/ce7985a4-9466-4462-8a96-ee20aa1d3c82",
+      "role": "Image",
+      "uuid": "510c7a54-f399-4d7e-b760-0f5d3991a383",
+      "state": "Ready",
+      "store": 1,
+      "volume": 391,
+      "snapshot": 141
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/3b497461-a4fe-4063-9721-db419a3844ec",
+      "role": "Primary",
+      "uuid": "58973a3b-5c43-4ced-9606-36e29c522a48",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 142
+    },
+    {
+      "path": "snapshots/73/387/3b497461-a4fe-4063-9721-db419a3844ec",
+      "role": "Image",
+      "uuid": "58973a3b-5c43-4ced-9606-36e29c522a48",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 142
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/52597474-e09d-4fc7-bee0-58c3cbc51423",
+      "role": "Primary",
+      "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "state": "Destroyed",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 143
+    },
+    {
+      "path": "snapshots/73/387/52597474-e09d-4fc7-bee0-58c3cbc51423",
+      "role": "Image",
+      "uuid": "d10e43b7-3449-4e99-89e6-db7b19783971",
+      "state": "Destroyed",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 143
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/f4e84975-ae26-4a6c-b792-1e68ec4e11f2",
+      "role": "Primary",
+      "uuid": "ea48d633-2172-4570-8f75-9323275d84d2",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 144
+    },
+    {
+      "path": "snapshots/73/387/f4e84975-ae26-4a6c-b792-1e68ec4e11f2",
+      "role": "Image",
+      "uuid": "ea48d633-2172-4570-8f75-9323275d84d2",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 144
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/fe0df9bc-e31f-4142-968e-4047298487b2",
+      "role": "Primary",
+      "uuid": "2a75b16c-f350-485c-82e1-a0b6ccd21cb9",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 145
+    },
+    {
+      "path": "snapshots/73/387/fe0df9bc-e31f-4142-968e-4047298487b2",
+      "role": "Image",
+      "uuid": "2a75b16c-f350-485c-82e1-a0b6ccd21cb9",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 145
+    },
+    {
+      "path": "rbd/3f1e17f4-5b26-442d-a481-cf93d3eea822/f67a4444-cf1b-4222-ac51-9ab2fbf1a3b8",
+      "role": "Primary",
+      "uuid": "8130aee6-dce5-4c0b-a592-1ce5bcadd1b7",
+      "state": "Ready",
+      "store": 3,
+      "volume": 387,
+      "snapshot": 146
+    },
+    {
+      "path": "snapshots/73/387/f67a4444-cf1b-4222-ac51-9ab2fbf1a3b8",
+      "role": "Image",
+      "uuid": "8130aee6-dce5-4c0b-a592-1ce5bcadd1b7",
+      "state": "Ready",
+      "store": 1,
+      "volume": 387,
+      "snapshot": 146
+    }
+  ],
+  "activePolicies": 0
+}

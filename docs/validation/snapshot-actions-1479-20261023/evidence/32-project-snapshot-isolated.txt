@@ -1,0 +1,141 @@
+Browser tab: 15, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot".
+0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot
+	1 container
+		52 container
+			53 image
+			54 menu
+				55 dashboard 대시보드
+					56 link Description: dashboard 대시보드, Value: 127.0.0.1:18032/client/#/dashboard
+				57 container
+					58 image cloud
+					59 text 컴퓨트
+				60 container
+					61 image hdd
+					62 text 스토리지
+				63 content list sub_menu_2_$$_/storage-popup
+					64 hdd 볼륨
+						65 link Description: hdd 볼륨, Value: 127.0.0.1:18032/client/#/volume
+					66 build 스냅샷
+						67 link Description: build 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					68 build 스냅샷 정책
+						69 link Description: build 스냅샷 정책, Value: 127.0.0.1:18032/client/#/snapshotpolicy
+					70 funnel-plot 버킷
+						71 link Description: funnel-plot 버킷, Value: 127.0.0.1:18032/client/#/buckets
+					72 file-text 공유 파일 시스템
+						73 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18032/client/#/sharedfs
+				74 container
+					75 image wifi
+					76 text 네트워크
+				77 container
+					78 image picture
+					79 text 이미지
+				80 container
+					81 image lock
+					82 text 키 관리
+				83 schedule 이벤트
+					84 link Description: schedule 이벤트, Value: 127.0.0.1:18032/client/#/event
+				85 project 프로젝트
+					86 link Description: project 프로젝트, Value: 127.0.0.1:18032/client/#/project
+				87 team 계정
+					88 link Description: team 계정, Value: 127.0.0.1:18032/client/#/account
+				89 global Zone
+					90 link Description: global Zone, Value: 127.0.0.1:18032/client/#/zones
+				91 container
+					92 image shopping
+					93 text 서비스 오퍼링
+				94 container
+					95 image tool
+					96 text 도구
+				97 read API 문서
+					98 link Description: read API 문서, Value: 127.0.0.1:18032/client/#/apidocs/
+		38 container
+			39 image menu-fold
+			40 container
+				41 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				42 image project
+				43 text SNAP1479-32-project
+			44 button 생성 down
+				45 text 생성
+				46 image down
+			47 image translation
+			48 image bell
+			49 container
+				50 text S1 Snapshot 1479
+		51 container
+			99 container
+				100 container
+					101 link Description: home, Value: 127.0.0.1:18032/client/#/
+					102 text /
+					103 link Description: 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					104 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					105 button reload 업데이트
+						106 image reload
+						107 text 업데이트
+				108 button 삭제 잔여 복구
+					109 image tool
+				110 container
+					111 button 고급 검색
+						112 image filter
+					113 text field (settable)
+					114 button search
+						115 image search
+			116 table
+				117 row
+					118 cell
+						119 container
+							120 checkbox (disabled, settable, integer) Description:  , Value: 0
+					121 cell
+						122 container
+							123 text 이름
+							124 image caret-up
+							125 image caret-down
+					126 cell
+						127 container
+							128 text 상태
+							129 image caret-up
+							130 image caret-down
+					131 cell
+						132 container
+							133 text 볼륨 이름
+							134 image caret-up
+							135 image caret-down
+					136 cell
+						137 container
+							138 text 간격 유형
+							139 image caret-up
+							140 image caret-down
+					141 cell
+						142 container
+							143 text 물리적 크기
+							144 image caret-up
+							145 image caret-down
+					146 cell
+						147 container
+							148 text 생성일
+							149 image caret-up
+							150 image caret-down
+					151 cell
+						152 container
+							153 text Zone
+							154 image caret-up
+							155 image caret-down
+					156 cell
+						157 button filter
+							158 image filter
+				159 row
+					160 cell
+						161 text 데이터 없음
+			162 content list
+				163 text 전체 0 개 항목 중 0-0 표시
+				164 container 이전 페이지
+					165 button (disabled) left
+						166 image left
+				167 text 1
+				168 container 다음 페이지
+					169 button (disabled) right
+						170 image right
+				171 container
+					172 combo box (settable) rc_select_2
+					173 text 20 / 쪽
+
+The focused UI element is 0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot

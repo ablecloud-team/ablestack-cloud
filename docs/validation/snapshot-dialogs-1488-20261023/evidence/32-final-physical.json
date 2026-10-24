@@ -1,0 +1,82 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/343/1ba978db-2364-416b-8665-df15622c98c1",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/344/05992bed-932d-4c04-a1e2-987907dd0076",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/344/ba355726-626d-41ef-b6ed-55628daf283a",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/345/f421aa07-6b8a-4fa3-a366-96ee353cb09f",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    }
+  ],
+  "templates": [],
+  "sourceVolumes": [
+    {
+      "image": "006b063d-008c-4413-941d-77ef00a41c01",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "654d34e0-063e-444c-a362-b9197063c183",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "72b80015-c76e-4e4b-a4ac-f10904acd4df",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "748800ca-3dca-485d-ba09-6dab5aeca810",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "81929728-ba4a-43d9-945c-3d42e5ac30fe",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "b53b146e-a98d-46ef-9785-b6041f209d2f",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "d5e05851-c863-470a-83c6-70a5e64539e2",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "df950eda-f365-43ac-b3e7-24257ffaf650",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "image": "f5aa5429-c196-4518-98aa-bdde687c5c41",
+      "exists": false,
+      "snapshots": []
+    }
+  ],
+  "fixtureClones": []
+}

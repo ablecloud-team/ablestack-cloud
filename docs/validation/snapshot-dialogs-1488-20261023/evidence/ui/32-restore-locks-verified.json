@@ -1,0 +1,15 @@
+{
+  "buttons": [
+    {
+      "disabled": true,
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "text": "복원"
+    }
+  ],
+  "checkboxDisabled": true,
+  "closeVisible": false,
+  "safetySummary": false
+}

@@ -1,0 +1,17 @@
+{
+  "baseline": {
+    "snapshot": 8,
+    "secondary_storage": 385675339824
+  },
+  "rawAfterConcurrentAndRepeat": {
+    "snapshot": 8,
+    "secondary_storage": 385675339824
+  },
+  "usageDeleteEvents": 1,
+  "snapshot": "c41d6695-361f-4c41-8ffd-28cafb51d16c",
+  "rows": [
+    "c41d6695-361f-4c41-8ffd-28cafb51d16c\tDestroyed\tPrimary\tDestroyed\trbd/7aab199e-63e2-4407-abe4-980f1ea14481/10edb2e6-e879-4cac-9a21-f04d19394197",
+    "c41d6695-361f-4c41-8ffd-28cafb51d16c\tDestroyed\tImage\tDestroyed\tsnapshots/2/321/10edb2e6-e879-4cac-9a21-f04d19394197"
+  ],
+  "result": "PASS"
+}

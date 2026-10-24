@@ -1,0 +1,51 @@
+{
+  "indexSha256": "31363c537906de444ece7341f31598aeb609f6980fbe67fbb337a58f7998e63c",
+  "markers": {
+    "snapshot-job-details": [
+      {
+        "path": "js/app.0aa4c4c5.js",
+        "sha256": "f409d93e400f6497c7bfafacde214de226eb24d62ecb1a3421c14236d6199f56"
+      }
+    ],
+    "snapshot-notice-target": [
+      {
+        "path": "js/app.0aa4c4c5.js",
+        "sha256": "f409d93e400f6497c7bfafacde214de226eb24d62ecb1a3421c14236d6199f56"
+      }
+    ],
+    "blockingLoadingState": [
+      {
+        "path": "js/chunk-1d0e431e.624e5fac.js",
+        "sha256": "aaeb4f88873134f317f1330e8a0237f0e108c0c5f07f20b287b15fa1fe9012d2"
+      }
+    ],
+    "fetchSyncProgress": [
+      {
+        "path": "js/chunk-1d0e431e.624e5fac.js",
+        "sha256": "aaeb4f88873134f317f1330e8a0237f0e108c0c5f07f20b287b15fa1fe9012d2"
+      }
+    ],
+    "extractJobId": [
+      {
+        "path": "js/chunk-1d0e431e.624e5fac.js",
+        "sha256": "aaeb4f88873134f317f1330e8a0237f0e108c0c5f07f20b287b15fa1fe9012d2"
+      }
+    ],
+    "snapshot-restore-content": [
+      {
+        "path": "js/chunk-9e0c36f6.46cd71d0.js",
+        "sha256": "955bb3fe55d0da30b3955380582f03ed3b9bfd06a36e897a402c8c039ccd4127"
+      }
+    ],
+    "snapshot-volume-form": [
+      {
+        "path": "js/chunk-1d0e431e.624e5fac.js",
+        "sha256": "aaeb4f88873134f317f1330e8a0237f0e108c0c5f07f20b287b15fa1fe9012d2"
+      },
+      {
+        "path": "js/chunk-67e4fbf6.d03723fa.js",
+        "sha256": "0e1f98a1bb92cb00039e929d06641b201f63e89e77d771d7cf7389394ee33404"
+      }
+    ]
+  }
+}

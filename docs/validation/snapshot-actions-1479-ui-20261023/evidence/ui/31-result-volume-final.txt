@@ -1,0 +1,260 @@
+Browser tab: 19, Title: "볼륨 - ABLESTACK-Mold", URL: "http://127.0.0.1:18031/client/#/volume/899ce621-18f4-4d22-9fa4-83844dc22d1d".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/volume/899ce621-18f4-4d22-9fa4-83844dc22d1d
+	2 container
+		354 container
+			355 image
+			356 menu
+				357 dashboard 대시보드
+					358 link Description: dashboard 대시보드, Value: 127.0.0.1:18031/client/#/dashboard
+				359 container
+					360 image cloud
+					361 text 컴퓨트
+				362 container
+					363 image hdd
+					364 text 스토리지
+				365 content list sub_menu_20_$$_/storage-popup
+					366 hdd 볼륨
+						367 link Description: hdd 볼륨, Value: 127.0.0.1:18031/client/#/volume
+					368 build 스냅샷
+						369 link Description: build 스냅샷, Value: 127.0.0.1:18031/client/#/snapshot
+					370 build 스냅샷 정책
+						371 link Description: build 스냅샷 정책, Value: 127.0.0.1:18031/client/#/snapshotpolicy
+					372 funnel-plot 버킷
+						373 link Description: funnel-plot 버킷, Value: 127.0.0.1:18031/client/#/buckets
+					374 file-text 공유 파일 시스템
+						375 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18031/client/#/sharedfs
+				376 container
+					377 image wifi
+					378 text 네트워크
+				379 container
+					380 image picture
+					381 text 이미지
+				382 container
+					383 image lock
+					384 text 키 관리
+				385 schedule 이벤트
+					386 link Description: schedule 이벤트, Value: 127.0.0.1:18031/client/#/event
+				387 project 프로젝트
+					388 link Description: project 프로젝트, Value: 127.0.0.1:18031/client/#/project
+				389 idcard 역할
+					390 link Description: idcard 역할, Value: 127.0.0.1:18031/client/#/role
+				391 team 계정
+					392 link Description: team 계정, Value: 127.0.0.1:18031/client/#/account
+				393 block 도메인
+					394 link Description: block 도메인, Value: 127.0.0.1:18031/client/#/domain
+				395 container
+					396 image bank
+					397 text 인프라스트럭쳐
+				398 container
+					399 image shopping
+					400 text 서비스 오퍼링
+				401 container
+					402 image setting
+					403 text 구성
+				404 appstore-add 확장
+					405 link Description: appstore-add 확장, Value: 127.0.0.1:18031/client/#/extension
+				406 container
+					407 image tool
+					408 text 도구
+				409 read API 문서
+					410 link Description: read API 문서, Value: 127.0.0.1:18031/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			411 container
+				412 heading 페이지 스타일 설정, Value: 3
+					413 text 페이지 스타일 설정
+				414 container
+					415 image
+					416 container
+						417 radio button (settable, integer) Description:  , Value: 1
+					418 image check
+				419 container
+					420 image
+					421 container
+						422 radio button (settable, integer) Description:  , Value: 0
+				423 heading 테마 색상, Value: 3
+					424 text 테마 색상
+				425 container
+					426 radio button (settable, integer) Description:  , Value: 0
+					427 image check
+				428 container
+					429 radio button (settable, integer) Description:  , Value: 0
+				430 container
+					431 radio button (settable, integer) Description:  , Value: 0
+				432 container
+					433 radio button (settable, integer) Description:  , Value: 0
+				434 container
+					435 radio button (settable, integer) Description:  , Value: 0
+				436 container
+					437 radio button (settable, integer) Description:  , Value: 0
+				438 container
+					439 radio button (settable, integer) Description:  , Value: 0
+				440 container
+					441 radio button (settable, integer) Description:  , Value: 0
+				442 heading 네비게이션 설정, Value: 3
+					443 text 네비게이션 설정
+				444 container
+					445 container
+						446 text 배경색
+						447 color well (settable) #ffffff
+					448 container
+						449 text 텍스트 색상
+						450 color well (settable) #000000
+				451 image exclamation-circle
+				452 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				453 button download 세팅값 다운로드(json)
+					454 image download
+					455 text 세팅값 다운로드(json)
+				456 button undo 기본값으로 재설정
+					457 image undo
+					458 text 기본값으로 재설정
+		112 container
+			459 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			460 button 생성 down
+				461 text 생성
+				462 image down
+			121 image translation
+			122 button 알림
+				123 image bell
+				252 text 1
+			125 container
+				126 text AC admin cloud
+		127 container
+			463 container
+				464 link Description: home, Value: 127.0.0.1:18031/client/#/
+				465 text /
+				466 link Description: 볼륨, Value: 127.0.0.1:18031/client/#/volume
+				467 text / SNAP1479UI-31-lost-ui-volume
+				468 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				469 button reload 업데이트
+					470 image reload
+					471 text 업데이트
+			472 button down 작업
+				473 image down
+				474 text 작업
+			475 container
+				476 image hdd
+				477 heading SNAP1479UI-31-lost-ui-volume, Value: 4
+					478 text SNAP1479UI-31-lost-ui-volume
+				479 text DATADISK KVM
+				480 text 상태 사용 가능 아이디
+				481 button 아이디 복사
+					482 image barcode
+				483 link Description: 899ce621-18f4-4d22-9fa4-83844dc22d1d , Value: javascript:;
+				484 text 디스크 크기(GB 단위)
+				485 image hdd
+				486 text 1.00 GiB 스토리지 풀
+				487 image database
+				488 link Description: Primary, Value: 127.0.0.1:18031/client/#/storagepool/1842fb9f-02e0-4da9-b082-422c5a184de0
+				489 text Shared (DATADISK) 클러스터
+				490 image cluster
+				491 link Description: Cluster, Value: 127.0.0.1:18031/client/#/cluster/0d3d50e7-3cb5-4adf-8507-955bc81cc4a5
+				492 text Pod
+				493 image appstore
+				494 link Description: Pod, Value: 127.0.0.1:18031/client/#/pod/2a9760c6-795d-48fc-bca1-77037c541279
+				495 text Zone
+				496 image global
+				497 link Description: Zone, Value: 127.0.0.1:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				498 text 계정
+				499 image user
+				500 link Description: admin, Value: 127.0.0.1:18031/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f
+				501 text 도메인
+				502 image block
+				503 link Description: ROOT, Value: 127.0.0.1:18031/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+				504 text 생성일
+				505 image calendar
+				506 text 2026. 10. 23. 오후 10:11:22
+				507 link Description: build 스냅샷 보기, Value: 127.0.0.1:18031/client/#/snapshot?volumeid=899ce621-18f4-4d22-9fa4-83844dc22d1d
+				508 container
+					509 text 태그
+					510 container
+						511 image plus
+						512 text  새 태그
+			513 container
+				514 tab group
+					515 container
+						516 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						517 tab (selectable, settable, boolean) 스냅샷, Value: 0, ID: rc-tabs-1-tab-snapshots
+						518 tab (selectable, settable, boolean) 정기스냅샷, Value: 0, ID: rc-tabs-1-tab-recurringsnapshots
+						519 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						520 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				521 container Description: 상세, ID: rc-tabs-1-panel-details
+					522 content list
+						523 container
+							524 text 이름
+							525 text SNAP1479UI-31-lost-ui-volume
+						526 container
+							527 text 아이디
+							528 text 899ce621-18f4-4d22-9fa4-83844dc22d1d
+						529 container
+							530 text 유형
+							531 text DATADISK
+						532 container
+							533 text 스토리지 유형
+							534 text Shared (DATADISK)
+						535 container
+							536 text 디스크 오퍼링
+							537 text Custom-GFS-Sparse
+						538 container
+							539 text 크기
+							540 text 1.00 GiB
+						541 container
+							542 text 프로비저닝 유형
+							543 text sparse
+						544 container
+							545 text Write-Cache 유형
+							546 text none
+						547 container
+							548 text 압축/중복제거
+							549 text false
+						550 container
+							551 text 압축 사용 상태
+							552 text false
+						553 container
+							554 text 중복제거 사용 상태
+							555 text false
+						556 container
+							557 text 경로
+							558 text 2f4245c0-2ebf-4097-810e-8168fd5511f2
+						559 container
+							560 text 삭제 보호
+							561 text false
+						562 container
+							563 text 요청 정책 / 형식
+							564 text 기존 호환 값: sparse
+						565 container
+							566 text 확정 정책
+							567 text 알 수 없음
+						568 container
+							569 text 실제 적용 정책
+							570 text 알 수 없음
+						571 container
+							572 text 실제 적용 방식
+							573 text 알 수 없음
+						574 container
+							575 text 실제 이미지 형식
+							576 text QCOW2
+						577 container
+							578 text 논리 용량
+							579 text 1.00 GiB
+						580 container
+							581 text 관측 할당량
+							582 image question-circle
+							583 text 알 수 없음
+						584 container
+							585 text 관측 시각
+							586 text 알 수 없음
+						587 container
+							588 text 할당 증거
+							589 text 미검증
+	210 container
+		211 image info-circle
+		212 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+
+The focused UI element is 122 button 알림

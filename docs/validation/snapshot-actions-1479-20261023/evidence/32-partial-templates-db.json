@@ -1,0 +1,38 @@
+[
+  {
+    "id": 221,
+    "name": "SNAP1479-32-orphan-api-template",
+    "path": "template/tmpl/2/221/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+    "uuid": "6475289c-25ff-4bf2-80ca-7d5b94422ee2",
+    "state": "DOWNLOADED",
+    "removed": "2026-10-23 11:44:17.000000",
+    "destroyed": 1
+  },
+  {
+    "id": 222,
+    "name": "SNAP1479-32-dedupe-createTemplate-after-agent-up",
+    "path": "template/tmpl/2/222/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+    "uuid": "d038600c-21e8-41f3-abd6-794eb19fe948",
+    "state": "DOWNLOADED",
+    "removed": "2026-10-23 11:44:19.000000",
+    "destroyed": 1
+  },
+  {
+    "id": 223,
+    "name": "SNAP1479-32-dedupe-createTemplate-final",
+    "path": "template/tmpl/2/223/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+    "uuid": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+    "state": "DOWNLOADED",
+    "removed": "2026-10-23 11:44:18.000000",
+    "destroyed": 1
+  },
+  {
+    "id": 224,
+    "name": "SNAP1479-32-orphan-ui-template",
+    "path": "template/tmpl/2/224/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+    "uuid": "bda966f8-ee63-42a5-b404-6bb8caa4cc8b",
+    "state": "DOWNLOADED",
+    "removed": "2026-10-23 11:44:20.000000",
+    "destroyed": 1
+  }
+]

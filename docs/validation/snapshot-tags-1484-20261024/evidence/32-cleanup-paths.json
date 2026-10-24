@@ -1,0 +1,70 @@
+{
+  "references": [
+    {
+      "path": "rbd/11514f46-16c7-4605-bcc1-22b47eb1dc26/36ebbc95-9bde-4e86-89e4-2344edded7b8",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "69c89e07-bf7d-4cff-a1e5-6e1bce9f2bc7"
+    },
+    {
+      "path": "snapshots/81/418/36ebbc95-9bde-4e86-89e4-2344edded7b8",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "69c89e07-bf7d-4cff-a1e5-6e1bce9f2bc7"
+    },
+    {
+      "path": "rbd/951b959b-04e7-49f1-a03d-7a4e6be6733e/816e3b0d-4394-4ee1-856b-22e1ffc0605b",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "7c7606f6-c433-45ca-82c9-eecd40aebe6f"
+    },
+    {
+      "path": "snapshots/80/417/816e3b0d-4394-4ee1-856b-22e1ffc0605b",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "7c7606f6-c433-45ca-82c9-eecd40aebe6f"
+    },
+    {
+      "path": "rbd/6ecaf530-ebec-48f3-ad78-ce1ca1addd0c/209d9c6f-e468-43ba-aebd-03b050f0d087",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "e67d9843-65c0-40b8-98c7-a83a980b361f"
+    },
+    {
+      "path": "snapshots/83/419/209d9c6f-e468-43ba-aebd-03b050f0d087",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "e67d9843-65c0-40b8-98c7-a83a980b361f"
+    }
+  ],
+  "volumes": [
+    {
+      "name": "SNAPTAG1484-32-owner",
+      "path": "951b959b-04e7-49f1-a03d-7a4e6be6733e",
+      "type": "DATADISK",
+      "uuid": "951b959b-04e7-49f1-a03d-7a4e6be6733e",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-32-other",
+      "path": "11514f46-16c7-4605-bcc1-22b47eb1dc26",
+      "type": "DATADISK",
+      "uuid": "11514f46-16c7-4605-bcc1-22b47eb1dc26",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-32-project",
+      "path": "6ecaf530-ebec-48f3-ad78-ce1ca1addd0c",
+      "type": "DATADISK",
+      "uuid": "6ecaf530-ebec-48f3-ad78-ce1ca1addd0c",
+      "state": "Ready"
+    },
+    {
+      "name": "ROOT-235",
+      "path": null,
+      "type": "ROOT",
+      "uuid": "7f5a3b32-0baa-4a9e-9c83-22cfc7269618",
+      "state": "Allocated"
+    }
+  ]
+}

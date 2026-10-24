@@ -1,0 +1,174 @@
+[
+  {
+    "path": "31-validation.json",
+    "sha256": "2e80e50436c8235f9bdb456c3700bb5d51ee5b22eca02f5b9ef75d35a095a32e"
+  },
+  {
+    "path": "32-validation.json",
+    "sha256": "51087787e3705b3388eba5253e3a6788e7227292b724acada363b1dd6f96f204"
+  },
+  {
+    "path": "api-build.log",
+    "sha256": "e558f2156e1bc243889922739ab95f238ca5366fcf0875a9f063863d84fe3b1a",
+    "originalSha256": "18c3b16983c70fb363fda97b58c6150bde227ec82362ddc6cb5cab2fca300ab9",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  },
+  {
+    "path": "browser/31-after-dark.jpg",
+    "sha256": "df74f2c030a5aa4ff67bc372fb527b8de2354960434d42f9cac71192c11935d1"
+  },
+  {
+    "path": "browser/31-after-dark.json",
+    "sha256": "126e2e2fdc4ab79b7232d0e67c6ccac903ba67efad267d99fd3a264ac913bf82"
+  },
+  {
+    "path": "browser/31-after-light.jpg",
+    "sha256": "72249e02738aba18118487225a025b6845a24e27ada15d22caea90b37c592cad"
+  },
+  {
+    "path": "browser/31-after-light.json",
+    "sha256": "97dd9da6719f1dc910e175c088efa20cee0bc2e0c1cdfdf3e611f49cb0970ee8"
+  },
+  {
+    "path": "browser/31-compact.jpg",
+    "sha256": "d8033c8e4573082758c43c824228559282356d675db533d5ecd5cdcb8c8d677a"
+  },
+  {
+    "path": "browser/31-compact.json",
+    "sha256": "a9923047a194ae6a5043ab650b42a99885f110dcfc5ff71b1c0846d667c26676"
+  },
+  {
+    "path": "browser/31-failed-retained.jpg",
+    "sha256": "c9f345d32beb0338d5703704ca0b9e7865dd810863d93464856f10b1e469e303"
+  },
+  {
+    "path": "browser/31-failed-retained.json",
+    "sha256": "447abeb5ba61975a883963612f2ba3c82d7d5e3fb6264b4da53ad75d3f1328ab"
+  },
+  {
+    "path": "browser/31-required.jpg",
+    "sha256": "093a62bf505e507474daf8a80d10fc1e407eb91f4d535f27e3498bf1f6bd8972"
+  },
+  {
+    "path": "browser/31-required.json",
+    "sha256": "b5e9ef4c42515dcf985fc3b3986ce12ed1e313a156a14e56ee39d2dbe0de0add"
+  },
+  {
+    "path": "browser/31-root-before.jpg",
+    "sha256": "9fdf39c4a2794e804e9ab61ff55ce6b7326f87320b57a7a832fec5cda36f9b9d"
+  },
+  {
+    "path": "browser/31-root-before.json",
+    "sha256": "0746f8f6569a2f6f7e0b658e9c6da0065dc9823f7a85a2362135b5a8956be56c"
+  },
+  {
+    "path": "browser/32-after-dark.jpg",
+    "sha256": "29ae529afe46a831d030f093fe113cbdfb70c6204b527fe69fa409f89222ee96"
+  },
+  {
+    "path": "browser/32-after-dark.json",
+    "sha256": "f4a7c8884171937fdd63de58baca86ff9c51389fccbf6e39d124e4f6ff5800d3"
+  },
+  {
+    "path": "browser/32-after-light.jpg",
+    "sha256": "3509e5cd1883e61e2e543f5f1272135c21f19c16b7524b88910e76409821c4af"
+  },
+  {
+    "path": "browser/32-after-light.json",
+    "sha256": "d9c413b1e0e16d8dee7941531c83de5cff0299dcd658ed3c36ac629994fba14b"
+  },
+  {
+    "path": "browser/32-compact.jpg",
+    "sha256": "aa92fa3a00c7feb867ec1fb0cf21f31c2faa80eb1a7211003520fbc9348babaf"
+  },
+  {
+    "path": "browser/32-compact.json",
+    "sha256": "7f50fd5366ada6cb421374c9f05006819655c8aa7e05263179b3b3caf3dadf63"
+  },
+  {
+    "path": "browser/32-failed-retained.jpg",
+    "sha256": "06e265e0ac950e8f935c0c942f856397673e0655b56b1925b527d8cb9cb11842"
+  },
+  {
+    "path": "browser/32-failed-retained.json",
+    "sha256": "0a6c4b8e8184d722370203a1b05ceacf64819cd7b3c2f47af867ffdf4ed507a0"
+  },
+  {
+    "path": "browser/32-required.jpg",
+    "sha256": "659728d619aa93b65f51ec4cba13734e4a089e6935d4a2e4755a730d52838e60"
+  },
+  {
+    "path": "browser/32-required.json",
+    "sha256": "e50f73a126fdc7ab9cb94bdad33d49c7d49001c6b320ae535dc1e15584e63eb8"
+  },
+  {
+    "path": "browser/32-root-before.jpg",
+    "sha256": "bbf06e06a8f1ffab1551e8431e08f83c546820c1ae722834496c63f2412b45c6"
+  },
+  {
+    "path": "browser/32-root-before.json",
+    "sha256": "3d8cf1e88d32d8e5cf244cd6c2e2644804fdb5aeae53707792fef65e635f5f03"
+  },
+  {
+    "path": "browser-images.json",
+    "sha256": "eee092d71ab91075204dcf7647e7f313bf9686e5a47b8020e79835d68e4e2a5b"
+  },
+  {
+    "path": "design.ko.md",
+    "sha256": "51650206e538eedafa8523cade996132acb70bf7bcb370e18feb69b811b680ff"
+  },
+  {
+    "path": "protected-windows.json",
+    "sha256": "0a5f54443f5d49955f22a467af6f86cb85a4bbf81508ecff8e375b0c8e8b0881"
+  },
+  {
+    "path": "protected-wsl.json",
+    "sha256": "47ce385afdd8c9ccca3cfd04aa48d3a31e312feeeaf2d38eae77ae8ed9ac6672"
+  },
+  {
+    "path": "report.ko.md",
+    "sha256": "7b35f0c4af065c75a339563acaa48b09b444f8c424915161395ae11bfb18797b"
+  },
+  {
+    "path": "scripts/verify.py",
+    "sha256": "dd9b0b565176fb5b91bf01c82fe7dbbf508f1cd60eb032c0f6c993273cc8f595"
+  },
+  {
+    "path": "server-final-tests.log",
+    "sha256": "72c89cf73e878b7b8cc70c91e898f4ef1b60071ea632a719c6b676298a12789c",
+    "originalSha256": "1e019112e62153b651d348ed9942bdf8c3878bc7a94d4a3f067b4c0dfddedaaa",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  },
+  {
+    "path": "source-sha256.json",
+    "sha256": "048c0838314e59aba4198efebe81c53fed8db89c2591bf2a6c4555b83e6df8df"
+  },
+  {
+    "path": "ui-final-build.log",
+    "sha256": "e87ea45437fe0c9080c713afafa7796c3590a5331153a51a8eb24fa805d903a7",
+    "originalSha256": "45d51856c05abcf3cab5916a6d68aba70b7b347a7c1c8db5a71011bcd598af6b",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  },
+  {
+    "path": "ui-final-lint.log",
+    "sha256": "6da1198f2f53a8800a652918c34c840ba3c301a4fe68b43d8a6694e9bce097a2",
+    "originalSha256": "6da1198f2f53a8800a652918c34c840ba3c301a4fe68b43d8a6694e9bce097a2",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  },
+  {
+    "path": "ui-final-tests.log",
+    "sha256": "8861f53d7154228b8a2cd9c94f63bf294122e647c6cad447be0fe5c34213c62c",
+    "originalSha256": "8861f53d7154228b8a2cd9c94f63bf294122e647c6cad447be0fe5c34213c62c",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  },
+  {
+    "path": "ui-reopen.json",
+    "sha256": "c94f8a8d0bc5af70f6021eefe8b532c3d2cf4dacfa65156321f7a47e55074926"
+  },
+  {
+    "path": "ui-tests.log",
+    "sha256": "49be19bc41303baa2b0ffa78fa338fdaef9cd616591eb61d7dd6a6416d57f346",
+    "originalSha256": "49be19bc41303baa2b0ffa78fa338fdaef9cd616591eb61d7dd6a6416d57f346",
+    "normalization": "UTF-8/LF; trailing spaces removed"
+  }
+]

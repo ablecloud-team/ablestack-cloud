@@ -1,0 +1,190 @@
+Browser tab: 14, Title: "볼륨 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: localhost:18031/client/#/volume/0e51c938-b2c0-4101-8a7f-ba071ad20e53
+	2 container
+		403 container
+			404 image
+			405 menu
+				406 dashboard 대시보드
+					407 link Description: dashboard 대시보드, Value: localhost:18031/client/#/dashboard
+				408 container
+					409 image cloud
+					410 text 컴퓨트
+				411 container
+					412 image hdd
+					413 text 스토리지
+				414 content list sub_menu_2_$$_/storage-popup
+					415 hdd 볼륨
+						416 link Description: hdd 볼륨, Value: localhost:18031/client/#/volume
+					417 build 스냅샷
+						418 link Description: build 스냅샷, Value: localhost:18031/client/#/snapshot
+					419 build 스냅샷 정책
+						420 link Description: build 스냅샷 정책, Value: localhost:18031/client/#/snapshotpolicy
+					421 funnel-plot 버킷
+						422 link Description: funnel-plot 버킷, Value: localhost:18031/client/#/buckets
+					423 file-text 공유 파일 시스템
+						424 link Description: file-text 공유 파일 시스템, Value: localhost:18031/client/#/sharedfs
+				425 container
+					426 image wifi
+					427 text 네트워크
+				428 container
+					429 image picture
+					430 text 이미지
+				431 container
+					432 image lock
+					433 text 키 관리
+				434 schedule 이벤트
+					435 link Description: schedule 이벤트, Value: localhost:18031/client/#/event
+				436 project 프로젝트
+					437 link Description: project 프로젝트, Value: localhost:18031/client/#/project
+				438 team 계정
+					439 link Description: team 계정, Value: localhost:18031/client/#/account
+				440 global Zone
+					441 link Description: global Zone, Value: localhost:18031/client/#/zones
+				442 container
+					443 image shopping
+					444 text 서비스 오퍼링
+				445 container
+					446 image tool
+					447 text 도구
+				448 read API 문서
+					449 link Description: read API 문서, Value: localhost:18031/client/#/apidocs/
+		47 container
+			48 image menu-fold
+			363 container
+				402 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				364 image project
+				365 text 기본 보기
+			53 button 생성 down
+				54 text 생성
+				55 image down
+			56 image translation
+			57 image bell
+			58 container
+				59 text S1 Snapshot 1479
+		60 container
+			450 container
+				451 container
+					452 link Description: home, Value: localhost:18031/client/#/
+					453 text /
+					454 link Description: 볼륨, Value: localhost:18031/client/#/volume
+					455 text / SNAP1479-31-tenant-source
+					456 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+					457 button reload 업데이트
+						458 image reload
+						459 text 업데이트
+				460 button down 작업
+					461 image down
+					462 text 작업
+			463 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				464 image right
+				465 text 스냅샷 작업 및 결과 확인
+			466 text createSnapshot · SNAP1479-31-tenant-source
+			576 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:23:54.177Z
+			577 link Description: 상세, Value: localhost:18031/client/#/snapshot/b7ac6d09-2c86-43c4-8133-fec74a3c79cb
+			468 text 작업 ID: 38d0c071-c199-4ceb-8b2e-12415b360230
+			472 button 기존 작업 결과 조회
+				579 text 기존 작업 결과 조회
+			474 text createSnapshot · SNAP1479-31-tenant-source
+			475 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53 · 작업 완료 · 2026-10-23T11:16:50.480Z
+			476 text 작업 ID: be72fead-2966-4577-a89c-b148042bb96c
+			477 button 기존 작업 결과 조회
+			478 container
+				479 image hdd
+				480 heading SNAP1479-31-tenant-source, Value: 4
+					481 text SNAP1479-31-tenant-source
+				482 text DATADISK
+				483 text 상태 사용 가능 아이디
+				484 button 아이디 복사
+					485 image barcode
+				486 link Description: 0e51c938-b2c0-4101-8a7f-ba071ad20e53 , Value: javascript:;
+				487 text 디스크 크기(GB 단위)
+				488 image hdd
+				489 text 1.00 GiB Zone
+				490 image global
+				491 link Description: Zone, Value: localhost:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				492 text 계정
+				493 image user
+				494 text snap1479-31-tenant 도메인
+				495 image block
+				496 text ROOT 생성일
+				497 image calendar
+				498 text 2026. 10. 23. 오후 7:21:35
+				499 link Description: build 스냅샷 보기, Value: localhost:18031/client/#/snapshot?volumeid=0e51c938-b2c0-4101-8a7f-ba071ad20e53
+				500 container
+					501 text 태그
+					502 container
+						503 image plus
+						504 text  새 태그
+			505 container
+				506 tab group
+					507 container
+						508 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						509 tab (selectable, settable, boolean) 스냅샷, Value: 0, ID: rc-tabs-1-tab-snapshots
+						510 tab (selectable, settable, boolean) 정기스냅샷, Value: 0, ID: rc-tabs-1-tab-recurringsnapshots
+						511 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						512 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				513 container Description: 상세, ID: rc-tabs-1-panel-details
+					514 content list
+						515 container
+							516 text 이름
+							517 text SNAP1479-31-tenant-source
+						518 container
+							519 text 아이디
+							520 text 0e51c938-b2c0-4101-8a7f-ba071ad20e53
+						521 container
+							522 text 유형
+							523 text DATADISK
+						524 container
+							525 text 디스크 오퍼링
+							526 text Custom-GFS-Sparse
+						527 container
+							528 text 크기
+							529 text 1.00 GiB
+						530 container
+							531 text 프로비저닝 유형
+							532 text sparse
+						533 container
+							534 text Write-Cache 유형
+							535 text none
+						536 container
+							537 text 압축/중복제거
+							538 text false
+						539 container
+							540 text 압축 사용 상태
+							541 text false
+						542 container
+							543 text 중복제거 사용 상태
+							544 text false
+						545 container
+							546 text 삭제 보호
+							547 text false
+						548 container
+							549 text 요청 정책 / 형식
+							550 text 기존 호환 값: sparse
+						551 container
+							552 text 확정 정책
+							553 text 알 수 없음
+						554 container
+							555 text 실제 적용 정책
+							556 text 알 수 없음
+						557 container
+							558 text 실제 적용 방식
+							559 text 알 수 없음
+						560 container
+							561 text 실제 이미지 형식
+							562 text QCOW2
+						563 container
+							564 text 논리 용량
+							565 text 1.00 GiB
+						566 container
+							567 text 관측 할당량
+							568 image question-circle
+							569 text 알 수 없음
+						570 container
+							571 text 관측 시각
+							572 text 알 수 없음
+						573 container
+							574 text 할당 증거
+							575 text 미검증
+
+The focused UI element is 472 button 기존 작업 결과 조회

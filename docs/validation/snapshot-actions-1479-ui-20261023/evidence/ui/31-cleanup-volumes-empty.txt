@@ -1,0 +1,238 @@
+Browser tab: 19, Title: "볼륨 - ABLESTACK-Mold", URL: "http://127.0.0.1:18031/client/#/volume?keyword=SNAP1479UI-31".
+1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/volume?keyword=SNAP1479UI-31
+	2 container
+		3 container
+			4 image
+			5 menu
+				6 dashboard 대시보드
+					7 link Description: dashboard 대시보드, Value: 127.0.0.1:18031/client/#/dashboard
+				8 container
+					9 image cloud
+					10 text 컴퓨트
+				11 container
+					12 image hdd
+					13 text 스토리지
+				293 content list sub_menu_2_$$_/storage-popup
+					294 hdd 볼륨
+						295 link Description: hdd 볼륨, Value: 127.0.0.1:18031/client/#/volume
+					296 build 스냅샷
+						297 link Description: build 스냅샷, Value: 127.0.0.1:18031/client/#/snapshot
+					298 build 스냅샷 정책
+						299 link Description: build 스냅샷 정책, Value: 127.0.0.1:18031/client/#/snapshotpolicy
+					300 funnel-plot 버킷
+						301 link Description: funnel-plot 버킷, Value: 127.0.0.1:18031/client/#/buckets
+					302 file-text 공유 파일 시스템
+						303 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18031/client/#/sharedfs
+				25 container
+					26 image wifi
+					27 text 네트워크
+				28 container
+					29 image picture
+					30 text 이미지
+				31 container
+					32 image lock
+					33 text 키 관리
+				34 schedule 이벤트
+					35 link Description: schedule 이벤트, Value: 127.0.0.1:18031/client/#/event
+				36 project 프로젝트
+					37 link Description: project 프로젝트, Value: 127.0.0.1:18031/client/#/project
+				38 idcard 역할
+					39 link Description: idcard 역할, Value: 127.0.0.1:18031/client/#/role
+				40 team 계정
+					41 link Description: team 계정, Value: 127.0.0.1:18031/client/#/account
+				42 block 도메인
+					43 link Description: block 도메인, Value: 127.0.0.1:18031/client/#/domain
+				44 container
+					45 image bank
+					46 text 인프라스트럭쳐
+				47 container
+					48 image shopping
+					49 text 서비스 오퍼링
+				50 container
+					51 image setting
+					52 text 구성
+				53 appstore-add 확장
+					54 link Description: appstore-add 확장, Value: 127.0.0.1:18031/client/#/extension
+				55 container
+					56 image tool
+					57 text 도구
+				58 read API 문서
+					59 link Description: read API 문서, Value: 127.0.0.1:18031/client/#/apidocs/
+		60 container
+			61 text 페이지 스타일 설정
+			62 button 닫기
+				63 image close
+			64 container
+				65 heading 페이지 스타일 설정, Value: 3
+					66 text 페이지 스타일 설정
+				67 container
+					68 image
+					69 container
+						70 radio button (settable, integer) Description:  , Value: 1
+					71 image check
+				72 container
+					73 image
+					74 container
+						75 radio button (settable, integer) Description:  , Value: 0
+				76 heading 테마 색상, Value: 3
+					77 text 테마 색상
+				78 container
+					79 radio button (settable, integer) Description:  , Value: 0
+					80 image check
+				81 container
+					82 radio button (settable, integer) Description:  , Value: 0
+				83 container
+					84 radio button (settable, integer) Description:  , Value: 0
+				85 container
+					86 radio button (settable, integer) Description:  , Value: 0
+				87 container
+					88 radio button (settable, integer) Description:  , Value: 0
+				89 container
+					90 radio button (settable, integer) Description:  , Value: 0
+				91 container
+					92 radio button (settable, integer) Description:  , Value: 0
+				93 container
+					94 radio button (settable, integer) Description:  , Value: 0
+				95 heading 네비게이션 설정, Value: 3
+					96 text 네비게이션 설정
+				97 container
+					98 container
+						99 text 배경색
+						100 color well (settable) #ffffff
+					101 container
+						102 text 텍스트 색상
+						103 color well (settable) #000000
+				104 image exclamation-circle
+				105 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+				106 button download 세팅값 다운로드(json)
+					107 image download
+					108 text 세팅값 다운로드(json)
+				109 button undo 기본값으로 재설정
+					110 image undo
+					111 text 기본값으로 재설정
+		112 container
+			113 image menu-fold
+			114 container
+				115 combo box (settable) rc_select_0
+				116 image project
+				117 text 기본 보기
+			118 button 생성 down
+				119 text 생성
+				120 image down
+			121 image translation
+			122 button 알림
+				123 image bell
+			125 container
+				126 text AC admin cloud
+		127 container
+			390 container
+				391 link Description: home, Value: 127.0.0.1:18031/client/#/
+				392 text /
+				393 link Description: 볼륨, Value: 127.0.0.1:18031/client/#/volume
+				394 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+				395 button reload 업데이트
+					396 image reload
+					397 text 업데이트
+				398 container
+					399 combo box (settable) rc_select_4
+					400 text 사용자 
+				401 switch 메트릭, Value: 0
+					402 text 메트릭
+				403 switch 프로젝트, Value: 0
+					404 text 프로젝트
+			405 container
+				406 button 볼륨 생성
+					407 image plus
+					408 text 볼륨 생성
+				409 button 로컬에서 볼륨 업로드
+					410 image cloud-upload
+				411 button URL에서 볼륨 업로드
+					412 image link
+				413 button 고급 검색
+					414 image filter
+				415 text field (settable)
+				416 button search
+					417 image search
+			322 table
+				323 row
+					324 cell
+						325 container
+							326 checkbox (disabled, settable, integer) Description:  , Value: 0
+					327 cell
+						328 container
+							329 text 이름
+							330 image caret-up
+							331 image caret-down
+					332 cell
+						333 container
+							334 text 상태
+							335 image caret-up
+							336 image caret-down
+					418 cell
+						419 container
+							420 text 크기
+							421 image caret-up
+							422 image caret-down
+					423 cell
+						424 container
+							425 text 유형
+							426 image caret-up
+							427 image caret-down
+					428 cell
+						429 container
+							430 text VM 이름
+							431 image caret-up
+							432 image caret-down
+					433 cell
+						434 container
+							435 text VM 상태
+							436 image caret-up
+							437 image caret-down
+					438 cell
+						439 container
+							440 text 스토리지
+							441 image caret-up
+							442 image caret-down
+					357 cell
+						358 container
+							359 text 계정
+							360 image caret-up
+							361 image caret-down
+					367 cell
+						368 container
+							369 text Zone
+							370 image caret-up
+							371 image caret-down
+					443 cell
+						444 container
+							445 text 디스크 파일시스템 사용량
+							446 image caret-up
+							447 image caret-down
+					448 cell
+						449 container
+							450 text 압축/중복제거
+							451 image caret-up
+							452 image caret-down
+					372 cell
+						373 button filter
+							374 image filter
+				375 row
+					376 cell
+						377 text 데이터 없음
+			378 content list
+				379 text 전체 0 개 항목 중 0-0 표시
+				380 container 이전 페이지
+					381 button (disabled) left
+						382 image left
+				383 text 1
+				384 container 다음 페이지
+					385 button (disabled) right
+						386 image right
+				387 container
+					388 combo box (settable) rc_select_2
+					389 text 20 / 쪽
+	259 container
+		260 image info-circle
+		261 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+
+The focused UI element is 122 button 알림

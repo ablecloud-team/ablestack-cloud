@@ -1,0 +1,100 @@
+[
+  {
+    "id": "ac512082-2ed3-41f3-b7fb-3ef4a07be284",
+    "scenario": "SNAPT1474-32-native-restored",
+    "image": "rbd:rbd/c5493b03-c050-4f34-810e-f8ffe32bf61a",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (618.813 MiB/sec and 618.8126 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (429.572 MiB/sec and 429.5715 ops/sec)"
+  },
+  {
+    "id": "901d113b-0759-4337-829b-dcb14a7e43c7",
+    "scenario": "SNAPT1474-32-raw-restored",
+    "image": "rbd:rbd/2fed9300-2c0a-405f-94fd-ad90f5af0d08",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (610.538 MiB/sec and 610.5383 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (677.160 MiB/sec and 677.1604 ops/sec)"
+  },
+  {
+    "id": "6ce89fa8-ca09-4dd6-a4d5-4622fa4bb841",
+    "scenario": "SNAPT1474-32-native-restore-final",
+    "image": "rbd:rbd/22842f9a-0507-40bf-ba6b-cfbc93c2137a",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (451.761 MiB/sec and 451.7608 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (346.499 MiB/sec and 346.4991 ops/sec)"
+  },
+  {
+    "id": "75ad0739-0286-4665-897c-1633e063dc5d",
+    "scenario": "SNAPT1474-32-raw-restore-final",
+    "image": "rbd:rbd/90881383-9626-47f6-8fba-7c768203bdc6",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (588.185 MiB/sec and 588.1855 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (455.663 MiB/sec and 455.6635 ops/sec)"
+  },
+  {
+    "id": "32ab5f80-a026-4455-b94c-0a4ad3ce6af7",
+    "scenario": "SNAPT1474-32-native-restore-orphans",
+    "image": "rbd:rbd/cf23c4a2-bd77-4883-9bd2-e16396f38670",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (584.697 MiB/sec and 584.6965 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (446.952 MiB/sec and 446.9521 ops/sec)"
+  },
+  {
+    "id": "50fbdf7b-646a-4201-ac60-d59b13f82c8a",
+    "scenario": "SNAPT1474-32-raw-restore-orphans",
+    "image": "rbd:rbd/733e8b07-a020-460d-bec7-23e56eacad22",
+    "patterns": [
+      "0x5a@0/1MiB",
+      "0xa5@1023MiB/1MiB"
+    ],
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (653.484 MiB/sec and 653.4837 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (358.149 MiB/sec and 358.1493 ops/sec)"
+  },
+  {
+    "id": "581584f9-b1f3-4385-8703-709ef94b105d",
+    "name": "SNAPT1474-32-native-final",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/229/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.070 GiB/sec and 3143.3789 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.221 GiB/sec and 3298.2183 ops/sec)"
+  },
+  {
+    "id": "8e52631a-7777-4767-96a2-ce90241b4c93",
+    "name": "SNAPT1474-32-raw-final",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/230/56e26108-8d5d-4046-b216-f9e8f55685c3.raw",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (1.331 GiB/sec and 1362.7320 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.114 GiB/sec and 3188.7958 ops/sec)"
+  },
+  {
+    "id": "56e11622-7c72-4013-a257-35e0f5eb1d15",
+    "name": "SNAPT1474-32-native-orphan",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/235/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.168 GiB/sec and 3243.8569 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (3.271 GiB/sec and 3349.2535 ops/sec)"
+  },
+  {
+    "id": "fabc291f-da1d-4719-9538-0c6d3f07c022",
+    "name": "SNAPT1474-32-native-final-code",
+    "template": true,
+    "image": "/nfs/secondary/template/tmpl/2/237/ad832a2c-31b7-4fbc-a599-a95dc4817cee.qcow2",
+    "verified": true,
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (734.977 MiB/sec and 734.9769 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.516 GiB/sec and 2576.7086 ops/sec)"
+  }
+]

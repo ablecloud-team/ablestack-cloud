@@ -1,0 +1,3 @@
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	BackedUp	46	Primary	Destroyed	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/fb878c93-5b45-4117-bd32-c85d3ae5987f	0
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	BackedUp	47	Image	Destroying	snapshots/2/321/fb878c93-5b45-4117-bd32-c85d3ae5987f	0
+e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	BackedUp	52	Image	Destroyed	snapshots/2/321	0

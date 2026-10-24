@@ -1,0 +1,27 @@
+{
+  "snapshot": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+  "scenario": "residue",
+  "kind": "backup-block",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/394fcd5c-53fb-43b3-a55a-a253283302df",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 33,
+      "referenceid": 62
+    },
+    {
+      "path": "snapshots/2/323/394fcd5c-53fb-43b3-a55a-a253283302df",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Destroyed",
+      "volumeid": 323,
+      "snapshotid": 33,
+      "referenceid": 63
+    }
+  ],
+  "fixtureOnly": true,
+  "directory": "/nfs/secondary/snapshots/2/323"
+}

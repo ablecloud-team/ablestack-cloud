@@ -1,0 +1,378 @@
+[
+  {
+    "command": "createSnapshot",
+    "customjobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec",
+    "responses": [
+      {
+        "jobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec"
+      },
+      {
+        "id": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+        "jobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec"
+      }
+    ],
+    "repeated": {
+      "jobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec"
+    },
+    "result": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.user.snapshot.CreateSnapshotCmd",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "snapshot": {
+          "id": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+          "account": "snap1479-32-tenant",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "snapshottype": "MANUAL",
+          "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+          "volumename": "SNAP1479-32-tenant-source",
+          "volumetype": "DATADISK",
+          "volumestate": "Ready",
+          "created": "2026-10-23T19:57:37+0900",
+          "name": "SNAP1479-32-dedupe-createSnapshot-final",
+          "intervaltype": "MANUAL",
+          "state": "Allocated",
+          "physicalsize": 1073741824,
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "revertable": true,
+          "virtualsize": 1073741824,
+          "tags": [],
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "Snapshot",
+      "jobinstanceid": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+      "created": "2026-10-23T19:57:37+0900",
+      "completed": "2026-10-23T19:57:39+0900",
+      "jobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec",
+      "jobstatus": 1
+    },
+    "mismatch": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot request UUID belongs to a different command, owner, project, target or specification"
+    },
+    "resources": [
+      {
+        "id": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+        "account": "snap1479-32-tenant",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "volumename": "SNAP1479-32-tenant-source",
+        "volumetype": "DATADISK",
+        "volumestate": "Ready",
+        "created": "2026-10-23T19:57:37+0900",
+        "name": "SNAP1479-32-dedupe-createSnapshot-final",
+        "intervaltype": "MANUAL",
+        "state": "BackedUp",
+        "physicalsize": 196624,
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "revertable": true,
+        "virtualsize": 1073741824,
+        "tags": [],
+        "hasannotations": false
+      }
+    ],
+    "status": "PASS"
+  },
+  {
+    "command": "createVolume",
+    "customjobid": "97863839-0c39-49b2-80b3-8b5745987575",
+    "responses": [
+      {
+        "id": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+        "jobid": "97863839-0c39-49b2-80b3-8b5745987575"
+      },
+      {
+        "jobid": "97863839-0c39-49b2-80b3-8b5745987575"
+      }
+    ],
+    "repeated": {
+      "jobid": "97863839-0c39-49b2-80b3-8b5745987575"
+    },
+    "result": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "volume": {
+          "volumemutationblockedreason": "",
+          "allocation": {
+            "fixedpolicy": "unknown",
+            "actualformat": "raw",
+            "evidence": "unverified",
+            "contractversion": "legacy",
+            "effectivepolicy": "unknown",
+            "requestedformat": "unspecified",
+            "requestedpolicy": "thin",
+            "appliedmethod": "unknown",
+            "policyorigin": "legacy"
+          },
+          "id": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+          "name": "SNAP1479-32-dedupe-createVolume-final",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "type": "DATADISK",
+          "provisioningtype": "thin",
+          "size": 1073741824,
+          "created": "2026-10-23T19:57:40+0900",
+          "state": "Ready",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "storagetype": "shared",
+          "cachemode": "none",
+          "hypervisor": "KVM",
+          "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+          "diskofferingname": "Custom",
+          "diskofferingdisplaytext": "Custom",
+          "storage": "Primary",
+          "snapshotid": "a7e4f067-81a2-4deb-bcab-d5e9c5706d1b",
+          "destroyed": false,
+          "isextractable": true,
+          "displayvolume": true,
+          "path": "b9d53e3b-7dfc-41fc-ac9b-d5931b1bc094",
+          "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+          "quiescevm": false,
+          "supportsstoragesnapshot": false,
+          "deleteprotection": false,
+          "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+          "clustername": "Cluster",
+          "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+          "podname": "Pod",
+          "kvdoenable": false,
+          "compress": false,
+          "dedup": false,
+          "tags": [],
+          "hasannotations": false,
+          "jobid": "97863839-0c39-49b2-80b3-8b5745987575",
+          "jobstatus": 0
+        }
+      },
+      "jobinstancetype": "Volume",
+      "jobinstanceid": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+      "created": "2026-10-23T19:57:40+0900",
+      "completed": "2026-10-23T19:57:41+0900",
+      "jobid": "97863839-0c39-49b2-80b3-8b5745987575",
+      "jobstatus": 1
+    },
+    "mismatch": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot request UUID belongs to a different command, owner, project, target or specification"
+    },
+    "resources": [
+      {
+        "volumemutationblockedreason": "",
+        "allocation": {
+          "contractversion": "legacy",
+          "requestedpolicy": "thin",
+          "requestedformat": "unspecified",
+          "policyorigin": "legacy",
+          "fixedpolicy": "unknown",
+          "effectivepolicy": "unknown",
+          "appliedmethod": "unknown",
+          "actualformat": "raw",
+          "evidence": "unverified"
+        },
+        "id": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+        "name": "SNAP1479-32-dedupe-createVolume-final",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "type": "DATADISK",
+        "provisioningtype": "thin",
+        "size": 1073741824,
+        "created": "2026-10-23T19:57:40+0900",
+        "state": "Ready",
+        "account": "admin",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "storagetype": "shared",
+        "cachemode": "none",
+        "hypervisor": "KVM",
+        "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+        "diskofferingname": "Custom",
+        "diskofferingdisplaytext": "Custom",
+        "storage": "Primary",
+        "destroyed": false,
+        "isextractable": true,
+        "displayvolume": true,
+        "path": "b9d53e3b-7dfc-41fc-ac9b-d5931b1bc094",
+        "storageid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "quiescevm": false,
+        "supportsstoragesnapshot": false,
+        "deleteprotection": false,
+        "clusterid": "722e6930-cfc8-4143-83b1-680b7348d1e9",
+        "clustername": "Cluster",
+        "podid": "6c4b9931-7684-4ba0-bcd6-9d8e97fd6cad",
+        "podname": "Pod",
+        "kvdoenable": false,
+        "compress": false,
+        "dedup": false,
+        "tags": [],
+        "hasannotations": false
+      }
+    ],
+    "status": "PASS"
+  },
+  {
+    "command": "createTemplate",
+    "customjobid": "466ed3a4-1dd2-492d-af0e-694521b16756",
+    "responses": [
+      {
+        "id": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+        "jobid": "466ed3a4-1dd2-492d-af0e-694521b16756"
+      },
+      {
+        "jobid": "466ed3a4-1dd2-492d-af0e-694521b16756"
+      }
+    ],
+    "repeated": {
+      "jobid": "466ed3a4-1dd2-492d-af0e-694521b16756"
+    },
+    "result": {
+      "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+      "account": "admin",
+      "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+      "domainpath": "ROOT",
+      "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+      "cmd": "org.apache.cloudstack.api.command.admin.template.CreateTemplateCmdByAdmin",
+      "jobprocstatus": 0,
+      "jobresultcode": 0,
+      "jobresulttype": "object",
+      "jobresult": {
+        "template": {
+          "id": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+          "name": "SNAP1479-32-dedupe-createTemplate-final",
+          "displaytext": "SNAP1479-32-dedupe-template",
+          "ispublic": false,
+          "created": "2026-10-23T19:57:42+0900",
+          "isready": true,
+          "passwordenabled": "[REDACTED]",
+          "format": "RAW",
+          "isfeatured": false,
+          "crossZones": false,
+          "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+          "ostypename": "Rocky Linux 9",
+          "account": "admin",
+          "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+          "zonename": "Zone",
+          "status": "Download Complete",
+          "size": 1376256,
+          "physicalsize": 1376256,
+          "templatetype": "USER",
+          "hypervisor": "KVM",
+          "domain": "ROOT",
+          "domainpath": "ROOT",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "isextractable": false,
+          "details": {},
+          "downloaddetails": [
+            {
+              "downloadState": "DOWNLOADED",
+              "datastore": "Secondary",
+              "datastoreRole": "Image",
+              "downloadPercent": "100",
+              "datastoreId": "af746f16-4e36-4f19-805c-61307d373e64"
+            }
+          ],
+          "arch": "x86_64",
+          "bits": 0,
+          "sshkeyenabled": false,
+          "isdynamicallyscalable": false,
+          "directdownload": false,
+          "kvdoenable": false,
+          "deployasis": false,
+          "forcks": false,
+          "requireshvm": false,
+          "tags": [],
+          "hasannotations": false
+        }
+      },
+      "jobinstancetype": "Template",
+      "jobinstanceid": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+      "created": "2026-10-23T19:57:42+0900",
+      "completed": "2026-10-23T19:57:42+0900",
+      "jobid": "466ed3a4-1dd2-492d-af0e-694521b16756",
+      "jobstatus": 1
+    },
+    "mismatch": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot request UUID belongs to a different command, owner, project, target or specification"
+    },
+    "resources": [
+      {
+        "id": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+        "name": "SNAP1479-32-dedupe-createTemplate-final",
+        "displaytext": "SNAP1479-32-dedupe-template",
+        "ispublic": false,
+        "created": "2026-10-23T19:57:42+0900",
+        "isready": true,
+        "passwordenabled": "[REDACTED]",
+        "format": "RAW",
+        "isfeatured": false,
+        "crossZones": false,
+        "ostypeid": "574c7ceb-b23b-11f1-990e-0024811f8935",
+        "ostypename": "Rocky Linux 9",
+        "account": "admin",
+        "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+        "zonename": "Zone",
+        "status": "Download Complete",
+        "size": 1376256,
+        "physicalsize": 1376256,
+        "templatetype": "USER",
+        "hypervisor": "KVM",
+        "domain": "ROOT",
+        "domainpath": "ROOT",
+        "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+        "isextractable": false,
+        "details": {},
+        "downloaddetails": [
+          {
+            "downloadState": "DOWNLOADED",
+            "datastore": "Secondary",
+            "datastoreRole": "Image",
+            "downloadPercent": "100",
+            "datastoreId": "af746f16-4e36-4f19-805c-61307d373e64"
+          }
+        ],
+        "arch": "x86_64",
+        "bits": 0,
+        "sshkeyenabled": false,
+        "isdynamicallyscalable": false,
+        "directdownload": false,
+        "kvdoenable": false,
+        "deployasis": false,
+        "forcks": false,
+        "requireshvm": false,
+        "tags": [],
+        "hasannotations": false
+      }
+    ],
+    "status": "PASS"
+  }
+]

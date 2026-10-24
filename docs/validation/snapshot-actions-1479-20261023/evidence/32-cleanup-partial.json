@@ -1,0 +1,137 @@
+[
+  {
+    "at": "2026-10-23T11:44:12.972Z",
+    "type": "template",
+    "id": "6475289c-25ff-4bf2-80ca-7d5b94422ee2",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:14.063Z",
+    "type": "template",
+    "id": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:15.159Z",
+    "type": "template",
+    "id": "d038600c-21e8-41f3-abd6-794eb19fe948",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:16.242Z",
+    "type": "template",
+    "id": "bda966f8-ee63-42a5-b404-6bb8caa4cc8b",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:25.515Z",
+    "type": "vm",
+    "id": "c27c7bcf-0036-41cf-be04-3f855a0a4a1c",
+    "result": {
+      "virtualmachine": {
+        "volumemutationblockedreason": "",
+        "securitygroup": [],
+        "nic": [],
+        "affinitygroup": [],
+        "deleteprotection": false,
+        "tags": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:27.645Z",
+    "type": "volume",
+    "id": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:28.642Z",
+    "type": "volume",
+    "id": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:29.316Z",
+    "type": "volume",
+    "id": "79d18a72-db53-4186-9c84-c81347a6420d",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:29.983Z",
+    "type": "volume",
+    "id": "82bdaf03-413e-444b-a5a6-c2deddf960d1",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:30.650Z",
+    "type": "volume",
+    "id": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:31.321Z",
+    "type": "volume",
+    "id": "d9ef447a-e5b7-45aa-983b-9f3eab46f1ad",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:31.995Z",
+    "type": "volume",
+    "id": "c7ed1ddd-e590-4977-8ff0-6294e776290c",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:33.135Z",
+    "type": "snapshot",
+    "id": "bc35f098-29a3-4b7e-bfe0-ed9632f3c2bb",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:34.266Z",
+    "type": "snapshot",
+    "id": "9d9bc9c6-3639-4870-9390-0ee3f37b9d01",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:35.398Z",
+    "type": "snapshot",
+    "id": "a7e4f067-81a2-4deb-bcab-d5e9c5706d1b",
+    "result": {
+      "success": true
+    }
+  },
+  {
+    "at": "2026-10-23T11:44:36.528Z",
+    "type": "snapshot",
+    "id": "7476648d-3984-461e-9e1b-929fd0f4defd",
+    "result": {
+      "success": true
+    }
+  }
+]

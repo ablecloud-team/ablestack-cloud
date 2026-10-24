@@ -1,0 +1,92 @@
+{
+  "mutations": [
+    {
+      "at": "2026-10-23T15:18:13.136Z",
+      "cmd": "revertSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+        "customjobid": "5f46eb7e-a80b-41dd-944e-ddfc74950f0e"
+      },
+      "status": 200,
+      "jobid": "5f46eb7e-a80b-41dd-944e-ddfc74950f0e"
+    },
+    {
+      "at": "2026-10-23T15:26:41.521Z",
+      "cmd": "createVolume",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "snapshotid": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+        "name": "SNAPDIALOG-31-normal-ui-volume",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "customjobid": "7cdf7c95-ff65-4d2a-9582-0eb2ffe1739d"
+      },
+      "status": 200,
+      "jobid": "7cdf7c95-ff65-4d2a-9582-0eb2ffe1739d"
+    },
+    {
+      "at": "2026-10-23T15:27:37.932Z",
+      "cmd": "createVolume",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "snapshotid": "a936f658-2ec0-470b-90e6-145bce23d7f1",
+        "name": "SNAPDIALOG-31-lost-ui-volume",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "customjobid": "e6dc3253-e6e7-40c8-bb04-7f2b18a9cf0c"
+      },
+      "status": 200,
+      "jobid": "e6dc3253-e6e7-40c8-bb04-7f2b18a9cf0c",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T15:27:37.943Z",
+      "cmd": "createVolume",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "snapshotid": "a936f658-2ec0-470b-90e6-145bce23d7f1",
+        "name": "SNAPDIALOG-31-lost-ui-volume",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "customjobid": "e6dc3253-e6e7-40c8-bb04-7f2b18a9cf0c"
+      },
+      "status": 200,
+      "jobid": "e6dc3253-e6e7-40c8-bb04-7f2b18a9cf0c",
+      "fault": "submit-response-dropped-after-forward"
+    },
+    {
+      "at": "2026-10-23T15:58:44.354Z",
+      "cmd": "createVolume",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "snapshotid": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+        "name": "SNAPDIALOG-31-keyboard-ui-volume",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "customjobid": "7ec0dc78-187f-4d9d-8a16-8681c4037499"
+      },
+      "status": 200,
+      "jobid": "7ec0dc78-187f-4d9d-8a16-8681c4037499"
+    },
+    {
+      "at": "2026-10-23T16:00:38.704Z",
+      "cmd": "revertSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "id": "df68f239-a62b-459a-9a0c-bf06b0afb91c",
+        "customjobid": "ee0c8093-44bf-42bc-a7f1-0ee81baeb2e1"
+      },
+      "status": 200,
+      "jobid": "ee0c8093-44bf-42bc-a7f1-0ee81baeb2e1"
+    }
+  ]
+}

@@ -1,0 +1,383 @@
+[
+  {
+    "name": "repaired-and-new-recurring-list",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPPOL1493-32&snapshottype=RECURRING&projectid=0&q=SNAPPOL1493-32&sortkey=created&sortorder=desc&page=1",
+    "rows": [
+      {
+        "id": "edae61df-dd8c-4819-ad43-98864512ec07",
+        "key": "edae61df-dd8c-4819-ad43-98864512ec07",
+        "text": "\tSNAPPOL1493-32-retention-1\t\n백업 됨\n\tSNAPPOL1493-32-owner\tHOURLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:31\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+        "key": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+        "text": "\tSNAPPOL1493-32-retention-0\t\n백업 됨\n\tSNAPPOL1493-32-owner\tHOURLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:27\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+        "key": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+        "text": "\tSNAPPOL1493-32-fixed-MONTHLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tMONTHLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:19\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+        "key": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+        "text": "\tSNAPPOL1493-32-fixed-WEEKLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tWEEKLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:16\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "key": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "text": "\tSNAPPOL1493-32-fixed-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:57:13\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+        "key": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+        "text": "\tSNAPPOL1493-32-legacy-MONTHLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tMONTHLY\t0.00 GiB\t2026. 10. 24. 오후 8:48:29\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "dc92398f-597b-473b-adb0-61b51392c823",
+        "key": "dc92398f-597b-473b-adb0-61b51392c823",
+        "text": "\tSNAPPOL1493-32-legacy-WEEKLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tWEEKLY\t0.00 GiB\t2026. 10. 24. 오후 8:48:26\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "key": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "text": "\tSNAPPOL1493-32-legacy-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:48:22\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "keyword": "SNAPPOL1493-32",
+        "snapshottype": "RECURRING",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 8,
+      "snapshots": [
+        {
+          "id": "edae61df-dd8c-4819-ad43-98864512ec07",
+          "name": "SNAPPOL1493-32-retention-1",
+          "type": "HOURLY"
+        },
+        {
+          "id": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+          "name": "SNAPPOL1493-32-retention-0",
+          "type": "HOURLY"
+        },
+        {
+          "id": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+          "name": "SNAPPOL1493-32-fixed-MONTHLY",
+          "type": "MONTHLY"
+        },
+        {
+          "id": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+          "name": "SNAPPOL1493-32-fixed-WEEKLY",
+          "type": "WEEKLY"
+        },
+        {
+          "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+          "name": "SNAPPOL1493-32-fixed-DAILY",
+          "type": "DAILY"
+        },
+        {
+          "id": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+          "name": "SNAPPOL1493-32-legacy-MONTHLY",
+          "type": "MONTHLY"
+        },
+        {
+          "id": "dc92398f-597b-473b-adb0-61b51392c823",
+          "name": "SNAPPOL1493-32-legacy-WEEKLY",
+          "type": "WEEKLY"
+        },
+        {
+          "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+          "name": "SNAPPOL1493-32-legacy-DAILY",
+          "type": "DAILY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "volume-and-DAILY",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&keyword=SNAPPOL1493-32&volumeid=8f9ff586-d7a8-41d2-8506-827967fc9789&snapshottype=RECURRING&intervaltype=DAILY&showunique=true&pagesize=20&q=SNAPPOL1493-32",
+    "rows": [
+      {
+        "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "key": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "text": "\tSNAPPOL1493-32-fixed-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:57:13\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "key": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "text": "\tSNAPPOL1493-32-legacy-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:48:22\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "keyword": "SNAPPOL1493-32",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "snapshottype": "RECURRING",
+        "intervaltype": "DAILY",
+        "showunique": "true",
+        "pagesize": "20",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 2,
+      "snapshots": [
+        {
+          "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+          "name": "SNAPPOL1493-32-fixed-DAILY",
+          "type": "DAILY"
+        },
+        {
+          "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+          "name": "SNAPPOL1493-32-legacy-DAILY",
+          "type": "DAILY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "volume-and-HOURLY",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&pagesize=20&keyword=SNAPPOL1493-32&volumeid=8f9ff586-d7a8-41d2-8506-827967fc9789&snapshottype=RECURRING&intervaltype=HOURLY&showunique=true&q=SNAPPOL1493-32",
+    "rows": [
+      {
+        "id": "edae61df-dd8c-4819-ad43-98864512ec07",
+        "key": "edae61df-dd8c-4819-ad43-98864512ec07",
+        "text": "\tSNAPPOL1493-32-retention-1\t\n백업 됨\n\tSNAPPOL1493-32-owner\tHOURLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:31\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+        "key": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+        "text": "\tSNAPPOL1493-32-retention-0\t\n백업 됨\n\tSNAPPOL1493-32-owner\tHOURLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:27\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPPOL1493-32",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "snapshottype": "RECURRING",
+        "intervaltype": "HOURLY",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 2,
+      "snapshots": [
+        {
+          "id": "edae61df-dd8c-4819-ad43-98864512ec07",
+          "name": "SNAPPOL1493-32-retention-1",
+          "type": "HOURLY"
+        },
+        {
+          "id": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+          "name": "SNAPPOL1493-32-retention-0",
+          "type": "HOURLY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "volume-and-WEEKLY",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&pagesize=20&keyword=SNAPPOL1493-32&volumeid=8f9ff586-d7a8-41d2-8506-827967fc9789&snapshottype=RECURRING&intervaltype=WEEKLY&showunique=true&q=SNAPPOL1493-32",
+    "rows": [
+      {
+        "id": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+        "key": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+        "text": "\tSNAPPOL1493-32-fixed-WEEKLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tWEEKLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:16\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "dc92398f-597b-473b-adb0-61b51392c823",
+        "key": "dc92398f-597b-473b-adb0-61b51392c823",
+        "text": "\tSNAPPOL1493-32-legacy-WEEKLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tWEEKLY\t0.00 GiB\t2026. 10. 24. 오후 8:48:26\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPPOL1493-32",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "snapshottype": "RECURRING",
+        "intervaltype": "WEEKLY",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 2,
+      "snapshots": [
+        {
+          "id": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+          "name": "SNAPPOL1493-32-fixed-WEEKLY",
+          "type": "WEEKLY"
+        },
+        {
+          "id": "dc92398f-597b-473b-adb0-61b51392c823",
+          "name": "SNAPPOL1493-32-legacy-WEEKLY",
+          "type": "WEEKLY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "volume-and-MONTHLY",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?projectid=0&sortkey=created&sortorder=desc&page=1&pagesize=20&keyword=SNAPPOL1493-32&volumeid=8f9ff586-d7a8-41d2-8506-827967fc9789&snapshottype=RECURRING&intervaltype=MONTHLY&showunique=true&q=SNAPPOL1493-32",
+    "rows": [
+      {
+        "id": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+        "key": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+        "text": "\tSNAPPOL1493-32-fixed-MONTHLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tMONTHLY\t0.00 GiB\t2026. 10. 24. 오후 8:57:19\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      },
+      {
+        "id": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+        "key": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+        "text": "\tSNAPPOL1493-32-legacy-MONTHLY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tMONTHLY\t0.00 GiB\t2026. 10. 24. 오후 8:48:29\tSNAPPOL1493-32-owner\tSNAPPOL1493-32-domain\tZone\t"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPPOL1493-32",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "snapshottype": "RECURRING",
+        "intervaltype": "MONTHLY",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 2,
+      "snapshots": [
+        {
+          "id": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+          "name": "SNAPPOL1493-32-fixed-MONTHLY",
+          "type": "MONTHLY"
+        },
+        {
+          "id": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+          "name": "SNAPPOL1493-32-legacy-MONTHLY",
+          "type": "MONTHLY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "owner-role-DAILY",
+    "role": "owner",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPPOL1493-32&snapshottype=RECURRING&intervaltype=DAILY&projectid=0&q=SNAPPOL1493-32&sortkey=created&sortorder=desc&page=1",
+    "rows": [
+      {
+        "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "key": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "text": "\tSNAPPOL1493-32-fixed-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:57:13\tZone"
+      },
+      {
+        "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "key": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "text": "\tSNAPPOL1493-32-legacy-DAILY\t\n백업 됨\n\tSNAPPOL1493-32-owner\tDAILY\t0.00 GiB\t2026. 10. 24. 오후 8:48:22\tZone"
+      }
+    ],
+    "api": {
+      "args": {
+        "listall": "true",
+        "keyword": "SNAPPOL1493-32",
+        "snapshottype": "RECURRING",
+        "intervaltype": "DAILY",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 2,
+      "snapshots": [
+        {
+          "id": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+          "name": "SNAPPOL1493-32-fixed-DAILY",
+          "type": "DAILY"
+        },
+        {
+          "id": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+          "name": "SNAPPOL1493-32-legacy-DAILY",
+          "type": "DAILY"
+        }
+      ]
+    }
+  },
+  {
+    "name": "other-role-DAILY-empty",
+    "role": "other",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPPOL1493-32&snapshottype=RECURRING&intervaltype=DAILY&projectid=0&q=SNAPPOL1493-32&sortkey=created&sortorder=desc&page=1",
+    "rows": [],
+    "api": {
+      "args": {
+        "listall": "true",
+        "keyword": "SNAPPOL1493-32",
+        "snapshottype": "RECURRING",
+        "intervaltype": "DAILY",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 0,
+      "snapshots": []
+    }
+  },
+  {
+    "name": "cleanup-empty",
+    "role": "admin",
+    "url": "http://10.10.32.10:8080/client/#/snapshot?keyword=SNAPPOL1493-32&projectid=0&q=SNAPPOL1493-32&sortkey=created&sortorder=desc&page=1",
+    "rows": [],
+    "api": {
+      "args": {
+        "listall": "true",
+        "keyword": "SNAPPOL1493-32",
+        "sortkey": "created",
+        "sortorder": "desc",
+        "page": "1",
+        "pagesize": "20",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "http": 200,
+      "count": 0,
+      "snapshots": []
+    }
+  }
+]

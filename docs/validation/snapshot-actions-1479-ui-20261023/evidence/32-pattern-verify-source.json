@@ -1,0 +1,10 @@
+[
+  {
+    "volume": "226aee48-ee5c-47cb-bf79-fbc8349e4a07",
+    "scenario": "source",
+    "image": "rbd:rbd/226aee48-ee5c-47cb-bf79-fbc8349e4a07",
+    "phase": "verify",
+    "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (653.187 MiB/sec and 653.1875 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

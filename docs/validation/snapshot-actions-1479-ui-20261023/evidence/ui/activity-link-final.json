@@ -1,0 +1,12 @@
+{
+  "cluster31": {
+    "visible": true,
+    "events": true,
+    "alerts": true
+  },
+  "cluster32": {
+    "visible": true,
+    "events": true,
+    "alerts": true
+  }
+}

@@ -74,6 +74,7 @@ import org.apache.cloudstack.storage.command.browser.ListDataStoreObjectsCommand
 import org.apache.cloudstack.storage.configdrive.ConfigDrive;
 import org.apache.cloudstack.storage.configdrive.ConfigDriveBuilder;
 import org.apache.cloudstack.storage.formatinspector.Qcow2Inspector;
+import org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadata;
 import org.apache.cloudstack.storage.template.DownloadManager;
 import org.apache.cloudstack.storage.template.DownloadManagerImpl;
 import org.apache.cloudstack.storage.template.UploadEntity;
@@ -968,86 +969,78 @@ public class NfsSecondaryStorageResource extends ServerResourceBase implements S
         if (srcData.getHypervisorType() == HypervisorType.XenServer) {
             return copySnapshotToTemplateFromNfsToNfsXenserver(cmd, srcData, srcDataStore, destData, destDataStore);
         } else if (srcData.getHypervisorType() == HypervisorType.KVM) {
-            File srcFile = getFile(srcData.getPath(), srcDataStore.getUrl(), _nfsVersion);
+            File srcFile = getSnapshotImageFile(srcData.getPath(), srcDataStore.getUrl());
             File destFile = getFile(destData.getPath(), destDataStore.getUrl(), _nfsVersion);
 
-            VolumeObjectTO volumeObjectTO = srcData.getVolume();
-            ImageFormat srcFormat = null;
-            //TODO: the image format should be stored in snapshot table, instead of getting from volume
-            if (volumeObjectTO != null) {
-                srcFormat = volumeObjectTO.getFormat();
-            } else {
-                srcFormat = ImageFormat.QCOW2;
-            }
-
-            // get snapshot file name
-            String templateName = srcFile.getName();
-            // add kvm file extension for copied template name
-            String fileName = templateName + "." + srcFormat.getFileExtension();
-            String destFileFullPath = destFile.getAbsolutePath() + File.separator + fileName;
-            logger.debug("Copy Snapshot " + srcFile.getAbsolutePath() + " to Template " + destFileFullPath);
-            Script.runSimpleBashScript("cp " + srcFile.getAbsolutePath() + " " + destFileFullPath);
-            removeConvertedSnapshotIfNeeded(srcFile.getAbsolutePath());
-            String metaFileName = destFile.getAbsolutePath() + File.separator + _tmpltpp;
-            File metaFile = new File(metaFileName);
+            File copiedFile = null;
             try {
+                SnapshotImageMetadata source = inspectSnapshotImage(srcFile, srcData.getSize());
+                String fileName = srcFile.getName() + "." + source.getFormat().getFileExtension();
+                copiedFile = new File(destFile, fileName);
+                copySnapshotImage(srcFile, copiedFile);
+                SnapshotImageMetadata copied = inspectSnapshotImage(copiedFile, source.getVirtualSize());
+                if (copied.getFormat() != source.getFormat() || copied.getFileSize() != source.getFileSize()) {
+                    throw new IOException("Copied snapshot image metadata does not match the source");
+                }
                 _storage.create(destFile.getAbsolutePath(), _tmpltpp);
-                try ( // generate template.properties file
-                        FileWriter writer = new FileWriter(metaFile); BufferedWriter bufferWriter = new BufferedWriter(writer);) {
-                    // KVM didn't change template unique name, just used the template name passed from orchestration layer, so no need
-                    // to send template name back.
+                File metaFile = new File(destFile, _tmpltpp);
+                try (FileWriter writer = new FileWriter(metaFile); BufferedWriter bufferWriter = new BufferedWriter(writer)) {
                     bufferWriter.write("uniquename=" + destData.getName());
                     bufferWriter.write("\n");
                     bufferWriter.write("filename=" + fileName);
                 }
-                try {
-                    /**
-                     * Snapshots might be in either QCOW2 or RAW image format
-                     *
-                     * For example RBD snapshots are in RAW format
-                     */
-                    Processor processor = null;
-                    if (srcFormat == ImageFormat.QCOW2) {
-                        processor = new QCOW2Processor();
-                    } else if (srcFormat == ImageFormat.RAW) {
-                        processor = new RawImageProcessor();
-                    } else {
-                        throw new ConfigurationException("Unknown image format " + srcFormat.toString());
-                    }
-
-                    Map<String, Object> params = new HashMap<String, Object>();
-                    params.put(StorageLayer.InstanceConfigKey, _storage);
-
-                    processor.configure("template processor", params);
-                    String destPath = destFile.getAbsolutePath();
-
-                    FormatInfo info = processor.process(destPath, null, templateName);
-                    TemplateLocation loc = new TemplateLocation(_storage, destPath);
-                    loc.create(1, true, destData.getName());
-                    loc.addFormat(info);
-                    loc.save();
-
-                    TemplateProp prop = loc.getTemplateInfo();
-                    TemplateObjectTO newTemplate = new TemplateObjectTO();
-                    newTemplate.setPath(destData.getPath() + File.separator + fileName);
-                    newTemplate.setFormat(srcFormat);
-                    newTemplate.setSize(prop.getSize());
-                    newTemplate.setPhysicalSize(prop.getPhysicalSize());
-                    return new CopyCmdAnswer(newTemplate);
-                } catch (ConfigurationException e) {
-                    logger.debug("Failed to create Template:" + e.toString());
-                    return new CopyCmdAnswer(e.toString());
-                } catch (InternalErrorException e) {
-                    logger.debug("Failed to create Template:" + e.toString());
-                    return new CopyCmdAnswer(e.toString());
+                TemplateLocation loc = new TemplateLocation(_storage, destFile.getAbsolutePath());
+                loc.create(destData.getId(), true, destData.getName());
+                if (!loc.addFormat(copied.toFormatInfo(fileName)) || !loc.save()) {
+                    throw new IOException("Unable to persist verified snapshot template metadata");
                 }
-            } catch (IOException e) {
-                logger.debug("Failed to create Template:" + e.toString());
-                return new CopyCmdAnswer(e.toString());
+                TemplateObjectTO newTemplate = new TemplateObjectTO();
+                newTemplate.setPath(destData.getPath() + File.separator + fileName);
+                newTemplate.setFormat(copied.getFormat());
+                newTemplate.setSize(copied.getVirtualSize());
+                newTemplate.setPhysicalSize(copied.getFileSize());
+                removeConvertedSnapshotIfNeeded(srcFile.getAbsolutePath());
+                return new CopyCmdAnswer(newTemplate);
+            } catch (IOException | RuntimeException e) {
+                try {
+                    if (copiedFile != null) {
+                        Files.deleteIfExists(copiedFile.toPath());
+                        Files.deleteIfExists(new File(destFile, _tmpltpp).toPath());
+                    }
+                    // Remove only this attempt's empty target directory, never recursively.
+                    Files.deleteIfExists(destFile.toPath());
+                } catch (IOException cleanupError) {
+                    logger.warn("Unable to remove failed snapshot template copy", cleanupError);
+                }
+                logger.warn("Failed to create template from snapshot: " + e.getMessage(), e);
+                return new CopyCmdAnswer("Failed to create template from snapshot: " + e.getMessage());
             }
         }
 
         return new CopyCmdAnswer("");
+    }
+
+    protected SnapshotImageMetadata inspectSnapshotImage(File file, Long virtualSize) throws IOException {
+        return SnapshotImageMetadata.inspect(file, virtualSize);
+    }
+
+    protected File getSnapshotImageFile(String path, String storeUrl) {
+        String fullPath = getRootDir(storeUrl, _nfsVersion) + File.separator + path;
+        File existing = findFile(fullPath);
+        // Source lookup must never create a directory for a missing backup.
+        return existing == null ? new File(fullPath) : existing;
+    }
+
+    protected void copySnapshotImage(File source, File destination) throws IOException {
+        Script command = new Script("cp", _timeout, logger);
+        command.add("--sparse=always");
+        command.add("--");
+        command.add(source.getAbsolutePath());
+        command.add(destination.getAbsolutePath());
+        String error = command.execute();
+        if (error != null || !destination.isFile() || destination.length() != source.length()) {
+            throw new IOException("Snapshot image copy failed" + (error == null ? "" : ": " + error));
+        }
     }
 
     protected void removeConvertedSnapshotIfNeeded(String path) {

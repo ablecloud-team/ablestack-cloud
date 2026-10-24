@@ -1,0 +1,8 @@
+{
+  "files": 917,
+  "config": {
+    "/usr/share/cloudstack-management/webapp/config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13",
+    "/usr/share/cloudstack-management/webapp/WEB-INF/web.xml": "04772d62c28054b1947a84e7b83f2f7c0ab343dc457f0b5e730a631d2ef08c25"
+  },
+  "verified": true
+}

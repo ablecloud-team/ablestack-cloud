@@ -1,0 +1,34 @@
+[
+  {
+    "kind": "createSnapshot",
+    "jobid": "5f3e5900-9f94-4dfa-a1b7-273707a9d3ec",
+    "jobRows": 1,
+    "resource": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "createVolume",
+    "jobid": "97863839-0c39-49b2-80b3-8b5745987575",
+    "jobRows": 1,
+    "resource": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "createTemplate",
+    "jobid": "466ed3a4-1dd2-492d-af0e-694521b16756",
+    "jobRows": 1,
+    "resource": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+    "jobStatus": 1,
+    "resourceRows": 1
+  },
+  {
+    "kind": "UI socket drop/F5",
+    "jobid": "aba6faed-9336-4bd6-96c5-a51fab95259f",
+    "jobRows": 1,
+    "resource": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+    "jobStatus": 1,
+    "resourceRows": 1
+  }
+]

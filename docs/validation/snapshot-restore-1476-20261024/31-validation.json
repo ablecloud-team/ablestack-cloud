@@ -1,0 +1,1379 @@
+{
+  "baseline": {
+    "requestedGiB": 2,
+    "finalSize": 1073741824,
+    "volumeid": "f74bd0fd-f71a-4c17-9f4e-456c8c88dca2"
+  },
+  "contexts": [
+    {
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": false,
+        "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "createreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "restore": {
+          "size": 1073741824,
+          "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+          "diskofferingname": "Custom-GFS-Sparse",
+          "available": true
+        }
+      },
+      "id": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "46717301-6039-4dc0-b9be-2601973575ec",
+      "volumename": "SNAPR1476-31-custom",
+      "volumetype": "DATADISK",
+      "volumestate": "Expunged",
+      "created": "2026-10-24T11:14:54+0900",
+      "name": "SNAPR1476-31-custom",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 2490368,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "revertable": false,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false
+    },
+    {
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": false,
+        "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "createreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "restore": {
+          "size": 1073741824,
+          "diskofferingid": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+          "diskofferingname": "SNAPR1476-31-fixed-1GiB",
+          "available": true
+        }
+      },
+      "id": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "9c8df640-4dd0-4aa6-b453-8a0c435d1eac",
+      "volumename": "SNAPR1476-31-fixed",
+      "volumetype": "DATADISK",
+      "volumestate": "Expunged",
+      "created": "2026-10-24T11:14:55+0900",
+      "name": "SNAPR1476-31-fixed",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 2490368,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "revertable": false,
+      "virtualsize": 1073741824,
+      "tags": [],
+      "hasannotations": false
+    },
+    {
+      "snapshotcontext": {
+        "version": 1,
+        "sourceavailable": false,
+        "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "createreason": "SOURCE_VOLUME_UNAVAILABLE",
+        "restore": {
+          "size": 107374182400,
+          "diskofferingid": "e44f9baa-0352-4cb6-818d-79c6eeb285a6",
+          "diskofferingname": "AS-PROD-31-AS01-2C2G-Sparse",
+          "available": true
+        }
+      },
+      "id": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+      "account": "admin",
+      "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+      "domain": "ROOT",
+      "domainpath": "ROOT",
+      "volumeid": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+      "volumename": "ROOT-763",
+      "volumetype": "ROOT",
+      "volumestate": "Expunged",
+      "created": "2026-10-24T11:15:36+0900",
+      "name": "SNAPR1476-31-root",
+      "intervaltype": "MANUAL",
+      "state": "BackedUp",
+      "physicalsize": 2419720192,
+      "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "zonename": "Zone",
+      "revertable": false,
+      "ostypeid": "9708b6ac-b253-11f1-a895-0024814c313f",
+      "virtualsize": 107374182400,
+      "tags": [],
+      "hasannotations": false
+    }
+  ],
+  "sourceAbsence": [
+    {
+      "snapshot": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+      "sourcePath": "9c8df640-4dd0-4aa6-b453-8a0c435d1eac",
+      "DBRemoved": true,
+      "physicalPresent": false
+    },
+    {
+      "snapshot": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+      "sourcePath": "46717301-6039-4dc0-b9be-2601973575ec",
+      "DBRemoved": true,
+      "physicalPresent": false
+    },
+    {
+      "snapshot": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+      "sourcePath": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+      "DBRemoved": true,
+      "physicalPresent": false
+    }
+  ],
+  "negatives": [
+    {
+      "scenario": "mismatch",
+      "args": {
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "size": 2
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Snapshot restore preserves snapshot size; resize the restored volume separately\"}"
+    },
+    {
+      "scenario": "zero",
+      "args": {
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "size": 0
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Snapshot restore preserves snapshot size; resize the restored volume separately\"}"
+    },
+    {
+      "scenario": "negative",
+      "args": {
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "size": -1
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Snapshot restore preserves snapshot size; resize the restored volume separately\"}"
+    },
+    {
+      "scenario": "iops",
+      "args": {
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "miniops": 100
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Snapshot restore inherits IOPS; do not specify IOPS without a disk offering\"}"
+    },
+    {
+      "scenario": "data-offering",
+      "args": {
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "diskofferingid": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279"
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Disk Offering ID cannot be passed whilst creating volume from snapshot other than ROOT disk snapshots\"}"
+    },
+    {
+      "scenario": "root-fixed-mismatch",
+      "args": {
+        "snapshotid": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "diskofferingid": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279"
+      },
+      "rejected": true,
+      "reason": "{\"uuidList\":[],\"errorcode\":431,\"cserrorcode\":4350,\"errortext\":\"Disk offering size must equal snapshot size for restore; resize the restored volume separately\"}"
+    }
+  ],
+  "db": {
+    "snapshots": [
+      {
+        "id": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "name": "SNAPR1476-31-fixed",
+        "path": "9c8df640-4dd0-4aa6-b453-8a0c435d1eac",
+        "size": 1073741824,
+        "status": "BackedUp",
+        "maxiops": null,
+        "miniops": null,
+        "offering": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+        "offeringId": 278,
+        "sourceSize": 1073741824,
+        "sourceState": "Expunged",
+        "offeringName": "SNAPR1476-31-fixed-1GiB",
+        "sourceRemoved": "2026-10-24 02:21:44.000000"
+      },
+      {
+        "id": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "name": "SNAPR1476-31-custom",
+        "path": "46717301-6039-4dc0-b9be-2601973575ec",
+        "size": 1073741824,
+        "status": "BackedUp",
+        "maxiops": null,
+        "miniops": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringId": 19,
+        "sourceSize": 2147483648,
+        "sourceState": "Expunged",
+        "offeringName": "Custom-GFS-Sparse",
+        "sourceRemoved": "2026-10-24 02:21:44.000000"
+      },
+      {
+        "id": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "name": "SNAPR1476-31-root",
+        "path": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+        "size": 107374182400,
+        "status": "BackedUp",
+        "maxiops": null,
+        "miniops": null,
+        "offering": "e44f9baa-0352-4cb6-818d-79c6eeb285a6",
+        "offeringId": 28,
+        "sourceSize": 107374182400,
+        "sourceState": "Expunged",
+        "offeringName": "AS-PROD-31-AS01-2C2G-Sparse",
+        "sourceRemoved": "2026-10-24 02:21:52.000000"
+      }
+    ],
+    "volumes": [
+      {
+        "id": "1d091c5d-d495-4b9f-ade4-390a7f6e47cf",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "path": "07a187cf-35d0-4d48-930f-1bde76567f71",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+        "offeringName": "SNAPR1476-31-fixed-1GiB"
+      },
+      {
+        "id": "3a752354-eaf6-4abe-8a98-dab073f3b3e9",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "path": null,
+        "size": 1073741824,
+        "state": "Destroy",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+        "offeringName": "SNAPR1476-31-fixed-1GiB"
+      },
+      {
+        "id": "3b518658-5fbf-4a51-b9c3-ec6deb66810d",
+        "name": "SNAPR1476-31-restore-custom",
+        "path": "0349ca49-465c-4c35-9316-71d1454deab2",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringName": "Custom-GFS-Sparse"
+      },
+      {
+        "id": "46717301-6039-4dc0-b9be-2601973575ec",
+        "name": "SNAPR1476-31-custom",
+        "path": "46717301-6039-4dc0-b9be-2601973575ec",
+        "size": 2147483648,
+        "state": "Expunged",
+        "maxiops": null,
+        "miniops": null,
+        "removed": "2026-10-24 02:21:44.000000",
+        "instance": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringName": "Custom-GFS-Sparse"
+      },
+      {
+        "id": "4b4cf60e-8980-4910-a806-0ef155f81851",
+        "name": "SNAPR1476-31-restore-fixed",
+        "path": "51ecdad5-0493-495f-969a-d71b384dedc8",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+        "offeringName": "SNAPR1476-31-fixed-1GiB"
+      },
+      {
+        "id": "9c8df640-4dd0-4aa6-b453-8a0c435d1eac",
+        "name": "SNAPR1476-31-fixed",
+        "path": "9c8df640-4dd0-4aa6-b453-8a0c435d1eac",
+        "size": 1073741824,
+        "state": "Expunged",
+        "maxiops": null,
+        "miniops": null,
+        "removed": "2026-10-24 02:21:44.000000",
+        "instance": null,
+        "offering": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+        "offeringName": "SNAPR1476-31-fixed-1GiB"
+      },
+      {
+        "id": "c83f2627-6850-4da2-9a47-c92b0c727a5b",
+        "name": "SNAPR1476-31-restore-matching-size",
+        "path": "4571ba2e-534d-4b3e-9f24-d380332cc95a",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringName": "Custom-GFS-Sparse"
+      },
+      {
+        "id": "c9ef864c-987d-4d7c-9e62-ccf89ebb2a06",
+        "name": "SNAPR1476-31-restore-custom-ui",
+        "path": "e8e45465-0457-4be9-adcb-4fb2c50188de",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringName": "Custom-GFS-Sparse"
+      },
+      {
+        "id": "ca9dfa38-87a7-4249-bf50-c9f5f5b1de69",
+        "name": "SNAPR1476-31-restore-root-ui",
+        "path": "6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+        "size": 107374182400,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "e44f9baa-0352-4cb6-818d-79c6eeb285a6",
+        "offeringName": "AS-PROD-31-AS01-2C2G-Sparse"
+      },
+      {
+        "id": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+        "name": "ROOT-763",
+        "path": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+        "size": 107374182400,
+        "state": "Expunged",
+        "maxiops": null,
+        "miniops": null,
+        "removed": "2026-10-24 02:21:52.000000",
+        "instance": 763,
+        "offering": "e44f9baa-0352-4cb6-818d-79c6eeb285a6",
+        "offeringName": "AS-PROD-31-AS01-2C2G-Sparse"
+      },
+      {
+        "id": "f74bd0fd-f71a-4c17-9f4e-456c8c88dca2",
+        "name": "SNAPR1476-31-restore-baseline",
+        "path": "7b63e775-29ba-4d2f-9fe1-18f14b43a590",
+        "size": 1073741824,
+        "state": "Ready",
+        "maxiops": null,
+        "miniops": null,
+        "removed": null,
+        "instance": null,
+        "offering": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+        "offeringName": "Custom-GFS-Sparse"
+      }
+    ],
+    "refs": [
+      {
+        "path": "snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89",
+        "role": "Image",
+        "state": "Ready",
+        "snapshot": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "snapshotName": "SNAPR1476-31-fixed"
+      },
+      {
+        "path": "snapshots/2/1014/e420a463-b84f-4da1-827f-460c39baf9e6",
+        "role": "Image",
+        "state": "Ready",
+        "snapshot": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "snapshotName": "SNAPR1476-31-custom"
+      },
+      {
+        "path": "snapshots/2/1016/ed07c1d4-cbb2-43f2-85ef-884020df4441",
+        "role": "Image",
+        "state": "Ready",
+        "snapshot": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "snapshotName": "SNAPR1476-31-root"
+      }
+    ]
+  },
+  "physical": [
+    {
+      "id": 1017,
+      "name": "SNAPR1476-31-restore-baseline",
+      "path": "7b63e775-29ba-4d2f-9fe1-18f14b43a590",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "f74bd0fd-f71a-4c17-9f4e-456c8c88dca2",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 19,
+      "scenario": "restore-baseline",
+      "image": "/mnt/glue-gfs/7b63e775-29ba-4d2f-9fe1-18f14b43a590",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/7b63e775-29ba-4d2f-9fe1-18f14b43a590",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/7b63e775-29ba-4d2f-9fe1-18f14b43a590",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.560 GiB/sec and 2621.8849 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.552 GiB/sec and 2613.7368 ops/sec)"
+    },
+    {
+      "id": 1018,
+      "name": "SNAPR1476-31-restore-matching-size",
+      "path": "4571ba2e-534d-4b3e-9f24-d380332cc95a",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "c83f2627-6850-4da2-9a47-c92b0c727a5b",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 19,
+      "scenario": "restore-matching-size",
+      "image": "/mnt/glue-gfs/4571ba2e-534d-4b3e-9f24-d380332cc95a",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/4571ba2e-534d-4b3e-9f24-d380332cc95a",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/4571ba2e-534d-4b3e-9f24-d380332cc95a",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (1.993 GiB/sec and 2040.4624 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.061 GiB/sec and 2110.1365 ops/sec)"
+    },
+    {
+      "id": 1019,
+      "name": "SNAPR1476-31-restore-custom",
+      "path": "0349ca49-465c-4c35-9316-71d1454deab2",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "3b518658-5fbf-4a51-b9c3-ec6deb66810d",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 19,
+      "scenario": "restore-custom",
+      "image": "/mnt/glue-gfs/0349ca49-465c-4c35-9316-71d1454deab2",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/0349ca49-465c-4c35-9316-71d1454deab2",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/0349ca49-465c-4c35-9316-71d1454deab2",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.108 GiB/sec and 2158.9506 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.114 GiB/sec and 2164.4459 ops/sec)"
+    },
+    {
+      "id": 1020,
+      "name": "SNAPR1476-31-restore-fixed",
+      "path": "51ecdad5-0493-495f-969a-d71b384dedc8",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "4b4cf60e-8980-4910-a806-0ef155f81851",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 278,
+      "scenario": "restore-fixed",
+      "image": "/mnt/glue-gfs/51ecdad5-0493-495f-969a-d71b384dedc8",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/51ecdad5-0493-495f-969a-d71b384dedc8",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/51ecdad5-0493-495f-969a-d71b384dedc8",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.273 GiB/sec and 2327.4867 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.040 GiB/sec and 2089.1219 ops/sec)"
+    },
+    {
+      "id": 1021,
+      "name": "SNAPR1476-31-restore-fixed-ui",
+      "path": null,
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "3a752354-eaf6-4abe-8a98-dab073f3b3e9",
+      "state": "Destroy",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 278,
+      "scenario": "restore-fixed-ui",
+      "failedAttempt": true
+    },
+    {
+      "id": 1022,
+      "name": "SNAPR1476-31-restore-fixed-ui",
+      "path": "07a187cf-35d0-4d48-930f-1bde76567f71",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "1d091c5d-d495-4b9f-ade4-390a7f6e47cf",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 278,
+      "scenario": "restore-fixed-ui",
+      "image": "/mnt/glue-gfs/07a187cf-35d0-4d48-930f-1bde76567f71",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/07a187cf-35d0-4d48-930f-1bde76567f71",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/07a187cf-35d0-4d48-930f-1bde76567f71",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (2.288 GiB/sec and 2342.6775 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.233 GiB/sec and 2286.4146 ops/sec)"
+    },
+    {
+      "id": 1023,
+      "name": "SNAPR1476-31-restore-root-ui",
+      "path": "6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+      "pool": 1,
+      "size": 107374182400,
+      "uuid": "ca9dfa38-87a7-4249-bf50-c9f5f5b1de69",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 28,
+      "scenario": "restore-root",
+      "image": "/mnt/glue-gfs/6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2419720192,
+              "filename": "/mnt/glue-gfs/6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+              "format": "file",
+              "actual-size": 2424434688,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 107374182400,
+        "filename": "/mnt/glue-gfs/6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2424434688,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      }
+    },
+    {
+      "id": 1024,
+      "name": "SNAPR1476-31-restore-custom-ui",
+      "path": "e8e45465-0457-4be9-adcb-4fb2c50188de",
+      "pool": 1,
+      "size": 1073741824,
+      "uuid": "c9ef864c-987d-4d7c-9e62-ccf89ebb2a06",
+      "state": "Ready",
+      "maxiops": null,
+      "miniops": null,
+      "removed": null,
+      "instance": null,
+      "offering": 19,
+      "scenario": "restore-custom-ui",
+      "image": "/mnt/glue-gfs/e8e45465-0457-4be9-adcb-4fb2c50188de",
+      "physical": {
+        "children": [
+          {
+            "name": "file",
+            "info": {
+              "children": [],
+              "virtual-size": 2490368,
+              "filename": "/mnt/glue-gfs/e8e45465-0457-4be9-adcb-4fb2c50188de",
+              "format": "file",
+              "actual-size": 2445312,
+              "format-specific": {
+                "type": "file",
+                "data": {}
+              },
+              "dirty-flag": false
+            }
+          }
+        ],
+        "virtual-size": 1073741824,
+        "filename": "/mnt/glue-gfs/e8e45465-0457-4be9-adcb-4fb2c50188de",
+        "cluster-size": 65536,
+        "format": "qcow2",
+        "actual-size": 2445312,
+        "format-specific": {
+          "type": "qcow2",
+          "data": {
+            "compat": "1.1",
+            "compression-type": "zlib",
+            "lazy-refcounts": false,
+            "refcount-bits": 16,
+            "corrupt": false,
+            "extended-l2": false
+          }
+        },
+        "dirty-flag": false
+      },
+      "patterns": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (576.365 MiB/sec and 576.3649 ops/sec)\nread 1048576/1048576 bytes at offset 1072693248\n1 MiB, 1 ops; 00.00 sec (2.742 GiB/sec and 2807.6086 ops/sec)"
+    }
+  ],
+  "rootBefore": [
+    {
+      "id": "d3457cca-9e0b-4d17-b8ba-83fe72a27631",
+      "size": 107374182400,
+      "sha256": "5bdc01a0b4777027d88b31621ae426d59e177ffd7dd9fc74b613cdeb93c28fb0",
+      "logicalFullImage": true
+    }
+  ],
+  "rootAfter": [
+    {
+      "id": "ca9dfa38-87a7-4249-bf50-c9f5f5b1de69",
+      "size": 107374182400,
+      "sha256": "5bdc01a0b4777027d88b31621ae426d59e177ffd7dd9fc74b613cdeb93c28fb0",
+      "logicalFullImage": true
+    }
+  ],
+  "uiNetwork": [
+    {
+      "requestId": "26904.1449",
+      "args": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "customjobid": "aaf0e6a0-3761-403d-8561-cfdb3146215f"
+      }
+    },
+    {
+      "requestId": "26904.1471",
+      "args": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "customjobid": "f96c4b0b-1334-42aa-bc36-775466776909"
+      }
+    },
+    {
+      "requestId": "26904.1502",
+      "args": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-root-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "customjobid": "e29ef780-7867-4a3c-b7b4-3a550eb15080"
+      }
+    },
+    {
+      "requestId": "26904.2259",
+      "args": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-custom-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "customjobid": "df5386ff-e27a-49fd-9e1f-b1ac4783f12a"
+      }
+    }
+  ],
+  "uiJobs": [
+    {
+      "request": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "customjobid": "aaf0e6a0-3761-403d-8561-cfdb3146215f"
+      },
+      "result": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 530,
+        "jobresulttype": "object",
+        "jobresult": {
+          "errorcode": 530,
+          "errortext": "Failed to create volume: Volume {\"id\":1021,\"instanceId\":null,\"name\":\"SNAPR1476-31-restore-fixed-ui\",\"uuid\":\"3a752354-eaf6-4abe-8a98-dab073f3b3e9\",\"volumeType\":\"DATADISK\"}"
+        },
+        "jobinstancetype": "Volume",
+        "jobinstanceid": "3a752354-eaf6-4abe-8a98-dab073f3b3e9",
+        "created": "2026-10-24T11:33:00+0900",
+        "completed": "2026-10-24T11:33:01+0900",
+        "jobid": "aaf0e6a0-3761-403d-8561-cfdb3146215f",
+        "jobstatus": 2
+      }
+    },
+    {
+      "request": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-fixed-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "customjobid": "f96c4b0b-1334-42aa-bc36-775466776909"
+      },
+      "result": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "volume": {
+            "volumemutationblockedreason": "",
+            "allocation": {
+              "fixedpolicy": "unknown",
+              "actualformat": "qcow2",
+              "evidence": "unverified",
+              "contractversion": "legacy",
+              "effectivepolicy": "unknown",
+              "requestedformat": "unspecified",
+              "requestedpolicy": "sparse",
+              "appliedmethod": "unknown",
+              "policyorigin": "legacy"
+            },
+            "id": "1d091c5d-d495-4b9f-ade4-390a7f6e47cf",
+            "name": "SNAPR1476-31-restore-fixed-ui",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "type": "DATADISK",
+            "provisioningtype": "sparse",
+            "size": 1073741824,
+            "created": "2026-10-24T11:33:49+0900",
+            "state": "Ready",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "storagetype": "shared",
+            "hypervisor": "KVM",
+            "diskofferingid": "82bd4c0d-cf7a-48c1-ab1c-80ada5d45279",
+            "diskofferingname": "SNAPR1476-31-fixed-1GiB",
+            "diskofferingdisplaytext": "SNAPR1476-31 fixed 1GiB",
+            "storage": "Primary",
+            "snapshotid": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+            "destroyed": false,
+            "isextractable": true,
+            "displayvolume": true,
+            "path": "07a187cf-35d0-4d48-930f-1bde76567f71",
+            "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "quiescevm": false,
+            "supportsstoragesnapshot": false,
+            "deleteprotection": false,
+            "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+            "clustername": "Cluster",
+            "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+            "podname": "Pod",
+            "kvdoenable": false,
+            "compress": false,
+            "dedup": false,
+            "tags": [],
+            "hasannotations": false,
+            "jobid": "f96c4b0b-1334-42aa-bc36-775466776909",
+            "jobstatus": 0
+          }
+        },
+        "jobinstancetype": "Volume",
+        "jobinstanceid": "1d091c5d-d495-4b9f-ade4-390a7f6e47cf",
+        "created": "2026-10-24T11:33:49+0900",
+        "completed": "2026-10-24T11:33:49+0900",
+        "jobid": "f96c4b0b-1334-42aa-bc36-775466776909",
+        "jobstatus": 1
+      }
+    },
+    {
+      "request": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-root-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "customjobid": "e29ef780-7867-4a3c-b7b4-3a550eb15080"
+      },
+      "result": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "volume": {
+            "volumemutationblockedreason": "",
+            "allocation": {
+              "fixedpolicy": "unknown",
+              "actualformat": "qcow2",
+              "evidence": "unverified",
+              "contractversion": "legacy",
+              "effectivepolicy": "unknown",
+              "requestedformat": "unspecified",
+              "requestedpolicy": "sparse",
+              "appliedmethod": "unknown",
+              "policyorigin": "legacy"
+            },
+            "id": "ca9dfa38-87a7-4249-bf50-c9f5f5b1de69",
+            "name": "SNAPR1476-31-restore-root-ui",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "type": "DATADISK",
+            "templateid": "83232fe8-c0bd-4ed3-b29e-5ae054a3ee02",
+            "templatename": "nginx-lb-test.qcow2",
+            "templatedisplaytext": "nginx-lb-test.qcow2",
+            "provisioningtype": "sparse",
+            "size": 107374182400,
+            "created": "2026-10-24T11:34:10+0900",
+            "state": "Ready",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "storagetype": "shared",
+            "hypervisor": "KVM",
+            "storage": "Primary",
+            "snapshotid": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+            "destroyed": false,
+            "serviceofferingid": "32",
+            "serviceofferingname": "AS-PROD-31-AS01-2C2G-Sparse",
+            "serviceofferingdisplaytext": "AS-PROD-31-AS01 GFS2 Sparse 고정 2CPU 2GiB",
+            "isextractable": true,
+            "displayvolume": true,
+            "path": "6c0bc14c-e1d5-4e54-8c7d-23f67a268561",
+            "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "quiescevm": false,
+            "supportsstoragesnapshot": false,
+            "deleteprotection": false,
+            "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+            "clustername": "Cluster",
+            "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+            "podname": "Pod",
+            "kvdoenable": false,
+            "compress": false,
+            "dedup": false,
+            "tags": [],
+            "hasannotations": false,
+            "jobid": "e29ef780-7867-4a3c-b7b4-3a550eb15080",
+            "jobstatus": 0
+          }
+        },
+        "jobinstancetype": "Volume",
+        "jobinstanceid": "ca9dfa38-87a7-4249-bf50-c9f5f5b1de69",
+        "created": "2026-10-24T11:34:10+0900",
+        "completed": "2026-10-24T11:34:12+0900",
+        "jobid": "e29ef780-7867-4a3c-b7b4-3a550eb15080",
+        "jobstatus": 1
+      }
+    },
+    {
+      "request": {
+        "command": "createVolume",
+        "name": "SNAPR1476-31-restore-custom-ui",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "customjobid": "df5386ff-e27a-49fd-9e1f-b1ac4783f12a"
+      },
+      "result": {
+        "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "domainpath": "ROOT",
+        "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+        "cmd": "org.apache.cloudstack.api.command.admin.volume.CreateVolumeCmdByAdmin",
+        "jobprocstatus": 0,
+        "jobresultcode": 0,
+        "jobresulttype": "object",
+        "jobresult": {
+          "volume": {
+            "volumemutationblockedreason": "",
+            "allocation": {
+              "fixedpolicy": "unknown",
+              "actualformat": "qcow2",
+              "evidence": "unverified",
+              "contractversion": "legacy",
+              "effectivepolicy": "unknown",
+              "requestedformat": "unspecified",
+              "requestedpolicy": "sparse",
+              "appliedmethod": "unknown",
+              "policyorigin": "legacy"
+            },
+            "id": "c9ef864c-987d-4d7c-9e62-ccf89ebb2a06",
+            "name": "SNAPR1476-31-restore-custom-ui",
+            "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c",
+            "zonename": "Zone",
+            "type": "DATADISK",
+            "provisioningtype": "sparse",
+            "size": 1073741824,
+            "created": "2026-10-24T11:41:00+0900",
+            "state": "Ready",
+            "account": "admin",
+            "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+            "domain": "ROOT",
+            "domainpath": "ROOT",
+            "storagetype": "shared",
+            "cachemode": "none",
+            "hypervisor": "KVM",
+            "diskofferingid": "38256099-fac8-4d33-a0ed-81b37a1b2b15",
+            "diskofferingname": "Custom-GFS-Sparse",
+            "diskofferingdisplaytext": "Custom-GFS-Sparse",
+            "storage": "Primary",
+            "snapshotid": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+            "destroyed": false,
+            "isextractable": true,
+            "displayvolume": true,
+            "path": "e8e45465-0457-4be9-adcb-4fb2c50188de",
+            "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0",
+            "quiescevm": false,
+            "supportsstoragesnapshot": false,
+            "deleteprotection": false,
+            "clusterid": "0d3d50e7-3cb5-4adf-8507-955bc81cc4a5",
+            "clustername": "Cluster",
+            "podid": "2a9760c6-795d-48fc-bca1-77037c541279",
+            "podname": "Pod",
+            "kvdoenable": false,
+            "compress": false,
+            "dedup": false,
+            "tags": [],
+            "hasannotations": false,
+            "jobid": "df5386ff-e27a-49fd-9e1f-b1ac4783f12a",
+            "jobstatus": 0
+          }
+        },
+        "jobinstancetype": "Volume",
+        "jobinstanceid": "c9ef864c-987d-4d7c-9e62-ccf89ebb2a06",
+        "created": "2026-10-24T11:41:00+0900",
+        "completed": "2026-10-24T11:41:00+0900",
+        "jobid": "df5386ff-e27a-49fd-9e1f-b1ac4783f12a",
+        "jobstatus": 1
+      }
+    }
+  ],
+  "injectionHide": {
+    "phase": "hide",
+    "path": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89",
+    "backup": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89.1476-hidden",
+    "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "originalPresent": false,
+    "backupPresent": true
+  },
+  "injectionRestore": {
+    "phase": "restore",
+    "path": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89",
+    "backup": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89.1476-hidden",
+    "sha256": "58435c72d55dfea951aca5bdf87eb742190ec7257d43dce0f7e6688980c32a7f",
+    "originalPresent": true,
+    "backupPresent": false
+  },
+  "anonymous": {
+    "status": 401,
+    "data": {
+      "createvolumeresponse": {
+        "uuidList": [],
+        "errorcode": 401,
+        "errortext": "unable to verify user credentials and/or request signature"
+      }
+    }
+  },
+  "final": {
+    "snapshots": 0,
+    "volumes": 0,
+    "vms": 0,
+    "references": 0,
+    "offerings": 0,
+    "offeringHistory": [
+      {
+        "name": "SNAPR1476-31-fixed-1GiB",
+        "state": "Inactive",
+        "removed": null
+      }
+    ],
+    "secondary": [
+      {
+        "path": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1014/e420a463-b84f-4da1-827f-460c39baf9e6",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1016/ed07c1d4-cbb2-43f2-85ef-884020df4441",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1015/06b9c3aa-e87e-4e37-8422-60132eddbc89.1476-hidden",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1014/e420a463-b84f-4da1-827f-460c39baf9e6.1476-hidden",
+        "exists": false
+      },
+      {
+        "path": "/nfs/secondary/snapshots/2/1016/ed07c1d4-cbb2-43f2-85ef-884020df4441.1476-hidden",
+        "exists": false
+      }
+    ],
+    "primary": [],
+    "trash": [],
+    "domains": {
+      "1": [],
+      "2": [],
+      "3": []
+    },
+    "tempFiles": {
+      "1": [
+        {
+          "path": "/var/tmp/SNAPR1476-31-root-before.raw",
+          "exists": false
+        },
+        {
+          "path": "/var/tmp/SNAPR1476-31-root-after.raw",
+          "exists": false
+        }
+      ]
+    },
+    "usage": [
+      {
+        "id": "e8f440cb-eb13-48fc-8b03-40d4b819b255",
+        "count": 1
+      },
+      {
+        "id": "a30c036f-8e6c-43b1-9dde-4d81e7035277",
+        "count": 1
+      },
+      {
+        "id": "c2f08239-efd8-4dcc-85a6-af0d6ba8cb53",
+        "count": 1
+      }
+    ]
+  },
+  "preservation": {
+    "cluster": "31",
+    "fixtureActive": [
+      {
+        "command": "listVolumes",
+        "count": 0
+      },
+      {
+        "command": "listSnapshots",
+        "count": 0
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 0
+      },
+      {
+        "command": "listTemplates",
+        "count": 0
+      },
+      {
+        "command": "listDiskOfferings",
+        "count": 0
+      }
+    ],
+    "preserved": [
+      {
+        "command": "listVolumes",
+        "count": 155,
+        "sha256": "873801360fe8601c1c34c88d14041d42111d9b1fe96b1df101faea38e8a7b37d",
+        "unchanged": true
+      },
+      {
+        "command": "listSnapshots",
+        "count": 23,
+        "sha256": "c315fafe7b43a279882ad1f6e528d31d8622ff514b20a8827f922e56b90e535d",
+        "unchanged": true
+      },
+      {
+        "command": "listVirtualMachines",
+        "count": 116,
+        "sha256": "fbf44c31c054d8c28ce76dfeba891872f7914f735b444fa8d0e43393a8ab1965",
+        "unchanged": true
+      },
+      {
+        "command": "listTemplates",
+        "count": 11,
+        "sha256": "dde8319c788afe9c5bb2c85847f0258e0b7dcdda00eebac5c917ad5cf4ffa8d4",
+        "unchanged": true
+      },
+      {
+        "command": "listDiskOfferings",
+        "count": 10,
+        "sha256": "674726be91b16c99a1d1131668ff2a1726e86566be963bdf6f701c442ae98f52",
+        "unchanged": true
+      }
+    ],
+    "status": "PASS"
+  },
+  "runtime": {
+    "classes": [
+      {
+        "path": "com/cloud/storage/VolumeApiServiceImpl.class",
+        "expected": "b61bad134c81fa8e292b48a949523ede226321c6125a87c9f8adc0fe9c422f03",
+        "actual": "b61bad134c81fa8e292b48a949523ede226321c6125a87c9f8adc0fe9c422f03"
+      },
+      {
+        "path": "com/cloud/storage/snapshot/SnapshotRestoreContract.class",
+        "expected": "150e1e23bd7ce08f9c4c3a6868adec7790180f13789f37c11c47aa766539a710",
+        "actual": "150e1e23bd7ce08f9c4c3a6868adec7790180f13789f37c11c47aa766539a710"
+      },
+      {
+        "path": "com/cloud/api/query/QueryManagerImpl.class",
+        "expected": "d06cd82871c0d3c40fc8d7ca49df8f94d670394479e7791b40f63efe39fcf006",
+        "actual": "d06cd82871c0d3c40fc8d7ca49df8f94d670394479e7791b40f63efe39fcf006"
+      },
+      {
+        "path": "org/apache/cloudstack/api/command/user/volume/CreateVolumeCmd.class",
+        "expected": "b3484eb01c5074ffeddf87de9fe200f489178aaab1401f1c706ce2ac64e82cf7",
+        "actual": "b3484eb01c5074ffeddf87de9fe200f489178aaab1401f1c706ce2ac64e82cf7"
+      },
+      {
+        "path": "com/cloud/api/ApiResponseHelper.class",
+        "expected": "34ee34e456c789eea126c9b5f28be867764a96a822f3caed762cccf2190afeb1",
+        "actual": "34ee34e456c789eea126c9b5f28be867764a96a822f3caed762cccf2190afeb1"
+      },
+      {
+        "path": "com/cloud/api/query/dao/SnapshotJoinDaoImpl.class",
+        "expected": "35c1b24826a0c23b222bfe5f5457630c5b25c9b717f7885f42727f4fc4dbfce8",
+        "actual": "35c1b24826a0c23b222bfe5f5457630c5b25c9b717f7885f42727f4fc4dbfce8"
+      }
+    ],
+    "staticFiles": 921,
+    "staticVerified": true,
+    "webInf": true,
+    "protectedServerFiles": 1,
+    "configPreserved": true,
+    "service": "active",
+    "http": 200
+  },
+  "ready": {
+    "http": 200,
+    "hosts": [
+      {
+        "id": "159baf9a-89ad-4a94-91dc-e7395a670bf4",
+        "name": "ablecube31-1",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "3fb147f3-aea4-4f65-b8c6-e7192ea26138",
+        "name": "ablecube31-2",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "384871b9-7c75-4717-a673-e96a76abeb71",
+        "name": "ablecube31-3",
+        "state": "Up",
+        "type": "Routing"
+      },
+      {
+        "id": "f033b2c7-a023-4ae1-a397-bb0e823ec4a1",
+        "name": "v-174-VM",
+        "state": "Up",
+        "type": "ConsoleProxy"
+      },
+      {
+        "id": "21d8be40-391b-498b-aed5-a735562cae22",
+        "name": "s-173-VM",
+        "state": "Up",
+        "type": "SecondaryStorageVM"
+      }
+    ]
+  }
+}

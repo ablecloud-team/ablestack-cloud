@@ -1,0 +1,21 @@
+{
+  "dialogs": [
+    {
+      "bodyOverflow": false,
+      "class": "ant-modal mold-dialog",
+      "width": 801
+    }
+  ],
+  "focus": null,
+  "height": 720,
+  "oldPanels": 0,
+  "overflow": false,
+  "tabs": [
+    {
+      "width": 70.640625,
+      "x": 582.328125,
+      "y": 287
+    }
+  ],
+  "width": 1280
+}

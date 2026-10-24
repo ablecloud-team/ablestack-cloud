@@ -1,0 +1,17 @@
+{
+  "args": {
+    "listall": "true",
+    "keyword": "SNAPORD1482-31",
+    "account": "SNAPORD1482-31-owner",
+    "domainid": "aa1d06d2-6298-40ba-90cc-31c531f972a3",
+    "sortkey": "name",
+    "sortorder": "asc",
+    "page": "999",
+    "pagesize": "20",
+    "command": "listSnapshots",
+    "response": "json"
+  },
+  "count": 24,
+  "rows": [],
+  "clampedPage": "2"
+}

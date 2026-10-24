@@ -58,6 +58,7 @@
 
 import { getAPI } from '@/api'
 import { affinityPolicy } from '@/utils/affinityGroupPresentation'
+import { snapshotSearchLabel, snapshotSearchValue, snapshotPickerScope } from '@/utils/storageSnapshotSearch'
 
 export default {
   name: 'SearchFilter',
@@ -214,6 +215,7 @@ export default {
       return (text.length <= length) ? text : (text.substring(0, length - 3) + '...')
     },
     retrieveFieldLabel (fieldName) {
+      if (this.apiName === 'listSnapshots') return this.$t(snapshotSearchLabel(fieldName))
       if (fieldName === 'affinitygroupid') return this.$t('label.affinitygroup')
       if (fieldName === 'groupid') {
         fieldName = 'group'
@@ -242,6 +244,10 @@ export default {
       }
     },
     getStaticFieldValue (key, value) {
+      if (this.apiName === 'listSnapshots') {
+        const label = snapshotSearchValue(key, value)
+        if (label) return this.$t(label)
+      }
       let formattedValue = ''
       if (key.includes('type')) {
         if (this.$route.path === '/guestnetwork' || this.$route.path.includes('/guestnetwork/')) {
@@ -288,6 +294,15 @@ export default {
     },
     async getDynamicFieldValue (key, value) {
       let formattedValue = ''
+
+      if (this.apiName === 'listSnapshots' && key === 'account') return value
+      if (this.apiName === 'listSnapshots' && key === 'volumeid') {
+        if (!this.$store.getters.apis?.listVolumes) return value
+        const query = this.$route.query
+        const project = query.projectid || this.$store.getters.project?.id || (this.$store.getters.listAllProjects ? '-1' : '')
+        const response = await getAPI('listVolumes', { id: value, listall: true, ...snapshotPickerScope(query, project), ...(query.zoneid ? { zoneid: query.zoneid } : {}) }, { preserveOnFailure: true, timeout: 20000 })
+        return response?.listvolumesresponse?.volume?.find(row => row.id === value)?.name || value
+      }
 
       if (key === 'affinitygroupid') {
         if (!this.$isValidUuid(value) || (this.$store?.getters?.apis && !('listAffinityGroups' in this.$store.getters.apis))) return value

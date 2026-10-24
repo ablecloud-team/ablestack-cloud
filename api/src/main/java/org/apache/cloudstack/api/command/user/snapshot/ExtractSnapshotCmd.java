@@ -18,6 +18,7 @@ package org.apache.cloudstack.api.command.user.snapshot;
 
 import com.cloud.event.EventTypes;
 import com.cloud.storage.Snapshot;
+import com.cloud.storage.snapshot.SnapshotExtractResult;
 import com.cloud.user.Account;
 import org.apache.cloudstack.acl.SecurityChecker.AccessType;
 import org.apache.cloudstack.api.ACL;
@@ -62,6 +63,12 @@ public class ExtractSnapshotCmd extends BaseAsyncCmd {
         return zoneId;
     }
 
+    @Override
+    public String getSyncObjType() { return "Snapshot"; }
+
+    @Override
+    public Long getSyncObjId() { return getId(); }
+
     /////////////////////////////////////////////////////
     /////////////// API Implementation///////////////////
     /////////////////////////////////////////////////////
@@ -102,10 +109,12 @@ public class ExtractSnapshotCmd extends BaseAsyncCmd {
     @Override
     public void execute() {
         CallContext.current().setEventDetails("Snapshot ID: " + getResourceUuid(ApiConstants.ID));
-        String uploadUrl = _snapshotService.extractSnapshot(this);
-        logger.info("Extract URL [{}] of snapshot [{}].", uploadUrl, id);
-        if (uploadUrl != null) {
-            ExtractResponse response = _responseGenerator.createSnapshotExtractResponse(id, zoneId, getEntityOwnerId(), uploadUrl);
+        SnapshotExtractResult result = _snapshotService.extractSnapshot(this);
+        if (result != null && result.getUrl() != null) {
+            String url = result.getUrl();
+            ExtractResponse response = _responseGenerator.createSnapshotExtractResponse(id, zoneId, getEntityOwnerId(), url);
+            response.setDownloadMetadata(java.net.URI.create(url).getPath().substring(java.net.URI.create(url).getPath().lastIndexOf('/') + 1),
+                    result.getFormat() == null ? null : result.getFormat().toString(), result.getSize(), result.getPhysicalSize());
             response.setResponseName(getCommandName());
             this.setResponseObject(response);
         } else {

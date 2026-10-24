@@ -1,0 +1,32 @@
+[
+  {
+    "id": 342,
+    "name": "ROOT-229",
+    "path": "81929728-ba4a-43d9-945c-3d42e5ac30fe",
+    "uuid": "81929728-ba4a-43d9-945c-3d42e5ac30fe",
+    "state": "Ready",
+    "poolid": 3,
+    "removed": null,
+    "instanceid": 229
+  },
+  {
+    "id": 343,
+    "name": "SNAPDIALOG-32-source",
+    "path": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+    "uuid": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+    "state": "Ready",
+    "poolid": 3,
+    "removed": null,
+    "instanceid": 229
+  },
+  {
+    "id": 346,
+    "name": "SNAPDIALOG-32-normal-ui-volume",
+    "path": "b53b146e-a98d-46ef-9785-b6041f209d2f",
+    "uuid": "d5e05851-c863-470a-83c6-70a5e64539e2",
+    "state": "Ready",
+    "poolid": 3,
+    "removed": null,
+    "instanceid": 229
+  }
+]

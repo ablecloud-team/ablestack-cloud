@@ -1,0 +1,182 @@
+{
+  "references": [
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/d435bf1e-a75d-49be-879e-7d0c45860193",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "00bbc1f6-532c-42a9-a96d-20450ccf5f76"
+    },
+    {
+      "path": "snapshots/78/415/d435bf1e-a75d-49be-879e-7d0c45860193",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "00bbc1f6-532c-42a9-a96d-20450ccf5f76"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/1afbcf8f-ce4f-449d-a255-ffcc9e4944e5",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "0b497459-d607-450a-8c9a-c0b364a03bf8"
+    },
+    {
+      "path": "snapshots/78/415/1afbcf8f-ce4f-449d-a255-ffcc9e4944e5",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "0b497459-d607-450a-8c9a-c0b364a03bf8"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/fbe40bdb-4262-4207-a54e-00e40aa722ea",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "28275cf3-b7ed-4411-b489-42b07ce9f1bd"
+    },
+    {
+      "path": "snapshots/78/415/fbe40bdb-4262-4207-a54e-00e40aa722ea",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "28275cf3-b7ed-4411-b489-42b07ce9f1bd"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/906183a2-6b48-4f9c-9501-39defa97418e",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "386d46a2-d899-4c5e-887c-32605e14eeda"
+    },
+    {
+      "path": "snapshots/78/415/906183a2-6b48-4f9c-9501-39defa97418e",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "386d46a2-d899-4c5e-887c-32605e14eeda"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/6429bb78-f6f1-4244-a73c-8269dfa85b3e",
+      "role": "Primary",
+      "state": "Destroyed",
+      "snapshot": "60ae1c32-9f2d-40af-ba28-87bd25e8aa0d"
+    },
+    {
+      "path": "snapshots/78/415/6429bb78-f6f1-4244-a73c-8269dfa85b3e",
+      "role": "Image",
+      "state": "Destroyed",
+      "snapshot": "60ae1c32-9f2d-40af-ba28-87bd25e8aa0d"
+    },
+    {
+      "path": "rbd/9c0ad36b-bcb0-4bcb-b166-250cdad64f55/ba595b30-90fe-4cc5-b174-0d82b33c0c60",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "67600087-cb20-4b32-99fd-8f160d36b6fa"
+    },
+    {
+      "path": "snapshots/79/416/ba595b30-90fe-4cc5-b174-0d82b33c0c60",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "67600087-cb20-4b32-99fd-8f160d36b6fa"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/c3795ebd-8a4a-4a38-ba98-ad68b62f4d17",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "73f4697d-bf73-4ef3-b255-f80f62032a09"
+    },
+    {
+      "path": "snapshots/78/415/c3795ebd-8a4a-4a38-ba98-ad68b62f4d17",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "73f4697d-bf73-4ef3-b255-f80f62032a09"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/eb37e53c-b06a-41f1-a20b-357b55e05694",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "7e32de1e-7941-4865-abf6-e6d2990e6a8f"
+    },
+    {
+      "path": "snapshots/78/415/eb37e53c-b06a-41f1-a20b-357b55e05694",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "7e32de1e-7941-4865-abf6-e6d2990e6a8f"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/d44056f1-6d09-4c71-9058-eae7f5eeb2fc",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "92bc05e8-5228-4922-8fc6-3f2488c33884"
+    },
+    {
+      "path": "snapshots/78/415/d44056f1-6d09-4c71-9058-eae7f5eeb2fc",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "92bc05e8-5228-4922-8fc6-3f2488c33884"
+    },
+    {
+      "path": "rbd/9c0ad36b-bcb0-4bcb-b166-250cdad64f55/2019f4dd-9545-431a-b651-a567a2e47f08",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749"
+    },
+    {
+      "path": "snapshots/79/416/2019f4dd-9545-431a-b651-a567a2e47f08",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/9f206427-56f0-4d1e-9d6d-e83daee601a7",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "dc92398f-597b-473b-adb0-61b51392c823"
+    },
+    {
+      "path": "snapshots/78/415/9f206427-56f0-4d1e-9d6d-e83daee601a7",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "dc92398f-597b-473b-adb0-61b51392c823"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/ea49d92e-2b6d-4387-8e3e-8a9f8d43a556",
+      "role": "Primary",
+      "state": "Destroyed",
+      "snapshot": "e37557c4-bdd0-479c-a783-d3d9558c97fa"
+    },
+    {
+      "path": "snapshots/78/415/ea49d92e-2b6d-4387-8e3e-8a9f8d43a556",
+      "role": "Image",
+      "state": "Destroyed",
+      "snapshot": "e37557c4-bdd0-479c-a783-d3d9558c97fa"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/65b932e7-4512-4e29-91cb-b36e85144513",
+      "role": "Primary",
+      "state": "Ready",
+      "snapshot": "edae61df-dd8c-4819-ad43-98864512ec07"
+    },
+    {
+      "path": "snapshots/78/415/65b932e7-4512-4e29-91cb-b36e85144513",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "edae61df-dd8c-4819-ad43-98864512ec07"
+    },
+    {
+      "path": "rbd/8f9ff586-d7a8-41d2-8506-827967fc9789/46bd9559-6f2c-45a1-934a-49c0dc2de094",
+      "role": "Primary",
+      "state": "Destroyed",
+      "snapshot": "fbc44978-828e-4ea8-94c6-f6de51d05d14"
+    },
+    {
+      "path": "snapshots/78/415/46bd9559-6f2c-45a1-934a-49c0dc2de094",
+      "role": "Image",
+      "state": "Destroyed",
+      "snapshot": "fbc44978-828e-4ea8-94c6-f6de51d05d14"
+    }
+  ],
+  "volumes": [
+    {
+      "path": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+      "uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+    },
+    {
+      "path": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+      "uuid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55"
+    }
+  ]
+}

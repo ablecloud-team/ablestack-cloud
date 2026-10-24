@@ -1,0 +1,51 @@
+{
+  "dialog": {
+    "body": {
+      "height": 134,
+      "text": "Zone\nZone 선택",
+      "width": 718,
+      "x": 281,
+      "y": 288
+    },
+    "class": "ant-modal mold-dialog mold-dialog-standard",
+    "confirmDisabled": true,
+    "fields": [
+      {
+        "height": 62,
+        "text": "Zone\nZone 선택",
+        "width": 662,
+        "x": 309,
+        "y": 312
+      }
+    ],
+    "footer": {
+      "height": 65,
+      "text": "취소\n확인",
+      "width": 718,
+      "x": 281,
+      "y": 422
+    },
+    "header": {
+      "height": 55,
+      "text": "스냅샷 복사",
+      "width": 718,
+      "x": 281,
+      "y": 233
+    },
+    "height": 256,
+    "storageSelect": false,
+    "switchCount": 0,
+    "text": "스냅샷 복사\nZone\nZone 선택\n취소\n확인",
+    "width": 720,
+    "x": 280,
+    "y": 232,
+    "zoneSelect": true
+  },
+  "url": "#/snapshot/d051c97e-af12-4a0b-9c2b-8a7c8f915bcc?tab=zones",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "cluster": "32",
+  "phase": "after-light"
+}

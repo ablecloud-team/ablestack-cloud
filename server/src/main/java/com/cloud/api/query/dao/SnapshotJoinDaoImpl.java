@@ -89,6 +89,19 @@ public class SnapshotJoinDaoImpl extends GenericDaoBaseWithTagInformation<Snapsh
         snapshotByZoneSearch.done();
     }
 
+    @Override
+    protected StringBuilder createPartialSelectSql(SearchCriteria<?> criteria, boolean whereClause, boolean enableQueryCache) {
+        StringBuilder sql = super.createPartialSelectSql(criteria, whereClause, enableQueryCache);
+        // The grouped page chooses MIN(reference). Map its JDBC label back to the VO
+        // field; otherwise GenericDaoBase interprets the expression as a column name.
+        String representative = "MIN(snapshot_view.snapshot_store_pair)";
+        int index = sql.indexOf(representative);
+        if (index >= 0 && index < sql.indexOf(" FROM")) {
+            sql.insert(index + representative.length(), " AS snapshot_store_pair");
+        }
+        return sql;
+    }
+
     private void setSnapshotInfoDetailsInResponse(SnapshotJoinVO snapshot, SnapshotResponse snapshotResponse, boolean isShowUnique) {
         if (!isShowUnique) {
             return;
@@ -137,7 +150,7 @@ public class SnapshotJoinDaoImpl extends GenericDaoBaseWithTagInformation<Snapsh
             if (snapshot.getDownloadState() == VMTemplateStorageResourceAssoc.Status.DOWNLOAD_IN_PROGRESS) {
                 status = snapshot.getDownloadPercent() + "% Downloaded";
             } else if (snapshot.getErrorString() == null) {
-                status = snapshot.getStoreState().toString();
+                status = snapshot.getStoreState() == null ? null : snapshot.getStoreState().toString();
             } else {
                 status = snapshot.getErrorString();
             }
@@ -157,7 +170,7 @@ public class SnapshotJoinDaoImpl extends GenericDaoBaseWithTagInformation<Snapsh
             snapshotResponse.setVolumeName(snapshot.getVolumeName());
             snapshotResponse.setVolumeType(snapshot.getVolumeType().name());
             snapshotResponse.setVolumeState(snapshot.getVolumeState().name());
-            snapshotResponse.setVirtualSize(snapshot.getVolumeSize());
+            snapshotResponse.setVirtualSize(snapshot.getSize());
             VolumeVO volume = ApiDBUtils.findVolumeById(snapshot.getVolumeId());
             if (volume != null && volume.getVolumeType() == Type.ROOT && volume.getInstanceId() != null) {
                 VMInstanceVO vm = ApiDBUtils.findVMInstanceById(volume.getInstanceId());
@@ -181,6 +194,9 @@ public class SnapshotJoinDaoImpl extends GenericDaoBaseWithTagInformation<Snapsh
         snapshotResponse.setState(snapshot.getStatus());
         snapshotResponse.setLocationType(snapshot.getLocationType() != null ? snapshot.getLocationType().name() : null);
         if (!isShowUnique) {
+            snapshotResponse.setCopyInfo(com.cloud.api.query.SnapshotCopyContract.describe(snapshot,
+                    view == ResponseObject.ResponseView.Full || snapshot.getAccountId() == caller.getId()
+                            || snapshot.getAccountType() == Account.Type.PROJECT));
             snapshotResponse.setDatastoreState(snapshot.getStoreState() != null ? snapshot.getStoreState().name() : null);
             if (view.equals(ResponseObject.ResponseView.Full)) {
                 snapshotResponse.setDatastoreId(snapshot.getStoreUuid());

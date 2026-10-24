@@ -149,6 +149,9 @@ public class CreateSnapshotBackupCmd extends BaseAsyncCreateCmd {
     }
 
     public Long getPolicyId() {
+        if (policyId != null && policyId < 0) {
+            throw new InvalidParameterValueException("Policy ID must identify a persisted snapshot policy");
+        }
         if (policyId != null) {
             return policyId;
         } else {

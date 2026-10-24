@@ -1,0 +1,10 @@
+{
+  "joblessRequestsReachedServer": 0,
+  "extraDiagnosticJobs": [
+    {
+      "uuid": "c6f7f151-c624-4475-969f-b9150892544e",
+      "status": 1,
+      "command": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd"
+    }
+  ]
+}

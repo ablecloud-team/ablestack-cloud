@@ -1,0 +1,14 @@
+{
+  "buttons": [
+    {
+      "disabled": true,
+      "text": "취소"
+    },
+    {
+      "disabled": true,
+      "text": "생성"
+    }
+  ],
+  "closeVisible": false,
+  "name": "SNAPDIALOG-31-keyboard-ui-volume"
+}

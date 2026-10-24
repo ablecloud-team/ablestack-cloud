@@ -1,0 +1,38 @@
+{
+  "copyRows": [
+    {
+      "key": "553c5ec3-698e-33a7-87a9-91b96ba3e715",
+      "text": "Secondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    }
+  ],
+  "dialog": null,
+  "links": [
+    {
+      "href": "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": " Zone"
+    },
+    {
+      "href": "#/imagestore/a78f684a-136c-4208-bd73-2cb139e6479f",
+      "text": "SNAPC1480-31-STORE-08"
+    }
+  ],
+  "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n현재 페이지: Zone 1개 · 조회 항목 1개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\t\n\t Zone\t1\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료\n전체 사본 조회 항목 11개\n1\n2\n10 / 쪽",
+  "url": "#/snapshot/da5b347e-0fca-490f-9f49-154a384536c9?tab=zones",
+  "zones": [
+    {
+      "key": "zone:7013f5a1-de59-4cea-a596-f4f58815f31c",
+      "text": "\t\n\t Zone\t1\t"
+    },
+    {
+      "key": "553c5ec3-698e-33a7-87a9-91b96ba3e715",
+      "text": "Secondary\tSNAPC1480-31-STORE-08\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    }
+  ],
+  "cluster": "31",
+  "phase": "page2",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

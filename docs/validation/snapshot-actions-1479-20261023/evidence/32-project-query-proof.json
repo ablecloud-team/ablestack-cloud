@@ -1,0 +1,83 @@
+{
+  "jobid": "183acdd4-1abd-4265-9652-37ad982bc842",
+  "mutationPosts": [
+    {
+      "at": "2026-10-23T11:23:54.812Z",
+      "cmd": "createSnapshot",
+      "method": "POST",
+      "fixture": true,
+      "mutable": true,
+      "args": {
+        "volumeid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+        "name": "SNAP1479-32-query-project-ui",
+        "customjobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "status": 200,
+      "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+    }
+  ],
+  "queries": [
+    {
+      "at": "2026-10-23T11:23:54.859Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:23:56.375Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:23:59.385Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:24:05.408Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "fault": "query-unavailable",
+      "status": 503
+    },
+    {
+      "at": "2026-10-23T11:27:37.405Z",
+      "cmd": "queryAsyncJobResult",
+      "method": "GET",
+      "fixture": true,
+      "mutable": false,
+      "args": {
+        "jobid": "183acdd4-1abd-4265-9652-37ad982bc842"
+      },
+      "status": 200,
+      "jobid": "183acdd4-1abd-4265-9652-37ad982bc842",
+      "jobstatus": 1
+    }
+  ],
+  "status": "PASS"
+}

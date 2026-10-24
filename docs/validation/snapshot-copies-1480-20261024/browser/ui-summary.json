@@ -1,0 +1,302 @@
+{
+  "lateResponses": [
+    {
+      "cluster": "32",
+      "paused": 1,
+      "rows": 2,
+      "unknown": true,
+      "lateMainAbsent": true
+    },
+    {
+      "cluster": "31",
+      "paused": 1,
+      "rows": 2,
+      "unknown": true,
+      "lateMainAbsent": true
+    }
+  ],
+  "networkFaults": {
+    "31": {
+      "http503": 1,
+      "http403": 1,
+      "retained": 11,
+      "cleared": 0,
+      "restored": 11
+    },
+    "32": {
+      "http503": 1,
+      "http403": 1,
+      "retained": 12,
+      "cleared": 0,
+      "restored": 12
+    }
+  },
+  "dialogsCancelled": true,
+  "newCopyDeleteSubmissions": 0,
+  "themeRestored": "dark",
+  "captures": [
+    {
+      "cluster": "32",
+      "phase": "page1",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "page1",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "page2",
+      "rows": 2,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "page2",
+      "rows": 1,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "all-copies-dark",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20\n20 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "all-copies-dark",
+      "rows": 11,
+      "pagination": "전체 사본 조회 항목 11개\n1\n20\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "all-copies-wide",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "failed-retained",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "retry-restored",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "denied-cleared",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "denied-cleared",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "denied-cleared",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "bulk-confirm",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "denied-cleared",
+      "rows": 0,
+      "pagination": "전체 사본 조회 항목 0개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "single-after-bulk",
+      "rows": 12,
+      "pagination": "전체 사본 조회 항목 12개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "failed-retained",
+      "rows": 11,
+      "pagination": "전체 사본 조회 항목 11개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "denied-cleared",
+      "rows": 0,
+      "pagination": "전체 사본 조회 항목 0개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "retry-restored",
+      "rows": 11,
+      "pagination": "전체 사본 조회 항목 11개\n1\n20 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "late-other-unknown",
+      "rows": 2,
+      "pagination": "전체 사본 조회 항목 2개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "late-other-unknown",
+      "rows": 2,
+      "pagination": "전체 사본 조회 항목 2개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "project-scope",
+      "rows": 0,
+      "pagination": "전체 사본 조회 항목 0개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "project-scope",
+      "rows": 0,
+      "pagination": "전체 사본 조회 항목 0개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "project-scope",
+      "rows": 0
+    },
+    {
+      "cluster": "31",
+      "phase": "project-scope",
+      "rows": 0
+    },
+    {
+      "cluster": "32",
+      "phase": "clamped-after-remove",
+      "rows": 9,
+      "pagination": "전체 사본 조회 항목 9개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "clamped-after-remove",
+      "rows": 8,
+      "pagination": "전체 사본 조회 항목 8개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "restored-after-add",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "restored-after-add",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "dialog-dark",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "dialog-dark",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "dialog-light",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "dialog-light",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "dialog-compact-light",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "dialog-compact-dark",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "dialog-compact-light",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "dialog-compact-dark",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "bulk-confirm",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "single-after-bulk",
+      "rows": 10,
+      "pagination": "전체 사본 조회 항목 11개\n1\n2\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "normal-before-archive",
+      "rows": 2,
+      "pagination": "전체 사본 조회 항목 2개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "normal-before-archive",
+      "rows": 1,
+      "pagination": "전체 사본 조회 항목 1개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "normal-after-archive",
+      "rows": 1,
+      "pagination": "전체 사본 조회 항목 1개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "31",
+      "phase": "normal-after-archive",
+      "rows": 1,
+      "pagination": "전체 사본 조회 항목 1개\n1\n10 / 쪽"
+    },
+    {
+      "cluster": "32",
+      "phase": "cleanup-list",
+      "rows": 0
+    },
+    {
+      "cluster": "31",
+      "phase": "cleanup-list",
+      "rows": 0
+    }
+  ],
+  "interceptionCleared": true,
+  "viewportRestored": true,
+  "ownTabsClosed": true
+}

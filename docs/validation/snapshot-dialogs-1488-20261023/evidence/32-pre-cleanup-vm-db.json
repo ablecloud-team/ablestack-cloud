@@ -1,0 +1,11 @@
+[
+  {
+    "id": 229,
+    "name": "SNAPDIALOG-32-vm",
+    "uuid": "06c94726-9a47-43ca-8b75-b6310f58cb66",
+    "state": "Stopped",
+    "hostid": null,
+    "removed": null,
+    "instance": "i-2-229-VM"
+  }
+]

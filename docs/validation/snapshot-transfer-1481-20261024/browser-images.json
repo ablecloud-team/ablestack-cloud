@@ -1,0 +1,82 @@
+[
+  {
+    "path": "browser/31-archive-dark.jpg",
+    "sha256": "f3c038e0f415569d85b56ea58edda05203157cf1c55fe76c2f4ba31e32838f03",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/31-copy-empty-dark.jpg",
+    "sha256": "82fbac95b776551ad6b137878659ebb212e3fd99fb3c0fda2cd402b1e988782b",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/31-copy-targets-dark.jpg",
+    "sha256": "702bcab1c1da27af3315d367f8c0a5ee238a53f9682316e3f4a31ae10904f7cb",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/31-final-partial-job-dark.jpg",
+    "sha256": "b724f24515e017d3b8475494126b0583762792cca7c0997438460aa0eb0556fd",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/31-query-failure-dark.jpg",
+    "sha256": "e947e1338c409237b516ee1dd357f3f98c360e7d7bf28fae79ba01ce0c35bbff",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/32-archive-dark.jpg",
+    "sha256": "b64858ce2c41139dd955f5127f03740a2dffe861a8add01cefb7b78445beeccf",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/32-copy-compact-dark.jpg",
+    "sha256": "ec0b6dc66cadd02d78657e80ede15685596745e0b324fab8e3d6596a9b3788c0",
+    "format": "JPEG",
+    "width": 459,
+    "height": 488,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/32-copy-compact-light.jpg",
+    "sha256": "a38a52e2d69a55e4768db5e5c3963da8cb9704c5d136eea57cc50b265df4bf92",
+    "format": "JPEG",
+    "width": 459,
+    "height": 488,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/32-copy-targets-light.jpg",
+    "sha256": "3080441dffebf92ed19fab3d3c863533a418ae5c547ff16a2cd752d940b211c3",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  },
+  {
+    "path": "browser/32-final-complete-job-light.jpg",
+    "sha256": "3a9263182a5c3c900ef14ac9db43976e04bc3f0bd84f9380def899545631f43f",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "capture": "Page.captureScreenshot via cua_repl, original bytes"
+  }
+]

@@ -1,0 +1,1796 @@
+{
+  "requests": [
+    {
+      "id": "39804.2655",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2656",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2657",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "2dadbdbf-bb9d-3215-8528-64bf1ce3119b",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "2dbc8b27-9098-31ba-b0a2-74a5ddcd4f34",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2658",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "4a030ea0-3a36-396f-b5cc-a4d276a7402c",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "c91c578b-fd31-3231-8b38-6f0373116da6",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2659",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "b6452041-ed40-405b-a35e-d10619960168"
+        }
+      }
+    },
+    {
+      "id": "39804.2660",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "f1e84666-83f4-41d3-8a84-c4d03e3c9542"
+        }
+      }
+    },
+    {
+      "id": "39804.2661",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "b6452041-ed40-405b-a35e-d10619960168",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "name": "SNAPLIST1485-32-owner-21",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 383,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 384,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "55aaefd0e71aa78fe9e11007ccc25096fe543bb833c1dc75ba4c4ba1e7f8b175",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "created": "2026-10-24T23:34:12+0900",
+          "completed": "2026-10-24T23:34:12+0900",
+          "jobid": "b6452041-ed40-405b-a35e-d10619960168",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2662",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "f1e84666-83f4-41d3-8a84-c4d03e3c9542",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "name": "SNAPLIST1485-32-owner-22",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 385,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 386,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "8b28bf7d74436657ecdb2338323a91f08f9af98c02b8bf3efd56e8f35da89b73",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+          "created": "2026-10-24T23:34:12+0900",
+          "completed": "2026-10-24T23:34:12+0900",
+          "jobid": "f1e84666-83f4-41d3-8a84-c4d03e3c9542",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2669",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2670",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2671",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "4a030ea0-3a36-396f-b5cc-a4d276a7402c",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "c91c578b-fd31-3231-8b38-6f0373116da6",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2672",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "2dadbdbf-bb9d-3215-8528-64bf1ce3119b",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "2dbc8b27-9098-31ba-b0a2-74a5ddcd4f34",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2673",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "435315f9-c4ab-48d1-a074-aebbda3a1ef7"
+        }
+      }
+    },
+    {
+      "id": "39804.2674",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "613e8937-5461-4d0d-85f1-64430dab9778"
+        }
+      }
+    },
+    {
+      "id": "39804.2675",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "435315f9-c4ab-48d1-a074-aebbda3a1ef7",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "name": "SNAPLIST1485-32-owner-22",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 385,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 386,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "8b28bf7d74436657ecdb2338323a91f08f9af98c02b8bf3efd56e8f35da89b73",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+          "created": "2026-10-24T23:34:30+0900",
+          "completed": "2026-10-24T23:34:30+0900",
+          "jobid": "435315f9-c4ab-48d1-a074-aebbda3a1ef7",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2676",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "613e8937-5461-4d0d-85f1-64430dab9778",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "name": "SNAPLIST1485-32-owner-21",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 383,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 384,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "55aaefd0e71aa78fe9e11007ccc25096fe543bb833c1dc75ba4c4ba1e7f8b175",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "created": "2026-10-24T23:34:30+0900",
+          "completed": "2026-10-24T23:34:30+0900",
+          "jobid": "613e8937-5461-4d0d-85f1-64430dab9778",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2678",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2679",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "2dadbdbf-bb9d-3215-8528-64bf1ce3119b",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "2dbc8b27-9098-31ba-b0a2-74a5ddcd4f34",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:26+0900",
+              "name": "SNAPLIST1485-32-owner-21",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2680",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "d2abf43d-6c07-4398-9bb9-18f97202e583"
+        }
+      }
+    },
+    {
+      "id": "39804.2681",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "d2abf43d-6c07-4398-9bb9-18f97202e583",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+              "name": "SNAPLIST1485-32-owner-21",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 383,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 384,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "55aaefd0e71aa78fe9e11007ccc25096fe543bb833c1dc75ba4c4ba1e7f8b175",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "created": "2026-10-24T23:34:30+0900",
+          "completed": "2026-10-24T23:34:30+0900",
+          "jobid": "d2abf43d-6c07-4398-9bb9-18f97202e583",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2682",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+        "expectedscopehash": "55aaefd0e71aa78fe9e11007ccc25096fe543bb833c1dc75ba4c4ba1e7f8b175",
+        "customjobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595"
+        }
+      }
+    },
+    {
+      "id": "39804.2683",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T23:34:30+0900",
+          "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "39804.2684",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T23:34:30+0900",
+          "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "39804.2685",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "3519e7d1-4de2-4088-9d11-bc044604ce41",
+          "created": "2026-10-24T23:34:30+0900",
+          "completed": "2026-10-24T23:34:32+0900",
+          "jobid": "3f44f0b4-d9e0-45e4-a325-1fc323f0b595",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2687",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "listall": "true",
+        "projectid": "-1",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPLIST1485-32-owner-2",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "id": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:23+0900",
+              "name": "SNAPLIST1485-32-owner-20",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2689",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "500",
+        "includesnapshotcontext": "true",
+        "showunique": "true",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "snapshotcontext": {
+                "version": 1,
+                "sourceavailable": true,
+                "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+                "volumename": "SNAPLIST1485-32-owner",
+                "volumestate": "Ready",
+                "revertreason": "",
+                "createreason": "",
+                "restore": {
+                  "size": 1073741824,
+                  "diskofferingid": "d7c5f22e-0a8f-4b61-b21f-69e285b20ad0",
+                  "diskofferingname": "Custom",
+                  "available": true
+                }
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2690",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "listall": "true",
+        "showunique": "false",
+        "page": "1",
+        "pagesize": "500",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 2,
+          "snapshot": [
+            {
+              "copy": {
+                "id": "4a030ea0-3a36-396f-b5cc-a4d276a7402c",
+                "role": "Image",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "af746f16-4e36-4f19-805c-61307d373e64",
+              "datastorename": "Secondary",
+              "datastorestate": "Ready",
+              "datastoretype": "Image",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            },
+            {
+              "copy": {
+                "id": "c91c578b-fd31-3231-8b38-6f0373116da6",
+                "role": "Primary",
+                "state": "Ready",
+                "datastoreknown": true,
+                "availability": "Ready",
+                "virtualsize": 1073741824
+              },
+              "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:30+0900",
+              "name": "SNAPLIST1485-32-owner-22",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "status": "BackedUp",
+              "physicalsize": 0,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": false,
+              "virtualsize": 1073741824,
+              "datastoreid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+              "datastorename": "Primary",
+              "datastorestate": "Ready",
+              "datastoretype": "Primary",
+              "downloaddetails": {
+                "downloadState": "",
+                "downloadPercent": "0"
+              },
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2691",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "dryrun": "true"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "6a68e4bd-04a3-46da-b053-7e3dfb6bdc7b"
+        }
+      }
+    },
+    {
+      "id": "39804.2692",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "6a68e4bd-04a3-46da-b053-7e3dfb6bdc7b",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "deletesnapshotresponse": {
+              "success": true,
+              "snapshotid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+              "name": "SNAPLIST1485-32-owner-22",
+              "state": "BackedUp",
+              "dryrun": true,
+              "reference": [
+                {
+                  "referenceid": 385,
+                  "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+                  "storename": "Primary",
+                  "role": "Primary",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                },
+                {
+                  "referenceid": 386,
+                  "storeid": "af746f16-4e36-4f19-805c-61307d373e64",
+                  "storename": "Secondary",
+                  "role": "Image",
+                  "state": "Ready",
+                  "zoneid": "991d2f57-0f37-4445-b956-09773d064816"
+                }
+              ],
+              "scopehash": "8b28bf7d74436657ecdb2338323a91f08f9af98c02b8bf3efd56e8f35da89b73",
+              "force": false,
+              "pendingcleanup": 0,
+              "cleanupresult": []
+            }
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+          "created": "2026-10-24T23:34:33+0900",
+          "completed": "2026-10-24T23:34:33+0900",
+          "jobid": "6a68e4bd-04a3-46da-b053-7e3dfb6bdc7b",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2693",
+      "method": "POST",
+      "command": "deleteSnapshot",
+      "args": {
+        "command": "deleteSnapshot",
+        "response": "json",
+        "id": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+        "expectedscopehash": "8b28bf7d74436657ecdb2338323a91f08f9af98c02b8bf3efd56e8f35da89b73",
+        "customjobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69"
+      },
+      "response": {
+        "deletesnapshotresponse": {
+          "jobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69"
+        }
+      }
+    },
+    {
+      "id": "39804.2694",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T23:34:33+0900",
+          "jobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "39804.2695",
+      "method": "GET",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "jobinstancetype": "Snapshot",
+          "jobinstanceid": "bcf3a10a-89b8-4de0-a858-6701d61b416f",
+          "created": "2026-10-24T23:34:33+0900",
+          "completed": "2026-10-24T23:34:35+0900",
+          "jobid": "98c13e5f-23e4-4ea6-9c2d-582de17cac69",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "39804.2696",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "listall": "true",
+        "projectid": "-1",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPLIST1485-32-owner-2",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "id": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:23+0900",
+              "name": "SNAPLIST1485-32-owner-20",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2697",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "listall": "true",
+        "projectid": "-1",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPLIST1485-32-owner-2",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "id": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:23+0900",
+              "name": "SNAPLIST1485-32-owner-20",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "39804.2701",
+      "method": "GET",
+      "command": "listSnapshots",
+      "args": {
+        "listall": "true",
+        "projectid": "-1",
+        "sortkey": "name",
+        "sortorder": "asc",
+        "page": "1",
+        "pagesize": "20",
+        "keyword": "SNAPLIST1485-32-owner-2",
+        "command": "listSnapshots",
+        "response": "json"
+      },
+      "response": {
+        "listsnapshotsresponse": {
+          "count": 1,
+          "snapshot": [
+            {
+              "id": "fa7068a9-6e3d-4c26-a64d-cede6b0b2751",
+              "account": "SNAPLIST1485-32-owner",
+              "domainid": "147c021b-94df-427a-aab3-063b5560b1f5",
+              "domain": "SNAPLIST1485-32-domain",
+              "domainpath": "ROOT/SNAPLIST1485-32-domain",
+              "volumeid": "ddc6304c-e71e-4935-a07e-2421a1be2e51",
+              "volumename": "SNAPLIST1485-32-owner",
+              "volumetype": "DATADISK",
+              "volumestate": "Ready",
+              "created": "2026-10-24T22:52:23+0900",
+              "name": "SNAPLIST1485-32-owner-20",
+              "intervaltype": "MANUAL",
+              "state": "BackedUp",
+              "physicalsize": 196624,
+              "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+              "zonename": "Zone",
+              "revertable": true,
+              "virtualsize": 1073741824,
+              "tags": [],
+              "hasannotations": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "truncated": false
+}

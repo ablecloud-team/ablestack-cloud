@@ -3562,10 +3562,16 @@ public class KVMStorageProcessor implements StorageProcessor {
         NfsTO nfsImageStore = (NfsTO)imageStore;
         KVMStoragePool secondaryPool = storagePoolMgr.getStoragePoolByURI(nfsImageStore.getUrl() + File.separator + snapshotPath);
         KVMPhysicalDisk snapshotDisk = secondaryPool.getPhysicalDisk(snapshotName);
-        if (volume.getFormat() == ImageFormat.RAW) {
-            snapshotDisk.setFormat(PhysicalDiskFormat.RAW);
-        } else if (volume.getFormat() == ImageFormat.QCOW2) {
-            snapshotDisk.setFormat(PhysicalDiskFormat.QCOW2);
+        try {
+            SnapshotObjectTO snapshot = (SnapshotObjectTO)cmd.getSrcTO();
+            org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadata metadata =
+                    org.apache.cloudstack.storage.formatinspector.SnapshotImageMetadata.inspect(new File(snapshotDisk.getPath()), snapshot.getSize());
+            snapshotDisk.setFormat(PhysicalDiskFormat.valueOf(metadata.getFormat().name()));
+            snapshotDisk.setVirtualSize(metadata.getVirtualSize());
+            snapshotDisk.setSize(metadata.getFileSize());
+        } catch (IOException e) {
+            secondaryPool.delete();
+            throw new CloudRuntimeException("Unable to verify snapshot backup image: " + e.getMessage(), e);
         }
 
         final String primaryUuid = pool.getUuid();
@@ -4455,16 +4461,8 @@ public class KVMStorageProcessor implements StorageProcessor {
                 RbdImage image = rbd.open(disk.getName());
                 try {
                     logger.info("Attempting to remove RBD snapshot " + snapshotFullName);
-                    if (image.snapIsProtected(snapshotName)) {
-                        logger.debug("Unprotecting RBD snapshot " + snapshotFullName);
-                        image.snapUnprotect(snapshotName);
-                    }
-                    image.snapRemove(snapshotName);
-                    logger.info("Snapshot " + snapshotFullName + " successfully removed from " +
-                            primaryPool.getType().toString() + "  pool.");
-                } catch (RbdException e) {
-                    logger.error("Failed to remove snapshot " + snapshotFullName + ", with exception: " + e.toString() +
-                        ", RBD error: " + ErrorCode.getErrorMessage(e.getReturnValue()));
+                    removeRbdSnapshot(image, snapshotName);
+                    logger.info("Snapshot " + snapshotFullName + " removed or already absent.");
                 } finally {
                     rbd.close(image);
                     r.ioCtxDestroy(io);
@@ -4514,6 +4512,20 @@ public class KVMStorageProcessor implements StorageProcessor {
             return new Answer(cmd, false, "Failed to remove snapshot " + snapshotFullName);
         } finally {
             volume.clearPassphrase();
+        }
+    }
+
+    protected void removeRbdSnapshot(RbdImage image, String snapshotName) throws RbdException {
+        try {
+            if (image.snapIsProtected(snapshotName)) {
+                image.snapUnprotect(snapshotName);
+            }
+            image.snapRemove(snapshotName);
+        } catch (RbdException error) {
+            if (Math.abs(error.getReturnValue()) != 2) {
+                throw error;
+            }
+            logger.debug("RBD snapshot {} is already absent", snapshotName);
         }
     }
 

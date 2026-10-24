@@ -1,0 +1,101 @@
+{
+  "cursor": 4444,
+  "requests": [
+    {
+      "id": "10296.1478",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {}
+      }
+    },
+    {
+      "id": "10296.1479",
+      "command": "createTags",
+      "args": {
+        "command": "createTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5",
+        "tags[0].key": "baseline",
+        "tags[0].value": "SNAPTAG1484-31-owner"
+      },
+      "method": "POST",
+      "response": {
+        "createtagsresponse": {
+          "jobid": "39047f09-1e30-486a-a11c-14885a058812"
+        }
+      }
+    },
+    {
+      "id": "10296.1480",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "39047f09-1e30-486a-a11c-14885a058812",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+          "account": "admin",
+          "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+          "domainpath": "ROOT",
+          "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "jobresulttype": "object",
+          "jobresult": {
+            "success": true
+          },
+          "created": "2026-10-24T22:01:53+0900",
+          "completed": "2026-10-24T22:01:53+0900",
+          "jobid": "39047f09-1e30-486a-a11c-14885a058812",
+          "jobstatus": 1
+        }
+      }
+    },
+    {
+      "id": "10296.1481",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-31-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5",
+              "account": "SNAPTAG1484-31-owner",
+              "domainid": "c58325f9-adca-438f-ae79-70998c604242",
+              "domain": "SNAPTAG1484-31-domain",
+              "domainpath": "ROOT/SNAPTAG1484-31-domain"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

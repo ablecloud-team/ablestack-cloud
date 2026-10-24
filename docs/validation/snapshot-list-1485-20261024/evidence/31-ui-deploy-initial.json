@@ -1,0 +1,27 @@
+{
+  "files": 921,
+  "verified": true,
+  "backup": "/nfs/snapshot-list-1485-20261024-ui-backup",
+  "protectedServerFiles": 1,
+  "webInf": true,
+  "metaInfPreserved": true,
+  "configHashes": {
+    "config.json": "b7de5f6a1f7a3a17310ee7d34ca801bb316fc6f841039f865fbabf154cd59a13"
+  },
+  "managementJarUnchanged": "ae2896c258f21ee7f3e46f7002ff4a0bc94a249aebf2b875396936e92317dbdd",
+  "largeFileMetadataUnchanged": {},
+  "mold": "active",
+  "clientHttp": 200,
+  "markers": {
+    "snapshot-list-toolbar": true,
+    "message.snapshot.list.incomplete": true,
+    "SNAPSHOT_LIST_COLUMNS_V1": true,
+    "resource.tags.v1:": true
+  },
+  "newStaticFiles": [
+    "js/app.fe0eb383.js.map",
+    "js/app.fe0eb383.js",
+    "css/app.269bee9b.css"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root  383G  178G  205G  47% /\n/dev/mapper/rl-nfs   350G  308G   43G  88% /nfs\n"
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "inventory": "volume",
+    "before": 154,
+    "after": 155,
+    "allBaselineRowsUnchanged": true,
+    "unrelatedNewRows": [
+      {
+        "id": "373c2395-5639-4ff0-bae0-f4fa1cadc415",
+        "name": "509-datadisk",
+        "state": "Ready",
+        "account": "admin",
+        "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+        "volumeid": null,
+        "path": "373c2395-5639-4ff0-bae0-f4fa1cadc415",
+        "storageid": "1842fb9f-02e0-4da9-b082-422c5a184de0"
+      }
+    ]
+  },
+  {
+    "inventory": "snapshot",
+    "before": 23,
+    "after": 23,
+    "allBaselineRowsUnchanged": true,
+    "unrelatedNewRows": []
+  }
+]

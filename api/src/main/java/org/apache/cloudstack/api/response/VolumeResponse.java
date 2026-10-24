@@ -33,6 +33,13 @@ import com.google.gson.annotations.SerializedName;
 @EntityReference(value = Volume.class)
 @SuppressWarnings("unused")
 public class VolumeResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse {
+    @SerializedName("snapshotcontext")
+    @Param(description = "Current source facts and reasons for volume snapshot operations; present only when requested")
+    private java.util.Map<String, Object> snapshotContext;
+
+    public void setSnapshotContext(java.util.Map<String, Object> context) { snapshotContext = context; }
+    public java.util.Map<String, Object> getSnapshotContext() { return snapshotContext; }
+
     @SerializedName("volumemutationblockedreason")
     @Param(description = "Reason why attached volume topology changes are blocked by backup protection")
     private String volumeMutationBlockedReason = "";

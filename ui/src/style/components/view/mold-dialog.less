@@ -308,3 +308,23 @@ body .mold-dialog-standard {
   .ant-checkbox-input:focus-visible + .ant-checkbox-inner,
   .ant-modal-footer .ant-btn:focus-visible, .ant-modal-close:focus-visible { outline: 2px solid var(--ui-link); outline-offset: 2px; }
 }
+
+/* Snapshot forms use the VM dialog chrome and explicit theme text colors,
+ * including legacy Ant form descendants and disabled controls. */
+body .snapshot-standard-dialog {
+  .ant-modal-body, .ant-form, .ant-checkbox-wrapper, .ant-collapse-content-box,
+  .ant-input-number-input, .ant-select-selection-item { color: var(--ui-text-primary); }
+  .ant-form-item-label > label, .ant-collapse-header { color: var(--ui-text-secondary); }
+  .ant-form-item-extra, .ant-form-item-explain, .ant-input::placeholder,
+  .ant-input-number-input::placeholder, .ant-select-selection-placeholder { color: var(--ui-text-muted); }
+  .ant-form-item-explain-error { color: var(--ui-error-text); }
+  .ant-alert-message, .ant-alert-description { overflow-wrap: anywhere; }
+  .ant-checkbox-wrapper > span:last-child { color: inherit; }
+  .ant-input-number { background: var(--ui-bg-input); border-color: var(--ui-border-strong); }
+  .ant-btn:not(.ant-btn-primary):not(.ant-btn-link) { color: var(--ui-text-secondary); }
+  .ant-btn:disabled, .ant-input:disabled, .ant-input-number-disabled .ant-input-number-input,
+  .ant-select-disabled .ant-select-selection-item { color: var(--ui-text-secondary); opacity: 1; }
+  .ant-btn:disabled { color: var(--ui-text-primary); background: var(--ui-bg-disabled); border-color: var(--ui-border); }
+  .ant-btn-link { color: var(--ui-link); }
+  .ant-form-item, .ant-alert, .ant-checkbox-wrapper { min-width: 0; }
+}

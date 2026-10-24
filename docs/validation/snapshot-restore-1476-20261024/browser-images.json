@@ -1,0 +1,98 @@
+[
+  {
+    "path": "browser/31-root-before.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "9fdf39c4a2794e804e9ab61ff55ce6b7326f87320b57a7a832fec5cda36f9b9d",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/31-failed-retained.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "c9f345d32beb0338d5703704ca0b9e7865dd810863d93464856f10b1e469e303",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/31-required.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "093a62bf505e507474daf8a80d10fc1e407eb91f4d535f27e3498bf1f6bd8972",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/31-after-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "df74f2c030a5aa4ff67bc372fb527b8de2354960434d42f9cac71192c11935d1",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/31-after-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "72249e02738aba18118487225a025b6845a24e27ada15d22caea90b37c592cad",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/31-compact.jpg",
+    "format": "JPEG",
+    "width": 459,
+    "height": 488,
+    "sha256": "d8033c8e4573082758c43c824228559282356d675db533d5ecd5cdcb8c8d677a",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-root-before.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "bbf06e06a8f1ffab1551e8431e08f83c546820c1ae722834496c63f2412b45c6",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-failed-retained.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "06e265e0ac950e8f935c0c942f856397673e0655b56b1925b527d8cb9cb11842",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-required.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "659728d619aa93b65f51ec4cba13734e4a089e6935d4a2e4755a730d52838e60",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-after-dark.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "29ae529afe46a831d030f093fe113cbdfb70c6204b527fe69fa409f89222ee96",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-after-light.jpg",
+    "format": "JPEG",
+    "width": 1280,
+    "height": 720,
+    "sha256": "3509e5cd1883e61e2e543f5f1272135c21f19c16b7524b88910e76409821c4af",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  },
+  {
+    "path": "browser/32-compact.jpg",
+    "format": "JPEG",
+    "width": 459,
+    "height": 488,
+    "sha256": "aa92fa3a00c7feb867ec1fb0cf21f31c2faa80eb1a7211003520fbc9348babaf",
+    "capture": "Chrome Page.captureScreenshot via cua_repl; unedited original bytes"
+  }
+]

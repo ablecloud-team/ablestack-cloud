@@ -1,0 +1,112 @@
+{
+  "cursor": 300,
+  "requests": [
+    {
+      "id": "22664.670",
+      "command": "listTags",
+      "args": {
+        "resourcetype": "Snapshot",
+        "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "listall": "true",
+        "page": "1",
+        "pagesize": "100",
+        "command": "listTags",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "listtagsresponse": {
+          "count": 1,
+          "tag": [
+            {
+              "key": "baseline",
+              "value": "SNAPTAG1484-32-owner",
+              "resourcetype": "Snapshot",
+              "resourceid": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+              "account": "SNAPTAG1484-32-owner",
+              "domainid": "dc029fa1-6c35-4fab-91ac-51c2f70f04a3",
+              "domain": "SNAPTAG1484-32-domain",
+              "domainpath": "ROOT/SNAPTAG1484-32-domain"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "22664.671",
+      "command": "createTags",
+      "args": {
+        "command": "createTags",
+        "response": "json",
+        "resourcetype": "Snapshot",
+        "resourceids": "7c7606f6-c433-45ca-82c9-eecd40aebe6f",
+        "tags[0].key": "baseline",
+        "tags[0].value": "SNAPTAG1484-32-owner"
+      },
+      "method": "POST",
+      "response": {
+        "createtagsresponse": {
+          "jobid": "d604818e-ce0d-4484-98ba-fc7bdf41f872"
+        }
+      }
+    },
+    {
+      "id": "22664.672",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "d604818e-ce0d-4484-98ba-fc7bdf41f872",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 0,
+          "managementserverid": "09c71016-1716-4de1-89ba-da513d7562e0",
+          "managementservername": "ccvm-mngt",
+          "created": "2026-10-24T22:01:54+0900",
+          "jobid": "d604818e-ce0d-4484-98ba-fc7bdf41f872",
+          "jobstatus": 0
+        }
+      }
+    },
+    {
+      "id": "22664.675",
+      "command": "queryAsyncJobResult",
+      "args": {
+        "jobid": "d604818e-ce0d-4484-98ba-fc7bdf41f872",
+        "command": "queryAsyncJobResult",
+        "response": "json"
+      },
+      "method": "GET",
+      "response": {
+        "queryasyncjobresultresponse": {
+          "accountid": "6d3ebcb0-b23b-11f1-990e-0024811f8935",
+          "account": "admin",
+          "domainid": "2246448b-b23b-11f1-990e-0024811f8935",
+          "domainpath": "ROOT",
+          "userid": "6d3f209b-b23b-11f1-990e-0024811f8935",
+          "cmd": "org.apache.cloudstack.api.command.user.tag.CreateTagsCmd",
+          "jobprocstatus": 0,
+          "jobresultcode": 530,
+          "jobresulttype": "object",
+          "jobresult": {
+            "errorcode": 530,
+            "errortext": "tag baseline already on Snapshot with id 7c7606f6-c433-45ca-82c9-eecd40aebe6f"
+          },
+          "created": "2026-10-24T22:01:54+0900",
+          "completed": "2026-10-24T22:01:54+0900",
+          "jobid": "d604818e-ce0d-4484-98ba-fc7bdf41f872",
+          "jobstatus": 2
+        }
+      }
+    }
+  ]
+}

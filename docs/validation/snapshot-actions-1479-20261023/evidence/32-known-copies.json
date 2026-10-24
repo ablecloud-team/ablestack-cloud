@@ -1,0 +1,128 @@
+[
+  {
+    "uuid": "bc35f098-29a3-4b7e-bfe0-ed9632f3c2bb",
+    "name": "SNAP1479-32-source-snapshot",
+    "role": "Primary",
+    "path": "rbd/9cffe2f0-cf71-4c78-924e-b0ad321b606e/c23a4881-f016-4489-b9c4-4029b02f8675"
+  },
+  {
+    "uuid": "bc35f098-29a3-4b7e-bfe0-ed9632f3c2bb",
+    "name": "SNAP1479-32-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/328/c23a4881-f016-4489-b9c4-4029b02f8675"
+  },
+  {
+    "uuid": "9d9bc9c6-3639-4870-9390-0ee3f37b9d01",
+    "name": "SNAP1479-32-other-snapshot",
+    "role": "Primary",
+    "path": "rbd/8a668d6f-2b42-44f4-8dce-1638722ef9d5/57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33"
+  },
+  {
+    "uuid": "9d9bc9c6-3639-4870-9390-0ee3f37b9d01",
+    "name": "SNAP1479-32-other-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/329/57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33"
+  },
+  {
+    "uuid": "a7e4f067-81a2-4deb-bcab-d5e9c5706d1b",
+    "name": "SNAP1479-32-orphan-source-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/330/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75"
+  },
+  {
+    "uuid": "7476648d-3984-461e-9e1b-929fd0f4defd",
+    "name": "SNAP1479-32-running-snapshot",
+    "role": "Primary",
+    "path": "rbd/9cffe2f0-cf71-4c78-924e-b0ad321b606e/e865d1f6-ceff-4094-aa70-97e733fb3be8"
+  },
+  {
+    "uuid": "7476648d-3984-461e-9e1b-929fd0f4defd",
+    "name": "SNAP1479-32-running-snapshot",
+    "role": "Image",
+    "path": "snapshots/2/328/e865d1f6-ceff-4094-aa70-97e733fb3be8"
+  },
+  {
+    "uuid": "22b644a3-7493-49ca-bc52-f32e27b7e473",
+    "name": "SNAP1479-32-tenant-snapshot",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/e5a86582-001e-4908-b26d-f64ba554cde7"
+  },
+  {
+    "uuid": "22b644a3-7493-49ca-bc52-f32e27b7e473",
+    "name": "SNAP1479-32-tenant-snapshot",
+    "role": "Image",
+    "path": "snapshots/62/332/e5a86582-001e-4908-b26d-f64ba554cde7"
+  },
+  {
+    "uuid": "117eb337-732e-4a8a-9cc5-863216e1dd0a",
+    "name": "SNAP1479-32-lost-ui",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/5d04c4f1-dcbd-4ed6-9aa6-0e84e95b41b0"
+  },
+  {
+    "uuid": "117eb337-732e-4a8a-9cc5-863216e1dd0a",
+    "name": "SNAP1479-32-lost-ui",
+    "role": "Image",
+    "path": "snapshots/62/332/5d04c4f1-dcbd-4ed6-9aa6-0e84e95b41b0"
+  },
+  {
+    "uuid": "7294b578-80fc-4cc2-bf38-34c18fd87496",
+    "name": "SNAP1479-32-dedupe-createSnapshot-after-agent-up",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/a8be42e4-8571-423c-90c5-6182258bcba9"
+  },
+  {
+    "uuid": "7294b578-80fc-4cc2-bf38-34c18fd87496",
+    "name": "SNAP1479-32-dedupe-createSnapshot-after-agent-up",
+    "role": "Image",
+    "path": "snapshots/62/332/a8be42e4-8571-423c-90c5-6182258bcba9"
+  },
+  {
+    "uuid": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+    "name": "SNAP1479-32-dedupe-createSnapshot-final",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/f7beccf2-08e7-4986-a444-3313d162b6f7"
+  },
+  {
+    "uuid": "7584b0be-a35e-4217-ba1e-7a95a0931d1a",
+    "name": "SNAP1479-32-dedupe-createSnapshot-final",
+    "role": "Image",
+    "path": "snapshots/62/332/f7beccf2-08e7-4986-a444-3313d162b6f7"
+  },
+  {
+    "uuid": "8f2b5ab4-d4e4-43fb-a7d9-3929e0339ace",
+    "name": "SNAP1479-32-lost-fixed-ui",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/a0f5b1d8-65c5-4b31-aa0b-5cda517f3352"
+  },
+  {
+    "uuid": "8f2b5ab4-d4e4-43fb-a7d9-3929e0339ace",
+    "name": "SNAP1479-32-lost-fixed-ui",
+    "role": "Image",
+    "path": "snapshots/62/332/a0f5b1d8-65c5-4b31-aa0b-5cda517f3352"
+  },
+  {
+    "uuid": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+    "name": "SNAP1479-32-lost-reload-ui",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/34c7760a-ee1f-404e-a808-5af2443e9d43"
+  },
+  {
+    "uuid": "bdb05815-b0b1-4cee-9ad5-e7c7fa84f170",
+    "name": "SNAP1479-32-lost-reload-ui",
+    "role": "Image",
+    "path": "snapshots/62/332/34c7760a-ee1f-404e-a808-5af2443e9d43"
+  },
+  {
+    "uuid": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+    "name": "SNAP1479-32-query-project-ui",
+    "role": "Primary",
+    "path": "rbd/9fa5eafb-2748-4e63-a3b3-31defdcd15b0/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc"
+  },
+  {
+    "uuid": "e08c854b-88b7-4fd7-b379-af89b8036d6c",
+    "name": "SNAP1479-32-query-project-ui",
+    "role": "Image",
+    "path": "snapshots/62/332/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc"
+  }
+]

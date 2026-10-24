@@ -1,0 +1,24 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/987/7376b457-d9a6-4035-a4df-71eef39fe896",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/988/c48a516b-5f06-4985-8f85-9c1ed262e107",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/989/c32f56d6-1a18-406a-a534-4e205f620bd4",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    }
+  ],
+  "templates": [],
+  "sourceVolumePaths": []
+}

@@ -1,0 +1,28 @@
+{
+  "snapshot": "7ecd6308-4e8a-4757-ade0-7a115183ef8a",
+  "scenario": "force-path",
+  "kind": "missing-path",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/0ac5b8fb-9142-494f-be12-c198c8e18865",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 36,
+      "referenceid": 68
+    },
+    {
+      "path": "snapshots/2/323/0ac5b8fb-9142-494f-be12-c198c8e18865",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 36,
+      "referenceid": 69
+    }
+  ],
+  "fixtureOnly": true,
+  "referenceid": 68,
+  "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/0ac5b8fb-9142-494f-be12-c198c8e18865"
+}

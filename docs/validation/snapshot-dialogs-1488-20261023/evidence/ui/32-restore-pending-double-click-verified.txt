@@ -1,0 +1,3 @@
+Browser tab: 23, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/d6b637f5-e5a6-49b9-b015-e03e95314970?tab=zones".
+There has been no change in the accessibility tree.
+The focused UI element is 918 container 스냅샷 복원

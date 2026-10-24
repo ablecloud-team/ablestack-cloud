@@ -82,6 +82,29 @@ public class ExtractResponse extends BaseResponse {
     @Param(description = "If mode = upload then URL of the uploaded entity. if mode = download the URL from which the entity can be downloaded")
     private String url;
 
+    @SerializedName("filename")
+    @Param(description = "Download filename including the actual image format extension")
+    private String filename;
+
+    @SerializedName(ApiConstants.FORMAT)
+    @Param(description = "Actual image format verified on secondary storage")
+    private String format;
+
+    @SerializedName(ApiConstants.SIZE)
+    @Param(description = "Virtual image capacity in bytes")
+    private Long size;
+
+    @SerializedName("physicalsize")
+    @Param(description = "Transferable image file length in bytes")
+    private Long physicalSize;
+
+    public void setDownloadMetadata(String filename, String format, Long size, Long physicalSize) {
+        this.filename = filename;
+        this.format = format;
+        this.size = size;
+        this.physicalSize = physicalSize;
+    }
+
     public ExtractResponse() {
     }
 

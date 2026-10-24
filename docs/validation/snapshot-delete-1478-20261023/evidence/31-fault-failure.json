@@ -1,0 +1,55 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "2034db21-d0bf-4dac-8d0d-2ad81f0b8164",
+    "name": "SNAP1478-31-partial",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 97,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      {
+        "referenceid": 101,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "ce9d578e205b0e715f0218a13de2512e89b1983a897b252164a404fb9eae7345"
+  },
+  "failure": "{\"accountid\":\"a75c97c6-b253-11f1-a895-0024814c313f\",\"account\":\"admin\",\"domainid\":\"7ef6b29a-b253-11f1-a895-0024814c313f\",\"domainpath\":\"ROOT\",\"userid\":\"a75cdd55-b253-11f1-a895-0024814c313f\",\"cmd\":\"org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd\",\"jobprocstatus\":0,\"jobresultcode\":530,\"jobresulttype\":\"object\",\"jobresult\":{\"errorcode\":530,\"errortext\":\"Failed to delete snapshot chain.\"},\"jobinstancetype\":\"Snapshot\",\"jobinstanceid\":\"2034db21-d0bf-4dac-8d0d-2ad81f0b8164\",\"created\":\"2026-10-23T14:28:27+0900\",\"completed\":\"2026-10-23T14:28:28+0900\",\"jobid\":\"ae94be5a-5cad-4366-a058-50ae80abbb7a\",\"jobstatus\":2}",
+  "after": {
+    "success": true,
+    "snapshotid": "2034db21-d0bf-4dac-8d0d-2ad81f0b8164",
+    "name": "SNAP1478-31-partial",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 97,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      },
+      {
+        "referenceid": 101,
+        "storeid": "dd8d0666-cebe-4921-8b8f-0c7b12780ad8",
+        "storename": "Secondary",
+        "role": "Image",
+        "state": "Ready",
+        "zoneid": "7013f5a1-de59-4cea-a596-f4f58815f31c"
+      }
+    ],
+    "scopehash": "ce9d578e205b0e715f0218a13de2512e89b1983a897b252164a404fb9eae7345"
+  }
+}

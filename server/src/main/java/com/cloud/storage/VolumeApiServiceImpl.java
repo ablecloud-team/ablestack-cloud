@@ -976,7 +976,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 }
             }
 
+            com.cloud.storage.snapshot.SnapshotRestoreContract.validate(snapshotCheck.getSize(), cmdSize, size,
+                    diskOffering == null, cmdMinIops, cmdMaxIops, kmsKeyId);
             parentVolume = _volsDao.findByIdIncludingRemoved(snapshotCheck.getVolumeId());
+            if (parentVolume == null) {
+                throw new InvalidParameterValueException("Snapshot source metadata is unavailable; cannot validate encryption and allocation constraints");
+            }
             com.cloud.storage.VolumeAllocationPolicy.requireUnqualifiedLifecycle(_volsDetailsDao.listDetailsKeyPairs(parentVolume.getId()), "snapshot restore");
             if (diskOffering != null) com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailsDao.listDetailsKeyPairs(diskOffering.getId()));
 
@@ -997,14 +1002,12 @@ public class VolumeApiServiceImpl extends ManagerBase implements VolumeApiServic
                 minIops = snapshotCheck.getMinIops();
                 maxIops = snapshotCheck.getMaxIops();
                 size = snapshotCheck.getSize(); // ; disk offering is used for tags purposes
-            } else {
-                if (size < snapshotCheck.getSize()) {
-                    throw new InvalidParameterValueException(String.format("Invalid size for volume creation: %dGB, snapshot size is: %dGB",
-                            size / (1024 * 1024 * 1024), snapshotCheck.getSize() / (1024 * 1024 * 1024)));
-                }
             }
-
-            _configMgr.checkDiskOfferingAccess(null, diskOffering, _dcDao.findById(zoneId));
+            if (diskOffering == null || diskOffering.getRemoved() != null) {
+                throw new InvalidParameterValueException("Snapshot disk offering is unavailable for restore");
+            }
+            com.cloud.storage.VolumeAllocationPolicy.requireLegacyExecution(_diskOfferingDetailsDao.listDetailsKeyPairs(diskOffering.getId()));
+            _configMgr.checkDiskOfferingAccess(owner, diskOffering, _dcDao.findById(zoneId));
 
             // check snapshot permissions
             _accountMgr.checkAccess(caller, null, true, snapshotCheck);

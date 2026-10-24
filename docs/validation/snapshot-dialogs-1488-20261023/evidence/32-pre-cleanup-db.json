@@ -1,0 +1,217 @@
+{
+  "snapshots": [
+    {
+      "id": 59,
+      "name": "SNAPDIALOG-32-source-snapshot",
+      "path": "rbd/b4b8b719-e529-4670-b3d1-1ba1cca1ae5a/1ba978db-2364-416b-8665-df15622c98c1",
+      "role": "Primary",
+      "uuid": "d6b637f5-e5a6-49b9-b015-e03e95314970",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 3,
+      "location": null,
+      "physical": 4194304,
+      "refstate": "Ready",
+      "referenceid": 113
+    },
+    {
+      "id": 59,
+      "name": "SNAPDIALOG-32-source-snapshot",
+      "path": "snapshots/2/343/1ba978db-2364-416b-8665-df15622c98c1",
+      "role": "Image",
+      "uuid": "d6b637f5-e5a6-49b9-b015-e03e95314970",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 114
+    },
+    {
+      "id": 60,
+      "name": "SNAPDIALOG-32-other-snapshot",
+      "path": "rbd/f5aa5429-c196-4518-98aa-bdde687c5c41/ba355726-626d-41ef-b6ed-55628daf283a",
+      "role": "Primary",
+      "uuid": "f9784822-f382-4147-aa04-5390db8172ae",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 3,
+      "location": null,
+      "physical": 4194304,
+      "refstate": "Ready",
+      "referenceid": 115
+    },
+    {
+      "id": 60,
+      "name": "SNAPDIALOG-32-other-snapshot",
+      "path": "snapshots/2/344/ba355726-626d-41ef-b6ed-55628daf283a",
+      "role": "Image",
+      "uuid": "f9784822-f382-4147-aa04-5390db8172ae",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 116
+    },
+    {
+      "id": 61,
+      "name": "SNAPDIALOG-32-orphan-source-snapshot",
+      "path": "snapshots/2/345/f421aa07-6b8a-4fa3-a366-96ee353cb09f",
+      "role": "Image",
+      "uuid": "c92c1e88-9e20-424d-a0b8-171ce9dd5823",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 118
+    },
+    {
+      "id": 62,
+      "name": "SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "path": "rbd/f5aa5429-c196-4518-98aa-bdde687c5c41/05992bed-932d-4c04-a1e2-987907dd0076",
+      "role": "Primary",
+      "uuid": "86a8f667-7cb3-49b6-aea8-3a645ada218d",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 3,
+      "location": null,
+      "physical": 1073741824,
+      "refstate": "Ready",
+      "referenceid": 119
+    },
+    {
+      "id": 62,
+      "name": "SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "path": "snapshots/2/344/05992bed-932d-4c04-a1e2-987907dd0076",
+      "role": "Image",
+      "uuid": "86a8f667-7cb3-49b6-aea8-3a645ada218d",
+      "state": "BackedUp",
+      "display": 1,
+      "removed": null,
+      "storeid": 1,
+      "location": null,
+      "physical": 1376256,
+      "refstate": "Ready",
+      "referenceid": 120
+    }
+  ],
+  "volumes": [
+    {
+      "id": 343,
+      "name": "SNAPDIALOG-32-source",
+      "path": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+      "uuid": "b4b8b719-e529-4670-b3d1-1ba1cca1ae5a",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": 229
+    },
+    {
+      "id": 344,
+      "name": "SNAPDIALOG-32-other",
+      "path": "f5aa5429-c196-4518-98aa-bdde687c5c41",
+      "uuid": "f5aa5429-c196-4518-98aa-bdde687c5c41",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 345,
+      "name": "SNAPDIALOG-32-orphan-source",
+      "path": "006b063d-008c-4413-941d-77ef00a41c01",
+      "uuid": "006b063d-008c-4413-941d-77ef00a41c01",
+      "state": "Expunged",
+      "poolid": 3,
+      "removed": "2026-10-23 14:18:11.000000",
+      "instanceid": null
+    },
+    {
+      "id": 346,
+      "name": "SNAPDIALOG-32-normal-ui-volume",
+      "path": "b53b146e-a98d-46ef-9785-b6041f209d2f",
+      "uuid": "d5e05851-c863-470a-83c6-70a5e64539e2",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": 229
+    },
+    {
+      "id": 347,
+      "name": "SNAPDIALOG-32-lost-ui-volume",
+      "path": "df950eda-f365-43ac-b3e7-24257ffaf650",
+      "uuid": "72b80015-c76e-4e4b-a4ac-f10904acd4df",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 348,
+      "name": "SNAPDIALOG-32-keyboard-ui-volume",
+      "path": "654d34e0-063e-444c-a362-b9197063c183",
+      "uuid": "748800ca-3dca-485d-ba09-6dab5aeca810",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 10,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 386754193424,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [
+    {
+      "name": "SNAPDIALOG-32-long-snapshot-name-for-dialog-line-wrapping-and-target-review-long-name-long-name-long-name-long-name-long-name-",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "86a8f667-7cb3-49b6-aea8-3a645ada218d"
+    },
+    {
+      "name": "SNAPDIALOG-32-orphan-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "c92c1e88-9e20-424d-a0b8-171ce9dd5823"
+    },
+    {
+      "name": "SNAPDIALOG-32-other-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "f9784822-f382-4147-aa04-5390db8172ae"
+    },
+    {
+      "name": "SNAPDIALOG-32-source-snapshot",
+      "type": "SNAPSHOT.ON_PRIMARY",
+      "count": 1,
+      "snapshot": "d6b637f5-e5a6-49b9-b015-e03e95314970"
+    }
+  ],
+  "expectedCounts": [
+    {
+      "owner": "admin",
+      "snapshot": 10,
+      "secondary_storage": 385680451600
+    }
+  ]
+}

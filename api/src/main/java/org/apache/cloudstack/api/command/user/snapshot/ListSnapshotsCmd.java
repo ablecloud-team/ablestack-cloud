@@ -34,6 +34,12 @@ import com.cloud.storage.Snapshot;
 @APICommand(name = "listSnapshots", description = "Lists all available Snapshots for the Account.", responseObject = SnapshotResponse.class, entityType = {
         Snapshot.class }, responseView = ResponseObject.ResponseView.Restricted, requestHasSensitiveInfo = false, responseHasSensitiveInfo = false)
 public class ListSnapshotsCmd extends BaseListTaggedResourcesCmd {
+    @Parameter(name = "includesnapshotcontext", type = CommandType.BOOLEAN,
+            description = "Include current source volume and Instance snapshot-operation context for safe UI preflight")
+    private Boolean includeSnapshotContext;
+
+    public boolean isIncludeSnapshotContext() { return Boolean.TRUE.equals(includeSnapshotContext); }
+
 
 
     /////////////////////////////////////////////////////
@@ -46,7 +52,7 @@ public class ListSnapshotsCmd extends BaseListTaggedResourcesCmd {
     @Parameter(name=ApiConstants.IDS, type=CommandType.LIST, collectionType=CommandType.UUID, entityType=SnapshotResponse.class, description = "The IDs of the Snapshots, mutually exclusive with id", since = "4.9")
     private List<Long> ids;
 
-    @Parameter(name = ApiConstants.INTERVAL_TYPE, type = CommandType.STRING, description = "Valid values are HOURLY, DAILY, WEEKLY, and MONTHLY.")
+    @Parameter(name = ApiConstants.INTERVAL_TYPE, type = CommandType.STRING, description = "Recurring interval: HOURLY, DAILY, WEEKLY or MONTHLY. Applies with or without volumeid and intersects snapshottype=RECURRING. Cannot be combined with MANUAL.")
     private String intervalType;
 
     @Parameter(name = ApiConstants.NAME, type = CommandType.STRING, description = "Lists Snapshot by Snapshot name")
@@ -61,12 +67,22 @@ public class ListSnapshotsCmd extends BaseListTaggedResourcesCmd {
     @Parameter(name = ApiConstants.ZONE_ID, type = CommandType.UUID, entityType = ZoneResponse.class, description = "List Snapshots by zone id")
     private Long zoneId;
 
-    @Parameter(name = ApiConstants.SHOW_UNIQUE, type = CommandType.BOOLEAN, description = "If set to false, list templates across zones and their storages", since = "4.19.0")
+    @Parameter(name = ApiConstants.SHOW_UNIQUE, type = CommandType.BOOLEAN, description = "Default true: one logical snapshot per entry/count. False: one snapshot/datastore reference per entry/count across zones; missing datastore references are explicitly Unknown", since = "4.19.0")
     private Boolean showUnique;
 
     @Parameter(name = ApiConstants.LOCATION_TYPE, type = CommandType.STRING, description = "list snapshots by location type. Used only when showunique=false. " +
             "Valid location types: 'primary', 'secondary'. Default is empty", since = "4.19.0")
     private String locationType;
+
+    @Parameter(name = "sortkey", type = CommandType.STRING, description = "Server sort field: created (default), id, name, state, volumename, intervaltype, virtualsize, account, domain or project. Copy-dependent fields are not supported.")
+    private String sortKey;
+
+    @Parameter(name = "sortorder", type = CommandType.STRING, description = "Server sort direction: asc or desc (default). Ties use snapshot id in the same direction, then datastore reference ascending.")
+    private String sortOrder;
+
+    public String getSortKey() { return sortKey; }
+
+    public String getSortOrder() { return sortOrder; }
 
     /////////////////////////////////////////////////////
     /////////////////// Accessors ///////////////////////

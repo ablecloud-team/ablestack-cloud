@@ -1,0 +1,26 @@
+[
+  {
+    "volume": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+    "scenario": "source",
+    "image": "rbd:rbd/9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.01 sec (91.495 MiB/sec and 91.4946 ops/sec)",
+    "verifiedPattern": "0x5a"
+  },
+  {
+    "volume": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+    "scenario": "other",
+    "image": "rbd:rbd/8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.01 sec (93.464 MiB/sec and 93.4644 ops/sec)",
+    "verifiedPattern": "0x5a"
+  },
+  {
+    "volume": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+    "scenario": "orphan-source",
+    "image": "rbd:rbd/a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+    "phase": "seed",
+    "output": "wrote 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.01 sec (98.629 MiB/sec and 98.6288 ops/sec)",
+    "verifiedPattern": "0x5a"
+  }
+]

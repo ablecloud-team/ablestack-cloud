@@ -1,0 +1,3 @@
+Browser tab: 22, Title: "가상머신 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/vm/6df58ee7-7b25-4da7-a646-350dec00e24e?tab=volumes".
+There has been no change in the accessibility tree.
+The focused UI element is 390 container

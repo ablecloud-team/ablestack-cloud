@@ -1,0 +1,28 @@
+{
+  "snapshot": "234a09b7-dc67-47c5-8a6f-8625661211d3",
+  "scenario": "partial",
+  "kind": "busy",
+  "before": [
+    {
+      "path": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c/f0e2daae-6028-4588-a8f7-42e4d090d5e4",
+      "role": "Primary",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 34,
+      "referenceid": 64
+    },
+    {
+      "path": "snapshots/2/323/f0e2daae-6028-4588-a8f7-42e4d090d5e4",
+      "role": "Image",
+      "state": "BackedUp",
+      "refstate": "Ready",
+      "volumeid": 323,
+      "snapshotid": 34,
+      "referenceid": 65
+    }
+  ],
+  "fixtureOnly": true,
+  "native": "rbd/ec0e0e8d-ea4f-4de6-801c-1035fb9a648c@f0e2daae-6028-4588-a8f7-42e4d090d5e4",
+  "child": "rbd/SNAP1477-32-partial-child"
+}

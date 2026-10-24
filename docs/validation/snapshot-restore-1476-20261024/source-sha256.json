@@ -1,0 +1,82 @@
+[
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/volume/CreateVolumeCmd.java",
+    "sha256": "2341db272f151a7c3d91e8584d57623814913d7a50b0a0400da00a16d668ca06",
+    "changed": true
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/ApiResponseHelper.java",
+    "sha256": "6b8224a0772d7cd71f94761f35abe5a6dae37abef84809b7bc590b73bf876cff",
+    "changed": true
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java",
+    "sha256": "c411ae463ce4b167f51f308bedebe243fdc8e6f509f566ad44d8ef8cb078f958",
+    "changed": true
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/dao/SnapshotJoinDaoImpl.java",
+    "sha256": "b4c598ba8fb767c922dc4b6dcaed4250ae72f5cd1ffd852d5741e5d10ea029a2",
+    "changed": true
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/VolumeApiServiceImpl.java",
+    "sha256": "62a9de5dcedfe6b063bc02f9183571f62aa8dc85eb73e17694ae62367a35e0db",
+    "changed": true
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/snapshot/SnapshotRestoreContract.java",
+    "sha256": "890846cd0bd457fba354742fff13c6b6498d4d5c92646fb57f8038a0f262a731",
+    "changed": true
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotRestoreContractTest.java",
+    "sha256": "d02dfc1b508ca27529b73e008ae5b7d228c8235b31404ef6c099ea96b0944948",
+    "changed": true
+  },
+  {
+    "path": "ui/src/views/storage/CreateVolume.vue",
+    "sha256": "ded4b9a31ffb110781a49b0e609f06c8d791152ce0ad92d26da780ce42f3faaa",
+    "changed": true
+  },
+  {
+    "path": "ui/src/utils/snapshotRestore.js",
+    "sha256": "33ab88b2e295eb93523284144cd5890ac4630e3cc53458916e560a850be68148",
+    "changed": true
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotRestoreInheritance.spec.js",
+    "sha256": "1532fc4b85da8d4ce6ab7a459f6a9b10f1a102a312266fc7e58a898ad1fe448e",
+    "changed": true
+  },
+  {
+    "path": "ui/tests/unit/views/storage/CreateVolumeLifecycle.spec.js",
+    "sha256": "d1019b6bb05e90802673033f1bea58f79c591d2c6db68afb6603edda00240aac",
+    "changed": true
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "16d57a27049ffbf01c355e859bf862af84d3c4d049ee38555b43e18be859e217",
+    "changed": true
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "aee37c118e75d2da66a47e6c5ffda3aa4f43f025ce64fe69df743ee865011503",
+    "changed": true
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotContext.js",
+    "sha256": "a8e27a0fe7c73a2d6866b4d2950ab33bc6767d916705ed6d25c86b530a373ac8",
+    "changed": false
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotSafety.js",
+    "sha256": "102c8f77f42d8e635a7ef6d314ced33f7474398691f9b6470dad67c22e52cb4f",
+    "changed": false
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotOperations.js",
+    "sha256": "f5e34530ef52e62d5bbf02ddc1b895ce95c513c982a6bfcfb7314828b0e20b6e",
+    "changed": false
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/response/SnapshotArchiveResponse.java",
+    "sha256": "9ef3a3d1a541b1d456d029f329282d80e02ae6a8c73230c77ca2b88ff58fdf9e"
+  },
+  {
+    "path": "engine/storage/snapshot/src/test/java/org/apache/cloudstack/storage/snapshot/SnapshotArchiveServiceTest.java",
+    "sha256": "b6914be038e8b79581acaa6a29aea07f57277f985143c4f2a892a85ff9e1c615"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/SnapshotArchiveSerializationTest.java",
+    "sha256": "5b3571c05a99a025eb8e9edbbc7fd803e52b2e5e8f4dec9341253aa8e366de4a"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/ForcedSnapshotDeletionTest.java",
+    "sha256": "d921cc3649bc86716ad16b8c9f9b1df50f828a3885dde611e9d8b27c627b8302"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotArchiveTest.java",
+    "sha256": "b86b0c4c9671ce12a5831243d68489c27abb7dd626d7710b2c87c0f09b0f2140"
+  },
+  {
+    "path": "api/src/main/java/com/cloud/storage/snapshot/SnapshotApiService.java",
+    "sha256": "16b322fdb621367b8573000e5c31ede02587c26f21435598f7191d2b4b18239f"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/ArchiveSnapshotCmd.java",
+    "sha256": "1fc522894e3de010463a6a4bb6a9e4140b632eee37b933045e28ac51d3744f39"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/DeleteSnapshotCmd.java",
+    "sha256": "bde6c1d7fa22842da0691475128ab83d5809a63a479255604160ad5ac47e1087"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/response/SnapshotDeletionResponse.java",
+    "sha256": "eba6e3b1ef4b25ba94bb52f4b1994ac9afc4440e8ffb01431f191dc2f82ff65d"
+  },
+  {
+    "path": "engine/api/src/main/java/org/apache/cloudstack/engine/subsystem/api/storage/SnapshotDataFactory.java",
+    "sha256": "7a1d211da12865e8f0a17b06dadebe8b7d5e0958547d2bdc4e940c6c8008f840"
+  },
+  {
+    "path": "engine/api/src/main/java/org/apache/cloudstack/engine/subsystem/api/storage/SnapshotService.java",
+    "sha256": "6cb43b2a8f6e126a9687199c9403cc5df9e9f95eb06d412b86845d32139cac38"
+  },
+  {
+    "path": "engine/storage/snapshot/src/main/java/org/apache/cloudstack/storage/snapshot/SnapshotDataFactoryImpl.java",
+    "sha256": "cf04fb5aadcdc40f27965f9d85c25619f99440d7af2f45013ed9c96186a332be"
+  },
+  {
+    "path": "engine/storage/snapshot/src/main/java/org/apache/cloudstack/storage/snapshot/SnapshotServiceImpl.java",
+    "sha256": "cb96c5b6d2d7b47550b9c462622cdfd2f8a4d4281a0bd95d00fc1719903a7fc2"
+  },
+  {
+    "path": "engine/storage/snapshot/src/test/java/org/apache/cloudstack/storage/snapshot/SnapshotDataFactoryImplTest.java",
+    "sha256": "12fd325ff934ac6430c53a29d7a39505c8b500cf1367c39e0f24223251b74ca2"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/snapshot/SnapshotManagerImpl.java",
+    "sha256": "27fe45b2f51f59bb4923aafae9077502c4a149f8efb77c38e1cd81037618b7fa"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/SnapshotDeletionSerializationTest.java",
+    "sha256": "76ef3d3037f9c3affd773159b1ea49c98a59f61d3e01c8e917c8e5324897ac05"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotManagerTest.java",
+    "sha256": "bc0a386aedf6ede367c1185bb55627d3b60ee196ca03028f46fca70346166e06"
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "2a481db7e239ceac126b19c2c0155ad7bcdad722e76989d62ef9e725ea6d7bf0"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "221704ac9076bab271c8fc7e99b6618fe5bd00b1968e23a6b29ec8da34fff6e6"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotDeletionRecovery.vue",
+    "sha256": "291f6058925a4c0c777ffd65f4e958d764f0338d0d7f53a3e11f9a3c98104de0"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotDeletionRecovery.spec.js",
+    "sha256": "911000daf3f2b77a9c59e32eb392e31e8d426df5ccc730ce3e6ea095063f07e4"
+  }
+]

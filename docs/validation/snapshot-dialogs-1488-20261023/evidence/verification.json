@@ -1,0 +1,203 @@
+{
+  "status": "PASS",
+  "matrixCombinations": 32,
+  "minimumContrast": 4.97,
+  "matrices": [
+    {
+      "name": "31-create-light-320-final",
+      "width": 296,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "31-create-light-390-final",
+      "width": 366,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "31-create-light-768-final",
+      "width": 720,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "31-create-light-1280-final",
+      "width": 720,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "31-create-dark-320-final",
+      "width": 296,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "31-create-dark-390-final",
+      "width": 366,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "31-create-dark-768-final",
+      "width": 720,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "31-create-dark-1280-final",
+      "width": 720,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-light-320-final",
+      "width": 296,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-light-390-final",
+      "width": 366,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-light-768-final",
+      "width": 720,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-light-1280-final",
+      "width": 720,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-dark-320-final",
+      "width": 296,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-dark-390-final",
+      "width": 366,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-dark-768-final",
+      "width": 720,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "31-restore-dark-1280-final",
+      "width": 720,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "32-create-light-320-final",
+      "width": 296,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "32-create-light-390-final",
+      "width": 366,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "32-create-light-768-final",
+      "width": 720,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "32-create-light-1280-final",
+      "width": 720,
+      "minimumContrast": 4.97,
+      "overlap": false
+    },
+    {
+      "name": "32-create-dark-320-final",
+      "width": 296,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "32-create-dark-390-final",
+      "width": 366,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "32-create-dark-768-final",
+      "width": 720,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "32-create-dark-1280-final",
+      "width": 720,
+      "minimumContrast": 5.19,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-light-320-final",
+      "width": 296,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-light-390-final",
+      "width": 366,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-light-768-final",
+      "width": 720,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-light-1280-final",
+      "width": 720,
+      "minimumContrast": 7.17,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-dark-320-final",
+      "width": 296,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-dark-390-final",
+      "width": 366,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-dark-768-final",
+      "width": 720,
+      "minimumContrast": 7.13,
+      "overlap": false
+    },
+    {
+      "name": "32-restore-dark-1280-final",
+      "width": 720,
+      "minimumContrast": 7.13,
+      "overlap": false
+    }
+  ],
+  "scope": "volume creation and snapshot revert dialogs only",
+  "fullCloudBuild": false,
+  "commonVmSourcesUnchanged": true,
+  "cleanupAndPreservation": "PASS"
+}

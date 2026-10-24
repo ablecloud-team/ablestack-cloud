@@ -1,0 +1,56 @@
+{
+  "snapshots": [],
+  "volumes": [
+    {
+      "id": 328,
+      "name": "SNAP1479-32-source",
+      "path": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "uuid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 329,
+      "name": "SNAP1479-32-other",
+      "path": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "uuid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    },
+    {
+      "id": 330,
+      "name": "SNAP1479-32-orphan-source",
+      "path": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "uuid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "state": "Ready",
+      "poolid": 3,
+      "removed": null,
+      "instanceid": null
+    }
+  ],
+  "counts": [
+    {
+      "type": "snapshot",
+      "count": 6,
+      "owner": "admin"
+    },
+    {
+      "type": "secondary_storage",
+      "count": 385674946576,
+      "owner": "admin"
+    }
+  ],
+  "forcedCleanupAudit": [],
+  "usageEvents": [],
+  "expectedCounts": [
+    {
+      "owner": "admin",
+      "snapshot": 6,
+      "secondary_storage": 385674946576
+    }
+  ]
+}

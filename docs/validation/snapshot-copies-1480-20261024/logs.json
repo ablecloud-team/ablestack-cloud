@@ -1,0 +1,27 @@
+[
+  {
+    "path": "dependencies-build.log",
+    "originalSha256": "a28276dec82e220db806275e6c26c21901c2cc094261788e728a50e8d99761e4",
+    "normalization": "UTF-8, LF, ANSI removed, trailing whitespace removed"
+  },
+  {
+    "path": "server-tests.log",
+    "originalSha256": "c19f2f89a82828e929ad823796114743499ae8233e2ba012cf225ffcf8020bbf",
+    "normalization": "UTF-8, LF, ANSI removed, trailing whitespace removed"
+  },
+  {
+    "path": "ui-final-tests.log",
+    "originalSha256": "cb8fbaf91949a6a462aeb8593476d6a0b4536f17ad1b732818e53cc01ac2fd83",
+    "normalization": "UTF-8, LF, ANSI removed, trailing whitespace removed"
+  },
+  {
+    "path": "ui-final-lint.log",
+    "originalSha256": "835a216259bd7c8f010819983f883123971e6bcaa2c7eabb0428b2b7a8753d78",
+    "normalization": "UTF-8, LF, ANSI removed, trailing whitespace removed"
+  },
+  {
+    "path": "ui-release-build.log",
+    "originalSha256": "b4444f07ba8ec6b056d853fb8ca5a2ab309b5f0a9644d539b6a375ce6f804620",
+    "normalization": "UTF-8, LF, ANSI removed, trailing whitespace removed"
+  }
+]

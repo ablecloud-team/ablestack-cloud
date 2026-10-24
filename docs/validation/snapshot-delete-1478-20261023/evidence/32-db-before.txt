@@ -1,0 +1,9 @@
+24	30234b2e-12fb-42b0-8cfe-ffbcb689d151	SNAP1478-32-normal	BackedUp	44	Primary	3	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/167f8682-f0dc-440a-b65f-44f507d04f38	1073741824
+24	30234b2e-12fb-42b0-8cfe-ffbcb689d151	SNAP1478-32-normal	BackedUp	45	Image	1	Ready	snapshots/2/321/167f8682-f0dc-440a-b65f-44f507d04f38	196624
+25	e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	BackedUp	46	Primary	3	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/fb878c93-5b45-4117-bd32-c85d3ae5987f	1073741824
+25	e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	BackedUp	47	Image	1	Ready	snapshots/2/321/fb878c93-5b45-4117-bd32-c85d3ae5987f	196624
+25	e2f5dfdf-faa3-4208-a5ca-cb837f868cd9	SNAP1478-32-residue	BackedUp	52	Image	1	Allocated	snapshots/2/321	0
+26	c7f9c08c-8b20-460b-9fc8-05ad70f2126d	SNAP1478-32-partial	BackedUp	48	Primary	3	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/abefbeef-8cdf-4927-a565-12713fa82f1c	1073741824
+26	c7f9c08c-8b20-460b-9fc8-05ad70f2126d	SNAP1478-32-partial	BackedUp	49	Image	1	Ready	snapshots/2/321/abefbeef-8cdf-4927-a565-12713fa82f1c	196624
+27	06a5da98-d091-4df6-8418-db5e460c6b26	SNAP1478-32-control	BackedUp	50	Primary	3	Ready	rbd/7aab199e-63e2-4407-abe4-980f1ea14481/63370bf9-4b6f-4ed8-8676-2380e4154bea	1073741824
+27	06a5da98-d091-4df6-8418-db5e460c6b26	SNAP1478-32-control	BackedUp	51	Image	1	Ready	snapshots/2/321/63370bf9-4b6f-4ed8-8676-2380e4154bea	196624

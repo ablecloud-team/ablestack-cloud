@@ -1,0 +1,80 @@
+[
+  {
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "deletesnapshotresponse": {
+        "success": true,
+        "snapshotid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+        "name": "SNAP1477-31-force-path",
+        "state": "Destroyed",
+        "dryrun": false,
+        "reference": [],
+        "force": true,
+        "dbcleanupcomplete": true,
+        "physicalcleanupcomplete": false,
+        "pendingcleanup": 1,
+        "cleanupresult": [
+          {
+            "referenceid": 119,
+            "role": "Image",
+            "action": "DB_ONLY",
+            "reason": "MISSING_TARGET_METADATA"
+          }
+        ]
+      }
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+    "created": "2026-10-23T17:26:44+0900",
+    "completed": "2026-10-23T17:26:44+0900",
+    "jobid": "a7ec9503-9261-46d2-ac7e-33a1cdb0939c",
+    "jobstatus": 1
+  },
+  {
+    "accountid": "a75c97c6-b253-11f1-a895-0024814c313f",
+    "account": "admin",
+    "domainid": "7ef6b29a-b253-11f1-a895-0024814c313f",
+    "domainpath": "ROOT",
+    "userid": "a75cdd55-b253-11f1-a895-0024814c313f",
+    "cmd": "org.apache.cloudstack.api.command.user.snapshot.DeleteSnapshotCmd",
+    "jobprocstatus": 0,
+    "jobresultcode": 0,
+    "jobresulttype": "object",
+    "jobresult": {
+      "deletesnapshotresponse": {
+        "success": true,
+        "snapshotid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+        "name": "SNAP1477-31-force-path",
+        "state": "Destroyed",
+        "dryrun": false,
+        "reference": [],
+        "force": true,
+        "dbcleanupcomplete": true,
+        "physicalcleanupcomplete": true,
+        "pendingcleanup": 0,
+        "cleanupresult": [
+          {
+            "referenceid": 119,
+            "role": "Image",
+            "action": "PHYSICAL_DELETED",
+            "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+          }
+        ]
+      }
+    },
+    "jobinstancetype": "Snapshot",
+    "jobinstanceid": "31fe7ab0-41eb-49fb-919a-19187ecef81c",
+    "created": "2026-10-23T17:27:30+0900",
+    "completed": "2026-10-23T17:27:30+0900",
+    "jobid": "0e086f40-e7a5-4286-b391-2a4103ec0eae",
+    "jobstatus": 1
+  }
+]

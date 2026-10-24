@@ -1,0 +1,3 @@
+Browser tab: 22, Title: "볼륨 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/volume?keyword=SNAPDIALOG-31-&q=SNAPDIALOG-31-&page=1&pagesize=20".
+There has been no change in the accessibility tree.
+The focused UI element is 1 AXWebArea 볼륨 - ABLESTACK-Mold, URL: localhost:18031/client/#/volume?keyword=SNAPDIALOG-31-&q=SNAPDIALOG-31-&page=1&pagesize=20

@@ -1,0 +1,69 @@
+{
+  "root": "C:\\Users\\ablecloud\\Documents\\GitHub\\dhslove\\ablestack-cloud",
+  "head": "8c0a6d9a0a947311abb0ee6d2604fdcb855906d1",
+  "branch": "feature/ftctl-cloud-integration",
+  "status": [
+    " M docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md",
+    " M plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java",
+    " M plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java",
+    "?? docs/design/mold-ssh-keypair-1370-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1372-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1373-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1374-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1375-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1376-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-1377-design.ko.md",
+    "?? docs/design/mold-ssh-keypair-ui-standard-comparison-20261014.ko.md",
+    "?? docs/design/mold-ssh-keypair-validation-20261014.ko.md",
+    "?? docs/design/vm-process-issue-links-20260924.json",
+    "?? docs/design/vm-process-issues-20260924.json",
+    "?? docs/design/vm-process-management-epic-20260924.ko.md",
+    "?? docs/europa-feature-guide-20260913/",
+    "?? docs/ftctl/cross-hypervisor-dr-capability-brief-20260827/",
+    "?? docs/ftctl/cross-hypervisor-dr-presentation-20260825/",
+    "?? docs/validation/ssh-keypair-1370-20261014/",
+    "?? docs/validation/ssh-keypair-1372-20261015/",
+    "?? docs/validation/ssh-keypair-1373-20261015/",
+    "?? docs/validation/ssh-keypair-1374-20261015/",
+    "?? docs/validation/ssh-keypair-1375-20261015/",
+    "?? docs/validation/ssh-keypair-1375-radius-20261015/",
+    "?? docs/validation/ssh-keypair-1376-20261015/",
+    "?? docs/validation/ssh-keypair-1377-20261015/",
+    "?? docs/validation/ssh-keypair-1377-refresh-20261015/",
+    "?? docs/validation/volume-1423-20261019/",
+    "?? docs/validation/volume-audit-20261019/",
+    "?? docs/version-comparison-20260912/",
+    "?? etc/",
+    "?? tmp/",
+    "?? tmp_deploy_cloud_13_31_33221768861.sh",
+    "?? tmp_deploy_cloud_33661583729.sh",
+    "?? tmp_deploy_cloud_33846221614.sh",
+    "?? tmp_deploy_cloud_33952912366.sh",
+    "?? tmp_deploy_cloud_33956714232.sh",
+    "?? tmp_deploy_offline_cutover_cloud_module_13_31.sh",
+    "?? tmp_deploy_relocation_authority_13_31.sh",
+    "?? tmp_deploy_relocation_ui_v2_13_31.sh",
+    "?? tmp_issue_922_operation_creation_race_update.md",
+    "?? tmp_issue_922_test_cleanup_authority_update.md",
+    "?? tmp_probe_plugin_jar.sh",
+    "?? tmp_probe_relocation_13_31.sh",
+    "?? ui/pnpm-lock.yaml",
+    "?? ui/pnpm-workspace.yaml",
+    "?? usr/"
+  ],
+  "diffSha256": "88C7228D86EF82F9FDBDDA6C856F740414ABEC8DBE253C7F23380114CA567CF0",
+  "files": [
+    {
+      "path": "docs/ftctl/627-dr-dynamic-placement-and-transparent-worker-scheduling-design-20260903.md",
+      "sha256": "60C9AF5221E998A05588537DD60BB96B82E82A30903F0E0760031C75BC7AE694"
+    },
+    {
+      "path": "plugins/integrations/ftctl-service/src/main/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImpl.java",
+      "sha256": "C90E8C8F76FFCFE9DE93012DCFFA918CF521876F5D1ADF41800DB3503327AA93"
+    },
+    {
+      "path": "plugins/integrations/ftctl-service/src/test/java/com/cloud/ftctl/FtctlDrSiteAgentBrokerServiceImplTest.java",
+      "sha256": "75472DE2FD75BBF20493CD1BFBBEFE4D648A639665F982DECF9EDF7FE4F58B07"
+    }
+  ]
+}

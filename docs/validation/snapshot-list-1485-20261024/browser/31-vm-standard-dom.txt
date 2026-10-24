@@ -1,0 +1,981 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - list:
+      - menuitem "cloud-server 가상머신":
+        - link "cloud-server 가상머신":
+          - /url: "#/vm"
+          - img "cloud-server":
+          - text: 가상머신
+      - menuitem "camera VM 스냅샷":
+        - link "camera VM 스냅샷":
+          - /url: "#/vmsnapshot"
+          - img "camera":
+          - text: VM 스냅샷
+      - menuitem "쿠버네티스":
+        - link "쿠버네티스":
+          - /url: "#/kubernetes"
+          - text: 쿠버네티스
+      - menuitem "fullscreen 오토스케일 VM 그룹":
+        - link "fullscreen 오토스케일 VM 그룹":
+          - /url: "#/autoscalevmgroup"
+          - img "fullscreen":
+          - text: 오토스케일 VM 그룹
+      - menuitem "gold 가상머신 그룹":
+        - link "gold 가상머신 그룹":
+          - /url: "#/vmgroup"
+          - img "gold":
+          - text: 가상머신 그룹
+      - menuitem "key SSH 키 쌍":
+        - link "key SSH 키 쌍":
+          - /url: "#/ssh"
+          - img "key":
+          - text: SSH 키 쌍
+      - menuitem "solution 사용자 데이터 라이브러리":
+        - link "solution 사용자 데이터 라이브러리":
+          - /url: "#/userdata"
+          - img "solution":
+          - text: 사용자 데이터 라이브러리
+      - menuitem "solution CNI 구성":
+        - link "solution CNI 구성":
+          - /url: "#/cniconfiguration"
+          - img "solution":
+          - text: CNI 구성
+      - menuitem "swap Affinity 그룹":
+        - link "swap Affinity 그룹":
+          - /url: "#/affinitygroup"
+          - img "swap":
+          - text: Affinity 그룹
+    - img "hdd":
+    - text: 스토리지
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "가상머신":
+    - /url: "#/vm"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/virtual_machines.html
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - combobox
+  - generic: 모두
+  - switch "메트릭":
+    - generic: 메트릭
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "가상머신 추가":
+    - img "plus":
+    - generic: 가상머신 추가
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "VM 표시 명 caret-up caret-down 내부 이름 caret-up caret-down 상태 caret-up caret-down 할당 자원 caret-up caret-down 에이전트 버전 caret-up caret-down IP 주소 caret-up caret-down 템플릿 형식 caret-up caret-down 백업 오퍼링 이름 caret-up caret-down CPU 아키텍처 caret-up caret-down 호스트 caret-up caret-down 계정 caret-up caret-down Zone caret-up caret-down filter":
+        - columnheader:
+          - checkbox
+        - columnheader "VM 표시 명 caret-up caret-down":
+          - generic: VM 표시 명
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "내부 이름 caret-up caret-down":
+          - generic: 내부 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "할당 자원 caret-up caret-down":
+          - generic: 할당 자원
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "에이전트 버전 caret-up caret-down":
+          - generic: 에이전트 버전
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "IP 주소 caret-up caret-down":
+          - generic: IP 주소
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "템플릿 형식 caret-up caret-down":
+          - generic: 템플릿 형식
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "백업 오퍼링 이름 caret-up caret-down":
+          - generic: 백업 오퍼링 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "CPU 아키텍처 caret-up caret-down":
+          - generic: CPU 아키텍처
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "호스트 caret-up caret-down":
+          - generic: 호스트
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone caret-up caret-down":
+          - generic: Zone
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "GFS-TEST-VM i-2-7-VM 실행 중 4 CPU 8192 MB 10.1.0 10.10.254.105 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "GFS-TEST-VM":
+          - link "GFS-TEST-VM":
+            - /url: "#/vm/05f940bb-5ca7-4f58-8e41-ed8440758f0b"
+        - cell "i-2-7-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.105 +4 더보기":
+          - link "10.10.254.105":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "W2025-GFS2-Sparse i-2-13-VM 실행 중 4 CPU 8192 MB 110.2.3 10.10.254.210 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "W2025-GFS2-Sparse":
+          - link "W2025-GFS2-Sparse":
+            - /url: "#/vm/36d5333d-670a-4644-8c68-1f1dc154ba3a"
+        - cell "i-2-13-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.210 +4 더보기":
+          - link "10.10.254.210":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse i-2-14-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.209 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse":
+          - link "R10-Sparse":
+            - /url: "#/vm/2f35ea9a-7ff2-494f-a857-6527e0fb1976"
+        - cell "i-2-14-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.209 +4 더보기":
+          - link "10.10.254.209":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse-Clone1 i-2-15-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.114 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse-Clone1":
+          - link "R10-Sparse-Clone1":
+            - /url: "#/vm/708d87cd-1d8a-4911-b22a-4211cdf1634f"
+        - cell "i-2-15-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.114 +4 더보기":
+          - link "10.10.254.114":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse-Clone2 i-2-16-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.237 +4 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse-Clone2":
+          - link "R10-Sparse-Clone2":
+            - /url: "#/vm/dbdefe41-64a0-4ab1-a596-5d5f5131517c"
+        - cell "i-2-16-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.237 +4 더보기":
+          - link "10.10.254.237":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse-Clone3 i-2-17-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.116 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse-Clone3":
+          - link "R10-Sparse-Clone3":
+            - /url: "#/vm/1fdd690d-b0ca-45bf-9088-8534e409b866"
+        - cell "i-2-17-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.116 +4 더보기":
+          - link "10.10.254.116":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse-Clone4 i-2-18-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.144 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse-Clone4":
+          - link "R10-Sparse-Clone4":
+            - /url: "#/vm/3f135c5e-a3cf-4eec-9e90-51f3148c406d"
+        - cell "i-2-18-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.144 +4 더보기":
+          - link "10.10.254.144":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "R10-Sparse-Clone5 i-2-19-VM 실행 중 8 CPU 16384 MB 10.1.0 10.10.254.115 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "R10-Sparse-Clone5":
+          - link "R10-Sparse-Clone5":
+            - /url: "#/vm/c475abf7-2346-4015-9cef-001a78472c25"
+        - cell "i-2-19-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "8 CPU 16384 MB":
+          - text: 8 CPU
+          - text: 16384 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.115 +4 더보기":
+          - link "10.10.254.115":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "VM-630888e1-bcef-4b40-9952-b3409a664bae i-2-22-VM 실행 중 1 CPU 1024 MB 8.2.0 10.10.254.204 +4 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "VM-630888e1-bcef-4b40-9952-b3409a664bae":
+          - link "VM-630888e1-bcef-4b40-9952-b3409a664bae":
+            - /url: "#/vm/630888e1-bcef-4b40-9952-b3409a664bae"
+        - cell "i-2-22-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "1 CPU 1024 MB":
+          - text: 1 CPU
+          - text: 1024 MB
+        - cell "8.2.0":
+          - generic: 8.2.0
+        - cell "10.10.254.204 +4 더보기":
+          - link "10.10.254.204":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "W2025-Sparse-Clone1 i-2-25-VM 실행 중 4 CPU 8192 MB 110.2.3 10.10.254.121 +4 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "W2025-Sparse-Clone1":
+          - link "W2025-Sparse-Clone1":
+            - /url: "#/vm/f4be8cb2-f649-47ef-bcd2-7b59b71d5471"
+        - cell "i-2-25-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.121 +4 더보기":
+          - link "10.10.254.121":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "W2025-Sparse-Clone2 i-2-26-VM 실행 중 4 CPU 8192 MB 110.2.3 10.10.254.118 +4 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "W2025-Sparse-Clone2":
+          - link "W2025-Sparse-Clone2":
+            - /url: "#/vm/06c6d7a7-f4da-4c2f-9a9b-c43cd015f6d9"
+        - cell "i-2-26-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.118 +4 더보기":
+          - link "10.10.254.118":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "W2025-Sparse-Clone3 i-2-27-VM 실행 중 4 CPU 8192 MB 110.2.3 10.10.254.120/16 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "W2025-Sparse-Clone3":
+          - link "W2025-Sparse-Clone3":
+            - /url: "#/vm/9a2a9ac1-088e-40d5-b753-197a559b06e3"
+        - cell "i-2-27-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "110.2.3":
+          - generic: 110.2.3
+        - cell "10.10.254.120/16 +4 더보기":
+          - link "10.10.254.120/16":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "U26-Sparse i-2-28-VM 실행 중 2 CPU 4096 MB 10.2.1 10.10.254.145/16 +4 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "U26-Sparse":
+          - link "U26-Sparse":
+            - /url: "#/vm/4cb71960-fc75-43e1-9830-8f4ee198def7"
+        - cell "i-2-28-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.2.1":
+          - generic: 10.2.1
+        - cell "10.10.254.145/16 +4 더보기":
+          - link "10.10.254.145/16":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Koral-ISO-Build-VM i-2-29-VM 실행 중 4 CPU 8192 MB 10.1.0 10.10.254.7 +5 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Koral-ISO-Build-VM":
+          - link "Koral-ISO-Build-VM":
+            - /url: "#/vm/e7f843af-f39f-4a3e-b5fc-bcc458d40fe9"
+        - cell "i-2-29-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "4 CPU 8192 MB":
+          - text: 4 CPU
+          - text: 8192 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.7 +5 더보기":
+          - link "10.10.254.7":
+            - /url: javascript:;
+          - button "+5 더보기":
+            - generic: "+5"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Ubuntu22-Sparse i-2-52-VM 실행 중 2 CPU 4096 MB 6.2.0 10.10.254.1/16 +4 더보기 USER x86_64 ablecube31-2 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Ubuntu22-Sparse":
+          - link "Ubuntu22-Sparse":
+            - /url: "#/vm/d3cd2c68-78e3-42dd-a944-7c5ce731e658"
+        - cell "i-2-52-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "6.2.0":
+          - generic: 6.2.0
+        - cell "10.10.254.1/16 +4 더보기":
+          - link "10.10.254.1/16":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-2":
+          - link "ablecube31-2":
+            - /url: "#/host/3fb147f3-aea4-4f65-b8c6-e7192ea26138"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Ubuntu24-Sparse i-2-56-VM 실행 중 2 CPU 4096 MB 8.2.2 10.10.254.129/16 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Ubuntu24-Sparse":
+          - link "Ubuntu24-Sparse":
+            - /url: "#/vm/04125c04-cfa5-4f43-be41-39e3c7d536d3"
+        - cell "i-2-56-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "8.2.2":
+          - generic: 8.2.2
+        - cell "10.10.254.129/16 +4 더보기":
+          - link "10.10.254.129/16":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Debian12-Sparse i-2-61-VM 실행 중 2 CPU 4096 MB 7.2.22 10.10.254.133/16 +11 더보기 USER x86_64 ablecube31-1 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Debian12-Sparse":
+          - link "Debian12-Sparse":
+            - /url: "#/vm/40f046e8-7433-4cc8-a0f0-1bc60513d222"
+        - cell "i-2-61-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "7.2.22":
+          - generic: 7.2.22
+        - cell "10.10.254.133/16 +11 더보기":
+          - link "10.10.254.133/16":
+            - /url: javascript:;
+          - button "+11 더보기":
+            - generic: "+11"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-1":
+          - link "ablecube31-1":
+            - /url: "#/host/159baf9a-89ad-4a94-91dc-e7395a670bf4"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Debian13-Sparse i-2-62-VM 실행 중 2 CPU 4096 MB 10.0.13 10.10.254.135/16 +11 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Debian13-Sparse":
+          - link "Debian13-Sparse":
+            - /url: "#/vm/b51c954a-45fc-4fdd-a395-e1b3b5b5d367"
+        - cell "i-2-62-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.0.13":
+          - generic: 10.0.13
+        - cell "10.10.254.135/16 +11 더보기":
+          - link "10.10.254.135/16":
+            - /url: javascript:;
+          - button "+11 더보기":
+            - generic: "+11"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Rocky9-Sparse i-2-69-VM 실행 중 2 CPU 4096 MB 10.1.0 10.10.254.136 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Rocky9-Sparse":
+          - link "Rocky9-Sparse":
+            - /url: "#/vm/c5ac0d8b-c004-4040-8334-d57586eee4c7"
+        - cell "i-2-69-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "10.1.0":
+          - generic: 10.1.0
+        - cell "10.10.254.136 +4 더보기":
+          - link "10.10.254.136":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Rocky8-Sparse i-2-70-VM 실행 중 2 CPU 4096 MB 6.2.0 10.10.254.137 +4 더보기 USER x86_64 ablecube31-3 admin Zone":
+        - cell:
+          - checkbox
+        - cell "Rocky8-Sparse":
+          - link "Rocky8-Sparse":
+            - /url: "#/vm/2785322f-54d0-4a5d-bf42-59bef03635d4"
+        - cell "i-2-70-VM"
+        - cell "실행 중":
+          - generic: 실행 중
+        - cell "2 CPU 4096 MB":
+          - text: 2 CPU
+          - text: 4096 MB
+        - cell "6.2.0":
+          - generic: 6.2.0
+        - cell "10.10.254.137 +4 더보기":
+          - link "10.10.254.137":
+            - /url: javascript:;
+          - button "+4 더보기":
+            - generic: "+4"
+        - cell "USER":
+          - link "USER":
+            - /url: "#/vm/USER"
+        - cell:
+          - link:
+            - /url: "#/backupoffering/undefined"
+        - cell "x86_64"
+        - cell "ablecube31-3":
+          - link "ablecube31-3":
+            - /url: "#/host/384871b9-7c75-4717-a673-e96a76abeb71"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+  - list:
+    - listitem: 전체 116 개 항목 중 1-20 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "2":
+      - generic: "2"
+    - listitem "3":
+      - generic: "3"
+    - listitem "4":
+      - generic: "4"
+    - listitem "5":
+      - generic: "5"
+    - listitem "6":
+      - generic: "6"
+    - listitem "다음 페이지":
+      - button "right":
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+    - text: 이동하기
+    - textbox
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

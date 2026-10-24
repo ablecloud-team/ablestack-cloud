@@ -1,0 +1,230 @@
+Browser tab: 15, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/snapshot/22b644a3-7493-49ca-bc52-f32e27b7e473".
+0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot/22b644a3-7493-49ca-bc52-f32e27b7e473
+	1 container
+		226 container
+			227 image
+			228 menu
+				229 dashboard 대시보드
+					230 link Description: dashboard 대시보드, Value: 127.0.0.1:18032/client/#/dashboard
+				231 container
+					232 image cloud
+					233 text 컴퓨트
+				234 container
+					235 image hdd
+					236 text 스토리지
+				237 content list sub_menu_2_$$_/storage-popup
+					238 hdd 볼륨
+						239 link Description: hdd 볼륨, Value: 127.0.0.1:18032/client/#/volume
+					240 build 스냅샷
+						241 link Description: build 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					242 build 스냅샷 정책
+						243 link Description: build 스냅샷 정책, Value: 127.0.0.1:18032/client/#/snapshotpolicy
+					244 funnel-plot 버킷
+						245 link Description: funnel-plot 버킷, Value: 127.0.0.1:18032/client/#/buckets
+					246 file-text 공유 파일 시스템
+						247 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18032/client/#/sharedfs
+				248 container
+					249 image wifi
+					250 text 네트워크
+				251 container
+					252 image picture
+					253 text 이미지
+				254 container
+					255 image lock
+					256 text 키 관리
+				257 schedule 이벤트
+					258 link Description: schedule 이벤트, Value: 127.0.0.1:18032/client/#/event
+				259 project 프로젝트
+					260 link Description: project 프로젝트, Value: 127.0.0.1:18032/client/#/project
+				261 team 계정
+					262 link Description: team 계정, Value: 127.0.0.1:18032/client/#/account
+				263 global Zone
+					264 link Description: global Zone, Value: 127.0.0.1:18032/client/#/zones
+				265 container
+					266 image shopping
+					267 text 서비스 오퍼링
+				268 container
+					269 image tool
+					270 text 도구
+				271 read API 문서
+					272 link Description: read API 문서, Value: 127.0.0.1:18032/client/#/apidocs/
+		38 container
+			39 image menu-fold
+			186 container
+				225 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				187 image project
+				188 text 기본 보기
+			44 button 생성 down
+				45 text 생성
+				46 image down
+			47 image translation
+			48 image bell
+			49 container
+				50 text S1 Snapshot 1479
+		554 button 알림 제거
+		51 container
+			403 container
+				404 container
+					405 link Description: home, Value: 127.0.0.1:18032/client/#/
+					406 text /
+					407 link Description: 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					408 text / SNAP1479-32-tenant-snapshot
+					409 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+					410 button reload 업데이트
+						411 image reload
+						412 text 업데이트
+				413 button down 작업
+					414 image down
+					415 text 작업
+			286 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				287 image right
+				288 text 스냅샷 작업 및 결과 확인
+			555 text createVolume · SNAP1479-32-tenant-snapshot
+			556 text 22b644a3-7493-49ca-bc52-f32e27b7e473 · 실행 전 검증 중단 · 2026-10-23T11:28:47.746Z
+			557 text 요청 UUID: b1f7f6aa-1eef-4415-b5a3-c545644c5701
+			558 container
+				559 image close-circle
+				560 text Request failed with status code 530
+			289 text createSnapshot · SNAP1479-32-tenant-source
+			399 text 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · 작업 완료 · 2026-10-23T11:23:54.603Z
+			400 link Description: 상세, Value: 127.0.0.1:18032/client/#/snapshot/e08c854b-88b7-4fd7-b379-af89b8036d6c
+			291 text 작업 ID: 183acdd4-1abd-4265-9652-37ad982bc842
+			295 button 기존 작업 결과 조회
+			297 text createSnapshot · SNAP1479-32-tenant-source
+			298 text 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · 작업 완료 · 2026-10-23T11:16:51.011Z
+			299 text 작업 ID: aba6faed-9336-4bd6-96c5-a51fab95259f
+			300 button 기존 작업 결과 조회
+			416 container
+				417 image build
+				418 heading SNAP1479-32-tenant-snapshot, Value: 4
+					419 text SNAP1479-32-tenant-snapshot
+				420 text 상태 백업 됨 아이디
+				421 button 아이디 복사
+					422 image barcode
+				423 link Description: 22b644a3-7493-49ca-bc52-f32e27b7e473 , Value: javascript:;
+				424 text 볼륨
+				425 image hdd
+				426 link Description: SNAP1479-32-tenant-source, Value: 127.0.0.1:18032/client/#/volume/9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+				427 text Zone
+				428 image global
+				429 link Description: Zone, Value: 127.0.0.1:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				430 text 계정
+				431 image user
+				432 text snap1479-32-tenant 도메인
+				433 image block
+				434 text ROOT 생성일
+				435 image calendar
+				436 text 2026. 10. 23. 오후 7:21:37
+				437 container
+					438 text 태그
+					439 container
+						440 image plus
+						441 text  새 태그
+			442 container
+				443 tab group
+					444 container
+						445 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-2-tab-details
+						446 tab (selectable, settable, boolean) Zone, Value: 0, ID: rc-tabs-2-tab-zones
+						447 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-2-tab-events
+						448 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-2-tab-comments
+				449 container Description: 상세, ID: rc-tabs-2-panel-details
+					450 content list
+						451 container
+							452 text 이름
+							453 text SNAP1479-32-tenant-snapshot
+						454 container
+							455 text 아이디
+							456 text 22b644a3-7493-49ca-bc52-f32e27b7e473
+						457 container
+							458 text 볼륨 이름
+							459 text SNAP1479-32-tenant-source
+						460 container
+							461 text 볼륨 유형
+							462 text DATADISK
+						463 container
+							464 text 간격 유형
+							465 text MANUAL
+						466 container
+							467 text 물리적 크기
+							468 text 0.00 GiB
+						469 container
+							470 text 가상 크기
+							471 text 1.00 GiB
+						472 container
+							473 text 계정
+							474 text snap1479-32-tenant
+						475 container
+							476 text 도메인
+							477 text ROOT
+						478 container
+							479 text 생성일
+							480 text 2026. 10. 23. 오후 7:21:37
+	494 container
+		495 container 볼륨 생성 도움말
+			496 container
+				497 button Close
+					498 image close
+				499 container vcDialogTitle1
+					500 text 볼륨 생성
+					501 link Description: 도움말, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+				502 container
+					503 container
+						561 image close-circle
+						562 text Request failed with status code 530
+						504 table
+							505 row
+								506 cell
+									507 text 이름
+								508 cell
+									509 text SNAP1479-32-tenant-snapshot · 22b644a3-7493-49ca-bc52-f32e27b7e473
+							510 row
+								511 cell
+									512 text 상태
+								513 cell
+									514 text BackedUp
+							515 row
+								516 cell
+									517 text 볼륨
+								518 cell
+									519 text SNAP1479-32-tenant-source · 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · Ready
+							520 row
+								521 cell
+									522 text 가상머신
+								523 cell
+									524 text 없음
+							525 row
+								526 cell
+									527 text 계정
+								528 cell
+									529 text snap1479-32-tenant · ROOT
+							530 row
+								531 cell
+									532 text Zone
+								533 cell
+									534 text 모든 Zone 및 현재 사본 범위
+						535 button 현재 대상 다시 확인
+					536 container
+						537 text 이름
+						538 image info-circle
+					539 text field (settable) 이름 info-circle, Value: SNAP1479-32-permission-final-must-not-exist, ID: form_item_name
+					540 container
+						563 text * Zone
+						542 image info-circle
+					543 container
+						544 combo box (settable) * Zone info-circle, ID: form_item_zoneid
+						545 image global
+						546 text  Zone
+					547 container
+						548 text 인스턴스에 연결
+						549 image info-circle
+					550 switch Description: 인스턴스에 연결 info-circle, Value: 0, ID: form_item_attachVolume
+					551 container
+						552 button 취소
+						553 button (disabled) 확인
+	564 container
+		565 image close-circle
+		566 text 요청 실패
+		567 link close
+			568 image close
+
+The focused UI element is 0 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/snapshot/22b644a3-7493-49ca-bc52-f32e27b7e473

@@ -1,0 +1,70 @@
+[
+  {
+    "command": "createSnapshot",
+    "args": {
+      "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+      "policyid": "b25395b9-a5fd-4a60-869e-0fc8c2582693",
+      "name": "SNAPPOL1493-32-must-not-allocate"
+    },
+    "error": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Snapshot policy is unavailable for the source volume"
+    }
+  },
+  {
+    "command": "createSnapshot",
+    "args": {
+      "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+      "policyid": "-1",
+      "name": "SNAPPOL1493-32-must-not-internal"
+    },
+    "error": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 4350,
+      "errortext": "Policy ID must identify a persisted snapshot policy"
+    }
+  },
+  {
+    "command": "createSnapshot",
+    "args": {
+      "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+      "policyid": "-2",
+      "name": "SNAPPOL1493-32-must-not-unknown"
+    },
+    "error": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command createsnapshot due to invalid value. Invalid value provided for API arg: policyid"
+    }
+  },
+  {
+    "command": "createSnapshot",
+    "args": {
+      "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+      "policyid": "00000000-0000-0000-0000-000000000000"
+    },
+    "error": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command createsnapshot due to invalid value. Invalid parameter policyid value=00000000-0000-0000-0000-000000000000 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+    }
+  },
+  {
+    "command": "createSnapshot",
+    "args": {
+      "volumeid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+      "policyid": "b25395b9-a5fd-4a60-869e-0fc8c2582693"
+    },
+    "error": {
+      "uuidList": [],
+      "errorcode": 431,
+      "cserrorcode": 9999,
+      "errortext": "Unable to execute API command createsnapshot due to invalid value. Invalid parameter policyid value=b25395b9-a5fd-4a60-869e-0fc8c2582693 due to incorrect long value format, or entity does not exist or due to incorrect parameter annotation for the field in api cmd class."
+    }
+  }
+]

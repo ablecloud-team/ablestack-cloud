@@ -1,0 +1,50 @@
+{
+  "copyRows": [
+    {
+      "key": "ecb05476-45e6-3234-84df-0a9ae18c5922",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "bee76bce-beb0-3217-b172-c2c8b74997a0",
+      "text": "Primary\tPrimary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    }
+  ],
+  "dialog": null,
+  "links": [
+    {
+      "href": "#/zone/991d2f57-0f37-4445-b956-09773d064816",
+      "text": " Zone"
+    },
+    {
+      "href": "#/imagestore/af746f16-4e36-4f19-805c-61307d373e64",
+      "text": "Secondary"
+    },
+    {
+      "href": "#/storagepool/91cae554-3fce-3f93-89d1-cefaf9bf8122",
+      "text": "Primary"
+    }
+  ],
+  "pagination": "전체 사본 조회 항목 2개\n1\n10 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n현재 페이지: Zone 1개 · 조회 항목 2개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\t\n\t Zone\t2\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—\nPrimary\tPrimary\t\n사용 가능\n\t준비됨\t1 GiB\t—\n전체 사본 조회 항목 2개\n1\n10 / 쪽",
+  "url": "#/snapshot/0d97b62f-4955-4cb1-a538-8cc490be7f96?tab=zones",
+  "zones": [
+    {
+      "key": "zone:991d2f57-0f37-4445-b956-09773d064816",
+      "text": "\t\n\t Zone\t2\t"
+    },
+    {
+      "key": "ecb05476-45e6-3234-84df-0a9ae18c5922",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "bee76bce-beb0-3217-b172-c2c8b74997a0",
+      "text": "Primary\tPrimary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    }
+  ],
+  "cluster": "32",
+  "phase": "normal-before-archive",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  }
+}

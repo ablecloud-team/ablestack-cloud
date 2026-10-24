@@ -1,0 +1,86 @@
+
+> cloudstack-ui@4.22.0 test:unit
+> vue-cli-service test:unit --runInBand --coverage=false tests/unit/utils/resourceTags.spec.js tests/unit/components/view/ResourceTags.spec.js tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js tests/unit/utils/jobTracker.spec.js tests/unit/api/request.spec.js tests/unit/utils/storageSnapshotOperations.spec.js
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+PASS tests/unit/components/view/ResourceTags.spec.js
+  ● Console
+
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "GroupOutlined" has already been registered in target app.
+    console.warn node_modules/@vue/runtime-core/dist/runtime-core.cjs.js:40
+      [Vue warn]: Component "LaptopOutlined" has already been registered in target app.
+
+PASS tests/unit/components/view/InfoCardSSHKeyPairVmQuery.spec.js
+PASS tests/unit/api/request.spec.js
+  ● Console
+
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+    console.log src/utils/request.js:65
+      {
+        status: 401,
+        data: { errorresponse: { errortext: 'Session expired' } }
+      }
+
+PASS tests/unit/utils/resourceTags.spec.js
+PASS tests/unit/utils/storageSnapshotOperations.spec.js
+PASS tests/unit/utils/jobTracker.spec.js
+
+Test Suites: 6 passed, 6 total
+Tests:       80 passed, 80 total
+Snapshots:   0 total
+Time:        15.363s
+Ran all test suites matching /tests\/unit\/utils\/resourceTags.spec.js|tests\/unit\/components\/view\/ResourceTags.spec.js|tests\/unit\/components\/view\/InfoCardSSHKeyPairVmQuery.spec.js|tests\/unit\/utils\/jobTracker.spec.js|tests\/unit\/api\/request.spec.js|tests\/unit\/utils\/storageSnapshotOperations.spec.js/i.

@@ -1,0 +1,43 @@
+{
+  "snapshot": {
+    "id": 71,
+    "name": "SNAP1479-31-running-snapshot",
+    "path": "/mnt/9a153081-1b7e-33c9-832a-648169078b8b/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+    "role": "Image",
+    "uuid": "b33928f0-11af-43af-95f6-811d77eba840",
+    "state": "Destroyed",
+    "display": 0,
+    "removed": null,
+    "storeid": 1,
+    "location": null,
+    "physical": 0,
+    "refstate": "Destroyed",
+    "referenceid": 136
+  },
+  "volume": {
+    "id": 978,
+    "name": "SNAP1479-31-source",
+    "path": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+    "uuid": "0e7bbc27-b61b-4e8f-8571-047a0536f1ca",
+    "state": "Expunged",
+    "poolid": 1,
+    "removed": "2026-10-23 11:44:12.000000",
+    "instanceid": null
+  },
+  "file": {
+    "path": "/nfs/secondary/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+    "exists": true,
+    "bytes": 1376256,
+    "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+  },
+  "productCleanupSucceeded": false,
+  "followupIssue": 1489,
+  "manualTestFixtureCleanup": true,
+  "manualResult": {
+    "path": "/nfs/secondary/snapshots/2/978/95d25630-0098-43ed-b478-e5d41e346e73",
+    "sha256Before": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a",
+    "dbReadOnlyGuard": true,
+    "removed": true,
+    "productCleanupSucceeded": false
+  }
+}

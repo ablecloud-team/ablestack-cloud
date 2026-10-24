@@ -1,0 +1,11 @@
+{
+  "id": "bd417e75-7e0f-44ae-a54d-d7617cd22527",
+  "name": "SNAP1479UI-32-orphan-source-snapshot",
+  "state": "BackedUp",
+  "snapshotcontext": {
+    "version": 1,
+    "sourceavailable": false,
+    "revertreason": "SOURCE_VOLUME_UNAVAILABLE",
+    "createreason": "SOURCE_VOLUME_UNAVAILABLE"
+  }
+}

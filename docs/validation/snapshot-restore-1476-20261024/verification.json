@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "checks": 283,
+  "javaTests": 25,
+  "uniqueUiTests": 70,
+  "fullCloudCI": false
+}

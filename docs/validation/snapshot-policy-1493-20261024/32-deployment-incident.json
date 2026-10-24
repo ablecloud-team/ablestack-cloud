@@ -1,0 +1,10 @@
+{
+  "oomLines": [
+    "Oct 24 20:51:47 ccvm kernel: oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=system.slice,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-19725.scope,task=python3,pid=2927549,uid=0",
+    "Oct 24 20:51:47 ccvm kernel: Out of memory: Killed process 2927549 (python3) total-vm:28528456kB, anon-rss:13258156kB, file-rss:512kB, shmem-rss:0kB, UID:0 pgtables:51836kB oom_score_adj:0",
+    "Oct 24 20:53:46 ccvm kernel: oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=container,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-19733.scope,task=python3,pid=2927957,uid=0",
+    "Oct 24 20:53:46 ccvm kernel: Out of memory: Killed process 2927957 (python3) total-vm:28528456kB, anon-rss:13677008kB, file-rss:384kB, shmem-rss:0kB, UID:0 pgtables:51860kB oom_score_adj:0"
+  ],
+  "disk": "Filesystem           Size  Used Avail Use% Mounted on\n/dev/mapper/rl-root   83G   75G  8.3G  90% /\n",
+  "backup": "265M\t/root/snapshot-policy-1493-20261024-management\n"
+}

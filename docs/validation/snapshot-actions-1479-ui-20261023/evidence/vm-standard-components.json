@@ -1,0 +1,22 @@
+[
+  {
+    "path": "ui/src/layouts/ResourceLayout.vue",
+    "sha256": "0be02f1511ba10ed27a6b103178681fa0f950384d419ba53403a132352d7f20a",
+    "unchanged": true
+  },
+  {
+    "path": "ui/src/components/view/InfoCard.vue",
+    "sha256": "94ea844cd362a8ba7f8e9738fc72779c32a3f5568ad778b05a12c1a5fa305733",
+    "unchanged": true
+  },
+  {
+    "path": "ui/src/components/view/ResourceView.vue",
+    "sha256": "184e3c03cc76ce04104620c57e7ad7ce965939f72b65b81803c0963089ad9bd8",
+    "unchanged": true
+  },
+  {
+    "path": "ui/src/components/view/MoldDialog.vue",
+    "sha256": "88f36c1ed2e9b7ab54b8cb169db107b0c6431e89e2716625f4d09e61ed22525a",
+    "unchanged": true
+  }
+]

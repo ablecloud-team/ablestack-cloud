@@ -22,6 +22,18 @@ package com.cloud.agent.api.storage;
 import com.cloud.agent.api.Answer;
 
 public class CreateEntityDownloadURLAnswer extends Answer {
+    private com.cloud.storage.Storage.ImageFormat format;
+    private Long virtualSize;
+    private Long fileSize;
+
+    public com.cloud.storage.Storage.ImageFormat getFormat() { return format; }
+    public Long getVirtualSize() { return virtualSize; }
+    public Long getFileSize() { return fileSize; }
+    public void setImageMetadata(com.cloud.storage.Storage.ImageFormat format, long virtualSize, long fileSize) {
+        this.format = format;
+        this.virtualSize = virtualSize;
+        this.fileSize = fileSize;
+    }
 
     public static final short RESULT_SUCCESS = 1;
     public static final short RESULT_FAILURE = 0;

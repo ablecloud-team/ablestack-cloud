@@ -1,0 +1,16 @@
+Browser tab: 27, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://10.10.32.10:8080/client/#/snapshot/a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					532 button (expanded) right 고급 · 작업 식별 및 복구, Secondary Actions: Collapse
++					536 container 아이디 : a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44
++						537 text 아이디
++						538 text :
++						539 text a73f8bcc-7ca9-4439-9baf-5ce6e5ad0b44
++					540 container 요청 UUID : a72bf790-b8d8-462d-919d-2537b345cf95
++						541 text 요청 UUID
++						542 text :
++						543 text a72bf790-b8d8-462d-919d-2537b345cf95
++					544 container 작업 ID : a72bf790-b8d8-462d-919d-2537b345cf95
++						545 text 작업 ID
++						546 text :
++						547 text a72bf790-b8d8-462d-919d-2537b345cf95
+The focused UI element is 532 button (expanded) right 고급 · 작업 식별 및 복구, Secondary Actions: Collapse

@@ -1,0 +1,1 @@
+[{"jar": "/usr/share/cloudstack-management/lib/cloudstack-4.23.0.0.jar", "before": "18069c4dd03328b05ae5effb30afda906a9673c518ebfb84529b136c2d2a2546", "after": "3e08c7af4ae368cd14da13a269acfe9e6155ad42319162ee1d4919e17025fbee", "updatedClasses": ["org/apache/cloudstack/storage/to/SnapshotObjectTO.class"], "otherEntriesUnchanged": true}, {"WEB-INF": true, "staticChanged": false}]

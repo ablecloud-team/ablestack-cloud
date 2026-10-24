@@ -1,0 +1,38 @@
+{
+  "cluster": "32",
+  "secondarySnapshotFilesAbsent": 11,
+  "knownPrimaryVolumesAbsent": 10,
+  "templateFiles": [
+    {
+      "path": "/nfs/secondary/template/tmpl/2/221/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/222/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/223/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "exists": false
+    },
+    {
+      "path": "/nfs/secondary/template/tmpl/2/224/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "exists": false
+    }
+  ],
+  "hosts": [
+    {
+      "host": "10.10.32.1",
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": "10.10.32.2",
+      "fixtureDomainAbsent": true
+    },
+    {
+      "host": "10.10.32.3",
+      "fixtureDomainAbsent": true
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,298 @@
+<div id="snapshot-dialog-review">
+  <section class="md-preview viz-dotted-background" aria-label="볼륨 생성 대화상자 개선안">
+    <div class="md-product" id="md-create" aria-label="볼륨 생성">
+      <button class="md-reopen cursor-interaction" type="button" data-do="reopen-create" hidden>볼륨 생성 열기</button>
+      <section class="md-dialog" role="dialog" aria-labelledby="md-create-title">
+        <header class="md-header">
+          <h2 id="md-create-title">볼륨 생성</h2>
+          <button class="md-close cursor-interaction" type="button" data-do="close-create" aria-label="볼륨 생성 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
+        </header>
+        <form id="md-create-form" novalidate>
+          <div class="md-body">
+            <div class="md-notice md-error" data-create-error role="alert" hidden>
+              <i data-lucide="circle-alert" aria-hidden="true"></i>
+              <div><p data-error-copy></p><button class="md-link cursor-interaction" type="button" data-do="retry-create">다시 확인</button></div>
+            </div>
+            <div class="md-notice md-info" data-create-info role="status" hidden>
+              <i data-lucide="info" aria-hidden="true"></i>
+              <p>원본 볼륨이 없어도 이 스냅샷에서 새 볼륨을 생성할 수 있습니다.</p>
+            </div>
+            <div class="md-notice md-info" data-create-receipt role="status" hidden>
+              <i data-lucide="circle-check" aria-hidden="true"></i>
+              <p>볼륨 생성 요청을 접수했습니다. 진행 상황은 알림에서 확인하세요.</p>
+            </div>
+            <div class="md-fields">
+              <div class="md-field">
+                <label for="md-volume-name">이름</label>
+                <input id="md-volume-name" name="name" type="text" placeholder="볼륨 이름 입력 (선택 사항)" autocomplete="off">
+              </div>
+              <div class="md-field">
+                <label for="md-zone"><span class="md-required" aria-hidden="true">*</span> Zone</label>
+                <select id="md-zone" name="zone" required><option>Zone</option></select>
+              </div>
+              <div class="md-field" data-root-offering hidden>
+                <label for="md-offering"><span class="md-required" aria-hidden="true">*</span> 디스크 오퍼링</label>
+                <select id="md-offering"><option>일반 데이터 디스크</option><option>고성능 데이터 디스크</option></select>
+              </div>
+              <div class="md-owner-group" data-owner-fields>
+                <div class="md-field">
+                  <label for="md-owner-type">소유자 유형</label>
+                  <select id="md-owner-type" name="ownertype"><option value="account">계정</option><option value="project">프로젝트</option></select>
+                </div>
+                <div class="md-columns">
+                  <div class="md-field">
+                    <label for="md-domain"><span class="md-required" aria-hidden="true">*</span> 도메인</label>
+                    <select id="md-domain" name="domain"><option>ROOT</option><option>개발</option></select>
+                  </div>
+                  <div class="md-field" data-account-field>
+                    <label for="md-account"><span class="md-required" aria-hidden="true">*</span> 계정</label>
+                    <select id="md-account" name="account"><option>admin</option><option>개발 계정</option></select>
+                  </div>
+                  <div class="md-field" data-project-field hidden>
+                    <label for="md-project"><span class="md-required" aria-hidden="true">*</span> 프로젝트</label>
+                    <select id="md-project" name="project"><option>개발 프로젝트</option><option>검증 프로젝트</option></select>
+                  </div>
+                </div>
+              </div>
+              <div class="md-attach-group">
+                <label class="md-check md-switch" for="md-attach">
+                  <input id="md-attach" type="checkbox" role="switch" aria-controls="md-attachment-fields">
+                  <span>가상머신에 연결</span>
+                </label>
+                <div id="md-attachment-fields" class="md-attachment-fields" hidden>
+                  <div class="md-field">
+                    <label for="md-vm"><span class="md-required" aria-hidden="true">*</span> 가상머신</label>
+                    <select id="md-vm"><option value="">가상머신 선택</option><option>db-app-01</option><option>dev-app-01</option></select>
+                  </div>
+                  <div class="md-field">
+                    <label for="md-device">장치 ID</label>
+                    <input id="md-device" type="number" min="1" placeholder="자동 할당" aria-describedby="md-device-hint">
+                    <p id="md-device-hint" class="md-hint">지정하지 않으면 사용 가능한 장치 ID를 자동으로 할당합니다.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer class="md-footer">
+            <button class="md-button cursor-interaction" type="button" data-do="close-create">취소</button>
+            <button class="md-button md-primary cursor-interaction" type="submit" data-create-submit>생성</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+  </section>
+  <section class="md-preview viz-dotted-background" aria-label="스냅샷 복원 대화상자 개선안">
+    <div class="md-product" id="md-restore" aria-label="스냅샷 복원">
+      <button class="md-reopen cursor-interaction" type="button" data-do="reopen-restore" hidden>스냅샷 복원 열기</button>
+      <section class="md-dialog" role="dialog" aria-labelledby="md-restore-title" aria-describedby="md-restore-impact">
+        <header class="md-header">
+          <h2 id="md-restore-title">스냅샷 복원</h2>
+          <button class="md-close cursor-interaction" type="button" data-do="close-restore" aria-label="스냅샷 복원 닫기"><i data-lucide="x" aria-hidden="true"></i></button>
+        </header>
+        <div class="md-body md-restore-body">
+          <div class="md-notice md-error" data-restore-error role="alert" hidden>
+            <i data-lucide="circle-alert" aria-hidden="true"></i>
+            <div><p data-restore-error-copy></p><button class="md-link cursor-interaction" type="button" data-do="retry-restore">다시 확인</button></div>
+          </div>
+          <div class="md-notice md-warning" id="md-restore-impact">
+            <i data-lucide="triangle-alert" aria-hidden="true"></i>
+            <div>
+              <p class="md-notice-title">스냅샷 생성 이후의 변경 데이터가 사라집니다.</p>
+              <p><span class="md-emphasis">DB-DATA-01</span> 볼륨을 <span class="md-emphasis">DB-일일백업-20261023</span> 스냅샷 시점으로 되돌립니다.</p>
+            </div>
+          </div>
+          <div class="md-notice md-info" data-restore-receipt role="status" hidden>
+            <i data-lucide="circle-check" aria-hidden="true"></i>
+            <p>스냅샷 복원 요청을 접수했습니다. 진행 상황은 알림에서 확인하세요.</p>
+          </div>
+          <label class="md-check md-ack" for="md-ack">
+            <input id="md-ack" type="checkbox">
+            <span>복원 대상과 데이터 변경 영향을 확인했습니다.</span>
+          </label>
+        </div>
+        <footer class="md-footer">
+          <button class="md-button cursor-interaction" type="button" data-do="close-restore">취소</button>
+          <button class="md-button md-danger cursor-interaction" type="button" data-do="submit-restore" disabled>복원</button>
+        </footer>
+      </section>
+    </div>
+  </section>
+</div>
+<style>
+#snapshot-dialog-review { color-scheme: inherit; }
+#snapshot-dialog-review .md-preview { padding: 24px 8px; }
+#snapshot-dialog-review .md-preview + .md-preview { margin-top: 24px; }
+#snapshot-dialog-review .md-product { --md-surface:light-dark(#fff,#22292f); --md-chrome:light-dark(#f7f9fc,#2b3239); --md-text:light-dark(#262626,#d7dce1); --md-muted:light-dark(#626a73,#afb7c1); --md-line:light-dark(#e5e8ed,#414951); --md-input-line:light-dark(#8a929a,#8d98a2); --md-input-bg:light-dark(#fff,#1d252d); --md-primary:light-dark(#0876bf,#0879c7); --md-primary-hover:light-dark(#0063a4,#006db5); --md-link:light-dark(#006aa8,#70baff); --md-on-action:light-dark(#fff,#fff); --md-danger:light-dark(#c12c20,#c13e35); --md-danger-hover:light-dark(#a8241a,#a92f27); --md-disabled-bg:light-dark(#f2f3f5,#353e47); --md-disabled-text:light-dark(#626a73,#b0bac3); --md-warning-bg:light-dark(#fffbe6,#393021); --md-warning-line:light-dark(#ffe58f,#806132); --md-warning-icon:light-dark(#bc7905,#f2ba58); --md-error-bg:light-dark(#fff1f0,#3b2528); --md-error-line:light-dark(#ffccc7,#97484b); --md-error-icon:light-dark(#cf1322,#ff9595); --md-info-bg:light-dark(#eef8ff,#1e3245); --md-info-line:light-dark(#b6dfff,#3f6383); --md-shadow:light-dark(#00000016,#0000003d); color:var(--md-text); font:14px/22px -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif; margin-inline:auto; max-inline-size:720px; min-inline-size:0; }
+#snapshot-dialog-review .md-product * { box-sizing:border-box; }
+#snapshot-dialog-review .md-product [hidden] { display:none !important; }
+#snapshot-dialog-review .md-product p, #snapshot-dialog-review .md-product h2 { margin:0; }
+#snapshot-dialog-review .md-product button, #snapshot-dialog-review .md-product input, #snapshot-dialog-review .md-product select { font:inherit; }
+#snapshot-dialog-review .md-dialog { background:var(--md-surface); border:1px solid var(--md-line); border-radius:4px; box-shadow:0 3px 14px var(--md-shadow); overflow-wrap:anywhere; }
+#snapshot-dialog-review .md-header { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 24px; background:var(--md-chrome); border-bottom:1px solid var(--md-line); border-radius:4px 4px 0 0; }
+#snapshot-dialog-review .md-header h2 { font-size:16px; line-height:22px; font-weight:500; color:var(--md-muted); }
+#snapshot-dialog-review .md-close { display:inline-flex; align-items:center; justify-content:center; flex:0 0 32px; width:32px; height:32px; margin:-5px -8px -5px 0; border:0; padding:0; background:transparent; color:var(--md-muted); }
+#snapshot-dialog-review .md-close svg { width:18px; height:18px; }
+#snapshot-dialog-review .md-body { display:flex; flex-direction:column; gap:16px; padding:24px 28px; }
+#snapshot-dialog-review .md-fields, #snapshot-dialog-review .md-owner-group, #snapshot-dialog-review .md-attachment-fields { display:flex; flex-direction:column; gap:24px; min-width:0; }
+#snapshot-dialog-review .md-field { display:flex; flex-direction:column; gap:8px; min-width:0; }
+#snapshot-dialog-review .md-field label { display:block; color:var(--md-text); }
+#snapshot-dialog-review .md-required { color:var(--md-error-icon); }
+#snapshot-dialog-review .md-field input, #snapshot-dialog-review .md-field select { width:100%; min-width:0; min-height:32px; padding:4px 11px; border:1px solid var(--md-input-line); border-radius:3px; background:var(--md-input-bg); color:var(--md-text); }
+#snapshot-dialog-review .md-field input::placeholder { color:var(--md-muted); opacity:1; }
+#snapshot-dialog-review .md-field select option { background:var(--md-input-bg); color:var(--md-text); }
+#snapshot-dialog-review .md-field input[aria-invalid="true"] { border-color:var(--md-error-icon); }
+#snapshot-dialog-review .md-field input:disabled, #snapshot-dialog-review .md-field select:disabled { background:var(--md-disabled-bg); color:var(--md-disabled-text); border-color:var(--md-line); }
+#snapshot-dialog-review .md-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; }
+#snapshot-dialog-review .md-hint, #snapshot-dialog-review .md-field-error { font-size:12px; line-height:20px; }
+#snapshot-dialog-review .md-hint { color:var(--md-muted); }
+#snapshot-dialog-review .md-field-error { color:var(--md-error-icon); }
+#snapshot-dialog-review .md-attach-group { display:flex; flex-direction:column; gap:24px; }
+#snapshot-dialog-review .md-check { display:flex; align-items:flex-start; gap:8px; min-width:0; }
+#snapshot-dialog-review .md-check input { appearance:auto; accent-color:var(--md-primary); width:16px; height:16px; flex:0 0 16px; margin:3px 0 0; }
+#snapshot-dialog-review .md-check span { min-width:0; }
+#snapshot-dialog-review .md-switch input { appearance:none; position:relative; width:30px; flex-basis:30px; height:18px; margin-top:2px; border:0; border-radius:12px; background:var(--md-disabled-text); }
+#snapshot-dialog-review .md-switch input::after { content:""; display:block; width:14px; height:14px; border-radius:50%; margin:2px; background:var(--md-on-action); transition:transform .15s; }
+#snapshot-dialog-review .md-switch input:checked { background:var(--md-primary); }
+#snapshot-dialog-review .md-switch input:checked::after { transform:translateX(12px); }
+#snapshot-dialog-review .md-restore-body { gap:24px; }
+#snapshot-dialog-review .md-notice { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border:1px solid var(--md-info-line); border-radius:3px; background:var(--md-info-bg); color:var(--md-text); min-width:0; }
+#snapshot-dialog-review .md-notice > svg { width:16px; height:16px; flex:0 0 16px; margin-top:3px; color:var(--md-primary); }
+#snapshot-dialog-review .md-notice > div { min-width:0; display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+#snapshot-dialog-review .md-notice-title, #snapshot-dialog-review .md-emphasis { font-weight:500; }
+#snapshot-dialog-review .md-warning { border-color:var(--md-warning-line); background:var(--md-warning-bg); }
+#snapshot-dialog-review .md-warning > svg { color:var(--md-warning-icon); }
+#snapshot-dialog-review .md-error { border-color:var(--md-error-line); background:var(--md-error-bg); }
+#snapshot-dialog-review .md-error > svg { color:var(--md-error-icon); }
+#snapshot-dialog-review .md-link { border:0; padding:0; background:transparent; color:var(--md-link); text-decoration:underline; text-underline-offset:3px; }
+#snapshot-dialog-review .md-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; padding:16px 28px; border-top:1px solid var(--md-line); background:var(--md-chrome); border-radius:0 0 4px 4px; }
+#snapshot-dialog-review .md-button, #snapshot-dialog-review .md-reopen { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:32px; padding:4px 15px; border:1px solid var(--md-line); border-radius:3px; background:var(--md-surface); color:var(--md-text); white-space:nowrap; }
+#snapshot-dialog-review .md-primary { background:var(--md-primary); border-color:var(--md-primary); color:var(--md-on-action); }
+#snapshot-dialog-review .md-primary:hover:not(:disabled) { background:var(--md-primary-hover); border-color:var(--md-primary-hover); }
+#snapshot-dialog-review .md-danger { background:var(--md-danger); border-color:var(--md-danger); color:var(--md-on-action); }
+#snapshot-dialog-review .md-danger:hover:not(:disabled) { background:var(--md-danger-hover); border-color:var(--md-danger-hover); }
+#snapshot-dialog-review .md-product button:disabled { background:var(--md-disabled-bg); border-color:var(--md-line); color:var(--md-disabled-text); cursor:not-allowed; }
+#snapshot-dialog-review .md-product input:disabled { cursor:not-allowed; }
+@media (max-width:600px) {
+  #snapshot-dialog-review .md-preview { padding:16px 4px; }
+  #snapshot-dialog-review .md-header { padding:16px; }
+  #snapshot-dialog-review .md-body, #snapshot-dialog-review .md-footer { padding:16px; }
+  #snapshot-dialog-review .md-columns { grid-template-columns:minmax(0,1fr); gap:24px; }
+  #snapshot-dialog-review .md-notice { padding:12px; }
+}
+@media (pointer:coarse) {
+  #snapshot-dialog-review .md-field input, #snapshot-dialog-review .md-field select { min-height:44px; font-size:16px; }
+  #snapshot-dialog-review .md-button, #snapshot-dialog-review .md-close, #snapshot-dialog-review .md-reopen { min-height:44px; min-width:44px; }
+  #snapshot-dialog-review .md-check { padding-block:11px; }
+  #snapshot-dialog-review .md-link { min-height:44px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #snapshot-dialog-review .md-switch input::after { transition:none; }
+}
+</style>
+<script>
+(() => {
+  const root = document.getElementById("snapshot-dialog-review");
+  const create = root.querySelector("#md-create");
+  const restore = root.querySelector("#md-restore");
+  const q = selector => root.querySelector(selector);
+  const previous = window.openai?.widgetState?.privateContent;
+  const config = { createStatus: "normal", restoreStatus: "normal", administrator: true, rootSnapshot: false };
+  const allowedCreate = ["normal", "missing-source", "changed", "query-error", "pending"];
+  const allowedRestore = ["normal", "running", "changed", "query-error", "pending"];
+  if (previous && allowedCreate.includes(previous.createStatus)) config.createStatus = previous.createStatus;
+  if (previous && allowedRestore.includes(previous.restoreStatus)) config.restoreStatus = previous.restoreStatus;
+  if (typeof previous?.administrator === "boolean") config.administrator = previous.administrator;
+  if (typeof previous?.rootSnapshot === "boolean") config.rootSnapshot = previous.rootSnapshot;
+  let createAccepted = false;
+  let restoreAccepted = false;
+  const copy = {
+    changed: "작업 대상의 상태가 변경됐습니다. 최신 상태를 다시 확인한 후 진행하세요.",
+    "query-error": "최신 상태를 확인하지 못했습니다. 다시 확인한 후 진행하세요.",
+    running: "db-app-01 가상머신이 실행 중입니다. 가상머신을 정지한 후 다시 확인하세요."
+  };
+  function save() {
+    if (window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { design: "스냅샷 작업 대화상자 표준화", ...config }, privateContent: { ...config } }).catch(() => {});
+  }
+  function render() {
+    const createBlocked = ["changed", "query-error"].includes(config.createStatus);
+    const createPending = config.createStatus === "pending";
+    const restoreBlocked = ["running", "changed", "query-error"].includes(config.restoreStatus);
+    const restorePending = config.restoreStatus === "pending";
+    q("[data-create-error]").hidden = !createBlocked;
+    q("[data-error-copy]").textContent = copy[config.createStatus] || "";
+    q("[data-create-info]").hidden = config.createStatus !== "missing-source";
+    q("[data-create-receipt]").hidden = !createAccepted;
+    q("[data-owner-fields]").hidden = !config.administrator;
+    q("[data-root-offering]").hidden = !config.rootSnapshot;
+    q("[data-account-field]").hidden = q("#md-owner-type").value !== "account";
+    q("[data-project-field]").hidden = q("#md-owner-type").value !== "project";
+    q("#md-attachment-fields").hidden = !q("#md-attach").checked;
+    q("#md-vm").required = q("#md-attach").checked;
+    create.querySelectorAll("input,select").forEach(element => { element.disabled = createPending || createAccepted; });
+    create.querySelectorAll("[data-do='close-create']").forEach(element => { element.disabled = createPending; });
+    q("[data-create-submit]").disabled = createBlocked || createPending || createAccepted;
+    q("[data-create-submit]").textContent = createPending ? "확인 및 요청 중…" : createAccepted ? "접수됨" : "생성";
+    q("[data-restore-error]").hidden = !restoreBlocked;
+    q("[data-restore-error-copy]").textContent = copy[config.restoreStatus] || "";
+    q("[data-restore-receipt]").hidden = !restoreAccepted;
+    q("#md-ack").disabled = restoreBlocked || restorePending || restoreAccepted;
+    if (restoreBlocked) q("#md-ack").checked = false;
+    restore.querySelectorAll("[data-do='close-restore']").forEach(element => { element.disabled = restorePending; });
+    q("[data-do='submit-restore']").disabled = !q("#md-ack").checked || restoreBlocked || restorePending || restoreAccepted;
+    q("[data-do='submit-restore']").textContent = restorePending ? "확인 및 요청 중…" : restoreAccepted ? "접수됨" : "복원";
+    create.querySelector(".md-dialog").setAttribute("aria-busy", String(createPending));
+    restore.querySelector(".md-dialog").setAttribute("aria-busy", String(restorePending));
+  }
+  function openDialog(target, open) {
+    const product = target === "create" ? create : restore;
+    product.querySelector(".md-dialog").hidden = !open;
+    product.querySelector(".md-reopen").hidden = open;
+    if (open) {
+      if (target === "create") { createAccepted = false; }
+      else { restoreAccepted = false; q("#md-ack").checked = false; }
+      render();
+    }
+  }
+  root.addEventListener("change", () => { render(); });
+  q("#md-create-form").addEventListener("submit", event => {
+    event.preventDefault();
+    if (q("[data-create-submit]").disabled) return;
+    if (q("#md-attach").checked && q("#md-vm").selectedIndex === 0) { q("#md-vm").focus(); q("#md-vm").reportValidity(); return; }
+    config.createStatus = "pending"; render();
+    setTimeout(() => { config.createStatus = "normal"; createAccepted = true; render(); }, 900);
+  });
+  root.addEventListener("click", event => {
+    const button = event.target.closest("[data-do]");
+    if (!button || button.disabled) return;
+    const action = button.dataset.do;
+    if (action === "close-create") openDialog("create", false);
+    if (action === "reopen-create") openDialog("create", true);
+    if (action === "close-restore") openDialog("restore", false);
+    if (action === "reopen-restore") openDialog("restore", true);
+    if (action === "retry-create") { config.createStatus = "normal"; createAccepted = false; render(); save(); }
+    if (action === "retry-restore") { config.restoreStatus = "normal"; restoreAccepted = false; q("#md-ack").checked = false; render(); save(); }
+    if (action === "submit-restore") {
+      config.restoreStatus = "pending"; render();
+      setTimeout(() => { config.restoreStatus = "normal"; restoreAccepted = true; render(); }, 900);
+    }
+  });
+  window.addEventListener("openai:set_globals", event => {
+    const saved = event.detail?.globals?.widgetState?.privateContent;
+    if (!saved) return;
+    if (allowedCreate.includes(saved.createStatus)) config.createStatus = saved.createStatus;
+    if (allowedRestore.includes(saved.restoreStatus)) config.restoreStatus = saved.restoreStatus;
+    if (typeof saved.administrator === "boolean") config.administrator = saved.administrator;
+    if (typeof saved.rootSnapshot === "boolean") config.rootSnapshot = saved.rootSnapshot;
+    createAccepted = false; restoreAccepted = false; q("#md-ack").checked = false; render();
+  });
+  render();
+  if (globalThis.Tweak) {
+    const createControls = new Tweak({ container: create, onChange: () => { createAccepted = false; render(); save(); } });
+    createControls.addSelect(config, "createStatus", { label: "표시 상태", options: [ {label:"정상",value:"normal"}, {label:"원본 볼륨 없음",value:"missing-source"}, {label:"상태 변경",value:"changed"}, {label:"조회 실패",value:"query-error"}, {label:"요청 중",value:"pending"} ] });
+    createControls.addToggle(config, "administrator", { label: "관리자 소유자 설정" });
+    createControls.addToggle(config, "rootSnapshot", { label: "ROOT 스냅샷" });
+    const restoreControls = new Tweak({ container: restore, onChange: () => { restoreAccepted = false; q("#md-ack").checked = false; render(); save(); } });
+    restoreControls.addSelect(config, "restoreStatus", { label: "표시 상태", options: [ {label:"정상",value:"normal"}, {label:"가상머신 실행 중",value:"running"}, {label:"상태 변경",value:"changed"}, {label:"조회 실패",value:"query-error"}, {label:"요청 중",value:"pending"} ] });
+  }
+})();
+</script>

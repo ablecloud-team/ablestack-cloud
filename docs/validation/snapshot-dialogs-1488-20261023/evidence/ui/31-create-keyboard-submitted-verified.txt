@@ -1,0 +1,3 @@
+Browser tab: 22, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://localhost:18031/client/#/snapshot/df68f239-a62b-459a-9a0c-bf06b0afb91c".
+There has been no change in the accessibility tree.
+The focused UI element is 379 button down 작업

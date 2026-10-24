@@ -755,7 +755,11 @@ public class ApiResponseHelper implements ResponseGenerator, ResourceIdSupport {
             snapshotResponse.setVolumeName(volume.getName());
             snapshotResponse.setVolumeType(volume.getVolumeType().name());
             snapshotResponse.setVolumeState(volume.getState().name());
-            snapshotResponse.setVirtualSize(volume.getSize());
+            if (snapshot instanceof com.cloud.storage.SnapshotVO) {
+                snapshotResponse.setVirtualSize(((com.cloud.storage.SnapshotVO) snapshot).getSize());
+            } else if (snapshot instanceof SnapshotInfo) {
+                snapshotResponse.setVirtualSize(((SnapshotInfo) snapshot).getSize());
+            }
             DataCenter zone = ApiDBUtils.findZoneById(volume.getDataCenterId());
             if (zone != null) {
                 snapshotResponse.setZoneId(zone.getUuid());

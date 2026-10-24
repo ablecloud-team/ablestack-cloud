@@ -1,0 +1,683 @@
+- complementary:
+  - menu:
+    - menuitem "dashboard 대시보드":
+      - link "dashboard 대시보드":
+        - /url: "#/dashboard"
+        - img "dashboard":
+        - text: 대시보드
+    - img "cloud":
+    - text: 컴퓨트
+    - img "hdd":
+    - text: 스토리지
+    - list:
+      - menuitem "hdd 볼륨":
+        - link "hdd 볼륨":
+          - /url: "#/volume"
+          - img "hdd":
+          - text: 볼륨
+      - menuitem "build 스냅샷":
+        - link "build 스냅샷":
+          - /url: "#/snapshot"
+          - img "build":
+          - text: 스냅샷
+      - menuitem "build 스냅샷 정책":
+        - link "build 스냅샷 정책":
+          - /url: "#/snapshotpolicy"
+          - img "build":
+          - text: 스냅샷 정책
+      - menuitem "funnel-plot 버킷":
+        - link "funnel-plot 버킷":
+          - /url: "#/buckets"
+          - img "funnel-plot":
+          - text: 버킷
+      - menuitem "file-text 공유 파일 시스템":
+        - link "file-text 공유 파일 시스템":
+          - /url: "#/sharedfs"
+          - img "file-text":
+          - text: 공유 파일 시스템
+    - img "wifi":
+    - text: 네트워크
+    - img "picture":
+    - text: 이미지
+    - img "lock":
+    - text: 키 관리
+    - menuitem "schedule 이벤트":
+      - link "schedule 이벤트":
+        - /url: "#/event"
+        - img "schedule":
+        - text: 이벤트
+    - menuitem "project 프로젝트":
+      - link "project 프로젝트":
+        - /url: "#/project"
+        - img "project":
+        - text: 프로젝트
+    - menuitem "idcard 역할":
+      - link "idcard 역할":
+        - /url: "#/role"
+        - img "idcard":
+        - text: 역할
+    - menuitem "team 계정":
+      - link "team 계정":
+        - /url: "#/account"
+        - img "team":
+        - text: 계정
+    - menuitem "block 도메인":
+      - link "block 도메인":
+        - /url: "#/domain"
+        - img "block":
+        - text: 도메인
+    - img "bank":
+    - text: 인프라스트럭쳐
+    - img "shopping":
+    - text: 서비스 오퍼링
+    - img "setting":
+    - text: 구성
+    - menuitem "appstore-add 확장":
+      - link "appstore-add 확장":
+        - /url: "#/extension"
+        - img "appstore-add":
+        - text: 확장
+    - img "tool":
+    - text: 도구
+    - menuitem "read API 문서":
+      - link "read API 문서":
+        - /url: "#/apidocs/"
+        - img "read":
+        - text: API 문서
+- generic: 페이지 스타일 설정
+- button "닫기":
+  - img "close":
+- heading "페이지 스타일 설정" [level=3]
+- radio
+- radio [checked]
+- img "check":
+- heading "테마 색상" [level=3]
+- radio
+- img "check"
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- radio
+- separator
+- heading "네비게이션 설정" [level=3]
+- generic: 배경색
+- textbox [disabled]: "#ffffff"
+- generic: 텍스트 색상
+- textbox [disabled]: "#000000"
+- separator
+- alert:
+  - img "exclamation-circle":
+  - generic: "설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요."
+- button "download 세팅값 다운로드(json)":
+  - img "download":
+  - generic: 세팅값 다운로드(json)
+- button "undo 기본값으로 재설정":
+  - img "undo":
+  - generic: 기본값으로 재설정
+- img "menu-fold":
+- combobox
+- img "project":
+- text: 기본 보기
+- button "생성 down":
+  - generic: 생성
+  - img "down":
+- img "translation":
+- button "알림":
+  - img "bell":
+- generic: AC
+- generic: admin cloud
+- main:
+  - link "home":
+    - /url: "#/"
+    - img "home":
+  - text: /
+  - link "스냅샷":
+    - /url: "#/snapshot"
+  - link "question-circle":
+    - /url: http://docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+    - img "question-circle":
+  - button "reload 업데이트":
+    - img "reload":
+    - generic: 업데이트
+  - switch "프로젝트":
+    - generic: 프로젝트
+  - button "삭제 잔여 복구":
+    - img "tool":
+  - button "고급 검색":
+    - img "filter":
+  - textbox "검색"
+  - button "search":
+    - img "search":
+  - table:
+    - rowgroup:
+      - row "이름 caret-up caret-down 상태 caret-up caret-down 볼륨 이름 caret-up caret-down 간격 유형 caret-up caret-down 물리적 크기 생성일 caret-up caret-down 계정 caret-up caret-down 도메인 caret-up caret-down Zone filter":
+        - columnheader:
+          - checkbox
+        - columnheader "이름 caret-up caret-down":
+          - generic: 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "상태 caret-up caret-down":
+          - generic: 상태
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "볼륨 이름 caret-up caret-down":
+          - generic: 볼륨 이름
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "간격 유형 caret-up caret-down":
+          - generic: 간격 유형
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "물리적 크기"
+        - columnheader "생성일 caret-up caret-down":
+          - generic: 생성일
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "계정 caret-up caret-down":
+          - generic: 계정
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "도메인 caret-up caret-down":
+          - generic: 도메인
+          - img "caret-up":
+          - img "caret-down":
+        - columnheader "Zone"
+        - columnheader "filter":
+          - button "filter":
+            - img "filter":
+    - rowgroup:
+      - row "T04-DATA-B-BEFORE-SPARSE 백업 됨 DATA-528-1 MANUAL 0 2026. 10. 15. 오후 1:38:40 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "T04-DATA-B-BEFORE-SPARSE":
+          - link "T04-DATA-B-BEFORE-SPARSE":
+            - /url: "#/snapshot/36703301-baea-40c6-9894-cd17d05f9af5"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "DATA-528-1":
+          - link "DATA-528-1":
+            - /url: "#/volume/9ac4284b-030d-4ff4-9033-c75be3fb1e11"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 10. 15. 오후 1:38:40"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1345-31-generic-DATA-snapshot 백업 됨 E1345-31-snapshot-DATA MANUAL 0.00 GiB 2026. 10. 10. 오후 8:54:24 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1345-31-generic-DATA-snapshot":
+          - link "E1345-31-generic-DATA-snapshot":
+            - /url: "#/snapshot/b73d1aee-a32b-4ccd-a351-907e2578984c"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "E1345-31-snapshot-DATA":
+          - link "E1345-31-snapshot-DATA":
+            - /url: "#/volume/a8ea590a-ae15-4582-a873-5908fd7f7141"
+        - cell "MANUAL"
+        - cell "0.00 GiB"
+        - cell "2026. 10. 10. 오후 8:54:24"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1335-31-fault-heavy-backup 백업 됨 ROOT-375 MANUAL 21.97 GiB 2026. 10. 10. 오전 1:10:02 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1335-31-fault-heavy-backup":
+          - link "E1335-31-fault-heavy-backup":
+            - /url: "#/snapshot/764b72b0-983b-4fb8-b58d-87f8ae2de86a"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-375":
+          - link "ROOT-375":
+            - /url: "#/volume/2f44e12e-bf27-448e-9128-ce2e72b55e5c"
+        - cell "MANUAL"
+        - cell "21.97 GiB"
+        - cell "2026. 10. 10. 오전 1:10:02"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1335-31-permission-user-snapshot 백업 됨 ROOT-376 MANUAL 2.00 GiB 2026. 10. 9. 오후 11:58:15 epic1335-user31 ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1335-31-permission-user-snapshot":
+          - link "E1335-31-permission-user-snapshot":
+            - /url: "#/snapshot/a60ae85a-d551-4e2e-9faa-7fd44dd44995"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-376":
+          - link "ROOT-376":
+            - /url: "#/volume/2b6a2be0-331e-49c2-bca5-db1eca16f733"
+        - cell "MANUAL"
+        - cell "2.00 GiB"
+        - cell "2026. 10. 9. 오후 11:58:15"
+        - cell "epic1335-user31":
+          - link "epic1335-user31":
+            - /url: "#/account?name=epic1335-user31&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1335-31-L-BIOS-deleted-source-backup 백업 됨 ROOT-374 MANUAL 2.00 GiB 2026. 10. 9. 오후 11:25:55 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1335-31-L-BIOS-deleted-source-backup":
+          - link "E1335-31-L-BIOS-deleted-source-backup":
+            - /url: "#/snapshot/0886283d-53a8-4862-a5bc-a030d36c03ee"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-374"
+        - cell "MANUAL"
+        - cell "2.00 GiB"
+        - cell "2026. 10. 9. 오후 11:25:55"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1335-31-W-UEFI-before 백업 됨 ROOT-364 MANUAL 9.30 GiB 2026. 10. 9. 오후 10:00:45 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1335-31-W-UEFI-before":
+          - link "E1335-31-W-UEFI-before":
+            - /url: "#/snapshot/0cdedaa1-9bba-41ae-856e-022322eb0f4a"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-364":
+          - link "ROOT-364":
+            - /url: "#/volume/15c2f8f7-54bf-4287-89fe-4717838e2d40"
+        - cell "MANUAL"
+        - cell "9.30 GiB"
+        - cell "2026. 10. 9. 오후 10:00:45"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "E1335-31-L-BIOS-before 백업 됨 ROOT-359 MANUAL 2.00 GiB 2026. 10. 9. 오전 10:41:23 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "E1335-31-L-BIOS-before":
+          - link "E1335-31-L-BIOS-before":
+            - /url: "#/snapshot/97e2c185-6b23-4b71-9a2b-a6e655ca79ec"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-359":
+          - link "ROOT-359":
+            - /url: "#/volume/c5a6a13d-34e7-466f-8cb1-14273a6fe277"
+        - cell "MANUAL"
+        - cell "2.00 GiB"
+        - cell "2026. 10. 9. 오전 10:41:23"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "snapshot-a2b6e227-44fa-435e-baff-69540c1819f9 백업 됨 pvc-46bc297c-4870-4d8b-a3c5-974246d3f3e8 MANUAL 0 2026. 10. 7. 오전 3:10:42 k1230-20261006 ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "snapshot-a2b6e227-44fa-435e-baff-69540c1819f9":
+          - link "snapshot-a2b6e227-44fa-435e-baff-69540c1819f9":
+            - /url: "#/snapshot/ba0f6bbd-0dd0-426e-aed5-35f8c61c8fcf"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "pvc-46bc297c-4870-4d8b-a3c5-974246d3f3e8"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 10. 7. 오전 3:10:42"
+        - cell "k1230-20261006":
+          - link "k1230-20261006":
+            - /url: "#/account?name=k1230-20261006&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Windows Server 2019 Base Install 백업 됨 ROOT-108 MANUAL 9.45 GiB 2026. 10. 5. 오후 9:55:36 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Windows Server 2019 Base Install":
+          - link "Windows Server 2019 Base Install":
+            - /url: "#/snapshot/0452f681-6f14-4a95-a0e8-10da8c17a771"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-108":
+          - link "ROOT-108":
+            - /url: "#/volume/eb3d2cc7-9d4e-46e6-9bcd-a7830ee4b5b5"
+        - cell "MANUAL"
+        - cell "9.45 GiB"
+        - cell "2026. 10. 5. 오후 9:55:36"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Windows Server 2022 Base Install 백업 됨 ROOT-107 MANUAL 9.27 GiB 2026. 10. 5. 오후 9:53:12 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Windows Server 2022 Base Install":
+          - link "Windows Server 2022 Base Install":
+            - /url: "#/snapshot/cd462d51-c040-4c1e-83ff-ed1babb297b2"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-107":
+          - link "ROOT-107":
+            - /url: "#/volume/fc36d1e9-d20a-470a-be2e-ec03547e0896"
+        - cell "MANUAL"
+        - cell "9.27 GiB"
+        - cell "2026. 10. 5. 오후 9:53:12"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Windows Server 2022 Base Install 백업 됨 ROOT-107 MANUAL 9.27 GiB 2026. 10. 4. 오후 11:46:21 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Windows Server 2022 Base Install":
+          - link "Windows Server 2022 Base Install":
+            - /url: "#/snapshot/eb90c589-a818-4f44-9992-dead37f31ed9"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-107":
+          - link "ROOT-107":
+            - /url: "#/volume/fc36d1e9-d20a-470a-be2e-ec03547e0896"
+        - cell "MANUAL"
+        - cell "9.27 GiB"
+        - cell "2026. 10. 4. 오후 11:46:21"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Windows Server 2025 x86_64 Base Install 백업 됨 ROOT-106 MANUAL 10.83 GiB 2026. 10. 4. 오후 11:43:40 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Windows Server 2025 x86_64 Base Install":
+          - link "Windows Server 2025 x86_64 Base Install":
+            - /url: "#/snapshot/f3d5eed2-2a7e-4de2-86ac-6dc1ca0035fd"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-106":
+          - link "ROOT-106":
+            - /url: "#/volume/081b0fb8-f87f-4ad9-9728-a091a51fdc08"
+        - cell "MANUAL"
+        - cell "10.83 GiB"
+        - cell "2026. 10. 4. 오후 11:43:40"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Ubuntu 22.04 Base Install 백업 됨 ROOT-94 MANUAL 5.76 GiB 2026. 10. 4. 오후 11:41:04 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Ubuntu 22.04 Base Install":
+          - link "Ubuntu 22.04 Base Install":
+            - /url: "#/snapshot/9990bd90-e528-4188-8f8d-0689e1e638c1"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-94":
+          - link "ROOT-94":
+            - /url: "#/volume/6d387827-e364-4435-8626-abaa17dc0820"
+        - cell "MANUAL"
+        - cell "5.76 GiB"
+        - cell "2026. 10. 4. 오후 11:41:04"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Ubuntu24-Base-Install 백업 됨 ROOT-93 MANUAL 5.14 GiB 2026. 10. 4. 오후 11:36:02 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Ubuntu24-Base-Install":
+          - link "Ubuntu24-Base-Install":
+            - /url: "#/snapshot/02d0884e-7955-4293-a068-880d2179b5b5"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-93":
+          - link "ROOT-93":
+            - /url: "#/volume/a3020d3e-26dd-4c61-a0c2-6cb793f4f7af"
+        - cell "MANUAL"
+        - cell "5.14 GiB"
+        - cell "2026. 10. 4. 오후 11:36:02"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "epic1216-ui-extracted 백업 됨 ROOT-143 MANUAL 6.44 GiB 2026. 10. 3. 오후 9:45:38 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "epic1216-ui-extracted":
+          - link "epic1216-ui-extracted":
+            - /url: "#/snapshot/51df57e9-bed5-4c4d-bce9-351d32e6dfda"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-143"
+        - cell "MANUAL"
+        - cell "6.44 GiB"
+        - cell "2026. 10. 3. 오후 9:45:38"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "Ubuntu26-Snapshot 백업 됨 ROOT-92 MANUAL 6.39 GiB 2026. 10. 3. 오전 12:11:41 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "Ubuntu26-Snapshot":
+          - link "Ubuntu26-Snapshot":
+            - /url: "#/snapshot/37d73ffe-1fc0-48b9-aab1-43cbb24e9195"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-92":
+          - link "ROOT-92":
+            - /url: "#/volume/069360fb-1988-44ec-b9de-5e09d8f459e2"
+        - cell "MANUAL"
+        - cell "6.39 GiB"
+        - cell "2026. 10. 3. 오전 12:11:41"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "tj-test_ROOT-122_20261002003444 백업 됨 ROOT-122 MANUAL 0 2026. 10. 2. 오전 9:34:44 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "tj-test_ROOT-122_20261002003444":
+          - link "tj-test_ROOT-122_20261002003444":
+            - /url: "#/snapshot/82145f59-2ad1-4c12-99ef-d53c9ddf9bec"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-122"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 10. 2. 오전 9:34:44"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923043837 백업 됨 ROOT-22 MANUAL 0 2026. 9. 23. 오후 1:38:37 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923043837":
+          - link "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923043837":
+            - /url: "#/snapshot/3f43ba18-8729-4063-9b66-6eb5c14487db"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-22":
+          - link "ROOT-22":
+            - /url: "#/volume/9975c1fa-26dc-4655-be07-c80f0b698be4"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 9. 23. 오후 1:38:37"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042801 백업 됨 ROOT-22 MANUAL 0 2026. 9. 23. 오후 1:28:01 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042801":
+          - link "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042801":
+            - /url: "#/snapshot/fc199415-849e-455d-8386-8921a1bc5211"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-22":
+          - link "ROOT-22":
+            - /url: "#/volume/9975c1fa-26dc-4655-be07-c80f0b698be4"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 9. 23. 오후 1:28:01"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+      - row "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042426 백업 됨 ROOT-22 MANUAL 0 2026. 9. 23. 오후 1:24:26 admin ROOT Zone":
+        - cell:
+          - checkbox
+        - cell "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042426":
+          - link "VM-630888e1-bcef-4b40-9952-b3409a664bae_ROOT-22_20260923042426":
+            - /url: "#/snapshot/ec76472d-b877-4813-be8c-d09806772074"
+        - cell "백업 됨":
+          - generic: 백업 됨
+        - cell "ROOT-22":
+          - link "ROOT-22":
+            - /url: "#/volume/9975c1fa-26dc-4655-be07-c80f0b698be4"
+        - cell "MANUAL"
+        - cell "0"
+        - cell "2026. 9. 23. 오후 1:24:26"
+        - cell "admin":
+          - link "admin":
+            - /url: "#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f&dataView=true"
+        - cell "ROOT":
+          - link "ROOT":
+            - /url: "#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details"
+        - cell "Zone":
+          - link "Zone":
+            - /url: "#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c"
+        - cell
+  - list:
+    - listitem: 전체 23 개 항목 중 1-20 표시
+    - listitem "이전 페이지":
+      - button "left" [disabled]:
+        - img "left":
+    - listitem "1":
+      - generic: "1"
+    - listitem "2":
+      - generic: "2"
+    - listitem "다음 페이지":
+      - button "right":
+        - img "right":
+    - combobox
+    - generic: 20 / 쪽
+    - text: 이동하기
+    - textbox
+- alert:
+  - img "info-circle":
+  - generic: Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성

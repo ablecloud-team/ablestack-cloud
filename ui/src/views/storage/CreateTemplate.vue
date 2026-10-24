@@ -17,6 +17,7 @@
 
 <template>
   <a-spin :spinning="loading">
+    <StorageSnapshotSafety v-if="snapshotSafetyTarget" :context="snapshotSafetyContext" :loading="snapshotSafetyLoading" :error="snapshotSafetyError" @refresh="refreshSnapshotSafety" />
     <a-form
       class="form"
       layout="vertical"
@@ -177,13 +178,15 @@
       </a-row>
       <MoldDialogActions :span="24" :busy="loading">
         <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-        <a-button type="primary" ref="submit" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
+        <a-button type="primary" ref="submit" :disabled="snapshotSafetyBlocked" @click="handleSubmit">{{ $t('label.ok') }}</a-button>
       </MoldDialogActions>
     </a-form>
   </a-spin>
 </template>
 
 <script>
+import { storageSnapshotSafety } from '@/utils/storageSnapshotSafety'
+import storageDialogContext from '@/utils/storageDialogContext'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import { ref, reactive, toRaw } from 'vue'
 import { postAPI } from '@/api'
@@ -195,7 +198,7 @@ import InfiniteScrollSelect from '@/components/widgets/InfiniteScrollSelect.vue'
 
 export default {
   name: 'CreateTemplate',
-  mixins: [mixinForm],
+  mixins: [storageDialogContext, storageSnapshotSafety('createTemplate', 'snapshot', vm => !!vm.resource?.intervaltype), mixinForm],
   components: {
     MoldDialogActions,
     ResourceIcon,
@@ -326,8 +329,8 @@ export default {
       }
     },
     handleSubmit (e) {
-      if (this.loading) return
-      this.formRef.value.validate().then(() => {
+      if (this.loading || this.snapshotSafetyBlocked) return
+      this.formRef.value.validate().then(async () => {
         const formRaw = toRaw(this.form)
         const values = this.handleRemoveFields(formRaw)
         const params = {}
@@ -345,6 +348,13 @@ export default {
           params[key] = input
         }
         this.loading = true
+        if (this.snapshotSafetyTarget) {
+          try {
+            const operation = await this.submitSnapshotSafely(params)
+            if (operation.jobid && this.dialogCurrent()) this.closeModal()
+          } finally { this.loading = false }
+          return
+        }
         postAPI('createTemplate', params).then(response => {
           this.$pollJob({
             jobId: response.createtemplateresponse.jobid,
@@ -365,7 +375,8 @@ export default {
           this.loading = false
         })
       }).catch((error) => {
-        this.formRef.value.scrollToField(error.errorFields[0].name)
+        if (error.errorFields?.length) this.formRef.value.scrollToField(error.errorFields[0].name)
+        else this.$notifyError(error)
       })
     },
     closeModal () {

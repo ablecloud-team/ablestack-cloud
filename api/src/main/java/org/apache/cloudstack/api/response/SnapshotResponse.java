@@ -31,6 +31,20 @@ import com.google.gson.annotations.SerializedName;
 
 @EntityReference(value = Snapshot.class)
 public class SnapshotResponse extends BaseResponseWithTagInformation implements ControlledViewEntityResponse {
+    @SerializedName("copy")
+    @Param(description = "Snapshot/datastore reference facts for showunique=false: opaque stable id, role, state, availability (Ready/NotReady/Unknown), nullable virtualsize and download progress. Missing datastore references are Unknown, never physical copies.")
+    private java.util.Map<String, Object> copyInfo;
+
+    public void setCopyInfo(java.util.Map<String, Object> copy) { copyInfo = copy; }
+    public java.util.Map<String, Object> getCopyInfo() { return copyInfo; }
+
+    @SerializedName("snapshotcontext")
+    @Param(description = "Current source facts and reasons for volume snapshot operations; present only when requested")
+    private java.util.Map<String, Object> snapshotContext;
+
+    public void setSnapshotContext(java.util.Map<String, Object> context) { snapshotContext = context; }
+    public java.util.Map<String, Object> getSnapshotContext() { return snapshotContext; }
+
     @SerializedName(ApiConstants.ID)
     @Param(description = "ID of the Snapshot")
     private String id;
@@ -171,6 +185,8 @@ public class SnapshotResponse extends BaseResponseWithTagInformation implements 
     public String getObjectId() {
         return this.getId();
     }
+
+    public String getSnapshotId() { return id; }
 
     private String getId() {
         return id;

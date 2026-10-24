@@ -1,0 +1,62 @@
+[
+  {
+    "command": "deleteSnapshot",
+    "id": "859c7b9f-e2de-435e-815d-0bc323e01903",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "e93bbad4-6ae5-445b-9b0a-5672d0f427ca",
+    "complete": true
+  },
+  {
+    "command": "deleteSnapshot",
+    "id": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5",
+    "complete": true
+  },
+  {
+    "command": "destroyVirtualMachine",
+    "id": "6dc43f40-d841-4517-8e52-e12ddc64739a",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "148b63c0-b20b-4d72-85bb-677613e1adaa",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "1876b4b9-507a-4d9d-9602-8b78c3861943",
+    "complete": true
+  },
+  {
+    "command": "deleteVolume",
+    "id": "f982ed44-a7f0-4142-a1d1-b3682e3893c7",
+    "complete": true
+  },
+  {
+    "command": "deleteProject",
+    "id": "8d4051e4-8ba6-4b9a-928f-cb617452445d",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "7b83a6e8-1c79-4fa1-b8cc-b57502aaba6f",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "7eb21933-46f0-46c3-8797-3d7d60b61e5b",
+    "complete": true
+  },
+  {
+    "command": "deleteAccount",
+    "id": "b760324c-3f1d-4a8b-b858-7cf8e3581a1a",
+    "complete": true
+  },
+  {
+    "command": "deleteDomain",
+    "id": "c58325f9-adca-438f-ae79-70998c604242",
+    "complete": true
+  }
+]

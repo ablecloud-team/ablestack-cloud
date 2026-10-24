@@ -1,0 +1,15 @@
+{
+  "ui/public/locales/en.json": "d612046398d837ce7d75ad930999f0138f29e290555fb4094d24de9fe4bb54a7",
+  "ui/public/locales/ko_KR.json": "ced96393912b2d41c532de3f2149747023d366fff3e9b06279bc5f1939769a08",
+  "ui/src/components/view/StorageSnapshotSafety.vue": "cdebcea85833e660ca1dbd523ef8e710b8ce304664b4129e5e6e1eaef464f35c",
+  "ui/src/config/section/storage.js": "e8fa5e93cf37472e9b4941856c8bbd6502189417fcd24f639d8244e64a100272",
+  "ui/src/style/components/view/mold-dialog.less": "b129b82efb4f374a58584310456f36e6e82ad600d54e828234717f8a127d684f",
+  "ui/src/utils/storageSnapshotSafety.js": "102c8f77f42d8e635a7ef6d314ced33f7474398691f9b6470dad67c22e52cb4f",
+  "ui/src/views/AutogenView.vue": "eebb8e679e8347b610d86935cea8d0bc9fc7a9ace8584d3bf819136b78664ae0",
+  "ui/src/views/compute/wizard/OwnershipSelection.vue": "b421fdb948cf609bc9f4d420c930bba40f7b6f6df30a2b3ff55f153e5129ff69",
+  "ui/src/views/storage/CreateVolume.vue": "117064f13d5bde927073b032a31716fcf500b87076e6690d8d1bd9cccb19252b",
+  "ui/src/views/storage/StorageSnapshotActionDialog.vue": "a181b0e26b6cbcc1028bd687cf808cd8d211158d63dbcd0ad0b9b593d6972fa2",
+  "ui/tests/unit/views/AutogenSnapshotActions.spec.js": "6432fb971612db2303562786c8a6f881cb8f418f37837c5b0638a36ebe43da23",
+  "ui/tests/unit/views/storage/StorageSnapshotActionDialog.spec.js": "eb3bedfc90382b69d07ca6cb13d3488640a28a2038497e160b901a56026d30b3",
+  "ui/tests/unit/views/storage/StorageSnapshotSafety.spec.js": "2eb76b719cdf33bc6d8ae89113e6bf8a12777531f9dd6476b988c898aa7beb1f"
+}

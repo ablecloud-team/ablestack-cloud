@@ -1,0 +1,40 @@
+{
+  "before": {
+    "snapshotid": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+    "name": "SNAP1477-32-residue",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "RETRY_BACKUP",
+    "message": "Copy from managed or RBD primary, verify the backup, then remove primary",
+    "primaryreferences": 1,
+    "secondaryreferences": 1,
+    "scopehash": "914413d7f8194baf16376de3ea80ec4cc9cabf282b5e2bbab74a08ef54af6849",
+    "dryrun": true
+  },
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "success": true
+      }
+    }
+  ],
+  "after": {
+    "snapshotid": "84ff4450-2746-4e5d-9c05-3fde9fe166ef",
+    "name": "SNAP1477-32-residue",
+    "state": "BackedUp",
+    "eligible": true,
+    "reason": "ALREADY_ARCHIVED",
+    "message": "Verify the existing secondary copy and return without creating or deleting any copy",
+    "primaryreferences": 0,
+    "secondaryreferences": 1,
+    "scopehash": "b8c1e44e5801fdde01aecf609d8ea3ef9eff02b030e7071bf72fed89d4a66ed4",
+    "dryrun": true
+  }
+}

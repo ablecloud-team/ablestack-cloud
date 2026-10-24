@@ -29,6 +29,11 @@ public interface SnapshotService {
 
     SnapshotInfo backupSnapshot(SnapshotInfo snapshot);
 
+    SnapshotInfo backupSnapshotForArchive(SnapshotInfo snapshot);
+
+    boolean verifySnapshotBackup(SnapshotInfo snapshot);
+
+
     SnapshotInfo convertSnapshot(SnapshotInfo snapshotInfo);
 
     boolean deleteSnapshot(SnapshotInfo snapshot);

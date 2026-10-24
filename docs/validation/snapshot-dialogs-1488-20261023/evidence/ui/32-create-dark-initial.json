@@ -1,0 +1,226 @@
+{
+  "bodyOverflow": {
+    "clientHeight": 424,
+    "clientWidth": 718,
+    "scrollHeight": 424,
+    "scrollWidth": 718
+  },
+  "buttons": [
+    {
+      "disabled": false,
+      "text": "취소"
+    },
+    {
+      "disabled": false,
+      "text": "생성"
+    }
+  ],
+  "classes": "ant-modal mold-dialog storage-standard-dialog snapshot-standard-dialog mold-dialog-standard",
+  "colors": [
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 7.13,
+      "disabled": false,
+      "foreground": "rgba(255, 255, 255, 0.65)",
+      "opacity": "1",
+      "text": "볼륨 생성"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "이름"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 6.41,
+      "disabled": false,
+      "foreground": "rgb(154, 164, 175)",
+      "opacity": "1",
+      "text": "The name of the disk volume"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "Zone"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "Zone"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "소유자 유형"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "계정"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "도메인"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "ROOT"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "계정"
+    },
+    {
+      "background": [
+        27,
+        33,
+        40
+      ],
+      "contrast": 14.56,
+      "disabled": false,
+      "foreground": "rgb(240, 243, 246)",
+      "opacity": "1",
+      "text": "admin"
+    },
+    {
+      "background": [
+        34,
+        40,
+        47
+      ],
+      "contrast": 9.18,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "인스턴스에 연결"
+    },
+    {
+      "background": [
+        39,
+        46,
+        54
+      ],
+      "contrast": 8.47,
+      "disabled": false,
+      "foreground": "rgb(197, 204, 212)",
+      "opacity": "1",
+      "text": "취소"
+    },
+    {
+      "background": [
+        9,
+        105,
+        218
+      ],
+      "contrast": 5.19,
+      "disabled": false,
+      "foreground": "rgb(255, 255, 255)",
+      "opacity": "1",
+      "text": "생성"
+    }
+  ],
+  "contrastFailures": [],
+  "dark": true,
+  "documentOverflow": {
+    "clientWidth": 1280,
+    "scrollWidth": 1270
+  },
+  "fieldGaps": [
+    6,
+    6,
+    24,
+    24
+  ],
+  "focus": "form_item_name",
+  "minimumContrast": 5.19,
+  "modal": true,
+  "nestedForms": 0,
+  "overlaps": [],
+  "padding": {
+    "body": "24px 28px",
+    "footer": "16px 28px",
+    "header": "16px 24px"
+  },
+  "rect": {
+    "bottom": 633,
+    "height": 546,
+    "left": 280,
+    "right": 1000,
+    "top": 87,
+    "width": 720
+  },
+  "stackGaps": [],
+  "summaryTables": 0,
+  "text": "볼륨 생성\n이름\nZone\n Zone\n소유자 유형\n계정\n도메인\n ROOT\n계정\n admin\n인스턴스에 연결\n취소\n생성",
+  "viewport": {
+    "height": 720,
+    "width": 1280
+  }
+}

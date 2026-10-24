@@ -1,0 +1,486 @@
+{
+  "created": [
+    {
+      "uuid": "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "HOURLY",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "6543184f-8ac0-4f70-a91f-d033597902db",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "DAILY",
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "6543184f-8ac0-4f70-a91f-d033597902db",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23",
+        "intervaltype": 1,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "WEEKLY",
+        "schedule": "59:23:7",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23:7",
+        "intervaltype": 2,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "MONTHLY",
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "84dbb02b-ab08-41b9-b706-0d75747d298d",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "c06bdf0f-b141-4b40-a399-81b3b9feb212",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "HOURLY",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "c06bdf0f-b141-4b40-a399-81b3b9feb212",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "f1a0fec5-cd0f-450e-b338-5e19a25f6c54",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "DAILY",
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "f1a0fec5-cd0f-450e-b338-5e19a25f6c54",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23",
+        "intervaltype": 1,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "9f1e260c-2870-439a-ba22-f7ab895a6421",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "WEEKLY",
+        "schedule": "59:23:7",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "9f1e260c-2870-439a-ba22-f7ab895a6421",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23:7",
+        "intervaltype": 2,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "4c294405-8989-4f27-8a3c-d9b376c0f646",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "MONTHLY",
+        "schedule": "59:23:28",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "4c294405-8989-4f27-8a3c-d9b376c0f646",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59:23:28",
+        "intervaltype": 3,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "b25395b9-a5fd-4a60-869e-0fc8c2582693",
+      "request": {
+        "volumeid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "intervaltype": "DAILY",
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "maxsnaps": 8,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "b25395b9-a5fd-4a60-869e-0fc8c2582693",
+        "volumeid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "volumename": "SNAPPOL1493-32-other",
+        "schedule": "59:23",
+        "intervaltype": 1,
+        "maxsnaps": 8,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "efba31a2-6e29-4763-9963-3b1b2c3dce3f",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "HOURLY",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 2,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "efba31a2-6e29-4763-9963-3b1b2c3dce3f",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "45f94ced-0dac-46f3-8a39-7bcf6ac28229",
+      "request": {
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "intervaltype": "HOURLY",
+        "schedule": "59",
+        "timezone": "UTC",
+        "maxsnaps": 2,
+        "fordisplay": false,
+        "usestoragereplication": false
+      },
+      "response": {
+        "id": "45f94ced-0dac-46f3-8a39-7bcf6ac28229",
+        "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "volumename": "SNAPPOL1493-32-owner",
+        "schedule": "59",
+        "intervaltype": 0,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "uuid": "3a1e96af-9e72-415f-ad97-9a199f0b80ff",
+      "request": {
+        "volumeid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "intervaltype": "DAILY",
+        "schedule": "59:23",
+        "timezone": "UTC",
+        "maxsnaps": 2,
+        "fordisplay": false
+      },
+      "response": {
+        "id": "3a1e96af-9e72-415f-ad97-9a199f0b80ff",
+        "volumeid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "volumename": "SNAPPOL1493-32-other",
+        "schedule": "59:23",
+        "intervaltype": 1,
+        "maxsnaps": 2,
+        "timezone": "UTC",
+        "fordisplay": false,
+        "zone": [
+          {
+            "id": "991d2f57-0f37-4445-b956-09773d064816",
+            "name": "Zone",
+            "localstorageenabled": false,
+            "isnsxenabled": false,
+            "ismultiarch": false,
+            "routedmodeenabled": false
+          }
+        ],
+        "storage": [
+          {
+            "id": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+            "name": "Primary"
+          }
+        ],
+        "tags": []
+      }
+    }
+  ],
+  "deleted": [
+    "3a1e96af-9e72-415f-ad97-9a199f0b80ff",
+    "45f94ced-0dac-46f3-8a39-7bcf6ac28229",
+    "4c294405-8989-4f27-8a3c-d9b376c0f646",
+    "5b89f40f-ce1e-471d-9374-44a0cd04a0ca",
+    "6543184f-8ac0-4f70-a91f-d033597902db",
+    "84dbb02b-ab08-41b9-b706-0d75747d298d",
+    "9f1e260c-2870-439a-ba22-f7ab895a6421",
+    "b25395b9-a5fd-4a60-869e-0fc8c2582693",
+    "c06bdf0f-b141-4b40-a399-81b3b9feb212",
+    "e5082238-9521-4f1a-abd4-b20c0cbf4d70",
+    "efba31a2-6e29-4763-9963-3b1b2c3dce3f",
+    "f1a0fec5-cd0f-450e-b338-5e19a25f6c54"
+  ],
+  "allNormallyDeleted": true
+}

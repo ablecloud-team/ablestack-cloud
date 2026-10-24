@@ -15,6 +15,7 @@ import { getAPI, postAPI } from '@/api'
 
 jest.mock('@/api', () => ({ getAPI: jest.fn(), postAPI: jest.fn() }))
 jest.mock('lodash/debounce', () => fn => fn)
+jest.mock('@/utils/storageSnapshotContext', () => ({ freezeSnapshotTarget: jest.fn(() => null), freshStorageSnapshotContext: jest.fn(), snapshotSecurityScope: jest.fn() }))
 jest.mock('@/utils/timezone', () => ({ timeZone: () => Promise.resolve([]) }))
 
 const select = { props: ['loading', 'disabled'], template: '<div :class="{ loading }" :data-disabled="disabled"><slot /></div>' }
@@ -122,4 +123,11 @@ describe.each([Schedule, TakeSnapshot])('$name additional zones', component => {
 test('non-volume schedules do not query zones', async () => {
   dialog(Schedule, { resourceType: 'VM' }); await flushPromises()
   expect(getAPI).not.toHaveBeenCalled()
+})
+
+test('snapshot creation disables its submit control during unsafe source validation', async () => {
+  getAPI.mockResolvedValue({ listzonesresponse: {} })
+  const wrapper = dialog(TakeSnapshot); await flushPromises()
+  await wrapper.setData({ snapshotSafetyTarget: { id: 'volume' }, snapshotSafetyLoading: true })
+  expect(wrapper.findComponent({ ref: 'submit' }).props('disabled')).toBe(true)
 })

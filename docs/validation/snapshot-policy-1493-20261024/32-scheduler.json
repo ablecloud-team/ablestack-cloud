@@ -1,0 +1,793 @@
+{
+  "created": {
+    "id": "92bc05e8-5228-4922-8fc6-3f2488c33884",
+    "account": "SNAPPOL1493-32-owner",
+    "domainid": "57877185-2a6d-4f16-883a-45e474e17459",
+    "domain": "SNAPPOL1493-32-domain",
+    "domainpath": "ROOT/SNAPPOL1493-32-domain",
+    "volumeid": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+    "volumename": "SNAPPOL1493-32-owner",
+    "volumetype": "DATADISK",
+    "volumestate": "Ready",
+    "created": "2026-10-24T21:01:23+0900",
+    "name": "detached_SNAPPOL1493-32-owner_20261024120123",
+    "intervaltype": "HOURLY",
+    "state": "BackedUp",
+    "physicalsize": 196624,
+    "zoneid": "991d2f57-0f37-4445-b956-09773d064816",
+    "zonename": "Zone",
+    "revertable": true,
+    "virtualsize": 1073741824,
+    "tags": [
+      {
+        "key": "qa1493-scheduler",
+        "value": "SNAPPOL1493-32",
+        "resourcetype": "Snapshot",
+        "resourceid": "92bc05e8-5228-4922-8fc6-3f2488c33884",
+        "account": "SNAPPOL1493-32-owner",
+        "domainid": "57877185-2a6d-4f16-883a-45e474e17459",
+        "domain": "SNAPPOL1493-32-domain"
+      }
+    ],
+    "hasannotations": false
+  },
+  "nextSchedule": [
+    {
+      "id": 12,
+      "policy_id": 8,
+      "volume_id": 415,
+      "snapshot_id": null,
+      "async_job_id": null,
+      "scheduled_timestamp": "2026-10-24 12:59:00"
+    }
+  ],
+  "db": {
+    "snapshots": [
+      {
+        "id": 147,
+        "uuid": "e37557c4-bdd0-479c-a783-d3d9558c97fa",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-legacy-HOURLY",
+        "snapshot_type": 3,
+        "type_description": "HOURLY",
+        "status": "Destroyed",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 148,
+        "uuid": "73f4697d-bf73-4ef3-b255-f80f62032a09",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-legacy-DAILY",
+        "snapshot_type": 4,
+        "type_description": "DAILY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 149,
+        "uuid": "dc92398f-597b-473b-adb0-61b51392c823",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-legacy-WEEKLY",
+        "snapshot_type": 5,
+        "type_description": "WEEKLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 150,
+        "uuid": "7e32de1e-7941-4865-abf6-e6d2990e6a8f",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-legacy-MONTHLY",
+        "snapshot_type": 6,
+        "type_description": "MONTHLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 151,
+        "uuid": "d1ca07b3-50b0-42ce-8d8c-ebb246d18749",
+        "volume_id": 416,
+        "account_id": 79,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-internal-control",
+        "snapshot_type": 8,
+        "type_description": "INTERNAL",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55"
+      },
+      {
+        "id": 152,
+        "uuid": "67600087-cb20-4b32-99fd-8f160d36b6fa",
+        "volume_id": 416,
+        "account_id": 79,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-insufficient-proof",
+        "snapshot_type": 8,
+        "type_description": "INTERNAL",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55"
+      },
+      {
+        "id": 153,
+        "uuid": "60ae1c32-9f2d-40af-ba28-87bd25e8aa0d",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-fixed-HOURLY",
+        "snapshot_type": 3,
+        "type_description": "HOURLY",
+        "status": "Destroyed",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 154,
+        "uuid": "00bbc1f6-532c-42a9-a96d-20450ccf5f76",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-fixed-DAILY",
+        "snapshot_type": 4,
+        "type_description": "DAILY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 155,
+        "uuid": "28275cf3-b7ed-4411-b489-42b07ce9f1bd",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-fixed-WEEKLY",
+        "snapshot_type": 5,
+        "type_description": "WEEKLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 156,
+        "uuid": "0b497459-d607-450a-8c9a-c0b364a03bf8",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-fixed-MONTHLY",
+        "snapshot_type": 6,
+        "type_description": "MONTHLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 157,
+        "uuid": "386d46a2-d899-4c5e-887c-32605e14eeda",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-manual",
+        "snapshot_type": 0,
+        "type_description": "MANUAL",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 158,
+        "uuid": "fbc44978-828e-4ea8-94c6-f6de51d05d14",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-retention-0",
+        "snapshot_type": 3,
+        "type_description": "HOURLY",
+        "status": "Destroyed",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 159,
+        "uuid": "edae61df-dd8c-4819-ad43-98864512ec07",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "SNAPPOL1493-32-retention-1",
+        "snapshot_type": 3,
+        "type_description": "HOURLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      },
+      {
+        "id": 160,
+        "uuid": "92bc05e8-5228-4922-8fc6-3f2488c33884",
+        "volume_id": 415,
+        "account_id": 78,
+        "domain_id": 21,
+        "name": "detached_SNAPPOL1493-32-owner_20261024120123",
+        "snapshot_type": 3,
+        "type_description": "HOURLY",
+        "status": "BackedUp",
+        "removed": null,
+        "volume_uuid": "8f9ff586-d7a8-41d2-8506-827967fc9789"
+      }
+    ],
+    "details": [
+      {
+        "snapshot_id": 147,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 147,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 147,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 147,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 148,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 148,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 148,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 148,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 149,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 149,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 149,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 149,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 150,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 150,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 150,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 150,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 151,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 151,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 151,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "display": 0
+      },
+      {
+        "snapshot_id": 151,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 151,
+        "name": "snapshot.creation.intent",
+        "value": "INTERNAL",
+        "display": 0
+      },
+      {
+        "snapshot_id": 152,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 152,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 152,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "9c0ad36b-bcb0-4bcb-b166-250cdad64f55",
+        "display": 0
+      },
+      {
+        "snapshot_id": 152,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 147,
+        "name": "snapshot.type.recovery.1493",
+        "value": "{\"from\":8,\"job\":3614,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"e5082238-9521-4f1a-abd4-b20c0cbf4d70\",\"to\":3}",
+        "display": 0
+      },
+      {
+        "snapshot_id": 148,
+        "name": "snapshot.type.recovery.1493",
+        "value": "{\"from\":8,\"job\":3615,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"6543184f-8ac0-4f70-a91f-d033597902db\",\"to\":4}",
+        "display": 0
+      },
+      {
+        "snapshot_id": 149,
+        "name": "snapshot.type.recovery.1493",
+        "value": "{\"from\":8,\"job\":3616,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"5b89f40f-ce1e-471d-9374-44a0cd04a0ca\",\"to\":5}",
+        "display": 0
+      },
+      {
+        "snapshot_id": 150,
+        "name": "snapshot.type.recovery.1493",
+        "value": "{\"from\":8,\"job\":3617,\"plan\":\"a2f1a729ab934972e2ae99ff59f9249a2a2de1901ad26608f1cbecbed2cfeaf7\",\"policy\":\"84dbb02b-ab08-41b9-b706-0d75747d298d\",\"to\":6}",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "snapshot.policy.uuid",
+        "value": "c06bdf0f-b141-4b40-a399-81b3b9feb212",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "snapshot.policy.interval",
+        "value": "HOURLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 153,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "snapshot.policy.uuid",
+        "value": "f1a0fec5-cd0f-450e-b338-5e19a25f6c54",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "snapshot.policy.interval",
+        "value": "DAILY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 154,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "snapshot.policy.uuid",
+        "value": "9f1e260c-2870-439a-ba22-f7ab895a6421",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "snapshot.policy.interval",
+        "value": "WEEKLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 155,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "snapshot.policy.uuid",
+        "value": "4c294405-8989-4f27-8a3c-d9b376c0f646",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "snapshot.policy.interval",
+        "value": "MONTHLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 156,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 157,
+        "name": "snapshot.creation.intent",
+        "value": "MANUAL",
+        "display": 0
+      },
+      {
+        "snapshot_id": 157,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 157,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 157,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 157,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "snapshot.policy.uuid",
+        "value": "efba31a2-6e29-4763-9963-3b1b2c3dce3f",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "snapshot.policy.interval",
+        "value": "HOURLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 158,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "snapshot.policy.uuid",
+        "value": "efba31a2-6e29-4763-9963-3b1b2c3dce3f",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "snapshot.policy.interval",
+        "value": "HOURLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 159,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "snapshot.creation.intent",
+        "value": "POLICY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "snapshot.policy.id",
+        "value": "8",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "snapshot.policy.uuid",
+        "value": "45f94ced-0dac-46f3-8a39-7bcf6ac28229",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "snapshot.policy.interval",
+        "value": "HOURLY",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "vm.creation.source.volumetype",
+        "value": "DATADISK",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "vm.creation.source.sizebytes",
+        "value": "1073741824",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "vm.creation.source.sourcevolumeid",
+        "value": "8f9ff586-d7a8-41d2-8506-827967fc9789",
+        "display": 0
+      },
+      {
+        "snapshot_id": 160,
+        "name": "vm.creation.source.imageformat",
+        "value": "RAW",
+        "display": 0
+      }
+    ],
+    "policies": [
+      {
+        "id": 8,
+        "uuid": "45f94ced-0dac-46f3-8a39-7bcf6ac28229",
+        "volume_id": 415,
+        "interval": 0,
+        "max_snaps": 2,
+        "display": 1
+      }
+    ],
+    "schedules": [
+      {
+        "id": 12,
+        "policy_id": 8,
+        "volume_id": 415,
+        "snapshot_id": null,
+        "async_job_id": null,
+        "scheduled_timestamp": "2026-10-24 12:59:00"
+      }
+    ]
+  },
+  "systemJobObserved": true
+}

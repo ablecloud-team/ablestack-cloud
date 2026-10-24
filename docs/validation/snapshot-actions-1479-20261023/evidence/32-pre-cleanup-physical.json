@@ -1,0 +1,219 @@
+{
+  "images": [
+    {
+      "path": "/nfs/secondary/snapshots/2/328/c23a4881-f016-4489-b9c4-4029b02f8675",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/328/e865d1f6-ceff-4094-aa70-97e733fb3be8",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/329/57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/2/330/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75",
+      "exists": true,
+      "bytes": 1376256,
+      "sha256": "4c6ff9a1d015ff32127fa932959c28163fca21e44e772111bf9ec19f2a74990a"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/34c7760a-ee1f-404e-a808-5af2443e9d43",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/5d04c4f1-dcbd-4ed6-9aa6-0e84e95b41b0",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/9fe2685c-b4db-4f68-aa88-b8a8fc7395cc",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/a0f5b1d8-65c5-4b31-aa0b-5cda517f3352",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/a8be42e4-8571-423c-90c5-6182258bcba9",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/e5a86582-001e-4908-b26d-f64ba554cde7",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    },
+    {
+      "path": "/nfs/secondary/snapshots/62/332/f7beccf2-08e7-4986-a444-3313d162b6f7",
+      "exists": true,
+      "bytes": 196624,
+      "sha256": "3b107e52f63fab104395d42dbb0d08b9ef9cb3f10b1e32fe083674dba258e7f8"
+    }
+  ],
+  "templates": [
+    {
+      "uuid": "6475289c-25ff-4bf2-80ca-7d5b94422ee2",
+      "path": "/nfs/secondary/template/tmpl/2/221/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "pattern": "0x5a",
+      "verified": true,
+      "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.251 GiB/sec and 3328.8062 ops/sec)"
+    },
+    {
+      "uuid": "d038600c-21e8-41f3-abd6-794eb19fe948",
+      "path": "/nfs/secondary/template/tmpl/2/222/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "pattern": "0x5a",
+      "verified": true,
+      "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.103 GiB/sec and 3177.5992 ops/sec)"
+    },
+    {
+      "uuid": "b8f325f1-ca79-4272-9d6d-201501880e6c",
+      "path": "/nfs/secondary/template/tmpl/2/223/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "pattern": "0x5a",
+      "verified": true,
+      "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.176 GiB/sec and 3252.0537 ops/sec)"
+    },
+    {
+      "uuid": "bda966f8-ee63-42a5-b404-6bb8caa4cc8b",
+      "path": "/nfs/secondary/template/tmpl/2/224/fb9d2f6a-aabf-4db8-abb8-83ea23f1db75.raw",
+      "pattern": "0x5a",
+      "verified": true,
+      "output": "read 1048576/1048576 bytes at offset 0\n1 MiB, 1 ops; 00.00 sec (3.517 GiB/sec and 3601.0342 ops/sec)"
+    }
+  ],
+  "sourceVolumes": [
+    {
+      "uuid": "9cffe2f0-cf71-4c78-924e-b0ad321b606e",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 151,
+          "name": "c23a4881-f016-4489-b9c4-4029b02f8675",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:05:40 2026"
+        },
+        {
+          "id": 154,
+          "name": "e865d1f6-ceff-4094-aa70-97e733fb3be8",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:11:14 2026"
+        }
+      ]
+    },
+    {
+      "uuid": "8a668d6f-2b42-44f4-8dce-1638722ef9d5",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 152,
+          "name": "57a4f2d1-b2ce-48e6-bc47-fe4f20e01b33",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:05:44 2026"
+        }
+      ]
+    },
+    {
+      "uuid": "a30526d4-e96f-4a0f-b521-a82f7efbeec5",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "79d18a72-db53-4186-9c84-c81347a6420d",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "9fa5eafb-2748-4e63-a3b3-31defdcd15b0",
+      "exists": true,
+      "snapshots": [
+        {
+          "id": 156,
+          "name": "e5a86582-001e-4908-b26d-f64ba554cde7",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:21:38 2026"
+        },
+        {
+          "id": 157,
+          "name": "5d04c4f1-dcbd-4ed6-9aa6-0e84e95b41b0",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:29:30 2026"
+        },
+        {
+          "id": 158,
+          "name": "a8be42e4-8571-423c-90c5-6182258bcba9",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:47:33 2026"
+        },
+        {
+          "id": 159,
+          "name": "f7beccf2-08e7-4986-a444-3313d162b6f7",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:57:39 2026"
+        },
+        {
+          "id": 160,
+          "name": "a0f5b1d8-65c5-4b31-aa0b-5cda517f3352",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 19:58:47 2026"
+        },
+        {
+          "id": 162,
+          "name": "9fe2685c-b4db-4f68-aa88-b8a8fc7395cc",
+          "size": 1073741824,
+          "protected": "false",
+          "timestamp": "Fri Oct 23 20:24:01 2026"
+        }
+      ]
+    },
+    {
+      "uuid": "82bdaf03-413e-444b-a5a6-c2deddf960d1",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "860c5c2d-9204-4068-b1a5-3237aa952c87",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "d9ef447a-e5b7-45aa-983b-9f3eab46f1ad",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "c7ed1ddd-e590-4977-8ff0-6294e776290c",
+      "exists": false,
+      "snapshots": []
+    },
+    {
+      "uuid": "bf9c90da-1048-440a-acd0-1ee805f03380",
+      "exists": true,
+      "snapshots": []
+    }
+  ],
+  "fixtureClones": []
+}

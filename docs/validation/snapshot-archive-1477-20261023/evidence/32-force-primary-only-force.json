@@ -1,0 +1,61 @@
+{
+  "before": {
+    "success": true,
+    "snapshotid": "4eccbaab-9aba-45b7-b7ed-e8cf8bf998c8",
+    "name": "SNAP1477-32-force-primary-only",
+    "state": "BackedUp",
+    "dryrun": true,
+    "reference": [
+      {
+        "referenceid": 82,
+        "storeid": "91cae554-3fce-3f93-89d1-cefaf9bf8122",
+        "storename": "Primary",
+        "role": "Primary",
+        "state": "Ready"
+      }
+    ],
+    "scopehash": "b331edd806bbaa1d0b13cb99d6ce47dd4dab1231b87228134f16c422077a0619",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 82,
+        "role": "Primary",
+        "action": "PHYSICAL_THEN_DB",
+        "reason": "ATTEMPT_PHYSICAL_CLEANUP"
+      }
+    ]
+  },
+  "result": {
+    "success": true,
+    "snapshotid": "4eccbaab-9aba-45b7-b7ed-e8cf8bf998c8",
+    "name": "SNAP1477-32-force-primary-only",
+    "state": "Destroyed",
+    "dryrun": false,
+    "reference": [],
+    "force": true,
+    "dbcleanupcomplete": true,
+    "physicalcleanupcomplete": true,
+    "pendingcleanup": 0,
+    "cleanupresult": [
+      {
+        "referenceid": 82,
+        "role": "Primary",
+        "action": "PHYSICAL_DELETED",
+        "reason": "IDENTIFIED_TARGET_DELETED_OR_ABSENT"
+      }
+    ]
+  },
+  "after": {
+    "success": true,
+    "snapshotid": "4eccbaab-9aba-45b7-b7ed-e8cf8bf998c8",
+    "name": "SNAP1477-32-force-primary-only",
+    "state": "Destroyed",
+    "dryrun": true,
+    "reference": [],
+    "scopehash": "03adc1ae42b72c600b8d2c79170bf27c100461614ec021a1e9279d9e0fb4ce54",
+    "force": true,
+    "pendingcleanup": 0,
+    "cleanupresult": []
+  }
+}

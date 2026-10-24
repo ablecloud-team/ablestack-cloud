@@ -391,6 +391,14 @@ public class ObjectInDataStoreManagerImpl implements ObjectInDataStoreManager {
 
     @Override
     public DataObjectInStore findObject(DataObject obj, DataStore store) {
+        if (obj instanceof SnapshotInfo && ((SnapshotInfo) obj).getDataStoreRefId() != null) {
+            SnapshotDataStoreVO reference = snapshotDataStoreDao.findById(((SnapshotInfo) obj).getDataStoreRefId());
+            if (reference == null || reference.getSnapshotId() != obj.getId()
+                    || reference.getDataStoreId() != store.getId() || reference.getRole() != store.getRole()) {
+                throw new CloudRuntimeException("Snapshot deletion reference no longer matches the selected snapshot/store");
+            }
+            return reference;
+        }
         String deployAsIsConfiguration = null;
         if (obj.getType() == DataObjectType.TEMPLATE) {
             deployAsIsConfiguration = ((TemplateInfo) obj).getDeployAsIsConfiguration();

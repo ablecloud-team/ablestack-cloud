@@ -1,0 +1,58 @@
+[
+  {
+    "cluster": "31",
+    "storage": "GFS2",
+    "type": "ROOT",
+    "backupFormat": "RAW",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "storage": "GFS2",
+    "type": "ROOT",
+    "backupFormat": "QCOW2",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "storage": "GFS2",
+    "type": "DATADISK",
+    "backupFormat": "RAW",
+    "status": "PASS"
+  },
+  {
+    "cluster": "31",
+    "storage": "GFS2",
+    "type": "DATADISK",
+    "backupFormat": "QCOW2",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "storage": "RBD",
+    "type": "ROOT",
+    "backupFormat": "RAW",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "storage": "RBD",
+    "type": "ROOT",
+    "backupFormat": "QCOW2",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "storage": "RBD",
+    "type": "DATADISK",
+    "backupFormat": "RAW",
+    "status": "PASS"
+  },
+  {
+    "cluster": "32",
+    "storage": "RBD",
+    "type": "DATADISK",
+    "backupFormat": "QCOW2",
+    "status": "PASS"
+  }
+]

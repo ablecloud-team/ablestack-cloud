@@ -1,0 +1,13 @@
+[
+  {
+    "id": "10296.817",
+    "url": "http://10.10.31.10:8080/client/api/",
+    "post": "command=createTags&response=json&resourceids=a10625e6-5cf2-40e7-a596-2cda6ac30dc5&resourcetype=Snapshot&tags%5B0%5D.key=baseline&tags%5B0%5D.value=SNAPTAG1484-31-owner&sessionkey=REDACTED",
+    "method": "POST"
+  },
+  {
+    "id": "10296.818",
+    "url": "http://10.10.31.10:8080/client/api/?listall=true&resourceid=a10625e6-5cf2-40e7-a596-2cda6ac30dc5&resourcetype=Snapshot&command=listTags&response=json&sessionkey=REDACTED",
+    "method": "GET"
+  }
+]

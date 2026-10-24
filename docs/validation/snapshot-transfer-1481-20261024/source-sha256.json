@@ -1,0 +1,98 @@
+[
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/ListSnapshotCopyTargetsCmd.java",
+    "sha256": "2abc58d55a40163fb78e67b1d1e3668b3ae5ef072d977e0f6ce3ffeae029270c"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/response/SnapshotCopyTargetsResponse.java",
+    "sha256": "719a1c47de25ed1d23498794f782de6811e9d99cb60adb102b6b0010fd32e03b"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/snapshot/SnapshotCopyDestination.java",
+    "sha256": "641761cd7637b26f30fa49cf55f79a20853b9e4a44c168a07b35c4f3c77b7584"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotTransferTest.java",
+    "sha256": "2b036f5b94ab149528e3670e01aaab488c56d141f3cf0b9e0cdb1b6d2a8d00e3"
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotTransfer.js",
+    "sha256": "68a32c2ab13cb8e243c30b0e8edc75001b93604bfc4493bcd3e66cc336d8a4a0"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotCopyDialog.vue",
+    "sha256": "d5ebf8e558b4f6160fe8c383ddd2b9a77303b8bf25184e4f4c147938fd164553"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotTransfer.spec.js",
+    "sha256": "480c60b95fddafd8326c2dba6f3a12ee2d080b065dacc9ffa36a37f15dca6311"
+  },
+  {
+    "path": "api/src/main/java/com/cloud/storage/snapshot/SnapshotApiService.java",
+    "sha256": "93d9d089d347bccdb460c924605eb256536d5e892ec92b08ea9e670d1bcf93a4"
+  },
+  {
+    "path": "api/src/main/java/org/apache/cloudstack/api/command/user/snapshot/CopySnapshotCmd.java",
+    "sha256": "9cb525f98205310ba18a241dd46270fb08253376f8d857249877c849bfb0339a"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/api/query/QueryManagerImpl.java",
+    "sha256": "6119d4c158b5f8c396135fded27417da5a4872477da19a3ac54558bf6ef91092"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/server/ManagementServerImpl.java",
+    "sha256": "ace81110d92e365a4cc8de7f6fe13cf5e0b80634a1d5b92977a339ac3221e3ad"
+  },
+  {
+    "path": "server/src/main/java/com/cloud/storage/snapshot/SnapshotManagerImpl.java",
+    "sha256": "f9e1f9a287dcc92c28f9e13b96bafe75dbcfe6215a67f71cea50b31c43f97ed7"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/api/query/SnapshotCopyContractTest.java",
+    "sha256": "403eac2ed8bc694dae5e68d98ae21bd0012451750e1f7a64b487025e86ae89e1"
+  },
+  {
+    "path": "server/src/test/java/com/cloud/storage/snapshot/SnapshotRestoreContractTest.java",
+    "sha256": "008d5b1814cdccbe25e2bfd80697ee9f1130ca29b8216774ac6045d50db16317"
+  },
+  {
+    "path": "ui/public/locales/en.json",
+    "sha256": "160074dbf2c71e9546db3729da4f9ed1cb32d0f14d91d5dcbdb1dba4c7ff97ea"
+  },
+  {
+    "path": "ui/public/locales/ko_KR.json",
+    "sha256": "5bc85d104856cc25af8101cc3b8df09985bedf8c2cd8393a0b5be869d168422a"
+  },
+  {
+    "path": "ui/src/components/view/StorageSnapshotJobDialog.vue",
+    "sha256": "50efa4ea2b9a09c2f2284464f50d4aeab8d6cab6839025d4d856d5aab2526ca9"
+  },
+  {
+    "path": "ui/src/config/section/storage.js",
+    "sha256": "74005aac0a9d06b11a96090b841b72541a685a062aa15dcb338855c773ea541c"
+  },
+  {
+    "path": "ui/src/utils/storageSnapshotContext.js",
+    "sha256": "b539268d327873f69f76a7ba252a8774e13ec904311e2c93ffb5ffdd714e2422"
+  },
+  {
+    "path": "ui/src/views/storage/SnapshotZones.vue",
+    "sha256": "e1a02cea2e5a5ecf2db5ee7b353bf28c194a06f37fcffeee2906f54be5a1b411"
+  },
+  {
+    "path": "ui/src/views/storage/StorageSnapshotActionDialog.vue",
+    "sha256": "b6ee4a715f397db5f7e3a5f24a5b037cbdc45196c4fe388ff9e849200219ed48"
+  },
+  {
+    "path": "ui/tests/unit/utils/storageSnapshotContext.spec.js",
+    "sha256": "8de70e07ce1cc262d8108c90890c58dd090efe44e8ead12047e49f01af22fa62"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/SnapshotCopies.spec.js",
+    "sha256": "054ab0a930b02e173f0b251ad496fc40534bcc75c08c1609b07cca5f8aad5746"
+  },
+  {
+    "path": "ui/tests/unit/views/storage/StorageSnapshotActionDialog.spec.js",
+    "sha256": "a9b4ed8f5db1a5b8a81b4d2e4c350ad4a6a2b388950912b40d9331e7eb508f59"
+  }
+]

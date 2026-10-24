@@ -1,0 +1,192 @@
+Browser tab: 15, Title: "볼륨 - ABLESTACK-Mold", URL: "http://127.0.0.1:18032/client/#/volume/9fa5eafb-2748-4e63-a3b3-31defdcd15b0".
+0 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/volume/9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+	1 container
+		226 container
+			227 image
+			228 menu
+				229 dashboard 대시보드
+					230 link Description: dashboard 대시보드, Value: 127.0.0.1:18032/client/#/dashboard
+				231 container
+					232 image cloud
+					233 text 컴퓨트
+				234 container
+					235 image hdd
+					236 text 스토리지
+				237 content list sub_menu_2_$$_/storage-popup
+					238 hdd 볼륨
+						239 link Description: hdd 볼륨, Value: 127.0.0.1:18032/client/#/volume
+					240 build 스냅샷
+						241 link Description: build 스냅샷, Value: 127.0.0.1:18032/client/#/snapshot
+					242 build 스냅샷 정책
+						243 link Description: build 스냅샷 정책, Value: 127.0.0.1:18032/client/#/snapshotpolicy
+					244 funnel-plot 버킷
+						245 link Description: funnel-plot 버킷, Value: 127.0.0.1:18032/client/#/buckets
+					246 file-text 공유 파일 시스템
+						247 link Description: file-text 공유 파일 시스템, Value: 127.0.0.1:18032/client/#/sharedfs
+				248 container
+					249 image wifi
+					250 text 네트워크
+				251 container
+					252 image picture
+					253 text 이미지
+				254 container
+					255 image lock
+					256 text 키 관리
+				257 schedule 이벤트
+					258 link Description: schedule 이벤트, Value: 127.0.0.1:18032/client/#/event
+				259 project 프로젝트
+					260 link Description: project 프로젝트, Value: 127.0.0.1:18032/client/#/project
+				261 team 계정
+					262 link Description: team 계정, Value: 127.0.0.1:18032/client/#/account
+				263 global Zone
+					264 link Description: global Zone, Value: 127.0.0.1:18032/client/#/zones
+				265 container
+					266 image shopping
+					267 text 서비스 오퍼링
+				268 container
+					269 image tool
+					270 text 도구
+				271 read API 문서
+					272 link Description: read API 문서, Value: 127.0.0.1:18032/client/#/apidocs/
+		38 container
+			39 image menu-fold
+			186 container
+				225 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				187 image project
+				188 text 기본 보기
+			44 button 생성 down
+				45 text 생성
+				46 image down
+			47 image translation
+			48 image bell
+			49 container
+				50 text S1 Snapshot 1479
+		51 container
+			273 container
+				274 container
+					275 link Description: home, Value: 127.0.0.1:18032/client/#/
+					276 text /
+					277 link Description: 볼륨, Value: 127.0.0.1:18032/client/#/volume
+					278 text / SNAP1479-32-tenant-source
+					279 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volumes
+					280 button reload 업데이트
+						281 image reload
+						282 text 업데이트
+				283 button down 작업
+					284 image down
+					285 text 작업
+			286 button (expanded) right 스냅샷 작업 및 결과 확인, Secondary Actions: Collapse
+				287 image right
+				288 text 스냅샷 작업 및 결과 확인
+			289 text createSnapshot · SNAP1479-32-tenant-source
+			290 text 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · 접수 또는 결과 미확인 · 재제출 차단 · 2026-10-23T11:23:54.603Z
+			291 text 작업 ID: 183acdd4-1abd-4265-9652-37ad982bc842
+			292 container
+				293 image exclamation-circle
+				294 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 이 알림을 클릭하면 결과를 다시 조회합니다.
+			295 button 기존 작업 결과 조회
+			296 link Description: 작업 이력 확인, Value: 127.0.0.1:18032/client/#/event?resourceid=9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+			297 text createSnapshot · SNAP1479-32-tenant-source
+			298 text 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 · 작업 완료 · 2026-10-23T11:16:51.011Z
+			299 text 작업 ID: aba6faed-9336-4bd6-96c5-a51fab95259f
+			300 button 기존 작업 결과 조회
+			301 container
+				302 image hdd
+				303 heading SNAP1479-32-tenant-source, Value: 4
+					304 text SNAP1479-32-tenant-source
+				305 text DATADISK
+				306 text 상태 사용 가능 아이디
+				307 button 아이디 복사
+					308 image barcode
+				309 link Description: 9fa5eafb-2748-4e63-a3b3-31defdcd15b0 , Value: javascript:;
+				310 text 디스크 크기(GB 단위)
+				311 image hdd
+				312 text 1.00 GiB Zone
+				313 image global
+				314 link Description: Zone, Value: 127.0.0.1:18032/client/#/zone/991d2f57-0f37-4445-b956-09773d064816
+				315 text 계정
+				316 image user
+				317 text snap1479-32-tenant 도메인
+				318 image block
+				319 text ROOT 생성일
+				320 image calendar
+				321 text 2026. 10. 23. 오후 7:21:35
+				322 link Description: build 스냅샷 보기, Value: 127.0.0.1:18032/client/#/snapshot?volumeid=9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+				323 container
+					324 text 태그
+					325 container
+						326 image plus
+						327 text  새 태그
+			328 container
+				329 tab group
+					330 container
+						331 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						332 tab (selectable, settable, boolean) 스냅샷, Value: 0, ID: rc-tabs-1-tab-snapshots
+						333 tab (selectable, settable, boolean) 정기스냅샷, Value: 0, ID: rc-tabs-1-tab-recurringsnapshots
+						334 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						335 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				336 container Description: 상세, ID: rc-tabs-1-panel-details
+					337 content list
+						338 container
+							339 text 이름
+							340 text SNAP1479-32-tenant-source
+						341 container
+							342 text 아이디
+							343 text 9fa5eafb-2748-4e63-a3b3-31defdcd15b0
+						344 container
+							345 text 유형
+							346 text DATADISK
+						347 container
+							348 text 디스크 오퍼링
+							349 text Custom
+						350 container
+							351 text 크기
+							352 text 1.00 GiB
+						353 container
+							354 text 프로비저닝 유형
+							355 text thin
+						356 container
+							357 text Write-Cache 유형
+							358 text none
+						359 container
+							360 text 압축/중복제거
+							361 text false
+						362 container
+							363 text 압축 사용 상태
+							364 text false
+						365 container
+							366 text 중복제거 사용 상태
+							367 text false
+						368 container
+							369 text 삭제 보호
+							370 text false
+						371 container
+							372 text 요청 정책 / 형식
+							373 text 기존 호환 값: thin
+						374 container
+							375 text 확정 정책
+							376 text 알 수 없음
+						377 container
+							378 text 실제 적용 정책
+							379 text 알 수 없음
+						380 container
+							381 text 실제 적용 방식
+							382 text 알 수 없음
+						383 container
+							384 text 실제 이미지 형식
+							385 text RAW
+						386 container
+							387 text 논리 용량
+							388 text 1.00 GiB
+						389 container
+							390 text 관측 할당량
+							391 image question-circle
+							392 text 알 수 없음
+						393 container
+							394 text 관측 시각
+							395 text 알 수 없음
+						396 container
+							397 text 할당 증거
+							398 text 미검증
+
+The focused UI element is 0 AXWebArea 볼륨 - ABLESTACK-Mold, URL: 127.0.0.1:18032/client/#/volume/9fa5eafb-2748-4e63-a3b3-31defdcd15b0

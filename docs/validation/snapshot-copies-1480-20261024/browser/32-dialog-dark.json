@@ -1,0 +1,237 @@
+{
+  "copyRows": [
+    {
+      "key": "ecb05476-45e6-3234-84df-0a9ae18c5922",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "9b7cac88-84e2-3254-a9c7-cbda6ffffde1",
+      "text": "Secondary\tSNAPC1480-32-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "d456e5f2-6406-3de1-aab8-74932f9da81d",
+      "text": "Secondary\tSNAPC1480-32-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "5524b533-3ef7-3773-a095-4353f849952b",
+      "text": "Secondary\tSNAPC1480-32-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "34bc3de9-4244-3dd8-8c90-3cca52831899",
+      "text": "Secondary\tSNAPC1480-32-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "3806b230-64b6-39d3-8802-11429b8f58a3",
+      "text": "Secondary\tSNAPC1480-32-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "a658d0f1-cdfd-3347-821f-fe41dd4adeb4",
+      "text": "Secondary\tSNAPC1480-32-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "a73085c3-61a2-3b0c-90d7-ad26ae0e0331",
+      "text": "Secondary\tSNAPC1480-32-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "8c6e79a6-32a3-3087-a097-db5539b0772b",
+      "text": "Secondary\tSNAPC1480-32-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%"
+    },
+    {
+      "key": "74053b50-da6e-3a11-916e-b41f6c1e574b",
+      "text": "Secondary\tSNAPC1480-32-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-32 controlled copy failure"
+    }
+  ],
+  "dialog": {
+    "background": "rgba(0, 0, 0, 0)",
+    "body": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(240, 243, 246)",
+      "height": 220,
+      "text": "Zone\nZone 선택\n프라이머리 스토리지 복제 사용",
+      "width": 718,
+      "x": 281,
+      "y": 245
+    },
+    "className": "ant-modal mold-dialog mold-dialog-standard",
+    "color": "rgba(255, 255, 255, 0.65)",
+    "fields": [
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "height": 62,
+        "text": "Zone\nZone 선택",
+        "width": 662,
+        "x": 309,
+        "y": 269
+      },
+      {
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgba(255, 255, 255, 0.65)",
+        "height": 62,
+        "text": "프라이머리 스토리지 복제 사용",
+        "width": 662,
+        "x": 309,
+        "y": 355
+      }
+    ],
+    "footer": {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "height": 65,
+      "text": "취소\n확인",
+      "width": 718,
+      "x": 281,
+      "y": 465
+    },
+    "header": {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgb(197, 204, 212)",
+      "height": 55,
+      "text": "스냅샷 복사",
+      "width": 718,
+      "x": 281,
+      "y": 190
+    },
+    "height": 342,
+    "text": "스냅샷 복사\nZone\nZone 선택\n프라이머리 스토리지 복제 사용\n취소\n확인",
+    "width": 720,
+    "x": 280,
+    "y": 189
+  },
+  "links": [
+    {
+      "href": "#/zone/991d2f57-0f37-4445-b956-09773d064816",
+      "text": " Zone"
+    },
+    {
+      "href": "#/imagestore/af746f16-4e36-4f19-805c-61307d373e64",
+      "text": "Secondary"
+    },
+    {
+      "href": "#/imagestore/d90fb04e-37cd-4f88-801d-cf4865dbd194",
+      "text": "SNAPC1480-32-STORE-01"
+    },
+    {
+      "href": "#/imagestore/c53a99e5-2a93-4414-9228-229a9bd1eb84",
+      "text": "SNAPC1480-32-STORE-02"
+    },
+    {
+      "href": "#/imagestore/5520ab69-b236-4635-adcf-fcba0335e4b7",
+      "text": "SNAPC1480-32-STORE-03"
+    },
+    {
+      "href": "#/imagestore/5767928a-b559-4b7d-ac58-0fba9ab0e385",
+      "text": "SNAPC1480-32-STORE-04"
+    },
+    {
+      "href": "#/imagestore/571b4040-58b1-40e5-836a-8901c8deab5a",
+      "text": "SNAPC1480-32-STORE-05"
+    },
+    {
+      "href": "#/imagestore/b3bffd7b-8ad4-4c5f-9732-4eae0f7e22b9",
+      "text": "SNAPC1480-32-STORE-06"
+    },
+    {
+      "href": "#/imagestore/bd0da413-ec93-4cb2-975d-a5cd349f0afc",
+      "text": "SNAPC1480-32-STORE-07"
+    },
+    {
+      "href": "#/zone/ed0a2fc8-00ba-40a4-8dc5-609a09fcac00",
+      "text": " SNAPC1480-32-ZONE2"
+    },
+    {
+      "href": "#/imagestore/34edc1ae-be2f-479e-b531-01a7f0361fa6",
+      "text": "SNAPC1480-32-STORE-09"
+    },
+    {
+      "href": "#/imagestore/620d8bb3-cfe5-4a39-998a-d455d78d78f0",
+      "text": "SNAPC1480-32-STORE-10"
+    }
+  ],
+  "pagination": "전체 사본 조회 항목 12개\n1\n2\n10 / 쪽",
+  "root": "사본 기준으로 페이지를 나눕니다. Zone 아래에 현재 페이지의 모든 저장소 사본을 표시하며, 복사·삭제는 해당 Zone 전체(다른 페이지 포함)에 적용됩니다.\n\n현재 페이지: Zone 2개 · 조회 항목 10개\n\t\n\tZone\t현재 페이지 조회 항목\tZone 작업\n\n\t\n\t Zone\t8\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—\nSecondary\tSNAPC1480-32-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료\nSecondary\tSNAPC1480-32-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료\n\n\n\t\n\t SNAPC1480-32-ZONE2\t2\t\n\n\n유형\t스토리지\t참조 상태\t준비 상태\t가상 용량\t진행·오류\n\n \n\t\n \n\t\n \n\t\n \n\t\n \n\t\n \n\nSecondary\tSNAPC1480-32-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%\nSecondary\tSNAPC1480-32-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-32 controlled copy failure\n\n전체 사본 조회 항목 12개\n1\n2\n10 / 쪽",
+  "url": "#/snapshot/0d97b62f-4955-4cb1-a538-8cc490be7f96?tab=zones",
+  "zones": [
+    {
+      "key": "zone:991d2f57-0f37-4445-b956-09773d064816",
+      "text": "\t\n\t Zone\t8\t"
+    },
+    {
+      "key": "ecb05476-45e6-3234-84df-0a9ae18c5922",
+      "text": "Secondary\tSecondary\t\n사용 가능\n\t준비됨\t1 GiB\t—"
+    },
+    {
+      "key": "9b7cac88-84e2-3254-a9c7-cbda6ffffde1",
+      "text": "Secondary\tSNAPC1480-32-STORE-01\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "d456e5f2-6406-3de1-aab8-74932f9da81d",
+      "text": "Secondary\tSNAPC1480-32-STORE-02\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "5524b533-3ef7-3773-a095-4353f849952b",
+      "text": "Secondary\tSNAPC1480-32-STORE-03\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "34bc3de9-4244-3dd8-8c90-3cca52831899",
+      "text": "Secondary\tSNAPC1480-32-STORE-04\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "3806b230-64b6-39d3-8802-11429b8f58a3",
+      "text": "Secondary\tSNAPC1480-32-STORE-05\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "a658d0f1-cdfd-3347-821f-fe41dd4adeb4",
+      "text": "Secondary\tSNAPC1480-32-STORE-06\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "a73085c3-61a2-3b0c-90d7-ad26ae0e0331",
+      "text": "Secondary\tSNAPC1480-32-STORE-07\t\n사용 가능\n\t준비됨\t1 GiB\t완료"
+    },
+    {
+      "key": "zone:ed0a2fc8-00ba-40a4-8dc5-609a09fcac00",
+      "text": "\t\n\t SNAPC1480-32-ZONE2\t2\t"
+    },
+    {
+      "key": "8c6e79a6-32a3-3087-a097-db5539b0772b",
+      "text": "Secondary\tSNAPC1480-32-STORE-09\t\nCopying\n\t준비되지 않음\t1 GiB\t37%"
+    },
+    {
+      "key": "74053b50-da6e-3a11-916e-b41f6c1e574b",
+      "text": "Secondary\tSNAPC1480-32-STORE-10\t\n실패\n\t준비되지 않음\t1 GiB\tDOWNLOAD_ERROR\n\nSNAPC1480-32 controlled copy failure"
+    }
+  ],
+  "cluster": "32",
+  "phase": "dialog-dark",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "colors": [
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "스냅샷 복사"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "Zone"
+    },
+    {
+      "background": "rgb(27, 33, 40)",
+      "color": "rgb(154, 164, 175)",
+      "text": "Zone 선택"
+    },
+    {
+      "background": "rgb(34, 40, 47)",
+      "color": "rgba(255, 255, 255, 0.65)",
+      "text": "프라이머리 스토리지 복제 사용"
+    },
+    {
+      "background": "rgb(39, 46, 54)",
+      "color": "rgb(197, 204, 212)",
+      "text": "취소"
+    }
+  ]
+}

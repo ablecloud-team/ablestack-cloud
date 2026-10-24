@@ -1,0 +1,191 @@
+Browser tab: 19, Title: "스냅샷 - ABLESTACK-Mold", URL: "http://127.0.0.1:18031/client/#/snapshot/bd7f4750-bde7-47d1-86c1-b3de612060d9".
+1 AXWebArea 스냅샷 - ABLESTACK-Mold, URL: 127.0.0.1:18031/client/#/snapshot/bd7f4750-bde7-47d1-86c1-b3de612060d9
+	2 container
+		68 container
+			69 text 페이지 스타일 설정
+			70 button 닫기
+				71 image close
+			549 heading 페이지 스타일 설정, Value: 3
+				550 text 페이지 스타일 설정
+			551 container
+				552 container
+					553 image
+					554 container
+						555 radio button (settable, integer) Description:  , Value: 1
+					556 image check
+				557 container
+					558 image
+					559 container
+						560 radio button (settable, integer) Description:  , Value: 0
+			561 heading 테마 색상, Value: 3
+				562 text 테마 색상
+			563 container
+				564 container
+					565 radio button (settable, integer) Description:  , Value: 0
+					566 image check
+				567 container
+					568 radio button (settable, integer) Description:  , Value: 0
+				569 container
+					570 radio button (settable, integer) Description:  , Value: 0
+				571 container
+					572 radio button (settable, integer) Description:  , Value: 0
+				573 container
+					574 radio button (settable, integer) Description:  , Value: 0
+				575 container
+					576 radio button (settable, integer) Description:  , Value: 0
+				577 container
+					578 radio button (settable, integer) Description:  , Value: 0
+				579 container
+					580 radio button (settable, integer) Description:  , Value: 0
+			581 heading 네비게이션 설정, Value: 3
+				582 text 네비게이션 설정
+			583 container
+				584 container
+					585 text 배경색
+					586 color well (settable) #ffffff
+				587 container
+					588 text 텍스트 색상
+					589 color well (settable) #000000
+			590 container
+				591 image exclamation-circle
+				592 text 설정은 현재 브라우저에서만 볼 수 있습니다. 설정을 적용하려면 JSON 파일을 다운로드하고 경로 `/public/config.json` 아래의 `config.json` 파일의 `theme` 섹션에서 해당 콘텐츠를 교체하세요.
+			593 button download 세팅값 다운로드(json)
+				594 image download
+				595 text 세팅값 다운로드(json)
+			596 button undo 기본값으로 재설정
+				597 image undo
+				598 text 기본값으로 재설정
+		120 container
+			599 image menu-unfold
+			122 container
+				431 combo box (collapsed, settable) ID: rc_select_0, Secondary Actions: Expand
+				409 image project
+				410 text 기본 보기
+			129 image translation
+			130 button 알림
+				131 image bell
+				432 text 1
+			133 container
+				134 text AC admin cloud
+		135 container
+			433 container
+				434 link Description: home, Value: 127.0.0.1:18031/client/#/
+				435 text /
+				436 link Description: 스냅샷, Value: 127.0.0.1:18031/client/#/snapshot
+				437 text / SNAP1479UI-31-orphan-source-snapshot
+				438 link Description: question-circle, Value: docs.ablecloud.io/latest/adminguide/storage.html#working-with-volume-snapshots
+				439 button reload 업데이트
+					440 image reload
+					441 text 업데이트
+			442 button down 작업
+				443 image down
+				444 text 작업
+			445 container
+				446 image build
+				447 heading SNAP1479UI-31-orphan-source-snapshot, Value: 4
+					448 text SNAP1479UI-31-orphan-source-snapshot
+				449 text 상태 백업 됨 아이디
+				450 button 아이디 복사
+					451 image barcode
+				452 link Description: bd7f4750-bde7-47d1-86c1-b3de612060d9 , Value: javascript:;
+				453 text 볼륨
+				454 image hdd
+				455 text SNAP1479UI-31-orphan-source Zone
+				456 image global
+				457 link Description: Zone, Value: 127.0.0.1:18031/client/#/zone/7013f5a1-de59-4cea-a596-f4f58815f31c
+				458 text 계정
+				459 image user
+				460 link Description: admin, Value: 127.0.0.1:18031/client/#/account?name=admin&domainid=7ef6b29a-b253-11f1-a895-0024814c313f
+				461 text 도메인
+				462 image block
+				463 link Description: ROOT, Value: 127.0.0.1:18031/client/#/domain/7ef6b29a-b253-11f1-a895-0024814c313f?tab=details
+				464 text 생성일
+				465 image calendar
+				466 text 2026. 10. 23. 오후 9:50:58
+				467 container
+					468 text 태그
+					469 container
+						470 image plus
+						471 text  새 태그
+			472 container
+				473 tab group
+					474 container
+						475 tab (selected, settable, boolean) 상세, Value: 1, ID: rc-tabs-1-tab-details
+						476 tab (selectable, settable, boolean) Zone, Value: 0, ID: rc-tabs-1-tab-zones
+						477 tab (selectable, settable, boolean) 이벤트, Value: 0, ID: rc-tabs-1-tab-events
+						478 tab (selectable, settable, boolean) 코멘트, Value: 0, ID: rc-tabs-1-tab-comments
+				479 container Description: 상세, ID: rc-tabs-1-panel-details
+					480 content list
+						481 container
+							482 text 이름
+							483 text SNAP1479UI-31-orphan-source-snapshot
+						484 container
+							485 text 아이디
+							486 text bd7f4750-bde7-47d1-86c1-b3de612060d9
+						487 container
+							488 text 볼륨 이름
+							489 text SNAP1479UI-31-orphan-source
+						490 container
+							491 text 볼륨 유형
+							492 text DATADISK
+						493 container
+							494 text 간격 유형
+							495 text MANUAL
+						496 container
+							497 text 물리적 크기
+							498 text 0.00 GiB
+						499 container
+							500 text 가상 크기
+							501 text 1.00 GiB
+						502 container
+							503 text 계정
+							504 text admin
+						505 container
+							506 text 도메인
+							507 text ROOT
+						508 container
+							509 text 생성일
+							510 text 2026. 10. 23. 오후 9:50:58
+	260 container
+		261 image info-circle
+		262 text Wall 모니터링을 사용할 수 없습니다. 기존 알림은 최신 정보가 아닐 수 있으며 Mold는 계속 사용할 수 있습니다. 비활성
+	511 container
+		512 container 작업 상세
+			513 container
+				514 button Close
+					515 image close
+				516 text 작업 상세
+				517 container
+					518 table
+						519 row
+							520 cell
+								521 text 동작
+							522 cell
+								523 text 볼륨 생성
+						524 row
+							525 cell
+								526 text 작업 대상
+							527 cell
+								528 text SNAP1479UI-31-orphan-source-snapshot
+						529 row
+							530 cell
+								531 text 상태
+							532 cell
+								533 text 접수 또는 결과 미확인 · 재제출 차단
+						534 row
+							535 cell
+								536 text 생성일
+							537 cell
+								538 text 2026. 10. 23. 오후 10:11:17
+					539 image exclamation-circle
+					540 text 작업 결과를 확인하지 못했습니다. 작업 실패를 의미하지 않습니다. 이 알림을 클릭하면 결과를 다시 조회합니다.
+					541 image exclamation-circle
+					542 text 기존 작업의 결과만 조회합니다. 결과가 확인될 때까지 동일 대상의 재제출은 차단됩니다.
+					543 button 기존 작업 결과 조회
+					544 link Description: 작업 이력 확인, Value: 127.0.0.1:18031/client/#/event?resourceid=bd7f4750-bde7-47d1-86c1-b3de612060d9
+					545 button (collapsed) right 고급 · 작업 식별 및 복구, Secondary Actions: Expand
+						546 image right
+						547 text 고급 · 작업 식별 및 복구
+				548 button 닫기
+
+The focused UI element is 600 container

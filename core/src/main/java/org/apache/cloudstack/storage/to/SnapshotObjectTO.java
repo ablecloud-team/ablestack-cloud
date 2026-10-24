@@ -46,6 +46,8 @@ public class SnapshotObjectTO extends DownloadableObjectTO implements DataTO {
     private DataStoreTO parentStore;
     private String checkpointPath;
     private Long physicalSize = (long) 0;
+    // Logical size belongs to the snapshot, including after its source volume is removed.
+    private Long size;
     private long accountId;
     private String vmSnapshotName;
 
@@ -61,6 +63,7 @@ public class SnapshotObjectTO extends DownloadableObjectTO implements DataTO {
         this.path = snapshot.getPath();
         this.setId(snapshot.getId());
         this.accountId = snapshot.getAccountId();
+        this.size = snapshot.getSize();
         VolumeInfo vol = snapshot.getBaseVolume();
         if (vol != null) {
             this.volume = (VolumeObjectTO)vol.getTO();
@@ -135,6 +138,14 @@ public class SnapshotObjectTO extends DownloadableObjectTO implements DataTO {
 
     public Long getPhysicalSize() {
         return this.physicalSize;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 
     public void setPhysicalSize(Long physicalSize ) {

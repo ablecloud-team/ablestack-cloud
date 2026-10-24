@@ -1,0 +1,2003 @@
+{
+  "cases": [
+    {
+      "case": "admin-True-all",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 11,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "1d341809-04f6-45d8-8ab7-98262e88e132",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "db028709-89e6-4141-9db5-d99d01189765",
+        "6359a1aa-0a75-4dcd-8203-4b5335ed1740",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "1d341809-04f6-45d8-8ab7-98262e88e132",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "db028709-89e6-4141-9db5-d99d01189765",
+        "6359a1aa-0a75-4dcd-8203-4b5335ed1740",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-manual",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 1,
+      "ids": [
+        "1d341809-04f6-45d8-8ab7-98262e88e132"
+      ],
+      "expectedIds": [
+        "1d341809-04f6-45d8-8ab7-98262e88e132"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 8,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-HOURLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-HOURLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-HOURLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-DAILY-only",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-DAILY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-DAILY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-WEEKLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-WEEKLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-WEEKLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-MONTHLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-MONTHLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-True-MONTHLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-all",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 11,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "83addb57-26df-3b44-9d60-2ca335154b78",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "fd0a802c-ac9a-37f6-b90f-9905d7eba985",
+        "82f7efd7-2f09-3268-9b03-6a8c63cb97ce",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "83addb57-26df-3b44-9d60-2ca335154b78",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "fd0a802c-ac9a-37f6-b90f-9905d7eba985",
+        "82f7efd7-2f09-3268-9b03-6a8c63cb97ce",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-manual",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 1,
+      "ids": [
+        "83addb57-26df-3b44-9d60-2ca335154b78"
+      ],
+      "expectedIds": [
+        "83addb57-26df-3b44-9d60-2ca335154b78"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 8,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-HOURLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-HOURLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-HOURLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-DAILY-only",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-DAILY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-DAILY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-WEEKLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-WEEKLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-WEEKLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-MONTHLY-only",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-MONTHLY-recurring",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "admin-False-MONTHLY-volume",
+      "role": "admin",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-all",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 9,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "1d341809-04f6-45d8-8ab7-98262e88e132",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "1d341809-04f6-45d8-8ab7-98262e88e132",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-manual",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 1,
+      "ids": [
+        "1d341809-04f6-45d8-8ab7-98262e88e132"
+      ],
+      "expectedIds": [
+        "1d341809-04f6-45d8-8ab7-98262e88e132"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 8,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0",
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880",
+        "250eccc4-4825-42a6-bb12-748ff9f30594",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-HOURLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-HOURLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-HOURLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "expectedIds": [
+        "30182885-952e-4f4e-9b36-168e741aae63",
+        "e7bf5faf-15bc-44d7-807a-814d479bb4b0"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-DAILY-only",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-DAILY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-DAILY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "expectedIds": [
+        "8a7961a1-bc5e-49a7-a2be-182d08b8aede",
+        "3b633b91-a502-4994-8ca9-22401a440cf4"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-WEEKLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-WEEKLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-WEEKLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "expectedIds": [
+        "8948d9c5-6cf7-4482-8eb4-1a8013c02245",
+        "250eccc4-4825-42a6-bb12-748ff9f30594"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-MONTHLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-MONTHLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-True-MONTHLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "expectedIds": [
+        "93947c3a-b1af-4ce8-b6b7-6b0b369f8bc8",
+        "c2bf4076-6f9e-4ae7-92a2-d788f3694880"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-all",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 9,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "83addb57-26df-3b44-9d60-2ca335154b78",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "83addb57-26df-3b44-9d60-2ca335154b78",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-manual",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 1,
+      "ids": [
+        "83addb57-26df-3b44-9d60-2ca335154b78"
+      ],
+      "expectedIds": [
+        "83addb57-26df-3b44-9d60-2ca335154b78"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 8,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947",
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105",
+        "40033c84-6c22-3540-808c-dbe2290fa327",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-HOURLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-HOURLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-HOURLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "expectedIds": [
+        "1c3242d0-ed32-3ab8-bc9c-e52dfccde918",
+        "3f1e78db-8ff7-3bcb-8777-ebc2d17fe947"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-DAILY-only",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-DAILY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-DAILY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "expectedIds": [
+        "d7a2e583-3a1f-365c-96c9-b930e7a43780",
+        "80a8abc8-92ca-3d8a-b8a2-a0c090edd4dc"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-WEEKLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-WEEKLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-WEEKLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "expectedIds": [
+        "23d9203a-ecd8-34d6-9c8b-a703d0333731",
+        "40033c84-6c22-3540-808c-dbe2290fa327"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-MONTHLY-only",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-MONTHLY-recurring",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "owner-False-MONTHLY-volume",
+      "role": "owner",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 2,
+      "ids": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "expectedIds": [
+        "3eb4dae1-8b27-3c06-bbb2-3537c5d3fa45",
+        "0bb94af1-4d58-3444-900f-e3d1a00c2105"
+      ],
+      "pass": true
+    },
+    {
+      "case": "other-True-all",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 2,
+      "ids": [
+        "db028709-89e6-4141-9db5-d99d01189765",
+        "6359a1aa-0a75-4dcd-8203-4b5335ed1740"
+      ],
+      "expectedIds": [
+        "db028709-89e6-4141-9db5-d99d01189765",
+        "6359a1aa-0a75-4dcd-8203-4b5335ed1740"
+      ],
+      "pass": true
+    },
+    {
+      "case": "other-True-manual",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-recurring",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-HOURLY-only",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-HOURLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-HOURLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-DAILY-only",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-DAILY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-DAILY-volume",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-WEEKLY-only",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-WEEKLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-WEEKLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-MONTHLY-only",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-MONTHLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-True-MONTHLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": true,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-all",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc"
+      },
+      "count": 2,
+      "ids": [
+        "fd0a802c-ac9a-37f6-b90f-9905d7eba985",
+        "82f7efd7-2f09-3268-9b03-6a8c63cb97ce"
+      ],
+      "expectedIds": [
+        "fd0a802c-ac9a-37f6-b90f-9905d7eba985",
+        "82f7efd7-2f09-3268-9b03-6a8c63cb97ce"
+      ],
+      "pass": true
+    },
+    {
+      "case": "other-False-manual",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "MANUAL"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-recurring",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-HOURLY-only",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-HOURLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-HOURLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "HOURLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-DAILY-only",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-DAILY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-DAILY-volume",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "DAILY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-WEEKLY-only",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-WEEKLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-WEEKLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "WEEKLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-MONTHLY-only",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-MONTHLY-recurring",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "snapshottype": "RECURRING"
+      },
+      "count": 0,
+      "ids": [],
+      "expectedIds": [],
+      "pass": true
+    },
+    {
+      "case": "other-False-MONTHLY-volume",
+      "role": "other",
+      "request": {
+        "showunique": false,
+        "keyword": "SNAPPOL1493-31",
+        "listall": true,
+        "sortkey": "created",
+        "sortorder": "desc",
+        "intervaltype": "MONTHLY",
+        "volumeid": "2f135bab-210c-4928-a834-99fe00888575"
+      },
+      "count": 0,
+      "denied": {
+        "uuidList": [],
+        "errorcode": 531,
+        "cserrorcode": 4365,
+        "errortext": "Caller does not have permission to operate with provided resource."
+      },
+      "expectedIds": [],
+      "pass": true
+    }
+  ],
+  "pass": 90
+}

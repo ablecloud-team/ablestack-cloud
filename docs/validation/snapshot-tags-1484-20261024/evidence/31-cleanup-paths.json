@@ -1,0 +1,52 @@
+{
+  "references": [
+    {
+      "path": "snapshots/271/1068/e8bbc6aa-81b3-4f03-be57-50fc6b2bba4f",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "859c7b9f-e2de-435e-815d-0bc323e01903"
+    },
+    {
+      "path": "snapshots/268/1066/77724d94-5ef1-4856-9ebf-00600ed8c25d",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "a10625e6-5cf2-40e7-a596-2cda6ac30dc5"
+    },
+    {
+      "path": "snapshots/269/1067/7d135058-99e8-4c07-8676-6e1b532e8750",
+      "role": "Image",
+      "state": "Ready",
+      "snapshot": "e93bbad4-6ae5-445b-9b0a-5672d0f427ca"
+    }
+  ],
+  "volumes": [
+    {
+      "name": "SNAPTAG1484-31-owner",
+      "path": "148b63c0-b20b-4d72-85bb-677613e1adaa",
+      "type": "DATADISK",
+      "uuid": "148b63c0-b20b-4d72-85bb-677613e1adaa",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-31-other",
+      "path": "1876b4b9-507a-4d9d-9602-8b78c3861943",
+      "type": "DATADISK",
+      "uuid": "1876b4b9-507a-4d9d-9602-8b78c3861943",
+      "state": "Ready"
+    },
+    {
+      "name": "SNAPTAG1484-31-project",
+      "path": "f982ed44-a7f0-4142-a1d1-b3682e3893c7",
+      "type": "DATADISK",
+      "uuid": "f982ed44-a7f0-4142-a1d1-b3682e3893c7",
+      "state": "Ready"
+    },
+    {
+      "name": "ROOT-764",
+      "path": null,
+      "type": "ROOT",
+      "uuid": "a5b69cad-8c34-46bc-bb26-0df0aab2f802",
+      "state": "Allocated"
+    }
+  ]
+}
