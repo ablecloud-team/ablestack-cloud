@@ -1,0 +1,18 @@
+{
+  "uiRegression": {
+    "suites": 13,
+    "passed": 123,
+    "log": "final-ui-checks.log"
+  },
+  "recordedWireComponent": {
+    "passed": 4,
+    "log": "full-component-wire.log"
+  },
+  "uiBuild": "success",
+  "backendUnchanged": true,
+  "guestUnchanged": true,
+  "sourceSha256": {
+    "ui/src/utils/storageConfigOperation.js": "f804e6ab90d6b60a7d2eedf56218780db7094a65d9699a377ca0f70dfbccecfd",
+    "ui/src/views/storage/CreateSharedFS.vue": "4c89835f43c9552035b9b26038f4c1020310c543069f94b5aa02b37a2a3048af"
+  }
+}

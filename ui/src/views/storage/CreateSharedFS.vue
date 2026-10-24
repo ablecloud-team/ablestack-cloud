@@ -1063,7 +1063,7 @@ show-icon
 </template>
 <script>
 
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive, toRaw, h } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
 import ResourceIcon from '@/components/view/ResourceIcon'
@@ -1072,6 +1072,7 @@ import TooltipLabel from '@/components/widgets/TooltipLabel'
 import store from '@/store'
 import { creationRequestId, backingRequest, publicCreationSetup } from '@/utils/sharedFsBacking'
 import { isConfigurationApi, observeConfigurationOperation, decodeConfigurationOperations } from '@/utils/storageConfigOperation'
+import { decodeConfigurationPreflight } from '@/utils/storageConfigPreflight'
 import SharedFSOfferingInputs from '@/views/storage/SharedFSOfferingInputs'
 import MoldDialog from '@/components/view/MoldDialog'
 import SharedFSPreparationPanel from '@/views/storage/SharedFSPreparationPanel'
@@ -2590,6 +2591,40 @@ export default {
         importmode: snapshot.importmode
       })
     },
+    async checkInitialConfiguration (api, params, instanceid) {
+      const intent = { api, recursive: !!params.recursivepermission }
+      for (const key of ['protocol', 'volumeid']) if (params[key]) intent[key] = params[key]
+      if (params.id) intent.resourceid = params.id
+      for (;;) {
+        const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid, intent: JSON.stringify(intent) }, { timeout: 30000, preserveOnFailure: true })
+        const report = decodeConfigurationPreflight(wire)
+        if (!report || report.status !== 'READY' || report.checks.some(check => check.blocking)) {
+          const codes = (report?.checks || []).filter(check => check.blocking).map(check => check.code)
+          throw new Error(['CONFIGURATION_PREFLIGHT_BLOCKED', ...codes].join(' · '))
+        }
+        const expires = Date.parse(report.expiresat)
+        if (!Number.isFinite(expires) || expires <= Date.now()) throw new Error('CONFIGURATION_PREFLIGHT_EXPIRED')
+        if (report.impact?.ackrequired) {
+          await new Promise((resolve, reject) => this.$confirm({
+            title: this.$t('label.storage.preflight.check'),
+            width: 640,
+            maskClosable: false,
+            content: h('div', [
+              h('p', this.$t('message.storage.preflight.interruption')),
+              h('p', this.$t('label.storage.preflight.impact') + ': ' + report.impact.affectedcount + ' · ' +
+                this.$t('label.storage.preflight.connections') + ': ' + report.impact.connections + ' TCP'),
+              h('p', this.$t('message.storage.preflight.not.cancel'))
+            ]),
+            okText: this.$t('label.storage.preflight.apply'),
+            cancelText: this.$t('label.cancel'),
+            onOk: () => resolve(),
+            onCancel: () => reject(new Error('CONFIGURATION_IMPACT_NOT_ACKNOWLEDGED'))
+          }))
+        }
+        // An expired confirmation is re-observed and confirmed again, never replayed as an apply.
+        if (Date.now() < expires) return report.impact?.ackrequired ? report.fingerprint : undefined
+      }
+    },
     async runStorageServiceSetup (api, params) {
       if (!(api in this.$store.getters.apis)) {
         throw new Error(this.$t('message.storage.service.setup.api.missing.with.name', { api }))
@@ -2615,7 +2650,8 @@ export default {
         this.initialConfigurationInstanceId = instanceid
         let jobid
         if (prior?.state !== 'COMMITTED' && (!prior || prior.state === 'ROLLED_BACK')) {
-          const wire = await postAPI(api, { ...clean, requestid })
+          const impactack = await this.checkInitialConfiguration(api, clean, instanceid)
+          const wire = await postAPI(api, { ...clean, requestid, ...(impactack ? { impactack } : {}) })
           jobid = wire[api.toLowerCase() + 'response']?.jobid
         }
         const operation = await observeConfigurationOperation({
@@ -2656,7 +2692,7 @@ export default {
       return new Promise(resolve => window.setTimeout(resolve, milliseconds))
     },
     missingStorageServiceSetupApis (setup = this.form) {
-      const required = new Set(['listSharedFileSystems', 'listStorageServiceInstances', 'enableStorageServiceProtocol'])
+      const required = new Set(['listSharedFileSystems', 'listStorageServiceInstances', 'enableStorageServiceProtocol', 'preflightStorageServiceConfiguration'])
       if (this.isSetupServiceSelected(setup, 'NFS')) {
         required.add('createStorageNfsExport')
         required.add('listStorageNfsExports')
