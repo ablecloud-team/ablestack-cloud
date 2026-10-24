@@ -55,13 +55,16 @@ final class StorageServiceConfigurationCoordinator {
     private final StorageBlockTargetDao targets;
     private final StorageAccessRuleDao rules;
     private final StorageServiceGuestCommandDispatcher guest;
+    private final StorageServiceConfigurationPreflight preflight;
+    private final org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao upgrades;
 
     StorageServiceConfigurationCoordinator(final StorageServiceInstanceDao instances,
             final StorageServiceConfigurationOperationDao operations, final StorageServiceProtocolDao protocols,
             final StorageFileShareDao shares, final StorageBlockTargetDao targets, final StorageAccessRuleDao rules,
-            final StorageServiceGuestCommandDispatcher guest) {
+            final StorageServiceGuestCommandDispatcher guest, final StorageServiceConfigurationPreflight preflight,
+            final org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao upgrades) {
         this.instances = instances; this.operations = operations; this.protocols = protocols; this.shares = shares;
-        this.targets = targets; this.rules = rules; this.guest = guest;
+        this.targets = targets; this.rules = rules; this.guest = guest; this.preflight = preflight; this.upgrades = upgrades;
     }
 
     <T> T execute(final BaseStorageServiceConfigurationCmd cmd, final StorageServiceInstanceVO instance,
@@ -76,6 +79,8 @@ final class StorageServiceConfigurationCoordinator {
                 if (!hash.equals(existing.getRequestHash())) throw new CloudRuntimeException("requestid conflicts with the accepted public configuration");
                 return existing;
             }
+            if (StorageServiceConfigurationPreflight.runtimeWriting(upgrades.findActiveByInstanceId(instance.getId())))
+                throw new CloudRuntimeException("RUNTIME_WRITER_ACTIVE");
             if (locked.getActiveConfigurationOperationId() != null) throw new CloudRuntimeException("Configuration recovery is pending; inspect the active operation before a new change");
             if (cmd.getExpectedRevision() != null && cmd.getExpectedRevision() != locked.getConfigurationRevision())
                 throw new CloudRuntimeException("Configuration revision changed; update the form before submitting");
@@ -93,11 +98,11 @@ final class StorageServiceConfigurationCoordinator {
         if (!created[0]) return replay(op, responseType);
         StorageServiceConfigurationPlan plan = null;
         try {
-            plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules,
-                    snapshot -> { op.setCandidateSnapshot(snapshot); save(op); });
             // A version gate precedes candidate preparation and any guest/configuration mutation.
             if (instance.getVmId() != null) {
                 JsonObject capability = rpc(instance, "configuration capability show", new JsonObject());
+                if (!capability.has("configurationPreflightVersion") || capability.get("configurationPreflightVersion").getAsInt()!=1)
+                    throw new CloudRuntimeException("PREFLIGHT_CAPABILITY_REQUIRED");
                 if (!capability.has("configurationTransactionVersion") || capability.get("configurationTransactionVersion").getAsInt() != 1)
                     throw new CloudRuntimeException("SharedFS configuration transaction module v1 is required on the System VM");
                 for (StorageServiceConfigurationOperationVO previous : operations.listByInstance(instance.getId())) {
@@ -108,6 +113,14 @@ final class StorageServiceConfigurationCoordinator {
                     }
                 }
             }
+            JsonObject accepted = new JsonObject();
+            accepted.add("publicRequest", JSON.toJsonTree(publicRequest(cmd)));
+            op.setCandidateSnapshot(accepted.toString()); save(op);
+            JsonObject report = preflight.observe(instances.findById(instance.getId()), StorageServiceConfigurationPreflight.commandIntent(cmd), op.getId());
+            StorageServiceConfigurationPreflight.requireReady(report, cmd.getImpactAck());
+            op.setGuestObservationJson(report.toString()); save(op);
+            plan = new StorageServiceConfigurationPlan(instance.getId(), protocols, shares, targets, rules,
+                    snapshot -> { op.setCandidateSnapshot(snapshot); save(op); });
             op.setResourceUuid(plan.resourceUuid(cmd.getClass().getSimpleName(), publicRequest(cmd)));
             op.setBeforeSnapshot(plan.snapshot()); op.setState("RUNNING"); op.setPhase("VALIDATING"); save(op);
             context.accept(plan);
@@ -131,11 +144,15 @@ final class StorageServiceConfigurationCoordinator {
             JsonObject payload = identity(op, instance);
             if (vmUuid != null) payload.addProperty("vmUuid", vmUuid);
             payload.add("before", beforeCommands); payload.add("candidate", commandJson(plan.commands));
+            JsonObject admission = report.getAsJsonObject("intent").deepCopy();
+            admission.addProperty("requestbytes", payload.toString().getBytes(StandardCharsets.UTF_8).length);
+            payload.add("preflight", admission); payload.add("executionProfile", report.getAsJsonObject("profile"));
             op.setPhase("APPLYING"); save(op);
             StorageServiceGuestCommandResult result = guest.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
-                    "configuration operation apply", JSON.toJson(payload), StorageServiceInstance.StorageServiceCommandTimeout.value(),
+                    "configuration operation apply", JSON.toJson(payload), 20,
                     new HashSet<>(Arrays.asList("password", "secrets", "chapSecret", "mutualChapSecret", "dhChapKey", "dhChapCtrlKey"))));
             JsonObject observation = parsed(result.getResultJson());
+            observation = observeUntilDecision(instance, op, observation, report.getAsJsonObject("profile").get("observationseconds").getAsInt());
             if (!matches(op, observation)) {
                 op.setPhase("OBSERVING"); op.setState("RECOVERY_REQUIRED"); op.setGuestObservationJson("{\"code\":\"RESPONSE_UNCONFIRMED\"}"); save(op);
                 throw new CloudRuntimeException("Configuration response is unconfirmed; observe operation " + op.getUuid() + " before recovery");
@@ -156,7 +173,15 @@ final class StorageServiceConfigurationCoordinator {
             throw new CloudRuntimeException("Configuration " + op.getUuid() + " ended as " + op.getState() + "; inspect the preserved failure and rollback result");
         } catch (RuntimeException error) {
             if ("PENDING".equals(op.getState()) || "VALIDATING".equals(op.getPhase())) {
-                op.setOriginalFailureJson("{\"code\":\"PREPARATION_REJECTED\",\"phase\":\"VALIDATING\",\"type\":\"" + error.getClass().getSimpleName() + "\"}");
+                if (error instanceof StorageServiceConfigurationPreflight.Rejected) {
+                    JsonObject denied = ((StorageServiceConfigurationPreflight.Rejected)error).report;
+                    op.setGuestObservationJson(denied.toString());
+                    JsonObject failure = new JsonObject(); failure.addProperty("phase","PREFLIGHT");
+                    failure.addProperty("code",denied.getAsJsonArray("checks").asList().stream().filter(JsonElement::isJsonObject).map(JsonElement::getAsJsonObject)
+                        .filter(c -> c.has("blocking") && c.get("blocking").getAsBoolean()).map(c -> c.has("code") ? c.get("code").getAsString() : "RESOURCE_OBSERVATION_UNAVAILABLE")
+                        .findFirst().orElse("RESOURCE_OBSERVATION_UNAVAILABLE"));
+                    op.setOriginalFailureJson(failure.toString());
+                } else op.setOriginalFailureJson("{\"code\":\"PREPARATION_REJECTED\",\"phase\":\"VALIDATING\",\"type\":\"" + error.getClass().getSimpleName() + "\"}");
                 op.setRollbackResultJson("{\"state\":\"NOT_NEEDED\"}");
                 if (plan != null) plan.discardReservations(); finish(op, "ROLLED_BACK", true);
             } else if ("RUNNING".equals(op.getState())) {
@@ -243,6 +268,7 @@ final class StorageServiceConfigurationCoordinator {
     }
     static String requestHash(final BaseStorageServiceConfigurationCmd cmd) {
         SortedMap<String, Object> fields = publicRequest(cmd);
+        fields.remove("impactack");
         return DigestUtils.sha256Hex(JSON.toJson(fields).getBytes(StandardCharsets.UTF_8));
     }
     static SortedMap<String, Object> publicRequest(final BaseStorageServiceConfigurationCmd cmd) {
@@ -268,6 +294,23 @@ final class StorageServiceConfigurationCoordinator {
     private static JsonObject identity(final StorageServiceConfigurationOperationVO op, final StorageServiceInstanceVO instance) {
         JsonObject p = new JsonObject(); p.addProperty("operationid", op.getUuid()); p.addProperty("instanceUuid", instance.getUuid());
         p.addProperty("baseRevision", op.getBaseRevision()); p.addProperty("targetRevision", op.getTargetRevision()); return p;
+    }
+    private JsonObject observeUntilDecision(StorageServiceInstanceVO instance, StorageServiceConfigurationOperationVO op,
+            JsonObject first, int seconds) {
+        JsonObject value = first;
+        long end = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(Math.min(2100, Math.max(60,seconds)));
+        int unavailable = 0;
+        while (System.nanoTime() < end) {
+            if (matches(op,value)) {
+                String state = value.has("state") ? value.get("state").getAsString() : "UNKNOWN";
+                if (Arrays.asList("VERIFIED","COMMITTED","ROLLED_BACK").contains(state) ||
+                    "RECOVERY_REQUIRED".equals(state) && (!value.has("workerActive") || !value.get("workerActive").getAsBoolean())) return value;
+            }
+            try { Thread.sleep(2000); value = rpc(instance,"configuration operation show",identity(op,instance)); unavailable=0; }
+            catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }
+            catch (RuntimeException e) { if (++unavailable >= 3) break; }
+        }
+        return value;
     }
     private static boolean matches(final StorageServiceConfigurationOperationVO op, final JsonObject observation) {
         return observation.has("operationid") && op.getUuid().equals(observation.get("operationid").getAsString());

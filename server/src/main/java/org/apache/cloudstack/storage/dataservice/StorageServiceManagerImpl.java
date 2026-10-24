@@ -248,9 +248,24 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         StorageServiceConfigurationPlan plan = configurationPlan.get();
         return plan == null ? storageAccessRuleDao : plan.dao(StorageAccessRuleDao.class);
     }
+    @Inject
+    private org.apache.cloudstack.storage.dataservice.dao.StorageServiceRuntimeUpgradeDao configurationUpgradeDao;
+    private StorageServiceConfigurationPreflight configurationPreflight() {
+        return new StorageServiceConfigurationPreflight(storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao,
+            volumeDao, configurationUpgradeDao, guestCommandDispatcher,
+            volume -> configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, volume));
+    }
+    @Override
+    public org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse preflightStorageServiceConfiguration(
+            org.apache.cloudstack.api.command.user.storage.dataservice.PreflightStorageServiceConfigurationCmd cmd) {
+        StorageServiceInstanceVO instance = requireInstance(cmd.getInstanceId());
+        configurationAccountManager.checkAccess(org.apache.cloudstack.context.CallContext.current().getCallingAccount(), null, true, instance);
+        return new org.apache.cloudstack.api.response.StorageServiceConfigurationPreflightResponse(
+            configurationPreflight().observe(instance, StorageServiceConfigurationPreflight.parseIntent(cmd.getIntent()), null));
+    }
     private StorageServiceConfigurationCoordinator configurationCoordinator() {
         return new StorageServiceConfigurationCoordinator(storageServiceInstanceDao, configurationOperationDao,
-                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher);
+                storageServiceProtocolDao, storageFileShareDao, storageBlockTargetDao, storageAccessRuleDao, guestCommandDispatcher, configurationPreflight(), configurationUpgradeDao);
     }
     private <T> T runConfiguration(final org.apache.cloudstack.api.command.user.storage.dataservice.BaseStorageServiceConfigurationCmd cmd,
             final StorageServiceInstanceVO instance, final StorageServiceInstance.Protocol protocol, final Class<T> type,
@@ -303,11 +318,23 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         boolean recoverableGuest = false;
         if (instance.getVmId() != null && java.util.Objects.equals(instance.getActiveConfigurationOperationId(), op.getId())) {
             JsonObject query = new JsonObject(); query.addProperty("instanceUuid", instance.getUuid()); query.addProperty("operationid", op.getUuid());
-            StorageServiceGuestCommandResult read = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
+            StorageServiceGuestCommandResult read;
+            try {
+                read = guestCommandDispatcher.dispatch(new StorageServiceGuestCommand(instance.getVmId(),
                     "configuration operation show", GSON.toJson(query), 20, Collections.emptySet()));
+            } catch (CloudRuntimeException unavailable) {
+                read = new StorageServiceGuestCommandResult(false, "Configuration observation unavailable", null);
+            }
             JsonObject observed = StorageServiceConfigurationCoordinator.parsed(read.getResultJson());
+            if (!read.isSuccess()) {
+                JsonObject unavailable = StorageServiceConfigurationCoordinator.parsed(op.getGuestObservationJson());
+                unavailable.addProperty("observationAvailable", false); unavailable.addProperty("code", "OBSERVATION_UNAVAILABLE");
+                response.setObservation(unavailable);
+            }
             if (read.isSuccess() && observed.has("operationid") && op.getUuid().equals(observed.get("operationid").getAsString())) {
                 response.setObservation(observed);
+                if (observed.has("workerActive") && observed.get("workerActive").getAsBoolean()
+                        && !java.util.Arrays.asList("COMMITTED","ROLLED_BACK").contains(op.getState())) response.setState("RUNNING");
                 if (observed.has("phase") && !"COMMITTED".equals(op.getState()) && !"ROLLED_BACK".equals(op.getState())) response.setPhase(observed.get("phase").getAsString());
                 if (op.getOriginalFailureJson() == null && observed.has("originalfailure")) response.setOriginalfailure(observed.getAsJsonObject("originalfailure"));
                 if (observed.has("rollback")) response.setRollback(observed.getAsJsonObject("rollback"));
@@ -372,6 +399,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         if (!SharedFS.SharedFSFeatureEnabled.value()) {
             return commands;
         }
+        commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.PreflightStorageServiceConfigurationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.GetStorageServiceConfigurationOperationCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ListStorageServiceConfigurationOperationsCmd.class);
         commands.add(org.apache.cloudstack.api.command.user.storage.dataservice.ResumeStorageServiceConfigurationOperationCmd.class);

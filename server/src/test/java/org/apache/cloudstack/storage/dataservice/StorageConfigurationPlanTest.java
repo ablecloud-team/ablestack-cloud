@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -46,10 +47,11 @@ public class StorageConfigurationPlanTest {
         original = new StorageFileShareVO(9, StorageServiceInstance.Protocol.NFS, "preserve", "/export/preserve",
                 8L, "xfs", null, StorageServiceInstance.ResourceState.Ready, "{\"mode\":\"0750\"}");
         Field id = StorageFileShareVO.class.getDeclaredField("id"); id.setAccessible(true); id.set(original, 7L);
-        when(shares.listAll()).thenReturn(Collections.singletonList(original));
+        when(shares.listByInstanceIdAndProtocol(9, StorageServiceInstance.Protocol.NFS)).thenReturn(Collections.singletonList(original));
+        when(shares.listByInstanceIdAndProtocol(9, StorageServiceInstance.Protocol.SMB)).thenReturn(Collections.emptyList());
         when(protocols.listByInstanceId(9)).thenReturn(Collections.emptyList());
-        when(targets.listAll()).thenReturn(Collections.emptyList());
-        when(rules.listAll()).thenReturn(Collections.emptyList());
+        when(targets.listByInstanceIdAndProtocol(eq(9L), any())).thenReturn(Collections.emptyList());
+        when(rules.listByResource(any(), anyLong())).thenReturn(Collections.emptyList());
         plan = new StorageServiceConfigurationPlan(9, protocols, shares, targets, rules, text -> { });
     }
     @Test public void candidateEditCannotPublishOrMutateTheOriginalBeforeVerifiedCommit() {

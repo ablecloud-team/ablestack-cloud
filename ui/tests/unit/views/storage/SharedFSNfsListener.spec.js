@@ -60,6 +60,7 @@ describe('mounted SharedFS NFS listener request contract', () => {
     await flushPromises()
     // This test supplies the existing test DATA selection; no volume operation is stubbed.
     wrapper.vm.forms.nfsExport.volumeid = 'data'
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: 'instance', fingerprint: 'confirmed' }
     await wrapper.vm.createNfsExport()
     return postAPI.mock.calls.find(([api]) => api === 'createStorageNfsExport')?.[1]
   }

@@ -36,11 +36,17 @@ export async function observeConfigurationOperation ({
   sleep = ms => new Promise(resolve => setTimeout(resolve, ms)), maxAttempts = 300
 }) {
   let last = null
-  for (let attempt = 0; attempt < maxAttempts && current(); attempt++) {
+  let observationAttempts = maxAttempts
+  for (let attempt = 0; attempt < observationAttempts && current(); attempt++) {
     try {
       const rows = decodeConfigurationOperations(await get('listStorageServiceConfigurationOperations', { instanceid, requestid }))
       if (!current()) return null
-      if (rows.length) { last = rows[0]; changed(last) }
+      if (rows.length) {
+        last = rows[0]; changed(last)
+        const seconds = Number(last.observation?.execution?.observationSeconds || (last.observation?.execution?.softDeadlineAt - last.observation?.execution?.startedAt + 300))
+        if (Number.isFinite(seconds)) observationAttempts = Math.min(1200, Math.max(observationAttempts, Math.ceil(seconds / 2)))
+        if (last.canresume) return last
+      }
       // A queue may not have created its operation row yet. Empty list is still queued.
       if (last?.state === 'COMMITTED') {
         if (!jobid || last.result !== undefined) return last
