@@ -45,7 +45,7 @@ export async function observeConfigurationOperation ({
         last = rows[0]; changed(last)
         const seconds = Number(last.observation?.execution?.observationSeconds || (last.observation?.execution?.softDeadlineAt - last.observation?.execution?.startedAt + 300))
         if (Number.isFinite(seconds)) observationAttempts = Math.min(1200, Math.max(observationAttempts, Math.ceil(seconds / 2)))
-        if (last.canresume) return last
+        if (last.canresume && !jobid) return last
       }
       // A queue may not have created its operation row yet. Empty list is still queued.
       if (last?.state === 'COMMITTED') {
@@ -57,6 +57,8 @@ export async function observeConfigurationOperation ({
         if (!current()) return null
         const job = wire.queryasyncjobresultresponse || {}
         if (job.jobstatus === 1 && last?.state === 'COMMITTED') return { ...last, result: job.jobresult }
+        // A resumable snapshot can race a still-running original job's DB commit.
+        if ([1, 2].includes(job.jobstatus) && last?.canresume) return last
         if (job.jobstatus === 2 && !last) {
           const rejected = {
             requestid,
