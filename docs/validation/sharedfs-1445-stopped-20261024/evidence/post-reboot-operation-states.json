@@ -1,0 +1,41 @@
+{
+  "postRebootGuestStates": [
+    {
+      "operationid": "9fd7e897-5a49-41bd-9a25-38240f120d68",
+      "guestJournalAbsent": true
+    },
+    {
+      "operationid": "9c34ce60-e39b-4609-865d-1f7b95f57142",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baseRevision": 2,
+      "targetRevision": 3,
+      "updated": 1792837606.6585743
+    },
+    {
+      "operationid": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baseRevision": 3,
+      "targetRevision": 4,
+      "updated": 1792837805.666462
+    },
+    {
+      "operationid": "fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baseRevision": 4,
+      "targetRevision": 5,
+      "updated": 1792838344.5335052
+    },
+    {
+      "operationid": "1740b6a3-6af9-43f4-940d-eb13252ff6b9",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "baseRevision": 5,
+      "targetRevision": 6,
+      "updated": 1792838656.6898658
+    }
+  ],
+  "note": "read only; preflight-blocked operation has no guest apply journal"
+}

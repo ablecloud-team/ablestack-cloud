@@ -214,8 +214,13 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         }
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
-        try {
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
+            StorageServiceInstanceVO locked = instanceDao.lockRow(instance.getId(), true);
+            if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ACTIVATING", 70);
+            return true;
+        });
+        try {
             final JsonObject activated = invoke(instance, StorageServiceRuntimeOperation.ACTIVATE,
                     upgrade.getTransactionId(), request(upgrade, bundle));
             update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "VERIFYING", 85);
@@ -253,6 +258,12 @@ public class StorageServiceRuntimeUpgradeManagerImpl extends ManagerBase impleme
         final StorageServiceRuntimeUpgradeVO upgrade = requireUpgrade(cmd.getUpgradeId());
         final StorageServiceInstanceVO instance = instanceDao.findById(upgrade.getInstanceId());
         final StorageServiceRuntimeBundleVO bundle = requireBundle(upgrade.getBundleId());
+        com.cloud.utils.db.Transaction.execute((com.cloud.utils.db.TransactionCallback<Boolean>) ignored -> {
+            StorageServiceInstanceVO locked = instanceDao.lockRow(instance.getId(), true);
+            if (locked.getActiveConfigurationOperationId()!=null) throw new CloudRuntimeException("CONFIGURATION_WRITER_ACTIVE");
+            update(upgrade, StorageServiceRuntimeUpgradeVO.State.RUNNING, "ROLLING_BACK", 70);
+            return true;
+        });
         final JsonObject result = invoke(instance, StorageServiceRuntimeOperation.ROLLBACK,
                 upgrade.getTransactionId(), request(upgrade, bundle));
         final Long current = instance.getCurrentRuntimeBundleId();

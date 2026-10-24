@@ -141,6 +141,7 @@ describe('mounted SharedFS instance configuration protection', () => {
     expect(wrapper.vm.configurationOperation.originalfailure).toEqual(original.originalfailure)
     wrapper.vm.closeActionModal()
     await open('editSmbShare')
+    wrapper.vm.configurationAcceptedPreflight = { scope: wrapper.vm.storageReadScope, instanceid: instance.id, fingerprint: 'confirmed' }
     await wrapper.vm.runConfigurationAction('editSmbShare', 'updateStorageSmbShare', { id: 'share' })
     expect(postAPI).toHaveBeenCalledTimes(2)
   })

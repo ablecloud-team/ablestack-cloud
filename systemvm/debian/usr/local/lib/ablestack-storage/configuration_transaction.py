@@ -18,6 +18,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import selectors
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import tempfile
 import time
 import uuid
@@ -144,6 +146,11 @@ class Transaction:
         if value.get("state") not in TERMINAL:
             # Process identity observation only; never acquires a write lock or applies configuration.
             value["workerActive"] = self.adapter_factory(status.parent).is_running()
+            progress = load(status.parent / "runner-progress.json", {})
+            if progress:
+                value["execution"] = progress
+                value["execution"]["overdue"] = time.time() > progress.get("softDeadlineAt", float("inf"))
+            value["cancellationSupported"] = False
         return value
 
     def execute(self, action, payload):
@@ -230,9 +237,9 @@ class Transaction:
                 atomic_json(status_path, current)
                 return current
             except BaseException as error:
-                if getattr(error, "code", None) == "APPLY_STILL_RUNNING":
+                if getattr(error, "code", None) in ("APPLY_STILL_RUNNING", "RESULT_OBSERVATION_UNAVAILABLE"):
                     current.update(state="RECOVERY_REQUIRED", phase="OBSERVING", rollback={"state": "UNKNOWN"},
-                                   observationCode="APPLY_STILL_RUNNING")
+                                   observationCode=getattr(error, "code", "OBSERVATION_UNAVAILABLE"))
                     atomic_json(status_path, current)
                     return current
                 # First failure is durable BEFORE compensation. Never expose raw subprocess output.
@@ -296,6 +303,12 @@ class RuntimeAdapter:
                                 path = Path("/sys/kernel/config/nvmet/hosts") / host["principal"] / attribute
                                 if path.exists() and not path.read_text().strip():
                                     raise Rejected("AUTH_BEFORE_IMAGE_UNAVAILABLE")
+        if payload.get("preflight"):
+            from configuration_preflight import inspect
+            report = inspect(payload["preflight"])
+            if report["status"] != "READY":
+                blocked = next((c["code"] for c in report["checks"] if c["blocking"]), "RESOURCE_OBSERVATION_UNAVAILABLE")
+                raise Rejected(blocked)
         self.payload = payload
         atomic_json(self.payload_path, redact(payload))
 
@@ -459,26 +472,33 @@ class RuntimeAdapter:
         os.close(descriptor)
         atomic_json(self.child_path, {"pid": process.pid, "boot": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
                                     "start": Path("/proc/%s/stat" % process.pid).read_text().split()[21]})
-        try:
-            process.wait(timeout=275)
-        except subprocess.TimeoutExpired:
-            raise Rejected("APPLY_STILL_RUNNING")
+        # Soft deadline is observation metadata, never permission to kill/replay a writer.
+        while process.poll() is None:
+            time.sleep(.25)
         result = load(self.private / "runner-result.json")
-        if not result or result["returncode"] != 0:
+        if not result or result.get("observationUnknown"):
+            raise Rejected("RESULT_OBSERVATION_UNAVAILABLE")
+        if result["returncode"] != 0:
             raise Rejected("PROTOCOL_APPLY_FAILED")
         return result
 
     def is_running(self):
         child = load(self.child_path)
-        if not child:
-            return False
-        path = Path("/proc/%s/stat" % child["pid"])
-        return (child["boot"] == Path("/proc/sys/kernel/random/boot_id").read_text().strip() and path.exists()
-                and path.read_text().split()[21] == child["start"])
+        def alive(record):
+            if not record:
+                return False
+            path = Path("/proc/%s/stat" % record["pid"])
+            try:
+                return (record["boot"] == Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+                        and path.read_text().split()[21] == record["start"])
+            except (OSError, IndexError):
+                return False
+        progress = load(self.private / "runner-progress.json", {})
+        return alive(child) or alive(progress.get("child"))
 
     def observe_completed(self):
         result = load(self.private / "runner-result.json")
-        if not result:
+        if not result or result.get("observationUnknown"):
             return "UNKNOWN"
         payload = load(self.payload_path)
         # A durable completion marker is published only after every candidate engine ran.
@@ -837,16 +857,50 @@ def run_child(private, operation, descriptor):
     try:
         process = subprocess.Popen(argv, pass_fds=(descriptor,), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    env={**os.environ, "ABLESTACK_STORAGE_CONFIGURATION_TRANSACTION": "1"})
-        # An ambiguous long command is observed, not killed/restarted behind the journal.
-        stdout, stderr = process.communicate()
+        payload = load(private / "request.json", {})
+        budget = min(1800, max(300, int((payload.get("executionProfile") or {}).get("softdeadlineseconds", 300))))
+        began = time.time()
+        child_identity = {"pid": process.pid, "boot": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+                          "start": Path("/proc/%s/stat" % process.pid).read_text().split()[21]}
+        selector = selectors.DefaultSelector()
+        selector.register(process.stdout, selectors.EVENT_READ, "stdout")
+        selector.register(process.stderr, selectors.EVENT_READ, "stderr")
+        tails = {"stdout": b"", "stderr": b""}
+        totals = {"stdout": 0, "stderr": 0}
+        limits = {"stdout": 8 * 1024 * 1024, "stderr": 64 * 1024}
+        heartbeat = 0
+        while selector.get_map():
+            if time.monotonic() >= heartbeat:
+                atomic_json(private / "runner-progress.json",
+                            {"child": child_identity, "heartbeatAt": time.time(), "startedAt": began,
+                             "softDeadlineAt": began + budget, "operation": operation,
+                             "cancellationSupported": False})
+                heartbeat = time.monotonic() + 5
+            for key, _ in selector.select(.25):
+                chunk = os.read(key.fileobj.fileno(), 65536)
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    key.fileobj.close()
+                    continue
+                name = key.data
+                totals[name] += len(chunk)
+                tails[name] = (tails[name] + chunk)[-limits[name]:]
+        process.wait()
+        selector.close()
         parsed = {}
-        for line in reversed(stdout.decode(errors="replace").splitlines()):
+        for line in reversed(tails["stdout"].decode(errors="replace").splitlines()):
             try:
-                parsed = json.loads(line)
-                break
+                value = json.loads(line)
+                if isinstance(value, dict):
+                    parsed = value
+                    break
             except ValueError:
                 pass
-        atomic_json(private / "runner-result.json", {"returncode": process.returncode, "result": redact(parsed), "operation": operation})
+        atomic_json(private / "runner-result.json",
+                    {"returncode": process.returncode, "result": redact(parsed), "operation": operation,
+                     "outputTruncated": totals["stdout"] > limits["stdout"] or totals["stderr"] > limits["stderr"],
+                     "observationUnknown": process.returncode == 0 and not parsed})
+
     except BaseException as error:
         atomic_json(private / "runner-result.json", {"returncode": -1, "type": type(error).__name__})
         raise
@@ -854,7 +908,15 @@ def run_child(private, operation, descriptor):
 
 def main(argv):
     if argv[:2] == ["capability", "show"]:
-        print(json.dumps({"configurationTransactionVersion": VERSION}))
+        print(json.dumps({"configurationTransactionVersion": VERSION, "configurationPreflightVersion": 1,
+                          "configurationObservationVersion": 1}))
+        return 0
+    if len(argv) == 3 and argv[:2] == ["preflight", "show"]:
+        from configuration_preflight import inspect
+        source = Path(argv[2])
+        if source.stat().st_size > 256 * 1024:
+            raise Rejected("PAYLOAD_LIMIT")
+        print(json.dumps(inspect(load(source))))
         return 0
     if len(argv) != 3 or argv[0] != "operation":
         raise Rejected("INVALID_COMMAND")

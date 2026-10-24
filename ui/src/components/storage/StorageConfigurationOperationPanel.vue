@@ -21,10 +21,11 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
       </MoldDialog>
     </template>
     <template v-else-if="operation">
-      <a-alert :type="alertType" show-icon :message="stateLabel(operation.state)" :description="$t('message.storage.configuration.' + descriptionKey)" />
+      <a-alert :type="alertType" show-icon :message="operation.originalfailure?.phase === 'PREFLIGHT' ? $t('label.storage.preflight.blocked') : stateLabel(operation.state)" :description="$t('message.storage.configuration.' + descriptionKey)" />
       <a-descriptions bordered size="small" :column="1" class="storage-configuration-operation__summary">
         <a-descriptions-item :label="$t('label.storage.configuration.request')"><code>{{ operation.requestid || '-' }}</code></a-descriptions-item>
         <a-descriptions-item :label="$t('label.storage.configuration.phase')">{{ phaseLabel(operation.phase) }}</a-descriptions-item>
+        <a-descriptions-item v-if="!['COMMITTED', 'ROLLED_BACK'].includes(operation.state)" :label="$t('label.storage.preflight.cancel')">{{ $t('message.storage.preflight.cancel.unsupported') }}</a-descriptions-item>
         <a-descriptions-item v-if="operation.id" :label="$t('label.id')"><code>{{ operation.id }}</code></a-descriptions-item>
         <a-descriptions-item v-if="operation.originalfailure?.code" :label="$t('label.storage.configuration.first.failure')">
           <code>{{ operation.originalfailure.code }}</code> · {{ phaseLabel(operation.originalfailure.phase) }}
@@ -34,7 +35,12 @@ Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
           <code v-if="operation.rollback.code">{{ operation.rollback.code }}</code>
         </a-descriptions-item>
       </a-descriptions>
-      <a-alert v-if="operation.observationwarning" type="warning" show-icon :message="$t('message.storage.configuration.observation.unavailable')" />
+      <a-descriptions v-if="operation.observation?.execution" bordered size="small" :column="1" class="storage-configuration-operation__summary">
+        <a-descriptions-item :label="$t('label.storage.preflight.heartbeat')">{{ executionTime(operation.observation.execution.heartbeatAt) }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('label.storage.preflight.deadline')">{{ executionTime(operation.observation.execution.softDeadlineAt) }}</a-descriptions-item>
+      </a-descriptions>
+      <a-alert v-if="operation.observation?.execution?.overdue" type="warning" show-icon :message="$t('message.storage.preflight.overdue')" />
+      <a-alert v-if="operation.observationwarning || operation.observation?.observationAvailable === false" type="warning" show-icon :message="$t('message.storage.configuration.observation.unavailable')" />
       <div class="detail-tab-toolbar storage-configuration-operation__toolbar">
         <a-button @click="$emit('refresh')"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
         <a-button v-if="operation.canresume" type="primary" @click="$emit('resume', operation)">{{ $t('label.storage.configuration.resume') }}</a-button>
@@ -64,6 +70,7 @@ export default {
     },
     alertType () { return this.operation?.state === 'COMMITTED' ? 'success' : this.operation?.state === 'ROLLED_BACK' ? 'warning' : 'info' },
     descriptionKey () {
+      if (this.operation?.originalfailure?.phase === 'PREFLIGHT') return 'preflight.blocked'
       if (this.operation?.state === 'ROLLED_BACK') return 'rolled.back'
       if (this.operation?.state === 'COMMITTED') return 'committed'
       if (['RECOVERY_REQUIRED', 'OBSERVATION_UNAVAILABLE', 'SUBMISSION_UNCONFIRMED'].includes(this.operation?.state)) return 'recovery.required'
@@ -73,6 +80,7 @@ export default {
   watch: { instanceid: { immediate: true, handler () { this.generation++; this.rows = []; this.selected = null; if (this.history && this.instanceid) this.loadHistory() } } },
   beforeUnmount () { this.generation++ },
   methods: {
+    executionTime (value) { return value ? new Date(Number(value) * 1000).toLocaleString() : '-' },
     stateLabel (state) { return this.$t('label.storage.configuration.state.' + String(state || 'QUEUED').toLowerCase()) },
     phaseLabel (phase) { return this.$t('label.storage.configuration.phase.' + String(phase || 'PREPARING').toLowerCase()) },
     async loadHistory () {
