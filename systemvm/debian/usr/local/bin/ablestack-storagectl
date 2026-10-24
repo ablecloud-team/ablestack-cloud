@@ -6659,6 +6659,9 @@ payload="${4:-}"
 
 case "$command" in
   configuration)
+    if [[ "$subcommand" == "preflight" && "$action" == "show" && -r "$payload" ]]; then
+      exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py preflight show "$payload"
+    fi
     if [[ "$subcommand" == "capability" && "$action" == "show" ]]; then
       exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py capability show
     fi

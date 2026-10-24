@@ -1341,6 +1341,19 @@ form-actions
 wrapClassName="storage-service-action-modal"
 @ok="submitActionModal"
 @cancel="closeActionModal">
+      <StorageConfigurationPreflightPanel
+        v-if="configurationPreflight && !configurationProtected"
+        :report="configurationPreflight"
+:loading="configurationPreflightLoading"
+        :acknowledged="configurationImpactAcknowledged"
+        @acknowledge="configurationImpactAcknowledged = $event"
+@refresh="checkConfigurationPreflight" />
+      <a-alert
+v-if="configurationResult?.state === 'SUBMISSION_REJECTED'"
+type="warning"
+show-icon
+        :message="$t('label.storage.preflight.blocked')"
+:description="configurationResult.message" />
       <StorageConfigurationOperationPanel
 v-if="configurationDisplayOperation"
 :operation="configurationDisplayOperation"
@@ -1348,8 +1361,8 @@ v-if="configurationDisplayOperation"
 @resume="resumeConfigurationOperation" />
       <fieldset
 class="configuration-fields"
-:disabled="actionModal.loading || configurationProtected"
-        :inert="actionModal.loading || configurationProtected ? '' : null"
+:disabled="actionModal.loading || configurationProtected || configurationPreflightLoading"
+         :inert="actionModal.loading || configurationProtected || configurationPreflightLoading ? '' : null"
 :aria-busy="actionModal.loading">
       <div class="storage-modal-body"><a-form layout="vertical">
         <div v-if="actionModal.type === 'enableProtocol'" class="storage-action-form storage-action-form--vertical">
@@ -2232,8 +2245,8 @@ class="configuration-fields"
         </div>
       </a-form></div>
       </fieldset>
-      <MoldDialogActions :busy="actionModal.loading">
-        <a-button @click="closeActionModal">{{ $t('label.cancel') }}</a-button>
+      <MoldDialogActions :busy="actionModal.loading && !configurationOperation?.requestid">
+        <a-button @click="closeActionModal">{{ $t(configurationProtected ? 'label.close' : 'label.cancel') }}</a-button>
         <a-button type="primary" :loading="actionModal.loading" v-bind="actionModalOkButtonProps" @click="submitActionModal">{{ actionModalOkText }}</a-button>
       </MoldDialogActions>
     </MoldDialog>
@@ -2283,6 +2296,8 @@ import { backingFilesystem } from '@/utils/sharedFsBacking'
 import MoldDialog from '@/components/view/MoldDialog'
 import MoldDialogActions from '@/components/view/MoldDialogActions'
 import StorageConfigurationOperationPanel from '@/components/storage/StorageConfigurationOperationPanel'
+import StorageConfigurationPreflightPanel from '@/components/storage/StorageConfigurationPreflightPanel'
+import { configurationModalIntent, decodeConfigurationPreflight, preflightApplicable, preparedVolumeKey } from '@/utils/storageConfigPreflight'
 import { configurationRequestId, configurationRetryAllowed, decodeConfigurationOperations, isConfigurationApi, observeConfigurationOperation, observeConfigurationJob, terminalConfigurationState } from '@/utils/storageConfigOperation'
 import {
   DeleteOutlined,
@@ -2493,6 +2508,7 @@ export default {
     MoldDialog,
     MoldDialogActions,
     StorageConfigurationOperationPanel,
+    StorageConfigurationPreflightPanel,
     DetailsTab,
     StatsTab,
     EventsTab,
@@ -2576,6 +2592,15 @@ export default {
         context: null,
         loading: false
       },
+      configurationAcceptedPreflight: null,
+      configurationFormStamp: '',
+      configurationPreflight: null,
+      configurationPreflightLoading: false,
+      configurationPreflightRead: 0,
+      configurationImpactAcknowledged: false,
+      configurationPreflightTimer: null,
+      preparedConfigurationVolumes: {},
+      preparedConfigurationKeys: [],
       configurationOperation: null,
       configurationGeneration: 0,
       configurationProtectionRead: 0,
@@ -4458,7 +4483,12 @@ export default {
       }
       return this.$t(titles[this.actionModal.type] || 'label.action')
     },
+    configurationIntent () {
+      return configurationModalIntent(this.actionModal.type, this.forms, this.actionModal.context)
+    },
     actionModalOkText () {
+      if (this.actionModal.loading || this.configurationProtected) return this.$t('label.storage.configuration.state.running')
+      if (this.configurationIntent) return this.$t(this.configurationPreflight ? 'label.storage.preflight.apply' : 'label.storage.preflight.check')
       return ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type) ? this.$t('label.ok') : this.$t('label.ok')
     },
     configurationProtected () {
@@ -4495,7 +4525,8 @@ export default {
       )
       return {
         danger: ['deleteConfirm', 'deleteEndpoint', 'detachBackingVolume', 'adLeave'].includes(this.actionModal.type),
-        disabled: !!this.configurationProtected || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
+        disabled: !!this.configurationProtected || this.configurationPreflightLoading ||
+          (this.configurationIntent && this.configurationPreflight && !preflightApplicable(this.configurationPreflight, this.configurationImpactAcknowledged)) || (this.actionModal.type === 'deleteConfirm' && !this.deleteConfirmationMatched) ||
           deleteEndpointBlocked ||
           (this.actionModal.type === 'detachBackingVolume' && !this.forms.detachBackingVolume.confirmation) ||
           resizeBackingVolumeBlocked ||
@@ -4591,11 +4622,23 @@ export default {
     this.cancelStorageRead()
     if (this._vmRead) this._vmRead.abort()
     if (this._volumeRead) this._volumeRead.abort()
+    clearTimeout(this.configurationPreflightTimer)
+    this.configurationPreflightRead++
     window.removeEventListener('popstate', this.storagePopstate)
   },
   watch: {
+    forms: {
+      deep: true,
+      handler () {
+        const stamp = JSON.stringify(this.forms)
+        if (stamp === this.configurationFormStamp) return
+        this.configurationFormStamp = stamp
+        if (!this.actionModal.loading && !this.configurationPreflightLoading) this.invalidateConfigurationPreflight()
+      }
+    },
     'actionModal.visible' (visible) {
       if (visible) {
+        this.invalidateConfigurationPreflight()
         this.configurationResult = null
         if (!this.configurationProtected) {
           this.configurationGeneration++
@@ -5473,7 +5516,100 @@ export default {
         this.actionLoading[key] = false
       }
     },
+    invalidateConfigurationPreflight () {
+      clearTimeout(this.configurationPreflightTimer)
+      this.configurationPreflight = null
+      this.configurationImpactAcknowledged = false
+    },
+    async checkConfigurationPreflight () {
+      if (!this.configurationIntent || !this.storageService.instance || this.configurationProtected || this.configurationPreflightLoading) return
+      this.invalidateConfigurationPreflight()
+      const key = ({
+        nfsExport: 'nfsExport',
+        editNfsExport: 'nfsExport',
+        smbShare: 'smbShare',
+        editSmbShare: 'smbShare',
+        iscsiTarget: 'iscsiTarget',
+        editIscsiTarget: 'iscsiTarget',
+        nvmeNamespace: 'nvmeNamespace',
+        editNvmeNamespace: 'nvmeNamespace'
+      })[this.actionModal.type]
+      const backing = key && this.forms[key]
+      if (backing && ['CURRENT', 'EXISTING'].includes(backing.volumemode) && !backing.volumeid) {
+        this.$message.error(this.$t('message.storage.service.current.volume.required'))
+        return
+      }
+      if (backing?.volumemode === 'NEW' && (!backing.diskofferingid || !backing.storageid)) {
+        this.$message.error(this.$t('message.storage.service.new.volume.required'))
+        return
+      }
+      const intent = JSON.stringify(this.configurationIntent)
+      const read = ++this.configurationPreflightRead
+      const instanceid = this.storageService.instance.id
+      const scope = this.storageReadScope
+      this.configurationPreflightLoading = true
+      try {
+        const wire = await postAPI('preflightStorageServiceConfiguration', { instanceid, intent }, { timeout: 30000, preserveOnFailure: true })
+        if (read !== this.configurationPreflightRead || scope !== this.storageReadScope || instanceid !== this.storageService.instance?.id || intent !== JSON.stringify(this.configurationIntent)) return
+        const report = decodeConfigurationPreflight(wire)
+        if (!report) throw new Error('Invalid configuration preflight response')
+        this.configurationPreflight = report
+        this.configurationPreflightTimer = setTimeout(() => this.invalidateConfigurationPreflight(), Math.max(0, Date.parse(report.expiresat) - Date.now()))
+      } catch (error) {
+        if (read === this.configurationPreflightRead && scope === this.storageReadScope && instanceid === this.storageService.instance?.id) {
+          this.configurationPreflight = {
+            status: 'UNKNOWN',
+            revision: this.storageService.instance.configurationrevision,
+            observedat: '-',
+            checks: [{ code: 'RESOURCE_OBSERVATION_UNAVAILABLE', blocking: true }],
+            cancellationsupported: false
+          }
+          this.$notifyError(error)
+        }
+      } finally { if (read === this.configurationPreflightRead) this.configurationPreflightLoading = false }
+    },
+    configurationPreparedVolumeKey (params) {
+      return preparedVolumeKey(this.$store.getters.userInfo?.id, this.storageService.instance?.id, this.actionModal.type, params)
+    },
+    async findPreparedConfigurationVolume (params) {
+      const key = this.configurationPreparedVolumeKey(params)
+      if (!key) return null
+      let id = this.preparedConfigurationVolumes[key]
+      try { id = id || sessionStorage.getItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+      if (!id) return null
+      const wire = await getAPI('listVolumes', { id }, { timeout: 30000, preserveOnFailure: true })
+      const row = wire.listvolumesresponse?.volume?.find(v => v.id === id)
+      if (!row) {
+        delete this.preparedConfigurationVolumes[key]
+        try { sessionStorage.removeItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+        return null
+      }
+      if (row.state !== 'Ready' || (row.virtualmachineid && row.virtualmachineid !== this.storageService.instance?.virtualmachineid && row.virtualmachineid !== this.resource.virtualmachineid)) throw new Error('Prepared volume is unavailable')
+      this.preparedConfigurationVolumes[key] = id
+      if (!this.preparedConfigurationKeys.includes(key)) this.preparedConfigurationKeys.push(key)
+      return id
+    },
+    rememberPreparedConfigurationVolume (params, id) {
+      const key = this.configurationPreparedVolumeKey(params)
+      if (!key) return
+      this.preparedConfigurationVolumes[key] = id
+      if (!this.preparedConfigurationKeys.includes(key)) this.preparedConfigurationKeys.push(key)
+      try { sessionStorage.setItem(key, id) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+    },
+    clearPreparedConfigurationVolumes () {
+      for (const key of this.preparedConfigurationKeys) {
+        delete this.preparedConfigurationVolumes[key]
+        try { sessionStorage.removeItem(key) } catch (error) { /* Optional public-ID cache; the server validates ownership and state. */ }
+      }
+      this.preparedConfigurationKeys = []
+    },
     resetConfigurationProtection () {
+      this.invalidateConfigurationPreflight()
+      this.configurationPreflightRead++
+      this.configurationPreflightLoading = false
+      this.configurationAcceptedPreflight = null
+      this.preparedConfigurationVolumes = {}
+      this.preparedConfigurationKeys = []
       this.configurationGeneration++
       this.configurationProtectionRead++
       this.configurationOperation = null
@@ -5537,6 +5673,8 @@ export default {
     },
     async runConfigurationAction (key, api, params) {
       if (!this.storageService.instance || this.actionLoading[key] || this.configurationProtected) return
+      if (!this.configurationAcceptedPreflight || this.configurationAcceptedPreflight.scope !== this.storageReadScope ||
+        this.configurationAcceptedPreflight.instanceid !== this.storageService.instance.id) return
       const instanceid = this.storageService.instance.id
       const generation = this.configurationGeneration
       const scope = this.storageReadScope
@@ -5550,7 +5688,8 @@ export default {
         const response = await postAPI(api, this.cleanParams({
           ...params,
           requestid,
-          expectedrevision: this.storageService.instance.configurationrevision
+          expectedrevision: this.storageService.instance.configurationrevision,
+          impactack: this.configurationAcceptedPreflight.fingerprint
         }))
         if (!current()) return
         jobid = response[api.toLowerCase() + 'response']?.jobid
@@ -5575,7 +5714,11 @@ export default {
           if (!current()) return
         }
         this.configurationResult = operation
-        if (operation?.state === 'COMMITTED') await this.refreshAfterStorageAction(key)
+        if (operation?.state === 'COMMITTED') {
+          this.clearPreparedConfigurationVolumes()
+          await this.refreshAfterStorageAction(key)
+        }
+        if (terminalConfigurationState(operation?.state)) this.invalidateConfigurationPreflight()
         return operation
       } finally { if (current()) this.actionLoading[key] = false }
     },
@@ -7572,7 +7715,7 @@ export default {
       this.openDeleteModal(resourceType, record)
     },
     closeActionModal () {
-      if (this.actionModal.loading) return
+      if (this.actionModal.loading && !this.configurationOperation?.requestid) return
       if (!this.configurationProtected) this.configurationGeneration++
       this.actionModal.visible = false
       this.actionModal.type = ''
@@ -7616,6 +7759,15 @@ export default {
       if (!action) {
         this.closeActionModal()
         return
+      }
+      if (this.configurationIntent && !preflightApplicable(this.configurationPreflight, this.configurationImpactAcknowledged)) {
+        await this.checkConfigurationPreflight()
+        return
+      }
+      if (this.configurationIntent) {
+        this.configurationAcceptedPreflight = {
+          ...this.configurationPreflight, scope: this.storageReadScope, instanceid: this.storageService.instance.id
+        }
       }
       this.actionModal.loading = true
       this.configurationResult = null
@@ -7721,6 +7873,8 @@ export default {
         storageid: this.forms.nfsExport.storageid,
         size: this.forms.nfsExport.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7730,6 +7884,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -7872,6 +8027,8 @@ export default {
         storageid: this.forms.smbShare.storageid,
         size: this.forms.smbShare.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -7881,6 +8038,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -8005,6 +8163,8 @@ export default {
         storageid: this.forms.iscsiTarget.storageid,
         size: this.forms.iscsiTarget.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -8014,6 +8174,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },
@@ -8078,6 +8239,8 @@ export default {
         storageid: this.forms.nvmeNamespace.storageid,
         size: this.forms.nvmeNamespace.newvolumesize
       }
+      const prepared = await this.findPreparedConfigurationVolume(params)
+      if (prepared) return prepared
       const json = await postAPI('createVolume', this.cleanParams(params))
       const response = json.createvolumeresponse || {}
       const jobResult = response.jobid ? await this.waitStorageServiceJob(response.jobid, 'createVolume', 180) : null
@@ -8087,6 +8250,7 @@ export default {
         this.$message.error(this.$t('message.storage.service.new.volume.create.failed'))
         return false
       }
+      this.rememberPreparedConfigurationVolume(params, id)
       await this.waitVolumeAttachable(id)
       return id
     },

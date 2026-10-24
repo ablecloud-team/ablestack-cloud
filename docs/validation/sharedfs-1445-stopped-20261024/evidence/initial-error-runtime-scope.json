@@ -1,0 +1,11 @@
+{
+  "readOnlyRootCauseCheck": true,
+  "ganeshaConfigs": [
+    "/etc/ganesha/vfs.conf",
+    "/etc/ganesha/ganesha.conf"
+  ],
+  "nativeExportCount": 1,
+  "containsR1445base": false,
+  "containsRequestedCidr": false,
+  "sourceRequestDeferred": true
+}

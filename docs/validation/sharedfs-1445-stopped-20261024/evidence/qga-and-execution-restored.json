@@ -1,0 +1,30 @@
+{
+  "qgaPause": {
+    "pid": 552,
+    "start": "380",
+    "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+    "stopAt": 1792838348.7390826,
+    "continueAt": 1792838393.7395046,
+    "stopped": true
+  },
+  "launches": [
+    {
+      "private": "/var/lib/ablestack-storage/configuration-operations/3730ab80-bd6c-4e33-b2db-13b1a55ee691/4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "operation": "nfs export apply",
+      "delay": 310,
+      "time": 1792837805.7289648
+    },
+    {
+      "private": "/var/lib/ablestack-storage/configuration-operations/3730ab80-bd6c-4e33-b2db-13b1a55ee691/fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "operation": "nfs export apply",
+      "delay": 90,
+      "time": 1792838344.5875106
+    }
+  ],
+  "launchCountByOperation": {
+    "4aeb652b-fbe0-4c3b-b6e9-6010456e9558": 1,
+    "fde1e9b1-e711-4e22-8194-13a72ac8ef28": 1
+  },
+  "transactionFixtureRemoved": true,
+  "transactionSha256": "0550dd0349d00f7bd9c114d3e14ff370ea8f68b113e02d16fb5e1445e600c474"
+}

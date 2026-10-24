@@ -30,5 +30,8 @@ public abstract class BaseStorageServiceConfigurationCmd extends BaseAsyncCmd {
         try { return UUID.fromString(requestId).toString(); }
         catch (IllegalArgumentException e) { throw new InvalidParameterValueException("requestid must be a UUID"); }
     }
+    @Parameter(name = "impactack", type = CommandType.STRING, description = "Observed impact fingerprint; never overrides resource/drain checks")
+    private String impactAck;
+    public String getImpactAck() { return impactAck; }
     public Long getExpectedRevision() { return expectedRevision; }
 }

@@ -1,0 +1,46 @@
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements. See NOTICE. Licensed under the Apache License,
+Version 2.0: http://www.apache.org/licenses/LICENSE-2.0 -->
+<template>
+  <section class="configuration-preflight" aria-live="polite">
+    <a-alert
+:type="report.status === 'READY' ? 'info' : 'error'"
+show-icon
+      :message="$t('label.storage.preflight.' + report.status.toLowerCase())" />
+    <a-descriptions bordered size="small" :column="2" class="summary">
+      <a-descriptions-item :label="$t('label.storage.preflight.observed')">{{ report.observedat }}</a-descriptions-item>
+      <a-descriptions-item :label="$t('label.storage.preflight.revision')">{{ report.revision }}</a-descriptions-item>
+      <a-descriptions-item v-if="report.impact?.class" :label="$t('label.storage.preflight.impact')">{{ $t('label.storage.preflight.' + report.impact.class) }} · {{ report.impact.affectedcount }}</a-descriptions-item>
+      <a-descriptions-item v-if="report.impact?.connections !== undefined" :label="$t('label.storage.preflight.connections')">{{ report.impact.connections }} TCP</a-descriptions-item>
+    </a-descriptions>
+    <div v-for="(check, index) in report.checks" :key="index" class="check">
+      <a-tag :color="check.blocking ? 'red' : check.severity === 'WARNING' ? 'orange' : 'green'">{{ check.code }}</a-tag>
+      <span v-if="check.availablebytes !== undefined">{{ mib(check.availablebytes) }} MiB / {{ mib(check.requiredbytes) }} MiB</span>
+      <span v-if="check.connections !== undefined"> · {{ check.connections }} TCP</span>
+    </div>
+    <a-alert v-if="report.impact?.ackrequired" type="warning" show-icon :message="$t('message.storage.preflight.interruption')" />
+    <a-checkbox
+v-if="report.impact?.ackrequired"
+:checked="acknowledged"
+:disabled="report.status !== 'READY'"
+      class="ack"
+@change="$emit('acknowledge', $event.target.checked)">{{ $t('message.storage.preflight.acknowledge') }}</a-checkbox>
+    <p>{{ $t('message.storage.preflight.not.cancel') }}</p>
+    <a-button :loading="loading" @click="$emit('refresh')"><template #icon><ReloadOutlined /></template>{{ $t('label.storage.preflight.check') }}</a-button>
+  </section>
+</template>
+<script>
+import { ReloadOutlined } from '@ant-design/icons-vue'
+export default {
+  name: 'StorageConfigurationPreflightPanel',
+  components: { ReloadOutlined },
+  props: { report: { type: Object, required: true }, loading: Boolean, acknowledged: Boolean },
+  emits: ['refresh', 'acknowledge'],
+  methods: { mib (value) { return Math.ceil(Number(value || 0) / 1048576) } }
+}
+</script>
+<style scoped>
+.configuration-preflight { margin-bottom: 24px; color: var(--text-color); }
+.summary, .check, .ack { margin-top: 12px; }
+p { margin-top: 12px; color: var(--text-color-secondary); }
+</style>

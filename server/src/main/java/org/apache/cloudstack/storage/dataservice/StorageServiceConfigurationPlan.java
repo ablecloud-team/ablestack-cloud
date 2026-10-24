@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.persistence.Column;
 import com.cloud.utils.db.GenericDao;
 import com.cloud.utils.exception.CloudRuntimeException;
@@ -66,15 +65,18 @@ final class StorageServiceConfigurationPlan {
             final Consumer<String> checkpoint) {
         this.instanceId = instanceId; this.checkpoint = checkpoint;
         add(StorageServiceProtocolDao.class, StorageServiceProtocolVO.class, protocols, protocols.listByInstanceId(instanceId));
-        List<StorageFileShareVO> fs = shares.listAll().stream().filter(v -> v.getInstanceId() == instanceId).collect(Collectors.toList());
-        List<StorageBlockTargetVO> bs = targets.listAll().stream().filter(v -> v.getInstanceId() == instanceId).collect(Collectors.toList());
+        List<StorageFileShareVO> fs = new ArrayList<>();
+        List<StorageBlockTargetVO> bs = new ArrayList<>();
+        for (StorageServiceInstance.Protocol p : Arrays.asList(StorageServiceInstance.Protocol.NFS, StorageServiceInstance.Protocol.SMB))
+            fs.addAll(shares.listByInstanceIdAndProtocol(instanceId, p));
+        for (StorageServiceInstance.Protocol p : Arrays.asList(StorageServiceInstance.Protocol.ISCSI, StorageServiceInstance.Protocol.NVME_OF))
+            bs.addAll(targets.listByInstanceIdAndProtocol(instanceId, p));
         add(StorageFileShareDao.class, StorageFileShareVO.class, shares, fs);
         add(StorageBlockTargetDao.class, StorageBlockTargetVO.class, targets, bs);
-        Set<Long> fileIds = fs.stream().map(StorageFileShareVO::getId).collect(Collectors.toSet());
-        Set<Long> blockIds = bs.stream().map(StorageBlockTargetVO::getId).collect(Collectors.toSet());
-        add(StorageAccessRuleDao.class, StorageAccessRuleVO.class, rules, rules.listAll().stream()
-                .filter(v -> v.getResourceType() == StorageServiceInstance.AccessResourceType.FILE_SHARE
-                        ? fileIds.contains(v.getResourceId()) : blockIds.contains(v.getResourceId())).collect(Collectors.toList()));
+        List<StorageAccessRuleVO> scopedRules = new ArrayList<>();
+        for (StorageFileShareVO v : fs) scopedRules.addAll(rules.listByResource(StorageServiceInstance.AccessResourceType.FILE_SHARE, v.getId()));
+        for (StorageBlockTargetVO v : bs) scopedRules.addAll(rules.listByResource(StorageServiceInstance.AccessResourceType.BLOCK_TARGET, v.getId()));
+        add(StorageAccessRuleDao.class, StorageAccessRuleVO.class, rules, scopedRules);
         bounded(snapshot());
     }
 

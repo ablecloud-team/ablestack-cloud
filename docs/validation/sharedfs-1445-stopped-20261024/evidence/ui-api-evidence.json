@@ -1,0 +1,1410 @@
+{
+  "status": "BLOCKED_BY_PRODUCT_UI_REGRESSION",
+  "scope": "#1445",
+  "preflightReports": [
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T19:21:48+0900",
+        "expiresat": "2026-10-24T19:22:18+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3777052672,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2600329216,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230252
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "BLOCKED",
+        "revision": 2,
+        "observedat": "2026-10-24T19:23:04+0900",
+        "expiresat": "2026-10-24T19:23:34+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_LOW",
+            "blocking": true,
+            "severity": "ERROR",
+            "availablebytes": 1,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2600267776,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230248
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "BLOCKED",
+        "revision": 2,
+        "observedat": "2026-10-24T19:23:51+0900",
+        "expiresat": "2026-10-24T19:24:21+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3777966080,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "SPACE_LOW",
+            "blocking": true,
+            "severity": "ERROR",
+            "availablebytes": 1,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230248
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T19:24:31+0900",
+        "expiresat": "2026-10-24T19:25:01+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3778240512,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2600222720,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230248
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T19:25:47+0900",
+        "expiresat": "2026-10-24T19:26:17+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3767214080,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2600181760,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230248
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 2,
+        "observedat": "2026-10-24T19:26:38+0900",
+        "expiresat": "2026-10-24T19:27:08+0900",
+        "fingerprint": "ee74263354115e8dd7c79b1bd6f624f01d03ce3f853cb6c98509ec0e48ac9ffa",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3777085440,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2600153088,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230248
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 3,
+        "observedat": "2026-10-24T19:29:55+0900",
+        "expiresat": "2026-10-24T19:30:25+0900",
+        "fingerprint": "97d4df275421a3e77e0746692958fee3517e44dfa3306eedfb8e8a8daebbea50",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3778981888,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2599919616,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230238
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    },
+    {
+      "status": 200,
+      "report": {
+        "status": "READY",
+        "revision": 4,
+        "observedat": "2026-10-24T19:38:56+0900",
+        "expiresat": "2026-10-24T19:39:26+0900",
+        "fingerprint": "ead75399daeec1024b230701d0b0fdf8fc4657d5e8f8e18dfc6f6aa7e8ccf690",
+        "checks": [
+          {
+            "code": "MEMORY_AVAILABLE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 3773915136,
+            "requiredbytes": 218256320
+          },
+          {
+            "code": "FILESYSTEM_SPACE",
+            "blocking": false,
+            "severity": "INFO",
+            "availablebytes": 2599534592,
+            "requiredbytes": 83924208,
+            "readonly": false,
+            "freeinodes": 230227
+          },
+          {
+            "code": "VOLUME_PREPARATION_ACTIVE",
+            "blocking": false,
+            "severity": "INFO",
+            "count": 0
+          },
+          {
+            "code": "RUNTIME_WRITER_ACTIVE",
+            "blocking": false,
+            "severity": "INFO"
+          },
+          {
+            "code": "DRAIN_REQUIRED",
+            "blocking": false,
+            "severity": "INFO",
+            "connections": 1
+          }
+        ],
+        "impact": {
+          "class": "TEMPORARY_INTERRUPTION",
+          "affectedcount": 1,
+          "connections": 1,
+          "confidence": "ENDPOINT_TCP_CONNECTIONS",
+          "ackrequired": true,
+          "drainrequired": false
+        },
+        "profile": {
+          "name": "CONFIGURATION",
+          "softdeadlineseconds": 300,
+          "pollintervalseconds": 2,
+          "observationseconds": 600
+        },
+        "cancellationsupported": false
+      }
+    }
+  ],
+  "operations": [
+    {
+      "status": 200,
+      "id": "9fd7e897-5a49-41bd-9a25-38240f120d68",
+      "requestid": "be2d1a6c-6ead-4b7c-b6bb-6c96c4bd2177",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:25:48+0900",
+      "updated": "2026-10-24T19:25:48+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "9fd7e897-5a49-41bd-9a25-38240f120d68",
+      "requestid": "be2d1a6c-6ead-4b7c-b6bb-6c96c4bd2177",
+      "state": "ROLLED_BACK",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:25:48+0900",
+      "updated": "2026-10-24T19:25:53+0900",
+      "completed": "2026-10-24T19:25:53+0900",
+      "originalfailure": {
+        "phase": "PREFLIGHT",
+        "code": "MEMORY_LOW"
+      },
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {}
+    },
+    {
+      "status": 200,
+      "id": "9c34ce60-e39b-4609-865d-1f7b95f57142",
+      "requestid": "4c6e40db-cb8f-4740-bf61-013f7a4c9621",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:26:40+0900",
+      "updated": "2026-10-24T19:26:40+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "9c34ce60-e39b-4609-865d-1f7b95f57142",
+      "requestid": "4c6e40db-cb8f-4740-bf61-013f7a4c9621",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:26:40+0900",
+      "updated": "2026-10-24T19:26:43+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "9c34ce60-e39b-4609-865d-1f7b95f57142",
+      "requestid": "4c6e40db-cb8f-4740-bf61-013f7a4c9621",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:26:40+0900",
+      "updated": "2026-10-24T19:26:46+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED",
+        "workerActive": false,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 106050,
+            "start": "1109897"
+          },
+          "heartbeatAt": 1792837606.7162604,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792837906.7161317,
+          "startedAt": 1792837606.7161317
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "9c34ce60-e39b-4609-865d-1f7b95f57142",
+      "requestid": "4c6e40db-cb8f-4740-bf61-013f7a4c9621",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 2,
+      "targetrevision": 3,
+      "created": "2026-10-24T19:26:40+0900",
+      "updated": "2026-10-24T19:26:49+0900",
+      "completed": "2026-10-24T19:26:49+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED"
+      },
+      "result": {
+        "id": "c6583367-fc3e-46cf-8e57-1ce80321c8c3",
+        "state": "Ready"
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:29:57+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:03+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837820.7571955,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837825.7660315,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837830.774428,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837835.7833529,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837840.7920086,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837845.8014777,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837850.8103352,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837855.819196,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837860.827685,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837865.8364842,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837915.9267652,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837925.9458294,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837945.9816618,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792837976.035205,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "RUNNING",
+        "workerActive": true,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792838086.230277,
+          "operation": "nfs export apply",
+          "overdue": false,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:30:04+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED",
+        "workerActive": false,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792838116.2838118,
+          "operation": "nfs export apply",
+          "overdue": true,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      }
+    },
+    {
+      "status": 200,
+      "id": "4aeb652b-fbe0-4c3b-b6e9-6010456e9558",
+      "requestid": "8d1eb7f5-d3cc-43b3-8c19-189d783eb7c8",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 3,
+      "targetrevision": 4,
+      "created": "2026-10-24T19:29:57+0900",
+      "updated": "2026-10-24T19:35:54+0900",
+      "completed": "2026-10-24T19:35:54+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED",
+        "workerActive": false,
+        "execution": {
+          "cancellationSupported": false,
+          "child": {
+            "boot": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+            "pid": 108426,
+            "start": "1129799"
+          },
+          "heartbeatAt": 1792838116.2838118,
+          "operation": "nfs export apply",
+          "overdue": true,
+          "softDeadlineAt": 1792838105.7309597,
+          "startedAt": 1792837805.7309597
+        }
+      },
+      "result": {
+        "id": "c6583367-fc3e-46cf-8e57-1ce80321c8c3",
+        "state": "Ready"
+      }
+    },
+    {
+      "status": 200,
+      "id": "fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "requestid": "4024c1f1-d9d0-4a48-9261-e7f9612aa10d",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-24T19:38:58+0900",
+      "updated": "2026-10-24T19:38:58+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {}
+    },
+    {
+      "status": 200,
+      "id": "fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "requestid": "4024c1f1-d9d0-4a48-9261-e7f9612aa10d",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-24T19:38:58+0900",
+      "updated": "2026-10-24T19:38:58+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "requestid": "4024c1f1-d9d0-4a48-9261-e7f9612aa10d",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-24T19:38:58+0900",
+      "updated": "2026-10-24T19:39:02+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "fde1e9b1-e711-4e22-8194-13a72ac8ef28",
+      "requestid": "4024c1f1-d9d0-4a48-9261-e7f9612aa10d",
+      "state": "RUNNING",
+      "phase": "APPLYING",
+      "canresume": false,
+      "baserevision": 4,
+      "targetrevision": 5,
+      "created": "2026-10-24T19:38:58+0900",
+      "updated": "2026-10-24T19:39:03+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "observationAvailable": false,
+        "code": "OBSERVATION_UNAVAILABLE"
+      }
+    },
+    {
+      "status": 200,
+      "id": "6fecb954-3348-4c02-aeed-1e955ce0fab1",
+      "requestid": "212cb791-6071-493c-ab39-9ace0094faae",
+      "state": "PENDING",
+      "phase": "PREPARING",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-24T19:52:01+0900",
+      "updated": "2026-10-24T19:52:01+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "6fecb954-3348-4c02-aeed-1e955ce0fab1",
+      "requestid": "212cb791-6071-493c-ab39-9ace0094faae",
+      "state": "RUNNING",
+      "phase": "VALIDATING",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-24T19:52:01+0900",
+      "updated": "2026-10-24T19:52:12+0900",
+      "originalfailure": {},
+      "rollback": {},
+      "observation": {
+        "state": "NOT_FOUND",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "6fecb954-3348-4c02-aeed-1e955ce0fab1",
+      "requestid": "212cb791-6071-493c-ab39-9ace0094faae",
+      "state": "RUNNING",
+      "phase": "COMMITTING",
+      "canresume": true,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-24T19:52:01+0900",
+      "updated": "2026-10-24T19:52:15+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED",
+        "workerActive": false
+      }
+    },
+    {
+      "status": 200,
+      "id": "6fecb954-3348-4c02-aeed-1e955ce0fab1",
+      "requestid": "212cb791-6071-493c-ab39-9ace0094faae",
+      "state": "COMMITTED",
+      "phase": "COMPLETED",
+      "canresume": false,
+      "baserevision": 1,
+      "targetrevision": 2,
+      "created": "2026-10-24T19:52:01+0900",
+      "updated": "2026-10-24T19:52:16+0900",
+      "completed": "2026-10-24T19:52:16+0900",
+      "originalfailure": {},
+      "rollback": {
+        "state": "NOT_NEEDED"
+      },
+      "observation": {
+        "state": "VERIFIED"
+      },
+      "result": {
+        "id": "8c1914cb-0918-4c8a-a575-18381fec3459",
+        "state": "Allocated"
+      }
+    }
+  ],
+  "initialCreate": {
+    "sharedfs": "233d2125-fd02-4276-a204-c57b997b40ba",
+    "instance": "419cecff-c03b-4216-91f1-ce53c17dd729",
+    "vm": "2f9185c4-b7e8-3c85-b308-8333b966cc22",
+    "requestedCidr": "10.10.0.0/16",
+    "post": [
+      {
+        "command": "createStorageNfsExport",
+        "response": "json",
+        "instanceid": "419cecff-c03b-4216-91f1-ce53c17dd729",
+        "name": "r1445base",
+        "path": "/export/r1445base",
+        "volumeid": "ff015f14-f0cc-4f08-b2bc-d3ac5e10ff47",
+        "filesystem": "xfs",
+        "importmode": "MOUNT_EXISTING",
+        "createdirectory": "true",
+        "protocolmode": "V4_ONLY",
+        "readonly": "false",
+        "rootsquash": "true",
+        "anonuid": "65534",
+        "anongid": "65534",
+        "owneruid": "65534",
+        "ownergid": "65534",
+        "mode": "0775",
+        "recursivepermission": "false",
+        "sync": "true",
+        "secure": "false",
+        "deferapply": "true",
+        "requestid": "212cb791-6071-493c-ab39-9ace0094faae"
+      }
+    ],
+    "aclPostsAfterExport": 0,
+    "observedUiError": "RUNNING · NOT_NEEDED",
+    "actualExportOperation": "6fecb954-3348-4c02-aeed-1e955ce0fab1"
+  },
+  "concurrentRejection": {
+    "errorcode": 530,
+    "errortext": "Configuration recovery is pending; inspect the active operation before a new change"
+  }
+}
