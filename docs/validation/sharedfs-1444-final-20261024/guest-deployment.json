@@ -1,0 +1,545 @@
+[
+  {
+    "vmid": "8a2ef0b9-9663-47b5-b3ab-ea4c58d7f706",
+    "domain": "i-2-101-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.1"
+  },
+  {
+    "vmid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+    "domain": "i-2-103-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.1"
+  },
+  {
+    "vmid": "92d99386-9157-4abe-b427-98829770a15d",
+    "domain": "i-2-106-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.1"
+  },
+  {
+    "vmid": "76c59df9-91c4-3a51-8511-f483a61a3cd8",
+    "domain": "i-2-113-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-866108f15364d99c/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.1"
+  },
+  {
+    "vmid": "0c9f5ce2-2328-33a1-a290-b0d6a6619ba5",
+    "domain": "i-2-119-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.1"
+  },
+  {
+    "vmid": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+    "domain": "i-2-107-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.2"
+  },
+  {
+    "vmid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+    "domain": "i-2-127-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [
+        {
+          "nqn": "nqn.2026-10.local.storage:r1444v",
+          "nsid": "1",
+          "volumeUuid": "8afeba62-cd52-4586-881f-bd63c0ecb831",
+          "identifiers": {
+            "device_uuid": "c16a7f1f5e6549c0a1f7ab1ae9902ced",
+            "device_nguid": "00000000000000000000000000000000"
+          },
+          "kernelUnchanged": true
+        }
+      ],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.2"
+  },
+  {
+    "vmid": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+    "domain": "i-2-102-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+    "domain": "i-2-105-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+    "domain": "i-2-109-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-699406316ca9de44/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "634178d0-3d06-31ec-84d3-9ec113093025",
+    "domain": "i-2-111-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-866108f15364d99c/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "38e1cc60-9de7-3241-a62c-ec9aff998d21",
+    "domain": "i-2-112-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-866108f15364d99c/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+    "domain": "i-2-114-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-866108f15364d99c/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  },
+  {
+    "vmid": "8144aac2-225b-3b0f-95ae-f2d490d4ef76",
+    "domain": "i-2-118-VM",
+    "receipt": {
+      "adoptedNvmeIdentities": [],
+      "before": {
+        "usr/local/bin/ablestack-storagectl": {
+          "existed": true,
+          "hash": "5940d6e8562a7cb81b4095cec2c0c42d03e3bebaa6242fe4e4bfe72b1c1e846a",
+          "resolvedTarget": "/opt/ablestack/storage-runtime/releases/bootstrap-f858358b0e1b8eba/ablestack-storagectl",
+          "symbolicLink": "/opt/ablestack/storage-runtime/current/ablestack-storagectl"
+        },
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": {
+          "existed": true,
+          "hash": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/configuration_transaction.py",
+          "symbolicLink": null
+        },
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": {
+          "existed": false,
+          "hash": null,
+          "resolvedTarget": "/usr/local/lib/ablestack-storage/nvmeof_identity.py",
+          "symbolicLink": null
+        }
+      },
+      "installed": {
+        "usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+        "usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+        "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144"
+      },
+      "protectedFilesUnchanged": true,
+      "capability": {
+        "configurationTransactionVersion": 1
+      },
+      "serviceRestart": false
+    },
+    "host": "10.10.13.3"
+  }
+]

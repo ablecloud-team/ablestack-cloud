@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cbe4aab3-66ca-4f93-a03d-694ba1fca3fd",
+    "type": "ROOT",
+    "size": 5242880000,
+    "provisioningtype": "sparse",
+    "diskofferingid": null
+  },
+  {
+    "id": "0798f6f0-5d36-4f60-bc09-f309cb1eba72",
+    "type": "DATADISK",
+    "size": 21474836480,
+    "provisioningtype": "sparse",
+    "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5"
+  }
+]
