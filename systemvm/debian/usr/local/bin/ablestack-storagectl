@@ -19,6 +19,13 @@
 
 set -euo pipefail
 
+runtime_release="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+if [[ -d "${runtime_release}/lib/ablestack-storage" ]]; then
+  export ABLESTACK_STORAGE_HELPER_ROOT="${runtime_release}/lib/ablestack-storage"
+else
+  export ABLESTACK_STORAGE_HELPER_ROOT="/usr/local/lib/ablestack-storage"
+fi
+
 LOG_FILE="/var/log/ablestack-storagectl.log"
 MONITOR_CACHE_DIR="${ABLESTACK_STORAGE_MONITOR_CACHE_DIR:-/run/ablestack-storage/monitor}"
 DESIRED_STATE_DIR="${ABLESTACK_STORAGE_DESIRED_STATE_DIR:-/etc/ablestack-storage/desired-state}"
@@ -841,7 +848,7 @@ import socket
 import sys
 import time
 
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from volume_identity import (  # noqa: E402
     VolumeIdentityError,
     device_for_path,
@@ -1577,7 +1584,7 @@ import sys
 import tempfile
 import time
 
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from session_auth import (  # noqa: E402
     classify_iscsi_auth_session,
     compatibility_authenticated,
@@ -2672,7 +2679,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: E402
 
 payload_path = sys.argv[1]
@@ -3051,7 +3058,7 @@ import sys
 import time
 from datetime import datetime, timezone
 
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: E402
 
 payload_path = sys.argv[1]
@@ -3217,7 +3224,7 @@ import os
 import subprocess
 import sys
 
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from volume_identity import VolumeIdentityError, resolve_volume_device  # noqa: E402
 
 payload_path = sys.argv[1]
@@ -6081,7 +6088,7 @@ import sys
 import glob
 import time
 import errno
-sys.path.insert(0, "/usr/local/lib/ablestack-storage")
+sys.path.insert(0, __import__("os").environ["ABLESTACK_STORAGE_HELPER_ROOT"])
 from nvmeof_identity import NamespaceIdentityStore
 
 payload_path = sys.argv[1]
@@ -6660,16 +6667,16 @@ payload="${4:-}"
 case "$command" in
   configuration)
     if [[ "$subcommand" == "preflight" && "$action" == "show" && -r "$payload" ]]; then
-      exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py preflight show "$payload"
+      exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" preflight show "$payload"
     fi
     if [[ "$subcommand" == "capability" && "$action" == "show" ]]; then
-      exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py capability show
+      exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" capability show
     fi
     if [[ "$subcommand" != "operation" || ! "$action" =~ ^(apply|show|resume|commit)$ || -z "$payload" || ! -r "$payload" ]]; then
       emit_error "Invalid configuration transaction operation."
       exit 2
     fi
-    exec python3 /usr/local/lib/ablestack-storage/configuration_transaction.py operation "$action" "$payload"
+    exec python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/configuration_transaction.py" operation "$action" "$payload"
     ;;
   apply)
     payload="${2:-}"
@@ -6728,7 +6735,7 @@ case "$command" in
         emit_error "A readable payload file is required for initial volume preparation."
         exit 2
       fi
-      python3 /usr/local/lib/ablestack-storage/volume_preparation.py "$action" "$payload"
+      python3 "${ABLESTACK_STORAGE_HELPER_ROOT}/volume_preparation.py" "$action" "$payload"
     elif [[ "$subcommand" == "attach" && "$action" == "inspect" ]]; then
       if [[ -z "$payload" || ! -r "$payload" ]]; then
         emit_error "A readable payload file is required for volume attach inspect."

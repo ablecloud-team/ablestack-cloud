@@ -58,6 +58,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
             "ABLESTACK_STORAGE_RUNTIME_TRUSTED_KEYS": str(self.trusted_keys),
             "ABLESTACK_STORAGE_RUNTIME_ENTRYPOINT_ROOT": str(self.entrypoint_root),
             "ABLESTACK_STORAGE_RUNTIME_LOCK": str(self.lock_file),
+            "ABLESTACK_STORAGE_RUNTIME_HELPER_ROOT": str(ROOT / "debian/usr/local/lib/ablestack-storage"),
         })
         for name in ENTRYPOINTS:
             self.write_script(self.entrypoint_root / name, "bootstrap")
@@ -100,7 +101,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         ], check=True, env=env, capture_output=True, text=True)
         return self.output / f"ablestack-storage-runtime-{version}.tar.gz"
 
-    def stage_transaction(self, transaction="tx-1", version="v2"):
+    def stage_transaction(self, transaction="tx-1", version="v2", preflight_success=True):
         archive = self.build_bundle(version)
         manifest = self.output / "manifest.json"
         signature = self.output / "manifest.sig"
@@ -121,7 +122,7 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         shutil.copy2(signature, transaction_dir / "manifest.sig")
         self.run_updater("finalize", request)
         self.run_updater("verify", request)
-        self.run_updater("preflight", request)
+        self.run_updater("preflight", request, success=preflight_success)
         return request
 
     def test_signed_bundle_activation_and_rollback(self):
@@ -136,6 +137,119 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         self.assertTrue(rolled_back["currentVersion"].startswith("bootstrap-"))
         result = subprocess.run([str(self.entrypoint_root / "ablestack-storagectl")], text=True, capture_output=True, check=True)
         self.assertEqual("bootstrap", result.stdout.strip())
+
+    def confirm(self, request):
+        return self.run_updater("activate", dict(request, confirmActivation=True))
+
+    def test_template_default_and_bundle_share_version_and_nine_file_hashes(self):
+        self.build_bundle("template-v2")
+        default = self.temp / "default"
+        default.mkdir()
+        for name in ("manifest.json", "manifest.sig"):
+            shutil.copy2(self.output / name, default / name)
+        self.env["ABLESTACK_STORAGE_RUNTIME_DEFAULT"] = str(default)
+        self.env["ABLESTACK_STORAGE_RUNTIME_DEFAULT_TRUST"] = str(self.trusted_keys)
+        for name in ENTRYPOINTS:
+            shutil.copy2(self.source / name, self.entrypoint_root / name)
+        result = self.run_updater("bootstrap")
+        self.assertEqual("template-v2", result["currentVersion"])
+        manifest = json.loads((default / "manifest.json").read_text())
+        release = self.runtime_root / "releases/template-v2"
+        for item in manifest["files"]:
+            self.assertEqual(item["sha256"],hashlib.sha256((release / item["path"]).read_bytes()).hexdigest())
+
+    def test_confirmation_and_boot_persistence(self):
+        self.run_updater("bootstrap")
+        request = self.stage_transaction()
+        activated = self.run_updater("activate", request)
+        self.assertEqual("ACTIVATED", activated["phase"])
+        self.assertEqual("COMPLETE", self.confirm(request)["phase"])
+        self.assertEqual("v2", self.run_updater("bootstrap")["currentVersion"])
+        self.assertTrue(self.run_updater("capabilities")["integrity"]["verified"])
+
+    def test_unconfirmed_activation_is_recovered_before_boot_reconcile(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        self.run_updater("activate", request)
+        self.assertEqual(baseline, self.run_updater("bootstrap")["currentVersion"])
+        self.assertEqual("ROLLED_BACK", self.run_updater("status", request)["phase"])
+
+    def test_manifest_changed_after_preflight_cannot_activate(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        path = self.state_root / request["transactionId"] / "manifest.json"
+        value = json.loads(path.read_text())
+        value["runtimeAbiVersion"] = "incompatible"
+        path.write_text(json.dumps(value))
+        self.assertEqual("MANIFEST_HASH_MISMATCH", self.run_updater("activate", request, success=False)["errorCode"])
+        self.assertEqual(baseline, self.run_updater("capabilities")["currentVersion"])
+
+    def test_stale_rollback_and_duplicate_rollback(self):
+        self.run_updater("bootstrap")
+        one = self.stage_transaction()
+        self.run_updater("activate", one)
+        self.confirm(one)
+        two = self.stage_transaction("tx-2", "v3")
+        self.run_updater("activate", two)
+        self.confirm(two)
+        self.assertEqual("ROLLBACK_STALE_OPERATION", self.run_updater("rollback", one, success=False)["errorCode"])
+        self.assertEqual("v2", self.run_updater("rollback", two)["currentVersion"])
+        self.assertEqual("v2", self.run_updater("rollback", two)["currentVersion"])
+
+    def test_rollback_resumes_after_pointer_switch_and_lost_confirmation_write(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        self.run_updater("activate", request)
+        self.confirm(request)
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location("runtime_candidate", UPDATER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        original = module.atomic_json
+        def interrupted(path, *args, **kwargs):
+            if Path(path).name == "confirmed.json":
+                raise OSError("injected lost confirmation write")
+            return original(path, *args, **kwargs)
+        with patch.dict(os.environ, self.env), patch.object(module, "atomic_json", side_effect=interrupted):
+            with self.assertRaisesRegex(OSError, "injected"):
+                module.RuntimeUpdater().execute("rollback", request)
+        state = self.run_updater("status", request)
+        self.assertEqual("ROLLING_BACK", state["phase"])
+        self.assertEqual(baseline, state["currentVersion"])
+        self.assertEqual(baseline, self.run_updater("rollback", request)["currentVersion"])
+
+    def test_already_current_version_cannot_replace_its_previous_pointer(self):
+        self.run_updater("bootstrap")
+        original = self.stage_transaction()
+        self.run_updater("activate", original)
+        self.confirm(original)
+        previous = self.run_updater("capabilities")["previousVersion"]
+        duplicate = self.stage_transaction("tx-duplicate", "v2", preflight_success=False)
+        failure = self.run_updater("preflight", duplicate, success=False)
+        self.assertEqual("RUNTIME_ALREADY_CURRENT", failure["errorCode"])
+        self.assertEqual(previous, self.run_updater("capabilities")["previousVersion"])
+        self.assertEqual(previous, self.run_updater("rollback", original)["currentVersion"])
+
+    def test_changed_previous_code_blocks_rollback(self):
+        baseline = self.run_updater("bootstrap")["currentVersion"]
+        request = self.stage_transaction()
+        self.run_updater("activate", request)
+        self.confirm(request)
+        (self.runtime_root / "releases" / baseline / ENTRYPOINTS[0]).write_text("changed")
+        self.assertEqual("PREVIOUS_RUNTIME_INTEGRITY_MISMATCH", self.run_updater("rollback", request, success=False)["errorCode"])
+        self.assertEqual("v2", self.run_updater("capabilities")["currentVersion"])
+
+    def test_payload_contains_six_helpers_and_exact_modes(self):
+        self.build_bundle()
+        manifest = json.loads((self.output / "manifest.json").read_text())
+        self.assertEqual(2, manifest["payloadLayout"])
+        self.assertEqual(9, len(manifest["files"]))
+        self.assertEqual(6, sum(x["mode"]=="0644" for x in manifest["files"]))
+        with tarfile.open(self.output / "ablestack-storage-runtime-v2.tar.gz") as archive:
+            for item in manifest["files"]:
+                member = archive.getmember(item["path"])
+                self.assertEqual(member.size, item["bytes"])
+                self.assertEqual(member.uid, 0)
 
     def test_manifest_signature_tamper_is_rejected(self):
         self.run_updater("bootstrap")
@@ -170,11 +284,11 @@ class StorageRuntimeUpdaterTest(unittest.TestCase):
         target.write_text("#!/bin/bash\nexit 1\n", encoding="utf-8")
         target.chmod(0o755)
         result = self.run_updater("activate", request, success=False)
-        self.assertEqual("ACTIVATION_FAILED_ROLLED_BACK", result["errorCode"])
+        self.assertEqual("RELEASE_HASH_MISMATCH", result["errorCode"])
         capabilities = self.run_updater("capabilities")
         self.assertEqual(bootstrap["currentVersion"], capabilities["currentVersion"])
         state = self.run_updater("status", request)
-        self.assertEqual("ROLLED_BACK", state["phase"])
+        self.assertEqual("PREFLIGHT_OK", state["phase"])
 
     def test_archive_path_traversal_is_rejected(self):
         spec = importlib.util.spec_from_file_location("runtime_updater", UPDATER)

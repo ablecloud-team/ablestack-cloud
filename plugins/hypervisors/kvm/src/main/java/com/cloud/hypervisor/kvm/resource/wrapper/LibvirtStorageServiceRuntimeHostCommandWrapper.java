@@ -90,21 +90,28 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
             throws LibvirtException, InterruptedException {
         final byte[] chunk = validateChunk(command);
         final String path = resolveGuestFile(command);
-        ensureDirectory(domain, parentPath(path), command.getTimeoutSeconds());
-        final long handle = openGuestFile(domain, path, command.isTruncate() ? "w+b" : "r+b", command.getTimeoutSeconds());
-        try {
-            seekGuestFile(domain, handle, command.getOffset(), command.getTimeoutSeconds());
-            final int count = writeGuestFile(domain, handle, command.getChunkBase64(), command.getTimeoutSeconds());
-            if (count != chunk.length) {
-                throw new IllegalStateException("QGA guest-file-write returned an unexpected byte count");
-            }
-            flushGuestFile(domain, handle, command.getTimeoutSeconds());
-        } finally {
-            closeGuestFile(domain, handle, command.getTimeoutSeconds());
+        if (command.getFileSha256() == null || !command.getFileSha256().matches("[0-9a-f]{64}") ||
+                command.getTotalSize() <= 0 || command.getTotalSize() > 64L*1024*1024 ||
+                command.getOffset() + chunk.length > command.getTotalSize()) {
+            throw new IllegalArgumentException("Runtime transfer requires complete file hash and bounded size");
         }
-        if (command.isFinalChunk()) {
-            chmodFile(domain, path, fileMode(command.getFileType()), command.getTimeoutSeconds());
-        }
+        final JsonObject input = new JsonObject();
+        input.addProperty("path", path);
+        input.addProperty("transaction", command.getTransactionId());
+        input.addProperty("type", command.getFileType().name());
+        input.addProperty("offset", command.getOffset());
+        input.addProperty("chunk", command.getChunkBase64());
+        input.addProperty("truncate", command.isTruncate());
+        input.addProperty("final", command.isFinalChunk());
+        input.addProperty("sha256", command.getFileSha256());
+        input.addProperty("size", command.getTotalSize());
+        input.addProperty("mode", Integer.parseInt(fileMode(command.getFileType()),8));
+        final JsonArray args = new JsonArray();
+        args.add(new JsonPrimitive("-c"));
+        args.add(new JsonPrimitive(atomicReceiverScript()));
+        args.add(new JsonPrimitive(input.toString()));
+        final GuestExecResult received = executeGuest(domain, "/usr/bin/python3", args, command.getTimeoutSeconds());
+        if (received.exitCode != 0) throw new IllegalStateException("Runtime atomic transfer rejected: " + received.stderr);
         final JsonObject result = new JsonObject();
         result.addProperty("transactionId", command.getTransactionId());
         result.addProperty("fileType", command.getFileType().name());
@@ -118,33 +125,59 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
 
     protected Answer executeUpdater(final StorageServiceRuntimeHostCommand command, final Domain domain)
             throws LibvirtException, InterruptedException {
-        String requestPath = null;
-        if (command.getRequestJson() != null && !command.getRequestJson().trim().isEmpty()) {
-            final byte[] request = command.getRequestJson().getBytes(StandardCharsets.UTF_8);
-            if (request.length > MAX_REQUEST_BYTES) {
-                throw new IllegalArgumentException("Storage Service runtime updater request is too large");
-            }
-            requireIdentifier(command.getTransactionId(), "transactionId");
-            requestPath = "/tmp/ablestack-storage-runtime-" + command.getTransactionId() + "-" +
-                    command.getOperation().name().toLowerCase(Locale.ROOT) + ".json";
-            writeSmallGuestFile(domain, requestPath, request, command.getTimeoutSeconds());
+        final String request = command.getRequestJson() == null ? "{}" : command.getRequestJson();
+        if (request.getBytes(StandardCharsets.UTF_8).length > MAX_REQUEST_BYTES)
+            throw new IllegalArgumentException("Runtime request exceeds its bound");
+        // No predictable public request file and no QGA w+b symlink-following path.
+        final JsonArray args = new JsonArray();
+        args.add(new JsonPrimitive("-c"));
+        args.add(new JsonPrimitive("import io,runpy,sys; p=sys.argv[1]; op=sys.argv[2]; value=sys.argv[3]; sys.stdin=io.StringIO(value); sys.argv=[p,op]; runpy.run_path(p,run_name='__main__')"));
+        args.add(new JsonPrimitive(UPDATER));
+        args.add(new JsonPrimitive(command.getOperation().name().toLowerCase(Locale.ROOT)));
+        args.add(new JsonPrimitive(request));
+        final GuestExecResult result = executeGuest(domain, "/usr/bin/python3", args, command.getTimeoutSeconds());
+        String output = result.stdout;
+        if (command.getOperation() == StorageServiceRuntimeOperation.CAPABILITIES && result.exitCode==0) {
+            JsonObject capability = new JsonParser().parse(output).getAsJsonObject();
+            capability.addProperty("hostTransportVersion", 2);
+            output=capability.toString();
         }
-        try {
-            final JsonArray args = new JsonArray();
-            args.add(new JsonPrimitive(command.getOperation().name().toLowerCase(Locale.ROOT)));
-            if (requestPath != null) {
-                args.add(new JsonPrimitive("--request"));
-                args.add(new JsonPrimitive(requestPath));
-            }
-            final GuestExecResult result = executeGuest(domain, UPDATER, args, command.getTimeoutSeconds());
-            final String details = result.exitCode == 0 ? "Storage Service runtime updater completed" :
-                    "Storage Service runtime updater failed with exit code " + result.exitCode + ": " + result.stderr;
-            return answer(command, result.exitCode == 0, details, result.stdout);
-        } finally {
-            if (requestPath != null) {
-                removeFile(domain, requestPath, command.getTimeoutSeconds());
-            }
-        }
+        final String details = result.exitCode == 0 ? "Storage Service runtime updater completed" :
+                "Storage Service runtime updater rejected: " + output;
+        return answer(command, result.exitCode==0, details, output);
+    }
+
+    protected String atomicReceiverScript() {
+        return String.join("\n",
+            "import os,sys,json,base64,hashlib,pathlib,stat",
+            "v=json.loads(sys.argv[1]); target=pathlib.Path(v['path'])",
+            "root=pathlib.Path('/var/lib/ablestack-storage/runtime-transport')/v['transaction']",
+            "def parents(path):",
+            " for p in reversed([path]+list(path.parents)[:-1]):",
+            "  if p.is_symlink(): raise ValueError('UNSAFE_PARENT')",
+            "  p.mkdir(mode=0o700,exist_ok=True)",
+            "  if p.stat().st_uid!=0: raise ValueError('UNSAFE_OWNER')",
+            "parents(root); parents(target.parent)",
+            "part=root/(v['type']+'.part')",
+            "flags=os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW",
+            "fd=os.open(part, flags, 0o600)",
+            "try:",
+            " if not stat.S_ISREG(os.fstat(fd).st_mode): raise ValueError('UNSAFE_RECEIVER')",
+            " if v['truncate']: os.ftruncate(fd,0)",
+            " if os.fstat(fd).st_size!=v['offset']: raise ValueError('TRANSFER_OFFSET_MISMATCH')",
+            " data=base64.b64decode(v['chunk'],validate=True); os.lseek(fd,v['offset'],0)",
+            " if os.write(fd,data)!=len(data): raise ValueError('SHORT_WRITE')",
+            " os.fsync(fd)",
+            "finally: os.close(fd)",
+            "if v['final']:",
+            " if part.stat().st_size!=v['size'] or hashlib.sha256(part.read_bytes()).hexdigest()!=v['sha256']: raise ValueError('FILE_HASH_MISMATCH')",
+            " if target.is_symlink(): raise ValueError('UNSAFE_TARGET')",
+            " if v['type']=='TRUSTED_KEY' and target.exists() and target.read_bytes()!=part.read_bytes(): raise ValueError('TRUST_KEY_CONFLICT')",
+            " os.chmod(part,v['mode']); os.replace(part,target)",
+            " d=os.open(target.parent,os.O_RDONLY|os.O_DIRECTORY)",
+            " try: os.fsync(d)",
+            " finally: os.close(d)",
+            "print(json.dumps({'success':True}))");
     }
 
     protected byte[] validateChunk(final StorageServiceRuntimeHostCommand command) {
@@ -257,7 +290,8 @@ public final class LibvirtStorageServiceRuntimeHostCommandWrapper extends Comman
     }
 
     private String fileMode(final StorageServiceRuntimeFileType type) {
-        return type == StorageServiceRuntimeFileType.UPDATER_ENTRY ? "0755" : "0600";
+        return type == StorageServiceRuntimeFileType.UPDATER_ENTRY ? "0755" :
+                type == StorageServiceRuntimeFileType.UPDATER_MODULE ? "0644" : "0600";
     }
 
     private void ensureDirectory(final Domain domain, final String path, final int timeout)

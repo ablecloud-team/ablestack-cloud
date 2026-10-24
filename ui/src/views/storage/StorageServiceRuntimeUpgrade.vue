@@ -1,322 +1,327 @@
-// Licensed to the Apache Software Foundation (ASF) under one
-// or more contributor license agreements.  See the NOTICE file
-// distributed with this work for additional information
-// regarding copyright ownership.  The ASF licenses this file
-// to you under the Apache License, Version 2.0 (the
-// "License"); you may not use this file except in compliance
-// with the License.  You may obtain a copy of the License at
-//
-//   http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing,
-// software distributed under the License is distributed on an
-// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-// KIND, either express or implied.  See the License for the
-// specific language governing permissions and limitations
-// under the License.
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.
+ See the NOTICE file for additional information. Licensed under the Apache License, Version 2.0.
+ You may obtain a copy at http://www.apache.org/licenses/LICENSE-2.0 . -->
 <template>
-  <div class="runtime-upgrade-layout">
-    <div class="runtime-upgrade-content">
+  <div class="runtime-upgrade">
+    <a-space class="runtime-toolbar" wrap>
+      <a-button type="primary" :disabled="loading || submitting || !capability.available || running" @click="openPreparation">
+        <CloudUploadOutlined />{{ canObserve ? '기존 작업 계속' : '업그레이드 준비' }}
+      </a-button>
+      <a-button :loading="loading" :disabled="submitting" @click="fetchData"><ReloadOutlined />업데이트</a-button>
+      <a-button :disabled="!canRollback" @click="rollbackDialog = true"><RollbackOutlined />이전 런타임 복구</a-button>
+    </a-space>
+    <a-alert
+type="info"
+show-icon
+message="Storage Service 관리 코드만 갱신합니다."
+      description="OS·커널·공용 라이브러리와 DATA 볼륨은 갱신 대상이 아닙니다. 닫기 또는 접속 유실은 실행 취소가 아닙니다." />
+    <a-alert v-if="readError" type="error" show-icon :message="readError" />
+    <a-alert
+v-if="!capability.available && !loading"
+type="warning"
+show-icon
+      message="현재 VM의 런타임을 조회할 수 없습니다."
+:description="capability.details || 'VM 실행 상태와 QGA 연결을 확인한 뒤 업데이트하십시오.'" />
+    <a-alert
+v-else-if="bundles.length === 0 && !loading"
+type="warning"
+show-icon
+      message="등록된 서명 번들이 없습니다."
+description="업그레이드 준비에서 승인된 서명 번들 정보를 등록한 뒤 검증할 수 있습니다." />
+    <a-alert
+v-if="canObserve"
+type="warning"
+show-icon
+message="같은 작업의 결과 확인 또는 복구가 필요합니다."
+      description="현재 상태를 조회한 뒤 같은 작업의 확인·복구를 계속합니다. 새 활성화는 전송하지 않으며 설정 변경 보호를 유지합니다." />
+    <a-descriptions bordered size="small" :column="1">
+      <a-descriptions-item label="템플릿">{{ resource.templatename || '-' }}</a-descriptions-item>
+      <a-descriptions-item label="현재 런타임">{{ capability.currentversion || '-' }}</a-descriptions-item>
+      <a-descriptions-item label="이전 런타임">{{ capability.previousversion || '-' }}</a-descriptions-item>
+      <a-descriptions-item label="지원 상태">{{ supportDescription }}</a-descriptions-item>
+      <a-descriptions-item label="실행 파일 검증">{{ integrity.verified ? '일치' : (integrity.reason || '준비 단계에서 승인 기준 확인 필요') }}</a-descriptions-item>
+      <a-descriptions-item label="ABI / 설정 스키마">{{ capability.runtimeabiversion || '-' }} / {{ capability.desiredstateschemaversion || '-' }}</a-descriptions-item>
+    </a-descriptions>
+    <a-collapse v-if="integrity.files && integrity.files.length">
+      <a-collapse-panel key="files" header="실제 적용 파일 · SHA-256">
+        <a-table :columns="fileColumns" :data-source="integrity.files" :pagination="false" :scroll="{ x: 800 }" size="small" row-key="path" />
+      </a-collapse-panel>
+    </a-collapse>
+    <a-table :columns="historyColumns" :data-source="upgrades" :pagination="false" :scroll="{ x: 760 }" size="small" row-key="id">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'state'"><a-tag :color="stateColor(record.state)">{{ record.state }}</a-tag></template>
+        <template v-else-if="column.key === 'view'"><a-button size="small" @click="detail = record">상세</a-button></template>
+      </template>
+    </a-table>
+    <MoldDialog v-if="dialog" :visible="dialog" title="Storage Service 런타임 업그레이드" size="lg" form-actions @cancel="dialog = false">
+      <a-alert type="info" show-icon message="전송·스테이징·서명 검증 후 명시적으로 적용합니다." />
+      <a-button :disabled="submitting || !!prepared" @click="registrationOpen = !registrationOpen">
+        서명 번들 정보 등록
+      </a-button>
+      <a-form v-if="registrationOpen" layout="vertical">
+        <a-alert type="info" show-icon message="관리 서버가 접근 가능한 서명된 세 파일의 주소와 검증 메타데이터를 등록합니다." />
+        <a-form-item v-for="field in registrationFields" :key="field.key" :label="field.label" required>
+          <a-input-number v-if="field.key === 'artifactsize'" v-model:value="registration[field.key]" :min="1" :max="67108864" style="width:100%" />
+          <a-input v-else v-model:value="registration[field.key]" :disabled="['runtimeabiversion','desiredstateschemaversion','serviceimpact'].includes(field.key)" />
+        </a-form-item>
+      </a-form>
+      <a-form v-else layout="vertical">
+        <a-form-item required label="대상 서명 번들">
+          <a-select v-model:value="selectedBundleId" :disabled="submitting || !!prepared">
+            <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id">{{ bundle.version }} · ABI {{ bundle.runtimeabiversion }}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+      <a-descriptions bordered size="small" :column="1">
+        <a-descriptions-item label="현재 버전">{{ capability.currentversion || '-' }}</a-descriptions-item>
+        <a-descriptions-item label="대상 버전">{{ selectedBundle && selectedBundle.version }}</a-descriptions-item>
+        <a-descriptions-item label="서비스 영향">{{ selectedBundle && selectedBundle.serviceimpact }}</a-descriptions-item>
+        <a-descriptions-item label="서명키 ID">{{ selectedBundle && selectedBundle.signingkeyid }}</a-descriptions-item>
+      </a-descriptions>
       <a-alert
-        class="runtime-upgrade-alert"
-        type="warning"
-        show-icon
-        :message="$t('message.storage.service.runtime.upgrade.impact')" />
-
-      <section class="runtime-upgrade-section">
-        <div class="runtime-upgrade-section__title">{{ $t('label.storage.service.runtime.current') }}</div>
-        <a-descriptions bordered size="small" :column="1">
-          <a-descriptions-item :label="$t('label.storage.service.runtime.available')">
-            <a-tag :color="capability.available ? 'green' : 'red'">
-              {{ capability.available ? $t('label.yes') : $t('label.no') }}
-            </a-tag>
-          </a-descriptions-item>
-          <a-descriptions-item :label="$t('label.storage.service.runtime.current.version')">
-            <span class="runtime-upgrade-value">{{ capability.currentversion || '-' }}</span>
-          </a-descriptions-item>
-          <a-descriptions-item :label="$t('label.storage.service.runtime.previous.version')">
-            <span class="runtime-upgrade-value">{{ capability.previousversion || '-' }}</span>
-          </a-descriptions-item>
-          <a-descriptions-item :label="$t('label.storage.service.runtime.abi')">
-            <span class="runtime-upgrade-value">{{ capability.runtimeabiversion || '-' }}</span>
-          </a-descriptions-item>
-        </a-descriptions>
-        <a-alert
-          v-if="capability.details && !capability.available"
-          class="runtime-upgrade-inline-alert"
-          type="error"
-          show-icon
-          :message="capability.details" />
-      </section>
-
-      <section class="runtime-upgrade-section">
-        <div class="runtime-upgrade-section__title">{{ $t('label.storage.service.runtime.target') }}</div>
-        <a-form layout="vertical">
-          <a-form-item required>
-            <template #label>
-              <tooltip-label
-                :title="$t('label.storage.service.runtime.bundle')"
-                :tooltip="$t('message.storage.service.runtime.bundle.help')" />
-            </template>
-            <a-select
-              v-model:value="selectedBundleId"
-              :disabled="submitting || bundles.length === 0"
-              :placeholder="$t('message.storage.service.runtime.bundle.select')">
-              <a-select-option v-for="bundle in bundles" :key="bundle.id" :value="bundle.id">
-                {{ bundle.version }} · {{ bundle.serviceimpact }} · ABI {{ bundle.runtimeabiversion }}
-              </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-form>
-        <a-empty
-          v-if="!loading && bundles.length === 0"
-          :description="$t('message.storage.service.runtime.bundle.empty')" />
-      </section>
-
-      <section v-if="latestUpgrade" class="runtime-upgrade-section">
-        <div class="runtime-upgrade-section__title">{{ $t('label.storage.service.runtime.operation') }}</div>
-        <div class="runtime-upgrade-progress">
-          <div>
-            <a-tag :color="stateColor(latestUpgrade.state)">{{ latestUpgrade.state }}</a-tag>
-            <span class="runtime-upgrade-phase">{{ latestUpgrade.phase }}</span>
-          </div>
-          <a-progress :percent="latestUpgrade.progress || 0" :status="progressStatus(latestUpgrade.state)" />
-        </div>
-        <a-alert
-          v-if="latestUpgrade.errormessage"
-          class="runtime-upgrade-inline-alert"
-          type="error"
-          show-icon
-          :message="latestUpgrade.errorcode || $t('label.error')"
-          :description="latestUpgrade.errormessage" />
-      </section>
-
-      <section v-if="upgrades.length > 0" class="runtime-upgrade-section">
-        <div class="runtime-upgrade-section__title">{{ $t('label.storage.service.runtime.history') }}</div>
-        <a-table
-          size="small"
-          :columns="historyColumns"
-          :dataSource="upgrades"
-          :pagination="false"
-          :scroll="{ x: 620 }"
-          rowKey="id">
-          <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'state'">
-              <a-tag :color="stateColor(record.state)">{{ record.state }}</a-tag>
-            </template>
-            <template v-else-if="column.key === 'progress'">
-              {{ record.progress || 0 }}%
-            </template>
-          </template>
-        </a-table>
-      </section>
-    </div>
-
-    <div class="runtime-upgrade-actions">
-      <a-button @click="closeModal">{{ $t('label.cancel') }}</a-button>
-      <a-button :disabled="loading || submitting" @click="fetchData">{{ $t('label.refresh') }}</a-button>
-      <a-button
-        type="primary"
-        :loading="submitting && activeAction === 'preflight'"
-        :disabled="!canPreflight"
-        @click="runPreflight">
-        {{ $t('label.storage.service.runtime.preflight') }}
-      </a-button>
-      <a-button
-        type="primary"
-        :loading="submitting && activeAction === 'upgrade'"
-        :disabled="!canUpgrade"
-        @click="runUpgrade">
-        {{ $t('label.storage.service.runtime.upgrade') }}
-      </a-button>
-      <a-button
-        danger
-        :loading="submitting && activeAction === 'rollback'"
-        :disabled="!canRollback"
-        @click="runRollback">
-        {{ $t('label.storage.service.runtime.rollback') }}
-      </a-button>
-    </div>
+v-if="latestUpgrade"
+:type="latestUpgrade.state === 'FAILED' ? 'error' : 'info'"
+show-icon
+        :message="latestUpgrade.phase"
+:description="latestUpgrade.errormessage || latestUpgrade.transactionid" />
+      <a-descriptions v-if="prepared" bordered size="small" :column="1">
+        <a-descriptions-item v-for="(value, key) in preflightDetails" :key="key" :label="key">{{ value }}</a-descriptions-item>
+      </a-descriptions>
+      <a-table v-if="preparedFiles.length" :columns="fileColumns" :data-source="preparedFiles" :pagination="false" :scroll="{ x: 800 }" size="small" row-key="path" />
+      <a-checkbox v-if="prepared" v-model:checked="acknowledged">현재 버전과 검증 결과를 확인했으며 해당 코드 적용을 진행합니다.</a-checkbox>
+      <MoldDialogActions :busy="submitting">
+        <a-button @click="dialog = false">취소</a-button>
+        <a-button :disabled="submitting || loading" @click="fetchData"><ReloadOutlined />업데이트</a-button>
+        <a-button v-if="registrationOpen" type="primary" :disabled="!registrationValid" :loading="submitting" @click="registerBundle">등록</a-button>
+        <a-button v-else-if="prepared" type="primary" :disabled="!acknowledged" :loading="submitting" @click="runUpgrade">적용</a-button>
+        <a-button v-else type="primary" :disabled="!canPreflight" :loading="submitting" @click="runPreflight">다운로드·검증</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
+    <MoldDialog v-if="rollbackDialog" :visible="true" title="이전 런타임 복구" size="md" form-actions @cancel="rollbackDialog = false">
+      <a-alert
+type="warning"
+show-icon
+message="검증된 이전 코드로 복구합니다."
+        description="현재 공유 설정과 DATA를 유지합니다. 이후 적용된 작업이 있으면 과거 작업의 원복은 거부됩니다." />
+      <p>{{ capability.currentversion }} → {{ capability.previousversion }}</p>
+      <MoldDialogActions :busy="submitting">
+        <a-button @click="rollbackDialog = false">취소</a-button>
+        <a-button type="primary" :disabled="!canRollback" :loading="submitting" @click="runRollback">복구</a-button>
+      </MoldDialogActions>
+    </MoldDialog>
+    <MoldDialog v-if="detail" :visible="true" title="런타임 작업 상세" size="lg" @cancel="detail = null">
+      <a-descriptions bordered size="small" :column="1">
+        <a-descriptions-item v-for="key in ['transactionid','bundleversion','state','phase','errorcode','errormessage']" :key="key" :label="key">{{ detail[key] || '-' }}</a-descriptions-item>
+      </a-descriptions>
+      <pre>{{ detail.preflightjson }}</pre><pre>{{ detail.verificationjson }}</pre><pre>{{ detail.rollbackresultjson }}</pre>
+    </MoldDialog>
   </div>
 </template>
-
 <script>
 import { getAPI, postAPI } from '@/api'
-import TooltipLabel from '@/components/widgets/TooltipLabel'
+import { creationRequestId } from '@/utils/sharedFsBacking'
+import { CloudUploadOutlined, ReloadOutlined, RollbackOutlined } from '@ant-design/icons-vue'
+import MoldDialog from '@/components/view/MoldDialog'
+import MoldDialogActions from '@/components/view/MoldDialogActions'
 
 export default {
   name: 'StorageServiceRuntimeUpgrade',
-  components: { TooltipLabel },
-  props: {
-    resource: { type: Object, required: true }
-  },
+  components: { MoldDialog, MoldDialogActions, CloudUploadOutlined, ReloadOutlined, RollbackOutlined },
+  props: { resource: { type: Object, required: true } },
   data () {
     return {
       loading: false,
       submitting: false,
-      activeAction: '',
       capability: {},
       bundles: [],
       upgrades: [],
-      selectedBundleId: undefined
+      selectedBundleId: undefined,
+      dialog: false,
+      rollbackDialog: false,
+      detail: null,
+      registrationOpen: false,
+      registration: {
+        version: '',
+        runtimeabiversion: '1',
+        desiredstateschemaversion: '1',
+        serviceimpact: 'NONE',
+        artifacturl: '',
+        manifesturl: '',
+        signatureurl: '',
+        artifactsize: undefined,
+        sha256: '',
+        manifestsha256: '',
+        signingkeyid: ''
+      },
+      acknowledged: false,
+      requestid: null,
+      epoch: 0,
+      readError: ''
     }
   },
   computed: {
-    latestUpgrade () {
-      return this.upgrades.length > 0 ? this.upgrades[0] : null
+    registrationFields () {
+      return [
+        { key: 'version', label: '번들 버전' }, { key: 'signingkeyid', label: '서명키 ID' },
+        { key: 'runtimeabiversion', label: '런타임 ABI' }, { key: 'desiredstateschemaversion', label: '설정 스키마' },
+        { key: 'serviceimpact', label: '서비스 영향' }, { key: 'artifacturl', label: '번들 URL' },
+        { key: 'manifesturl', label: 'Manifest URL' }, { key: 'signatureurl', label: '서명 URL' },
+        { key: 'artifactsize', label: '번들 크기(bytes)' }, { key: 'sha256', label: '번들 SHA-256' },
+        { key: 'manifestsha256', label: 'Manifest SHA-256' }
+      ]
     },
-    canPreflight () {
-      return !this.loading && !this.submitting && !!this.selectedBundleId &&
-        (!this.latestUpgrade || !['RUNNING', 'PREFLIGHT_READY'].includes(this.latestUpgrade.state))
+    registrationValid () {
+      return this.registrationFields.every(field => !!this.registration[field.key]) &&
+        ['sha256', 'manifestsha256'].every(key => /^[0-9a-f]{64}$/.test(this.registration[key])) &&
+        ['artifacturl', 'manifesturl', 'signatureurl'].every(key => /^https?:\/\//.test(this.registration[key]))
     },
-    canUpgrade () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'PREFLIGHT_READY'
+    preparedFiles () { return this.parse(this.prepared?.preflightjson).verifiedFiles || [] },
+    latestUpgrade () { return this.upgrades[0] || null },
+    prepared () { return this.latestUpgrade?.state === 'PREFLIGHT_READY' ? this.latestUpgrade : null },
+    selectedBundle () { return this.bundles.find(x => x.id === this.selectedBundleId) },
+    integrity () { return this.parse(this.capability.integrityjson) },
+    preflightDetails () {
+      const result = this.parse(this.prepared?.preflightjson)
+      return {
+        서명·해시·경로·소유자·권한·호환성: result.phase === 'PREFLIGHT_OK' ? '검증 완료' : '확인 필요',
+        '원복 버전': result.previousVersion || '-',
+        '필요 공간(bytes)': result.requiredBytes || '-',
+        '가용 공간(bytes)': result.availableBytes || '-'
+      }
     },
-    canRollback () {
-      return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' &&
-        !!this.capability.previousversion
+    running () { return this.latestUpgrade?.state === 'RUNNING' && !this.canObserve },
+    canObserve () { return this.latestUpgrade?.state === 'OBSERVATION_PENDING' || (this.latestUpgrade?.state === 'RUNNING' && ['ACTIVATING', 'VERIFYING', 'ROLLING_BACK'].includes(this.latestUpgrade.phase)) },
+    canPreflight () { return !this.registrationOpen && !this.loading && !this.submitting && !!this.selectedBundleId && this.selectedBundle?.version !== this.capability.currentversion && !this.prepared && !this.running && !this.canObserve },
+    canRollback () { return !this.loading && !this.submitting && this.latestUpgrade?.state === 'COMPLETE' && !!this.capability.previousversion },
+    supportDescription () {
+      if (!this.capability.available) return '조회 불가'
+      if ((this.capability.hosttransportversion || 1) < 2) return '안전한 전송을 위해 호스트 모듈 갱신 필요'
+      return this.integrity.verified ? '검증 지원' : '준비 단계에서 승인된 기준 코드 대조 필요'
     },
     historyColumns () {
       return [
-        { title: this.$t('label.storage.service.runtime.bundle'), dataIndex: 'bundleversion', key: 'bundle', width: 150, ellipsis: true },
-        { title: this.$t('label.state'), dataIndex: 'state', key: 'state', width: 130, fixed: 'left' },
-        { title: this.$t('label.storage.service.runtime.phase'), dataIndex: 'phase', key: 'phase', width: 150, ellipsis: true },
-        { title: this.$t('label.storage.service.runtime.progress'), dataIndex: 'progress', key: 'progress', width: 90 },
-        { title: this.$t('label.created'), dataIndex: 'started', key: 'started', width: 180, ellipsis: true }
+        { title: '시작 시각', dataIndex: 'started', width: 180 },
+        { title: '대상 버전', dataIndex: 'bundleversion', width: 180 },
+        { title: '단계', dataIndex: 'phase', width: 160 },
+        { title: '상태', key: 'state', width: 160 }, { title: '작업', key: 'view', width: 70 }
       ]
+    },
+    fileColumns () {
+      return [{ title: '파일', dataIndex: 'path', width: 310 }, { title: '실제 SHA-256', dataIndex: 'sha256', width: 490 }]
     }
   },
-  created () {
-    this.fetchData()
+  watch: {
+    'resource.id' () {
+      this.epoch++; this.loading = false; this.submitting = false
+      this.capability = {}; this.upgrades = []; this.bundles = []
+      this.dialog = false; this.rollbackDialog = false; this.requestid = null
+      this.selectedBundleId = undefined; this.fetchData()
+    }
   },
+  created () { this.fetchData() },
+  beforeUnmount () { this.epoch++ },
   methods: {
+    parse (value) { try { return JSON.parse(value || '{}') } catch (_) { return {} } },
     async fetchData () {
       if (this.loading) return
+      const epoch = this.epoch
       this.loading = true
+      this.readError = ''
       try {
         const responses = await Promise.all([
           getAPI('getStorageServiceRuntimeUpgradeCapabilities', { sharedfilesystemid: this.resource.id }),
           getAPI('listStorageServiceRuntimeBundles', { listall: true }),
           getAPI('listStorageServiceRuntimeUpgrades', { sharedfilesystemid: this.resource.id, listall: true })
         ])
+        if (this.epoch !== epoch) return
         this.capability = responses[0].getstorageserviceruntimeupgradecapabilitiesresponse?.storageserviceruntimecapability || {}
         this.bundles = responses[1].liststorageserviceruntimebundlesresponse?.storageserviceruntimebundle || []
         this.upgrades = (responses[2].liststorageserviceruntimeupgradesresponse?.storageserviceruntimeupgrade || [])
-          .sort((left, right) => String(right.started || '').localeCompare(String(left.started || '')))
-        if (!this.selectedBundleId && this.bundles.length > 0) this.selectedBundleId = this.bundles[0].id
+          .sort((a, b) => String(b.started || '').localeCompare(String(a.started || '')))
+        if (['COMPLETE', 'ROLLED_BACK', 'FAILED'].includes(this.latestUpgrade?.state)) this.requestid = null
+        if (['COMPLETE', 'ROLLED_BACK'].includes(this.latestUpgrade?.state)) { this.dialog = false; this.rollbackDialog = false }
+        if (this.prepared) this.selectedBundleId = this.prepared.bundleid
+        else if (!this.selectedBundleId && this.bundles.length) this.selectedBundleId = this.bundles[0].id
       } catch (error) {
-        this.$notifyError(error)
-      } finally {
-        this.loading = false
-      }
+        if (this.epoch === epoch) { this.readError = '런타임 조회에 실패했습니다. 업데이트로 다시 확인하십시오.'; this.$notifyError(error) }
+      } finally { if (this.epoch === epoch) this.loading = false }
+    },
+    async registerBundle () {
+      if (!this.registrationValid || this.submitting) return
+      this.submitting = true
+      const epoch = this.epoch
+      try {
+        const wire = await postAPI('registerStorageServiceRuntimeBundle', { ...this.registration })
+        if (this.epoch !== epoch) return
+        const bundle = wire.registerstorageserviceruntimebundleresponse?.storageserviceruntimebundle
+        if (!bundle?.id) throw new Error('Runtime bundle registration response is missing its identity')
+        await this.fetchData()
+        this.selectedBundleId = bundle.id
+        this.requestid = null
+        this.registrationOpen = false
+      } catch (error) {
+        if (this.epoch === epoch) this.$notifyError(error)
+      } finally { if (this.epoch === epoch) this.submitting = false }
+    },
+    openPreparation () {
+      if (this.canObserve) { this.runUpgrade(); return }
+      this.acknowledged = false; this.dialog = true
     },
     runPreflight () {
-      this.startAsync('preflight', 'preflightStorageServiceRuntimeUpgrade', {
-        sharedfilesystemid: this.resource.id,
-        bundleid: this.selectedBundleId
+      if (!this.canPreflight) return
+      if (!this.requestid) this.requestid = 'runtime-' + creationRequestId()
+      this.startAsync('preflightStorageServiceRuntimeUpgrade', {
+        sharedfilesystemid: this.resource.id, bundleid: this.selectedBundleId, requestid: this.requestid
       })
     },
     runUpgrade () {
-      this.startAsync('upgrade', 'upgradeStorageServiceRuntime', { upgradeid: this.latestUpgrade.id })
+      if ((!this.prepared || !this.acknowledged) && !this.canObserve) return
+      this.startAsync('upgradeStorageServiceRuntime', { upgradeid: this.latestUpgrade.id })
     },
     runRollback () {
-      this.startAsync('rollback', 'rollbackStorageServiceRuntimeUpgrade', { upgradeid: this.latestUpgrade.id })
+      if (this.canRollback) this.startAsync('rollbackStorageServiceRuntimeUpgrade', { upgradeid: this.latestUpgrade.id })
     },
-    startAsync (action, api, params) {
+    async startAsync (api, params) {
       if (this.submitting) return
       this.submitting = true
-      this.activeAction = action
-      postAPI(api, params).then(response => {
-        const root = response[`${api.toLowerCase()}response`] || response[Object.keys(response)[0]] || {}
+      const epoch = this.epoch
+      const finish = () => {
+        if (this.epoch !== epoch) return
+        this.submitting = false
+        this.acknowledged = false
+        this.fetchData()
+      }
+      try {
+        const wire = await postAPI(api, params, { preserveOnFailure: true })
+        if (this.epoch !== epoch) return
+        const root = wire[api.toLowerCase() + 'response'] || {}
+        if (!root.jobid) { finish(); return }
         this.$pollJob({
           jobId: root.jobid,
-          title: this.$t(`label.storage.service.runtime.${action}`),
+          title: 'Storage Service 런타임',
           description: this.resource.name,
           showLoading: false,
-          successMessage: this.$t(`message.storage.service.runtime.${action}.success`),
-          errorMessage: this.$t(`message.storage.service.runtime.${action}.failed`),
-          successMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          errorMethod: () => { this.submitting = false; this.activeAction = ''; this.fetchData() },
-          catchMethod: () => { this.submitting = false; this.activeAction = '' },
-          resourceId: this.resource.id
+          resourceId: this.resource.id,
+          successMethod: finish,
+          errorMethod: finish,
+          catchMethod: finish
         })
-      }).catch(error => {
-        this.$notifyError(error)
-        this.submitting = false
-        this.activeAction = ''
-      })
-    },
-    progressStatus (state) {
-      if (['FAILED', 'MANUAL_RECOVERY'].includes(state)) return 'exception'
-      if (['COMPLETE', 'ROLLED_BACK'].includes(state)) return 'success'
-      return 'active'
+      } catch (error) {
+        if (this.epoch === epoch) { this.$notifyError(error); finish() }
+      }
     },
     stateColor (state) {
       if (state === 'COMPLETE') return 'green'
-      if (state === 'PREFLIGHT_READY') return 'blue'
-      if (state === 'ROLLED_BACK') return 'orange'
       if (['FAILED', 'MANUAL_RECOVERY'].includes(state)) return 'red'
-      return 'processing'
-    },
-    closeModal () {
-      this.$emit('close-action')
+      if (['OBSERVATION_PENDING', 'ROLLED_BACK'].includes(state)) return 'orange'
+      return 'blue'
     }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.runtime-upgrade-layout {
-  width: min(760px, 82vw);
-  height: min(700px, calc(100vh - 160px));
-  max-height: calc(100vh - 160px);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.runtime-upgrade-content {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 2px 6px 14px 2px;
-  scrollbar-width: thin;
-  scrollbar-color: #637b94 transparent;
-}
-.runtime-upgrade-content::-webkit-scrollbar,
-.runtime-upgrade-layout :deep(.ant-table-body::-webkit-scrollbar) { width: 6px; height: 6px; }
-.runtime-upgrade-content::-webkit-scrollbar-track,
-.runtime-upgrade-layout :deep(.ant-table-body::-webkit-scrollbar-track) { background: transparent; }
-.runtime-upgrade-content::-webkit-scrollbar-thumb,
-.runtime-upgrade-layout :deep(.ant-table-body::-webkit-scrollbar-thumb) { background: #637b94; border-radius: 3px; }
-.runtime-upgrade-layout :deep(.ant-table-body) { scrollbar-width: thin; scrollbar-color: #637b94 transparent; }
-.runtime-upgrade-alert,
-.runtime-upgrade-section { margin-bottom: 14px; }
-.runtime-upgrade-section {
-  border: 1px solid #d9d9d9;
-  background: #fff;
-  padding: 14px;
-  border-radius: 4px;
-}
-.runtime-upgrade-section__title { margin-bottom: 12px; font-size: 14px; font-weight: 600; }
-.runtime-upgrade-value { overflow-wrap: anywhere; }
-.runtime-upgrade-inline-alert { margin-top: 12px; }
-.runtime-upgrade-phase { margin-left: 8px; color: rgba(0, 0, 0, 0.65); }
-.runtime-upgrade-progress :deep(.ant-progress) { margin-top: 10px; }
-.runtime-upgrade-actions { flex: 0 0 auto; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding: 12px 6px 0 2px; border-top: 1px solid #d9d9d9; background: #fff; }
-:global(body.dark-mode .runtime-upgrade-section) { background: #242b33; border-color: #46515c; color: rgba(255, 255, 255, 0.88); }
-:global(body.dark-mode .runtime-upgrade-section__title) { color: rgba(255, 255, 255, 0.92); }
-:global(body.dark-mode .runtime-upgrade-phase) { color: rgba(255, 255, 255, 0.72); }
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-item-label) { background: #1f252c; color: rgba(255, 255, 255, 0.72); }
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-item-content) { background: #242b33; color: rgba(255, 255, 255, 0.88); }
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-bordered .ant-descriptions-view),
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-bordered .ant-descriptions-row > th),
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-bordered .ant-descriptions-row > td) { border-color: #3b4650 !important; }
-:global(body.dark-mode .runtime-upgrade-section .ant-descriptions-bordered .ant-descriptions-row) { border-bottom-color: #3b4650 !important; }
-:global(body.dark-mode .runtime-upgrade-section .ant-table),
-:global(body.dark-mode .runtime-upgrade-section .ant-table-thead > tr > th),
-:global(body.dark-mode .runtime-upgrade-section .ant-table-tbody > tr > td) { background: #242b33; color: rgba(255, 255, 255, 0.86); border-color: #3b4650; }
-:global(body.dark-mode .runtime-upgrade-section .ant-table-cell-scrollbar) { box-shadow: 0 1px 0 1px #242b33; }
-:global(body.dark-mode .runtime-upgrade-actions) { background: #20262d; border-top-color: #3b4650; }
-@media (max-width: 768px) { .runtime-upgrade-layout { width: 84vw; height: calc(100vh - 140px); max-height: calc(100vh - 140px); } }
+<style scoped>
+.runtime-upgrade { display: flex; flex-direction: column; gap: 16px; min-width: 0; color: var(--ui-text); }
+.runtime-toolbar { justify-content: flex-start; margin-bottom: 0; }
+.runtime-upgrade :deep(.ant-descriptions-item-content) { overflow-wrap: anywhere; }
+.runtime-upgrade pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--ui-bg); border: 1px solid var(--ui-border); padding: 16px; color: var(--ui-text); }
 </style>

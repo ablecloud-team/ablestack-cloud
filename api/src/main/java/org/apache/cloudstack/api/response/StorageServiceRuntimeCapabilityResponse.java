@@ -25,6 +25,12 @@ public class StorageServiceRuntimeCapabilityResponse extends BaseResponse {
     @SerializedName("entrypointsmanaged") @Param(description = "whether runtime entrypoints are managed") private Boolean entrypointsManaged;
     @SerializedName("details") @Param(description = "capability details") private String details;
 
+    @SerializedName("updaterversion") @Param(description = "Trusted updater feature version") private Integer updaterVersion;
+    @SerializedName("hosttransportversion") @Param(description = "Atomic host transport feature version") private Integer hostTransportVersion;
+    @SerializedName("integrityjson") @Param(description = "Observed managed files and integrity verdict") private String integrityJson;
+    public void setUpdaterVersion(Integer value) { updaterVersion=value; }
+    public void setHostTransportVersion(Integer value) { hostTransportVersion=value; }
+    public void setIntegrityJson(String value) { integrityJson=value; }
     public void setInstanceId(final String value) { instanceId = value; }
     public void setAvailable(final Boolean value) { available = value; }
     public void setCurrentVersion(final String value) { currentVersion = value; }

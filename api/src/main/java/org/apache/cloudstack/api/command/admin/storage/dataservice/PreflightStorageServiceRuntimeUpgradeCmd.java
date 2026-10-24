@@ -35,6 +35,8 @@ public class PreflightStorageServiceRuntimeUpgradeCmd extends BaseAsyncCmd imple
     @Parameter(name = "sharedfilesystemid", type = CommandType.UUID, entityType = SharedFSResponse.class, required = true) private Long sharedFileSystemId;
     @Parameter(name = "bundleid", type = CommandType.UUID, entityType = StorageServiceRuntimeBundleResponse.class, required = true) private Long bundleId;
     public Long getSharedFileSystemId() { return sharedFileSystemId; }
+    @Parameter(name = "requestid", type = CommandType.STRING, description = "Idempotency identifier for this preparation request") private String requestId;
+    public String getRequestId() { return requestId; }
     public Long getBundleId() { return bundleId; }
     public long getEntityOwnerId() { return 0; }
     public String getEventType() { return "STORAGE.SERVICE.RUNTIME.PREFLIGHT"; }
