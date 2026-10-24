@@ -1,0 +1,25 @@
+{
+  "source": "4b532f55f6c548fce5f95196057c191b9530001b",
+  "base": "a7543feb62a728a5a806283b1e0e6134a7305260",
+  "baseDivergence": "0 0",
+  "managementJarSha256": "8e911db81386034633e3f868c82699a32b5984ca8c798de5202ec49c1d7bcc71",
+  "uiIndexSha256": "72df1d943baf6026fc8e2a44990decf06ce6c74b019d24d3c5aa1e9bcee1fd1d",
+  "compiledAndDeployedClassMatch": {
+    "StorageServiceManagerImpl": {
+      "sha256": "a3107d68928641e587d77343e8a73f7b5ed837e8686e38d2af9988b31897ff76",
+      "identical": true
+    },
+    "StorageServiceConfigurationCoordinator": {
+      "sha256": "588737cc69949f56cd2717a99e414ddf7d69f4c197ab30c6c5cfb531e115011e",
+      "identical": true
+    },
+    "StorageServiceRuntimeUpgradeManagerImpl": {
+      "sha256": "e0c4203c58ece1a6adc72c31c402256f85a8b1049b8cc50404d185176ce39c5b",
+      "identical": true
+    },
+    "StorageServiceConfigurationOperationResponse": {
+      "sha256": "f5fbfa2584e2b8772b0133e68f8d87d088622ff004c84c95db092f60947fa659",
+      "identical": true
+    }
+  }
+}

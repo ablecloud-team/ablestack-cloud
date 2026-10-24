@@ -1,0 +1,54 @@
+{
+  "boundedOutput": {
+    "consumedBytes": 2097426,
+    "retainedPeakBytes": 65536,
+    "limit": 65536,
+    "lastJsonParsed": {
+      "success": true
+    },
+    "actualProtocolCommands": 0
+  },
+  "preservation": {
+    "filesCompared": 21,
+    "daemonPidAndInvocationUnchanged": true,
+    "bootIdUnchanged": true,
+    "protectedFilesUnchanged": true,
+    "realJournalOperations": 18,
+    "newServiceResources": 0,
+    "actualServiceApplyCount": 0,
+    "privateSnapshotJournalsRemoved": true
+  },
+  "afterInventory": {
+    "files": {
+      "/usr/local/bin/ablestack-storagectl": "6134eba4acd67bd583700837f2c3ee10cb272f1131e90c9dda3f3b19ecf65a70",
+      "/usr/local/lib/ablestack-storage/configuration_transaction.py": "99dba671f64f8cd2ccb99c8d28c3ffe401b586adffd15517b1da4325e616fe44",
+      "/usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+      "/etc/passwd": "c5a4fec389968c40e059b0e04b70c5e7abbe8fd9655fcf11c542974409bb1549",
+      "/etc/group": "043b4508329b287506829a450729d05e22b3f71e3f4f1a7366261b46c6497ec6",
+      "/etc/shadow": "b603bf5839d3aab0d45a27121586c405d03489b72a5f989c1ccaf00feaf7bbaa",
+      "/etc/gshadow": "951acb8407d89409ce716bd6e79c9c905c0431785d97b681a24f9137a23c9d82",
+      "/etc/samba/smb.conf": "f70efbbcb417630a08b0b932ae831c36e27b9c9ab8488c1a74071e825ffef1a7",
+      "/etc/fstab": "054fa8f6c902cb46171a508e349d255ed8274f8882ce3b041be0ac224be6dc60",
+      "/etc/ablestack-storage/nvmeof-namespace-identities.json": "af5beeaccffa1f25637e82a5526d98501756ec771a6f7e9238aca6156b6733d3",
+      "/etc/ablestack-storage/network-endpoints.json": "6edb09a5f81ba9c664a1032aa28b28b69e2d70c73107773a86ff6ffd2f2d3eef",
+      "/etc/ablestack-storage/nfs-quotas.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "/etc/ablestack-storage/smb-quotas.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "/etc/ablestack-storage/sharedfs-network.json": "c650c2cf45643f6dbe2933d7106e64f5df9de0c38cb650884d43278b067b9a68",
+      "/etc/ablestack-storage/nfs-export-aliases.json": "17fac21b690342a7796692638c4cfed1eebfeb0416d6e5abb18bdee1fa2109d5",
+      "/etc/ablestack-storage/nvmeof-subsystems.json": "16935a85d7ca69cb98f0642e2cdff4655c84ca59feaf9752c555fd03fb3e860f",
+      "/etc/ablestack-storage/smb-access.json": "0fa9b3edc397f3ac522f5af2a43d3f8c4416a62054a47fe600d64020a6434012",
+      "/etc/ablestack-storage/iscsi-targets.json": "572db474e75ee15455d4ba7cfe2a85c36a01c243fbec11fe792d0774412c1f8d",
+      "/etc/ablestack-storage/desired-state/smb-share-apply.json": "a96c8e5e4325fc8934c465dabf51d5432358d6a6de6558aa6848e4d30d846428",
+      "/etc/ablestack-storage/desired-state/nfs-export-apply.json": "053b59974e0bd3917aef615a90cb3b2550010126b6465dc54b6154210557a64d",
+      "/etc/ganesha/ablestack-storage/0.0.0.0_2049.conf": "748f6625d42cbba93a0e466e811ad91a9c7c7fa1612c3334c598035c1d2835cc"
+    },
+    "bootid": "59de3cf8-7b2f-45c6-9922-b571a91032d8",
+    "processes": {
+      "ablestack-storage-ganesha@0.0.0.0_2049.service": "MainPID=1338\nActiveState=active\nInvocationID=50a0c2eaeadd4e7cabd696e27c71d002",
+      "smbd.service": "MainPID=1549\nActiveState=active\nInvocationID=274d9a9787764da6be6ea8a7c2049df7",
+      "nmbd.service": "MainPID=1557\nActiveState=active\nInvocationID=a5a343745863474aaccd177a7494f8a8",
+      "winbind.service": "MainPID=1561\nActiveState=active\nInvocationID=4f4e6dec80bb45448760a7bb0769ab2e",
+      "qemu-guest-agent.service": "MainPID=552\nActiveState=active\nInvocationID=1a9a091740744743a36817aeb2a26d81"
+    }
+  }
+}
