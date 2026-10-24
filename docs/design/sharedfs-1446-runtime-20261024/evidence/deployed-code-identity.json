@@ -1,0 +1,31 @@
+{
+  "managementJarSha256": "2f3567a3610be2af29b16e1d4c6c6f313e7ec8a21371ad76556a7ef49eb183d5",
+  "classes": [
+    {
+      "class": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class",
+      "deployedSha256": "5570f099eaa384e66bb0857987ca816d70947ca20547428a96beb3eb9aa653a8",
+      "localCompiledSha256": "5570f099eaa384e66bb0857987ca816d70947ca20547428a96beb3eb9aa653a8",
+      "byteIdentical": true
+    },
+    {
+      "class": "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeHostDispatcherImpl.class",
+      "deployedSha256": "c31efd28a3c1d82b1e692b3e992d8cdc39d1d483a15fe24b24e68310b730e781",
+      "localCompiledSha256": "c31efd28a3c1d82b1e692b3e992d8cdc39d1d483a15fe24b24e68310b730e781",
+      "byteIdentical": true
+    },
+    {
+      "class": "org/apache/cloudstack/api/response/StorageServiceRuntimeCapabilityResponse.class",
+      "deployedSha256": "212af55db5c421e9efb112af0fa30da47876f2a031b233199a6e39bc6f7c15a2",
+      "localCompiledSha256": "212af55db5c421e9efb112af0fa30da47876f2a031b233199a6e39bc6f7c15a2",
+      "byteIdentical": true
+    },
+    {
+      "class": "org/apache/cloudstack/api/response/StorageServiceRuntimeUpgradeResponse.class",
+      "deployedSha256": "52bb7fd7a12b7357c91b82c8695733f01c4445e711e9e0da3626fb3d74ddd8df",
+      "localCompiledSha256": "52bb7fd7a12b7357c91b82c8695733f01c4445e711e9e0da3626fb3d74ddd8df",
+      "byteIdentical": true
+    }
+  ],
+  "embeddedUpdaterSha256": "5c41f8fd624f0cbe2e955a5fa1bc7bc4376040a02525ab6e00d712b7f5321334",
+  "sourceUpdaterSha256": "5c41f8fd624f0cbe2e955a5fa1bc7bc4376040a02525ab6e00d712b7f5321334"
+}

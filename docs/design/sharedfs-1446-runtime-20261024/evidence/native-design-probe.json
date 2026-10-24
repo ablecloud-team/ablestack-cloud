@@ -1,0 +1,59 @@
+{
+  "kind": "design-only isolated execution of installed RuntimeUpdater and copied CLI",
+  "liveActivation": false,
+  "liveProtocolApply": false,
+  "fixtureKeysNotLiveTrusted": true,
+  "fixturePrivateKeysRetained": 0,
+  "observations": [
+    {
+      "case": "existing signed activation and rollback",
+      "keyScope": "isolated fixture trust only",
+      "activated": "v2",
+      "rolledBack": "bootstrap-2782162cfcd9ed7d",
+      "normalMechanismWorks": true
+    },
+    {
+      "case": "signature tamper direct verification",
+      "result": "SIGNATURE_INVALID",
+      "expectedRejection": true
+    },
+    {
+      "case": "manifest changed after preflight",
+      "existingResult": "COMPLETE",
+      "existingCurrent": "v2",
+      "signatureAndAbiNotRechecked": true,
+      "designGateSketch": "MANIFEST_CHANGED_AFTER_PREFLIGHT",
+      "sketchIsProductImplementation": false
+    },
+    {
+      "case": "rollback an older transaction after a newer activation",
+      "before": "v3",
+      "olderTarget": "v2",
+      "existingAfter": "bootstrap-2782162cfcd9ed7d",
+      "existingAcceptedStaleRollback": true,
+      "designGateSketch": "ROLLBACK_STALE_OPERATION"
+    },
+    {
+      "case": "previous runtime bytes changed before rollback",
+      "changedFiles": [
+        "ablestack-storagectl"
+      ],
+      "existingRollbackAccepted": true,
+      "designGateSketch": "PREVIOUS_RUNTIME_INTEGRITY_MISMATCH"
+    },
+    {
+      "case": "existing activation validation failure",
+      "result": "ACTIVATION_FAILED_ROLLED_BACK",
+      "currentRestored": true,
+      "phase": "ROLLED_BACK"
+    },
+    {
+      "case": "actual installed CLI helper dependency closure",
+      "probeChanges": "private CLI path and log location only",
+      "withoutHelpersExit": 2,
+      "withSixHelpersExit": 0,
+      "configurationVersion": 1,
+      "noProtocolApplyInvoked": true
+    }
+  ]
+}

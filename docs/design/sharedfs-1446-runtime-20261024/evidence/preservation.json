@@ -1,0 +1,17 @@
+{
+  "allUnchanged": true,
+  "checks": {
+    "entries": true,
+    "modules": true,
+    "links": true,
+    "protected": true,
+    "protocolUnits": true,
+    "ganeshaPids": true,
+    "bootId": true,
+    "runtimeTransactions": true
+  },
+  "protectedFileCount": 22,
+  "liveRuntimeTransactionCount": 0,
+  "liveActivateInvoked": false,
+  "probeKeysInstalledToLiveTrust": false
+}
