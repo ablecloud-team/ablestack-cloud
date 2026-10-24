@@ -1,0 +1,13 @@
+{
+  "version": "epic1438-1446-7f473dc06768",
+  "runtimeabiversion": "1",
+  "desiredstateschemaversion": "1",
+  "serviceimpact": "NONE",
+  "signingkeyid": "ablestack-runtime-cluster13",
+  "artifacturl": "http://10.10.13.10:8080/client/storage-runtime/epic1438-1446-7f473dc06768/ablestack-storage-runtime-epic1438-1446-7f473dc06768.tar.gz",
+  "manifesturl": "http://10.10.13.10:8080/client/storage-runtime/epic1438-1446-7f473dc06768/manifest.json",
+  "signatureurl": "http://10.10.13.10:8080/client/storage-runtime/epic1438-1446-7f473dc06768/manifest.sig",
+  "artifactsize": 80763,
+  "sha256": "9bf78bc8a4e81ef0bc9d0fefa5eee1f0d225a25f8a094d216814a5f35463ef78",
+  "manifestsha256": "9abd0d530ea8535140c4340c67431d8a25c4faef296e4fb8bb33c6b014242ecc"
+}
