@@ -1,0 +1,28 @@
+{
+  "management": {
+    "jarSha256": "8242b2273ff4a20273acebd30e34781db04453bb16c1a01fe7a90bedddb4166e",
+    "classPath": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+    "classSha256": "b132cdde3d21ae4701e41280e5e0ec9a7b49f61c31615eaa6546921c7caad423",
+    "uiIndexSha256": "8c072378498c56d48f5cac22c7d6368a3da7878864cfc4887fe19473c02f9f76",
+    "compiledClassSha256": "d155b3435c1aad79a0cf4ef0b59e263860bbeab7218b776fa8cee4f7e02d381c",
+    "compiledEqualsDeployed": false,
+    "executableJavapEqual": true,
+    "executableJavapSha256": "f6f2cb06bc85969b86c7d2e95f13a61125b27833be979ceacc28c4712e239465",
+    "classLengths": [
+      84706,
+      84706
+    ],
+    "differentByteCount": 998,
+    "verboseEqualExcludingFileMetadataAndSourceLineNumbers": true
+  },
+  "host": {
+    "jarSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+    "classPath": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+    "classSha256": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+    "compiledClassSha256": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+    "compiledEqualsDeployed": true
+  },
+  "embeddedHelperSha256": "7e74d3213c7bcb9eed461ed3554f7b1a924a9392f35340e99282a08647347e94",
+  "helperEqualsGuest": true,
+  "bootstrapSourceEqualsGuest": true
+}

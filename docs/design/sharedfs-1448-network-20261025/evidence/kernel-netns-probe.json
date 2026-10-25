@@ -1,0 +1,14 @@
+{
+  "result": {
+    "isolatedNetworkNamespace": true,
+    "liveGuestNetnsChanged": false,
+    "samePrimaryNoOp": true,
+    "aliasPreserved": true,
+    "otherNicDefaultPreserved": true,
+    "connectedRoutePreserved": true,
+    "prefix31PeerKernelAccepted": true,
+    "prefix32NoGatewayKernelAccepted": true,
+    "liveDhcpOrRebootTested": false
+  },
+  "temporaryNamespaceRemovedOnChildExit": true
+}
