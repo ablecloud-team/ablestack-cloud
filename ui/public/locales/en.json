@@ -10062,5 +10062,6 @@
   "message.sharedfs.network.no.gateway": "No gateway is a valid configuration. No default route is fabricated.",
   "message.sharedfs.network.restart.ack": "I acknowledge the temporary connection interruption.",
   "label.sharedfs.network.no.gateway": "No gateway (intentional)",
-  "label.sharedfs.network.owner": "Owner"
+  "label.sharedfs.network.owner": "Owner",
+  "label.restart": "Restart"
 }

@@ -10027,5 +10027,6 @@
   "message.sharedfs.network.restart.job.missing": "재시작 작업 ID가 응답에 없습니다. 기존 작업 내역을 확인하세요.",
   "message.sharedfs.static.dns.invalid": "DNS에는 유효한 IPv4 유니캐스트 주소를 입력하세요.",
   "message.sharedfs.network.observation.unavailable": "관측이 없거나 오래됐습니다. 업데이트 후 확인하세요. 기존 Cloud NIC 정보만으로 실제 게이트웨이를 판단하지 않습니다.",
-  "label.sharedfs.network.observed": "관측 시각"
+  "label.sharedfs.network.observed": "관측 시각",
+  "label.restart": "재시작"
 }
