@@ -1,0 +1,89 @@
+{
+  "kind": "implementation isolated SystemVM regression",
+  "mode": "native",
+  "uid": 0,
+  "python": "3.11.2",
+  "moduleSha256": "4cb0d0bbeef615753be3e532f2aa727a739434b652ae0c4dde48b342cb1d6fd0",
+  "policySketchIsProduct": false,
+  "implementedUpdaterVersion": 3,
+  "policyMatrix": [
+    {
+      "case": "unverified",
+      "result": "DENY"
+    },
+    {
+      "case": "verified-not-published",
+      "result": "DENY"
+    },
+    {
+      "case": "published",
+      "result": "ALLOW"
+    },
+    {
+      "case": "unknown-target",
+      "result": "DENY"
+    },
+    {
+      "case": "failed-validation",
+      "result": "DENY"
+    },
+    {
+      "case": "suspended-apply",
+      "result": "DENY"
+    },
+    {
+      "case": "suspended-rollback",
+      "result": "ALLOW"
+    },
+    {
+      "case": "retired-rollback",
+      "result": "ALLOW"
+    },
+    {
+      "case": "revoking-apply",
+      "result": "DENY"
+    },
+    {
+      "case": "revoked-rollback",
+      "result": "DENY"
+    },
+    {
+      "case": "referenced-delete",
+      "result": "DENY"
+    },
+    {
+      "case": "active-delete",
+      "result": "DENY"
+    },
+    {
+      "case": "unused-retired-delete",
+      "result": "ALLOW"
+    },
+    {
+      "case": "deleted-cannot-apply",
+      "result": "DENY"
+    }
+  ],
+  "streamVerification": {
+    "fileCount": 9,
+    "expandedBytes": 386246,
+    "signatureVerified": true,
+    "archiveFilesExtracted": false,
+    "payloadExecuted": false
+  },
+  "tamperedSignatureRejected": true,
+  "existingVerifyWithoutBootstrap": {
+    "phase": "VERIFIED",
+    "privateCurrentIsUnset": true
+  },
+  "implementedFence": {
+    "draftApplyBlocked": true,
+    "revokedRollbackBlocked": true,
+    "persistedFenceReloaded": true,
+    "stalePolicyBlocked": true,
+    "liveRuntimeUntouched": true
+  },
+  "liveActivation": false,
+  "productionCodePatched": false,
+  "privateRootsRemovedOnExit": true
+}
