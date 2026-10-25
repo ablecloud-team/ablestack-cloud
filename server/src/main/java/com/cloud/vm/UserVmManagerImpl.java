@@ -173,6 +173,9 @@ import org.apache.cloudstack.query.QueryService;
 import org.apache.cloudstack.reservation.dao.ReservationDao;
 import org.apache.cloudstack.resourcelimit.Reserver;
 import org.apache.cloudstack.snapshot.SnapshotHelper;
+import org.apache.cloudstack.storage.sharedfs.SharedFS;
+import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
+import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 import org.apache.cloudstack.storage.command.DeleteCommand;
 import org.apache.cloudstack.storage.command.DettachCommand;
 import org.apache.cloudstack.storage.command.FlattenSharedMountPointCommand;
@@ -650,6 +653,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
     @Inject
     private NicDao _nicDao;
     @Inject
+    private SharedFSDao sharedFSDao;
+    @Inject
     private RulesManager _rulesMgr;
     @Inject
     private LoadBalancingRulesManager _lbMgr;
@@ -993,6 +998,17 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
         }
     }
 
+    // A STATIC SharedFS owns its default NIC address. Generic L2 discovery can
+    // report an alias and must never replace this explicit primary identity.
+    protected boolean isStaticSharedFsPrimaryNic(final NicVO nic) {
+        if (nic == null || !nic.isDefaultNic()) {
+            return false;
+        }
+        final SharedFSVO sharedFS = sharedFSDao.findByVm(nic.getInstanceId());
+        return sharedFS != null && Objects.equals(sharedFS.getVmId(), nic.getInstanceId())
+                && sharedFS.getNetworkMode() == SharedFS.NetworkMode.STATIC;
+    }
+
     private class VmIpAddrFetchThread extends ManagedContextRunnable {
         long nicId;
         long vmId;
@@ -1021,8 +1037,22 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
 
             NicVO nic = _nicDao.findById(nicId);
             try {
+                if (isStaticSharedFsPrimaryNic(nic)) {
+                    decrementCount = false;
+                    vmIdCountMap.remove(nicId);
+                    logger.debug("Preserving STATIC SharedFS primary IPv4 for VM [{}] NIC [{}]; skipping generic IP discovery", vmId, nicId);
+                    return;
+                }
                 logger.debug("Trying IP retrieval for Instance [ID: {}, UUID: {}, name: {}], NIC {}", vmId, vmUuid, vmName, nic);
                 Answer answer = _agentMgr.send(hostId, cmd);
+                // Recheck ownership after the agent call: the policy may have
+                // become STATIC while the discovery response was in flight.
+                if (isStaticSharedFsPrimaryNic(_nicDao.findById(nicId))) {
+                    decrementCount = false;
+                    vmIdCountMap.remove(nicId);
+                    logger.debug("Preserving STATIC SharedFS primary IPv4 for VM [{}] NIC [{}]; discarding delayed IP discovery", vmId, nicId);
+                    return;
+                }
                 if (answer.getResult()) {
                     String vmIp = answer.getDetails();
                     if (vmIp == null) {
@@ -3026,7 +3056,7 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 List<NicVO> nics = _nicDao.listByNetworkId(network.getId());
 
                 for (NicVO nic : nics) {
-                    if (nic.getIPv4Address() == null) {
+                    if (nic.getIPv4Address() == null && !isStaticSharedFsPrimaryNic(nic)) {
                         long nicId = nic.getId();
                         long vmId = nic.getInstanceId();
                         VMInstanceVO vmInstance = _vmInstanceDao.findById(vmId);
@@ -4155,7 +4185,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
             final List<NicVO> nics = _nicDao.listByVmId(vmId);
             for (NicVO nic : nics) {
                 Network network = _networkModel.getNetwork(nic.getNetworkId());
-                if (GuestType.L2.equals(network.getGuestType()) || _networkModel.isSharedNetworkWithoutServices(network.getId())) {
+                if ((GuestType.L2.equals(network.getGuestType()) || _networkModel.isSharedNetworkWithoutServices(network.getId()))
+                        && !isStaticSharedFsPrimaryNic(nic)) {
                     logger.debug("Adding Instance " +vmId +" NIC ID "+ nic.getId() +" into vmIdCountMap as part of Instance " +
                             "reboot for Instance IP fetch ");
                     vmIdCountMap.put(nic.getId(), new VmAndCountDetails(nic.getInstanceId(), VmIpFetchTrialMax.value()));
@@ -6470,7 +6501,8 @@ public class UserVmManagerImpl extends ManagerBase implements UserVmManager, Vir
                 final List<NicVO> nics = _nicDao.listByVmId(vm.getId());
                 for (NicVO nic : nics) {
                     Network network = _networkModel.getNetwork(nic.getNetworkId());
-                    if (GuestType.L2.equals(network.getGuestType()) || _networkModel.isSharedNetworkWithoutServices(network.getId())) {
+                    if ((GuestType.L2.equals(network.getGuestType()) || _networkModel.isSharedNetworkWithoutServices(network.getId()))
+                        && !isStaticSharedFsPrimaryNic(nic)) {
                         vmIdCountMap.put(nic.getId(), new VmAndCountDetails(nic.getInstanceId(), VmIpFetchTrialMax.value()));
                     }
                 }
