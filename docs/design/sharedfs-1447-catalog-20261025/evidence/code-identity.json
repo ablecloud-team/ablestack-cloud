@@ -1,0 +1,27 @@
+{
+  "managementJarSha256": "775e269b5fa2dab878c9edf865a4a3523fc902bd0a796e390a6bd024dee15531",
+  "uiIndexSha256": "d6b87e080071768b531bd0e4cfa9077751f2e7aa001d0d978be53f129d170c94",
+  "classes": {
+    "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeUpgradeManagerImpl.class": "ec5a1b57655dca9298fa5a9abcd4cd5881be55f8307883cd2f78de005f1acac8",
+    "org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeBundleVO.class": "59adb7856ca504c59b6c848e73f1eb10806ea010e2d171384e2e008d85c96c43",
+    "org/apache/cloudstack/storage/dataservice/dao/StorageServiceRuntimeBundleDaoImpl.class": "c4ab80a3015c259dfd5ead05bda40b42c2fe63a33d3b8a6569ba7e2b3fadf825",
+    "org/apache/cloudstack/api/response/StorageServiceRuntimeBundleResponse.class": "fb093ab929318fec2430f8315061d119f2fc723852d91b383bd49190e4e2f7f6"
+  },
+  "artifacts": {
+    "manifest.json": {
+      "sha256": "9abd0d530ea8535140c4340c67431d8a25c4faef296e4fb8bb33c6b014242ecc",
+      "size": 1937
+    },
+    "manifest.sig": {
+      "sha256": "bc000370d43e6c6b19d2cda374644061b7e04102793c3535ccb7514d1057c3e3",
+      "size": 64
+    },
+    "ablestack-storage-runtime-epic1438-1446-7f473dc06768.tar.gz": {
+      "sha256": "9bf78bc8a4e81ef0bc9d0fefa5eee1f0d225a25f8a094d216814a5f35463ef78",
+      "size": 80763
+    }
+  },
+  "fourCompiledClassesEqualDeployed": true,
+  "compiledSourceCommit": "0675c29582046bf6a3dd5e84b96ce0d22200f225",
+  "registeredWholeArtifactAndManifestHashesMatch": true
+}

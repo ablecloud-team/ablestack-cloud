@@ -1,0 +1,60 @@
+{
+  "before": {
+    ".ant-modal-body": {
+      "bottom": 622,
+      "clientHeight": 534,
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 851,
+      "scrollTop": 0,
+      "top": 88
+    },
+    ".ant-modal-footer": {
+      "bottom": 687,
+      "clientHeight": 64,
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "top": 622
+    },
+    ".ant-modal-header": {
+      "bottom": 88,
+      "clientHeight": 54,
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "top": 33
+    }
+  },
+  "after": {
+    ".ant-modal-body": {
+      "bottom": 622,
+      "clientHeight": 534,
+      "height": 534,
+      "overflowY": "auto",
+      "scrollHeight": 851,
+      "scrollTop": 317,
+      "top": 88
+    },
+    ".ant-modal-footer": {
+      "bottom": 687,
+      "clientHeight": 64,
+      "height": 65,
+      "overflowY": "visible",
+      "scrollHeight": 64,
+      "scrollTop": 0,
+      "top": 622
+    },
+    ".ant-modal-header": {
+      "bottom": 88,
+      "clientHeight": 54,
+      "height": 55,
+      "overflowY": "visible",
+      "scrollHeight": 54,
+      "scrollTop": 0,
+      "top": 33
+    }
+  }
+}
