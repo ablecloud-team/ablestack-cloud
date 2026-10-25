@@ -39,10 +39,13 @@ describe('SharedFS network actual component contracts', () => {
     expect(postAPI).not.toHaveBeenCalled()
   })
   it('distinguishes a valid no-gateway policy, stale and exact failure phase', async () => {
-    health = clone(wire.policyHealth)
-    const vm = await render({ resource: { ...wire.resource, gateway: null } })
+    health = clone(wire.noGatewayHealth)
+    Date.now.mockReturnValue(wire.noGatewayTestNowEpoch * 1000)
+    const vm = await render({ resource: wire.noGatewayResource })
     expect(vm.state).toBe('READY')
     expect(vm.rows.find(r => r.key === 'gateway').desired).toBe('label.sharedfs.network.no.gateway')
+    expect(vm.rows.find(r => r.key === 'gateway').actual).toBe('label.sharedfs.network.no.gateway')
+    expect(vm.policy.routes.some(r => r.dst === 'default')).toBe(false)
     const root = JSON.parse(health[0].resultjson)
     root.network.policy.status = 'FAILED'; root.network.policy.phase = 'NETWORK_ALIASES'; root.network.policy.error = 'NIC_OWNER_UNKNOWN'
     await wrapper.setProps({ health: [{ ...health[0], resultjson: JSON.stringify(root) }] })
@@ -50,6 +53,18 @@ describe('SharedFS network actual component contracts', () => {
     root.generatedEpoch -= 60; root.network.policy.status = 'READY'
     await wrapper.setProps({ health: [{ ...health[0], resultjson: JSON.stringify(root) }] })
     expect(vm.state).toBe('UNKNOWN')
+  })
+  it('shows actual DHCP ownership, lease prefix, gateway and DNS from the deployed response', async () => {
+    health = clone(wire.dhcpHealth)
+    Date.now.mockReturnValue(wire.dhcpTestNowEpoch * 1000)
+    const vm = await render({ resource: wire.dhcpResource })
+    expect(vm.state).toBe('READY')
+    expect(vm.policy.owner).toBe('DHCP')
+    expect(vm.rows.find(r => r.key === 'gateway').desired).toBe('label.dhcp')
+    expect(vm.rows.find(r => r.key === 'gateway').actual).toBe('10.1.1.1')
+    expect(vm.policy.addresses[0]).toMatchObject({ local: '10.1.1.135', prefixlen: 24 })
+    expect(vm.policy.dns).toEqual(['10.1.1.1', '8.8.8.8'])
+    expect(postAPI).not.toHaveBeenCalled()
   })
   it('expires an unchanged successful observation and marks failed reads unknown', async () => {
     jest.useFakeTimers('legacy')
