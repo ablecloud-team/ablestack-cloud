@@ -1,0 +1,326 @@
+{
+  "module-build.json": {
+    "management": {
+      "beforeSha256": "8242b2273ff4a20273acebd30e34781db04453bb16c1a01fe7a90bedddb4166e",
+      "afterSha256": "2d63c2aa505842f9b02c1f0fc4a93b8fdc3589872a343037c2ed04bd23fbd73b",
+      "changedEntries": [
+        {
+          "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+          "before": "e31c176528c87b88abfa8ca3d3d43dd48d0c56f3bef66e4bec77411e7190a584",
+          "after": "d78d3561cc4e3f2c4e9a520d2a43670e91c060e45d11f5c2059291cbdfa0bf46"
+        },
+        {
+          "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+          "before": "dcc6bfbf5a4dba25cd4a0f429ba82cdfadd2a03f1475592d89124466a7ff08b6",
+          "after": "6a74007a338d8e336fed4f138f8e7e36cc4b86cf4edf5b2eeaaf1596526bbdb0"
+        },
+        {
+          "path": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$StaticNetworkConfiguration.class",
+          "before": "92eeccd548687bf6132b4d90ec565195ef0d9c6f9bc18e3a175a0d7676a9d219",
+          "after": "7c1f348b14da7117f05d87dba85003f3aabaf97a6b0819202760bc6d881a1cd4"
+        },
+        {
+          "path": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl.class",
+          "before": "b132cdde3d21ae4701e41280e5e0ec9a7b49f61c31615eaa6546921c7caad423",
+          "after": "18b830200db8346460c67055645633c822246f1e0f94ed97358c3c5a0aa1e22b"
+        },
+        {
+          "path": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFSGarbageCollector.class",
+          "before": "c82ea4a35d74a3684b3d0aab2959a6995cfcf8e872df538e894b5cb81b1c36c3",
+          "after": "c0293a3a7dd0f7710d914bbf053988319367b86eb91fb82a6c4dd1631b570155"
+        },
+        {
+          "path": "org/apache/cloudstack/storage/sharedfs/SharedFSServiceImpl$SharedFsBootstrapPendingTimeoutException.class",
+          "before": "273621e11583a378858606de66cf2dbfc3edf804f03570ab379c88b12b8af795",
+          "after": "16772d942bbe9d22d2074c8ca97e324d662b9c40f60b6953c4988470c0c2793c"
+        },
+        {
+          "path": "storage-runtime/bootstrap/runtime-baseline-profile.json",
+          "before": "e54127dc99af1d47abbd9cc1c9b95c64db5a64ccfe3bfaaa0771e5f51abd502d",
+          "after": "ee5bd40f51db4887bf066a4f98ea06a49164f918c648d1d2ad01cd26327e1bae"
+        }
+      ],
+      "unrelatedEntriesByteIdentical": true
+    },
+    "hosts": {
+      "10.10.13.1": {
+        "beforeSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "afterSha256": "952af2c96b36b76005181904ce26cc996261b725c0bf575ee80eaf0e0426dbf1",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+            "before": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+            "after": "c806cbd5922e1255e7b62a10087a318ef101a39d5f5fc717504b3488fd246404"
+          },
+          {
+            "path": "sharedfs-network/opt/cloud/bin/setup/sharedfsvm.sh",
+            "before": null,
+            "after": "857d461373b84485a39424ed7a83347d5daea41a32f7ab02a7719237702f7523"
+          },
+          {
+            "path": "sharedfs-network/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py",
+            "before": null,
+            "after": "5753f0be7d0e1fbd6ed155175c71fc307b6d65226f5ffa5070f1fe01adce71d4"
+          },
+          {
+            "path": "sharedfs-network/usr/local/sbin/ablestack-sharedfs-network",
+            "before": null,
+            "after": "e426fa2c27aa425d710dc62746e046cda3c7844991b50f3eff8743f6648ee091"
+          },
+          {
+            "path": "sharedfs-network/etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs",
+            "before": null,
+            "after": "b28bbb6181dc629c02b4de50f7621c411fe7245a761603dd86c6d33df9f406e5"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-storage-reconcile.service",
+            "before": null,
+            "after": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-sharedfs-network.service",
+            "before": null,
+            "after": "7a88ef11a7d12a205b4eb49ca8758adeb424a38700c93288b014fb24ceb52009"
+          }
+        ],
+        "unrelatedEntriesByteIdentical": true
+      },
+      "10.10.13.2": {
+        "beforeSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "afterSha256": "5ffae71f251560b6ddbdc1b3dcab5fc5a0ffc4827f92718c0e01cc3297ac8c95",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+            "before": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+            "after": "c806cbd5922e1255e7b62a10087a318ef101a39d5f5fc717504b3488fd246404"
+          },
+          {
+            "path": "sharedfs-network/opt/cloud/bin/setup/sharedfsvm.sh",
+            "before": null,
+            "after": "857d461373b84485a39424ed7a83347d5daea41a32f7ab02a7719237702f7523"
+          },
+          {
+            "path": "sharedfs-network/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py",
+            "before": null,
+            "after": "5753f0be7d0e1fbd6ed155175c71fc307b6d65226f5ffa5070f1fe01adce71d4"
+          },
+          {
+            "path": "sharedfs-network/usr/local/sbin/ablestack-sharedfs-network",
+            "before": null,
+            "after": "e426fa2c27aa425d710dc62746e046cda3c7844991b50f3eff8743f6648ee091"
+          },
+          {
+            "path": "sharedfs-network/etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs",
+            "before": null,
+            "after": "b28bbb6181dc629c02b4de50f7621c411fe7245a761603dd86c6d33df9f406e5"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-storage-reconcile.service",
+            "before": null,
+            "after": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-sharedfs-network.service",
+            "before": null,
+            "after": "7a88ef11a7d12a205b4eb49ca8758adeb424a38700c93288b014fb24ceb52009"
+          }
+        ],
+        "unrelatedEntriesByteIdentical": true
+      },
+      "10.10.13.3": {
+        "beforeSha256": "e691ab39905c63f60cf5f48692c1241d9d2e83a58cbe0da0f6466032d817e349",
+        "afterSha256": "5ffae71f251560b6ddbdc1b3dcab5fc5a0ffc4827f92718c0e01cc3297ac8c95",
+        "changedEntries": [
+          {
+            "path": "com/cloud/hypervisor/kvm/resource/wrapper/LibvirtStorageServiceHostCommandWrapper.class",
+            "before": "c2c86e30eddf6f4118d57fe858b5dc753801e6bd354430fc7bb2c1fa77c42fa0",
+            "after": "c806cbd5922e1255e7b62a10087a318ef101a39d5f5fc717504b3488fd246404"
+          },
+          {
+            "path": "sharedfs-network/opt/cloud/bin/setup/sharedfsvm.sh",
+            "before": null,
+            "after": "857d461373b84485a39424ed7a83347d5daea41a32f7ab02a7719237702f7523"
+          },
+          {
+            "path": "sharedfs-network/usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py",
+            "before": null,
+            "after": "5753f0be7d0e1fbd6ed155175c71fc307b6d65226f5ffa5070f1fe01adce71d4"
+          },
+          {
+            "path": "sharedfs-network/usr/local/sbin/ablestack-sharedfs-network",
+            "before": null,
+            "after": "e426fa2c27aa425d710dc62746e046cda3c7844991b50f3eff8743f6648ee091"
+          },
+          {
+            "path": "sharedfs-network/etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs",
+            "before": null,
+            "after": "b28bbb6181dc629c02b4de50f7621c411fe7245a761603dd86c6d33df9f406e5"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-storage-reconcile.service",
+            "before": null,
+            "after": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331"
+          },
+          {
+            "path": "sharedfs-network/etc/systemd/system/ablestack-sharedfs-network.service",
+            "before": null,
+            "after": "7a88ef11a7d12a205b4eb49ca8758adeb424a38700c93288b014fb24ceb52009"
+          }
+        ],
+        "unrelatedEntriesByteIdentical": true
+      }
+    }
+  },
+  "systemvm-module-build.json": {
+    "sourceCommit": "7a9630a08a22475ad6be9bc4f36e98543032939b",
+    "baseSha256": "f6b871f87cf439b9a496d800adb287ab7c67815f2c0bf930ac66d8eae0ed7343",
+    "image": "/root/work/epic1438-preparation/20261025/issue1448-implementation/systemvm-epic1448-network-20261026.qcow2",
+    "compressed": "/root/work/epic1438-preparation/20261025/issue1448-implementation/systemvm-epic1448-network-20261026.qcow2.bz2",
+    "compressedBytes": 497946866,
+    "compressedSha256": "cdf33817e74d35eac560a46dcc80b0fa95cc2a14074ec89249a6099fd902dbdf",
+    "installed": {
+      "usr/local/bin/ablestack-storagectl": "e05d322bd4c8bbead7bda6ad7e346ecd67039686e1050a5de24d22988e8e527a",
+      "usr/local/bin/ablestack-storage-boot-reconcile": "936bdc7da1c6fab85b9ddb93e01099acf05a48cdd7c97f0850adb99ffe648277",
+      "usr/local/bin/ablestack-storage-monitor": "896b1ea72e6fcbd9cea383c67ccea96b70486acb359eb0a511268bda19a4e4a6",
+      "usr/local/lib/ablestack-storage/volume_identity.py": "7c54976b70e389abf7e25077412f7fd78cf52e34404d7f32bd9e5b83838b7371",
+      "usr/local/lib/ablestack-storage/volume_preparation.py": "7f22d9aab691c7367e22b7cf053b2ca285e7a9bb604981699c7f02fa34c66f7e",
+      "usr/local/lib/ablestack-storage/session_auth.py": "227d60034bbdb2d49c846eb3f9f341fc26ea977a277a88b2d04d675d38cf5d59",
+      "usr/local/lib/ablestack-storage/configuration_transaction.py": "0550dd0349d00f7bd9c114d3e14ff370ea8f68b113e02d16fb5e1445e600c474",
+      "usr/local/lib/ablestack-storage/configuration_preflight.py": "a99c77e9cf84d7592c85d10a8e2fea9c5370c7bcb40c0b391074f2d1877de186",
+      "usr/local/lib/ablestack-storage/nvmeof_identity.py": "12272fe888ede3e048333946f46ad056b0a4fc508ac437d03a1ff5e505b9e144",
+      "usr/local/sbin/ablestack-sharedfs-network": "e426fa2c27aa425d710dc62746e046cda3c7844991b50f3eff8743f6648ee091",
+      "usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py": "5753f0be7d0e1fbd6ed155175c71fc307b6d65226f5ffa5070f1fe01adce71d4",
+      "opt/cloud/bin/setup/sharedfsvm.sh": "857d461373b84485a39424ed7a83347d5daea41a32f7ab02a7719237702f7523",
+      "usr/local/bin/ablestack-storage-runtime-updater": "3cb2341f6792ac609fa128ace6f49d0e318553c1f57fd051dca54aab30a17699",
+      "usr/local/lib/ablestack-storage/runtime_updater.py": "4cb0d0bbeef615753be3e532f2aa727a739434b652ae0c4dde48b342cb1d6fd0",
+      "usr/local/lib/ablestack-storage/runtime-baseline-profile.json": "ee5bd40f51db4887bf066a4f98ea06a49164f918c648d1d2ad01cd26327e1bae",
+      "etc/systemd/system/ablestack-storage-runtime-bootstrap.service": "3bbd7ebc2b6a93ed017303703556c10812efdae1ee14248806a2550d1507383c",
+      "etc/systemd/system/ablestack-storage-reconcile.service": "af6154066731d033dae2df9188e90e00b3655432b37b7cced545db6bbdaeb331",
+      "etc/systemd/system/ablestack-sharedfs-network.service": "7a88ef11a7d12a205b4eb49ca8758adeb424a38700c93288b014fb24ceb52009",
+      "etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs": "b28bbb6181dc629c02b4de50f7621c411fe7245a761603dd86c6d33df9f406e5",
+      "etc/ablestack-storage/runtime-trusted-keys/ablestack-runtime-cluster13.pem": "fbf0c547b2099d6a89110a5cacc2a26cd4a3ecbed4473cb50625ad8154d883a5",
+      "etc/ablestack-storage/runtime-default/manifest.json": "7aa2656ff033d6be0a4b7b5ec74bb3c53588bbe59542fd0798a6a6ba711adfa1",
+      "etc/ablestack-storage/runtime-default/manifest.sig": "6a94f4b6cebefc5ce231fdccee1f79b654b986830ee3a0c4ab342a08dc1deec8"
+    },
+    "changedPaths": [
+      "etc/ablestack-storage/runtime-default",
+      "etc/ablestack-storage/runtime-default/manifest.json",
+      "etc/ablestack-storage/runtime-default/manifest.sig",
+      "etc/ablestack-storage/runtime-trusted-keys/ablestack-runtime-cluster13.pem",
+      "etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs",
+      "etc/systemd/system/ablestack-sharedfs-network.service",
+      "etc/systemd/system/ablestack-storage-reconcile.service",
+      "etc/systemd/system/multi-user.target.wants/ablestack-sharedfs-network.service",
+      "opt/cloud/bin/setup/sharedfsvm.sh",
+      "usr/local/bin/ablestack-storage-boot-reconcile",
+      "usr/local/bin/ablestack-storage-monitor",
+      "usr/local/bin/ablestack-storagectl",
+      "usr/local/lib/ablestack-storage/runtime-baseline-profile.json",
+      "usr/local/lib/ablestack-storage/runtime_updater.py",
+      "usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py",
+      "usr/local/sbin/ablestack-sharedfs-network"
+    ],
+    "unrelatedGuestFilesPreserved": true,
+    "guestAndWslAccountFilesPreserved": true,
+    "imageCheck": "No errors were found on the image.\n27430/80000 = 34.29% allocated, 0.01% fragmented, 0.00% compressed clusters\nImage end offset: 1798569984",
+    "diskFormat": "QCOW2 sparse"
+  },
+  "management-prefix-module.json": {
+    "beforeSha256": "2d63c2aa505842f9b02c1f0fc4a93b8fdc3589872a343037c2ed04bd23fbd73b",
+    "afterSha256": "2318725d7316e225e5df5215482f8f948ee95502d856d3f33f120d83483eac31",
+    "changedEntries": [
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl.class",
+        "before": "d78d3561cc4e3f2c4e9a520d2a43670e91c060e45d11f5c2059291cbdfa0bf46",
+        "after": "7cf5e0b01d56d24327356a7704b4b37959ff6f271b2aafa9c0d94b4457f3ecf8"
+      },
+      {
+        "path": "org/apache/cloudstack/storage/dataservice/StorageServiceManagerImpl$1.class",
+        "before": "6a74007a338d8e336fed4f138f8e7e36cc4b86cf4edf5b2eeaaf1596526bbdb0",
+        "after": "e030e20143b02bbd311ef3a0eb6b534fec434e64d7465743ad0be1c5d6563e7b"
+      }
+    ],
+    "unrelatedEntriesPreserved": true
+  },
+  "deployment-10.10.13.1.json": {
+    "success": true,
+    "service": "mold-agent",
+    "sha256": "952af2c96b36b76005181904ce26cc996261b725c0bf575ee80eaf0e0426dbf1",
+    "changedEntries": 7,
+    "unrelatedEntriesPreserved": true,
+    "schemaMigration": false,
+    "guestRestarted": false,
+    "previousPid": "2661166",
+    "currentPid": "2668182"
+  },
+  "deployment-10.10.13.2.json": {
+    "success": true,
+    "service": "mold-agent",
+    "sha256": "5ffae71f251560b6ddbdc1b3dcab5fc5a0ffc4827f92718c0e01cc3297ac8c95",
+    "changedEntries": 7,
+    "unrelatedEntriesPreserved": true,
+    "schemaMigration": false,
+    "guestRestarted": false,
+    "previousPid": "1249596",
+    "currentPid": "2596368"
+  },
+  "deployment-10.10.13.3.json": {
+    "success": true,
+    "service": "mold-agent",
+    "sha256": "5ffae71f251560b6ddbdc1b3dcab5fc5a0ffc4827f92718c0e01cc3297ac8c95",
+    "changedEntries": 7,
+    "unrelatedEntriesPreserved": true,
+    "schemaMigration": false,
+    "guestRestarted": false,
+    "previousPid": "550859",
+    "currentPid": "1791808"
+  },
+  "deployment-10.10.13.10.json": {
+    "success": true,
+    "service": "mold",
+    "sha256": "2d63c2aa505842f9b02c1f0fc4a93b8fdc3589872a343037c2ed04bd23fbd73b",
+    "changedEntries": 7,
+    "unrelatedEntriesPreserved": true,
+    "schemaMigration": false,
+    "guestRestarted": false,
+    "previousPid": "3787624",
+    "currentPid": "3817551"
+  },
+  "deployment-prefix-10.10.13.10.json": {
+    "success": true,
+    "service": "mold",
+    "sha256": "2318725d7316e225e5df5215482f8f948ee95502d856d3f33f120d83483eac31",
+    "changedEntries": 2,
+    "unrelatedEntriesPreserved": true,
+    "schemaMigration": false,
+    "guestRestarted": false,
+    "previousPid": "3817551",
+    "currentPid": "3829808"
+  },
+  "ui-observation-module-build.json": {
+    "sourceCommit": "0e519dbeccd24bdd7b9c641d4457f16ab0499348",
+    "fileCount": 923,
+    "moduleSha256": "6552980d418fe0e61c3755e3934a8e437bd6e4d78f28fa4ef328270235adfff9",
+    "indexSha256": "0e16fb7288b26c32443bd4446ec51b83f4e103a7bcba354fd522ac26a38e25dc",
+    "configExcluded": true,
+    "systemvmExcluded": true
+  },
+  "ui-observation-deployment.json": {
+    "success": true,
+    "indexSha256": "0e16fb7288b26c32443bd4446ec51b83f4e103a7bcba354fd522ac26a38e25dc",
+    "changedFiles": 15,
+    "configPreserved": true,
+    "systemvmPreserved": true
+  },
+  "ui-locale-module.json": {
+    "moduleSha256": "e3af1903b56d70a1e171e19adbd9bd37e6809e21940dabbd0060217bce711beb",
+    "files": {
+      "locales/en.json": {
+        "sha256": "9d72982b5f922608a5067cf7ced8282a467d31e5549db8e21aeb87147d26f463"
+      },
+      "locales/ko_KR.json": {
+        "sha256": "37bb03ec1b0bef4f86a753c901088525672318c9b37ce4b2dc82b7019b78c321"
+      }
+    }
+  }
+}

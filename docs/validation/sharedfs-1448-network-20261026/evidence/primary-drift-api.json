@@ -1,0 +1,266 @@
+[
+  {
+    "command": "listStorageServiceProtocols",
+    "protocols": [
+      {
+        "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+        "protocol": "NFS",
+        "listenip": null,
+        "port": 2049,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 2049,
+            "role": "ALIAS"
+          },
+          {
+            "ipaddress": "10.10.13.233",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ]
+      },
+      {
+        "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+        "protocol": "SMB",
+        "listenip": "10.10.13.235",
+        "port": 445,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 445,
+            "role": "DEDICATED"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "protocols": [
+      {
+        "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+        "protocol": "NFS",
+        "listenip": null,
+        "port": 2049,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 2049,
+            "role": "ALIAS"
+          },
+          {
+            "ipaddress": "10.10.13.233",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ]
+      },
+      {
+        "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+        "protocol": "SMB",
+        "listenip": "10.10.13.235",
+        "port": 445,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 445,
+            "role": "DEDICATED"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "listVirtualMachines",
+    "vms": [
+      {
+        "id": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+        "name": "sharedfs-867bfbfb-e370-345d-b5f9-ccd20d044219",
+        "state": "Running",
+        "ipaddress": "10.10.13.235",
+        "nic": [
+          {
+            "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+            "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+            "networkname": "L2-Network",
+            "ipaddress": "10.10.13.235",
+            "isolationuri": "vlan://untagged",
+            "broadcasturi": "vlan://untagged",
+            "traffictype": "Guest",
+            "type": "L2",
+            "isdefault": true,
+            "macaddress": "02:0d:00:cc:00:57",
+            "secondaryip": [
+              {
+                "id": "5944d5eb-ab13-4bec-8cff-1caa0f7c4235",
+                "ipaddress": "10.10.13.235"
+              }
+            ],
+            "extradhcpoption": [],
+            "deviceid": "0",
+            "enabled": true
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "protocols": [
+      {
+        "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+        "protocol": "NFS",
+        "listenip": null,
+        "port": 2049,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 2049,
+            "role": "ALIAS"
+          },
+          {
+            "ipaddress": "10.10.13.233",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ]
+      },
+      {
+        "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+        "protocol": "SMB",
+        "listenip": "10.10.13.235",
+        "port": 445,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 445,
+            "role": "DEDICATED"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "protocols": [
+      {
+        "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+        "protocol": "NFS",
+        "listenip": null,
+        "port": 2049,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 2049,
+            "role": "ALIAS"
+          },
+          {
+            "ipaddress": "10.10.13.233",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ]
+      },
+      {
+        "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+        "protocol": "SMB",
+        "listenip": "10.10.13.235",
+        "port": 445,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 445,
+            "role": "DEDICATED"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "command": "listStorageServiceProtocols",
+    "protocols": [
+      {
+        "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+        "protocol": "NFS",
+        "listenip": null,
+        "port": 2049,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 2049,
+            "role": "ALIAS"
+          },
+          {
+            "ipaddress": "10.10.13.233",
+            "port": 2049,
+            "role": "PRIMARY"
+          }
+        ]
+      },
+      {
+        "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+        "protocol": "SMB",
+        "listenip": "10.10.13.235",
+        "port": 445,
+        "primaryip": "10.10.13.235",
+        "runtimeprimaryip": "10.10.13.233",
+        "identitystatus": "DRIFT",
+        "identitywarning": "Persisted primary IPv4 10.10.13.235 differs from runtime primary IPv4 10.10.13.233",
+        "effectivendpoints": null,
+        "effectiveendpoints": [
+          {
+            "ipaddress": "10.10.13.235",
+            "port": 445,
+            "role": "DEDICATED"
+          }
+        ]
+      }
+    ]
+  }
+]
