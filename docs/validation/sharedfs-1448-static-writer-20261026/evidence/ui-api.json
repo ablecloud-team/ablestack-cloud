@@ -1,0 +1,1878 @@
+{
+  "actions": [
+    {
+      "command": "repairStorageServiceNicIdentity",
+      "params": {
+        "dryrun": "false",
+        "expectedruntimeprimary": "10.10.13.233"
+      },
+      "body": {
+        "repairstorageservicenicidentityresponse": {
+          "jobid": "008c565a-37b3-4a73-9c6d-034cdf071b51"
+        }
+      }
+    },
+    {
+      "command": "restartSharedFileSystem",
+      "params": {
+        "id": "8b03d48c-0a8c-47bb-aac8-ce5546b25eed",
+        "cleanup": "false"
+      },
+      "body": {
+        "restartsharedfilesystemresponse": {
+          "jobid": "b6a10b12-21ba-4983-a37e-51aa1a703e5f"
+        }
+      }
+    }
+  ],
+  "terminalJobs": [
+    {
+      "jobid": "9f9040e4-54f5-4177-be49-23a15d79d67d",
+      "cmd": "org.apache.cloudstack.api.command.admin.storage.dataservice.RepairStorageServiceNicIdentityCmd",
+      "created": "2026-10-26T06:09:38+0900",
+      "completed": "2026-10-26T06:09:44+0900",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "jobresult": {
+        "storageserviceruntime": {
+          "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "operation": "repair nic identity",
+          "success": true,
+          "status": "ELIGIBLE",
+          "details": "ELIGIBLE",
+          "resultjson": "{\"sharedFileSystemId\":\"8b03d48c-0a8c-47bb-aac8-ce5546b25eed\",\"instanceId\":\"cac2fb81-b090-405a-9316-fb5dfd1d1691\",\"nicId\":\"28d84ba2-9efe-4239-9ba5-f928fe256bdd\",\"persistedPrimaryIp\":\"10.10.13.235\",\"runtimePrimaryIp\":\"10.10.13.233\",\"aliases\":[\"10.10.13.235\"],\"eligible\":true,\"reason\":\"ELIGIBLE\",\"dryRun\":true}"
+        }
+      }
+    },
+    {
+      "jobid": "008c565a-37b3-4a73-9c6d-034cdf071b51",
+      "cmd": "org.apache.cloudstack.api.command.admin.storage.dataservice.RepairStorageServiceNicIdentityCmd",
+      "created": "2026-10-26T06:10:21+0900",
+      "completed": "2026-10-26T06:10:22+0900",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "jobresult": {
+        "storageserviceruntime": {
+          "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "operation": "repair nic identity",
+          "success": true,
+          "status": "REPAIRED",
+          "details": "Updated only the persisted NIC primary IPv4; guest networking and aliases were preserved",
+          "resultjson": "{\"sharedFileSystemId\":\"8b03d48c-0a8c-47bb-aac8-ce5546b25eed\",\"instanceId\":\"cac2fb81-b090-405a-9316-fb5dfd1d1691\",\"nicId\":\"28d84ba2-9efe-4239-9ba5-f928fe256bdd\",\"persistedPrimaryIp\":\"10.10.13.235\",\"runtimePrimaryIp\":\"10.10.13.233\",\"aliases\":[\"10.10.13.235\"],\"eligible\":true,\"reason\":\"ELIGIBLE\",\"dryRun\":false,\"repaired\":true,\"identityStatus\":\"CONSISTENT\",\"persistedPrimaryIpAfter\":\"10.10.13.233\",\"aliasesAfter\":[\"10.10.13.235\"],\"aliasesPreserved\":true}"
+        }
+      }
+    },
+    {
+      "jobid": "344c04a2-562b-40c2-b3ed-56607387dbe1",
+      "cmd": "org.apache.cloudstack.api.command.user.storage.sharedfs.RestartSharedFSCmd",
+      "created": "2026-10-26T06:15:04+0900",
+      "completed": "2026-10-26T06:15:16+0900",
+      "jobstatus": 1,
+      "jobresultcode": 0,
+      "jobresult": {
+        "sharedfs": {
+          "id": "1fe48b9f-eac4-499b-bef7-7020e85b5ee8",
+          "name": "epic1438-1448-dhcp-20261026",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "zonename": "13-Zone",
+          "virtualmachineid": "e4c02b82-7699-36c8-9164-2d6464001414",
+          "vmstate": "Running",
+          "volumename": "sharedfs-DATA-134",
+          "volumeid": "dcdba005-448b-4e46-adb3-fb2c470680fe",
+          "storage": "Primary Storage",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "size": 5368709120,
+          "sizegb": "5.00 GiB",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "diskofferingname": "사용자 정의 디스크 오퍼링",
+          "iscustomdiskoffering": true,
+          "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+          "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+          "serviceofferingname": "epic1438-1441-fixed-20261021",
+          "networkmode": "DHCP",
+          "nic": [
+            {
+              "id": "74be4c55-033b-4885-841b-beefba336dfd",
+              "networkid": "605ea6da-a8ba-45a7-be63-e07843aaf969",
+              "networkname": "Admin-Isoloated-Net",
+              "ipaddress": "10.1.1.135"
+            }
+          ],
+          "path": "/export",
+          "state": "Ready",
+          "provider": "SHAREDFSVM",
+          "filesystem": "XFS",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "domain": "ROOT",
+          "domainpath": "/",
+          "provisioningtype": "sparse",
+          "diskioread": 296,
+          "diskiowrite": 4,
+          "diskkbsread": 5454,
+          "diskkbswrite": 2065,
+          "virtualsize": 5368709120,
+          "physicalsize": 3682304,
+          "utilization": "0.1%",
+          "creationrequestid": "3a8c5ec5-e66e-4e4e-a4f7-bff1b537b32e",
+          "creationstage": "READY",
+          "backingmode": "NEW",
+          "expectedfilesystem": "XFS",
+          "observedfilesystem": "xfs",
+          "creationjobid": "5e87a365-1d28-4a1d-b992-7e164d468d39",
+          "preparation": {
+            "volumeUuid": "dcdba005-448b-4e46-adb3-fb2c470680fe",
+            "observationAvailable": "true",
+            "startedAt": "1.7929546490774448E9",
+            "formatDeadlineAt": "1.7929549496746407E9",
+            "phaseTimeoutSeconds": "120.0",
+            "formatStartedAt": "1.7929546496746407E9",
+            "phaseStartedAt": "1.7929546500185213E9",
+            "createdAt": "1.7929546490774448E9",
+            "formatEverStarted": "true",
+            "vmUuid": "e4c02b82-7699-36c8-9164-2d6464001414",
+            "observedFilesystem": "xfs",
+            "operationId": "45690b43-8641-32af-986e-8bbf73c58212",
+            "capabilityVersion": "1.0",
+            "filesystemUuid": "ba62a0ab-6d7c-45cb-a242-d2b5e18e1fdc",
+            "phase": "PREPARED",
+            "mountPath": "/srv/ablestack-storage/volumes/dcdba005-448b-4e46-adb3-fb2c470680fe",
+            "lastObservedAt": "1.7929546551286101E9",
+            "volumeSizeBytes": "5.36870912E9",
+            "bootId": "fd6fff48-24bd-4dc7-a5d0-52b077c2865a",
+            "currentBootId": "fd6fff48-24bd-4dc7-a5d0-52b077c2865a",
+            "filesystem": "xfs",
+            "heartbeatAt": "1.7929546502526863E9",
+            "finishedAt": "1.7929546502526858E9",
+            "formatTimeoutSeconds": "300.0",
+            "rootVolumeUuid": "c3538fae-548a-47df-b495-29dd0db683bb",
+            "canResume": "true",
+            "volumeName": "sharedfs-DATA-134",
+            "formatCount": "1.0",
+            "status": "PREPARED"
+          }
+        }
+      }
+    }
+  ],
+  "observations": [
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "77560758-ec3d-42b5-8507-a2213827379a",
+          "name": "sharedfs-ROOT-135",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceHealth",
+      "health": [
+        {
+          "id": "14a5455c-5c64-4963-a0d1-7d73af4c93e5",
+          "success": true,
+          "status": "ok",
+          "network": {
+            "addresses": [
+              {
+                "cidr": "10.10.13.236/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.236",
+                "prefixlen": 16,
+                "primary": true,
+                "role": "primary",
+                "secondary": false
+              }
+            ],
+            "policy": {
+              "addresses": [
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.236",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "valid_life_time": 4294967295
+                }
+              ],
+              "aliases": [],
+              "desired": {
+                "cidr": "10.10.0.0/16",
+                "dns": [
+                  "8.8.8.8"
+                ],
+                "gateway": "10.10.13.1",
+                "ipAddress": "10.10.13.236",
+                "macAddress": "02:0d:00:cc:00:59",
+                "prefixlen": 16
+              },
+              "dns": [
+                "8.8.8.8"
+              ],
+              "interface": "eth0",
+              "lastApply": {
+                "observedEpoch": 1792963359.2641227,
+                "phase": "NETWORK_PRIMARY",
+                "status": "READY"
+              },
+              "macAddress": "02:0d:00:cc:00:59",
+              "mode": "STATIC",
+              "observedAt": "2026-10-25T21:24:04Z",
+              "observedEpoch": 1792963444.326988,
+              "owner": "SharedFS STATIC policy",
+              "phase": "NETWORK_PRIMARY",
+              "routes": [
+                {
+                  "dev": "eth0",
+                  "dst": "default",
+                  "flags": [],
+                  "gateway": "10.10.13.1",
+                  "metric": 100
+                },
+                {
+                  "dev": "eth0",
+                  "dst": "10.10.0.0/16",
+                  "flags": [],
+                  "prefsrc": "10.10.13.236",
+                  "protocol": "kernel",
+                  "scope": "link"
+                }
+              ],
+              "schemaVersion": 1,
+              "source": "guest",
+              "status": "READY"
+            }
+          },
+          "generatedEpoch": 1792963444.354231,
+          "generatedAt": "2026-10-25T21:24:04Z"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceProtocols",
+      "protocols": [
+        {
+          "id": "3da508a7-63f3-49e2-9c1e-48adbd42ea26",
+          "instanceid": "14a5455c-5c64-4963-a0d1-7d73af4c93e5",
+          "protocol": "NFS",
+          "enabled": true,
+          "port": 2049,
+          "state": "Ready",
+          "protocolmode": "V4_ONLY",
+          "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+          "listenertype": "WILDCARD",
+          "primaryip": "10.10.13.236",
+          "runtimeprimaryip": "10.10.13.236",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.236",
+              "port": 2049,
+              "role": "PRIMARY"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 1
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "77560758-ec3d-42b5-8507-a2213827379a",
+          "name": "sharedfs-ROOT-135",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceHealth",
+      "health": [
+        {
+          "id": "14a5455c-5c64-4963-a0d1-7d73af4c93e5",
+          "success": true,
+          "status": "ok",
+          "network": {
+            "addresses": [
+              {
+                "cidr": "10.10.13.236/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.236",
+                "prefixlen": 16,
+                "primary": true,
+                "role": "primary",
+                "secondary": false
+              }
+            ],
+            "policy": {
+              "addresses": [
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.236",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "valid_life_time": 4294967295
+                }
+              ],
+              "aliases": [],
+              "desired": {
+                "cidr": "10.10.0.0/16",
+                "dns": [
+                  "8.8.8.8"
+                ],
+                "gateway": "10.10.13.1",
+                "ipAddress": "10.10.13.236",
+                "macAddress": "02:0d:00:cc:00:59",
+                "prefixlen": 16
+              },
+              "dns": [
+                "8.8.8.8"
+              ],
+              "interface": "eth0",
+              "lastApply": {
+                "observedEpoch": 1792963359.2641227,
+                "phase": "NETWORK_PRIMARY",
+                "status": "READY"
+              },
+              "macAddress": "02:0d:00:cc:00:59",
+              "mode": "STATIC",
+              "observedAt": "2026-10-25T21:24:14Z",
+              "observedEpoch": 1792963454.9677975,
+              "owner": "SharedFS STATIC policy",
+              "phase": "NETWORK_PRIMARY",
+              "routes": [
+                {
+                  "dev": "eth0",
+                  "dst": "default",
+                  "flags": [],
+                  "gateway": "10.10.13.1",
+                  "metric": 100
+                },
+                {
+                  "dev": "eth0",
+                  "dst": "10.10.0.0/16",
+                  "flags": [],
+                  "prefsrc": "10.10.13.236",
+                  "protocol": "kernel",
+                  "scope": "link"
+                }
+              ],
+              "schemaVersion": 1,
+              "source": "guest",
+              "status": "READY"
+            }
+          },
+          "generatedEpoch": 1792963454.995296,
+          "generatedAt": "2026-10-25T21:24:14Z"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceProtocols",
+      "protocols": [
+        {
+          "id": "3da508a7-63f3-49e2-9c1e-48adbd42ea26",
+          "instanceid": "14a5455c-5c64-4963-a0d1-7d73af4c93e5",
+          "protocol": "NFS",
+          "enabled": true,
+          "port": 2049,
+          "state": "Ready",
+          "protocolmode": "V4_ONLY",
+          "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+          "listenertype": "WILDCARD",
+          "primaryip": "10.10.13.236",
+          "runtimeprimaryip": "10.10.13.236",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.236",
+              "port": 2049,
+              "role": "PRIMARY"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 1
+        }
+      ]
+    },
+    {
+      "command": "listSharedFileSystems",
+      "sharedfs": [
+        {
+          "id": "3b0499a2-36fc-4a2c-911e-05950a02ccc8",
+          "name": "epic1438-1448-writer-smoke-20261026",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "zonename": "13-Zone",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "vmstate": "Running",
+          "volumename": "sharedfs-DATA-135",
+          "volumeid": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "storage": "Primary Storage",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "size": 5368709120,
+          "sizegb": "5.00 GiB",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "diskofferingname": "사용자 정의 디스크 오퍼링",
+          "iscustomdiskoffering": true,
+          "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+          "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+          "serviceofferingname": "epic1438-1441-fixed-20261021",
+          "networkmode": "STATIC",
+          "ipcidr": "10.10.13.236/16",
+          "ipaddress": "10.10.13.236",
+          "cidr": "10.10.0.0/16",
+          "gateway": "10.10.13.1",
+          "dns1": "8.8.8.8",
+          "nic": [
+            {
+              "id": "7560af32-2622-4fe3-95b5-51ac0798682a",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.236"
+            }
+          ],
+          "path": "/export",
+          "state": "Ready",
+          "provider": "SHAREDFSVM",
+          "filesystem": "XFS",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "domain": "ROOT",
+          "domainpath": "/",
+          "provisioningtype": "sparse",
+          "diskioread": 0,
+          "diskiowrite": 0,
+          "diskkbsread": 0,
+          "diskkbswrite": 0,
+          "creationrequestid": "d10117fc-129d-4c62-9422-e99e6c558cfb",
+          "creationstage": "READY",
+          "backingmode": "NEW",
+          "expectedfilesystem": "XFS",
+          "observedfilesystem": "xfs",
+          "creationjobid": "0b779167-df33-469e-b2d9-9d604cbc56d5",
+          "preparation": {
+            "operationId": "44accfa2-2e50-392f-9cad-aa6a91be05f8",
+            "vmUuid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+            "rootVolumeUuid": "77560758-ec3d-42b5-8507-a2213827379a",
+            "volumeUuid": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+            "volumeName": "sharedfs-DATA-135",
+            "volumeSizeBytes": 5368709120,
+            "filesystem": "xfs",
+            "formatTimeoutSeconds": 300,
+            "status": "PREPARED",
+            "phase": "PREPARED",
+            "formatEverStarted": true,
+            "formatCount": 1,
+            "createdAt": 1792963359.7167828,
+            "bootId": "4aff8a50-abaa-4d65-a1bd-c48ecca9c3d0",
+            "observationAvailable": true,
+            "capabilityVersion": 1,
+            "formatStartedAt": 1792963359.9290502,
+            "formatDeadlineAt": 1792963659.9290502,
+            "startedAt": 1792963359.7167828,
+            "phaseStartedAt": 1792963360.2344992,
+            "phaseTimeoutSeconds": 120,
+            "heartbeatAt": 1792963360.4676359,
+            "lastObservedAt": 1792963365.7718384,
+            "finishedAt": 1792963360.4676354,
+            "filesystemUuid": "ea9727c0-a6c8-4254-90ce-26d464acdc23",
+            "observedFilesystem": "xfs",
+            "currentBootId": "4aff8a50-abaa-4d65-a1bd-c48ecca9c3d0",
+            "mountPath": "/srv/ablestack-storage/volumes/d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+            "canResume": true
+          }
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "77560758-ec3d-42b5-8507-a2213827379a",
+          "name": "sharedfs-ROOT-135",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVirtualMachines",
+      "vms": [
+        {
+          "id": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "name": "sharedfs-fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "state": "Running",
+          "ipaddress": "10.10.13.236",
+          "nic": [
+            {
+              "id": "7560af32-2622-4fe3-95b5-51ac0798682a",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.236",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:59",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "77560758-ec3d-42b5-8507-a2213827379a",
+          "name": "sharedfs-ROOT-135",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVirtualMachines",
+      "vms": [
+        {
+          "id": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "name": "sharedfs-fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "state": "Running",
+          "ipaddress": "10.10.13.236",
+          "nic": [
+            {
+              "id": "7560af32-2622-4fe3-95b5-51ac0798682a",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.236",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:59",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        }
+      ]
+    },
+    {
+      "command": "listSharedFileSystems",
+      "sharedfs": [
+        {
+          "id": "8b03d48c-0a8c-47bb-aac8-ce5546b25eed",
+          "name": "epic1438-1448-static-20261026",
+          "description": "#1448 STATIC gateway persistence acceptance",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "zonename": "13-Zone",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "vmstate": "Running",
+          "volumename": "sharedfs-DATA-132",
+          "volumeid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "storage": "Primary Storage",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "size": 5368709120,
+          "sizegb": "5.00 GiB",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "diskofferingname": "사용자 정의 디스크 오퍼링",
+          "iscustomdiskoffering": true,
+          "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+          "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+          "serviceofferingname": "epic1438-1441-fixed-20261021",
+          "networkmode": "STATIC",
+          "ipcidr": "10.10.13.233/16",
+          "ipaddress": "10.10.13.233",
+          "cidr": "10.10.0.0/16",
+          "gateway": "10.10.13.1",
+          "dns1": "8.8.8.8",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233"
+            }
+          ],
+          "path": "/export",
+          "state": "Ready",
+          "provider": "SHAREDFSVM",
+          "filesystem": "XFS",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "domain": "ROOT",
+          "domainpath": "/",
+          "provisioningtype": "sparse",
+          "diskioread": 313,
+          "diskiowrite": 19,
+          "diskkbsread": 5490,
+          "diskkbswrite": 2141,
+          "virtualsize": 5368709120,
+          "physicalsize": 3682304,
+          "utilization": "0.1%",
+          "creationrequestid": "da676897-f820-4e59-8d06-4ca51da4dd12",
+          "creationstage": "READY",
+          "backingmode": "NEW",
+          "expectedfilesystem": "XFS",
+          "observedfilesystem": "xfs",
+          "creationjobid": "cdb20a37-b328-453e-b89f-7039cb2271c7",
+          "preparation": {
+            "operationId": "9c741bb0-5002-34b3-9848-93d88e6d2c9c",
+            "vmUuid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+            "rootVolumeUuid": "d59fb0bf-5027-4d56-91f4-fb4a363f50b7",
+            "volumeUuid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "volumeName": "sharedfs-DATA-132",
+            "volumeSizeBytes": 5368709120,
+            "filesystem": "xfs",
+            "formatTimeoutSeconds": 300,
+            "status": "PREPARED",
+            "phase": "PREPARED",
+            "formatEverStarted": true,
+            "formatCount": 1,
+            "createdAt": 1792951942.0939999,
+            "bootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "observationAvailable": true,
+            "capabilityVersion": 1,
+            "formatStartedAt": 1792951942.2955875,
+            "formatDeadlineAt": 1792952242.2955875,
+            "startedAt": 1792951942.0939999,
+            "phaseStartedAt": 1792951942.6225624,
+            "phaseTimeoutSeconds": 120,
+            "heartbeatAt": 1792951942.9087424,
+            "lastObservedAt": 1792951948.1693122,
+            "finishedAt": 1792951942.908742,
+            "filesystemUuid": "f292d691-783d-44e0-9349-36548038ec44",
+            "observedFilesystem": "xfs",
+            "currentBootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "mountPath": "/srv/ablestack-storage/volumes/78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "canResume": true
+          }
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVirtualMachines",
+      "vms": [
+        {
+          "id": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "name": "sharedfs-867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "state": "Running",
+          "ipaddress": "10.10.13.233",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:57",
+              "secondaryip": [
+                {
+                  "id": "5944d5eb-ab13-4bec-8cff-1caa0f7c4235",
+                  "ipaddress": "10.10.13.235"
+                }
+              ],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "3767e512-c324-4389-a6dc-d371a391be64",
+          "name": "sharedfs-DATA-101",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "8a2ef0b9-9663-47b5-b3ab-ea4c58d7f706",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "8c5b14e0-cc4f-4798-ae72-91da5cf93e1a",
+          "name": "sharedfs-DATA-102",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "59ec6dc7-fdc2-4f78-bd3a-a21db4ebee4f",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "e8a2ccc5-a64a-4866-a1ae-ec60f335efe3",
+          "name": "epic1438-1440-data-20261021-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "290f07e2-41c5-4892-b58a-fe30ea21b522",
+          "name": "epic1438-1440-nfs-data-20261021-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "8b4fa66a-434a-4248-98f1-a98cf081f752",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "3af8261e-6877-4479-8815-0b64a1b50910",
+          "name": "sharedfs-DATA-105",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "b6a39a5d-c451-4b60-9a68-3e4d102a4ea4",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d1984ccc-44fa-48f9-9812-5f3c5d64bd43",
+          "name": "sharedfs-DATA-106",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "92d99386-9157-4abe-b427-98829770a15d",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "68b4d72e-c88d-4ddf-84a8-fd7971c8fec4",
+          "name": "sharedfs-DATA-107",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "d5b1c41d-f023-4efe-9195-6c2d55b760b8",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "124a8aa7-18d6-47cb-bc7a-188ff3dc79f6",
+          "name": "epic1438-1442-existing-xfs-20261021-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "0685be9d-b958-3d2a-a9ef-9e53a7c9ba07",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "213c0fe3-30f4-4412-b433-52c23e416393",
+          "name": "epic1438-1442-existing-ext4-20261021-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "adfcb5e8-1e32-49ce-9f39-20d7ecf6fafd",
+          "name": "epic1438-1442-posix-xfs-20261022-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "634178d0-3d06-31ec-84d3-9ec113093025",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "c8aef987-45a4-47aa-a1b9-37ab54c5d629",
+          "name": "epic1438-1442-posix-ext4-20261022-01",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "38e1cc60-9de7-3241-a62c-ec9aff998d21",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "ec9641ac-62b3-474e-8f25-38b9f45d48f9",
+          "name": "sharedfs-DATA-113",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "76c59df9-91c4-3a51-8511-f483a61a3cd8",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "3cf2ca0a-b7bb-486f-be93-e62c57ff1039",
+          "name": "sharedfs-DATA-114",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "a14c8a94-8c5c-3675-b036-652cbb92d15a",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "e3e223fb-6843-4e8c-b235-9c6df2dbfae9",
+          "name": "sharedfs-DATA-118",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "8144aac2-225b-3b0f-95ae-f2d490d4ef76",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "a7a5adcc-f202-4103-a735-a32a8144c57d",
+          "name": "sharedfs-DATA-119",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "0c9f5ce2-2328-33a1-a290-b0d6a6619ba5",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "6b2a9fb6-fcbe-4f4d-aff8-4c531603a3ae",
+          "name": "sharedfs-DATA-127",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "3024c2f0-a429-42fe-8bf8-5d74b50ac85f",
+          "name": "epic1438-1444-raw-iscsi-20261023",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "8afeba62-cd52-4586-881f-bd63c0ecb831",
+          "name": "epic1438-1444-raw-nvme-20261023",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "45cb2342-fb79-4340-884e-efd8da8277ec",
+          "name": "epic1438-1444-nfs-create-20261024",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "eed01666-4d51-4e62-be8e-f8f4c09a5dae",
+          "name": "epic1438-1444-raw-create-20261024",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "5f582ae5-2c09-448e-a04b-66a548047a99",
+          "name": "sharedfs-DATA-128",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "591b5440-9448-387d-92db-076533aa2ce6",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "0798f6f0-5d36-4f60-bc09-f309cb1eba72",
+          "name": "sharedfs-DATA-129",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "8bea5d1f-10e8-34c8-b2e2-371d2fc774a6",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "ff015f14-f0cc-4f08-b2bc-d3ac5e10ff47",
+          "name": "sharedfs-DATA-130",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "2f9185c4-b7e8-3c85-b308-8333b966cc22",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "b9c2f3b3-c905-4ee2-a0f0-86ff5547e2c5",
+          "name": "sharedfs-DATA-131",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "b60d4ffd-016b-4504-b7e8-11e033d83dda",
+          "name": "epic1438-1445-cache-draft-20261024",
+          "type": "DATADISK",
+          "size": 21474836480,
+          "state": "Ready",
+          "virtualmachineid": "166c890d-0a65-36ee-ac16-8788fd1dedf2",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "3c4de2f9-91d0-4050-87f4-7d9d60f02bb7",
+          "name": "sharedfs-DATA-133",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fa4905f9-8fa9-339e-8244-e7b78fb3a97e",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "dcdba005-448b-4e46-adb3-fb2c470680fe",
+          "name": "sharedfs-DATA-134",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "e4c02b82-7699-36c8-9164-2d6464001414",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "d064b2af-8d18-4c8a-91a5-8c35124e4fb6",
+          "name": "sharedfs-DATA-135",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "d59fb0bf-5027-4d56-91f4-fb4a363f50b7",
+          "name": "sharedfs-ROOT-132",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVirtualMachines",
+      "vms": [
+        {
+          "id": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "name": "sharedfs-867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "state": "Running",
+          "ipaddress": "10.10.13.233",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:57",
+              "secondaryip": [
+                {
+                  "id": "5944d5eb-ab13-4bec-8cff-1caa0f7c4235",
+                  "ipaddress": "10.10.13.235"
+                }
+              ],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceHealth",
+      "health": [
+        {
+          "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "success": true,
+          "status": "ok",
+          "network": {
+            "addresses": [
+              {
+                "cidr": "10.10.13.233/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.233",
+                "prefixlen": 16,
+                "primary": true,
+                "role": "primary",
+                "secondary": false
+              },
+              {
+                "cidr": "10.10.13.235/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.235",
+                "prefixlen": 16,
+                "primary": false,
+                "role": "secondary",
+                "secondary": true
+              }
+            ],
+            "policy": {
+              "addresses": [
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.233",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "valid_life_time": 4294967295
+                },
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.235",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "secondary": true,
+                  "valid_life_time": 4294967295
+                }
+              ],
+              "aliases": [
+                {
+                  "active": true,
+                  "ipaddress": "10.10.13.235",
+                  "prefixlen": 16
+                }
+              ],
+              "desired": {
+                "cidr": "10.10.0.0/16",
+                "dns": [
+                  "8.8.8.8"
+                ],
+                "gateway": "10.10.13.1",
+                "ipAddress": "10.10.13.233",
+                "macAddress": "02:0d:00:cc:00:57",
+                "prefixlen": 16
+              },
+              "dns": [
+                "8.8.8.8"
+              ],
+              "interface": "eth0",
+              "lastApply": {
+                "observedEpoch": 1792962802.3634326,
+                "phase": "NETWORK_PRIMARY",
+                "status": "READY"
+              },
+              "macAddress": "02:0d:00:cc:00:57",
+              "mode": "STATIC",
+              "observedAt": "2026-10-25T21:24:50Z",
+              "observedEpoch": 1792963490.4060314,
+              "owner": "SharedFS STATIC policy",
+              "phase": "NETWORK_PRIMARY",
+              "routes": [
+                {
+                  "dev": "eth0",
+                  "dst": "default",
+                  "flags": [],
+                  "gateway": "10.10.13.1",
+                  "metric": 100
+                },
+                {
+                  "dev": "eth0",
+                  "dst": "10.10.0.0/16",
+                  "flags": [],
+                  "prefsrc": "10.10.13.233",
+                  "protocol": "kernel",
+                  "scope": "link"
+                }
+              ],
+              "schemaVersion": 1,
+              "source": "guest",
+              "status": "READY"
+            }
+          },
+          "generatedEpoch": 1792963490.437464,
+          "generatedAt": "2026-10-25T21:24:50Z"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceProtocols",
+      "protocols": [
+        {
+          "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+          "instanceid": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "protocol": "NFS",
+          "enabled": true,
+          "port": 2049,
+          "state": "Ready",
+          "protocolmode": "V4_ONLY",
+          "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+          "listenertype": "WILDCARD",
+          "primaryip": "10.10.13.233",
+          "runtimeprimaryip": "10.10.13.233",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.233",
+              "port": 2049,
+              "role": "PRIMARY"
+            },
+            {
+              "ipaddress": "10.10.13.235",
+              "port": 2049,
+              "role": "ALIAS"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 1
+        },
+        {
+          "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+          "instanceid": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "protocol": "SMB",
+          "enabled": true,
+          "listenip": "10.10.13.235",
+          "port": 445,
+          "state": "Ready",
+          "listenertype": "DEDICATED",
+          "primaryip": "10.10.13.233",
+          "runtimeprimaryip": "10.10.13.233",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.235",
+              "port": 445,
+              "role": "DEDICATED"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 0
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceHealth",
+      "health": [
+        {
+          "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "success": true,
+          "status": "ok",
+          "network": {
+            "addresses": [
+              {
+                "cidr": "10.10.13.233/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.233",
+                "prefixlen": 16,
+                "primary": true,
+                "role": "primary",
+                "secondary": false
+              },
+              {
+                "cidr": "10.10.13.235/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.235",
+                "prefixlen": 16,
+                "primary": false,
+                "role": "secondary",
+                "secondary": true
+              }
+            ],
+            "policy": {
+              "addresses": [
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.233",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "valid_life_time": 4294967295
+                },
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.235",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "secondary": true,
+                  "valid_life_time": 4294967295
+                }
+              ],
+              "aliases": [
+                {
+                  "active": true,
+                  "ipaddress": "10.10.13.235",
+                  "prefixlen": 16
+                }
+              ],
+              "desired": {
+                "cidr": "10.10.0.0/16",
+                "dns": [
+                  "8.8.8.8"
+                ],
+                "gateway": "10.10.13.1",
+                "ipAddress": "10.10.13.233",
+                "macAddress": "02:0d:00:cc:00:57",
+                "prefixlen": 16
+              },
+              "dns": [
+                "8.8.8.8"
+              ],
+              "interface": "eth0",
+              "lastApply": {
+                "observedEpoch": 1792962802.3634326,
+                "phase": "NETWORK_PRIMARY",
+                "status": "READY"
+              },
+              "macAddress": "02:0d:00:cc:00:57",
+              "mode": "STATIC",
+              "observedAt": "2026-10-25T21:25:01Z",
+              "observedEpoch": 1792963501.114827,
+              "owner": "SharedFS STATIC policy",
+              "phase": "NETWORK_PRIMARY",
+              "routes": [
+                {
+                  "dev": "eth0",
+                  "dst": "default",
+                  "flags": [],
+                  "gateway": "10.10.13.1",
+                  "metric": 100
+                },
+                {
+                  "dev": "eth0",
+                  "dst": "10.10.0.0/16",
+                  "flags": [],
+                  "prefsrc": "10.10.13.233",
+                  "protocol": "kernel",
+                  "scope": "link"
+                }
+              ],
+              "schemaVersion": 1,
+              "source": "guest",
+              "status": "READY"
+            }
+          },
+          "generatedEpoch": 1792963501.1551225,
+          "generatedAt": "2026-10-25T21:25:01Z"
+        }
+      ]
+    },
+    {
+      "command": "listSharedFileSystems",
+      "sharedfs": [
+        {
+          "id": "8b03d48c-0a8c-47bb-aac8-ce5546b25eed",
+          "name": "epic1438-1448-static-20261026",
+          "description": "#1448 STATIC gateway persistence acceptance",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "zonename": "13-Zone",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "vmstate": "Running",
+          "volumename": "sharedfs-DATA-132",
+          "volumeid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "storage": "Primary Storage",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "size": 5368709120,
+          "sizegb": "5.00 GiB",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "diskofferingname": "사용자 정의 디스크 오퍼링",
+          "iscustomdiskoffering": true,
+          "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+          "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+          "serviceofferingname": "epic1438-1441-fixed-20261021",
+          "networkmode": "STATIC",
+          "ipcidr": "10.10.13.233/16",
+          "ipaddress": "10.10.13.233",
+          "cidr": "10.10.0.0/16",
+          "gateway": "10.10.13.1",
+          "dns1": "8.8.8.8",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233"
+            }
+          ],
+          "path": "/export",
+          "state": "Ready",
+          "provider": "SHAREDFSVM",
+          "filesystem": "XFS",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "domain": "ROOT",
+          "domainpath": "/",
+          "provisioningtype": "sparse",
+          "diskioread": 313,
+          "diskiowrite": 19,
+          "diskkbsread": 5490,
+          "diskkbswrite": 2141,
+          "virtualsize": 5368709120,
+          "physicalsize": 3682304,
+          "utilization": "0.1%",
+          "creationrequestid": "da676897-f820-4e59-8d06-4ca51da4dd12",
+          "creationstage": "READY",
+          "backingmode": "NEW",
+          "expectedfilesystem": "XFS",
+          "observedfilesystem": "xfs",
+          "creationjobid": "cdb20a37-b328-453e-b89f-7039cb2271c7",
+          "preparation": {
+            "operationId": "9c741bb0-5002-34b3-9848-93d88e6d2c9c",
+            "vmUuid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+            "rootVolumeUuid": "d59fb0bf-5027-4d56-91f4-fb4a363f50b7",
+            "volumeUuid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "volumeName": "sharedfs-DATA-132",
+            "volumeSizeBytes": 5368709120,
+            "filesystem": "xfs",
+            "formatTimeoutSeconds": 300,
+            "status": "PREPARED",
+            "phase": "PREPARED",
+            "formatEverStarted": true,
+            "formatCount": 1,
+            "createdAt": 1792951942.0939999,
+            "bootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "observationAvailable": true,
+            "capabilityVersion": 1,
+            "formatStartedAt": 1792951942.2955875,
+            "formatDeadlineAt": 1792952242.2955875,
+            "startedAt": 1792951942.0939999,
+            "phaseStartedAt": 1792951942.6225624,
+            "phaseTimeoutSeconds": 120,
+            "heartbeatAt": 1792951942.9087424,
+            "lastObservedAt": 1792951948.1693122,
+            "finishedAt": 1792951942.908742,
+            "filesystemUuid": "f292d691-783d-44e0-9349-36548038ec44",
+            "observedFilesystem": "xfs",
+            "currentBootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "mountPath": "/srv/ablestack-storage/volumes/78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "canResume": true
+          }
+        }
+      ]
+    },
+    {
+      "command": "listSharedFileSystems",
+      "sharedfs": [
+        {
+          "id": "8b03d48c-0a8c-47bb-aac8-ce5546b25eed",
+          "name": "epic1438-1448-static-20261026",
+          "description": "#1448 STATIC gateway persistence acceptance",
+          "zoneid": "f4fd8c56-ed31-4dfd-bf3c-10e3000fd10f",
+          "zonename": "13-Zone",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "vmstate": "Running",
+          "volumename": "sharedfs-DATA-132",
+          "volumeid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "storage": "Primary Storage",
+          "storageid": "90b0c4e3-7078-4372-8da0-9625bc0e806a",
+          "size": 5368709120,
+          "sizegb": "5.00 GiB",
+          "diskofferingid": "c48ab8d8-faba-4d43-85a6-e98a9ecc0cd5",
+          "diskofferingname": "사용자 정의 디스크 오퍼링",
+          "iscustomdiskoffering": true,
+          "diskofferingdisplaytext": "사용자가 자유롭게 크기를 설정",
+          "serviceofferingid": "de15d05b-32fb-48de-8aeb-b01b55e1594f",
+          "serviceofferingname": "epic1438-1441-fixed-20261021",
+          "networkmode": "STATIC",
+          "ipcidr": "10.10.13.233/16",
+          "ipaddress": "10.10.13.233",
+          "cidr": "10.10.0.0/16",
+          "gateway": "10.10.13.1",
+          "dns1": "8.8.8.8",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233"
+            }
+          ],
+          "path": "/export",
+          "state": "Ready",
+          "provider": "SHAREDFSVM",
+          "filesystem": "XFS",
+          "account": "admin",
+          "domainid": "47178e2f-bd56-11f1-b573-002481560363",
+          "domain": "ROOT",
+          "domainpath": "/",
+          "provisioningtype": "sparse",
+          "diskioread": 313,
+          "diskiowrite": 19,
+          "diskkbsread": 5490,
+          "diskkbswrite": 2141,
+          "virtualsize": 5368709120,
+          "physicalsize": 3682304,
+          "utilization": "0.1%",
+          "creationrequestid": "da676897-f820-4e59-8d06-4ca51da4dd12",
+          "creationstage": "READY",
+          "backingmode": "NEW",
+          "expectedfilesystem": "XFS",
+          "observedfilesystem": "xfs",
+          "creationjobid": "cdb20a37-b328-453e-b89f-7039cb2271c7",
+          "preparation": {
+            "operationId": "9c741bb0-5002-34b3-9848-93d88e6d2c9c",
+            "vmUuid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+            "rootVolumeUuid": "d59fb0bf-5027-4d56-91f4-fb4a363f50b7",
+            "volumeUuid": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "volumeName": "sharedfs-DATA-132",
+            "volumeSizeBytes": 5368709120,
+            "filesystem": "xfs",
+            "formatTimeoutSeconds": 300,
+            "status": "PREPARED",
+            "phase": "PREPARED",
+            "formatEverStarted": true,
+            "formatCount": 1,
+            "createdAt": 1792951942.0939999,
+            "bootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "observationAvailable": true,
+            "capabilityVersion": 1,
+            "formatStartedAt": 1792951942.2955875,
+            "formatDeadlineAt": 1792952242.2955875,
+            "startedAt": 1792951942.0939999,
+            "phaseStartedAt": 1792951942.6225624,
+            "phaseTimeoutSeconds": 120,
+            "heartbeatAt": 1792951942.9087424,
+            "lastObservedAt": 1792951948.1693122,
+            "finishedAt": 1792951942.908742,
+            "filesystemUuid": "f292d691-783d-44e0-9349-36548038ec44",
+            "observedFilesystem": "xfs",
+            "currentBootId": "5cf05f23-aa64-4cbc-aa9c-cdba22d88af7",
+            "mountPath": "/srv/ablestack-storage/volumes/78481e42-cfee-454e-ba89-69e3d6776b7b",
+            "canResume": true
+          }
+        }
+      ]
+    },
+    {
+      "command": "listVirtualMachines",
+      "vms": [
+        {
+          "id": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "name": "sharedfs-867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "state": "Running",
+          "ipaddress": "10.10.13.233",
+          "nic": [
+            {
+              "id": "28d84ba2-9efe-4239-9ba5-f928fe256bdd",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.233",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:57",
+              "secondaryip": [
+                {
+                  "id": "5944d5eb-ab13-4bec-8cff-1caa0f7c4235",
+                  "ipaddress": "10.10.13.235"
+                }
+              ],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        },
+        {
+          "id": "e4c02b82-7699-36c8-9164-2d6464001414",
+          "name": "sharedfs-e4c02b82-7699-36c8-9164-2d6464001414",
+          "state": "Running",
+          "ipaddress": "10.1.1.135",
+          "nic": [
+            {
+              "id": "74be4c55-033b-4885-841b-beefba336dfd",
+              "networkid": "605ea6da-a8ba-45a7-be63-e07843aaf969",
+              "networkname": "Admin-Isoloated-Net",
+              "netmask": "255.255.255.0",
+              "gateway": "10.1.1.1",
+              "ipaddress": "10.1.1.135",
+              "isolationuri": "vlan://215",
+              "broadcasturi": "vlan://215",
+              "traffictype": "Guest",
+              "type": "Isolated",
+              "isdefault": true,
+              "macaddress": "02:0d:00:d0:00:05",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        },
+        {
+          "id": "fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "name": "sharedfs-fdba1e19-3901-3a3e-a4a9-50b2e715f3e7",
+          "state": "Running",
+          "ipaddress": "10.10.13.236",
+          "nic": [
+            {
+              "id": "7560af32-2622-4fe3-95b5-51ac0798682a",
+              "networkid": "4d9047dc-c8b7-4c80-83bf-2c075adc2995",
+              "networkname": "L2-Network",
+              "ipaddress": "10.10.13.236",
+              "isolationuri": "vlan://untagged",
+              "broadcasturi": "vlan://untagged",
+              "traffictype": "Guest",
+              "type": "L2",
+              "isdefault": true,
+              "macaddress": "02:0d:00:cc:00:59",
+              "secondaryip": [],
+              "extradhcpoption": [],
+              "deviceid": "0",
+              "enabled": true
+            }
+          ],
+          "templateid": "c408e951-89a0-42f3-8075-a5e4dd3f9bfa"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listVolumes",
+      "volumes": [
+        {
+          "id": "d59fb0bf-5027-4d56-91f4-fb4a363f50b7",
+          "name": "sharedfs-ROOT-132",
+          "type": "ROOT",
+          "size": 5242880000,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        },
+        {
+          "id": "78481e42-cfee-454e-ba89-69e3d6776b7b",
+          "name": "sharedfs-DATA-132",
+          "type": "DATADISK",
+          "size": 5368709120,
+          "state": "Ready",
+          "virtualmachineid": "867bfbfb-e370-345d-b5f9-ccd20d044219",
+          "provisioningtype": "sparse"
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceProtocols",
+      "protocols": [
+        {
+          "id": "d9c9fb39-546f-400e-a483-e8be401a52e9",
+          "instanceid": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "protocol": "NFS",
+          "enabled": true,
+          "port": 2049,
+          "state": "Ready",
+          "protocolmode": "V4_ONLY",
+          "config": "{\"protocolMode\":\"V4_ONLY\",\"listenerGroups\":[{\"port\":2049,\"state\":\"Ready\"}]}",
+          "listenertype": "WILDCARD",
+          "primaryip": "10.10.13.233",
+          "runtimeprimaryip": "10.10.13.233",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.233",
+              "port": 2049,
+              "role": "PRIMARY"
+            },
+            {
+              "ipaddress": "10.10.13.235",
+              "port": 2049,
+              "role": "ALIAS"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 1
+        },
+        {
+          "id": "47ce885f-a27a-4d76-8af4-cef119a60512",
+          "instanceid": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "protocol": "SMB",
+          "enabled": true,
+          "listenip": "10.10.13.235",
+          "port": 445,
+          "state": "Ready",
+          "listenertype": "DEDICATED",
+          "primaryip": "10.10.13.233",
+          "runtimeprimaryip": "10.10.13.233",
+          "identitystatus": "CONSISTENT",
+          "effectiveendpoints": [
+            {
+              "ipaddress": "10.10.13.235",
+              "port": 445,
+              "role": "DEDICATED"
+            }
+          ],
+          "runtimestate": "READY",
+          "linkedresourcecount": 0
+        }
+      ]
+    },
+    {
+      "command": "listStorageServiceHealth",
+      "health": [
+        {
+          "id": "cac2fb81-b090-405a-9316-fb5dfd1d1691",
+          "success": true,
+          "status": "ok",
+          "network": {
+            "addresses": [
+              {
+                "cidr": "10.10.13.233/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.233",
+                "prefixlen": 16,
+                "primary": true,
+                "role": "primary",
+                "secondary": false
+              },
+              {
+                "cidr": "10.10.13.235/16",
+                "interface": "eth0",
+                "ipaddress": "10.10.13.235",
+                "prefixlen": 16,
+                "primary": false,
+                "role": "secondary",
+                "secondary": true
+              }
+            ],
+            "policy": {
+              "addresses": [
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.233",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "valid_life_time": 4294967295
+                },
+                {
+                  "family": "inet",
+                  "label": "eth0",
+                  "local": "10.10.13.235",
+                  "preferred_life_time": 4294967295,
+                  "prefixlen": 16,
+                  "scope": "global",
+                  "secondary": true,
+                  "valid_life_time": 4294967295
+                }
+              ],
+              "aliases": [
+                {
+                  "active": true,
+                  "ipaddress": "10.10.13.235",
+                  "prefixlen": 16
+                }
+              ],
+              "desired": {
+                "cidr": "10.10.0.0/16",
+                "dns": [
+                  "8.8.8.8"
+                ],
+                "gateway": "10.10.13.1",
+                "ipAddress": "10.10.13.233",
+                "macAddress": "02:0d:00:cc:00:57",
+                "prefixlen": 16
+              },
+              "dns": [
+                "8.8.8.8"
+              ],
+              "interface": "eth0",
+              "lastApply": {
+                "observedEpoch": 1792962802.3634326,
+                "phase": "NETWORK_PRIMARY",
+                "status": "READY"
+              },
+              "macAddress": "02:0d:00:cc:00:57",
+              "mode": "STATIC",
+              "observedAt": "2026-10-25T21:25:54Z",
+              "observedEpoch": 1792963554.7559857,
+              "owner": "SharedFS STATIC policy",
+              "phase": "NETWORK_PRIMARY",
+              "routes": [
+                {
+                  "dev": "eth0",
+                  "dst": "default",
+                  "flags": [],
+                  "gateway": "10.10.13.1",
+                  "metric": 100
+                },
+                {
+                  "dev": "eth0",
+                  "dst": "10.10.0.0/16",
+                  "flags": [],
+                  "prefsrc": "10.10.13.233",
+                  "protocol": "kernel",
+                  "scope": "link"
+                }
+              ],
+              "schemaVersion": 1,
+              "source": "guest",
+              "status": "READY"
+            }
+          },
+          "generatedEpoch": 1792963554.785994,
+          "generatedAt": "2026-10-25T21:25:54Z"
+        }
+      ]
+    }
+  ]
+}

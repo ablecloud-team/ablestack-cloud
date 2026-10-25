@@ -1,0 +1,30 @@
+{
+  "module-build.log": [
+    "[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.002 s - in org.apache.cloudstack.storage.dataservice.StorageServiceManagerImplTest",
+    "[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.143 s - in org.apache.cloudstack.storage.sharedfs.SharedFSServiceImplTest",
+    "[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.228 s - in com.cloud.vm.UserVmStaticSharedFsIpFetchTest",
+    "[INFO] Tests run: 54, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.292 s - in com.cloud.hypervisor.kvm.resource.wrapper.LibvirtGetVmIpAddressCommandWrapperTest",
+    "[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0",
+    "[INFO] BUILD SUCCESS"
+  ],
+  "rebased-ui-contract-tests.log": [
+    "Test Suites: 4 passed, 4 total",
+    "Tests:       30 passed, 30 total",
+    "Time:        16.687s"
+  ],
+  "existingCheckstyle": [
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleUsagesCmd.java:21: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleUsagesCmd.java:23: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/TransitionStorageServiceRuntimeBundleCmd.java:21: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/TransitionStorageServiceRuntimeBundleCmd.java:23: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ValidateStorageServiceRuntimeBundleCmd.java:21: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ValidateStorageServiceRuntimeBundleCmd.java:23: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleValidationsCmd.java:21: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleValidationsCmd.java:23: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleEventsCmd.java:21: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/api/command/admin/storage/dataservice/ListStorageServiceRuntimeBundleEventsCmd.java:23: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeCatalog.java:18: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.command.admin.storage.dataservice.*. [AvoidStarImport]",
+    "[ERROR] /root/work/ablestack-cloud/api/src/main/java/org/apache/cloudstack/storage/dataservice/StorageServiceRuntimeCatalog.java:19: Using the '.*' form of import should be avoided - org.apache.cloudstack.api.response.*. [AvoidStarImport]"
+  ]
+}

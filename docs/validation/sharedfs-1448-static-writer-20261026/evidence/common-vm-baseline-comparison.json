@@ -1,0 +1,36 @@
+{
+  "common-vm-regression.log": {
+    "failures": [
+      "createVirtualMachineWithExistingSnapshot(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataSuccessResetWithUserdataId(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataDontAcceptBothUserdataAndUserdataId(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithSnapshotFromVolumeWithNullDataStoreSucceeds(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithVolumeFromNonZoneScopedStorageFails(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithSnapshotFromExpungedLocalStorageVolumeSucceeds(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataVMStateNotStopped(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithVolumeWithNullDataStoreFails(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithExistingVolume(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataSuccessResetWithUserdata(com.cloud.vm.UserVmManagerImplTest)"
+    ],
+    "result": [
+      "Tests run: 261,  Failures: 10"
+    ]
+  },
+  "common-vm-baseline.log": {
+    "failures": [
+      "createVirtualMachineWithExistingSnapshot(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataSuccessResetWithUserdataId(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataDontAcceptBothUserdataAndUserdataId(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithSnapshotFromVolumeWithNullDataStoreSucceeds(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithVolumeFromNonZoneScopedStorageFails(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithSnapshotFromExpungedLocalStorageVolumeSucceeds(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataVMStateNotStopped(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithVolumeWithNullDataStoreFails(com.cloud.vm.UserVmManagerImplTest)",
+      "createVirtualMachineWithExistingVolume(com.cloud.vm.UserVmManagerImplTest)",
+      "testResetVMUserDataSuccessResetWithUserdata(com.cloud.vm.UserVmManagerImplTest)"
+    ],
+    "result": [
+      "Tests run: 261,  Failures: 10"
+    ]
+  }
+}

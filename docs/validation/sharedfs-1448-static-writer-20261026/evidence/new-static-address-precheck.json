@@ -1,0 +1,10 @@
+{
+  "candidate": "10.10.13.236",
+  "vmCount": 35,
+  "reserved": false,
+  "arpDAD": {
+    "probes": 3,
+    "responses": 0,
+    "exit": 0
+  }
+}

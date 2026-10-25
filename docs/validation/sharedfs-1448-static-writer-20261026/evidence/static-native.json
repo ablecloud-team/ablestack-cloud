@@ -1,0 +1,85 @@
+{
+  "bootId": "b7d3a9fe-5822-4e2b-a013-ef3783f9baff",
+  "policy": {
+    "addresses": [
+      {
+        "family": "inet",
+        "label": "eth0",
+        "local": "10.10.13.233",
+        "preferred_life_time": 4294967295,
+        "prefixlen": 16,
+        "scope": "global",
+        "valid_life_time": 4294967295
+      },
+      {
+        "family": "inet",
+        "label": "eth0",
+        "local": "10.10.13.235",
+        "preferred_life_time": 4294967295,
+        "prefixlen": 16,
+        "scope": "global",
+        "secondary": true,
+        "valid_life_time": 4294967295
+      }
+    ],
+    "aliases": [
+      {
+        "active": true,
+        "ipaddress": "10.10.13.235",
+        "prefixlen": 16
+      }
+    ],
+    "desired": {
+      "cidr": "10.10.0.0/16",
+      "dns": [
+        "8.8.8.8"
+      ],
+      "gateway": "10.10.13.1",
+      "ipAddress": "10.10.13.233",
+      "macAddress": "02:0d:00:cc:00:57",
+      "prefixlen": 16
+    },
+    "dns": [
+      "8.8.8.8"
+    ],
+    "interface": "eth0",
+    "lastApply": {
+      "error": null,
+      "observedEpoch": 1792962802.3634326,
+      "phase": "NETWORK_PRIMARY",
+      "status": "READY"
+    },
+    "macAddress": "02:0d:00:cc:00:57",
+    "mode": "STATIC",
+    "observedAt": "2026-10-25T21:21:26Z",
+    "observedEpoch": 1792963286.1607,
+    "owner": "SharedFS STATIC policy",
+    "phase": "NETWORK_PRIMARY",
+    "routes": [
+      {
+        "dev": "eth0",
+        "dst": "default",
+        "flags": [],
+        "gateway": "10.10.13.1",
+        "metric": 100
+      },
+      {
+        "dev": "eth0",
+        "dst": "10.10.0.0/16",
+        "flags": [],
+        "prefsrc": "10.10.13.233",
+        "protocol": "kernel",
+        "scope": "link"
+      }
+    ],
+    "schemaVersion": 1,
+    "source": "guest",
+    "status": "READY"
+  },
+  "file": {
+    "sha256": "dc404a613fedaeb54034514bc6505f56b933caa5250299ba7d094377a51caa46",
+    "uid": 65534,
+    "gid": 65534,
+    "mode": "0o640"
+  }
+}
