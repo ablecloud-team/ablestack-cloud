@@ -1,0 +1,33 @@
+{
+  "source": "Captured UI API resultjson envelope; new optional policy is a schema fixture until deployed capture replaces it",
+  "resource": {
+    "id": "bd9bf00f-579c-4a22-a7d7-40eed014872c",
+    "name": "epic1438-1444-rollback-20261023-01",
+    "state": "Ready",
+    "networkmode": "STATIC",
+    "ipaddress": "10.10.13.250",
+    "cidr": "10.10.0.0/16",
+    "gateway": "10.10.13.1",
+    "dns1": "8.8.8.8",
+    "virtualmachineid": "5d261ca7-7c62-34a0-bf9d-4a18c91464d0"
+  },
+  "testNowEpoch": 1792937933,
+  "legacyHealth": [
+    {
+      "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "resultjson": "{\"schemaVersion\": 1, \"generatedAt\": \"2026-10-25T14:18:52Z\", \"cached\": true, \"staleAfterSeconds\": 30, \"network\": {\"addresses\": [{\"cidr\": \"10.10.13.250/16\", \"interface\": \"eth0\", \"ipaddress\": \"10.10.13.250\", \"prefixlen\": 16, \"primary\": true, \"role\": \"primary\", \"secondary\": false}]}, \"listenPorts\": {\"iscsi\": true, \"iscsiPorts\": {\"3260\": true}, \"nfs\": true, \"nvmeof\": true, \"nvmeofPorts\": {\"4420\": {\"configured\": true, \"linked\": true, \"listening\": true, \"state\": \"LISTENING\"}}, \"smb\": true}, \"generatedEpoch\": 1792937932}"
+    }
+  ],
+  "policyHealth": [
+    {
+      "id": "3730ab80-bd6c-4e33-b2db-13b1a55ee691",
+      "operation": "health",
+      "success": true,
+      "status": "ok",
+      "resultjson": "{\"schemaVersion\": 1, \"generatedAt\": \"2026-10-25T14:18:52Z\", \"cached\": true, \"staleAfterSeconds\": 30, \"network\": {\"addresses\": [{\"cidr\": \"10.10.13.250/16\", \"interface\": \"eth0\", \"ipaddress\": \"10.10.13.250\", \"prefixlen\": 16, \"primary\": true, \"role\": \"primary\", \"secondary\": false}], \"policy\": {\"schemaVersion\": 1, \"status\": \"READY\", \"mode\": \"STATIC\", \"interface\": \"eth0\", \"macAddress\": \"02:0d:00:cc:00:52\", \"owner\": \"SharedFS STATIC policy\", \"observedAt\": \"2026-10-25T14:18:52Z\", \"addresses\": [{\"local\": \"10.10.13.250\", \"prefixlen\": 16}], \"routes\": [], \"dns\": [\"8.8.8.8\"], \"aliases\": []}}, \"listenPorts\": {\"iscsi\": true, \"iscsiPorts\": {\"3260\": true}, \"nfs\": true, \"nvmeof\": true, \"nvmeofPorts\": {\"4420\": {\"configured\": true, \"linked\": true, \"listening\": true, \"state\": \"LISTENING\"}}, \"smb\": true}, \"generatedEpoch\": 1792937932}"
+    }
+  ]
+}

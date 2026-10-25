@@ -389,6 +389,11 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
                 (StringUtils.isNotBlank(cmd.getDns2()) && !NetUtils.isValidIp4(cmd.getDns2()))) {
             throw new InvalidParameterValueException("Static SharedFS network configuration must contain valid IPv4 values");
         }
+        for (String dns : new String[]{cmd.getDns1(), cmd.getDns2()}) {
+            if (StringUtils.isNotBlank(dns) && (NetUtils.ip2Long(dns) == 0L || NetUtils.ip2Long(dns) >= 0xe0000000L)) {
+                throw new InvalidParameterValueException("Static SharedFS DNS must be an IPv4 unicast address");
+            }
+        }
         final String[] cidrParts = configuration.networkCidr.split("/");
         final int prefix = Integer.parseInt(cidrParts[1]);
         if (StringUtils.isNotBlank(cmd.getGateway()) && !NetUtils.sameSubnetCIDR(cmd.getGateway(), cidrParts[0], prefix)) {
@@ -400,6 +405,16 @@ public class SharedFSServiceImpl extends ManagerBase implements SharedFSService,
         final long broadcastAddress = networkAddress | (~mask & 0xffffffffL);
         if (prefix <= 30 && (address == networkAddress || address == broadcastAddress)) {
             throw new InvalidParameterValueException("Static SharedFS IP address cannot be the network or broadcast address");
+        }
+        if (address == 0L || address >= 0xe0000000L) {
+            throw new InvalidParameterValueException("Static SharedFS IP address must be an IPv4 unicast address");
+        }
+        if (StringUtils.isNotBlank(cmd.getGateway())) {
+            final long gateway = NetUtils.ip2Long(cmd.getGateway());
+            if (gateway == address || gateway == 0L || gateway >= 0xe0000000L ||
+                    (prefix <= 30 && (gateway == networkAddress || gateway == broadcastAddress))) {
+                throw new InvalidParameterValueException("Static SharedFS gateway must be a usable unicast address other than the primary IP");
+            }
         }
         NicVO existingNic = nicDao.findByIp4AddressAndNetworkId(configuration.ipAddress, network.getId());
         if (existingNic != null) {

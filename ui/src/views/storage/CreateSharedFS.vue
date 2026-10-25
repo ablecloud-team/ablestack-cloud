@@ -1063,6 +1063,7 @@ show-icon
 </template>
 <script>
 
+import { staticNetworkError } from '@/utils/sharedfsNetwork'
 import { ref, reactive, toRaw, h } from 'vue'
 import { getAPI, postAPI } from '@/api'
 import { mixinForm } from '@/utils/mixin'
@@ -1494,6 +1495,9 @@ export default {
         networkid: [{ required: true, message: this.$t('label.required') }],
         networkmode: [{ required: true, message: this.$t('label.required') }],
         ipcidr: [{ validator: this.validateStaticIpCidr }],
+        gateway: [{ validator: async () => { this.validateStaticNetworkField('gateway') } }],
+        dns1: [{ validator: async () => { this.validateStaticNetworkField('dns1') } }],
+        dns2: [{ validator: async () => { this.validateStaticNetworkField('dns2') } }],
         serviceofferingid: [{
           validator: async () => {
             if (!this.selectedComputeEligibility?.selectable) {
@@ -2126,22 +2130,15 @@ export default {
       }
       return Promise.resolve()
     },
+    validateStaticNetworkField (field) {
+      const error = staticNetworkError(this.form, field)
+      if (error) throw new Error(this.$t(error))
+    },
     validateStaticIpCidr (rule, value) {
-      if (!this.isStaticNetwork) {
-        return Promise.resolve()
-      }
-      if (!value) {
-        return Promise.reject(this.$t('label.required'))
-      }
-      const parts = String(value).trim().split('/')
-      const octets = parts[0]?.split('.') || []
-      const prefix = Number(parts[1])
-      const validAddress = octets.length === 4 && octets.every(octet => /^\d+$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255)
-      const validPrefix = parts.length === 2 && /^\d+$/.test(parts[1]) && prefix >= 0 && prefix <= 32
-      if (!validAddress || !validPrefix) {
-        return Promise.reject(this.$t('message.sharedfs.static.ip.cidr.invalid'))
-      }
-      return Promise.resolve()
+      if (!this.isStaticNetwork) return Promise.resolve()
+      if (!value) return Promise.reject(this.$t('label.required'))
+      const error = staticNetworkError({ ...this.form, networkmode: 'STATIC', ipcidr: value })
+      return error ? Promise.reject(this.$t(error)) : Promise.resolve()
     },
     buildCreateSharedFsRequest (values) {
       const data = {

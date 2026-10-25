@@ -149,4 +149,18 @@ public class LibvirtStorageServiceHostCommandWrapperTest {
         Assert.assertTrue(guard>shell.indexOf("mv "));
         Assert.assertTrue(guard<shell.indexOf("systemctl restart ablestack-sharedfs-network.service"));
     }
+    @Test public void testCanonicalHelperIsPackagedWithoutInlineDivergence() throws Exception {
+        java.lang.reflect.Field field = LibvirtStorageServiceHostCommandWrapper.class.getDeclaredField("SHAREDFS_NETWORK_HELPER_CONTENT");
+        field.setAccessible(true);
+        String helper = (String) field.get(null);
+        String source = java.nio.file.Files.readString(java.nio.file.Path.of("../../../systemvm/debian/usr/local/sbin/ablestack-sharedfs-network"));
+        Assert.assertEquals(source, helper);
+        Assert.assertFalse(helper.contains("'addr', 'flush'"));
+        StorageServiceHostCommand command = new StorageServiceHostCommand("test", "configure-sharedfs-static-network", "{}", 60, Collections.emptySet());
+        String shell = wrapper.buildStorageCtlShell(command);
+        Assert.assertTrue(shell.indexOf("--validate") < shell.indexOf("mv /etc/ablestack-storage/sharedfs-network.json.tmp"));
+        Assert.assertTrue(shell.indexOf("mv /etc/ablestack-storage/sharedfs-network.json.tmp") < shell.indexOf(wrapper.buildSharedFsBootstrapGuard()));
+        Assert.assertTrue(shell.contains("dhclient-enter-hooks.d/ablestack-sharedfs"));
+    }
+
 }

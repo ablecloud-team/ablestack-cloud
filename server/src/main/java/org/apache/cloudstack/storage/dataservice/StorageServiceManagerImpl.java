@@ -3465,6 +3465,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
                 return;
             }
             endpoint.addProperty("nicId", targetNic.getId());
+            endpoint.addProperty("macAddress", targetNic.getMacAddress());
             endpoint.addProperty("networkId", targetNic.getNetworkId());
             if (StringUtils.isNotBlank(targetNic.getUuid())) {
                 endpoint.addProperty("nicUuid", targetNic.getUuid());
@@ -5832,6 +5833,7 @@ public class StorageServiceManagerImpl extends ManagerBase implements StorageSer
         final JsonObject payload = new JsonObject();
         payload.addProperty("listenIp", listenIp);
         payload.addProperty("primaryIp", targetNic.getIPv4Address());
+        payload.addProperty("macAddress", targetNic.getMacAddress());
         payload.addProperty("netmask", targetNic.getIPv4Netmask());
         payload.addProperty("prefixlen", ipv4NetmaskToPrefixLength(targetNic.getIPv4Netmask()));
         final String networkCidr = findProtocolEndpointCidr(instance, targetNic, listenIp);

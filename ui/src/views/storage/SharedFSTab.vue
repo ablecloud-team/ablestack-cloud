@@ -1319,7 +1319,17 @@
       <a-tab-pane v-if="'getStorageServiceRuntimeUpgradeCapabilities' in $store.getters.apis" tab="런타임" key="runtime">
         <StorageServiceRuntimeUpgrade v-if="currentTab === 'runtime'" :resource="resource" />
       </a-tab-pane>
-      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis"><NicsTab :resource="vm"/></a-tab-pane>
+      <a-tab-pane :tab="$t('label.networks')" key="nics" v-if="'listNics' in $store.getters.apis">
+        <SharedFSNetworkStatus
+          :resource="resource"
+:health="storageService.health"
+:protocols="storageService.protocols"
+          :protected="configurationProtected || actionModal.loading"
+:refreshing="storageService.refreshing"
+          @refresh="refreshNetworkPolicy"
+@restarted="parentFetchData" />
+        <NicsTab :resource="vm" standard />
+      </a-tab-pane>
       <a-tab-pane v-if="$store.getters.features.instancesdisksstatsretentionenabled" :tab="$t('label.volume.metrics')" key="volumestats"><StatsTab :resource="volume" :resourceType="'Volume'"/></a-tab-pane>
       <a-tab-pane :tab="$t('label.metrics')" key="vmstats"><StatsTab :resource="vm"/></a-tab-pane>
       <a-tab-pane
@@ -2292,6 +2302,7 @@ import DetailsTab from '@/components/view/DetailsTab'
 import StatsTab from '@/components/view/StatsTab'
 import EventsTab from '@/components/view/EventsTab'
 import NicsTab from '@/views/network/NicsTab.vue'
+import SharedFSNetworkStatus from '@/views/storage/SharedFSNetworkStatus.vue'
 import TooltipButton from '@/components/widgets/TooltipButton'
 import TooltipLabel from '@/components/widgets/TooltipLabel'
 import { Empty } from 'ant-design-vue'
@@ -2518,6 +2529,7 @@ export default {
     StatsTab,
     EventsTab,
     NicsTab,
+    SharedFSNetworkStatus,
     TooltipButton,
     TooltipLabel,
     Status,
@@ -8473,6 +8485,11 @@ export default {
         sessionid: this.forms.disconnectSession.sessionid,
         force: this.forms.disconnectSession.force
       }, this.$t('label.storage.service.disconnect.session'))
+    },
+    async refreshNetworkPolicy () {
+      if (!this.storageService.instance || this.storageService.refreshing) return
+      this.storageService.refreshing = true
+      try { await Promise.all([this.fetchRuntime('listStorageServiceHealth', 'health'), this.fetchInstances()]) } finally { this.storageService.refreshing = false }
     },
     parseRuntimeResult (item) {
       if (!item) {

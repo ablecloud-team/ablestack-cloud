@@ -35,14 +35,14 @@ def load_static_state(path=STATE, links=LINKS):
         raise ValueError("Invalid SharedFS STATIC state")
     network = ipaddress.ip_network(state["cidr"], strict=False)
     address = ipaddress.ip_address(state["ipAddress"])
-    if network.version != 4 or address.version != 4 or address not in network or address in (network.network_address, network.broadcast_address):
+    if network.version != 4 or address.version != 4 or address not in network or (network.prefixlen <= 30 and address in (network.network_address, network.broadcast_address)) or int(address) >= 0xe0000000 or address.is_unspecified:
         raise ValueError("Invalid SharedFS STATIC address")
     if state.get("gateway"):
         gateway = ipaddress.ip_address(state["gateway"])
-        if gateway.version != 4 or gateway not in network:
+        if gateway.version != 4 or gateway not in network or gateway == address or int(gateway) >= 0xe0000000 or gateway.is_unspecified or (network.prefixlen <= 30 and gateway in (network.network_address, network.broadcast_address)):
             raise ValueError("Invalid SharedFS STATIC gateway")
     for key in ("dns1", "dns2"):
-        if state.get(key) and ipaddress.ip_address(state[key]).version != 4:
+        if state.get(key) and (ipaddress.ip_address(state[key]).version != 4 or int(ipaddress.ip_address(state[key])) == 0 or int(ipaddress.ip_address(state[key])) >= 0xe0000000):
             raise ValueError("Invalid SharedFS STATIC DNS")
     mac = str(state["macAddress"]).lower()
     if not re.fullmatch(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}", mac):

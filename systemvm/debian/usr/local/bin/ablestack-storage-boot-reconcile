@@ -61,8 +61,24 @@ while (( attempt <= MAX_ATTEMPTS )); do
   log "attempt $attempt/$MAX_ATTEMPTS"
   mount -a >> "$LOG_FILE" 2>&1 || true
   ensure_ganesha_runtime_dirs
-  "$STORAGECTL" network endpoints reconcile >> "$LOG_FILE" 2>&1 || true
   success=1
+  NETWORK_HELPER=/usr/local/sbin/ablestack-sharedfs-network
+  if [[ ! -x "$NETWORK_HELPER" ]] || ! "$NETWORK_HELPER" --primary-ready >> "$LOG_FILE" 2>&1; then
+    log "NETWORK_PRIMARY failed; protocol restore deferred; desired state preserved"
+    success=0
+  elif ! "$STORAGECTL" network endpoints reconcile >> "$LOG_FILE" 2>&1; then
+    "$NETWORK_HELPER" --record-failure NETWORK_ALIASES "$(tail -c 1024 "$LOG_FILE")" || true
+    log "NETWORK_ALIASES failed; protocol restore deferred; desired state preserved"
+    success=0
+  elif ! "$NETWORK_HELPER" --ready >> "$LOG_FILE" 2>&1; then
+    log "NETWORK_ALIASES verification failed; protocol restore deferred"
+    success=0
+  fi
+  if (( success == 0 )); then
+    sleep "$SLEEP_SECONDS"
+    attempt=$((attempt + 1))
+    continue
+  fi
   if [[ -s "$NFS_PAYLOAD" ]]; then
     if "$STORAGECTL" nfs export apply "$NFS_PAYLOAD" >> "$LOG_FILE" 2>&1; then
       log "NFS desired state reapplied successfully"
