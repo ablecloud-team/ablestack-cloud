@@ -21,14 +21,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.cloudstack.storage.command.AttachCommand;
 import org.apache.cloudstack.storage.to.PrimaryDataStoreTO;
 import org.apache.cloudstack.storage.to.VolumeObjectTO;
-import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.aop.TargetSource;
+import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import com.cloud.agent.AgentManager;
 import com.cloud.agent.api.Command;
 import com.cloud.agent.api.StartCommand;
@@ -40,17 +39,19 @@ import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.dao.VMInstanceDao;
 
 /** ABLESTACK extension wiring; no changes to CloudStack power or attach implementations. */
-public class AblestackSharedRawMutationInterceptor implements BeanPostProcessor, BeanFactoryAware {
-    private BeanFactory factory;
-    @Override public void setBeanFactory(BeanFactory factory) { this.factory = factory; }
-    @Override public Object postProcessAfterInitialization(Object bean, String name) {
-        if (!(bean instanceof AgentManager) && !(bean instanceof VolumeDao) && !(bean instanceof VolumeApiService)) return bean;
-        ProxyFactory proxy = new ProxyFactory(bean);
-        proxy.setProxyTargetClass(!java.lang.reflect.Proxy.isProxyClass(bean.getClass()));
-        proxy.addAdvice((org.aopalliance.intercept.MethodInterceptor) invocation -> invoke(bean, invocation));
-        return proxy.getProxy();
+public class AblestackSharedRawMutationInterceptor extends AbstractAutoProxyCreator {
+    @Override
+    protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String name, TargetSource targetSource) {
+        if (!AgentManager.class.isAssignableFrom(beanClass) && !VolumeDao.class.isAssignableFrom(beanClass)
+                && !VolumeApiService.class.isAssignableFrom(beanClass)) return DO_NOT_PROXY;
+        // Spring also exposes this proxy for circular references, preserving both identity and the guard.
+        return new Object[]{(MethodInterceptor) this::invoke};
     }
-    private AblestackSharedRawBackupService service() { return factory.getBean(AblestackSharedRawBackupService.class); }
+    @Override
+    protected boolean shouldProxyTargetClass(Class<?> beanClass, String name) {
+        return !java.lang.reflect.Proxy.isProxyClass(beanClass);
+    }
+    private AblestackSharedRawBackupService service() { return getBeanFactory().getBean(AblestackSharedRawBackupService.class); }
     private boolean sharedFile(VolumeObjectTO volume) {
         return volume.getDataStore() instanceof PrimaryDataStoreTO
                 && ((PrimaryDataStoreTO) volume.getDataStore()).getPoolType() == Storage.StoragePoolType.SharedMountPoint;
@@ -69,7 +70,7 @@ public class AblestackSharedRawMutationInterceptor implements BeanPostProcessor,
     private AblestackSharedRawBackupService.Lease commandLease(Command command) {
         if (!sharedFile(command)) return () -> {};
         if (command instanceof StartCommand) {
-            var vm = factory.getBean(VMInstanceDao.class).findVMByInstanceName(((StartCommand) command).getVirtualMachine().getName());
+            var vm = getBeanFactory().getBean(VMInstanceDao.class).findVMByInstanceName(((StartCommand) command).getVirtualMachine().getName());
             if (vm == null) { if (sharedFile(command)) throw new CloudRuntimeException("SHARED_RAW_UNKNOWN: start VM identity is unavailable"); return () -> {}; }
             return service().guardStart(vm.getId());
         }
@@ -79,7 +80,8 @@ public class AblestackSharedRawMutationInterceptor implements BeanPostProcessor,
         }
         return () -> {};
     }
-    private Object invoke(Object bean, MethodInvocation invocation) throws Throwable {
+    private Object invoke(MethodInvocation invocation) throws Throwable {
+        Object bean = invocation.getThis();
         String method = invocation.getMethod().getName(); Object[] args = invocation.getArguments();
         if (bean instanceof VolumeDao && ("attachVolume".equals(method) || "detachVolume".equals(method))) {
             try (var lease = service().guardVolume("attachVolume".equals(method) ? (Long) args[1] : null, (Long) args[0], null, null)) { return invocation.proceed(); }
