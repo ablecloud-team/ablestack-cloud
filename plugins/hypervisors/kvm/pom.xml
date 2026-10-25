@@ -141,6 +141,8 @@
                 <includes>
                     <include>usr/local/sbin/ablestack-sharedfs-network</include>
                     <include>etc/systemd/system/ablestack-sharedfs-network.service</include>
+                    <include>etc/systemd/system/ablestack-storage-reconcile.service</include>
+                    <include>opt/cloud/bin/setup/sharedfsvm.sh</include>
                     <include>usr/local/lib/ablestack-storage/sharedfs_bootstrap_network.py</include>
                     <include>etc/dhcp/dhclient-enter-hooks.d/ablestack-sharedfs</include>
                 </includes>

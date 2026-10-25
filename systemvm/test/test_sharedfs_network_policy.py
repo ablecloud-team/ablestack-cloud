@@ -105,6 +105,10 @@ class NetworkPolicyTest(unittest.TestCase):
             helper.write_text("#!/bin/sh\nexit 1\n")
             result=subprocess.run(["sh","-c",source+"\nprintf ORIGINAL_DHCP_HANDLER"],env={"reason":"EXPIRE","interface":"ens8"},text=True,capture_output=True)
             self.assertEqual("ORIGINAL_DHCP_HANDLER",result.stdout)
+    def test_early_setup_does_not_wait_for_monitor_ordered_after_network(self):
+        setup=(ROOT/"debian/opt/cloud/bin/setup/sharedfsvm.sh").read_text()
+        self.assertIn("enable --now --no-block ablestack-storage-monitor.service",setup)
+        self.assertNotIn("enable --now ablestack-storage-monitor.service",setup)
     def test_boot_network_failure_skips_all_protocol_apply(self):
         import subprocess
         source=(ROOT/"debian/usr/local/bin/ablestack-storage-boot-reconcile").read_text()

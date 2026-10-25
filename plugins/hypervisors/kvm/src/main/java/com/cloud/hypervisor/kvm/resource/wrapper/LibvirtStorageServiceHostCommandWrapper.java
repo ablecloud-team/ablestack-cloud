@@ -62,6 +62,8 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
         }
     }
 
+    private static final String SHAREDFS_NETWORK_SETUP_CONTENT = networkResource("opt/cloud/bin/setup/sharedfsvm.sh");
+    private static final String SHAREDFS_NETWORK_RECONCILE_UNIT_CONTENT = networkResource("etc/systemd/system/ablestack-storage-reconcile.service");
     private static final String SHAREDFS_NETWORK_UNIT_CONTENT = networkResource("etc/systemd/system/ablestack-sharedfs-network.service");
 
     private static final String SHAREDFS_BOOTSTRAP_GUARD_CONTENT = String.join("\n",
@@ -227,6 +229,10 @@ public final class LibvirtStorageServiceHostCommandWrapper extends CommandWrappe
                 SHAREDFS_NETWORK_HELPER + " --validate " + SHAREDFS_NETWORK_STATE + ".tmp >/dev/null; " +
                 "mv " + SHAREDFS_NETWORK_STATE + ".tmp " + SHAREDFS_NETWORK_STATE + "; " +
                 installNetworkResource(SHAREDFS_NETWORK_UNIT, encodedUnit, "0644") +
+                installNetworkResource("/etc/systemd/system/ablestack-storage-reconcile.service",
+                        Base64.getEncoder().encodeToString(SHAREDFS_NETWORK_RECONCILE_UNIT_CONTENT.getBytes(StandardCharsets.UTF_8)), "0644") +
+                installNetworkResource("/opt/cloud/bin/setup/sharedfsvm.sh",
+                        Base64.getEncoder().encodeToString(SHAREDFS_NETWORK_SETUP_CONTENT.getBytes(StandardCharsets.UTF_8)), "0755") +
                 "systemctl daemon-reload; systemctl enable ablestack-sharedfs-network.service >/dev/null; " +
                 buildSharedFsBootstrapGuard() +
                 "systemctl restart ablestack-sharedfs-network.service; systemctl --no-pager --full status ablestack-sharedfs-network.service >/dev/null; " +
