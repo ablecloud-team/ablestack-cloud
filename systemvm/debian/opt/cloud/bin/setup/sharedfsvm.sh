@@ -90,7 +90,7 @@ setup_sharedfsvm() {
       chmod +x /usr/local/bin/ablestack-storage-monitor
       chmod 0644 /etc/systemd/system/ablestack-storage-monitor.service
       systemctl unmask ablestack-storage-monitor.service >/dev/null 2>&1 || true
-      systemctl enable --now ablestack-storage-monitor.service >/dev/null 2>&1 || true
+      systemctl enable --now --no-block ablestack-storage-monitor.service >/dev/null 2>&1 || true
     fi
     if [ -f /etc/systemd/system/ablestack-storage-runtime-bootstrap.service ]; then
       chmod 0644 /etc/systemd/system/ablestack-storage-runtime-bootstrap.service
