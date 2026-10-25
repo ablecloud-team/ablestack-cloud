@@ -24,14 +24,14 @@ export function staticNetworkError (form, field = 'ipcidr') {
   }
   return ''
 }
-export function networkPolicyObservation (rows) {
+export function networkPolicyObservation (rows, now = Date.now()) {
   try {
     const row = rows?.[0]
     if (!row || row.success === false || row.success === 'false') return { policy: null, stale: true }
     const wire = typeof row.resultjson === 'string' ? JSON.parse(row.resultjson) : row.resultjson || row
     const policy = wire.network?.policy
     const generated = Number(wire.generatedEpoch || policy?.observedEpoch || 0) * 1000
-    const stale = !generated || Date.now() - generated > Number(wire.staleAfterSeconds || 30) * 1000
+    const stale = !generated || now - generated > Number(wire.staleAfterSeconds || 30) * 1000
     return { policy: policy || null, stale, generated }
   } catch (_) { return { policy: null, stale: true } }
 }

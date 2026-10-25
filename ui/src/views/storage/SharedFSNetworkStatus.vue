@@ -2,7 +2,7 @@
 <template>
   <div class="sharedfs-network-policy">
     <a-space class="network-toolbar" :size="12" wrap>
-      <a-button type="primary" :disabled="!canRestart" @click="openRestart"><template #icon><ReloadOutlined /></template>{{ $t('label.action.restart.sharedfs') }}</a-button>
+      <a-button type="primary" :disabled="!canRestart" @click="openRestart"><template #icon><ReloadOutlined /></template>{{ $t('label.restart') }}</a-button>
       <a-button :loading="refreshing" @click="$emit('refresh')"><template #icon><ReloadOutlined /></template>{{ $t('label.refresh') }}</a-button>
     </a-space>
     <a-alert class="network-section" show-icon :type="state === 'READY' ? 'success' : state === 'FAILED' ? 'error' : 'warning'" :message="$t('label.sharedfs.network.state.' + state.toLowerCase())" :description="diagnostic" />
@@ -62,20 +62,21 @@ export default {
     health: { type: Array, default: () => [] },
     protocols: { type: Array, default: () => [] },
     protected: { type: Boolean, default: false },
-    refreshing: { type: Boolean, default: false }
+    refreshing: { type: Boolean, default: false },
+    unavailable: { type: Boolean, default: false }
   },
   emits: ['refresh', 'restarted'],
-  data () { return { dialog: false, ack: false, submitting: false, epoch: 0 } },
+  data () { return { dialog: false, ack: false, submitting: false, epoch: 0, observationNow: Date.now() } },
   computed: {
     unknown () { return this.$t('label.sharedfs.network.unknown') },
     noGateway () { return this.$t('label.sharedfs.network.no.gateway') },
-    observation () { return networkPolicyObservation(this.health) },
+    observation () { return networkPolicyObservation(this.health, this.observationNow) },
     policy () { return this.observation.policy },
-    state () { return !this.policy || this.observation.stale ? 'UNKNOWN' : this.policy.status || 'UNKNOWN' },
+    state () { return !this.policy || this.observation.stale || this.unavailable ? 'UNKNOWN' : this.policy.status || 'UNKNOWN' },
     prefix () { return String(this.resource.cidr || '').split('/')[1] || this.unknown },
     observedAt () { return this.policy?.observedAt || this.unknown },
     diagnostic () {
-      if (!this.policy || this.observation.stale) return this.$t('message.sharedfs.network.observation.unavailable')
+      if (!this.policy || this.observation.stale || this.unavailable) return this.$t('message.sharedfs.network.observation.unavailable')
       if (this.policy.error) return [this.policy.phase, this.policy.error].filter(Boolean).join(' · ')
       return this.resource.networkmode === 'STATIC' && !this.resource.gateway ? this.$t('message.sharedfs.network.no.gateway') : this.$t('message.sharedfs.network.policy.preserve')
     },
@@ -83,7 +84,7 @@ export default {
     columns () { return [{ key: 'name', dataIndex: 'name', title: this.$t('label.name'), width: 115 }, { key: 'desired', dataIndex: 'desired', title: this.$t('label.sharedfs.network.desired') }, { key: 'actual', dataIndex: 'actual', title: this.$t('label.sharedfs.network.actual') }] },
     rows () {
       const p = this.policy
-      const actual = !p || this.observation.stale
+      const actual = !p || this.observation.stale || this.unavailable
       const primary = p?.addresses?.filter(a => p.mode === 'DHCP' ? !a.secondary : a.local === this.resource.ipaddress).map(a => a.local + '/' + a.prefixlen).join(', ')
       const gateway = p?.routes?.filter(r => r.dst === 'default' && r.gateway && r.dev === p.interface).map(r => r.gateway).join(', ')
       return [
@@ -99,12 +100,13 @@ export default {
     aliases () {
       return (this.policy?.aliases || []).flatMap((a, i) => {
         const owners = this.protocols.filter(p => p.listenip === a.ipaddress || p.listenip === '0.0.0.0')
-        return (owners.length ? owners : [{}]).map((p, j) => ({ ...a, key: i + ':' + j, protocol: ({ NVME_OF: 'NVMe-oF', ISCSI: 'iSCSI' })[p.protocol] || p.protocol || this.unknown, port: p.port || '—', state: this.$t('label.sharedfs.network.state.' + (this.observation.stale ? 'unknown' : a.active ? 'ready' : 'failed')) }))
+        return (owners.length ? owners : [{}]).map((p, j) => ({ ...a, key: i + ':' + j, protocol: ({ NVME_OF: 'NVMe-oF', ISCSI: 'iSCSI' })[p.protocol] || p.protocol || this.unknown, port: p.port || '—', state: this.$t('label.sharedfs.network.state.' + ((this.observation.stale || this.unavailable) ? 'unknown' : a.active ? 'ready' : 'failed')) }))
       })
     }
   },
   watch: { 'resource.id' () { this.epoch++; this.dialog = false; this.ack = false; this.submitting = false } },
-  beforeUnmount () { this.epoch++ },
+  mounted () { this.observationClock = window.setInterval(() => { this.observationNow = Date.now() }, 5000) },
+  beforeUnmount () { this.epoch++; window.clearInterval(this.observationClock) },
   methods: {
     openRestart () { if (this.canRestart) { this.ack = false; this.dialog = true } },
     async restart () {

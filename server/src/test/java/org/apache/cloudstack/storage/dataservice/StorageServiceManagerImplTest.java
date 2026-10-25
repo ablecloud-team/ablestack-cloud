@@ -23,6 +23,8 @@ import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import org.apache.cloudstack.storage.sharedfs.SharedFS;
+import org.apache.cloudstack.storage.sharedfs.SharedFSVO;
+import org.apache.cloudstack.storage.sharedfs.dao.SharedFSDao;
 
 import com.cloud.utils.exception.CloudRuntimeException;
 import com.cloud.vm.NicVO;
@@ -97,4 +99,31 @@ public class StorageServiceManagerImplTest {
 
         managerSpy.reconcileProtocolListenNicIdentity(instance, targetNic);
     }
+    @Test
+    public void staticSharedFsEndpointMetadataKeepsConfiguredPrefixAndMac() {
+        final StorageServiceManagerImpl spy = Mockito.spy(new StorageServiceManagerImpl());
+        final SharedFSDao dao = Mockito.mock(SharedFSDao.class);
+        ReflectionTestUtils.setField(spy, "sharedFSDao", dao);
+        final StorageServiceInstanceVO instance = Mockito.mock(StorageServiceInstanceVO.class);
+        final SharedFSVO fs = Mockito.mock(SharedFSVO.class);
+        final NicVO nic = Mockito.mock(NicVO.class);
+        Mockito.when(instance.getVmId()).thenReturn(127L);
+        Mockito.when(dao.findByVm(127L)).thenReturn(fs);
+        Mockito.when(fs.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+        Mockito.when(fs.getIpAddress()).thenReturn("10.10.13.250");
+        Mockito.when(fs.getCidr()).thenReturn("10.10.0.0/16");
+        Mockito.when(nic.getNetworkId()).thenReturn(204L);
+        Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.250");
+        Mockito.when(nic.getIPv4Netmask()).thenReturn("255.255.255.0");
+        Mockito.when(nic.getMacAddress()).thenReturn("02:0d:00:cc:00:52");
+        Mockito.doReturn(nic).when(spy).resolveProtocolListenAddress(instance, "10.10.13.251");
+        final JsonObject metadata = new JsonObject();
+        spy.addProtocolEndpointNetworkMetadata(metadata, instance, "10.10.13.251");
+        Assert.assertEquals(16, metadata.get("prefixlen").getAsInt());
+        Assert.assertEquals("10.10.0.0/16", metadata.get("networkCidr").getAsString());
+        Assert.assertEquals("02:0d:00:cc:00:52", metadata.get("macAddress").getAsString());
+        Mockito.when(nic.getIPv4Address()).thenReturn("10.10.13.252");
+        Assert.assertNull(spy.findStaticSharedFsEndpointCidr(instance, nic, "10.10.13.251"));
+    }
+
 }
