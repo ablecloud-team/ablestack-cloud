@@ -43,7 +43,7 @@ ENTRYPOINTS = (
     "ablestack-storage-boot-reconcile",
     "ablestack-storage-monitor",
 )
-UPDATER_VERSION = 2
+UPDATER_VERSION = 3
 MANAGED_FILES = {'ablestack-storagectl': 493, 'ablestack-storage-boot-reconcile': 493, 'ablestack-storage-monitor': 493, 'lib/ablestack-storage/volume_identity.py': 420, 'lib/ablestack-storage/volume_preparation.py': 420, 'lib/ablestack-storage/session_auth.py': 420, 'lib/ablestack-storage/configuration_transaction.py': 420, 'lib/ablestack-storage/configuration_preflight.py': 420, 'lib/ablestack-storage/nvmeof_identity.py': 420}
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -184,6 +184,7 @@ class RuntimeUpdater:
             "updaterSha256": sha256_file(Path(__file__)),
             "payloadLayout": 2,
             "activationConfirmation": True,
+            "catalogPolicyVersion": 1,
             "integrity": self.observe_integrity(),
             "runtimeAbiVersion": RUNTIME_ABI_VERSION,
             "desiredStateSchemaVersion": DESIRED_STATE_SCHEMA_VERSION,
@@ -471,6 +472,85 @@ class RuntimeUpdater:
             files.append({"path": name, "sha256": sha256_file(path), "mode": mode, "external":external})
         atomic_json(release / "integrity.json", {"origin": "verified-baseline" if legacy else origin, "files": files})
 
+    def inspect_archive(self, transaction, manifest):
+        """Shared non-extracting archive contract for catalogue and native verification."""
+        declared = self.validate_manifest_files(manifest)
+        seen, expanded, count = set(), 0, 0
+        with tarfile.open(transaction / "bundle.tar.gz", "r:gz") as archive:
+            for member in archive:
+                count += 1
+                path = PurePosixPath(member.name)
+                if count > MAX_FILES + 16 or path.is_absolute() or ".." in path.parts:
+                    raise RuntimeUpgradeError("ARCHIVE_UNSAFE", "unsafe archive path or entry count")
+                if member.isdir():
+                    if member.name.rstrip("/") not in {"lib", "lib/ablestack-storage"}:
+                        raise RuntimeUpgradeError("ARCHIVE_UNSAFE", "unexpected archive directory")
+                    continue
+                item = declared.get(member.name)
+                if not member.isfile() or item is None or member.name in seen:
+                    raise RuntimeUpgradeError("ARCHIVE_UNSAFE", "unexpected or duplicate archive entry")
+                if member.uid != 0 or member.gid != 0 or member.mode != item["mode"] or member.size != item["bytes"]:
+                    raise RuntimeUpgradeError("ARCHIVE_UNSAFE", "archive metadata differs from manifest")
+                expanded += member.size
+                if expanded > MAX_EXPANDED_BYTES:
+                    raise RuntimeUpgradeError("ARCHIVE_UNSAFE", "expanded archive exceeds bound")
+                digest = hashlib.sha256()
+                with archive.extractfile(member) as source:
+                    for block in iter(lambda: source.read(1024 * 1024), b""):
+                        digest.update(block)
+                if digest.hexdigest() != item["sha256"]:
+                    raise RuntimeUpgradeError("RELEASE_HASH_MISMATCH", "archive file hash differs")
+                seen.add(member.name)
+        if seen != set(declared):
+            raise RuntimeUpgradeError("ARCHIVE_INVALID", "archive does not match managed payload")
+        return {"fileCount": len(seen), "expandedBytes": expanded}
+
+    def sync_catalog_policy(self, request):
+        instance = require_identifier(request.get("instanceUuid"), "instanceUuid")
+        path = self.runtime_root / "catalog-policy.json"
+        saved = json.loads(path.read_text()) if path.exists() else {"instanceUuid": instance, "bundles": {}}
+        if saved["instanceUuid"] != instance:
+            raise RuntimeUpgradeError("CATALOG_INSTANCE_MISMATCH", "policy belongs to another instance")
+        entries = request.get("bundles")
+        if not isinstance(entries, list) or len(entries) > 256:
+            raise RuntimeUpgradeError("CATALOG_POLICY_INVALID", "invalid policy entries")
+        allowed = {"DRAFT", "PUBLISHED", "SUSPENDED", "RETIRED", "REVOKING", "REVOKED", "DELETED", "AVAILABLE", "DISABLED"}
+        # Validate the entire update before writing; omitted entries never remove a fence.
+        for entry in entries:
+            version = require_identifier(entry.get("version"), "version")
+            require_identifier(entry.get("bundleId"), "bundleId")
+            require_sha256(entry.get("manifestSha256"), "manifestSha256")
+            revision = entry.get("revision")
+            if not isinstance(revision, int) or isinstance(revision, bool) or revision < 0 or entry.get("state") not in allowed:
+                raise RuntimeUpgradeError("CATALOG_POLICY_INVALID", "invalid policy revision/state")
+            old = saved["bundles"].get(version)
+            if old and (old["bundleId"] != entry["bundleId"] or old["manifestSha256"] != entry["manifestSha256"]):
+                raise RuntimeUpgradeError("CATALOG_IDENTITY_CONFLICT", "immutable bundle identity differs")
+            if old and (revision < old["revision"] or (revision == old["revision"] and old != entry)):
+                raise RuntimeUpgradeError("CATALOG_POLICY_STALE", "policy revision is stale")
+            saved["bundles"][version] = entry
+        atomic_json(path, saved)
+        return {"success": True, "phase": "CATALOG_POLICY_SYNCED", "instanceUuid": instance,
+                "revisions": {v: e["revision"] for v, e in saved["bundles"].items()}}
+
+    def require_catalog_destination(self, version, action, manifest_sha=None):
+        path = self.runtime_root / "catalog-policy.json"
+        if not path.exists():
+            return  # Unmanaged legacy transactions retain their verified #1446 contract.
+        saved = json.loads(path.read_text())
+        entry = saved["bundles"].get(version)
+        if entry is None:
+            proof = self.releases / version / "integrity.json"
+            origin = json.loads(proof.read_text()).get("origin") if proof.exists() else None
+            if action == "rollback" and origin in {"template-baseline", "verified-baseline"}:
+                return
+            raise RuntimeUpgradeError("CATALOG_POLICY_UNKNOWN", "destination has no catalogue policy")
+        states = {"PUBLISHED"} if action == "apply" else {"PUBLISHED", "SUSPENDED", "RETIRED"}
+        if entry["state"] not in states or entry.get("validation") != "VERIFIED":
+            raise RuntimeUpgradeError("CATALOG_DESTINATION_BLOCKED", "catalogue forbids " + action + " destination")
+        if manifest_sha is not None and entry["manifestSha256"] != manifest_sha:
+            raise RuntimeUpgradeError("CATALOG_IDENTITY_CONFLICT", "destination manifest differs")
+
     def extract_release(self, transaction, manifest, declared_files):
         version = manifest["bundleVersion"]
         release = self.releases / version
@@ -563,6 +643,7 @@ class RuntimeUpdater:
         manifest = self.checked_manifest(request)
         declared = self.validate_manifest_files(manifest)
         self.check_space(state, declared)
+        self.inspect_archive(transaction, manifest)
         release = self.extract_release(transaction, manifest, declared)
         state = self.write_state(request, state, "VERIFIED", releasePath=str(release), keyId=manifest["keyId"])
         return {"success": True, **state}
@@ -647,6 +728,7 @@ class RuntimeUpdater:
 
     def activate(self, request):
         state = self.read_state(request)
+        self.require_catalog_destination(state["bundleVersion"], "apply", state["manifestSha256"])
         if request.get("confirmActivation"):
             if state.get("phase") not in {"ACTIVATED", "COMPLETE"} or self.current_version() != state["bundleVersion"]:
                 raise RuntimeUpgradeError("CONFIRMATION_CONFLICT", "activation is not the current transaction")
@@ -690,6 +772,7 @@ class RuntimeUpdater:
                     raise RuntimeUpgradeError("ENTRYPOINT_NOT_MANAGED", f"runtime entrypoint is not managed: {name}")
             self.refresh_monitor()
         except Exception as error:
+            self.require_catalog_destination(previous_version, "rollback")
             atomic_symlink(previous_target, self.current)
             self.refresh_monitor()
             rolled_back = self.write_state(
@@ -714,6 +797,7 @@ class RuntimeUpdater:
         if not previous_target.is_dir():
             raise RuntimeUpgradeError("ROLLBACK_UNAVAILABLE", "previous runtime release is unavailable")
         self.verify_baseline(previous_version)
+        self.require_catalog_destination(previous_version, "rollback")
         current_version = self.current_version()
         restore = bool(request.get("restoreConfiguration") or state.get("restoreConfiguration"))
         state = self.write_state(request,state,"ROLLING_BACK",restoreConfiguration=restore)
@@ -753,6 +837,7 @@ class RuntimeUpdater:
             "activate": self.activate,
             "rollback": self.rollback,
             "cleanup": self.cleanup,
+            "sync_catalog_policy": self.sync_catalog_policy,
         }
         if operation not in handlers:
             raise RuntimeUpgradeError("OPERATION_UNSUPPORTED", "unsupported runtime updater operation")

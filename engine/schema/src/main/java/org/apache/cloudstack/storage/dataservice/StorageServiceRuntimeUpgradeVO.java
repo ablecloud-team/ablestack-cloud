@@ -72,6 +72,8 @@ public class StorageServiceRuntimeUpgradeVO implements StorageServiceRuntimeUpgr
     @Lob
     @Column(name = "preflight_json", length = 16777215, columnDefinition = "MEDIUMTEXT")
     private String preflightJson;
+    @Lob @Column(name = "catalog_policy_json", length = 16777215, columnDefinition = "MEDIUMTEXT")
+    private String catalogPolicyJson;
     @Lob
     @Column(name = "verification_json", length = 16777215, columnDefinition = "MEDIUMTEXT")
     private String verificationJson;
@@ -112,6 +114,8 @@ public class StorageServiceRuntimeUpgradeVO implements StorageServiceRuntimeUpgr
     public Date getStarted() { return started; }
     public Date getHeartbeat() { return heartbeat; }
     public Date getCompleted() { return completed; }
+    public String getCatalogPolicyJson() { return catalogPolicyJson; }
+    public void setCatalogPolicyJson(String value) { catalogPolicyJson = value; }
     public String getPreflightJson() { return preflightJson; }
     public String getVerificationJson() { return verificationJson; }
     public String getRollbackResultJson() { return rollbackResultJson; }

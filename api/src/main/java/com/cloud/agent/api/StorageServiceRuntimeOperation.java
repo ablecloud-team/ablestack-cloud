@@ -28,5 +28,6 @@ public enum StorageServiceRuntimeOperation {
     ACTIVATE,
     STATUS,
     ROLLBACK,
-    CLEANUP
+    CLEANUP,
+    SYNC_CATALOG_POLICY
 }
