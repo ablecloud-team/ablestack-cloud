@@ -55,7 +55,7 @@ class BootstrapNetworkTest(unittest.TestCase):
         with patch.object(bn.subprocess,"run",return_value=subprocess.CompletedProcess([],1,"","fixture")):
             with self.assertRaises(RuntimeError):bn.restore(self.state,self.links,self.helper)
     def test_actual_shell_branch_keeps_dhcp_arguments_and_skips_them_for_static(self):
-        source=(ROOT/"debian/opt/cloud/bin/setup/sharedfsvm.sh").read_text()
+        source=(ROOT/"debian/opt/cloud/bin/setup/sharedfsvm.sh").read_text().replace('/usr/local/sbin/ablestack-sharedfs-network --interface "${NIC_MACS:-}"', 'printf eth0')
         first=source[source.index("    local sharedfs_boot_network_mode"):source.index("    update-alternatives")]
         start=source.index('    if [ "$sharedfs_boot_network_mode" = "STATIC" ]; then')
         branch=source[start:source.index("\n    fi",start)+len("\n    fi")]

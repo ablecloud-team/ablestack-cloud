@@ -54,7 +54,9 @@ setup_sharedfsvm() {
     if [ "$sharedfs_boot_network_mode" = "STATIC" ]; then
       log_it "Persisted SharedFS STATIC network restored; bootstrap DHCP skipped"
     else
-      dhclient -4 -v -pf /run/dhclient.eth0.pid -lf /var/lib/dhcp/dhclient.eth0.leases eth0 || true
+      local sharedfs_interface
+      sharedfs_interface=$(/usr/local/sbin/ablestack-sharedfs-network --interface "${NIC_MACS:-}") || exit 1
+      dhclient -4 -v -pf "/run/dhclient.${sharedfs_interface}.pid" -lf "/var/lib/dhcp/dhclient.${sharedfs_interface}.leases" "$sharedfs_interface" || true
     fi
 
     rm -f /etc/logrotate.d/cloud

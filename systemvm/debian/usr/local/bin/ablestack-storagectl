@@ -212,8 +212,10 @@ def load_json(path, default):
     try:
         with open(path, "r", encoding="utf-8") as handle:
             return json.load(handle)
-    except Exception:
+    except FileNotFoundError:
         return default
+    except (OSError, ValueError) as error:
+        raise ValueError("INVALID_ENDPOINT_STATE: " + path) from error
 
 def write_state(entries):
     os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
@@ -261,17 +263,17 @@ def requested_prefix(entry):
     for key in ("prefixlen", "prefixLen"):
         value = entry.get(key)
         if value not in (None, ""):
-            try:
-                prefix = int(value)
-                if 0 <= prefix <= 32:
-                    return prefix
-            except Exception:
-                pass
-    prefix = cidr_to_prefix(entry.get("networkCidr") or entry.get("cidr"))
-    if prefix is not None:
-        return prefix
-    prefix = netmask_to_prefix(entry.get("netmask"))
-    return prefix if prefix is not None else 24
+            prefix = int(value)
+            if not 0 <= prefix <= 32:
+                raise ValueError("INVALID_ENDPOINT_PREFIX")
+            return prefix
+    for value, converter in [(entry.get("networkCidr") or entry.get("cidr"), cidr_to_prefix), (entry.get("netmask"), netmask_to_prefix)]:
+        if value:
+            prefix = converter(value)
+            if prefix is None:
+                raise ValueError("INVALID_ENDPOINT_PREFIX")
+            return prefix
+    return 24
 
 def interface_addresses():
     result = run(["ip", "-j", "-4", "addr", "show", "scope", "global"])
@@ -286,44 +288,32 @@ def interface_links():
     return json.loads(result.stdout or "[]")
 
 def find_existing_iface(listen_ip, links):
-    for link in links:
-        for addr in link.get("addr_info") or []:
-            if addr.get("local") == listen_ip:
-                return link.get("ifname"), int(addr.get("prefixlen") or 24)
-    return None, None
+    matches = [(link.get("ifname"), int(addr.get("prefixlen", 24))) for link in links for addr in link.get("addr_info", [])
+               if addr.get("local") == listen_ip]
+    if len(matches) > 1:
+        raise RuntimeError("NIC_OWNER_UNKNOWN: listen IP exists on multiple NICs")
+    return matches[0] if matches else (None, None)
 
 def find_target_iface(entry, links):
-    primary_ip = str(entry.get("primaryIp") or "").strip()
-    requested_prefix_value = requested_prefix(entry)
-    if primary_ip:
-        for link in links:
-            for addr in link.get("addr_info") or []:
-                if addr.get("local") == primary_ip:
-                    return link.get("ifname"), int(addr.get("prefixlen") or requested_prefix_value)
-    listen_ip = ipaddress.IPv4Address(str(entry.get("listenIp")))
-    for link in links:
-        for addr in link.get("addr_info") or []:
-            local = addr.get("local")
-            prefix = int(addr.get("prefixlen") or requested_prefix_value)
-            if not local:
-                continue
-            try:
-                network = ipaddress.IPv4Interface(f"{local}/{prefix}").network
-            except Exception:
-                continue
-            if listen_ip in network:
-                return link.get("ifname"), prefix
-    candidates = []
-    for link in interface_links():
-        ifname = str(link.get("ifname") or "")
-        if not ifname or ifname == "lo":
-            continue
-        if link.get("link_type") not in (None, "ether"):
-            continue
-        candidates.append(ifname)
+    prefix = requested_prefix(entry)
+    mac = str(entry.get("macAddress") or "").strip().lower()
+    if mac:
+        if not re.fullmatch(r"(?:[0-9a-f]{2}:){5}[0-9a-f]{2}", mac):
+            raise ValueError("INVALID_ENDPOINT_MAC")
+        matches = [link.get("ifname") for link in interface_links() if str(link.get("address", "")).lower() == mac]
+        if len(matches) != 1:
+            raise RuntimeError("NIC_OWNER_UNKNOWN: endpoint MAC must identify one NIC")
+        return matches[0], prefix
+    primary = str(entry.get("primaryIp") or "").strip()
+    if primary:
+        iface, observed_prefix = find_existing_iface(primary, links)
+        if iface:
+            return iface, observed_prefix
+    candidates = [link.get("ifname") for link in interface_links()
+                  if link.get("ifname") not in (None, "", "lo") and link.get("link_type") == "ether"]
     if len(candidates) == 1:
-        return candidates[0], requested_prefix_value
-    return None, requested_prefix_value
+        return candidates[0], prefix
+    raise RuntimeError("NIC_OWNER_UNKNOWN: legacy endpoint has no unique primary NIC")
 
 def apply_one(entry):
     listen_ip = str(entry.get("listenIp") or entry.get("listenip") or "").strip()
@@ -331,10 +321,12 @@ def apply_one(entry):
         return None
     ipaddress.IPv4Address(listen_ip)
     links = interface_addresses()
-    iface, prefix = find_existing_iface(listen_ip, links)
-    if iface:
-        return {"listenIp": listen_ip, "interface": iface, "prefixlen": prefix, "active": True, "changed": False}
     iface, prefix = find_target_iface({**entry, "listenIp": listen_ip}, links)
+    existing_iface, existing_prefix = find_existing_iface(listen_ip, links)
+    if existing_iface:
+        if existing_iface != iface or (entry.get("macAddress") and existing_prefix != prefix):
+            raise RuntimeError("ENDPOINT_OWNER_CONFLICT: active listen IP does not match requested NIC/prefix")
+        return {"listenIp": listen_ip, "interface": iface, "prefixlen": existing_prefix, "active": True, "changed": False}
     if not iface:
         raise RuntimeError(f"No System VM interface can host Storage Service listen IP {listen_ip}")
     link_result = run(["ip", "link", "set", iface, "up"])
@@ -345,13 +337,15 @@ def apply_one(entry):
         raise RuntimeError(result.stderr.strip() or f"failed to add {listen_ip}/{prefix} to {iface}")
     links = interface_addresses()
     verify_iface, verify_prefix = find_existing_iface(listen_ip, links)
-    if not verify_iface:
-        raise RuntimeError(f"Storage Service listen IP {listen_ip} was not active after ip addr add")
+    if verify_iface != iface or verify_prefix != prefix:
+        raise RuntimeError(f"Storage Service listen IP {listen_ip} did not match requested NIC/prefix after ip addr add")
     return {"listenIp": listen_ip, "interface": verify_iface, "prefixlen": verify_prefix, "active": True, "changed": result.returncode == 0}
 
 payload = load_json(payload_path, {})
 requested = [entry for entry in normalize_payload(payload) if isinstance(entry, dict)]
 state = load_json(STATE_PATH, {"endpoints": []})
+if not isinstance(state, dict) or not isinstance(state.get("endpoints"), list) or any(not isinstance(e, dict) for e in state["endpoints"]):
+    raise ValueError("INVALID_ENDPOINT_STATE")
 merged = {str(entry.get("listenIp") or entry.get("listenip") or "").strip(): entry for entry in state.get("endpoints", []) if isinstance(entry, dict)}
 results = []
 for entry in requested:
@@ -510,6 +504,18 @@ def collect_ganesha_runtime():
         "rpcbindActive": rpcbind_active(),
         "endpoints": endpoints,
     }
+
+def collect_network_policy():
+    helper = "/usr/local/sbin/ablestack-sharedfs-network"
+    if not os.path.isfile(helper):
+        return {"status": "UNKNOWN", "error": "NETWORK_HELPER_UNAVAILABLE"}
+    result = run([helper, "--observe"])
+    try:
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+    except (ValueError, TypeError):
+        pass
+    return {"status": "UNKNOWN", "error": "NETWORK_OBSERVATION_FAILED"}
 
 def collect_network_addresses():
     if not shutil.which("ip"):
@@ -821,7 +827,7 @@ print(json.dumps({
     "status": status,
     "hostname": socket.gethostname(),
     "uptimeSeconds": int(time.time() - os.stat("/proc/1").st_ctime) if os.path.exists("/proc/1") else None,
-    "network": {"addresses": collect_network_addresses()},
+    "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
     "services": services,
     "commands": commands,
     "desiredState": desired_state,
@@ -988,6 +994,18 @@ def port_listening(port):
         if len(parts) >= 4 and parts[3].endswith(suffix):
             return True
     return False
+
+def collect_network_policy():
+    helper = "/usr/local/sbin/ablestack-sharedfs-network"
+    if not os.path.isfile(helper):
+        return {"status": "UNKNOWN", "error": "NETWORK_HELPER_UNAVAILABLE"}
+    result = run([helper, "--observe"])
+    try:
+        if result.returncode == 0:
+            return json.loads(result.stdout)
+    except (ValueError, TypeError):
+        pass
+    return {"status": "UNKNOWN", "error": "NETWORK_OBSERVATION_FAILED"}
 
 def collect_network_addresses():
     if not shutil.which("ip"):
@@ -1544,7 +1562,7 @@ file_share_volumes = file_share_volume_snapshot.get("observations", [])
 print(json.dumps({
     "success": True,
     "status": "ok",
-    "network": {"addresses": collect_network_addresses()},
+    "network": {"addresses": collect_network_addresses(), "policy": collect_network_policy()},
     "fileShareVolumes": file_share_volumes,
     "nfsExports": exports,
     "nfsGaneshaExports": ganesha_exports,

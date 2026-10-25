@@ -460,6 +460,35 @@ public class SharedFSServiceImplTest {
     }
 
     @Test
+    public void testStaticNetworkRejectsGatewayBeforeAllocatingResources() {
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+        for (String gateway : new String[]{"10.10.1.201", "10.10.1.0", "10.10.1.255", "10.10.2.1", "224.0.0.1", "0.0.0.0"}) {
+            CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+            when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+            when(cmd.getIpCidr()).thenReturn("10.10.1.201/24");
+            when(cmd.getGateway()).thenReturn(gateway);
+            Assert.assertThrows(InvalidParameterValueException.class,
+                    () -> sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        }
+    }
+
+    @Test
+    public void testStaticNetworkAllows31PeerAnd32WithoutGateway() {
+        NetworkVO network = mock(NetworkVO.class);
+        when(network.getId()).thenReturn(s_networkId);
+        when(network.getGuestType()).thenReturn(Network.GuestType.L2);
+        CreateSharedFSCmd cmd = getMockCreateSharedFSCmd();
+        when(cmd.getNetworkMode()).thenReturn(SharedFS.NetworkMode.STATIC);
+        when(cmd.getIpCidr()).thenReturn("10.10.1.200/31");
+        when(cmd.getGateway()).thenReturn("10.10.1.201");
+        Assert.assertNotNull(sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+        when(cmd.getIpCidr()).thenReturn("10.10.1.200/32");
+        when(cmd.getGateway()).thenReturn(null);
+        Assert.assertNotNull(sharedFSServiceImpl.validateStaticNetworkConfiguration(cmd, network));
+    }
+
+    @Test
     public void testStaticNetworkNormalizesHostPrefixToNetworkCidr() {
         SharedFSServiceImpl.StaticNetworkConfiguration configuration = sharedFSServiceImpl.parseStaticIpCidr("10.10.15.211/16");
 

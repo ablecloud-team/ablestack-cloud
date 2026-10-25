@@ -18,14 +18,15 @@
 <template>
   <a-table
     size="small"
-    :columns="nicColumns"
+    :columns="standard ? standardColumns : nicColumns"
     :dataSource="resource.nic"
     :rowKey="item => item.id"
     :pagination="false"
-    :expandRowByClick="true"
+    :expandRowByClick="!standard"
+    :scroll="standard ? { x: 760 } : undefined"
   >
     <template #expandedRowRender="{ record }">
-    <slot name="actions" :nic="record" />
+    <slot v-if="!standard" name="actions" :nic="record" />
     <a-list size="small">
       <a-list-item />
       <a-list-item>
@@ -67,6 +68,10 @@
     </a-list>
     </template>
     <template #bodyCell="{ column, text, record }">
+      <template v-if="column.key === 'address'">{{ record.enabled !== false ? record.ipaddress || '—' : '—' }}<br><small>{{ record.macaddress }}</small></template>
+      <template v-if="column.key === 'actions'">
+        <a-popover trigger="click" placement="bottomRight"><template #content><div class="sharedfs-nic-row-actions"><slot name="actions" :nic="record" /></div></template><a-button size="small">{{ $t('label.actions') }} ▾</a-button></a-popover>
+      </template>
       <template v-if="column.key === 'networkname'">
         <resource-icon v-if="!networkIconLoading && networkicon[record.id]" :image="networkicon[record.id]" size="1x" style="margin-right: 5px"/>
         <apartment-outlined v-else style="margin-right: 5px" />
@@ -92,6 +97,7 @@ import Status from '@/components/widgets/Status'
 export default {
   name: 'NicsTable',
   props: {
+    standard: { type: Boolean, default: false },
     resource: {
       type: Object,
       required: true
@@ -154,6 +160,17 @@ export default {
       networkIconLoading: false
     }
   },
+  computed: {
+    standardColumns () {
+      return [
+        { key: 'networkname', dataIndex: 'networkname', title: this.$t('label.network'), width: 150 },
+        { key: 'deviceid', dataIndex: 'deviceid', title: this.$t('label.deviceid'), width: 85 },
+        { key: 'address', title: this.$t('label.vmnic.address'), width: 185 },
+        { key: 'enabled', dataIndex: 'enabled', title: this.$t('label.state'), width: 110 },
+        { key: 'actions', title: this.$t('label.actions'), width: 190 }
+      ]
+    }
+  },
   watch: {
     resource: {
       deep: true,
@@ -205,3 +222,8 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.sharedfs-nic-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sharedfs-nic-row-actions :deep(.action-button) { margin: 0; }
+</style>
